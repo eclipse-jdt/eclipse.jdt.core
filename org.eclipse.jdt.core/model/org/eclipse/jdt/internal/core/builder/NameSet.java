@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 
-public class NameSet {
+public final class NameSet {
 
 // to avoid using Enumerations, walk the individual values skipping nulls
 public char[][] names;
@@ -20,10 +20,12 @@ public int elementSize; // number of elements in the table
 public int threshold;
 
 public NameSet(int size) {
-	if (size < 3) size = 3;
 	this.elementSize = 0;
-	this.threshold = size + 1; // size is the expected number of elements
-	this.names = new char[2 * size + 1][];
+	this.threshold = size; // size represents the expected number of elements
+	int extraRoom = (int) (size * 1.5f);
+	if (this.threshold == extraRoom)
+		extraRoom++;
+	this.names = new char[extraRoom][];
 }
 
 public char[] add(char[] name) {
