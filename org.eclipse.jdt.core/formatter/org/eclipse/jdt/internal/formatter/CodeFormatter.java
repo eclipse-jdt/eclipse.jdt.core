@@ -11,6 +11,9 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 import org.eclipse.jdt.internal.formatter.impl.FormatterOptions;
 import org.eclipse.jdt.internal.formatter.impl.SplitLine;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 
 /** <h2>How to format a piece of code ?</h2>
@@ -107,6 +110,8 @@ public class CodeFormatter implements TerminalSymbols {
 
 	private int beginningOfLineIndex;
 
+	private int multipleLineCommentCounter;
+	
 	/** 
 	 * Creates a new instance of Code Formatter using the FormattingOptions object
 	 * given as argument
@@ -209,6 +214,7 @@ public class CodeFormatter implements TerminalSymbols {
 		} else {
 			formattedSource.append(currentString);
 		}
+		updateMappedPositions(scanner.startPosition);	
 	}
 
 	/** 
@@ -896,16 +902,20 @@ public class CodeFormatter implements TerminalSymbols {
 				break;
 			}
 		}
-		for (int i = beginningOfLine; i < currentStartPosition; i++) {
+		for (int i = currentStartPosition - 1; i >= beginningOfLine ; i--) {
 			char currentCharacter = source[i];
 			switch (currentCharacter) {
 				case '\t' :
 					offset += options.tabSize;
-				case '\n' :
-				case '\r' :
 					break;
-				default :
+				case ' ' :
 					offset++;
+					break;
+				case '\r' :
+				case '\n' :
+					break;
+				default:
+					return offset;
 			}
 		}
 		return offset;
@@ -1246,7 +1256,6 @@ public class CodeFormatter implements TerminalSymbols {
 				currentLineBuffer.append(currentCharacter);
 			}
 		}
-		updateMappedPositions(scanner.startPosition);
 	}
 
 	/** 
@@ -1264,21 +1273,38 @@ public class CodeFormatter implements TerminalSymbols {
 				boolean endOfLine = false;
 				int currentCommentOffset = getCurrentCommentOffset();
 				int beginningOfLineSpaces = 0;
+				endOfLine = false;
+				currentCommentOffset = getCurrentCommentOffset();
+				beginningOfLineSpaces = 0;
+				boolean pendingCarriageReturn = false;
 				for (int i = startPosition, max = scanner.currentPosition; i < max; i++) {
 					char currentCharacter = source[i];
 					switch (currentCharacter) {
 						case '\r' :
-						case '\n' :
+							pendingCarriageReturn = true;
 							endOfLine = true;
-							currentLineBuffer.append(currentCharacter);
+							break;
+						case '\n' :
+							updateMappedPositions(i);
+							if (pendingCarriageReturn) {
+								increaseGlobalDelta(options.lineSeparatorSequence.length - 2);
+							} else {
+								increaseGlobalDelta(options.lineSeparatorSequence.length - 1);
+							}
+							pendingCarriageReturn = false;
+							currentLineBuffer.append(options.lineSeparatorSequence);
 							beginningOfLineSpaces = 0;
+							endOfLine = true;
 							break;
 						case '\t' :
 							if (endOfLine) {
 								// we remove a maximum of currentCommentOffset characters (tabs are converted to space numbers).
 								beginningOfLineSpaces += options.tabSize;
-								if (beginningOfLineSpaces > currentCommentOffset)
+								if (beginningOfLineSpaces > currentCommentOffset) {
 									currentLineBuffer.append(currentCharacter);
+								} else {
+									increaseGlobalDelta(-1);
+								}
 							} else {
 								currentLineBuffer.append(currentCharacter);
 							}
@@ -1287,26 +1313,39 @@ public class CodeFormatter implements TerminalSymbols {
 							if (endOfLine) {
 								// we remove a maximum of currentCommentOffset characters (tabs are converted to space numbers).
 								beginningOfLineSpaces++;
-								if (beginningOfLineSpaces > currentCommentOffset)
+								if (beginningOfLineSpaces > currentCommentOffset) {
 									currentLineBuffer.append(currentCharacter);
+								} else {
+									increaseGlobalDelta(-1);
+								}
 							} else {
 								currentLineBuffer.append(currentCharacter);
 							}
 							break;
 						default :
-							beginningOfLineSpaces = 0;
-							currentLineBuffer.append(currentCharacter);
-							endOfLine = false;
+							if (pendingCarriageReturn) {
+								pendingCarriageReturn = false;
+								updateMappedPositions(i);
+								increaseGlobalDelta(options.lineSeparatorSequence.length - 1);
+								currentLineBuffer.append(options.lineSeparatorSequence);
+								beginningOfLineSpaces = 0;
+								endOfLine = false;
+							} else {
+								beginningOfLineSpaces = 0;
+								currentLineBuffer.append(currentCharacter);
+								endOfLine = false;								
+							}
 					}
 				}
+				multipleLineCommentCounter++;
 				break;
 			default :
 				currentLineBuffer.append(
 					source,
 					startPosition,
 					scanner.currentPosition - startPosition);
+				updateMappedPositions(startPosition);
 		}
-		updateMappedPositions(startPosition);
 	}
 
 	/**
@@ -1374,51 +1413,71 @@ public class CodeFormatter implements TerminalSymbols {
 					dumpTab(depth);
 				}
 			}
-			boolean containsMultiLineComment = currentString.lastIndexOf("/*") != -1; //$NON-NLS-1$
 			int numberOfSpaces = 0;
 			int max = currentString.length();
-			updateMappedPositionsWhileSplitting(
-				beginningOfLineIndex,
-				beginningOfLineIndex + max);
-			for (int i = 0; i < max; i++) {
-				char currentChar = currentString.charAt(i);
-				switch (currentChar) {
-					case '\r' :
-						break;
-					case '\n' :
-						if (i != max - 1) {
-							// fix for 1FFYL5C: LFCOM:ALL - Incorrect indentation when split with a comment inside a condition
-							// a substring cannot end with a lineSeparatorSequence,
-							// except if it has been added by format() after a one-line comment
+			if (multipleLineCommentCounter != 0) {
+				try {
+					BufferedReader reader = new BufferedReader(new StringReader(currentString));
+					String line = reader.readLine();
+					while (line != null) {
+						updateMappedPositionsWhileSplitting(
+							beginningOfLineIndex,
+							beginningOfLineIndex + line.length() + options.lineSeparatorSequence.length);
+						formattedSource.append(line);
+						beginningOfLineIndex = beginningOfLineIndex + line.length();
+						if ((line = reader.readLine()) != null) {
 							formattedSource.append(options.lineSeparatorSequence);
-							increaseSplitDelta(options.lineSeparatorSequence.length);
-
-							if (containsMultiLineComment) {
-								// fix for 1FGGQCN: LFCOM:ALL - Space management in comments for the formatter
-								dumpTab(currentLineIndentationLevel);
-							} else {
+							beginningOfLineIndex += options.lineSeparatorSequence.length;
+							dumpTab(currentLineIndentationLevel);
+						}
+					}
+					reader.close();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				updateMappedPositionsWhileSplitting(
+					beginningOfLineIndex,
+					beginningOfLineIndex + max);
+				int currentMultipleLineNumber = 0;
+				int previousMultipleLineNumber = -1;
+				int currentPositionInCurrentLineBuffer = 0;
+				int numberOfLineBreaksInCurrentMultipleLineComment = 0;
+				for (int i = 0; i < max; i++) {
+					char currentChar = currentString.charAt(i);
+					switch (currentChar) {
+						case '\r' :
+							break;
+						case '\n' :
+							if (i != max - 1) {
+								// fix for 1FFYL5C: LFCOM:ALL - Incorrect indentation when split with a comment inside a condition
+								// a substring cannot end with a lineSeparatorSequence,
+								// except if it has been added by format() after a one-line comment
+								formattedSource.append(options.lineSeparatorSequence);
+	
 								// 1FGDDV6: LFCOM:WIN98 - Weird splitting on message expression
 								dumpTab(depth - 1);
 							}
-						}
-						break;
-					default :
-						formattedSource.append(currentChar);
+							break;
+						default :
+							formattedSource.append(currentChar);
+					}
 				}
 			}
 			// update positions inside the mappedPositions table
 			if (substringIndex != -1) {
-				int startPosition =
-					beginningOfLineIndex + startSubstringIndexes[substringIndex];
-				updateMappedPositionsWhileSplitting(startPosition, startPosition + max);
+				if (multipleLineCommentCounter == 0) {
+					int startPosition =
+						beginningOfLineIndex + startSubstringIndexes[substringIndex];
+					updateMappedPositionsWhileSplitting(startPosition, startPosition + max);
+				}
 
 				// compute the splitDelta resulting with the operator and blank removal
 				if (substringIndex + 1 != startSubstringIndexes.length) {
 					increaseSplitDelta(
 						startSubstringIndexes[substringIndex]
 							+ max
-							- startSubstringIndexes[substringIndex
-							+ 1]);
+							- startSubstringIndexes[substringIndex + 1]);
 				}
 			}
 			// dump postfix operator?
@@ -2232,8 +2291,9 @@ public class CodeFormatter implements TerminalSymbols {
 	}
 
 	private void updateMappedPositions(int startPosition) {
-		if (positionsToMap == null)
+		if (positionsToMap == null) {
 			return;
+		}
 		char[] source = scanner.source;
 		int sourceLength = source.length;
 		while (indexToMap < positionsToMap.length
@@ -2241,13 +2301,20 @@ public class CodeFormatter implements TerminalSymbols {
 			int posToMap = positionsToMap[indexToMap];
 			if (posToMap < 0
 				|| posToMap >= sourceLength) { // protection against out of bounds position
+				if (posToMap == sourceLength) {
+					mappedPositions[indexToMap] = formattedSource.length();
+				}
 				indexToMap = positionsToMap.length; // no more mapping
 				return;
 			}
 			if (Character.isWhitespace(source[posToMap])) {
 				mappedPositions[indexToMap] = startPosition + globalDelta + lineDelta;
 			} else {
-				mappedPositions[indexToMap] = posToMap + globalDelta + lineDelta;
+				if (posToMap == sourceLength - 1) {
+					mappedPositions[indexToMap] = startPosition + globalDelta + lineDelta;
+				} else {
+					mappedPositions[indexToMap] = posToMap + globalDelta + lineDelta;
+				}
 			}
 			indexToMap++;
 		}
@@ -2267,7 +2334,7 @@ public class CodeFormatter implements TerminalSymbols {
 			indexInMap++;
 		}
 	}
-
+	
 	/** 
 	* Sets the initial indentation level
 	* @param indentationLevel new indentation level
