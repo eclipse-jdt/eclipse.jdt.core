@@ -1,5 +1,4 @@
 jdtcore.jar=\
-	ant,\
 	batch,\
 	codeassist,\
 	compiler,\

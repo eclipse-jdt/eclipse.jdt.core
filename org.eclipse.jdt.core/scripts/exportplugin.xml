@@ -37,7 +37,6 @@
 
 		<echo message="UPDATE jdtcoresrc.zip" />
 		<zip zipfile="${dest}/jdtcoresrc.zip">
-		    <zipfileset dir="ant" />
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="codeassist" />
 		    <zipfileset dir="compiler" />
