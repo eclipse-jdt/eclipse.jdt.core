@@ -1266,28 +1266,30 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Hashtable options = new Hashtable(10);
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
-		Preferences preferences = getPlugin().getPluginPreferences();
-		HashSet optionNames = JavaModelManager.OptionNames;
-		
-		// get preferences set to their default
-		String[] defaultPropertyNames = preferences.defaultPropertyNames();
-		for (int i = 0; i < defaultPropertyNames.length; i++){
-			String propertyName = defaultPropertyNames[i];
-			if (optionNames.contains(propertyName)){
-				options.put(propertyName, preferences.getDefaultString(propertyName));
-			}
-		}		
-		// get preferences not set to their default
-		String[] propertyNames = preferences.propertyNames();
-		for (int i = 0; i < propertyNames.length; i++){
-			String propertyName = propertyNames[i];
-			if (optionNames.contains(propertyName)){
-				options.put(propertyName, preferences.getString(propertyName).trim());
-			}
-		}		
-		// get encoding through resource plugin
-		options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
-
+		Plugin plugin = getPlugin();
+		if (plugin != null) {
+			Preferences preferences = getPlugin().getPluginPreferences();
+			HashSet optionNames = JavaModelManager.OptionNames;
+			
+			// get preferences set to their default
+			String[] defaultPropertyNames = preferences.defaultPropertyNames();
+			for (int i = 0; i < defaultPropertyNames.length; i++){
+				String propertyName = defaultPropertyNames[i];
+				if (optionNames.contains(propertyName)){
+					options.put(propertyName, preferences.getDefaultString(propertyName));
+				}
+			}		
+			// get preferences not set to their default
+			String[] propertyNames = preferences.propertyNames();
+			for (int i = 0; i < propertyNames.length; i++){
+				String propertyName = propertyNames[i];
+				if (optionNames.contains(propertyName)){
+					options.put(propertyName, preferences.getString(propertyName).trim());
+				}
+			}		
+			// get encoding through resource plugin
+			options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
+		}
 		return options;
 	}
 		
