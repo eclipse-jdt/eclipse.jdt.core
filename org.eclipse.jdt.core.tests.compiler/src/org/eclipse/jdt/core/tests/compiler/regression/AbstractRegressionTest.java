@@ -68,11 +68,19 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				return new SearchDocument(documentPath, this.searchParticipant) {
 					public byte[] getByteContents() {
 						try {
-							return  org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(this.documentPath));
+							return  org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(getPath()));
 						} catch (IOException e) {
 							e.printStackTrace();
 							return null;
 						}
+					}
+					public char[] getCharContents() {
+						// not used
+						return null;
+					}
+					public String getEncoding() {
+						// not used
+						return null;
 					}
 				};
 			}

@@ -16,6 +16,9 @@ import org.eclipse.jdt.core.IJavaElement;
 /**
  * A Java search match that represents a type reference.
  * The element is the inner-most enclosing member that references this type.
+ * <p>
+ * This class is intended to be instantiated and subclassed by clients.
+ * </p>
  * 
  * @since 3.0
  */
@@ -42,7 +45,7 @@ public class TypeReferenceMatch extends SearchMatch {
 	/**
 	 * @see org.eclipse.jdt.core.search.SearchMatch#isInsideDocComment()
 	 */
-	public boolean isInsideDocComment() {
+	public final boolean isInsideDocComment() {
 		return this.insideDocComment;
 	}
 }

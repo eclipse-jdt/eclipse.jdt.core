@@ -32,7 +32,15 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class IndexManager extends JobManager implements IIndexConstants {
 
 	public SimpleLookupTable indexNames = new SimpleLookupTable();
+	/*
+	 * key = an IPath, value = an Index
+	 */
 	private Map indexes = new HashMap(5);
+
+	/*
+	 * key = a SearchDocument, value = an Index
+	 */
+	public Map documentIndexes = new HashMap(5);
 
 	/* need to save ? */
 	private boolean needToSave = false;
@@ -231,10 +239,10 @@ private IPath getJavaPluginWorkingLocation() {
 }
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexPath) throws IOException {
 	try {
-		searchDocument.index = index;
+		this.documentIndexes.put(searchDocument, index);
 		searchParticipant.indexDocument(searchDocument, indexPath);
 	} finally {
-		searchDocument.index = null;
+		this.documentIndexes.remove(searchDocument);
 	}
 }
 /**

@@ -82,16 +82,16 @@ public class JavaSearchDocument extends SearchDocument {
 	}
 	private IFile getFile() {
 		if (this.file == null)
-			this.file = (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(this.documentPath));
+			this.file = (IFile) ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(getPath()));
 		return this.file;
 	}
 	private IPath getLocation() {
 		IFile resource = getFile();
 		if (resource != null)
 			return resource.getLocation();
-		return new Path(this.documentPath); // external file
+		return new Path(getPath()); // external file
 	}
 	public String toString() {
-		return "SearchDocument for " + this.documentPath; //$NON-NLS-1$
+		return "SearchDocument for " + getPath(); //$NON-NLS-1$
 	}
 }
