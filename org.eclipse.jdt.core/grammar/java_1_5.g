@@ -1498,13 +1498,13 @@ EnumHeader ::= Modifiersopt 'enum' Identifier
 /:$readableName EnumHeader:/
 
 EnumBody ::= '{' EnumBodyDeclarationsopt '}'
-/. $putCase consumeEnumBody(); $break ./
+/. $putCase consumeEnumBodyNoConstants(); $break ./
 EnumBody ::= '{' ',' EnumBodyDeclarationsopt '}'
-/. $putCase consumeEnumBody(); $break ./
+/. $putCase consumeEnumBodyNoConstants(); $break ./
 EnumBody ::= '{' EnumConstants ',' EnumBodyDeclarationsopt '}'
-/. $putCase consumeEnumBody(); $break ./
+/. $putCase consumeEnumBodyWithConstants(); $break ./
 EnumBody ::= '{' EnumConstants EnumBodyDeclarationsopt '}'
-/. $putCase consumeEnumBody(); $break ./
+/. $putCase consumeEnumBodyWithConstants(); $break ./
 /:$readableName EnumBody:/
 
 EnumConstants -> EnumConstant
@@ -1513,7 +1513,7 @@ EnumConstants ::= EnumConstants ',' EnumConstant
 /:$readableName EnumConstants:/
 
 EnumConstant ::= Identifier Argumentsopt ClassBody
-/.$putCase consumeEnumConstant(); $break ./
+/.$putCase consumeEnumConstantWithClassBody(); $break ./
 EnumConstant ::= Identifier Argumentsopt
 /.$putCase consumeEnumConstantNoClassBody(); $break ./
 /:$readableName EnumConstant:/
