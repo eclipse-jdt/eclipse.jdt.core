@@ -545,15 +545,17 @@ private boolean checkClassInstanceCreation() {
 		// completion on type inside an allocation expression
 		
 		TypeReference type;
-		if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_INSIDE_THROW_STATEMENT
-			&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, 1) == this.bracketDepth) {
-			pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
-			popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
-		}
 		if (this.invocationType == ALLOCATION) {
 			// non qualified allocation expression
 			AllocationExpression allocExpr = new AllocationExpression();
-			type = getTypeReference(0);
+			if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_INSIDE_THROW_STATEMENT
+				&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, 1) == this.bracketDepth) {
+				pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
+				type = getTypeReference(0);
+				popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
+			} else {
+				type = getTypeReference(0);
+			}
 			allocExpr.type = type;
 			allocExpr.sourceStart = type.sourceStart;
 			allocExpr.sourceEnd = type.sourceEnd;
@@ -564,7 +566,14 @@ private boolean checkClassInstanceCreation() {
 			QualifiedAllocationExpression allocExpr = new QualifiedAllocationExpression();
 			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 			pushOnGenericsLengthStack(0);
-			type = getTypeReference(0);
+			if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_INSIDE_THROW_STATEMENT
+				&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, 1) == this.bracketDepth) {
+				pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
+				type = getTypeReference(0);
+				popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
+			} else {
+				type = getTypeReference(0);
+			}
 			allocExpr.type = type;
 			allocExpr.enclosingInstance = this.expressionStack[this.qualifier];
 			allocExpr.sourceStart = this.intStack[this.intPtr--];
