@@ -48,7 +48,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "testCreateCompilationUnitAndImportContainer" };
+//		testsNames = new String[] { "testBug66898" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 2, 12 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -576,5 +576,61 @@ public class EncodingTests extends ModifyingResourceTests {
 		ISourceReference bomSourceRef = getCompilationUnit(bomFile.getFullPath().toString());
 		String bomSource = bomSourceRef.getSource();
 		assertEquals("BOM UTF-8 source should be idtentical than UTF-8!", source, bomSource);
+	}	
+
+	/**
+	 * Test fix for bug 66898: refactor-rename: encoding is not preserved
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66898">66898</a>
+	 */
+	public void testBug66898() throws JavaModelException, CoreException, UnsupportedEncodingException {
+
+		// Set file encoding
+		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
+		this.utf8File.setCharset(encoding);
+		
+		// Move file
+		String fileName = this.utf8File.getName();
+		ICompilationUnit cu = getCompilationUnit(this.utf8File.getFullPath().toString());
+		IPackageFragment packFrag = getPackageFragment("Encoding", "src", "testBug66898");
+		cu.move(packFrag, null, null, false, null);
+		ICompilationUnit destSource = packFrag.getCompilationUnit(fileName);
+		IFile destFile = (IFile) destSource.getUnderlyingResource();
+		assertEquals("Moved file should keep encoding", encoding, destFile.getCharset());
+
+		// Get source and compare with file contents
+		String source = destSource.getSource();
+		String systemSource = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(source);
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(destFile));
+		encodedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(encodedContents);
+		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, systemSource);
+		byte[] sourceBytes = source.getBytes(encoding);
+		byte[] encodedBytes = Util.getResourceContentsAsByteArray(destFile);
+		assertEquals("Wrong size of encoded string", encodedBytes.length, sourceBytes.length);
+		for (int i = 0, max = sourceBytes.length; i < max; i++) {
+			assertTrue("Wrong size of encoded character at " + i, sourceBytes[i] == encodedBytes[i]);
+		}
+		
+		// Rename file
+		destSource.rename("TestUTF8.java", false, null);
+		ICompilationUnit renamedSource = packFrag.getCompilationUnit("TestUTF8.java");
+		IFile renamedFile = (IFile) renamedSource.getUnderlyingResource();
+		assertEquals("Moved file should keep encoding", encoding, renamedFile.getCharset());
+		
+		// Compare contents again
+		String sourceRenamed = renamedSource.getSource();
+		String systemSourceRenamed = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(sourceRenamed);
+		String renamedContents = new String (Util.getResourceContentsAsCharArray(renamedFile));
+		renamedContents = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(renamedContents);
+		assertEquals("Encoded UTF-8 source should have been decoded the same way!", renamedContents, systemSourceRenamed);
+		byte[] renamedSourceBytes = sourceRenamed.getBytes(encoding);
+		byte[] renamedEncodedBytes = Util.getResourceContentsAsByteArray(renamedFile);
+		assertEquals("Wrong size of encoded string", renamedEncodedBytes.length, renamedSourceBytes.length);
+		for (int i = 0, max = renamedSourceBytes.length; i < max; i++) {
+			assertTrue("Wrong size of encoded character at " + i, renamedSourceBytes[i] == renamedEncodedBytes[i]);
+		}
+		
+		// Move back 
+		renamedFile.move(this.utf8File.getFullPath(), false, null);
+		assertEquals("Moved file should keep encoding", encoding, this.utf8File.getCharset());
 	}	
 }
