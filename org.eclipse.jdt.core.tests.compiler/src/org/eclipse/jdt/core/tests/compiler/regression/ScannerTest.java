@@ -107,7 +107,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		StringBuffer buf= new StringBuffer();
 		buf.append("\"Hello\"");
 		String str = buf.toString();
-		IScanner scanner= ToolFactory.createScanner(false, false, false, false);
+		IScanner scanner= ToolFactory.createScanner(true, false, false, false);
 		scanner.setSource(str.toCharArray());
 		scanner.resetTo(0, str.length() - 1);
 		int token = 0;
@@ -131,6 +131,5 @@ public class ScannerTest extends AbstractRegressionTest {
 		} catch (NullPointerException e) {
 			assertTrue(false);
 		}
-	}						
-
+	}
 }
