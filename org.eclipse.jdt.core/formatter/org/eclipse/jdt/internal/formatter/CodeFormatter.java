@@ -16,8 +16,7 @@ import java.util.*;
  * It will return the formatted string.</ul>
 */
 
-public class CodeFormatter implements TerminalSymbols {
-
+public class CodeFormatter implements TerminalSymbols {	
 	public FormatterOptions options;
 
 	/** 
@@ -105,6 +104,7 @@ public class CodeFormatter implements TerminalSymbols {
 public CodeFormatter() {
 	this(null);
 }
+
 /** 
  * Creates a new instance of Code Formatter using the given settings.
  */
@@ -936,14 +936,7 @@ private int getCurrentCommentOffset() {
 	
 	return offset;
 }
-/**
- * Returns an array of descriptions for the configurable options.
- * The descriptions may be changed and passed back to a different
- * compiler.
- */
-public static ConfigurableOption[] getDefaultOptions(Locale locale) {
-	return new FormatterOptions().getConfigurableOptions(locale);
-}
+
 /**
  * Returns the array of mapped positions.
  * Returns null is no positions have been set.
@@ -2277,5 +2270,22 @@ private void updateMappedPositionsWhileSplitting(int startPosition, int endPosit
 			mappedPositions[indexInMap]+= splitDelta;
 			indexInMap++;
 	}
+}
+
+/**
+ * Returns all the options of the Code Formatter to be shown by the UI
+ *
+ * @param locale java.util.Locale
+ * @return org.eclipse.jdt.internal.compiler.java.ConfigurableOption[]
+ */
+public static ConfigurableOption[] getDefaultOptions(Locale locale) {
+	String[] ids = ConfigurableOption.getIDs(CodeFormatter.class.getName(),locale);
+	
+	ConfigurableOption[] result = new ConfigurableOption[ids.length];
+	for(int i = 0 ; i < ids.length ; i++){
+		result[i] = new ConfigurableOption(ids[i],locale);
+	}
+	
+	return result;
 }
 }

@@ -8,8 +8,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.formatter.*;
 import java.util.*;
 
-public class FormatterOptions {
-
+public class FormatterOptions {	
 	// by default, do not insert blank line before opening brace
 	public boolean newLineBeforeOpeningBraceMode = false;
 
@@ -42,7 +41,8 @@ public FormatterOptions(){
  */
 public FormatterOptions(ConfigurableOption[] settings){
 	if (settings == null) return;
-	// filter options which are related to the compiler component
+
+	// filter options which are related to the formatter component
 	String componentName = CodeFormatter.class.getName();
 	for (int i = 0, max = settings.length; i < max; i++){
 		if (settings[i].getComponentName().equals(componentName)){
@@ -50,26 +50,8 @@ public FormatterOptions(ConfigurableOption[] settings){
 		}
 	}
 }
-/**
- * Returns all the options of the Code Formatter to be shown by the UI
- *
- * @param locale java.util.Locale
- * @return com.ibm.compiler.java.ConfigurableOption[]
- */
-public ConfigurableOption[] getConfigurableOptions(Locale locale) {
-	String componentName = CodeFormatter.class.getName();
-	return new ConfigurableOption[] {
-		new ConfigurableOption(componentName, "newline.openingBrace"/*nonNLS*/,  locale, newLineBeforeOpeningBraceMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.controlStatement"/*nonNLS*/,  locale, newlineInControlStatementMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.clearAll"/*nonNLS*/,  locale, clearAllBlankLinesMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.elseIf"/*nonNLS*/,  locale, compactElseIfMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.emptyBlock"/*nonNLS*/,  locale, newLineInEmptyBlockMode ? 0 : 1),
-		new ConfigurableOption(componentName, "line.split"/*nonNLS*/,  locale, maxLineLength),
-		new ConfigurableOption(componentName, "style.compactAssignment"/*nonNLS*/,  locale, compactAssignmentMode ? 0 : 1),
-		new ConfigurableOption(componentName, "tabulation.char"/*nonNLS*/,  locale, indentWithTab ? 0 : 1),
-		new ConfigurableOption(componentName, "tabulation.size"/*nonNLS*/,  locale, tabSize)	
-	};
-}
+
+
 /**
  * 
  * @return int
@@ -160,37 +142,32 @@ public void setNewLineInEmptyBlockMode(boolean flag) {
  * @param newValue <CODE>int</CODE>
  */
 public void setOption(ConfigurableOption setting) {
-
-	switch (setting.getID()) {
-		case 1 : // insert blank line before opening brace
-			setNewLineBeforeOpeningBraceMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 2 : // insert blank line behind keywords (ELSE, CATCH, FINALLY,...) in control statements
-			setNewlineInControlStatementMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 3 : // flush all blank lines
-			setClearAllBlankLinesMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 4 : // puts else if on the same line
-			setCompactElseIfMode(setting.getCurrentValueIndex() == 0);
-		break;
-		case 5 : // add a new line inside an empty block.
-			setNewLineInEmptyBlockMode(setting.getCurrentValueIndex() == 0);
-		break;
-		case 6 : // line splitting will occur when line exceeds this length (0 -> no splitting)
-			setMaxLineLength(setting.getCurrentValueIndex());
-			break;
-		case 7 : // if isTrue, assignments look like x= 12 (not like x = 12);
-			setCompactAssignmentMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 9 : // should use tab or spaces to indent
-			setIndentationUsesTab(setting.getCurrentValueIndex() == 0);
-			break;
-		case 10 : // amount of spaces for a tabulation
-			setTabSize(setting.getCurrentValueIndex());
-			break;
+	String componentName = CodeFormatter.class.getName();
+	
+	String optionID = setting.getID();
+	//String value = setting.getValue();
+	
+	if(optionID.equals(componentName+".newlineOpeningBrace"/*nonNLS*/)){
+		setNewLineBeforeOpeningBraceMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(componentName+".newlineControlStatement"/*nonNLS*/)){
+		setNewlineInControlStatementMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(componentName+".newlineClearAll"/*nonNLS*/)){
+		setClearAllBlankLinesMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(componentName+".newlineElseIf"/*nonNLS*/)){
+		setCompactElseIfMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(componentName+".newlineEmptyBlock"/*nonNLS*/)){
+		setNewLineInEmptyBlockMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(componentName+".lineSplit"/*nonNLS*/)){
+		setMaxLineLength(Integer.parseInt(setting.getValue()));
+	}else if(optionID.equals(componentName+".styleCompactAssignment"/*nonNLS*/)){
+		setCompactAssignmentMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(componentName+".tabulationChar"/*nonNLS*/)){
+		setIndentationUsesTab(setting.getValueIndex() == 0);
+	}else if(optionID.equals(componentName+".tabulationSize"/*nonNLS*/)){
+		setTabSize(Integer.parseInt(setting.getValue()));
 	}
 }
+
 public void setReuseExistingLayoutMode(boolean flag) {
 }
 public void setTabSize(int size) {
