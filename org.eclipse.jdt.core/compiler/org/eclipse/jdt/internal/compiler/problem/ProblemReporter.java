@@ -2574,7 +2574,14 @@ public void task(String tag, String message, String priority, int start, int end
 		start,
 		end);
 }
-
+public void tooManyDimensions(AstNode expression) {
+	this.handle(
+		IProblem.TooManyArrayDimensions,
+		NoArgument,
+		NoArgument,
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void typeCastError(CastExpression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());
@@ -2854,6 +2861,16 @@ public void nonExternalizedStringLiteral(AstNode location) {
 		NoArgument,
 		location.sourceStart,
 		location.sourceEnd);
+}
+
+public void noMoreAvailableSpaceForConstant(TypeDeclaration typeDeclaration) {
+	this.handle(
+		IProblem.TooManyBytesForStringConstant,
+		new String[]{ new String(typeDeclaration.binding.readableName())},
+		new String[]{ new String(typeDeclaration.binding.shortReadableName())},
+		Abort | Error,
+		typeDeclaration.sourceStart,
+		typeDeclaration.sourceEnd);
 }
 
 public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) {

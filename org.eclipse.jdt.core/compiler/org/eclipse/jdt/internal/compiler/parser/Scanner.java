@@ -1743,9 +1743,6 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 		}
 
 		currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-		if (recordLineSeparator
-			&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-			pushLineSeparator();
 		if (CharOperation.isWhitespace(currentCharacter))
 			return true;
 

@@ -34,7 +34,11 @@ public int dimensions() {
 public TypeBinding getTypeBinding(Scope scope) {
 	if (this.resolvedType != null)
 		return this.resolvedType;
+	if (dimensions > 255) {
+		scope.problemReporter().tooManyDimensions(this);
+	}
 	return scope.createArray(scope.getType(token), dimensions);
+
 }
 public String toStringExpression(int tab){
 

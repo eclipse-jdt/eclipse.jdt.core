@@ -701,7 +701,7 @@ public int literalIndex(char[] utf8Constant) {
 		}
 		if (length >= 65535) {
 			currentOffset = savedCurrentOffset - 1;
-			return -1;
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceForConstant(this.classFile.referenceBinding.scope.referenceType());
 		}
 		index = UTF8Cache.put(utf8Constant, currentIndex);
 		if (index > 0xFFFF){

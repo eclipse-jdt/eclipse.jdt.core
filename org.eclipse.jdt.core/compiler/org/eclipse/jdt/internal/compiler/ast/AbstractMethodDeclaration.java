@@ -275,6 +275,8 @@ public abstract class AbstractMethodDeclaration
 			codeStream.recordPositionsFrom(0, this.declarationSourceEnd);
 			classFile.completeCodeAttribute(codeAttributeOffset);
 			attributeNumber++;
+		} else {
+			checkArgumentsSize();
 		}
 		classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
 
@@ -284,6 +286,22 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
+	private void checkArgumentsSize() {
+		TypeBinding[] parameters = binding.parameters;
+		int size = 1; // an abstact method or a native method cannot be static
+		for (int i = 0, max = parameters.length; i < max; i++) {
+			TypeBinding parameter = parameters[i];
+			if (parameter == LongBinding || parameter == DoubleBinding) {
+				size += 2;
+			} else {
+				size++;
+			}
+			if (size > 0xFF) {
+				scope.problemReporter().noMoreAvailableSpaceForArgument(scope.locals[i], scope.locals[i].declaration);
+			}
+		}
+	}
+	
 	public boolean hasErrors() {
 		return this.ignoreFurtherInvestigation;
 	}

@@ -207,6 +207,8 @@ public interface IProblem {
 	/** @since 2.1 */
 	int TooManySyntheticArgumentSlots = Internal + 67;
 
+	int TooManyArrayDimensions = Internal + 68;
+
 	// fields
 	int UndefinedField = FieldRelated + 70;
 	int NotVisibleField = FieldRelated + 71;
@@ -488,7 +490,8 @@ public interface IProblem {
 	
 	//constant pool
 	int TooManyConstantsInConstantPool = Internal + 430;
-	
+	int TooManyBytesForStringConstant = Internal + 431;
+		
 	// 1.4 features
 	// assertion warning
 	int UseAssertAsAnIdentifier = Internal + 440;
