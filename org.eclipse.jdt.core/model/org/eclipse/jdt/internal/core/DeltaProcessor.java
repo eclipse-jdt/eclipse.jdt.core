@@ -2328,6 +2328,7 @@ public class DeltaProcessor {
 						for (int i = 0, length = children.length; i < length; i++) {
 							IResourceDelta child = children[i];
 							IResource resource = child.getResource();
+							// TODO (philippe) Why do this? Every child is added anyway as the delta is walked
 							if (resource instanceof IFile) {
 								String name = resource.getName();
 								if (isSource) {
