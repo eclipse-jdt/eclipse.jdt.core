@@ -2473,9 +2473,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
 			
-		if (containerPath == null) {
-			Assert.isTrue(false, "Container path cannot be null"); //$NON-NLS-1$
-		}
+		if (containerPath == null) Assert.isTrue(false, "Container path cannot be null"); //$NON-NLS-1$
 		if (containerPath.segmentCount() < 1) {
 			Assert.isTrue(
 				false,
@@ -2565,6 +2563,7 @@ public final class JavaCore extends Plugin {
 		IPath sourceAttachmentRootPath,
 		boolean isExported) {
 			
+		if (path == null) Assert.isTrue(false, "Library path cannot be null"); //$NON-NLS-1$
 		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 		if (sourceAttachmentPath != null) {
 			if (sourceAttachmentPath.isEmpty()) {
@@ -2810,6 +2809,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns, IPath specificOutputLocation) {
 
+		if (path == null) Assert.isTrue(false, "Source path cannot be null"); //$NON-NLS-1$
 		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
 		if (exclusionPatterns == null) Assert.isTrue(false, "Exclusion pattern set cannot be null"); //$NON-NLS-1$
 
@@ -2913,10 +2913,8 @@ public final class JavaCore extends Plugin {
 		IPath variableSourceAttachmentPath,
 		IPath variableSourceAttachmentRootPath,
 		boolean isExported) {
-			
-		if (variablePath == null) {
-			Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
-		}		
+
+		if (variablePath == null) Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
 		if (variablePath.segmentCount() < 1) {
 			Assert.isTrue(
 				false,
