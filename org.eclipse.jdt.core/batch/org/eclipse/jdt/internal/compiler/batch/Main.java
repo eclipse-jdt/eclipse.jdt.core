@@ -718,7 +718,7 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportStaticAccessReceiver,
 							CompilerOptions.WARNING);
-					} else if (token.equals("noOpAssign")) { //$NON-NLS-1$
+					} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportNoEffectAssignment,
 							CompilerOptions.WARNING);
