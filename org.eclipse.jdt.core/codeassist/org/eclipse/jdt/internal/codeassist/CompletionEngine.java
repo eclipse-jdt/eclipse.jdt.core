@@ -2613,9 +2613,12 @@ public final class CompletionEngine
 		
 		// find types from parent
 		if(parent instanceof AbstractVariableDeclaration) {
-			TypeBinding binding = ((AbstractVariableDeclaration)parent).type.resolvedType;
+			AbstractVariableDeclaration variable = (AbstractVariableDeclaration)parent;
+			TypeBinding binding = variable.type.resolvedType;
 			if(binding != null) {
-				addExpectedType(binding);
+				if(!(variable.initialization instanceof ArrayInitializer)) {
+					addExpectedType(binding);
+				}
 			}
 		} else if(parent instanceof Assignment) {
 			TypeBinding binding = ((Assignment)parent).resolvedType;
