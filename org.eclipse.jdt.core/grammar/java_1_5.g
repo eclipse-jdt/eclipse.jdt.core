@@ -1724,7 +1724,7 @@ TypeParameter1 ::= Identifier 'extends' ReferenceType AdditionalBoundList1
 /:$readableName TypeParameter1:/
 
 AdditionalBoundList1 -> AdditionalBound1
-AdditionalBoundList1 ::= AdditionalBoundList1 AdditionalBound1
+AdditionalBoundList1 ::= AdditionalBoundList AdditionalBound1
 /.$putCase consumeAdditionalBoundList1(); $break ./
 /:$readableName AdditionalBoundList1:/
 

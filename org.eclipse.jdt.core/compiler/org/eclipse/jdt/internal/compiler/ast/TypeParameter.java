@@ -27,16 +27,16 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuffer printStatement(int indent, StringBuffer output) {
 		output.append(this.name);
-		if (this.bounds != null){
+		if (this.type != null) {
 			output.append(" extends "); //$NON-NLS-1$
 			this.type.print(0, output);
+		}
+		if (this.bounds != null){
 			for (int i = 0; i < this.bounds.length; i++) {
-				if (i > 0) {
-					output.append("& "); //$NON-NLS-1$
-				}
-				output.append(this.bounds[i].print(0, output));
+				output.append(" & "); //$NON-NLS-1$
+				this.bounds[i].print(0, output);
 			}
 		}
 		return output;

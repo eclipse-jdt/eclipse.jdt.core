@@ -855,6 +855,14 @@ public class TypeDeclaration
 		printModifiers(this.modifiers, output);
 		output.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
 		output.append(name);
+		if (typeParameters != null) {
+			output.append("<");//$NON-NLS-1$
+			for (int i = 0; i < typeParameters.length; i++) {
+				if (i > 0) output.append( ", "); //$NON-NLS-1$
+				typeParameters[i].print(0, output);
+			}
+			output.append(">");//$NON-NLS-1$
+		}
 		if (superclass != null) {
 			output.append(" extends ");  //$NON-NLS-1$
 			superclass.print(0, output);

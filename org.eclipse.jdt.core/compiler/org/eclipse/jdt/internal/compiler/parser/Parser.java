@@ -898,7 +898,7 @@ private final void concatNodeLists() {
 	this.astLengthStack[this.astLengthPtr - 1] += this.astLengthStack[this.astLengthPtr--];
 }
 protected void consumeAdditionalBound() {
-	pushOnAstStack(getTypeReference(this.intStack[this.intPtr--]));
+	pushOnGenericsStack(getTypeReference(this.intStack[this.intPtr--]));
 }
 protected void consumeAdditionalBound1() {
 }
@@ -3797,7 +3797,7 @@ protected void consumeRightParen() {
 	// PushRPAREN ::= ')'
 	pushOnIntStack(this.rParenPos);
 }
-// This method is part of an automatic generation : do NOT edit-modify  
+//This method is part of an automatic generation : do NOT edit-modify  
 protected void consumeRule(int act) {
   switch ( act ) {
     case 26 : if (DEBUG) { System.out.println("Type ::= PrimitiveType"); }  //$NON-NLS-1$
@@ -5042,7 +5042,7 @@ protected void consumeRule(int act) {
 		    consumeTypeParameter1WithExtendsAndBounds();  
 			break;
  
-    case 548 : if (DEBUG) { System.out.println("AdditionalBoundList1 ::= AdditionalBoundList1..."); }  //$NON-NLS-1$
+    case 548 : if (DEBUG) { System.out.println("AdditionalBoundList1 ::= AdditionalBoundList..."); }  //$NON-NLS-1$
 		    consumeAdditionalBoundList1();  
 			break;
  
@@ -6193,7 +6193,7 @@ protected void consumeTypeParameters() {
 }
 protected void consumeTypeParameterWithExtends() {
 	TypeParameter typeParameter = new TypeParameter();
-	TypeReference superType = (TypeReference) this.genericsStack[this.genericsPtr];
+	TypeReference superType = getTypeReference(this.intStack[this.intPtr--]);
 	
 	long pos = this.identifierPositionStack[this.identifierPtr];
 	typeParameter.declarationSourceEnd = (int) pos;
@@ -6202,7 +6202,7 @@ protected void consumeTypeParameterWithExtends() {
 	this.identifierLengthPtr--;
 	
 	typeParameter.type = superType;
-	this.genericsStack[this.genericsPtr] = typeParameter;
+	pushOnGenericsStack(typeParameter);
 }
 protected void consumeTypeParameterWithExtendsAndBounds() {
 	TypeParameter typeParameter = new TypeParameter();
