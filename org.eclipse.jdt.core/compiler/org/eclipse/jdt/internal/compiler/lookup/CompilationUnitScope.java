@@ -113,19 +113,20 @@ void buildTypeBindings() {
 	nextType: for (int i = 0; i < typeLength; i++) {
 		TypeDeclaration typeDecl = types[i];
 		ReferenceBinding typeBinding = fPackage.getType0(typeDecl.name);
+		recordReference(currentPackageName, typeDecl.name); // needed to detect collision cases
 		if (typeBinding != null && !(typeBinding instanceof UnresolvedReferenceBinding)) {
 			// if a type exists, it must be a valid type - cannot be a NotFound problem type
 			// unless its an unresolved type which is now being defined
-			recordSimpleReference(typeDecl.name);
 			problemReporter().duplicateTypes(referenceContext, typeDecl);
 			continue nextType;
 		}
-		if (currentPackageName != NoCharChar) {
-			if ((fPackage.getPackage0(typeDecl.name)) != null || environment.isPackage(currentPackageName, typeDecl.name)) {
-				// if a package exists, it must be a valid package - cannot be a NotFound problem package
-				problemReporter().typeCollidesWithPackage(referenceContext, typeDecl);
-				continue nextType;
-			}
+		boolean packageExists = currentPackageName == NoCharChar
+			? environment.getTopLevelPackage(typeDecl.name) != null
+			: (fPackage.getPackage0(typeDecl.name)) != null || environment.isPackage(currentPackageName, typeDecl.name);
+		if (packageExists) {
+			// if a package exists, it must be a valid package - cannot be a NotFound problem package
+			problemReporter().typeCollidesWithPackage(referenceContext, typeDecl);
+			continue nextType;
 		}
 
 		if ((typeDecl.modifiers & AccPublic) != 0) {
