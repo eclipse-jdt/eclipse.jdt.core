@@ -1128,7 +1128,8 @@ public final class AST {
 	 * 
 	 * @param nodeClass AST node class
 	 * @return a new unparented node owned by this AST
-	 * @exception RuntimeException if unsuccessful for any reason
+	 * @exception IllegalArgumentException if <code>nodeClass</code> is 
+	 * <code>null</code> or is not a concrete node type class
 	 * @since 3.0
 	 */
 	public ASTNode createInstance(Class nodeClass) {
@@ -1141,13 +1142,21 @@ public final class AST {
 			Object result = c.newInstance(THIS_AST);
 			return (ASTNode) result;
 		} catch (NoSuchMethodException e) {
-			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+			// all AST node classes have a Foo(AST) constructor
+			// therefore nodeClass is not legit
+			throw new IllegalArgumentException();
 		} catch (InstantiationException e) {
-			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+			// all concrete AST node classes can be instantiated
+			// therefore nodeClass is not legit
+			throw new IllegalArgumentException();
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+			// all AST node classes have an accessible Foo(AST) constructor
+			// therefore nodeClass is not legit
+			throw new IllegalArgumentException();
 		} catch (InvocationTargetException e) {
-			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+			// concrete AST node classes do not die in the constructor
+			// therefore nodeClass is not legit
+			throw new IllegalArgumentException();
 		}		
 	}
 
@@ -1161,11 +1170,14 @@ public final class AST {
 	 * @param nodeType AST node type, one of the node type
 	 * constants declared on {@link ASTNode}
 	 * @return a new unparented node owned by this AST
-	 * @exception RuntimeException if unsuccessful for any reason
+	 * @exception IllegalArgumentException if <code>nodeType</code> is 
+	 * not a legal AST node type
 	 * @since 3.0
 	 */
 	public ASTNode createInstance(int nodeType) {
-		return createInstance(ASTNode.nodeClassForType(nodeType));
+		// nodeClassForType throws IllegalArgumentException if nodeType is bogus
+		Class nodeClass = ASTNode.nodeClassForType(nodeType);
+		return createInstance(nodeClass);
 	}
 
 	//=============================== NAMES ===========================
