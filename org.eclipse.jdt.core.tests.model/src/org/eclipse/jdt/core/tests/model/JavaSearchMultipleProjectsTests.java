@@ -44,7 +44,7 @@ protected void tearDown() throws Exception {
 protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
 	String actual = scope.toString();
 	if (!expected.equals(actual)) {
-		printDisplayString(actual, 3);
+		System.out.println(displayString(actual, 3) + ",");
 	}
 	assertEquals("Unexpected scope", expected, actual);
 }

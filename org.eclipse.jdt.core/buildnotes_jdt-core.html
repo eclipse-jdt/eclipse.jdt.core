@@ -43,10 +43,15 @@ Eclipse SDK 3.0M8 Build - ?th March 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new constant <code>IJavaElementDelta.F_CLASSPATH_CHANGED</code> that indicates that
+	  the project's raw classpath has changed.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53242">53242</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49986">49986</a>
+setRawClasspath(...) should fire a F_CLASSPATH_CHANGED delta 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53242">53242</a>
 Consitent Out of Memory problems indexing (with multiple Java libraries)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52474">52474</a>
 UI Blocked when opening Java Perspective during CVS check out 

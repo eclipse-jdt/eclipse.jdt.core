@@ -108,14 +108,14 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 	}
 	String actual = buffer.toString();
 	if (!expected.equals(actual)) {
-		printDisplayString(actual, 2);
+		System.out.println(displayString(actual, 2) + ",");
 	}
 	assertEquals(message, expected, actual);
 }
 protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
 	String actual = hierarchy.toString();
 	if (!expected.equals(actual)) {
-		printDisplayString(actual, 2);
+		System.out.println(displayString(actual, 2) + ",");
 	}
 	assertEquals("Unexpected type hierarchy", expected, actual);
 }
@@ -179,7 +179,7 @@ protected void assertTypesEqual(String message, String expected, IType[] types) 
 	}
 	String actual = buffer.toString();
 	if (!expected.equals(actual)) {
-		printDisplayString(actual, 2);
+		System.out.println(displayString(actual, 2) + ",");
 	}
 	assertEquals(message, expected, actual);
 }
@@ -810,14 +810,19 @@ public IWorkspace getWorkspace() {
 public IWorkspaceRoot getWorkspaceRoot() {
 	return getWorkspace().getRoot();
 }
-protected void printDisplayString(String toPrint, int indent) {
+protected String displayString(String toPrint, int indent) {
 	String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(toPrint, indent);
 	char[] toDisplay = 
 		CharOperation.replace(
 			displayString.toCharArray(), 
 			getExternalJCLPath().toString().toCharArray(), 
 			("\"+  getExternalJCLPath() +\"").toCharArray());
-	System.out.println(new String(toDisplay) + ",");
+	toDisplay = 
+		CharOperation.replace(
+			toDisplay, 
+			getExternalJCLSourcePath().toString().toCharArray(), 
+			("\"+  getExternalJCLSourcePath() +\"").toCharArray());
+	return new String(toDisplay);
 }
 public byte[] read(java.io.File file) throws java.io.IOException {
 	int fileLength;

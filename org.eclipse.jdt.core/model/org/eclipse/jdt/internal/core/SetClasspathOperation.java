@@ -50,6 +50,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	IClasspathEntry[] oldResolvedPath, newResolvedPath;
 	IClasspathEntry[] newRawPath;
 	boolean canChangeResources;
+	boolean classpathWasSaved;
 	boolean needCycleCheck;
 	boolean needValidation;
 	boolean needSave;
@@ -286,6 +287,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
+		if (this.classpathWasSaved) {
+			delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
+		}
 		boolean hasDelta = false;
 		int oldLength = oldResolvedPath.length;
 		int newLength = newResolvedPath.length;
@@ -562,6 +566,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		// if read-only .classpath, then the classpath setting will never been performed completely
 		if (project.saveClasspath(classpathForSave, outputLocationForSave)) {
+			this.classpathWasSaved = true;
 			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		}
 	}
