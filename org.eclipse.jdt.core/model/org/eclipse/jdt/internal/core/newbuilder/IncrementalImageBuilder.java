@@ -305,20 +305,19 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this added source file " + location); //$NON-NLS-1$
 						locations.add(sourceLocation);
-						typeNames.add(typePath.setDevice(null).toString());
-						if (JavaBuilder.DEBUG)
-							System.out.println("Add dependents of added source file " + typePath); //$NON-NLS-1$
-						addDependentsOf(typePath, true);
+						String typeName = typePath.setDevice(null).toString();
+						typeNames.add(typeName);
+						if (!newState.isDuplicateLocation(typeName, sourceLocation)) {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Add dependents of added source file " + typePath); //$NON-NLS-1$
+							addDependentsOf(typePath, true);
+						}
 						return;
 					case IResourceDelta.REMOVED :
 						char[][] definedTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
 						if (definedTypeNames == null) { // defined a single type matching typePath
 							removeClassFile(typePath);
-						} else if (definedTypeNames.length == 0) { // failed to successfully define a type
-							if (JavaBuilder.DEBUG)
-								System.out.println("Add dependents of removed empty source file " + typePath); //$NON-NLS-1$
-							addDependentsOf(typePath, true);
-						} else { // defined multiple types
+						} else if (definedTypeNames.length > 0) { // ignore it if it failed to successfully define a type
 							IPath packagePath = typePath.removeLastSegments(1);
 							for (int i = 0, length = definedTypeNames.length; i < length; i++)
 								removeClassFile(packagePath.append(new String(definedTypeNames[i])));
@@ -393,11 +392,6 @@ protected void finishedWith(String sourceLocation, CompilationResult result, cha
 				packagePath = new Path(extractTypeNameFrom(sourceLocation)).removeLastSegments(1);
 			removeClassFile(packagePath.append(new String(previous)));
 		}
-	} else if (!definedTypeNames.isEmpty()) { // added a type to an empty file
-		IPath typePath = new Path(extractTypeNameFrom(sourceLocation));
-		if (JavaBuilder.DEBUG)
-			System.out.println("Add dependents of changed empty source file " + typePath); //$NON-NLS-1$
-		addDependentsOf(typePath, true);
 	}
 	super.finishedWith(sourceLocation, result, mainTypeName, definedTypeNames, duplicateTypeNames);
 }
