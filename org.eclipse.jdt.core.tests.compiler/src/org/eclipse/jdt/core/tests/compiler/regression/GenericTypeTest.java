@@ -3408,4 +3408,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");		
 	}				
+	// TODO (philippe) this should work, shouldn't it?
+	public void _test118() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+//				"import static java.util.Collections.*;\n" +
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        java.util.Collections.sort(new java.util.LinkedList<String>());\n" + 
+//				"        sort(new java.util.LinkedList<String>());\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
 }

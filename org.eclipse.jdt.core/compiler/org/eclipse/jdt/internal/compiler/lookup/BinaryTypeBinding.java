@@ -415,20 +415,22 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 		? environment.getType(JAVA_LANG_OBJECT)
 		: (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this);
 
+	// variable is visible to its bounds
+	TypeVariableBinding variable = new TypeVariableBinding(variableName, rank);
+	variable.modifiers |= AccUnresolved;
+	variable.superclass = type;
+
 	ReferenceBinding[] bounds = null;
 	if (wrapper.signature[wrapper.start] == ':') {
 		java.util.ArrayList types = new java.util.ArrayList(2);
 		do {
 			wrapper.start++; // skip ':'
-			types.add(environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this));
+			types.add(environment.getTypeFromTypeSignature(wrapper, new TypeVariableBinding[] {variable}, this));
 		} while (wrapper.signature[wrapper.start] == ':');
 		bounds = new ReferenceBinding[types.size()];
 		types.toArray(bounds);
 	}
 
-	TypeVariableBinding variable = new TypeVariableBinding(variableName, rank);
-	variable.modifiers |= AccUnresolved;
-	variable.superclass = type;
 	variable.superInterfaces = bounds == null ? NoSuperInterfaces : bounds;
 	variable.firstBound = variable.superInterfaces.length == 0 ? null : variable.superInterfaces[0];
 	return variable;
