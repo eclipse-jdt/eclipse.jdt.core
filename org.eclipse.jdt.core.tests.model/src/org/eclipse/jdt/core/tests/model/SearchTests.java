@@ -16,7 +16,6 @@ import java.util.Vector;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -163,11 +162,9 @@ protected void assertAllTypes(String message, IJavaProject project, int waitingP
 	SearchEngine searchEngine = new SearchEngine();
 	TypeNameRequestor requestor = new TypeNameRequestor();
 	searchEngine.searchAllTypeNames(
-		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
-		SearchPattern.R_PATTERN_MATCH,
-		false, // case insensitive
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
 		scope, 
 		requestor,

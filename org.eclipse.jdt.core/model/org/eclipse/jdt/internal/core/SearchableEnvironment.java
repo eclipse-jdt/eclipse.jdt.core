@@ -250,11 +250,9 @@ public class SearchableEnvironment
 			};
 			try {
 				new SearchEngine().searchAllTypeNames(
-					this.project.getProject().getWorkspace(),
 					qualification,
 					simpleName,
-					SearchPattern.R_PREFIX_MATCH,
-					false, // not case sensitive
+					SearchPattern.R_PREFIX_MATCH, // not case sensitive
 					IJavaSearchConstants.TYPE,
 					this.searchScope,
 					nameRequestor,

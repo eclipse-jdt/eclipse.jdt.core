@@ -87,11 +87,11 @@ public abstract class ClasspathContainerInitializer {
 	 * correct functioning of the Java model, the implementation should use
 	 * only the following Java model APIs:
 	 * <ul>
-	 * <li>{@link JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)}</li>
+	 * <li>{@link JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], org.eclipse.core.runtime.IProgressMonitor)}</li>
 	 * <li>{@link JavaCore#getClasspathContainer(IPath, IJavaProject)}</li>
-	 * <li>{@link JavaCore#create(IWorkspaceRoot)</li>
-	 * <li>{@link JavaCore#create(IProject)</li>
-	 * <li>{@link IJavaModel#getJavaProjects()</li>
+	 * <li>{@link JavaCore#create(org.eclipse.core.resources.IWorkspaceRoot)}</li>
+	 * <li>{@link JavaCore#create(org.eclipse.core.resources.IProject)}</li>
+	 * <li>{@link IJavaModel#getJavaProjects()}</li>
 	 * <li>Java element operations marked as "handle-only"</li>
 	 * </ul>
 	 * The effects of using other Java model APIs are unspecified.

@@ -453,13 +453,9 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 			IBinaryMethod[] methods = reader.getMethods();
 			if (methods != null) {
 				boolean firstIsSynthetic = false;
-				try {
-					if (type.isMember() && method.isConstructor() && !Flags.isStatic(type.getFlags())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=48261
-						firstIsSynthetic = true;
-						argCount++;
-					}
-				} catch (JavaModelException e) {
-					// ignored
+				if (reader.isMember() && method.isConstructor() && !Flags.isStatic(reader.getModifiers())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=48261
+					firstIsSynthetic = true;
+					argCount++;
 				}
 				nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
 					IBinaryMethod binaryMethod = methods[i];

@@ -403,13 +403,12 @@ public class NameLookup implements SuffixConstants {
 				}
 			};
 
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			int matchMode = partialMatch ? SearchPattern.R_PREFIX_MATCH : SearchPattern.R_EXACT_MATCH;
+			int matchRule = !partialMatch ? matchMode | SearchPattern.R_CASE_SENSITIVE : matchMode;
 			new SearchEngine().searchAllTypeNames(
-				workspace,
 				pkg.getElementName().toCharArray(),
 				typeName.toCharArray(),
-				partialMatch ? SearchPattern.R_PREFIX_MATCH : SearchPattern.R_EXACT_MATCH,
-				!partialMatch, // case sensitive
+				matchRule,
 				IJavaSearchConstants.TYPE,
 				SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg}, false),
 				nameRequestor,
@@ -417,6 +416,7 @@ public class NameLookup implements SuffixConstants {
 				null);
 
 			if (!paths.isEmpty()) {
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				for (int i = 0, l = paths.size(); i < l; i++) {
 					String pathname = (String) paths.get(i);
 					if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(pathname)) {

@@ -31,7 +31,7 @@ public TestVerifier(boolean reuseVM) {
 }
 private boolean checkBuffers(String errorString, String outputString, String sourceFileName, String expectedSuccessOutputString) {
 
-	if (errorString.length() > 0) {
+	if (errorString.trim().length() > 0) {
 		this.failureReason =
 			"Unexpected target error running resulting class file for "
 				+ sourceFileName
