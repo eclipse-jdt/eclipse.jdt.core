@@ -90,7 +90,29 @@ public void test003() {
 		"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
 		"----------\n");
 }
+public void test004() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    \n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int[] tab = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" + 
+			"		int sum = 0;\n" + 
+			"		loop: for (final int e : tab) {\n" + 
+			"			sum += e;\n" + 
+			"			if (e == 3) {\n" + 
+			"				break loop;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		System.out.println(sum);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"6");
+}
 			
+
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
