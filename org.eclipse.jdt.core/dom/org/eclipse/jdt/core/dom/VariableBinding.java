@@ -100,7 +100,6 @@ class VariableBinding implements IVariableBinding {
 
 	/**
 	 * @see IBinding#isSynthetic()
-	 * @deprecated
 	 */
 	public boolean isSynthetic() {
 		if (isField()) {

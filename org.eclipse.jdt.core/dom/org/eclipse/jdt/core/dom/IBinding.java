@@ -113,8 +113,6 @@ public interface IBinding {
 	 * 
 	 * @return <code>true</code> if this binding is synthetic, and 
 	 *    <code>false</code> otherwise
-	 * @deprecated This method is likely to be removed. The binding mechanism
-	 *   will not reveal synthetic binding to clients.
 	 */
 	public boolean isSynthetic();
 	

@@ -1234,27 +1234,6 @@ public abstract class ASTNode {
 	}
 
 	/**
-	 * Returns whether the subtree rooted at the given node is the same
-	 * as the subtree rooted at the given node. Returns <code>false</code>
-	 * if the given node is <code>null</code>.
-	 * <p>
-	 * [Explain subtree isomorphism. The subtrees may or may not be from
-	 *  the same ASTs.
-	 *  Comments (and source positions, etc.) are ignored.
-	 * ]
-	 * </p>
-	 * 
-	 * @param other the root of the AST subtree, or <code>null</code>
-	 * @return <code>true</code> if the subtrees are the same, or 
-	 * <code>false</code> if the subtrees are different or the other node is
-	 * <code>null</code>
-	 * @deprecated Use subtreeMatch(new ASTMatcher(), other)
-	 */
-	public boolean subtreeEquals(ASTNode other) {
-		return subtreeMatch(new ASTMatcher(), other);
-	}
-	
-	/**
 	 * Returns whether the subtree rooted at the given node matches the
 	 * given other object as decided by the given matcher.
 	 * 

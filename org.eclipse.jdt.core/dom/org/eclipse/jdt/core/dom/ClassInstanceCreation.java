@@ -206,63 +206,6 @@ public class ClassInstanceCreation extends Expression {
 	}
 
 	/**
-	 * Returns whether this class instance creation expression declares
-	 * an anonymous class (that is, has class body declarations).
-	 * 
-	 * @return <code>true</code> if this declares an anonymous class,
-	 *    and <code>false</code> otherwise
-	 * @deprecated Made obsolete by AnonymousClassDeclaration
-	 */ 
-	public boolean isAnonymousClassDeclaration() {
-		// temporary
-		return optionalAnonymousClassDeclaration != null;
-	}
-	
-	/**
-	 * Sets whether this class instance creation expression declares
-	 * an anonymous class (that is, has class body declarations).
-	 * 
-	 * @param hasBody <code>true</code> if this declares an anonymous class,
-	 *    and <code>false</code> otherwise
-	 * @deprecated Made obsolete by AnonymousClassDeclaration
-	 */ 
-	public void setAnonymousClassDeclaration(boolean hasBody) {
-		// temporary
-		if (hasBody) {
-			if (optionalAnonymousClassDeclaration == null) {
-				setAnonymousClassDeclaration(getAST().newAnonymousClassDeclaration());
-			}
-		} else {
-			if (optionalAnonymousClassDeclaration != null) {
-				setAnonymousClassDeclaration(null);
-			}
-		}
-	}
-
-	/**
-	 * Returns the live ordered list of body declarations of this
-	 * class instance creation expression. The body declarations are only
-	 * relevant when <code>isAnonymousClassDeclaration</code> returns
-	 * <code>true</code>. Adding declarations to the resulting list is
-	 * not sufficient; you must also call 
-	 * <code>setAnonymousClassDeclaration</code> to mark the node as declaring
-	 * an anonymous class.
-	 * 
-	 * @return the live list of body declarations
-	 *    (element type: <code>BodyDeclaration</code>)
-	 * @deprecated Made obsolete by AnonymousClassDeclaration
-	 */ 
-	public List bodyDeclarations() {
-		// temporary
-		AnonymousClassDeclaration x = getAnonymousClassDeclaration();
-		if (x != null) {
-			return x.bodyDeclarations();
-		} else {
-			return new ArrayList(0);
-		}
-	}
-
-	/**
 	 * Resolves and returns the binding for the constructor invoked by this
 	 * expression. For anonymous classes, the binding is that of the anonymous
 	 * constructor.
