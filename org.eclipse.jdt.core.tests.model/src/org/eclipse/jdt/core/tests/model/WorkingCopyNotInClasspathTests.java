@@ -68,7 +68,7 @@ public void tearDown() throws Exception {
 	super.tearDown();
 }
 
-public void testCommitWorkingCopy() throws CoreException {
+public void testCommitWorkingCopy1() throws CoreException {
 	ICompilationUnit primary = this.workingCopy.getPrimary();
 	assertTrue("Primary element should not be null", primary != null);
 
@@ -89,7 +89,27 @@ public void testCommitWorkingCopy() throws CoreException {
 		newContents, 
 		new String(Util.getResourceContentsAsCharArray(originalFile)));
 }
-
+/*
+ * Ensures that commiting a non-primary working copy that is inside a folder that is excluded doesn't throw a JavaModelException
+ * (regression test for bug 52355 Not present exception trying to create a class in excluded package)
+ */
+public void testCommitWorkingCopy2() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		createJavaProject( "P2", new String[] {"src"}, null, null, null, "bin", null, new String[][] {new String[] {"p1/"}});
+		createFolder("/P2/src/p1/p2");
+		createFile("/P2/src/p1/p2/X.java", "");
+		copy = getCompilationUnit("P2", "src", "p1.p2", "X.java").getWorkingCopy(null);
+		copy.getBuffer().setContents("public class X {}");
+		copy.makeConsistent(null);
+		copy.commitWorkingCopy(false, null);
+	} finally {
+		if (copy != null) {
+			copy.discardWorkingCopy();
+		}
+		deleteProject("P2");
+	}
+}
 /*
  * Ensure that a working copy outside the classpath does not exist 
  * (but can still be opened).

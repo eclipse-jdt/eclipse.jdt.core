@@ -276,7 +276,9 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			null/*no project*/, 
 			null/*no exported project*/, 
 			output, 
-			null/*no source outputs*/);
+			null/*no source outputs*/,
+			null/*no exclusion pattern*/
+		);
 }
 /*
  * Creates a Java project with the given source folders an output location. 
@@ -291,7 +293,9 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			null/*no project*/, 
 			null/*no exported project*/, 
 			output, 
-			sourceOutputs);
+			sourceOutputs,
+			null/*no exclusion pattern*/
+		);
 }
 protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
 	return 
@@ -302,7 +306,9 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			null/*no project*/, 
 			null/*no exported project*/, 
 			output, 
-			null/*no source outputs*/);
+			null/*no source outputs*/,
+			null/*no exclusion pattern*/
+		);
 }
 protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput) throws CoreException {
 	return
@@ -313,7 +319,8 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			projects,
 			null/*no exported project*/, 
 			projectOutput,
-			null/*no source outputs*/
+			null/*no source outputs*/,
+			null/*no exclusion pattern*/
 		);
 }
 protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, boolean[] exportedProject, String projectOutput) throws CoreException {
@@ -325,10 +332,11 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			projects,
 			exportedProject, 
 			projectOutput,
-			null/*no source outputs*/
+			null/*no source outputs*/,
+			null/*no exclusion pattern*/
 		);
 }
-protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs) throws CoreException {
+protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] exclusionPatterns) throws CoreException {
 	final IJavaProject[] result = new IJavaProject[1];
 	IWorkspaceRunnable create = new IWorkspaceRunnable() {
 		public void run(IProgressMonitor monitor) throws CoreException {
@@ -370,11 +378,24 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 						}
 					}
 				}
+				// exclusion patterns
+				IPath[] exclusionPaths;
+				if (exclusionPatterns == null) {
+					exclusionPaths = new IPath[0];
+				} else {
+					String[] patterns = exclusionPatterns[i];
+					int length = patterns.length;
+					exclusionPaths = new IPath[length];
+					for (int j = 0; j < length; j++) {
+						String exclusionPattern = patterns[j];
+						exclusionPaths[j] = new Path(exclusionPattern);
+					}
+				}
 				// create source entry
 				entries[i] = 
 					JavaCore.newSourceEntry(
 						projectPath.append(sourcePath), 
-						new IPath[0], 
+						exclusionPaths, 
 						outputPath == null ? null : projectPath.append(outputPath)
 					);
 			}
