@@ -747,6 +747,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Ensures that getPrimaryElement() on an initializer of a .class file returns the same handle.
+	 */
+	public void testGetPrimaryElement4() throws JavaModelException {
+		IInitializer initializer = getClassFile("P/X.class").getType().getInitializer(1);
+		assertEquals("Unexpected element", initializer, initializer.getPrimaryElement());
+	}
+	
+	/*
 	 * Ensures that the correct working copies are returned by JavaCore.getWorkingCopies(WorkingCopyOwner)
 	 */
 	public void testGetWorkingCopies() throws CoreException {
