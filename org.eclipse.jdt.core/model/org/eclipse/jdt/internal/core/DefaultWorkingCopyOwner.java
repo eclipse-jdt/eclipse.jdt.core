@@ -32,6 +32,9 @@ public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 		// only one instance can be created
 	}
 
+	/**
+	 * @deprecated Marked deprecated as it is using deprecated code
+	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
 		if (this.factory == null) return super.createBuffer(workingCopy);
 		return this.factory.createBuffer(workingCopy); // TODO (jerome) change to use a org.eclipse.text buffer
