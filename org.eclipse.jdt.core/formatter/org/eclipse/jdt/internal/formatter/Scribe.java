@@ -86,7 +86,7 @@ public class Scribe {
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 		this.textRegionStart = offset;
 		this.textRegionEnd = offset + length - 1;
-// TODO (Olivier) lineEnds and commentPositions are not used, thus codeSnippetParsingUtil is unused
+// TODO (olivier) lineEnds and commentPositions are not used, thus codeSnippetParsingUtil is unused
 //		if (codeSnippetParsingUtil != null) {
 //			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
 //			if (information != null) {
