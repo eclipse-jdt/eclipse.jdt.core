@@ -56,6 +56,6 @@ protected boolean isExcluded(IResource resource) {
 
 public String toString() {
 	return "Source classpath directory " + sourceFolder.getFullPath().toString() + //$NON-NLS-1$
-		" with binary directory " + binaryFolder.getFullPath().toString(); //$NON-NLS-1$
+		" with " + super.toString(); //$NON-NLS-1$
 }
 }

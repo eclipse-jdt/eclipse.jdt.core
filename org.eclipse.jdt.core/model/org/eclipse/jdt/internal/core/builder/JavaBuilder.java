@@ -440,8 +440,14 @@ private boolean hasClasspathChanged() {
 		return true;
 	}
 	if (n < newLength || o < oldLength) {
-		if (DEBUG)
-			System.out.println("Number of binary folders/jar files has changed"); //$NON-NLS-1$
+		if (DEBUG) {
+			System.out.println("Number of binary folders/jar files has changed:"); //$NON-NLS-1$
+			for (int i = 0; i < newLength; i++)
+				System.out.println(newBinaryLocations[i]);
+			System.out.println("was:"); //$NON-NLS-1$
+			for (int i = 0; i < oldLength; i++)
+				System.out.println(oldBinaryLocations[i]);
+		}
 		return true;
 	}
 	return false;

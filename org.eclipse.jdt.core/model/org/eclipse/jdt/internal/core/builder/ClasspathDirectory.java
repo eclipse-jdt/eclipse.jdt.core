@@ -144,6 +144,9 @@ public void reset() {
 }
 
 public String toString() {
-	return "Binary classpath directory " + binaryFolder.getFullPath().toString(); //$NON-NLS-1$
+	String start = "Binary classpath directory " + this.binaryFolder.getFullPath().toString(); //$NON-NLS-1$
+	if (this.accessRestriction == null)
+		return start;
+	return start + " with " + this.accessRestriction; //$NON-NLS-1$
 }
 }

@@ -169,6 +169,9 @@ public boolean isPackage(String qualifiedPackageName) {
 }
 
 public String toString() {
-	return "Classpath jar file " + zipFilename; //$NON-NLS-1$
+	String start = "Classpath jar file " + this.zipFilename; //$NON-NLS-1$
+	if (this.accessRestriction == null)
+		return start;
+	return start + " with " + this.accessRestriction; //$NON-NLS-1$
 }
 }
