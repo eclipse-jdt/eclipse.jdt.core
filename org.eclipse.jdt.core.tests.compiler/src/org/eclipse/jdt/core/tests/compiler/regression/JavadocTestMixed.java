@@ -34,8 +34,8 @@ public class JavadocTestMixed extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug51606", "Bug51606a", "Bug51606b", "Bug51606c"  };
+		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		testsNames = new String[] { "Bug65180", "Bug65180a", "Bug65180b", "Bug65180c", "Bug65180d" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -43,7 +43,6 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 	public static Test suite() {
 		return buildSuite(javadocTestClass());
-//		return buildTestSuite(javadocTestClass(), "testBug53279", null);
 	}
 
 	protected Map getCompilerOptions() {
@@ -2592,6 +2591,282 @@ public class JavadocTestMixed extends JavadocTest {
 					"  }\n" + 
 					"}\n"
 			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 65174: Spurious "Javadoc: Missing reference" error
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174">65174</a>
+	 */
+	public void testBug65174() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * Comment with no error: {@link\n" + 
+					" * Object valid} because it\'s not on first line\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"	/** Comment previously with error: {@link\n" + 
+					"	 * Object valid} because tag is on comment very first line\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug65174a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * Comment with no error: {@link    		\n" + 
+					" * Object valid} because it\'s not on first line\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"	/** Comment previously with error: {@link   		\n" + 
+					"	 * Object valid} because tag is on comment very first line\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug65174b() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * Comment with no error: {@link java.lang.\n" + 
+					" * Object valid} because it\'s not on first line\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"	/** Comment previously with error: {@link java.lang.\n" + 
+					"	 * Object valid} because tag is on comment very first line\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug65174c() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * Comment with no error: {@link Object\n" + 
+					" * valid} because it\'s not on first line\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"	/** Comment previously with no error: {@link Object\n" + 
+					"	 * valid} because tag is on comment very first line\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug65174d() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	/** Comment previously with no error: {@link Object valid} comment on one line */\n" + 
+					"	void foo1() {}\n" + 
+					"	/** Comment previously with no error: {@link Object valid}       */\n" + 
+					"	void foo2() {}\n" + 
+					"	/** Comment previously with no error: {@link Object valid}*/\n" + 
+					"	void foo3() {}\n" + 
+					"	/**                    {@link Object valid} comment on one line */\n" + 
+					"	void foo4() {}\n" + 
+					"	/**{@link Object valid} comment on one line */\n" + 
+					"	void foo5() {}\n" + 
+					"	/**       {@link Object valid} 				*/\n" + 
+					"	void foo6() {}\n" + 
+					"	/**{@link Object valid} 				*/\n" + 
+					"	void foo7() {}\n" + 
+					"	/**				{@link Object valid}*/\n" + 
+					"	void foo8() {}\n" + 
+					"	/**{@link Object valid}*/\n" + 
+					"	void foo9() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 65180: Spurious "Javadoc: xxx cannot be resolved or is not a field" error with inner classes
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65180">65180</a>
+	 */
+	public void testBug65180() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	public class Inner {\n" + 
+					"		/**\n" + 
+					"		 * Does something.\n" + 
+					"		 * \n" + 
+					"		 * @see #testFunc\n" + 
+					"		 */\n" + 
+					"		public void innerFunc() {\n" + 
+					"			testFunc();\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public void testFunc() {}\n" + 
+					"}\n" + 
+					"\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 6)\r\n" + 
+				"	* @see #testFunc\r\n" + 
+				"	        ^^^^^^^^\n" + 
+				"Javadoc: testFunc cannot be resolved or is not a field\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug65180a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	public class Inner {\n" + 
+					"		/**\n" + 
+					"		 * Does something.\n" + 
+					"		 * \n" + 
+					"		 * @see #testFunc()\n" + 
+					"		 */\n" + 
+					"		public void innerFunc() {\n" + 
+					"			testFunc();\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public void testFunc() {}\n" + 
+					"}\n" + 
+					"\n"
+			}
+		);
+	}
+	public void testBug65180b() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	public class Inner {\n" + 
+					"		/**\n" + 
+					"		 * Does something.\n" + 
+					"		 * \n" + 
+					"		 * @see Test#testFunc\n" + 
+					"		 * @see Test#testFunc()\n" + 
+					"		 */\n" + 
+					"		public void innerFunc() {\n" + 
+					"			testFunc();\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public void testFunc() {}\n" + 
+					"}\n" + 
+					"\n"
+			}
+		);
+	}
+	public void testBug65180c() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	public class Inner {\n" + 
+					"		/**\n" + 
+					"		 * Does something.\n" + 
+					"		 * \n" + 
+					"		 * @see #testFunc\n" + 
+					"		 */\n" + 
+					"		public void innerFunc() {\n" + 
+					"			testFunc();\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public void testFunc() {}\n" + 
+					"	public void testFunc(String str) {}\n" + 
+					"}\n" + 
+					"\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 6)\n" + 
+				"	* @see #testFunc\n" + 
+				"	        ^^^^^^^^\n" + 
+				"Javadoc: testFunc cannot be resolved or is not a field\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug65180d() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	int testField;\n" + 
+					"	public class Inner {\n" + 
+					"		/**\n" + 
+					"		 * Does something.\n" + 
+					"		 * \n" + 
+					"		 * @see #testField\n" + 
+					"		 * @see #testFunc(int)\n" + 
+					"		 */\n" + 
+					"		public void innerFunc() {\n" + 
+					"			testFunc(testField);\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public void testFunc(int test) {\n" + 
+					"		testField = test; \n" + 
+					"	}\n" + 
+					"}\n" + 
+					"\n"
+			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253">65253</a>
+	 */
+	public void testBug65253() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * Comment \n" + 
+					" * @@@@see Unknown Should not complain on ref\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"	/**\n" + 
+					"	 * Comment\n" + 
+					"	 * @@@param xxx Should not complain on param\n" + 
+					"	 * @@return int\n" + 
+					"	 */\n" + 
+					"	int foo() { // should warn on missing tag for return type\n" + 
+					"		return 0;\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 11)\n" + 
+				"	int foo() { // should warn on missing tag for return type\n" + 
+				"	^^^\n" + 
+				"Javadoc: Missing tag for return type\n" + 
+				"----------\n"
 		);
 	}
 }
