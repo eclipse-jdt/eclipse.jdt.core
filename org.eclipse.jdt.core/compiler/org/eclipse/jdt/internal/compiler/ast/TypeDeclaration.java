@@ -1070,6 +1070,7 @@ public class TypeDeclaration
 						methods[i].traverse(visitor, scope);
 				}
 			}
+			visitor.endVisit(this, unitScope);
 		} catch (AbortType e) {
 		}
 	}
