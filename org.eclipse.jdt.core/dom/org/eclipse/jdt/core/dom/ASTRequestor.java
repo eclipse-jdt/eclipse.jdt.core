@@ -87,7 +87,9 @@ public abstract class ASTRequestor {
 	
 	/**
 	 * Creates the bindings corresponding to the given keys.
-	 * The given keys cannot be part of a source or other keys that are being requested.
+	 * The given keys represent declarations of elements. 
+	 * The source of one these elements cannot be included in the sources that are being requested
+	 * or in the source of the bindings that are being requested.
 	 * 
 	 * @param bindingKeys the keys of bindings to create
 	 * @return the created bindings
