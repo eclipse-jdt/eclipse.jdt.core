@@ -402,9 +402,8 @@ public class ClassInstanceCreation extends Expression {
 	 * @return the type name node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>,
-	 * which returns a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getName() {
 	    supportedOnlyIn2();
 		if (typeName == null) {
@@ -427,9 +426,8 @@ public class ClassInstanceCreation extends Expression {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>,
-	 * which expects a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
+	// TODO (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setName(Name name) {
 	    supportedOnlyIn2();
 		if (name == null) {

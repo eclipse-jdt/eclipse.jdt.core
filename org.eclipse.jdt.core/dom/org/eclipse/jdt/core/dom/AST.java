@@ -92,8 +92,8 @@ public final class AST {
      * up to and including J2SE 1.4.
      *
 	 * @since 3.0
-	 * // TBD (jeem) deprecated Clients should use the level 3 API.
 	 */
+	// TODO (jeem) deprecated Clients should use the level 3 API.
 	public static final int LEVEL_2_0 = 2;
 	
 	/**
@@ -199,10 +199,8 @@ public final class AST {
 	 * Creates a new, empty abstract syntax tree using default options.
 	 * 
 	 * @see JavaCore#getDefaultOptions()
-	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST(int)} instead of using
-     * this constructor.
 	 */
+	// TODO (jeem) deprecated Clients should port their code to use the new 3.0 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST() {
 		this(JavaCore.getDefaultOptions());
 	}
@@ -262,10 +260,8 @@ public final class AST {
 	 * @param options the table of options (key type: <code>String</code>;
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
-	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST(int)} instead of using
-     * this constructor.
 	 */
+	// TODO (jeem) deprecated Clients should port their code to use the new 3.0 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST(Map options) {
 		this(LEVEL_2_0);
 		// override scanner if 1.4 asked for

@@ -236,11 +236,8 @@ public class TypeDeclarationStatement extends Statement {
 	 * @return the type declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
-	 * <code>getDeclaration</code>,
-	 * which returns <code>AbstractTypeDeclaration</code> instead of 
-	 * <code>TypeDeclaration</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getDeclaration</code>, which returns <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public TypeDeclaration getTypeDeclaration() {
 	    supportedOnlyIn2();
 		return (TypeDeclaration) getDeclaration();
@@ -259,11 +256,8 @@ public class TypeDeclarationStatement extends Statement {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
-	 * <code>setDeclaration</code>,
-	 * which takes <code>AbstractTypeDeclaration</code> instead of 
-	 * <code>TypeDeclaration</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>setDeclaration</code> which takes <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public void setTypeDeclaration(TypeDeclaration decl) {
 	    supportedOnlyIn2();
 		// forward to non-deprecated replacement method

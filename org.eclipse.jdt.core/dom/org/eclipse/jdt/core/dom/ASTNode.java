@@ -2097,7 +2097,6 @@ public abstract class ASTNode {
      * @since 3.0
      */
 	final void preLazyInit() {
-		// TBD (jeem)
 		this.ast.disableEvents++;
 		// while disableEvents > 0 no events will be reported, and mod count will stay fixed
 	}

@@ -554,10 +554,8 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 *    there is none
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by
-	 * <code>getSuperclassType</code>,
-	 * which returns a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getSuperclassType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getSuperclass() {
 	    supportedOnlyIn2();
 		return this.optionalSuperclassName;
@@ -601,9 +599,8 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>,
-	 * which expects a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
+	// TODO (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setSuperclass(Name superclassName) {
 	    supportedOnlyIn2();
 		ASTNode oldChild = this.optionalSuperclassName;
@@ -650,9 +647,8 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 *    (element type: <code>Name</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
-	 * <code>superInterfaceTypes()</code>
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>superInterfaceTypes()</code>
 	public List superInterfaces() {
 		// more efficient than just calling supportedOnlyIn2() to check
 		if (this.superInterfaceNames == null) {

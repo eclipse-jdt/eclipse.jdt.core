@@ -664,9 +664,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return the return type, possibly the void primitive type
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by
-	 * <code>getReturnType2</code>, which may return <code>null</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getReturnType2</code>, which may return <code>null</code>.
 	public Type getReturnType() {
 	    supportedOnlyIn2();
 		if (this.returnType == null) {
@@ -694,9 +693,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by
-	 * <code>setReturnType2</code>, which accepts <code>null</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>setReturnType2</code>, which accepts <code>null</code>.
 	public void setReturnType(Type type) {
 	    supportedOnlyIn2();
 		if (type == null) {

@@ -337,10 +337,8 @@ public class VariableDeclarationExpression extends Expression {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
 	 * @see Modifier
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
-	 * <code>modifiers()</code> which contains a list of 
-	 * a <code>Modifier</code> nodes.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 	    supportedOnlyIn2();
 		preValueChange(MODIFIERS_PROPERTY);
