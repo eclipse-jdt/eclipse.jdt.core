@@ -16,9 +16,17 @@ Eclipse SDK Build ?? - ??th December 2001
 <h2>
 What's new in this drop</h2>
 
+<ul>
+<li> Java element deltas are batched.
+</ul>
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6542">6542</a>
+
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6596">6596</a>
+Java compiler can generate invalid bytecode
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6586">6586</a>
+NullPointerException when resource modification done before java model is open
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6542">6542</a>
 extract method: incorrect error message  
 
 <h3>
@@ -60,7 +68,7 @@ old implementation by changing the builder extension in the plugin.xml)
 	<ul>
 	<li> No longer creates unnecessary Java elements when traversing the resource delta.
 	<li> Handles changes in binary folder libraries.
-	<li> Projects that share libraries are notified individualy.
+	<li> Projects that share libraries are notified individually.
 	<li> Doesn't notify empty deltas any longer.
 	</ul>
 <li> Source folder resource copying no longer perfom any copies as soon as

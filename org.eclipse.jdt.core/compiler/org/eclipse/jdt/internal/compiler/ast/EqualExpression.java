@@ -221,26 +221,35 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
-	Label falseLabel = new Label(codeStream);
-	generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired);
-	if (valueRequired){
-		// comparison is TRUE 
-		codeStream.iconst_1();
-		if ((bits & ValueForReturnMASK) != 0){
-			codeStream.ireturn();
-			// comparison is FALSE
-			falseLabel.place();
-			codeStream.iconst_0();
+	Label falseLabel;
+	generateOptimizedBoolean(
+		currentScope, 
+		codeStream, 
+		null, 
+		falseLabel = new Label(codeStream), 
+		valueRequired);
+	if (falseLabel.hasForwardReferences()) {
+		if (valueRequired){
+			// comparison is TRUE 
+			codeStream.iconst_1();
+			if ((bits & ValueForReturnMASK) != 0){
+				codeStream.ireturn();
+				// comparison is FALSE
+				falseLabel.place();
+				codeStream.iconst_0();
+			} else {
+				Label endLabel = new Label(codeStream);
+				codeStream.goto_(endLabel);
+				codeStream.decrStackSize(1);
+				// comparison is FALSE
+				falseLabel.place();
+				codeStream.iconst_0();
+				endLabel.place();
+			}
 		} else {
-			Label endLabel = new Label(codeStream);
-			codeStream.goto_(endLabel);
-			codeStream.decrStackSize(1);
-			// comparison is FALSE
 			falseLabel.place();
-			codeStream.iconst_0();
-			endLabel.place();
-		}
-	}
+		}	
+	}	
 }
 /**
  * Boolean operator code generation

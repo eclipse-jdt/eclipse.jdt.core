@@ -70,15 +70,19 @@ public class UnaryExpression extends OperatorExpression {
 							null,
 							(falseLabel = new Label(codeStream)),
 							valueRequired);
-						if (valueRequired) {
-							codeStream.iconst_0();
-							codeStream.goto_(endifLabel = new Label(codeStream));
-							codeStream.decrStackSize(1);
-							falseLabel.place();
-							if (valueRequired)
-								codeStream.iconst_1();
-							endifLabel.place();
-						}
+						if (falseLabel.hasForwardReferences()) {
+							if (valueRequired) {
+								codeStream.iconst_0();
+								codeStream.goto_(endifLabel = new Label(codeStream));
+								codeStream.decrStackSize(1);
+								falseLabel.place();
+								if (valueRequired)
+									codeStream.iconst_1();
+								endifLabel.place();
+							} else { // 6596: if (!(a && b)){} - must still place falseLabel
+								falseLabel.place();
+							}		
+						}						
 						break;
 				}
 				break;
