@@ -2812,51 +2812,23 @@ public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType
 }
 public void javadocInvalidConstructor(Statement statement, MethodBinding targetConstructor, int modifiers) {
 
-	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		return;
-	}
-//	boolean insideDefaultConstructor = 
-//		(this.referenceContext instanceof ConstructorDeclaration)
-//			&& ((ConstructorDeclaration)this.referenceContext).isDefaultConstructor();
-//	boolean insideImplicitConstructorCall =
-//		(statement instanceof ExplicitConstructorCall)
-//			&& (((ExplicitConstructorCall) statement).accessMode == ExplicitConstructorCall.ImplicitSuper);
-
+	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) return;
 	int id = IProblem.JavadocUndefinedConstructor; //default...
 	switch (targetConstructor.problemId()) {
 		case NotFound :
-//			if (insideDefaultConstructor){
-//				id = IProblem.JavadocUndefinedConstructorInDefaultConstructor;
-//			} else if (insideImplicitConstructorCall){
-//				id = IProblem.JavadocUndefinedConstructorInImplicitConstructorCall;
-//			} else {
-				id = IProblem.JavadocUndefinedConstructor;
-//			}
+			id = IProblem.JavadocUndefinedConstructor;
 			break;
 		case NotVisible :
-//			if (insideDefaultConstructor){
-//				id = IProblem.JavadocNotVisibleConstructorInDefaultConstructor;
-//			} else if (insideImplicitConstructorCall){
-//				id = IProblem.JavadocNotVisibleConstructorInImplicitConstructorCall;
-//			} else {
-				id = IProblem.JavadocNotVisibleConstructor;
-//			}
+			id = IProblem.JavadocNotVisibleConstructor;
 			break;
 		case Ambiguous :
-//			if (insideDefaultConstructor){
-//				id = IProblem.AmbiguousConstructorInDefaultConstructor;
-//			} else if (insideImplicitConstructorCall){
-//				id = IProblem.AmbiguousConstructorInImplicitConstructorCall;
-//			} else {
-				id = IProblem.JavadocAmbiguousConstructor;
-//			}
+			id = IProblem.JavadocAmbiguousConstructor;
 			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
 			break;
 	}
-
 	this.handle(
 		id,
 		new String[] {new String(targetConstructor.declaringClass.readableName()), typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, false)},
@@ -2891,7 +2863,7 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
 			needImplementation(); // want to fail to see why we were here...
 			break;
 	}
-
+	// report issue
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {new String(fieldBinding.readableName())};
 		handle(id, arguments, arguments, sourceStart, sourceEnd);
@@ -2905,9 +2877,8 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
  * 	- ReceiverTypeNotVisible :
  */
 public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, int modifiers) {
-	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		return;
-	}
+	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) return;
+	// set problem id
 	int id = IProblem.JavadocUndefinedMethod; //default...
 	switch (method.problemId()) {
 		case NotFound :
@@ -2927,7 +2898,6 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 			needImplementation(); // want to fail to see why we were here...
 			break;
 	}
-
 	if (id == IProblem.JavadocUndefinedMethod) {
 		ProblemMethodBinding problemMethod = (ProblemMethodBinding) method;
 		if (problemMethod.closestMatch != null) {
@@ -2958,7 +2928,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 				return;
 		}
 	}
-
+	// report issue
 	this.handle(
 		id,
 		new String[] {
@@ -3029,8 +2999,9 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 			location.sourceEnd);
 	}
 }
-public void javadocInvalidValueReference(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.JavadocInvalidValueReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocInvalidValueReference(int sourceStart, int sourceEnd, int modifiers) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
+		this.handle(IProblem.JavadocInvalidValueReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMalformedSeeReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocMalformedSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
@@ -3051,8 +3022,9 @@ public void javadocMissingHashCharacter(int sourceStart, int sourceEnd, String r
 	String[] arguments = new String[] { ref };
 	this.handle(IProblem.JavadocMissingHashCharacter, arguments, arguments, sourceStart, sourceEnd);
 }
-public void javadocMissingParamName(int sourceStart, int sourceEnd){
-	this.handle(IProblem.JavadocMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocMissingParamName(int sourceStart, int sourceEnd, int modifiers){
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
+		this.handle(IProblem.JavadocMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingParamTag(Argument param, int modifiers) {
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
@@ -3063,8 +3035,9 @@ public void javadocMissingParamTag(Argument param, int modifiers) {
 		this.handle(IProblem.JavadocMissingParamTag, arguments, arguments, param.sourceStart, param.sourceEnd);
 	}
 }
-public void javadocMissingReference(int sourceStart, int sourceEnd){
-	this.handle(IProblem.JavadocMissingReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocMissingReference(int sourceStart, int sourceEnd, int modifiers){
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
+		this.handle(IProblem.JavadocMissingReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifiers){
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
@@ -3074,8 +3047,9 @@ public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifier
 		this.handle(IProblem.JavadocMissingReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
 }
-public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd){
-	this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd, int modifiers){
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
+		this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
@@ -3096,6 +3070,7 @@ public void javadocUnterminatedInlineTag(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocUnterminatedInlineTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 private boolean javadocVisibility(int visibility, int modifiers) {
+	if (modifiers < 0) return true;
 	switch (modifiers & CompilerModifiers.AccVisibilityMASK) {
 		case IConstants.AccPublic :
 			return true;

@@ -317,7 +317,7 @@ public abstract class AbstractCommentParser {
 	protected Object createReturnStatement() { return null; }
 	protected abstract void createTag();
 	protected abstract Object createTypeReference(int primitiveToken);
-	
+
 	private int getIndexPosition() {
 		if (this.index > this.lineEnd) {
 			return this.lineEnd;
@@ -656,7 +656,9 @@ public abstract class AbstractCommentParser {
 		this.currentTokenType = -1;
 
 		// Report problem
-		if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMissingParamName(start, end);
+		if (this.sourceParser != null) {
+			this.sourceParser.problemReporter().javadocMissingParamName(start, end, this.sourceParser.modifiers);
+		}
 		return false;
 	}
 
@@ -755,7 +757,7 @@ public abstract class AbstractCommentParser {
 						int start = this.scanner.getCurrentTokenStartPosition();
 						if (this.tagValue == TAG_VALUE_VALUE) {
 							// String reference are not allowed for @value tag
-							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getTokenEndPosition());
+							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getTokenEndPosition(), this.sourceParser.modifiers);
 							return false;
 						}
 						// If typeRef != null we may raise a warning here to let user know there's an unused reference...
@@ -785,7 +787,7 @@ public abstract class AbstractCommentParser {
 							}
 							if (this.tagValue == TAG_VALUE_VALUE) {
 								// String reference are not allowed for @value tag
-								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition());
+								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition(), this.sourceParser.modifiers);
 								return false;
 							}
 							// verify end line
@@ -793,7 +795,7 @@ public abstract class AbstractCommentParser {
 							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						}
 						else if (this.tagValue == TAG_VALUE_VALUE) {
-							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition());
+							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidValueReference(start, getIndexPosition(), this.sourceParser.modifiers);
 						}
 						return false;
 					case TerminalTokens.TokenNameERROR :
@@ -827,7 +829,9 @@ public abstract class AbstractCommentParser {
 					if (this.kind == DOM_PARSER) createTag();
 					return true;
 				}
-				if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMissingReference(this.tagSourceStart, this.tagSourceEnd);
+				if (this.sourceParser != null) {
+					this.sourceParser.problemReporter().javadocMissingReference(this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+				}
 				return false;
 			}
 
@@ -910,7 +914,8 @@ public abstract class AbstractCommentParser {
 		try {
 			Object typeRef = parseQualifiedName(true);
 			if (typeRef == null) {
-				if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMissingThrowsClassName(this.tagSourceStart, this.tagSourceEnd);
+				if (this.sourceParser != null)
+					this.sourceParser.problemReporter().javadocMissingThrowsClassName(this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
 			} else {
 				return pushThrowName(typeRef);
 			}

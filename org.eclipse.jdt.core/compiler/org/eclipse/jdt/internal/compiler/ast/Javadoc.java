@@ -213,13 +213,14 @@ public class Javadoc extends ASTNode {
 		boolean verifyValues = scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5;
 		if (reference instanceof JavadocFieldReference) {
 			JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
+			int modifiers = fieldRef.binding==null ? -1 : fieldRef.binding.modifiers;
 			
 			// Verify if this is a method reference
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
 			if (fieldRef.methodBinding != null) {
 				// cannot refer to method for @value tag
 				if (fieldRef.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) {
-					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd);
+					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, modifiers);
 				}
 				else if (fieldRef.receiverType != null) {
 					fieldRef.superAccess = scope.enclosingSourceType().isCompatibleWith(fieldRef.receiverType);
@@ -230,7 +231,7 @@ public class Javadoc extends ASTNode {
 			// Verify whether field ref should be static or not (for @value tags)
 			else if (verifyValues && fieldRef.binding != null && fieldRef.binding.isValidBinding()) {
 				if (fieldRef.tagValue == AbstractCommentParser.TAG_VALUE_VALUE && !fieldRef.binding.isStatic()) {
-					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd);
+					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, modifiers);
 				}
 			}
 		}
@@ -241,16 +242,18 @@ public class Javadoc extends ASTNode {
 		// Verify that message reference are not used for @value tags
 		else if (reference instanceof JavadocMessageSend) {
 			JavadocMessageSend msgSend = (JavadocMessageSend) reference;
+			int modifiers = msgSend.binding==null ? -1 : msgSend.binding.modifiers;
 			if (msgSend.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
-				scope.problemReporter().javadocInvalidValueReference(msgSend.sourceStart, msgSend.sourceEnd);
+				scope.problemReporter().javadocInvalidValueReference(msgSend.sourceStart, msgSend.sourceEnd, modifiers);
 			}
 		}
 
 		// Verify that constructorreference are not used for @value tags
 		else if (reference instanceof JavadocAllocationExpression) {
 			JavadocAllocationExpression alloc = (JavadocAllocationExpression) reference;
+			int modifiers = alloc.binding==null ? -1 : alloc.binding.modifiers;
 			if (alloc.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
-				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd);
+				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd, modifiers);
 			}
 		}
 	}
