@@ -7582,10 +7582,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 					
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-	 * @deprecated Temporarily removed
-	 * TBD (olivier) - this change is failing due to a change to setModifiers to no longer reject illegal modifiers
 	 */
-	public void _test0318() throws JavaModelException {
+	public void test0318() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0318", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
@@ -7593,9 +7591,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("No error", 1, unit.getMessages().length); //$NON-NLS-1$
 		assertEquals("No error", 1, unit.getProblems().length); //$NON-NLS-1$
-		ASTNode node = getASTNode(unit, 0, 0, 0);
-		assertTrue("Not a variable declaration statement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
-		assertTrue("Not malformed", isMalformed(node)); //$NON-NLS-1$
 	}
 
 	/**
