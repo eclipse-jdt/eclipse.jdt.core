@@ -161,11 +161,6 @@ public boolean exists() {
 				&& isOnClasspath();
 }
 		
-public boolean exists0() {
-	// should not be used with new builder
-	return false;
-}
-
 /**
  * @see Openable
  */
