@@ -936,11 +936,12 @@ public int getNextToken() throws InvalidInputException {
 
 			switch (this.currentCharacter) {
 				case '@' :
-					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+/*					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
 						return TokenNameAT;
 					} else {
 						return TokenNameERROR;
-					}
+					}*/
+					return TokenNameAT;
 				case '(' :
 					return TokenNameLPAREN;
 				case ')' :
@@ -961,15 +962,32 @@ public int getNextToken() throws InvalidInputException {
 					if (getNextCharAsDigit()) {
 						return scanNumber(true);
 					}
-					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+/*					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+						int temp = this.currentPosition;
 						if (getNextChar('.')) {
 							if (getNextChar('.')) {
 								return TokenNameELLIPSIS;
+							} else {
+								this.currentPosition = temp;
+								return TokenNameDOT;
 							}
 						} else {
+							this.currentPosition = temp;
 							return TokenNameDOT;
 						}
 					} else {
+						return TokenNameDOT;
+					}*/
+					int temp = this.currentPosition;
+					if (getNextChar('.')) {
+						if (getNextChar('.')) {
+							return TokenNameELLIPSIS;
+						} else {
+							this.currentPosition = temp;
+							return TokenNameDOT;
+						}
+					} else {
+						this.currentPosition = temp;
 						return TokenNameDOT;
 					}
 				case '+' :
