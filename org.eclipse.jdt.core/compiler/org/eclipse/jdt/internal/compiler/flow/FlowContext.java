@@ -133,9 +133,7 @@ public class FlowContext implements TypeConstants {
 					// clause will be fixed up later as per JLS 8.6).
 					if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
 						AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
-						if (method.isConstructor() 
-							&& method.binding.declaringClass.isAnonymousType()
-							&& scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+						if (method.isConstructor() && method.binding.declaringClass.isAnonymousType()){
 								
 							for (int i = 0; i < raisedCount; i++) {
 								TypeBinding raisedException;
@@ -228,9 +226,7 @@ public class FlowContext implements TypeConstants {
 					// clause will be fixed up later as per JLS 8.6).
 					if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
 						AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
-						if (method.isConstructor() 
-							&& method.binding.declaringClass.isAnonymousType()
-							&& scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+						if (method.isConstructor() && method.binding.declaringClass.isAnonymousType()){
 									
 							exceptionContext.mergeUnhandledException(raisedException);
 							return; // no need to complain, will fix up constructor exceptions						
