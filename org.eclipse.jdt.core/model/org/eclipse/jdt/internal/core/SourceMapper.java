@@ -173,11 +173,9 @@ public class SourceMapper
 	 * Use to handle root paths inference
 	 */
 	private boolean areRootPathsComputed;
-	private FilenameFilter filenameFilter;
 		
 	public SourceMapper() {
 		this.areRootPathsComputed = false;
-		this.filenameFilter = FILENAME_FILTER;
 	}
 	
 	/**
@@ -186,7 +184,6 @@ public class SourceMapper
 	 */
 	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
 		this.areRootPathsComputed = false;
-		this.filenameFilter = FILENAME_FILTER;
 		this.options = options;
 		this.encoding = (String)options.get(JavaCore.CORE_ENCODING);
 		if (rootPath != null) {
@@ -433,7 +430,7 @@ public class SourceMapper
 				}
 			} else if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
 				File parentDir = file.getParentFile();
-				if (parentDir.list(this.filenameFilter).length != 0) {
+				if (parentDir.list(FILENAME_FILTER).length != 0) {
 					IPath fullPath = new Path(parentDir.getPath());
 					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
 					this.rootPaths.add(rootPathEntry.toString());
