@@ -62,6 +62,11 @@ public class BufferChangedEvent extends EventObject {
 
 /**
  * Creates a new buffer changed event indicating that the given buffer has changed.
+ * 
+ * @param buffer the given buffer
+ * @param offset the given offset
+ * @param length the given length
+ * @param text the given text
  */
 public BufferChangedEvent(IBuffer buffer, int offset, int length, String text) {
 	super(buffer);

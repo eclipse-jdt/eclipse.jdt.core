@@ -120,7 +120,7 @@ public interface IJavaElementDelta {
 	 * Status constant indicating that the element has been changed,
 	 * as described by the change flags.
 	 * 
-	 * @see getFlags
+	 * @see #getFlags
 	 */
 	public int CHANGED = 4;
 

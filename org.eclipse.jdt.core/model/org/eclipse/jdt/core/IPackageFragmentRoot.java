@@ -170,7 +170,7 @@ public interface IPackageFragmentRoot
 	 * classpath (NAME_COLLISION) and <code>updateModelFlags</code>
 	 * has not been specified as <code>REPLACE</code></li>
 	 * </ul>
-	 * @see IResource#copy
+	 * @see org.eclipse.core.resources.IResource#copy
 	 * @since 2.1
 	 */
 	void copy(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
@@ -244,7 +244,7 @@ public interface IPackageFragmentRoot
 	 * or updating a classpath
 	 * </li>
 	 * </ul>
-	 * @see IResource#delete
+	 * @see org.eclipse.core.resources.IResource#delete
 	 * @since 2.1
 	 */
 	void delete(int updateResourceFlags, int updateModelFlags, IProgressMonitor monitor) throws JavaModelException;
@@ -418,7 +418,7 @@ public interface IPackageFragmentRoot
 	 * classpath (NAME_COLLISION) and <code>updateModelFlags</code>
 	 * has not been specified as <code>REPLACE</code></li>
 	 * </ul>
-	 * @see IResource#move
+	 * @see org.eclipse.core.resources.IResource#move
 	 * @since 2.1
 	 */
 	void move(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;

@@ -493,7 +493,7 @@ public interface IType extends IMember, IParent {
 	 * @exception JavaModelException if the hierarchy could not be restored, reasons include:
 	 *      - type is not the focus of the hierarchy or 
 	 *		- unable to read the input stream (wrong format, IOException during reading, ...)
-	 * @see ITypeHierachy#store(OutputStream, IProgressMonitor)
+	 * @see ITypeHierarchy#store(OutputStream, IProgressMonitor)
 	 * @since 2.1
 	 */
 	ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monitor) throws JavaModelException;
