@@ -39,24 +39,22 @@ public ElementCache(int size, int overflow) {
  */
 protected boolean close(LRUCacheEntry entry) {
 	IOpenable element = (IOpenable) entry._fKey;
-	synchronized (element) {
-		try {
-			if (element.hasUnsavedChanges()) {
-				return false;
-			} else {
-				// We must close an entire JarPackageFragmentRoot at once.
-				if (element instanceof JarPackageFragment) {
-					JarPackageFragment packageFragment= (JarPackageFragment) element;
-					JarPackageFragmentRoot root = (JarPackageFragmentRoot) packageFragment.getParent();
-					root.close();
-				} else {
-					element.close();
-				}
-				return true;
-			}
-		} catch (JavaModelException npe) {
+	try {
+		if (element.hasUnsavedChanges()) {
 			return false;
+		} else {
+			// We must close an entire JarPackageFragmentRoot at once.
+			if (element instanceof JarPackageFragment) {
+				JarPackageFragment packageFragment= (JarPackageFragment) element;
+				JarPackageFragmentRoot root = (JarPackageFragmentRoot) packageFragment.getParent();
+				root.close();
+			} else {
+				element.close();
+			}
+			return true;
 		}
+	} catch (JavaModelException npe) {
+		return false;
 	}
 }
 	/**

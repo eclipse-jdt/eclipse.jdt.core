@@ -38,13 +38,11 @@ public BufferCache(int size, int overflow) {
  */
 protected boolean close(LRUCacheEntry entry) {
 	IBuffer buffer= (IBuffer) entry._fValue;
-	synchronized (buffer) {
-		if (buffer.hasUnsavedChanges()) {
-			return false;
-		} else {
-			buffer.close();
-			return true;
-		}
+	if (buffer.hasUnsavedChanges()) {
+		return false;
+	} else {
+		buffer.close();
+		return true;
 	}
 }
 	/**
