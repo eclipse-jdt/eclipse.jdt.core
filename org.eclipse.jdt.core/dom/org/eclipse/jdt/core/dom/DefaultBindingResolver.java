@@ -735,7 +735,7 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof QualifiedTypeReference) {
 			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) node;
 			if (index == 0) {
-				return this.getTypeBinding((ReferenceBinding)qualifiedTypeReference.binding);
+				return this.getTypeBinding(qualifiedTypeReference.binding.leafComponentType());
 			} else {
 				int qualifiedTypeLength = qualifiedTypeReference.tokens.length;
 				int indexInQualifiedName = qualifiedTypeLength - index; // one-based
@@ -800,7 +800,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return getVariableBinding(((FieldReference) node).binding);
 		} else if (node instanceof SingleTypeReference) {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
-			return this.getTypeBinding(singleTypeReference.binding);
+			return this.getTypeBinding(singleTypeReference.binding.leafComponentType());
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
 			IVariableBinding variableBinding = this.getVariableBinding(fieldDeclaration.binding);
