@@ -467,7 +467,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 				case BindingIds.LOCAL : // reading a local variable
 					return IMPOSSIBLE_MATCH; // no type match in it
 				case BindingIds.TYPE : //=============only type ==============
-					if (binding instanceof ProblemReferenceBinding) {
+					if (!(binding instanceof TypeBinding)) {
 						return INACCURATE_MATCH;
 					}
 					typeBinding = (TypeBinding)binding;
