@@ -445,7 +445,7 @@ public class SearchEngine {
 	 * TODO add spec
 	 * @since 3.0
 	 */
-	public static SearchParticipant[] getSearchParticipants() {
+	public static SearchParticipant[] getAvailableSearchParticipants() {
 		
 		Plugin plugin = JavaCore.getPlugin();
 		if (plugin == null) return SearchParticipant.NO_PARTICIPANT;

@@ -90,7 +90,7 @@ public void addSource(IFile resource, IPath indexPath) {
  */
 public void cleanUpIndexes() {
 	SimpleLookupTable knownPaths = new SimpleLookupTable();
-	SearchParticipant[] participants = SearchEngine.getSearchParticipants();
+	SearchParticipant[] participants = SearchEngine.getAvailableSearchParticipants();
 	IJavaSearchScope scope = new JavaWorkspaceScope();
 	for (int i = 0, length = participants.length; i < length; i++) {
 		PatternSearchJob job = new PatternSearchJob(null, participants[i], scope, null);
