@@ -162,7 +162,7 @@ public abstract class ASTNode {
 	 * not quite right with this AST node.
 	 * <p>
 	 * The standard parser (<code>AST.parseCompilationUnit</code>) sets this
-	 * flag on a node to indicate a syntax error detcted in the vicinity.
+	 * flag on a node to indicate a syntax error detected in the vicinity.
 	 * </p>
 	 */
 	public static final int MALFORMED = 1;
