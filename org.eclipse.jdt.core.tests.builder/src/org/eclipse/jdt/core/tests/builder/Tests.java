@@ -251,10 +251,14 @@ public class Tests extends TestCase {
 					rootProblems[j] = null;
 				}
 			}
+			if (!found) {
+				printProblemsFor(root);
+			}
 			assertTrue("problem not found: " + expectedProblem.toString(), found); //$NON-NLS-1$
 		}
 		for (int i = 0; i < rootProblems.length; i++) {
 			if(rootProblems[i] != null) {
+				printProblemsFor(root);
 				assertTrue("unexpected problem: " + rootProblems[i].toString(), false); //$NON-NLS-1$
 			}
 		}

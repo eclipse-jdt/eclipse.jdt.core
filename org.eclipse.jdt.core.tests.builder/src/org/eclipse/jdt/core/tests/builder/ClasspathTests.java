@@ -56,13 +56,13 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project cannot be built until build path errors are resolved.", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("Build path", "Missing required Java project: CP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 		expectingOnlySpecificProblemsFor(project3Path,
 			new Problem[] {
-				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project3Path), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project cannot be built until build path errors are resolved.", project3Path), //$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("Build path", "Missing required library: 'CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
@@ -116,7 +116,7 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(project2Path);
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project cannot be built until build path errors are resolved.", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("Build path", "Missing required Java project: MP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
@@ -165,8 +165,8 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest1});
 		expectingOnlySpecificProblemsFor(projectPath,
 			new Problem[] {
-				new Problem("", "The project was not built since its classpath is incomplete. Cannot find the class file for java.lang.Object. Fix the classpath then try rebuilding this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try rebuilding this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files.", classTest1) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -203,18 +203,18 @@ public class ClasspathTests extends Tests {
 		fullBuild();
 		expectingSpecificProblemFor(
 			projectPath,
-			new Problem("", "The project was not built since its classpath is incomplete. Cannot find the class file for java.lang.Object. Fix the classpath then try rebuilding this project.", projectPath)); //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try rebuilding this project.", projectPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Problem[] prob1 = env.getProblemsFor(classTest1);
 		Problem[] prob2 = env.getProblemsFor(classTest2);
 		Problem[] prob3 = env.getProblemsFor(classTest3);
-		assertEquals("too much problems", prob1.length + prob2.length + prob3.length,1); //$NON-NLS-1$
+		assertEquals("too many problems", prob1.length + prob2.length + prob3.length,1); //$NON-NLS-1$
 		if(prob1.length == 1) {
-			expectingSpecificProblemFor(classTest1, new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
+			expectingSpecificProblemFor(classTest1, new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files.", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (prob2.length == 1) {
-			expectingSpecificProblemFor(classTest2, new Problem("p2", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest2)); //$NON-NLS-1$ //$NON-NLS-2$
+			expectingSpecificProblemFor(classTest2, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files.", classTest2)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			expectingSpecificProblemFor(classTest3, new Problem("p2", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest3)); //$NON-NLS-1$ //$NON-NLS-2$
+			expectingSpecificProblemFor(classTest3, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files.", classTest3)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		//----------------------------

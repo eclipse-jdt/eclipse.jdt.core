@@ -598,7 +598,7 @@ public void testClasspathValidation01() throws CoreException {
 		
 		assertEquals(
 			"should have detected duplicate entries on the classpath", 
-			"Classpath contains duplicate entry: P/src",
+			"Build path contains duplicate entry: P/src",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");
@@ -1658,11 +1658,11 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A",
-			"A cycle was detected in the classpath of project: A",
+			"A cycle was detected in the build path of project: A",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B",
-			"A cycle was detected in the classpath of project: B",
+			"A cycle was detected in the build path of project: B",
 			projectB);
 		
 		// delete project B	
@@ -1682,11 +1682,11 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A after adding project B back",
-			"A cycle was detected in the classpath of project: A",
+			"A cycle was detected in the build path of project: A",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B after adding project B back",
-			"A cycle was detected in the classpath of project: B",
+			"A cycle was detected in the build path of project: B",
 			projectB);
 
 	} finally {
@@ -2165,7 +2165,7 @@ public void testDuplicateEntries() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Invalid classpath in \'P/.classpath\' file: Classpath contains duplicate entry: P/src",
+			"Invalid build path in \'P/.classpath\' file: Build path contains duplicate entry: P/src",
 			project);
 	} finally {
 		this.deleteProject("P");
