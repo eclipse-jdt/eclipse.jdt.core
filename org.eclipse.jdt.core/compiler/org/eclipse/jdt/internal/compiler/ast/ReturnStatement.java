@@ -210,23 +210,24 @@ public class ReturnStatement extends Statement {
 		}
 		if ((expressionType = expression.resolveType(scope)) == null)
 			return;
-	
-		if (methodType != null && expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
+        if (expressionType == VoidBinding) {
+            scope.problemReporter().attemptToReturnVoidValue(this);
+            return;
+        }
+        if (methodType == null) 
+            return;        
+        if (methodType != expressionType) // must call before computeConversion() and typeMismatchError()
+            scope.compilationUnitScope().recordTypeConversion(methodType, expressionType);	
+		if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
 			// dealing with constant
 			expression.implicitWidening(methodType, expressionType);
 			return;
 		}
-		if (expressionType == VoidBinding) {
-			scope.problemReporter().attemptToReturnVoidValue(this);
-			return;
-		}
-		if (methodType != null && expressionType.isCompatibleWith(methodType)) {
+		if (expressionType.isCompatibleWith(methodType)) {
 			expression.implicitWidening(methodType, expressionType);
 			return;
 		}
-		if (methodType != null){
-			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionType, methodType);
-		}
+		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionType, methodType);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {

@@ -941,7 +941,7 @@ class DefaultBindingResolver extends BindingResolver {
 					case ProblemReasons.NonStaticReferenceInConstructorInvocation :
 						ReferenceBinding declaringClass = methodBinding.declaringClass;
 						if (declaringClass != null) {
-							org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters);
+							org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters, null);
 							if (exactBinding != null) {
 								IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(exactBinding);
 								if (binding != null) {

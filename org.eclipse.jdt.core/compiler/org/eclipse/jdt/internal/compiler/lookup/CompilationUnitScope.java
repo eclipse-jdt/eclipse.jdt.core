@@ -36,7 +36,8 @@ public class CompilationUnitScope extends Scope {
 	private CompoundNameVector qualifiedReferences;
 	private SimpleNameVector simpleNameReferences;
 	private ObjectVector referencedTypes;
-	
+    private ObjectVector referencedSuperTypes;
+    
 	HashtableOfType constantPoolNameUsage;
 
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
@@ -50,11 +51,13 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment e
 		this.qualifiedReferences = new CompoundNameVector();
 		this.simpleNameReferences = new SimpleNameVector();
 		this.referencedTypes = new ObjectVector();
+        this.referencedSuperTypes = new ObjectVector();        
 	} else {
 		this.qualifiedReferences = null; // used to test if dependencies should be recorded
 		this.simpleNameReferences = null;
 		this.referencedTypes = null;
-	}
+        this.referencedSuperTypes = null;
+    }
 }
 void buildFieldsAndMethods() {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
@@ -511,36 +514,34 @@ void recordSimpleReference(char[] simpleName) {
 	if (!simpleNameReferences.contains(simpleName))
 		simpleNameReferences.add(simpleName);
 }
+void recordSuperTypeReference(TypeBinding type) {
+    if (referencedSuperTypes == null) return; // not recording dependencies
+
+    ReferenceBinding actualType = typeToRecord(type);
+    if (actualType != null && !referencedSuperTypes.containsIdentical(actualType))
+        referencedSuperTypes.add(actualType);
+}
+public void recordTypeConversion(TypeBinding superType, TypeBinding subType) {
+    recordSuperTypeReference(subType); // must record the hierarchy of the subType that is converted to the superType
+}
 void recordTypeReference(TypeBinding type) {
-	if (referencedTypes == null) return; // not recording dependencies
+    if (referencedTypes == null) return; // not recording dependencies
 
-	if (type.isArrayType())
-		type = ((ArrayBinding) type).leafComponentType;
-
-	if (type.isBaseType()) return;
-	if (referencedTypes.containsIdentical(type)) return;
-	if (((ReferenceBinding) type).isLocalType()) return;
-
-	referencedTypes.add(type);
+    ReferenceBinding actualType = typeToRecord(type);
+    if (actualType != null && !referencedTypes.containsIdentical(actualType))
+        referencedTypes.add(actualType);
 }
 void recordTypeReferences(TypeBinding[] types) {
-	if (qualifiedReferences == null) return; // not recording dependencies
-	if (types == null || types.length == 0) return;
+    if (referencedTypes == null) return; // not recording dependencies
+    if (types == null || types.length == 0) return;
 
-	for (int i = 0, max = types.length; i < max; i++) {
-		// No need to record supertypes of method arguments & thrown exceptions, just the compoundName
-		// If a field/method is retrieved from such a type then a separate call does the job
-		TypeBinding type = types[i];
-		if (type.isArrayType())
-			type = ((ArrayBinding) type).leafComponentType;
-		if (!type.isBaseType()) {
-			ReferenceBinding actualType = (ReferenceBinding) type;
-			if (!actualType.isLocalType())
-				recordQualifiedReference(actualType.isMemberType()
-					? CharOperation.splitOn('.', actualType.readableName())
-					: actualType.compoundName);
-		}
-	}
+    for (int i = 0, max = types.length; i < max; i++) {
+        // No need to record supertypes of method arguments & thrown exceptions, just the compoundName
+        // If a field/method is retrieved from such a type then a separate call does the job
+        ReferenceBinding actualType = typeToRecord(types[i]);
+        if (actualType != null && !referencedTypes.containsIdentical(actualType))
+            referencedTypes.add(actualType);
+    }
 }
 Binding resolveSingleTypeImport(ImportBinding importBinding) {
 	if (importBinding.resolvedImport == null) {
@@ -560,42 +561,59 @@ Binding resolveSingleTypeImport(ImportBinding importBinding) {
 	return importBinding.resolvedImport;
 }
 public void storeDependencyInfo() {
-	// add the type hierarchy of each referenced type
-	// cannot do early since the hierarchy may not be fully resolved
-	for (int i = 0; i < referencedTypes.size; i++) { // grows as more types are added
-		ReferenceBinding type = (ReferenceBinding) referencedTypes.elementAt(i);
-		if (!type.isLocalType()) {
-			recordQualifiedReference(type.isMemberType()
-				? CharOperation.splitOn('.', type.readableName())
-				: type.compoundName);
-			ReferenceBinding enclosing = type.enclosingType();
-			if (enclosing != null && !referencedTypes.containsIdentical(enclosing))
-				referencedTypes.add(enclosing); // to record its supertypes
-		}
-		ReferenceBinding superclass = type.superclass();
-		if (superclass != null && !referencedTypes.containsIdentical(superclass))
-				referencedTypes.add(superclass); // to record its supertypes
-		ReferenceBinding[] interfaces = type.superInterfaces();
-		if (interfaces != null && interfaces.length > 0)
-			for (int j = 0, length = interfaces.length; j < length; j++)
-				if (!referencedTypes.containsIdentical(interfaces[j]))
-					referencedTypes.add(interfaces[j]); // to record its supertypes
-	}
+    // add the type hierarchy of each referenced supertype
+    // cannot do early since the hierarchy may not be fully resolved
+    for (int i = 0; i < referencedSuperTypes.size; i++) { // grows as more types are added
+        ReferenceBinding type = (ReferenceBinding) referencedSuperTypes.elementAt(i);
+        if (!referencedTypes.containsIdentical(type))
+            referencedTypes.add(type);
 
-	int size = qualifiedReferences.size;
-	char[][][] qualifiedRefs = new char[size][][];
-	for (int i = 0; i < size; i++)
-		qualifiedRefs[i] = qualifiedReferences.elementAt(i);
-	referenceContext.compilationResult.qualifiedReferences = qualifiedRefs;
+        if (!type.isLocalType()) {
+            ReferenceBinding enclosing = type.enclosingType();
+            if (enclosing != null)
+                recordSuperTypeReference(enclosing);
+        }
+        ReferenceBinding superclass = type.superclass();
+        if (superclass != null)
+            recordSuperTypeReference(superclass);
+        ReferenceBinding[] interfaces = type.superInterfaces();
+        if (interfaces != null)
+            for (int j = 0, length = interfaces.length; j < length; j++)
+                recordSuperTypeReference(interfaces[j]);
+    }
 
-	size = simpleNameReferences.size;
-	char[][] simpleRefs = new char[size][];
-	for (int i = 0; i < size; i++)
-		simpleRefs[i] = simpleNameReferences.elementAt(i);
-	referenceContext.compilationResult.simpleNameReferences = simpleRefs;
+    for (int i = 0, l = referencedTypes.size; i < l; i++) {
+        ReferenceBinding type = (ReferenceBinding) referencedTypes.elementAt(i);
+        if (!type.isLocalType())
+            recordQualifiedReference(type.isMemberType()
+                ? CharOperation.splitOn('.', type.readableName())
+                : type.compoundName);
+    }
+
+    int size = qualifiedReferences.size;
+    char[][][] qualifiedRefs = new char[size][][];
+    for (int i = 0; i < size; i++)
+        qualifiedRefs[i] = qualifiedReferences.elementAt(i);
+    referenceContext.compilationResult.qualifiedReferences = qualifiedRefs;
+
+    size = simpleNameReferences.size;
+    char[][] simpleRefs = new char[size][];
+    for (int i = 0; i < size; i++)
+        simpleRefs[i] = simpleNameReferences.elementAt(i);
+    referenceContext.compilationResult.simpleNameReferences = simpleRefs;
 }
 public String toString() {
 	return "--- CompilationUnit Scope : " + new String(referenceContext.getFileName()); //$NON-NLS-1$
+}
+private ReferenceBinding typeToRecord(TypeBinding type) {
+    if (type.isArrayType())
+        type = ((ArrayBinding) type).leafComponentType;
+
+    if (type instanceof ReferenceBinding) {
+        ReferenceBinding refType = (ReferenceBinding) type;
+        if (!refType.isLocalType()) return refType;
+    }
+    return null;
 }
 public void verifyMethods(MethodVerifier verifier) {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)

@@ -316,7 +316,7 @@ public final int getAccessFlags() {
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	return null;
 }
-public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes) {
+public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
 	return null;
 }
 public FieldBinding getField(char[] fieldName, boolean needResolve) {

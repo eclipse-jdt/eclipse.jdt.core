@@ -122,7 +122,7 @@ public class Assignment extends Expression {
 			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
 			return null;
 		}
-		this.resolvedType = lhs.resolveType(scope); // expressionType contains the assignment type (lhs Type)
+		TypeBinding lhsType = this.resolvedType = lhs.resolveType(scope); // expressionType contains the assignment type (lhs Type)
 		TypeBinding rhsType = expression.resolveType(scope);
 		if (this.resolvedType == null || rhsType == null) {
 			return null;
@@ -130,18 +130,20 @@ public class Assignment extends Expression {
 		checkAssignmentEffect(scope);
 				
 		// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
-		// may require to widen the rhs expression at runtime
-		if ((expression.isConstantValueOfTypeAssignableToType(rhsType, this.resolvedType)
-				|| (this.resolvedType.isBaseType() && BaseTypeBinding.isWidening(this.resolvedType.id, rhsType.id)))
-				|| rhsType.isCompatibleWith(this.resolvedType)) {
-			expression.implicitWidening(this.resolvedType, rhsType);
+        // may require to widen the rhs expression at runtime
+        if (lhsType != rhsType) // must call before computeConversion() and typeMismatchError()
+            scope.compilationUnitScope().recordTypeConversion(lhsType, rhsType);
+		if ((expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
+				|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
+				|| rhsType.isCompatibleWith(lhsType)) {
+			expression.implicitWidening(lhsType, rhsType);
 			return this.resolvedType;
 		}
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 			expression,
 			rhsType,
-			this.resolvedType);
-		return this.resolvedType;
+			lhsType);
+		return lhsType;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveTypeExpecting(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)

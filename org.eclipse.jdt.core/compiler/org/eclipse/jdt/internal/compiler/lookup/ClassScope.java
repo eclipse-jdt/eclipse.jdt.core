@@ -760,7 +760,7 @@ public class ClassScope extends Scope {
 			sourceType.tagBits |= HierarchyHasProblems;
 			return true;
 		}
-
+        compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes        
 		if (superType.isBinaryBinding()) {
 			// force its superclass & superinterfaces to be found... 2 possibilities exist - the source type is included in the hierarchy of:
 			//		- a binary type... this case MUST be caught & reported here
@@ -853,7 +853,7 @@ public class ClassScope extends Scope {
 				if (typeOrPackage instanceof PackageBinding) // error, the compoundName is a packageName
 					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
 				superType = (ReferenceBinding) typeOrPackage;
-				compilationUnitScope().recordTypeReference(superType); // to record supertypes
+//				compilationUnitScope().recordTypeReference(superType); // to record supertypes
 	
 				if (checkVisibility
 					&& n == size) { // if we're finished and know the final supertype then check visibility

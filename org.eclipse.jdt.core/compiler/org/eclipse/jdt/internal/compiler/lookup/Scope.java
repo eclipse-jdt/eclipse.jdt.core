@@ -137,27 +137,27 @@ public abstract class Scope
 		return ((CompilationUnitScope) unitScope).environment;
 	}
 
-	protected void faultInReceiverType(TypeBinding type) {
-		if (type.isArrayType())
-			type = ((ArrayBinding) type).leafComponentType;
-
-        // check on Begin bit, so as to be resilient with potential illformed binaries containing cycles (67769)
-		if (type instanceof BinaryTypeBinding && (type.tagBits & BeginHierarchyCheck) == 0) {
-		    type.tagBits |= BeginHierarchyCheck;
-			// fault in the hierarchy of the type now so we can detect missing types instead of in storeDependencyInfo
-			BinaryTypeBinding binaryType = (BinaryTypeBinding) type;
-			ReferenceBinding enclosingType = binaryType.enclosingType();
-			if (enclosingType != null)
-				faultInReceiverType(enclosingType);
-			ReferenceBinding superclass = binaryType.superclass();
-			if (superclass != null)
-				faultInReceiverType(superclass);
-			ReferenceBinding[] interfaces = binaryType.superInterfaces();
-			for (int i = 0, l = interfaces.length; i < l; i++)
-				faultInReceiverType(interfaces[i]);
-			type.tagBits |= EndHierarchyCheck;
-		}
-	}
+//	protected void faultInReceiverType(TypeBinding type) {
+//		if (type.isArrayType())
+//			type = ((ArrayBinding) type).leafComponentType;
+//
+//        // check on Begin bit, so as to be resilient with potential illformed binaries containing cycles (67769)
+//		if (type instanceof BinaryTypeBinding && (type.tagBits & BeginHierarchyCheck) == 0) {
+//		    type.tagBits |= BeginHierarchyCheck;
+//			// fault in the hierarchy of the type now so we can detect missing types instead of in storeDependencyInfo
+//			BinaryTypeBinding binaryType = (BinaryTypeBinding) type;
+//			ReferenceBinding enclosingType = binaryType.enclosingType();
+//			if (enclosingType != null)
+//				faultInReceiverType(enclosingType);
+//			ReferenceBinding superclass = binaryType.superclass();
+//			if (superclass != null)
+//				faultInReceiverType(superclass);
+//			ReferenceBinding[] interfaces = binaryType.superInterfaces();
+//			for (int i = 0, l = interfaces.length; i < l; i++)
+//				faultInReceiverType(interfaces[i]);
+//			type.tagBits |= EndHierarchyCheck;
+//		}
+//	}
 
 	// abstract method lookup lookup (since maybe missing default abstract methods)
 	public MethodBinding findDefaultAbstractMethod(
@@ -239,12 +239,11 @@ public abstract class Scope
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
-		faultInReceiverType(receiverType);
-		compilationUnitScope().recordTypeReference(receiverType);
-		compilationUnitScope().recordTypeReferences(argumentTypes);
-		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
+        CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordTypeReferences(argumentTypes);
+		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
 		if (exactMethod != null) {
-			compilationUnitScope().recordTypeReferences(exactMethod.thrownExceptions);
+			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this))
 				return exactMethod;
 		}
@@ -274,8 +273,8 @@ public abstract class Scope
 			return null;
 		}
 
-		faultInReceiverType(receiverType);
-		compilationUnitScope().recordTypeReference(receiverType);
+        CompilationUnitScope unitScope = compilationUnitScope();
+        unitScope.recordTypeReference(receiverType);
 
 		ReferenceBinding currentType = (ReferenceBinding) receiverType;
 		if (!currentType.canBeSeenBy(this))
@@ -311,6 +310,7 @@ public abstract class Scope
 			if ((currentType = currentType.superclass()) == null)
 				break;
 
+            unitScope.recordTypeReference(currentType);
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -334,6 +334,7 @@ public abstract class Scope
 					if ((anInterface.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						anInterface.tagBits |= InterfaceVisited;
+                        unitScope.recordTypeReference(anInterface);
 						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 							if (visibleField == null) {
 								visibleField = field;
@@ -497,7 +498,6 @@ public abstract class Scope
 		MethodBinding matchingMethod = null;
 		ObjectVector found = new ObjectVector(); //TODO should rewrite to remove #matchingMethod since found is allocated anyway
 
-		faultInReceiverType(receiverType);
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
 
@@ -516,7 +516,9 @@ public abstract class Scope
 		boolean isCompliant14 = compilationUnitScope().environment.options.complianceLevel >= ClassFileConstants.JDK1_4;
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
+        CompilationUnitScope unitScope = compilationUnitScope();
 		while (currentType != null) {
+            unitScope.recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 			
@@ -677,7 +679,7 @@ public abstract class Scope
 		}
 
 		ReferenceBinding object = getJavaLangObject();
-		MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes);
+		MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes, null);
 		if (methodBinding != null) {
 			// handle the method clone() specially... cannot be protected or throw exceptions
 			if (argumentTypes == NoParameters && CharOperation.equals(selector, CLONE))
@@ -737,7 +739,8 @@ public abstract class Scope
 					if ((currentType.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						currentType.tagBits |= InterfaceVisited;
-
+                        
+                        compilationUnitScope().recordTypeReference(currentType);
 						MethodBinding[] currentMethods = currentType.getMethods(selector);
 						int currentLength = currentMethods.length;
 						if (currentLength == 1 && matchingMethod == null && found.size == 0) {
@@ -1041,7 +1044,6 @@ public abstract class Scope
 
 	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		try {
-			faultInReceiverType(receiverType);
 			compilationUnitScope().recordTypeReference(receiverType);
 			compilationUnitScope().recordTypeReferences(argumentTypes);
 			MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
@@ -1418,10 +1420,12 @@ public abstract class Scope
 
 	public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		try {
+            if (receiverType.isBaseType())
+                return new ProblemMethodBinding(selector, argumentTypes, NotFound);
+
+            compilationUnitScope().recordTypeReference(receiverType);            
 			if (receiverType.isArrayType())
 				return findMethodForArray((ArrayBinding) receiverType, selector, argumentTypes, invocationSite);
-			if (receiverType.isBaseType())
-				return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	
 			ReferenceBinding currentType = (ReferenceBinding) receiverType;
 			if (!currentType.canBeSeenBy(this))
