@@ -64,6 +64,7 @@ public class ClassFile
 	protected boolean creatingProblemType;
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
+	public boolean ownSharedArrays = false; // flag set when header/contents are set to shared arrays
 	public static final int INNER_CLASSES_SIZE = 5;
 	public CodeStream codeStream;
 	protected int problemLine;	// used to create line number attributes for problem methods
@@ -91,7 +92,8 @@ public class ClassFile
 		boolean creatingProblemType) {
 	    
 		referenceBinding = aType;
-		header = new byte[INITIAL_HEADER_SIZE];
+		initByteArrays();
+
 		// generate the magic numbers inside the header
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 24);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
@@ -134,7 +136,6 @@ public class ClassFile
 		this.enclosingClassFile = enclosingClassFile;
 		// innerclasses get their names computed at code gen time
 
-		contents = new byte[INITIAL_CONTENTS_SIZE];
 		// now we continue to generate the bytes inside the contents array
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
 		contents[contentsOffset++] = (byte) accessFlags;
@@ -2403,6 +2404,22 @@ public class ClassFile
 	 */
 	public char[][] getCompoundName() {
 		return CharOperation.splitOn('/', fileName());
+	}
+
+	protected void initByteArrays() {
+		LookupEnvironment env = this.referenceBinding.scope.environment();
+		synchronized (env) {
+			if (env.sharedArraysUsed) {
+				this.ownSharedArrays = false;
+				int members = referenceBinding.methods().length + referenceBinding.fields().length;
+				this.header = new byte[INITIAL_HEADER_SIZE];
+				this.contents = new byte[members < 15 ? INITIAL_CONTENTS_SIZE : INITIAL_HEADER_SIZE];
+			} else {
+				this.ownSharedArrays = env.sharedArraysUsed = true;
+				this.header = env.sharedClassFileHeader;
+				this.contents = env.sharedClassFileContents;
+			}
+		}
 	}
 
 	/**

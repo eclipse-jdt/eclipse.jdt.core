@@ -275,6 +275,15 @@ protected Compiler newCompiler() {
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
 	// enable the compiler reference info support
 	newCompiler.options.produceReferenceInfo = true;
+
+	org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment env = newCompiler.lookupEnvironment;
+	synchronized (env) {
+		// enable shared byte[]'s used by ClassFile to avoid allocating MBs during a build
+		env.sharedArraysUsed = false;
+		env.sharedClassFileHeader = new byte[30000];
+		env.sharedClassFileContents = new byte[30000];
+	}
+
 	return newCompiler;
 }
 
@@ -444,6 +453,13 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 
 	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
 	writeClassFileBytes(classFile.getBytes(), file, fileName, isSecondaryType, compilationUnit.updateClassFile);
+	if (classFile.ownSharedArrays) {
+		org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment env = this.compiler.lookupEnvironment;
+		synchronized (env) {
+			env.sharedArraysUsed = false;
+		}
+	}
+
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();
 }

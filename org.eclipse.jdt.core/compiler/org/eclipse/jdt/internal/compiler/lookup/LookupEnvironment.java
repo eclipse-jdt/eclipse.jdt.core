@@ -50,6 +50,12 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	final static int CHECK_AND_SET_IMPORTS = 2;
 	final static int CONNECT_TYPE_HIERARCHY = 3;
 	final static int BUILD_FIELDS_AND_METHODS = 4;
+
+	// shared byte[]'s used by ClassFile to avoid allocating MBs during a build
+	public boolean sharedArraysUsed = true; // set to false once actual arrays are allocated
+	public byte[] sharedClassFileHeader = null;
+	public byte[] sharedClassFileContents = null;
+
 public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
 	this.typeRequestor = typeRequestor;
 	this.options = options;

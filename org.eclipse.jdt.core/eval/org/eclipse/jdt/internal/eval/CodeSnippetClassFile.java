@@ -41,7 +41,7 @@ public CodeSnippetClassFile(
 	 * @param creatingProblemType <CODE>boolean</CODE>
 	 */
 	this.referenceBinding = aType;
-	this.header = new byte[INITIAL_HEADER_SIZE];
+	initByteArrays();
 	// generate the magic numbers inside the header
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 24);
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 16);
@@ -81,7 +81,6 @@ public CodeSnippetClassFile(
 	accessFlags &= ~AccStrictfp;
 
 	this.enclosingClassFile = enclosingClassFile;
-	this.contents = new byte[INITIAL_CONTENTS_SIZE];
 	// now we continue to generate the bytes inside the contents array
 	this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 	this.contents[this.contentsOffset++] = (byte) accessFlags;
