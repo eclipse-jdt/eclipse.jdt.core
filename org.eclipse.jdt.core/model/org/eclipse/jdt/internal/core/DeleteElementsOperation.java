@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -72,6 +75,14 @@ public class DeleteElementsOperation extends MultiOperation {
 	 */
 	protected String getMainTaskName() {
 		return Util.bind("operation.deleteElementProgress"); //$NON-NLS-1$
+	}
+	protected ISchedulingRule getSchedulingRule() {
+		if (this.elementsToProcess != null && this.elementsToProcess.length == 1) {
+			IResource resource = this.elementsToProcess[0].getResource();
+			if (resource != null)
+				return ResourcesPlugin.getWorkspace().getRuleFactory().modifyRule(resource);
+		}
+		return super.getSchedulingRule();
 	}
 	/**
 	 * Groups the elements to be processed by their compilation unit.

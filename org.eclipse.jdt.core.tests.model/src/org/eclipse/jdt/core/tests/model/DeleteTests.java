@@ -325,7 +325,7 @@ public void testDeleteEmptyPackageFragment() throws CoreException {
 /**
  * Ensures that a field can be deleted.
  */
-public void testDeleteField() throws CoreException {
+public void testDeleteField1() throws CoreException { // was testDeleteField
 	try {
 		createFile(
 			"P/X.java",
@@ -355,7 +355,7 @@ public void testDeleteField() throws CoreException {
 /**
  * Ensures that deletion can be canceled.
  */
-public void testDeleteFieldWithCancel() throws CoreException {
+public void testDeleteField2() throws CoreException { // was testDeleteFieldWithCancel
 	try {
 		createFile(
 			"P/X.java",
@@ -376,6 +376,45 @@ public void testDeleteFieldWithCancel() throws CoreException {
 		}
 		assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
 	} finally {
+		deleteFile("P/X.java");
+	}
+}
+/*
+ * Ensures that a field can be deleted inside a schduling rule that include the resource only.
+ * (regression test for bug 73078 ISourceManipulation.delete() tries to run in WorkspaceRoot scheduling rule)
+ */
+public void testDeleteField3() throws CoreException {
+	try {
+		IFile file = createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  int field;\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		final IField field = cu.getType("X").getField("field");
+
+		startDeltas();
+		getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					assertDeletion(field);
+				}
+			}, 
+			file,
+			IWorkspace.AVOID_UPDATE,
+			null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"					field[-]: {}"
+		);
+	} finally {
+		stopDeltas();
 		deleteFile("P/X.java");
 	}
 }
