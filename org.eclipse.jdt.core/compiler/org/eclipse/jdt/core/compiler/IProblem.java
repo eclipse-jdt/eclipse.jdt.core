@@ -11,7 +11,8 @@
  *                                 NonStaticAccessToStaticField
  *                                 NonStaticAccessToStaticMethod
  *                                 Task
- *                                 NoOpAssignment
+ * 								   ExpressionShouldBeAVariable
+ * 								   AssignmentHasNoEffect
  *     IBM Corporation - added the following constants
  * 								   TooManySyntheticArgumentSlots
  * 								   TooManyArrayDimensions
@@ -367,6 +368,7 @@ public interface IProblem {
 	int UnmatchedBracket = Syntax + Internal + 220;
 	int NoFieldOnBaseType = FieldRelated + 221;
 	int InvalidExpressionAsStatement = Syntax + Internal + 222;
+	/** @since 2.1 */
 	int ExpressionShouldBeAVariable = Syntax + Internal + 223;
 	/** @since 2.1 */
 	int MissingSemiColon = Syntax + Internal + 224;
@@ -416,6 +418,7 @@ public interface IProblem {
 	int MustSpecifyPackage = 326;
 	int HierarchyHasProblems = TypeRelated + 327;
 	int PackageIsNotExpectedPackage = 328;
+	/** @since 2.1 */
 	int ObjectCannotHaveSuperTypes = 329;
 
 	// int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
@@ -530,10 +533,13 @@ public interface IProblem {
 	
 	//constant pool
 	int TooManyConstantsInConstantPool = Internal + 430;
+	/** @since 2.1 */
 	int TooManyBytesForStringConstant = Internal + 431;
 
 	// static constraints
+	/** @since 2.1 */
 	int TooManyFields = Internal + 432;
+	/** @since 2.1 */
 	int TooManyMethods = Internal + 433; 
 		
 	// 1.4 features
