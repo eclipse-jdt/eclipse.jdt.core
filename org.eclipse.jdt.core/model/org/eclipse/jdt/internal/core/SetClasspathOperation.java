@@ -138,9 +138,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		manager.setBuildOrder(
 			((JavaModel) project.getJavaModel()).computeBuildOrder(true));
 
-		// flush markers
-		project.flushClasspathProblemMarkers();
-
 		// resolve new path (asking for marker creation if problems)
 		IClasspathEntry[] newExpandedPath = project.getExpandedClasspath(true, true);
 

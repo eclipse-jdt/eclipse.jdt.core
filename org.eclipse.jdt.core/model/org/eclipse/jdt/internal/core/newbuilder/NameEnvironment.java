@@ -69,7 +69,7 @@ public static ClasspathLocation[] computeLocations(
 	ArrayList sourceFolders,
 	SimpleLookupTable prereqOutputFolders) throws JavaModelException {
 
-	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(true);
+	IClasspathEntry[] classpathEntries = ((JavaProject) javaProject).getExpandedClasspath(true, true);
 	int cpCount = 0;
 	int max = classpathEntries.length;
 	ClasspathLocation[] classpathLocations = new ClasspathLocation[max];

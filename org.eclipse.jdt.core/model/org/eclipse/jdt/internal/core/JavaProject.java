@@ -1177,6 +1177,9 @@ public class JavaProject
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError)	throws JavaModelException {
 
+		if (generateMarkerOnError)
+			flushClasspathProblemMarkers();
+
 		// expanded path is cached on its info
 //		IClasspathEntry[] infoPath = getJavaProjectElementInfo().lastExpandedClasspath;
 //		if (infoPath != null) return infoPath;
