@@ -761,7 +761,9 @@ public void test21() {
 		} catch(IOException e) {
 		}
 		String computedReferences = references.toString();
-		boolean check = computedReferences.indexOf("constructorRef/Z/0\nmethodRef/init/0") >= 0;
+		boolean check = 
+			computedReferences.indexOf("constructorRef/Z/0") >= 0
+			&& computedReferences.indexOf("methodRef/init/0") >= 0;
 		if (!check){
 			System.out.println(computedReferences);
 		}
