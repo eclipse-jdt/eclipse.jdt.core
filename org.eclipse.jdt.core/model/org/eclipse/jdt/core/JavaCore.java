@@ -118,6 +118,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"; //$NON-NLS-1$
 	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"; //$NON-NLS-1$
+	public static final String COMPILER_PB_UNUSED_IMPORT = PLUGIN_ID + ".compiler.problem.unusedImport"; //$NON-NLS-1$
 	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String COMPILER_PB_NON_NLS_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	public static final String COMPILER_PB_ASSERT_IDENTIFIER = PLUGIN_ID + ".compiler.problem.assertIdentifier"; //$NON-NLS-1$
@@ -692,6 +693,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "error", "warning", "ignore" }
 	 *     - default:			"ignore"
 	 *
+	 *	COMPILER / Reporting Unused Import
+	 *    When enabled, the compiler will issue an error or a warning for unused import 
+	 *    reference 
+	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unusedImport"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:			"ignore"
+	 *
 	 *	COMPILER / Reporting Synthetic Access Emulation
 	 *    When enabled, the compiler will issue an error or a warning whenever it emulates 
 	 *    access to a non-accessible member of an enclosing type. Such access can have
@@ -1138,6 +1146,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_HIDDEN_CATCH_BLOCK, WARNING); 
 		preferences.setDefault(COMPILER_PB_UNUSED_LOCAL, IGNORE); 
 		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER, IGNORE); 
+		preferences.setDefault(COMPILER_PB_UNUSED_IMPORT, IGNORE); 
 		preferences.setDefault(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, IGNORE); 
 		preferences.setDefault(COMPILER_PB_NON_NLS_STRING_LITERAL, IGNORE); 
 		preferences.setDefault(COMPILER_PB_ASSERT_IDENTIFIER, IGNORE); 

@@ -17,6 +17,8 @@ Eclipse SDK Build 200205? - ?th May 2002
 What's new in this drop</h2>
 <ul>
 <li>Added API on IType so as to tell whether a type is anonymous, local or member.</li>
+<li>Changing 2.0 API for refreshing external JARs so as to pass in a collection of projects to restrain the scope
+of the update (see <code>IJavaModel#refreshExternalJARs(IJavaProject[],IProgressMonitor)</code>. </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
