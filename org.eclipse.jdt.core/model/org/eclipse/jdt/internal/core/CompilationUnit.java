@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
-	public static final boolean USE_LOCAL_ELEMENTS = false;
+	public static final boolean USE_LOCAL_ELEMENTS = true;
 	
 	public WorkingCopyOwner owner;
 
