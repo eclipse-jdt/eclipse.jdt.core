@@ -15340,4 +15340,29 @@ public void test500(){
 			},
 			"");
 	}		
+	public void test542() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static <T> boolean isOK(T x) {\n" + 
+				"		return isOK(x);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static <T> boolean isStillOK(T x) {\n" + 
+				"		return true && isOK(x);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static <T> boolean isNoMoreOK(T x) {\n" + 
+				"		return true && isNoMoreOK(x);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static <T> boolean isOKAgain(T x) {\n" + 
+				"		boolean res;\n" + 
+				"		return true && (res = isOKAgain(x));\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}		
 }
