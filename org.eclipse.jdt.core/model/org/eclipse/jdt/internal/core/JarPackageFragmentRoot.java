@@ -48,7 +48,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * does not have an associated <code>IResource</code>.
 	 */
 	protected JarPackageFragmentRoot(IPath jarPath, IJavaProject project) {
-		super(null, project, jarPath.toString());
+		super(null, project, jarPath.lastSegment());
 		this.jarPath = jarPath;
 	}
 	/**
@@ -56,7 +56,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * based on a JAR file.
 	 */
 	protected JarPackageFragmentRoot(IResource resource, IJavaProject project) {
-		super(resource, project, resource.getFullPath().toString());
+		super(resource, project, resource.getName());
 		this.jarPath = resource.getFullPath();
 	}
 
@@ -353,15 +353,5 @@ public IJavaElement rootedAt(IJavaProject project) {
 				getResource(),
 				project);
 	}
-}
-
-/**
- * @see JavaElement#getHandleMemento()
- */
-public String getHandleMemento(){
-	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
-	buff.append(getHandleMementoDelimiter());
-	buff.append(this.jarPath.toString()); // 1GEP51U
-	return buff.toString();
 }
 }

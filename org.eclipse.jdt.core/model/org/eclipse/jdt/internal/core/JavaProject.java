@@ -1127,13 +1127,7 @@ public class JavaProject
 					return null;
 				}
 			case IResource.FOLDER:
-				if (resource.getProject().equals(getProject())) {
-					// name of root is the project relative path (case of source folders and library folder in same project)
-					return new PackageFragmentRoot(resource, this, resource.getProjectRelativePath().toString());
-				} else {
-					// name of root is the full path (case of library folder in another project)
-					return new PackageFragmentRoot(resource, this, resource.getFullPath().toString());
-				}
+				return new PackageFragmentRoot(resource, this, resource.getName());
 			case IResource.PROJECT:
 				return new PackageFragmentRoot(resource, this, ""); //$NON-NLS-1$
 			default:

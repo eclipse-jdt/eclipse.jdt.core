@@ -265,12 +265,7 @@ protected IPackageFragmentRoot getHandleFromMementoForRoot(String memento, JavaP
 	} else {
 		rootName = memento.substring(projectEnd + 1, rootEnd);
 	}
-	IPath rootPath = new Path(rootName);
-	if (rootPath.isAbsolute()) {
-		return project.getPackageFragmentRoot(rootPath);
-	} else {
-		return project.getPackageFragmentRoot(project.getProject().getFullPath().append(rootName));
-	}
+	return project.getPackageFragmentRoot(new Path(rootName));
 }
 /**
  * Returns the <code>IJavaElement</code> represented by the <code>String</code>

@@ -50,8 +50,8 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
  * Constructs a package fragment root which is the root of the java package
  * directory hierarchy.
  */
-protected PackageFragmentRoot(IResource resource, IJavaProject project, String path) {
-	super(PACKAGE_FRAGMENT_ROOT, project, path);
+protected PackageFragmentRoot(IResource resource, IJavaProject project, String name) {
+	super(PACKAGE_FRAGMENT_ROOT, project, name);
 	this.resource = resource;
 }
 
@@ -484,7 +484,28 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_PACKAGEFRAGMENTROOT;
 }
-
+/**
+ * @see JavaElement#getHandleMemento()
+ */
+public String getHandleMemento(){
+	IPath path;
+	IResource resource = getResource();
+	if (resource != null) {
+		// internal jar or regular root
+		if (getResource().getProject().equals(getJavaProject().getProject())) {
+			path = resource.getProjectRelativePath();
+		} else {
+			path = resource.getFullPath();
+		}
+	} else {
+		// external jar
+		path = getPath();
+	}
+	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+	buff.append(getHandleMementoDelimiter());
+	buff.append(path.toString()); 
+	return buff.toString();
+}
 /**
  * @see IPackageFragmentRoot
  */
@@ -852,7 +873,12 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (getElementName().length() == 0) {
 		buffer.append("[project root]"); //$NON-NLS-1$
 	} else {
-		buffer.append(getElementName());
+		IPath path = getPath();
+		if (getJavaProject().getElementName().equals(path.segment(0))) {
+			buffer.append(path.removeFirstSegments(1).makeRelative());
+		} else {
+			buffer.append(path);
+		}
 	}
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$
