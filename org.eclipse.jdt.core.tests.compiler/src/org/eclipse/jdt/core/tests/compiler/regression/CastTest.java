@@ -74,15 +74,15 @@ public void test001() {
 		"     9  ldc #23 <String \"SUCCESS\">\n" + 
 		"    11  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
 		"    14  return\n" + 
-		"  Line numbers:\n" + 
-		"    [pc: 0, line: 3]\n" + 
-		"    [pc: 4, line: 4]\n" + 
-		"    [pc: 6, line: 5]\n" + 
-		"    [pc: 14, line: 6]\n" + 
-		"  Local variable table:\n" + 
-		"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-		"    [pc: 4, pc: 15] local: c1 index: 1 type: java.lang.Cloneable\n" + 
-		"    [pc: 6, pc: 15] local: c2 index: 2 type: java/lang/Cloneable\n";
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 6, line: 5]\n" + 
+		"        [pc: 14, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 4, pc: 15] local: c1 index: 1 type: java.lang.Cloneable\n" + 
+		"        [pc: 6, pc: 15] local: c2 index: 2 type: java/lang/Cloneable\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}

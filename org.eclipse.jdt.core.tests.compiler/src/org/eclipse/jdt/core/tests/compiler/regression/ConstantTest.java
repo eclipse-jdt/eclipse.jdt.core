@@ -392,22 +392,22 @@ public void test009() {
 		"    89  ldc #57 <String \"5\">\n" + 
 		"    91  invokevirtual #60 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
 		"    94  return\n" + 
-		"  Line numbers:\n" + 
-		"    [pc: 0, line: 3]\n" + 
-		"    [pc: 8, line: 4]\n" + 
-		"    [pc: 21, line: 5]\n" + 
-		"    [pc: 29, line: 6]\n" + 
-		"    [pc: 61, line: 7]\n" + 
-		"    [pc: 69, line: 8]\n" + 
-		"    [pc: 71, line: 9]\n" + 
-		"    [pc: 83, line: 10]\n" + 
-		"    [pc: 86, line: 11]\n" + 
-		"    [pc: 94, line: 12]\n" + 
-		"  Local variable table:\n" + 
-		"    [pc: 0, pc: 95] local: args index: 0 type: java.lang.String[]\n" + 
-		"    [pc: 61, pc: 95] local: b index: 1 type: boolean\n" + 
-		"    [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" + 
-		"    [pc: 86, pc: 95] local: s2 index: 3 type: java/lang/String\n";
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 8, line: 4]\n" + 
+		"        [pc: 21, line: 5]\n" + 
+		"        [pc: 29, line: 6]\n" + 
+		"        [pc: 61, line: 7]\n" + 
+		"        [pc: 69, line: 8]\n" + 
+		"        [pc: 71, line: 9]\n" + 
+		"        [pc: 83, line: 10]\n" + 
+		"        [pc: 86, line: 11]\n" + 
+		"        [pc: 94, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 95] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 61, pc: 95] local: b index: 1 type: boolean\n" + 
+		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" + 
+		"        [pc: 86, pc: 95] local: s2 index: 3 type: java/lang/String\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
@@ -461,13 +461,13 @@ public void test010() {
 		"    12  ldc #31 <String \"SHOULDN\'T BE GENERATED\">\n" + 
 		"    14  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
 		"    17  return\n" + 
-		"  Line numbers:\n" + 
-		"    [pc: 0, line: 4]\n" + 
-		"    [pc: 8, line: 5]\n" + 
-		"    [pc: 9, line: 7]\n" + 
-		"    [pc: 17, line: 8]\n" + 
-		"  Local variable table:\n" + 
-		"    [pc: 0, pc: 18] local: args index: 0 type: java/lang/String[]\n";
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 8, line: 5]\n" + 
+		"        [pc: 9, line: 7]\n" + 
+		"        [pc: 17, line: 8]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 18] local: args index: 0 type: java/lang/String[]\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}

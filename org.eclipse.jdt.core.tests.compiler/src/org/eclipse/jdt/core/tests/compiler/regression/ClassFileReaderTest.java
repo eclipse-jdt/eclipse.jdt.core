@@ -53,7 +53,9 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			if (index == -1 || expectedOutput.length() == 0) {
 				System.out.println(Util.displayString(result, 3));
 			}
-			assertTrue("Wrong contents", index != -1 && expectedOutput.length() != 0);
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -143,10 +145,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     5  invokespecial #24 <Constructor A001$1$A(A001 arg)>\n" + 
 			"     8  invokevirtual #27 <Method A001$1$A#get() int>\n" + 
 			"    11  ireturn\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 12] local: this index: 0 type: A001\n"; 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 12] local: this index: 0 type: A001\n"; 
 		checkClassFile("A001", source, expectedOutput);
 	}			
 
@@ -170,12 +172,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 6, line: 4]\n" + 
-			"    [pc: 12, line: 5]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 6, line: 4]\n" + 
+			"        [pc: 12, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n";
 		checkClassFile("A002", source, expectedOutput);
 	}
 	
@@ -200,10 +202,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"  public int bar();\n" + 
 			"    0  iconst_0\n" + 
 			"    1  ireturn\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 4]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 2] local: this index: 0 type: A003\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 2] local: this index: 0 type: A003\n" + 
 			"  \n" + 
 			"  // Method descriptor  #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
@@ -213,11 +215,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     4  invokevirtual #24 <Method A003#bar() int>\n" + 
 			"     7  invokevirtual #30 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    10  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 8]\n" + 
-			"    [pc: 10, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 11] local: this index: 0 type: A003\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 8]\n" + 
+			"        [pc: 10, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 11] local: this index: 0 type: A003\n";
 		checkClassFile("A003", source, expectedOutput);
 	}
 	
@@ -253,17 +255,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    18  iload_2\n" + 
 			"    19  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    22  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 4]\n" + 
-			"    [pc: 5, line: 5]\n" + 
-			"    [pc: 11, line: 6]\n" + 
-			"    [pc: 15, line: 7]\n" + 
-			"    [pc: 22, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 23] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
-			"    [pc: 5, pc: 23] local: i index: 2 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 11, line: 6]\n" + 
+			"        [pc: 15, line: 7]\n" + 
+			"        [pc: 22, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 23] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
+			"        [pc: 5, pc: 23] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -294,14 +296,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -326,12 +328,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  bipush 6\n" + 
 			"    2  istore_1\n" + 
 			"    3  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 4] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 4] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 4] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 4] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -360,14 +362,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -392,12 +394,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  iconst_0\n" + 
 			"    1  istore_1\n" + 
 			"    2  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 3] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 3] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -433,17 +435,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    18  iload_2\n" + 
 			"    19  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    22  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 4]\n" + 
-			"    [pc: 5, line: 5]\n" + 
-			"    [pc: 11, line: 6]\n" + 
-			"    [pc: 15, line: 7]\n" + 
-			"    [pc: 22, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 23] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
-			"    [pc: 5, pc: 23] local: i index: 2 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 11, line: 6]\n" + 
+			"        [pc: 15, line: 7]\n" + 
+			"        [pc: 22, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 23] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
+			"        [pc: 5, pc: 23] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -474,14 +476,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -512,14 +514,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -546,13 +548,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    2  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"    5  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    8  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 6]\n" + 
-			"    [pc: 8, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 6]\n" + 
+			"        [pc: 8, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -581,14 +583,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -631,17 +633,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    31  iload_2\n" + 
 			"    32  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    35  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 4]\n" + 
-			"    [pc: 5, line: 5]\n" + 
-			"    [pc: 16, line: 6]\n" + 
-			"    [pc: 28, line: 7]\n" + 
-			"    [pc: 35, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 36] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 36] local: b index: 1 type: boolean\n" + 
-			"    [pc: 5, pc: 36] local: i index: 2 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 16, line: 6]\n" + 
+			"        [pc: 28, line: 7]\n" + 
+			"        [pc: 35, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 36] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 36] local: b index: 1 type: boolean\n" + 
+			"        [pc: 5, pc: 36] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -672,14 +674,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -710,14 +712,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -746,14 +748,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -782,14 +784,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -829,17 +831,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    24  iload_2\n" + 
 			"    25  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    28  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 4]\n" + 
-			"    [pc: 5, line: 5]\n" + 
-			"    [pc: 10, line: 6]\n" + 
-			"    [pc: 21, line: 7]\n" + 
-			"    [pc: 28, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 29] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 29] local: b index: 1 type: boolean\n" + 
-			"    [pc: 5, pc: 29] local: i index: 2 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 10, line: 6]\n" + 
+			"        [pc: 21, line: 7]\n" + 
+			"        [pc: 28, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 29] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 29] local: b index: 1 type: boolean\n" + 
+			"        [pc: 5, pc: 29] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -870,15 +872,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    11  iload_1\n" + 
 			"    12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    15  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 4, line: 5]\n" + 
-			"    [pc: 8, line: 6]\n" + 
-			"    [pc: 15, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 16] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 4, line: 5]\n" + 
+			"        [pc: 8, line: 6]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -908,14 +910,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -945,14 +947,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 5]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 5]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 	
@@ -982,14 +984,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 	
@@ -1019,14 +1021,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 5]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 5]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1057,15 +1059,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    11  iload_1\n" + 
 			"    12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    15  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 4, line: 5]\n" + 
-			"    [pc: 8, line: 6]\n" + 
-			"    [pc: 15, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 16] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 4, line: 5]\n" + 
+			"        [pc: 8, line: 6]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1096,14 +1098,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1134,14 +1136,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 5]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 5]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1172,15 +1174,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    11  iload_1\n" + 
 			"    12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    15  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 4, line: 5]\n" + 
-			"    [pc: 8, line: 6]\n" + 
-			"    [pc: 15, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 16] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 4, line: 5]\n" + 
+			"        [pc: 8, line: 6]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1210,14 +1212,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1248,14 +1250,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    10  iload_1\n" + 
 			"    11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    14  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 5]\n" + 
-			"    [pc: 7, line: 6]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 15] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 5]\n" + 
+			"        [pc: 7, line: 6]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1286,15 +1288,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    11  iload_1\n" + 
 			"    12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    15  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 4, line: 5]\n" + 
-			"    [pc: 8, line: 6]\n" + 
-			"    [pc: 15, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 16] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 4, line: 5]\n" + 
+			"        [pc: 8, line: 6]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 	
@@ -1325,15 +1327,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    11  iload_1\n" + 
 			"    12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    15  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 4, line: 5]\n" + 
-			"    [pc: 8, line: 6]\n" + 
-			"    [pc: 15, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 16] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 4, line: 5]\n" + 
+			"        [pc: 8, line: 6]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}		
 
@@ -1377,17 +1379,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    32  iload_2\n" + 
 			"    33  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    36  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 4]\n" + 
-			"    [pc: 5, line: 5]\n" + 
-			"    [pc: 16, line: 6]\n" + 
-			"    [pc: 29, line: 7]\n" + 
-			"    [pc: 36, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
-			"    [pc: 5, pc: 37] local: i index: 2 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 16, line: 6]\n" + 
+			"        [pc: 29, line: 7]\n" + 
+			"        [pc: 36, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
+			"        [pc: 5, pc: 37] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1418,14 +1420,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1450,12 +1452,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  bipush 6\n" + 
 			"    2  istore_1\n" + 
 			"    3  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 4] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 4] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 4] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 4] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1484,14 +1486,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1516,12 +1518,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  iconst_0\n" + 
 			"    1  istore_1\n" + 
 			"    2  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 3] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 3] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1565,17 +1567,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    32  iload_2\n" + 
 			"    33  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    36  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 4]\n" + 
-			"    [pc: 5, line: 5]\n" + 
-			"    [pc: 16, line: 6]\n" + 
-			"    [pc: 29, line: 7]\n" + 
-			"    [pc: 36, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
-			"    [pc: 5, pc: 37] local: i index: 2 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 16, line: 6]\n" + 
+			"        [pc: 29, line: 7]\n" + 
+			"        [pc: 36, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
+			"        [pc: 5, pc: 37] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1603,13 +1605,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  iload_1\n" + 
 			"     7  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    10  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 6]\n" + 
-			"    [pc: 10, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 11] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 11] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 6]\n" + 
+			"        [pc: 10, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 11] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 11] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1640,14 +1642,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1674,13 +1676,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    2  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"    5  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    8  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 6]\n" + 
-			"    [pc: 8, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 6]\n" + 
+			"        [pc: 8, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1709,14 +1711,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1760,17 +1762,17 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    32  iload_2\n" + 
 			"    33  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    36  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 4]\n" + 
-			"    [pc: 5, line: 5]\n" + 
-			"    [pc: 16, line: 6]\n" + 
-			"    [pc: 29, line: 7]\n" + 
-			"    [pc: 36, line: 9]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
-			"    [pc: 5, pc: 37] local: i index: 2 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 16, line: 6]\n" + 
+			"        [pc: 29, line: 7]\n" + 
+			"        [pc: 36, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
+			"        [pc: 5, pc: 37] local: i index: 2 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1801,14 +1803,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1839,14 +1841,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_1\n" + 
 			"    13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 3, line: 4]\n" + 
-			"    [pc: 9, line: 6]\n" + 
-			"    [pc: 16, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 3, pc: 17] local: i index: 1 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 3, line: 4]\n" + 
+			"        [pc: 9, line: 6]\n" + 
+			"        [pc: 16, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}	
 
@@ -1875,14 +1877,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1911,14 +1913,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 			"     9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 3]\n" + 
-			"    [pc: 2, line: 5]\n" + 
-			"    [pc: 6, line: 6]\n" + 
-			"    [pc: 12, line: 8]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
-			"    [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 2, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"        [pc: 12, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 
@@ -1964,22 +1966,22 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    25  jsr 20\n" + 
 			"    28  iload_1\n" + 
 			"    29  ireturn\n" + 
-			"  Exception Table:\n" + 
-			"    [pc: 0, pc: 7] -> 14 when : any\n" + 
-			"    [pc: 9, pc: 14] -> 14 when : any\n" + 
-			"    [pc: 25, pc: 28] -> 14 when : any\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 9, line: 7]\n" + 
-			"    [pc: 14, line: 8]\n" + 
-			"    [pc: 21, line: 9]\n" + 
-			"    [pc: 23, line: 10]\n" + 
-			"    [pc: 25, line: 8]\n" + 
-			"    [pc: 28, line: 11]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 0, pc: 30] local: bool index: 0 type: boolean\n" + 
-			"    [pc: 11, pc: 14] local: j index: 1 type: int\n" + 
-			"    [pc: 23, pc: 30] local: j index: 1 type: int\n";
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 7] -> 14 when : any\n" + 
+			"        [pc: 9, pc: 14] -> 14 when : any\n" + 
+			"        [pc: 25, pc: 28] -> 14 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 9, line: 7]\n" + 
+			"        [pc: 14, line: 8]\n" + 
+			"        [pc: 21, line: 9]\n" + 
+			"        [pc: 23, line: 10]\n" + 
+			"        [pc: 25, line: 8]\n" + 
+			"        [pc: 28, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 30] local: bool index: 0 type: boolean\n" + 
+			"        [pc: 11, pc: 14] local: j index: 1 type: int\n" + 
+			"        [pc: 23, pc: 30] local: j index: 1 type: int\n";
 		checkClassFile("A", source, expectedOutput);
 	}
 	
@@ -2003,11 +2005,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  iconst_5\n" + 
 			"    1  istore_0\n" + 
 			"    2  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 2, line: 10]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 3] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 2, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 3] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -2038,13 +2040,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    11  iload_0\n" + 
 			"    12  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    15  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 2, line: 7]\n" + 
-			"    [pc: 8, line: 9]\n" + 
-			"    [pc: 15, line: 11]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 16] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 2, line: 7]\n" + 
+			"        [pc: 8, line: 9]\n" + 
+			"        [pc: 15, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 16] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2069,11 +2071,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  bipush 6\n" + 
 			"    2  istore_0\n" + 
 			"    3  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 3, line: 11]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 4] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 3, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 4] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -2103,13 +2105,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    12  iload_0\n" + 
 			"    13  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    16  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 3, line: 7]\n" + 
-			"    [pc: 9, line: 8]\n" + 
-			"    [pc: 16, line: 10]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 17] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 3, line: 7]\n" + 
+			"        [pc: 9, line: 8]\n" + 
+			"        [pc: 16, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 17] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2141,12 +2143,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     8  invokestatic #27 <Method X#boom() boolean>\n" + 
 			"    11  pop\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 2, line: 10]\n" + 
-			"    [pc: 12, line: 13]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 13] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 2, line: 10]\n" + 
+			"        [pc: 12, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 13] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2182,13 +2184,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    17  iload_0\n" + 
 			"    18  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    21  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 2, line: 10]\n" + 
-			"    [pc: 14, line: 12]\n" + 
-			"    [pc: 21, line: 14]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 22] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 2, line: 10]\n" + 
+			"        [pc: 14, line: 12]\n" + 
+			"        [pc: 21, line: 14]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 22] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -2221,12 +2223,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     9  invokestatic #27 <Method X#boom() boolean>\n" + 
 			"    12  pop\n" + 
 			"    13  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 3, line: 10]\n" + 
-			"    [pc: 13, line: 14]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 14] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 3, line: 10]\n" + 
+			"        [pc: 13, line: 14]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 14] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2261,13 +2263,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    18  iload_0\n" + 
 			"    19  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    22  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 3, line: 10]\n" + 
-			"    [pc: 15, line: 11]\n" + 
-			"    [pc: 22, line: 13]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 23] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 3, line: 10]\n" + 
+			"        [pc: 15, line: 11]\n" + 
+			"        [pc: 22, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 23] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2291,11 +2293,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  iconst_5\n" + 
 			"    1  istore_0\n" + 
 			"    2  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 2, line: 10]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 3] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 2, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 3] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -2323,12 +2325,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    5  iload_0\n" + 
 			"    6  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    9  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 2, line: 9]\n" + 
-			"    [pc: 9, line: 11]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 10] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 2, line: 9]\n" + 
+			"        [pc: 9, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 10] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2353,11 +2355,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  bipush 6\n" + 
 			"    2  istore_0\n" + 
 			"    3  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 3, line: 11]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 4] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 3, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 4] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2384,12 +2386,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  iload_0\n" + 
 			"     7  invokevirtual #32 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    10  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 6]\n" + 
-			"    [pc: 3, line: 8]\n" + 
-			"    [pc: 10, line: 10]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 11] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 3, line: 8]\n" + 
+			"        [pc: 10, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 11] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2416,11 +2418,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  iconst_5\n" + 
 			"    1  istore_0\n" + 
 			"    2  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 2, line: 13]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 3] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 2, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 3] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -2451,12 +2453,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    5  iload_0\n" + 
 			"    6  invokevirtual #37 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    9  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 2, line: 12]\n" + 
-			"    [pc: 9, line: 14]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 10] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 2, line: 12]\n" + 
+			"        [pc: 9, line: 14]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 10] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2484,11 +2486,11 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    0  bipush 6\n" + 
 			"    2  istore_0\n" + 
 			"    3  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 3, line: 14]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 4] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 3, line: 14]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 4] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2519,12 +2521,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     6  iload_0\n" + 
 			"     7  invokevirtual #37 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    10  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 3, line: 11]\n" + 
-			"    [pc: 10, line: 13]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 11] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 3, line: 11]\n" + 
+			"        [pc: 10, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 11] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2556,12 +2558,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     8  invokestatic #27 <Method X#boom() boolean>\n" + 
 			"    11  pop\n" + 
 			"    12  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 2, line: 10]\n" + 
-			"    [pc: 12, line: 13]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 13] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 2, line: 10]\n" + 
+			"        [pc: 12, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 13] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 	
@@ -2597,13 +2599,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    17  iload_0\n" + 
 			"    18  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    21  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 2, line: 10]\n" + 
-			"    [pc: 14, line: 12]\n" + 
-			"    [pc: 21, line: 14]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 2, pc: 22] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 2, line: 10]\n" + 
+			"        [pc: 14, line: 12]\n" + 
+			"        [pc: 21, line: 14]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 2, pc: 22] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2636,12 +2638,12 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"     9  invokestatic #27 <Method X#boom() boolean>\n" + 
 			"    12  pop\n" + 
 			"    13  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 3, line: 10]\n" + 
-			"    [pc: 13, line: 14]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 14] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 3, line: 10]\n" + 
+			"        [pc: 13, line: 14]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 14] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 
@@ -2676,13 +2678,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    18  iload_0\n" + 
 			"    19  invokevirtual #39 <Method java.io.PrintStream#println(int arg) void>\n" + 
 			"    22  return\n" + 
-			"  Line numbers:\n" + 
-			"    [pc: 0, line: 9]\n" + 
-			"    [pc: 3, line: 10]\n" + 
-			"    [pc: 15, line: 11]\n" + 
-			"    [pc: 22, line: 13]\n" + 
-			"  Local variable table:\n" + 
-			"    [pc: 3, pc: 23] local: i index: 0 type: int\n";
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 3, line: 10]\n" + 
+			"        [pc: 15, line: 11]\n" + 
+			"        [pc: 22, line: 13]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 3, pc: 23] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
 	}
 

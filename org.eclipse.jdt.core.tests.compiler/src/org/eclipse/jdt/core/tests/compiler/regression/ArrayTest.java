@@ -129,9 +129,9 @@ public void test005() {
 		"    1  anewarray #4 java.lang.Object\n" + 
 		"    4  putstatic #10 <Field X#X java.lang.Object[]>\n" + 
 		"    7  return\n" + 
-		"  Line numbers:\n" + 
-		"    [pc: 0, line: 2]\n" + 
-		"    [pc: 7, line: 1]\n";
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 2]\n" + 
+		"        [pc: 7, line: 1]\n";
 		
 	if (actualOutput.indexOf(expectedOutput) == -1) {
 		System.out.println(Util.displayString(actualOutput, 2));
