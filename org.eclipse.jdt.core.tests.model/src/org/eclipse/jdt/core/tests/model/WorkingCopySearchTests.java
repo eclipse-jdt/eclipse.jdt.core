@@ -23,8 +23,6 @@ import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.tests.model.*;
-
 public class WorkingCopySearchTests extends JavaSearchTests {
 	ICompilationUnit workingCopy;
 	
