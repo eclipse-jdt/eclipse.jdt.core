@@ -4253,5 +4253,23 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Bound mismatch: The generic constructor X(T[], List<T>) of type X<E> is not applicable for the arguments (String[], List<String>) since the type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
 			"----------\n");
-	}				
+	}
+	// 60556
+	public void test152() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    List<X> x(List<X> list) {\n" + 
+				"        return Collections.unmodifiableList(list);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}			
 }
