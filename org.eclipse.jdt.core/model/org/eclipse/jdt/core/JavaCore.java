@@ -2100,7 +2100,7 @@ public final class JavaCore extends Plugin {
 		// if factory is null, default factory must be used
 		if (factory == null) factory = BufferManager.getDefaultBufferManager().getDefaultBufferFactory();
 
-		return getWorkingCopies(new BufferFactoryWrapper(factory));
+		return getWorkingCopies(BufferFactoryWrapper.create(factory));
 	}
 	/**
 	 * Returns the working copies that have the given owner. 

@@ -23,8 +23,16 @@ public class BufferFactoryWrapper extends WorkingCopyOwner {
 
 	public IBufferFactory factory;
 		
-	public BufferFactoryWrapper(IBufferFactory factory) {
+	private BufferFactoryWrapper(IBufferFactory factory) {
 		this.factory = factory;
+	}
+	
+	public static WorkingCopyOwner create(IBufferFactory factory) {
+		if (factory != null && factory == DefaultWorkingCopyOwner.PRIMARY.factory) {
+			return DefaultWorkingCopyOwner.PRIMARY;
+		} else {
+			return new BufferFactoryWrapper(factory);
+		}
 	}
 
 	/* (non-Javadoc)

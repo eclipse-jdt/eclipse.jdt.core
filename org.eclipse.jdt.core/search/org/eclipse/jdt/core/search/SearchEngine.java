@@ -101,7 +101,7 @@ public SearchEngine() {
  * 
  * @param workingCopies the working copies that take precedence over their original compilation units
  * @since 2.0
- * TODO remove before 3.0
+ * TODO should also queue primaries by default and merge (also should deal with case duplicate working copies are passed along)
  */
 public SearchEngine(IWorkingCopy[] workingCopies) {
 	int length = workingCopies.length;

@@ -497,7 +497,7 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 
 	JavaModelManager manager= JavaModelManager.getJavaModelManager();
 	
-	WorkingCopyOwner workingCopyOwner = new BufferFactoryWrapper(factory);
+	WorkingCopyOwner workingCopyOwner = BufferFactoryWrapper.create(factory);
 	IPath path = getPath();
 	CompilationUnit workingCopy = new CompilationUnit(null/*not needed since don't create*/, path.lastSegment(), workingCopyOwner);
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = 
@@ -786,7 +786,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 	// if factory is null, default factory must be used
 	if (factory == null) factory = this.getBufferManager().getDefaultBufferFactory();
 	
-	return getWorkingCopy(new BufferFactoryWrapper(factory), problemRequestor, pm);
+	return getWorkingCopy(BufferFactoryWrapper.create(factory), problemRequestor, pm);
 }
 /**
  * @see IWorkingCopy#getWorkingCopy()
@@ -806,7 +806,7 @@ public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaMode
  * @deprecated
  */
 public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
-	return getWorkingCopy(new BufferFactoryWrapper(factory), problemRequestor, monitor);
+	return getWorkingCopy(BufferFactoryWrapper.create(factory), problemRequestor, monitor);
 }
 /**
  * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
