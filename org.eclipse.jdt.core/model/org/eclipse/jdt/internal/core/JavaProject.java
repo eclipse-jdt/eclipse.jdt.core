@@ -1443,7 +1443,7 @@ public class JavaProject
 	public boolean hasClasspathCycle(IClasspathEntry[] entries) {
 		
 		HashSet cycleParticipants = new HashSet();
-		updateCycleParticipants(entries, new HashSet(), cycleParticipants, getWorkspace().getRoot());
+		updateCycleParticipants(entries, new ArrayList(), cycleParticipants, getWorkspace().getRoot());
 		return !cycleParticipants.isEmpty();
 	}
 	
@@ -2049,7 +2049,7 @@ public class JavaProject
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
 		HashSet cycleParticipants = new HashSet();
-		HashSet visited = new HashSet();
+		ArrayList visited = new ArrayList();
 		int length = projects.length;
 		for (int i = 0; i < length; i++){
 			JavaProject project = (JavaProject)projects[i];
@@ -2076,14 +2076,20 @@ public class JavaProject
 	}
 	
 	/**
-	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly or indirectly),
+	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly),
 	 * no cycle if the set is empty (and started empty)
 	 */
-	public void updateCycleParticipants(IClasspathEntry[] preferredClasspath, HashSet visited, HashSet cycleParticipants, IWorkspaceRoot workspaceRoot){
+	public void updateCycleParticipants(IClasspathEntry[] preferredClasspath, ArrayList visited, HashSet cycleParticipants, IWorkspaceRoot workspaceRoot){
 
-		if (!visited.add(this)) {
-			cycleParticipants.addAll(visited);
+		int index = visited.indexOf(this);
+		if (index >= 0){
+			// only consider direct participants inside the cycle
+			for (int i = index, size = visited.size(); i < size; i++){
+				cycleParticipants.add(visited.get(i)); 
+			}
 			return;
+		} else {
+			visited.add(this);
 		}
 		
 		try {
