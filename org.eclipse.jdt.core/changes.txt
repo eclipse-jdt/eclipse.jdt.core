@@ -180,6 +180,8 @@ STREAM: 2.0
           int modifiers,
           int completionStart,
           int completionEnd);
+          
+  * CodeAssist optionally performs visibility checks (see JavaCore option: "org.eclipse.jdt.core.codeComplete.visibilityCheck").
         
   * Search for field read and field write references. Two new constants have been added
     on IJavaSearchConstants to be used when creating a field reference search pattern:
