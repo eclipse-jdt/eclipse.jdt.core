@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 
 /**
@@ -33,6 +35,9 @@ public AttachSourceTests(String name) {
 }
 public static Test suite() {
 	return new Suite(AttachSourceTests.class);
+}
+public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
+	return AST.parseCompilationUnit(classFile, resolveBindings);
 }
 protected void setUp() throws Exception {
 	super.setUp();
@@ -67,6 +72,24 @@ public void tearDownSuite() throws Exception {
 	super.tearDown();
 }
 
+/**
+ * Test AST.parseCompilationUnit(IClassFile, boolean).
+ */
+public void testASTParsing() throws JavaModelException {
+	this.attachSource(this.root, "/AttachSourceTests/attachsrc.zip", "");	
+	IClassFile classFile = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	ASTNode node = runConversion(classFile, true);
+	assertNotNull("No node", node);
+	this.attachSource(this.root, null, null);
+	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
+	assertTrue("source code should no longer exist for A", cf.getSource() == null);
+	try {
+		node = runConversion(classFile, true);
+		assertTrue("Should not be here", false);
+	} catch(IllegalArgumentException e) {
+		assertTrue(true);
+	}
+}
 
 /**
  * Changing the source attachment file should update the java model.
