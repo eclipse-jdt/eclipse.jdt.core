@@ -53,8 +53,7 @@ boolean exists();
  *
  * @return the source code, or <code>null</code> if this element has no 
  *   associated source code
- * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource
+ * @exception JavaModelException if an exception occurs while accessing its corresponding resource
  */
 String getSource() throws JavaModelException;
 /**
@@ -66,8 +65,7 @@ String getSource() throws JavaModelException;
  *
  * @return the source range, or <code>null</code> if this element has no 
  *   associated source code
- * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource
+ * @exception JavaModelException if an exception occurs while accessing its corresponding resource
  */
 ISourceRange getSourceRange() throws JavaModelException;
 }
