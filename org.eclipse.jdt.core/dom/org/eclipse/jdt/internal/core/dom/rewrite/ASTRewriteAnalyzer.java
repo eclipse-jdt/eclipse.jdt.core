@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.Prefix;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.CopyPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.StringPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
+import org.eclipse.jdt.internal.core.util.Util;
 
 
 /**
@@ -2600,7 +2601,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	void handleException(Throwable e) {
+		Util.log(e, e.getMessage());
 		throw new RewriteRuntimeException(e);
 	}
-
 }
