@@ -334,7 +334,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 	/*
 	 * Tests that the same number of calls to discardWorkingCopy() is needed for non-primary working copy 
-	 * to be dicsarded.
+	 * to be discarded.
 	 */
 	public void testDiscardWorkingCopy3() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -345,13 +345,17 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy = cu.getWorkingCopy(owner, null, null);
 			workingCopy = cu.getWorkingCopy(owner, null, null);
 			assertTrue("should be in working copy mode", workingCopy.isWorkingCopy());
+			assertTrue("should be opened", workingCopy.isOpen());
 			
 			workingCopy.discardWorkingCopy();
-			assertTrue("should still be in working copy mode", workingCopy.isWorkingCopy());
+			assertTrue("should still be in working copy mode (1)", workingCopy.isWorkingCopy());
+			assertTrue("should still be opened", workingCopy.isOpen());
 
 			workingCopy.discardWorkingCopy();
 			workingCopy.discardWorkingCopy();
-			assertTrue("should no longer be in working copy mode", !workingCopy.isWorkingCopy());
+			assertTrue("should still be in working copy mode (2)", workingCopy.isWorkingCopy());
+			assertTrue("should no longer be opened", !workingCopy.isOpen());
+						
 		} finally {
 			if (workingCopy != null) {
 				int max = 3;
@@ -381,7 +385,6 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			assertTrue("should not get a JavaModelException before discarding working copy", !gotException);
 
 			workingCopy.discardWorkingCopy();
-			assertTrue("should no longer be in working copy mode", !workingCopy.isWorkingCopy());
 			
 			gotException = false;
 			try {
