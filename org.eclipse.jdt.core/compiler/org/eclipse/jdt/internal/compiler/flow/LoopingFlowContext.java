@@ -48,31 +48,31 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		BlockScope scope,
 		FlowInfo flowInfo) {
 		for (int i = 0; i < assignCount; i++) {
-			VariableBinding variable;
-			if ((variable = finalVariables[i]) != null) {
-				boolean complained; // remember if have complained on this final assignment
-				if (variable instanceof FieldBinding) {
-					if (complained = flowInfo.isPotentiallyAssigned((FieldBinding) variable)) {
-						scope.problemReporter().duplicateInitializationOfBlankFinalField(
-							(FieldBinding) variable,
-							(NameReference) finalAssignments[i]);
-					}
-				} else {
-					if (complained =
-						flowInfo.isPotentiallyAssigned((LocalVariableBinding) variable)) {
-						scope.problemReporter().duplicateInitializationOfFinalLocal(
-							(LocalVariableBinding) variable,
-							(NameReference) finalAssignments[i]);
-					}
+			VariableBinding variable = finalVariables[i];
+			if (variable == null) continue;
+			boolean complained = false; // remember if have complained on this final assignment
+			if (variable instanceof FieldBinding) {
+				if (flowInfo.isPotentiallyAssigned((FieldBinding) variable)) {
+					complained = true;
+					scope.problemReporter().duplicateInitializationOfBlankFinalField(
+						(FieldBinding) variable,
+						finalAssignments[i]);
 				}
-				// any reference reported at this level is removed from the parent context where it 
-				// could also be reported again
-				if (complained) {
-					FlowContext context = parent;
-					while (context != null) {
-						context.removeFinalAssignmentIfAny(finalAssignments[i]);
-						context = context.parent;
-					}
+			} else {
+				if (flowInfo.isPotentiallyAssigned((LocalVariableBinding) variable)) {
+					complained = true;
+					scope.problemReporter().duplicateInitializationOfFinalLocal(
+						(LocalVariableBinding) variable,
+						finalAssignments[i]);
+				}
+			}
+			// any reference reported at this level is removed from the parent context where it 
+			// could also be reported again
+			if (complained) {
+				FlowContext context = parent;
+				while (context != null) {
+					context.removeFinalAssignmentIfAny(finalAssignments[i]);
+					context = context.parent;
 				}
 			}
 		}

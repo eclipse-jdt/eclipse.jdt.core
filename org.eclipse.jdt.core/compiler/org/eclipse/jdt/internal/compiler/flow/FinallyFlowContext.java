@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
@@ -25,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 public class FinallyFlowContext extends FlowContext {
 	
 	Reference finalAssignments[];
+	VariableBinding finalVariables[];
 	int assignCount;
 	
 	public FinallyFlowContext(FlowContext parent, AstNode associatedNode) {
@@ -40,29 +42,35 @@ public class FinallyFlowContext extends FlowContext {
 		FlowInfo flowInfo,
 		BlockScope scope) {
 		for (int i = 0; i < assignCount; i++) {
-			Reference ref;
-			if (((ref = finalAssignments[i]).bits & BindingIds.FIELD) != 0) {
+			VariableBinding variable = finalVariables[i];
+			if (variable == null) continue;
+			
+			boolean complained = false; // remember if have complained on this final assignment
+			if (variable instanceof FieldBinding) {
 				// final field
-				if (flowInfo.isPotentiallyAssigned(ref.fieldBinding())) {
-					scope.problemReporter().duplicateInitializationOfBlankFinalField(ref.fieldBinding(), ref);
+				if (flowInfo.isPotentiallyAssigned((FieldBinding)variable)) {
+					complained = true;
+					scope.problemReporter().duplicateInitializationOfBlankFinalField((FieldBinding)variable, finalAssignments[i]);
 				}
 			} else {
 				// final local variable
-				if (flowInfo
-					.isPotentiallyAssigned((LocalVariableBinding) ((NameReference) ref).binding)) {
+				if (flowInfo.isPotentiallyAssigned((LocalVariableBinding) variable)) {
+					complained = true;
 					scope.problemReporter().duplicateInitializationOfFinalLocal(
-						(LocalVariableBinding) ((NameReference) ref).binding,
-						(NameReference) ref);
+						(LocalVariableBinding) variable,
+						finalAssignments[i]);
 				}
 			}
 			// any reference reported at this level is removed from the parent context 
 			// where it could also be reported again
-			FlowContext currentContext = parent;
-			while (currentContext != null) {
-				if (currentContext.isSubRoutine()) {
-					currentContext.removeFinalAssignmentIfAny(ref);
+			if (complained) {
+				FlowContext currentContext = parent;
+				while (currentContext != null) {
+					//if (currentContext.isSubRoutine()) {
+					currentContext.removeFinalAssignmentIfAny(finalAssignments[i]);
+					//}
+					currentContext = currentContext.parent;
 				}
-				currentContext = currentContext.parent;
 			}
 		}
 	}
@@ -83,6 +91,7 @@ public class FinallyFlowContext extends FlowContext {
 		Reference finalAssignment) {
 		if (assignCount == 0) {
 			finalAssignments = new Reference[5];
+			finalVariables = new VariableBinding[5];
 		} else {
 			if (assignCount == finalAssignments.length)
 				System.arraycopy(
@@ -91,8 +100,25 @@ public class FinallyFlowContext extends FlowContext {
 					(finalAssignments = new Reference[assignCount * 2]),
 					0,
 					assignCount);
+			System.arraycopy(
+				finalVariables,
+				0,
+				(finalVariables = new VariableBinding[assignCount * 2]),
+				0,
+				assignCount);
 		};
-		finalAssignments[assignCount++] = finalAssignment;
+		finalAssignments[assignCount] = finalAssignment;
+		finalVariables[assignCount++] = binding;
 		return true;
+	}
+
+	void removeFinalAssignmentIfAny(Reference reference) {
+		for (int i = 0; i < assignCount; i++) {
+			if (finalAssignments[i] == reference) {
+				finalAssignments[i] = null;
+				finalVariables[i] = null;
+				return;
+			}
+		}
 	}
 }
