@@ -1779,4 +1779,95 @@ public void test0041() {
 		expected15ProblemeLog
 	);
 }
+public void test0042() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"void ___eval() {\n" +
+		"	new Runnable() {\n" +
+		"		int ___run() throws Throwable {\n" +
+		"			return blah;\n" +
+		"		}\n" +
+		"		private String blarg;\n" +
+		"		public void run() {\n" +
+		"		}\n" +
+		"	};\n" +
+		"}\n" +
+		"public class X {\n" +
+		"	private static int x;\n" +
+		"	private String blah;\n" +
+		"	public static void main(String[] args) {\n" +
+		"	}\n" +
+		"	public void hello() {\n" +
+		"	}\n" +
+		"	public boolean blah() {\n" +
+		"		return false;\n" +
+		"	}\n" +
+		"	public void foo() {\n" +
+		"	}\n" +
+		"}\n"
+	};
+	
+	String expected13ProblemeLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	public void run() {\n" + 
+		"		}\n" + 
+		"	};\n" + 
+		"}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n";
+	String expected14ProblemeLog =
+		expected13ProblemeLog;
+	
+	String expected15ProblemeLog = 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	void ___eval() {\n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"void\", AT expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
+		"	void ___eval() {\n" + 
+		"	             ^\n" + 
+		"Syntax error on token \")\", delete this token\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	};\n" + 
+		"	^\n" + 
+		"Syntax error on token \"}\", { expected\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"}\" to complete MemberValueArrayInitializer\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \")\" to complete Modifiers\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" + 
+		"----------\n";
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemeLog,
+		expected14ProblemeLog,
+		expected15ProblemeLog
+	);
+}
 }
