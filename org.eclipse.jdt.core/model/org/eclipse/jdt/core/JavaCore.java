@@ -2722,46 +2722,15 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
-	 * for the given path. The path of the container will be used during resolution so as to map this
-	 * container entry to a set of other classpath entries the container is acting for.
-	 * <p>
-	 * A container entry allows to express indirect references to a set of libraries, projects and variable entries,
-	 * which can be interpreted differently for each Java project where it is used.
-	 * A classpath container entry can be resolved using <code>JavaCore.getResolvedClasspathContainer</code>,
-	 * and updated with <code>JavaCore.classpathContainerChanged</code>
-	 * <p>
-	 * A container is exclusively resolved by a <code>ClasspathContainerInitializer</code> registered onto the
-	 * extension point "org.eclipse.jdt.core.classpathContainerInitializer".
-	 * <p>
-	 * A container path must be formed of at least one segment, where: <ul>
-	 * <li> the first segment is a unique ID identifying the target container, there must be a container initializer registered
-	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
-	 * <li> the remaining segments will be passed onto the initializer, and can be used as additional
-	 * 	hints during the initialization phase. </li>
-	 * </ul>
-	 * <p>
-	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
-	 * 
-	 * containerEntry = JavaCore.newContainerEntry(new Path("MyProvidedJDK/default"));
-	 * 
-	 * <extension
-	 *    point="org.eclipse.jdt.core.classpathContainerInitializer">
-	 *    <containerInitializer
-	 *       id="MyProvidedJDK"
-	 *       class="com.example.MyInitializer"/> 
-	 * <p>
-	 * Note that this operation does not attempt to validate classpath containers
-	 * or access the resources at the given paths.
-	 * <p>
-	 * The resulting entry is not exported to dependent projects. This method is equivalent to
-	 * <code>newContainerEntry(-,false)</code>.
+	 * for the given path. This method is fully equivalent to calling
+	 * {@link #newContainerEntry(IPath, IPath[], IPath[], boolean)
+	 * newContainerEntry(containerPath, new IPath[0], new IPath[0], false)}.
 	 * <p>
 	 * @param containerPath the path identifying the container, it must be formed of two
 	 * 	segments
 	 * @return a new container classpath entry
 	 * 
 	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
-	 * @see JavaCore#newContainerEntry(IPath, boolean)
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath) {
@@ -2771,6 +2740,31 @@ public final class JavaCore extends Plugin {
 			ClasspathEntry.INCLUDE_ALL,
 			ClasspathEntry.EXCLUDE_NONE, 
 			false);
+	}
+
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
+	 * for the given path. This method is fully equivalent to calling
+	 * {@link #newContainerEntry(IPath, IPath[], IPath[], boolean)
+	 * newContainerEntry(containerPath, new IPath[0], new IPath[0], isExported)}. 
+	 * 
+	 * @param containerPath the path identifying the container, it must be formed of at least
+	 * 	one segment (ID+hints)
+	 * @param isExported a boolean indicating whether this entry is contributed to dependent
+	 *    projects in addition to the output location
+	 * @return a new container classpath entry
+	 * 
+	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
+	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
+	 * @since 2.0
+	 */
+	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
+			
+		return newContainerEntry(
+			containerPath,
+			ClasspathEntry.INCLUDE_ALL,
+			ClasspathEntry.EXCLUDE_NONE, 
+			isExported);
 	}
 
 	/**
@@ -2794,20 +2788,39 @@ public final class JavaCore extends Plugin {
 	 * </ul>
 	 * <p>
 	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
-	 * 
+	 * <pre>
 	 * containerEntry = JavaCore.newContainerEntry(new Path("MyProvidedJDK/default"));
 	 * 
-	 * <extension
-	 *    point="org.eclipse.jdt.core.classpathContainerInitializer">
-	 *    <containerInitializer
+	 * &lt;extension
+	 *    point="org.eclipse.jdt.core.classpathContainerInitializer"&gt;
+	 *    &lt;containerInitializer
 	 *       id="MyProvidedJDK"
-	 *       class="com.example.MyInitializer"/> 
+	 *       class="com.example.MyInitializer"/&gt; 
+	 * </pre>
+	 * <p>
+	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
+	 * and type arising from this entry are available with the project itself.
+	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
+	 * Need to describe the format of the patterns and how there are applied.
+	 * Nees to describe how package names and type names are mapper to IPaths.
+	 * Nees to describe how wildcarding works.
+	 * Need to cover what happens when one, the other, or both are empty.]
+	 * </p>
+	 * <p>
+	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
+	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
+	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * </p>
 	 * <p>
 	 * Note that this operation does not attempt to validate classpath containers
 	 * or access the resources at the given paths.
 	 * <p>
 	 * @param containerPath the path identifying the container, it must be formed of at least
 	 * 	one segment (ID+hints)
+	 * @param inclusionPatterns the possibly empty list of inclusion patterns
+	 *    represented as relative paths
+	 * @param exclusionPatterns the possibly empty list of exclusion patterns
+	 *    represented as relative paths
 	 * @param isExported a boolean indicating whether this entry is contributed to dependent
 	 *    projects in addition to the output location
 	 * @return a new container classpath entry
@@ -2815,24 +2828,6 @@ public final class JavaCore extends Plugin {
 	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
 	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @see JavaCore#newContainerEntry(IPath, boolean)
-	 * @since 2.0
-	 */
-	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
-			
-		return newContainerEntry(
-			containerPath,
-			ClasspathEntry.INCLUDE_ALL,
-			ClasspathEntry.EXCLUDE_NONE, 
-			isExported);
-	}
-
-	/**
-	 * TODO (jeem) Add spec to cover access restrictions
-	 * @param containerPath the path identifying the container, it must be formed of at least
-	 * 	one segment (ID+hints)
-	 * @param isExported indicates whether this entry is contributed to dependent
-	 * 	  projects in addition to the output location
-	 * @return a new container classpath entry
 	 * @since 3.1
 	 */	
 	public static IClasspathEntry newContainerEntry(
@@ -2863,25 +2858,10 @@ public final class JavaCore extends Plugin {
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_LIBRARY</code> for the 
 	 * JAR or folder identified by the given absolute path. This specifies that all package fragments 
 	 * within the root will have children of type <code>IClassFile</code>.
-	 * <p>
-	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
-	 * The target JAR can either be defined internally to the workspace (absolute path relative
-	 * to the workspace root) or externally to the workspace (absolute path in the file system).
-	 * The target root folder can only be defined internally to the workspace (absolute path relative
-	 * to the workspace root). To use a binary folder external to the workspace, it must first be
-	 * linked (see IFolder#createLink(...)).
-	 * <p>
-	 * e.g. Here are some examples of binary path usage<ul>
-	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
-	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
-	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
-	 * </ul>
-	 * Note that this operation does not attempt to validate or access the 
-	 * resources at the given paths.
-	 * <p>
-	 * The resulting entry is not exported to dependent projects. This method is equivalent to
-	 * <code>newLibraryEntry(-,-,-,false)</code>.
-	 * <p>
+	 * This method is fully equivalent to calling
+	 * {@link #newLibraryEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
+	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], false)}.
+	 *
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
@@ -2889,8 +2869,6 @@ public final class JavaCore extends Plugin {
 	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @return a new library classpath entry
-	 * 
-	 * @see #newLibraryEntry(IPath, IPath, IPath, boolean)
 	 */
 	public static IClasspathEntry newLibraryEntry(
 		IPath path,
@@ -2910,22 +2888,9 @@ public final class JavaCore extends Plugin {
 	 * Creates and returns a new classpath entry of kind <code>CPE_LIBRARY</code> for the JAR or folder
 	 * identified by the given absolute path. This specifies that all package fragments within the root 
 	 * will have children of type <code>IClassFile</code>.
-	 * <p>
-	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
-	 * The target JAR can either be defined internally to the workspace (absolute path relative
-	 * to the workspace root) or externally to the workspace (absolute path in the file system).
-	 * The target root folder can only be defined internally to the workspace (absolute path relative
-	 * to the workspace root). To use a binary folder external to the workspace, it must first be
-	 * linked (see IFolder#createLink(...)).
-	 * <p>
-	 * e.g. Here are some examples of binary path usage<ul>
-	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
-	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
-	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
-	 * </ul>
-	 * Note that this operation does not attempt to validate or access the 
-	 * resources at the given paths.
-	 * <p>
+	 * This method is fully equivalent to calling
+	 * {@link #newLibraryEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
+	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], isExported)}.
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
@@ -2954,11 +2919,50 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * TODO (jeem) Add spec to cover access restrictions
-	 * @param path
-	 * @param sourceAttachmentPath
-	 * @param sourceAttachmentRootPath
-	 * @param isExported
+	 * Creates and returns a new classpath entry of kind <code>CPE_LIBRARY</code> for the JAR or folder
+	 * identified by the given absolute path. This specifies that all package fragments within the root 
+	 * will have children of type <code>IClassFile</code>.
+	 * <p>
+	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
+	 * The target JAR can either be defined internally to the workspace (absolute path relative
+	 * to the workspace root) or externally to the workspace (absolute path in the file system).
+	 * The target root folder can only be defined internally to the workspace (absolute path relative
+	 * to the workspace root). To use a binary folder external to the workspace, it must first be
+	 * linked (see IFolder#createLink(...)).
+	 * <p>
+	 * e.g. Here are some examples of binary path usage<ul>
+	 *	<li><code> "c:/jdk1.2.2/jre/lib/rt.jar" </code> - reference to an external JAR</li>
+	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR </li>
+	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder</li>
+	 * </ul>
+	 * Note that this operation does not attempt to validate or access the 
+	 * resources at the given paths.
+	 * <p>
+	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
+	 * and type arising from this entry are available with the project itself.
+	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
+	 * Need to describe the format of the patterns and how there are applied.
+	 * Nees to describe how package names and type names are mapper to IPaths.
+	 * Nees to describe how wildcarding works.
+	 * Need to cover what happens when one, the other, or both are empty.]
+	 * </p>
+	 * <p>
+	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
+	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
+	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * </p>
+	 * 
+	 * @param path the absolute path of the binary archive
+	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
+	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
+	 *   and will be automatically converted to <code>null</code>.
+	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
+	 *    or <code>null</code> if this location should be automatically detected.
+	 * @param inclusionPatterns the possibly empty list of inclusion patterns
+	 *    represented as relative paths
+	 * @param exclusionPatterns the possibly empty list of exclusion patterns
+	 *    represented as relative paths
+	 * @return a new library classpath entry
 	 * @since 3.1
 	 */
 	public static IClasspathEntry newLibraryEntry(
@@ -2990,28 +2994,17 @@ public final class JavaCore extends Plugin {
 			sourceAttachmentRootPath,
 			null, // specific output folder
 			isExported);
-	}	
+	}
+	
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.
-	 * <p>
-	 * A project entry is used to denote a prerequisite project on a classpath.
-	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
-	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
-	 * whole output location).
-	 * <p>
-	 * A project reference allows to indirect through another project, independently from its internal layout. 
-	 * <p>
-	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
-	 * <p>
-	 * The resulting entry is not exported to dependent projects. This method is equivalent to
-	 * <code>newProjectEntry(_,false)</code>.
-	 * <p>
+	 * This method is fully equivalent to calling
+	 * {@link #newProjectEntry(IPath, IPath[], IPath[], boolean)
+	 * newProjectEntry(path, new IPath[0], new IPath[0], false)}.
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @return a new project classpath entry
-	 * 
-	 * @see JavaCore#newProjectEntry(IPath, boolean)
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path) {
 		return newProjectEntry(path, false);
@@ -3020,16 +3013,9 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.
-	 * <p>
-	 * A project entry is used to denote a prerequisite project on a classpath.
-	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
-	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
-	 * whole output location).
-	 * <p>
-	 * A project reference allows to indirect through another project, independently from its internal layout. 
-	 * <p>
-	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
-	 * <p>
+	 * This method is fully equivalent to calling
+	 * {@link #newProjectEntry(IPath, IPath[], IPath[], boolean)
+	 * newProjectEntry(path, new IPath[0], new IPath[0], isExported)}.
 	 * 
 	 * @param path the absolute path of the prerequisite project
 	 * @param isExported indicates whether this entry is contributed to dependent
@@ -3049,11 +3035,37 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * TODO (jeem) Add spec to cover access restrictions
-	 * @param path  the absolute path of the prerequisite project
-	 * @param inclusionPatterns the possibly empty list of import inclusion patterns
+	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
+	 * for the project identified by the given absolute path.
+	 * <p>
+	 * A project entry is used to denote a prerequisite project on a classpath.
+	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
+	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
+	 * whole output location).
+	 * <p>
+	 * A project reference allows to indirect through another project, independently from its internal layout. 
+	 * <p>
+	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
+	 * <p>
+	 * <p>
+	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
+	 * and type arising from this entry are available with the project itself.
+	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
+	 * Need to describe the format of the patterns and how there are applied.
+	 * Nees to describe how package names and type names are mapper to IPaths.
+	 * Nees to describe how wildcarding works.
+	 * Need to cover what happens when one, the other, or both are empty.]
+	 * </p>
+	 * <p>
+	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
+	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
+	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * </p>
+	 * 
+	 * @param path the absolute path of the prerequisite project
+	 * @param inclusionPatterns the possibly empty list of inclusion patterns
 	 *    represented as relative paths
-	 * @param exclusionPatterns the possibly empty list of import exclusion patterns
+	 * @param exclusionPatterns the possibly empty list of exclusion patterns
 	 *    represented as relative paths
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
@@ -3251,30 +3263,9 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
-	 * for the given path. The first segment of the path is the name of a classpath variable.
-	 * The trailing segments of the path will be appended to resolved variable path.
-	 * <p>
-	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
-	 * depending on what the classpath variable is referring.
-	 * <p>
-	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>),
-	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
-	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
-	 * <p>
-	 * e.g. Here are some examples of variable path usage<ul>
-	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
-	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
-	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
-	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
-	 * </ul>
-	 * Note that this operation does not attempt to validate classpath variables
-	 * or access the resources at the given paths.
-	 * <p>
-	 * The resulting entry is not exported to dependent projects. This method is equivalent to
-	 * <code>newVariableEntry(-,-,-,false)</code>.
-	 * <p>
+	 * for the given path. This method is fully equivalent to calling
+	 * {@link #newVariableEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
+	 * newLibraryEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], false)}.
 	 * 
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
@@ -3285,8 +3276,6 @@ public final class JavaCore extends Plugin {
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
 	 * @return a new library classpath entry
-	 * 
-	 * @see JavaCore#newVariableEntry(IPath, IPath, IPath, boolean)
 	 */
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
@@ -3298,28 +3287,10 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
-	 * for the given path. The first segment of the path is the name of a classpath variable.
-	 * The trailing segments of the path will be appended to resolved variable path.
-	 * <p>
-	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
-	 * depending on what the classpath variable is referring.
-	 * <p>
-	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>),
-	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
-	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
-	 * <p>
-	 * e.g. Here are some examples of variable path usage<ul>
-	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
-	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
-	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
-	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
-	 * </ul>
-	 * Note that this operation does not attempt to validate classpath variables
-	 * or access the resources at the given paths.
-	 * <p>
-	 *
+	 * for the given path. This method is fully equivalent to calling
+	 * {@link #newVariableEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
+	 * newLibraryEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], false)}.
+	 * 
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
 	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
@@ -3349,7 +3320,43 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * TODO (jeem) Add spec to cover access restrictions
+	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
+	 * for the given path. The first segment of the path is the name of a classpath variable.
+	 * The trailing segments of the path will be appended to resolved variable path.
+	 * <p>
+	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
+	 * depending on what the classpath variable is referring.
+	 * <p>
+	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>),
+	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
+	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
+	 * <p>
+	 * e.g. Here are some examples of variable path usage<ul>
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
+	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
+	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
+	 * </ul>
+	 * <p>
+	 * The <code>inclusionPatterns</code> and <code>exclusionPatterns</code> control which packages
+	 * and type arising from this entry are available with the project itself.
+	 * [TODO (jerome) - the spec for inclusionPatterns and exclusionPatterns is incomplete.
+	 * Need to describe the format of the patterns and how there are applied.
+	 * Nees to describe how package names and type names are mapper to IPaths.
+	 * Nees to describe how wildcarding works.
+	 * Need to cover what happens when one, the other, or both are empty.]
+	 * </p>
+	 * <p>
+	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
+	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
+	 * [TODO (jerome) - check above specs for isExported, inclusionPatterns, and exclusionPatterns.]
+	 * </p>
+	 * Note that this operation does not attempt to validate classpath variables
+	 * or access the resources at the given paths.
+	 * <p>
+	 *
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
 	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
@@ -3358,9 +3365,9 @@ public final class JavaCore extends Plugin {
 	 *    as the one that begins <code>variablePath</code>)
 	 * @param variableSourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * @param inclusionPatterns the possibly empty list of import inclusion patterns
+	 * @param inclusionPatterns the possibly empty list of inclusion patterns
 	 *    represented as relative paths
-	 * @param exclusionPatterns the possibly empty list of import exclusion patterns
+	 * @param exclusionPatterns the possibly empty list of exclusion patterns
 	 *    represented as relative paths
 	 * @param isExported indicates whether this entry is contributed to dependent
 	 * 	  projects in addition to the output location
