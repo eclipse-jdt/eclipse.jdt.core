@@ -193,9 +193,8 @@ protected void cleanUp() {
 protected boolean findAffectedSourceFiles(IResourceDelta delta, IResource prereqOutputFolder) {
 	IResourceDelta binaryDelta = delta.findMember(prereqOutputFolder.getProjectRelativePath());
 	if (binaryDelta != null) {
-		if (binaryDelta.getKind() != IResourceDelta.NO_CHANGE && binaryDelta.getKind() != IResourceDelta.CHANGED){
+		if (binaryDelta.getKind() == IResourceDelta.ADDED || binaryDelta.getKind() == IResourceDelta.REMOVED)
 			return false;
-		}
 		int outputFolderSegmentCount = prereqOutputFolder.getLocation().segmentCount();
 		IResourceDelta[] children = binaryDelta.getAffectedChildren();
 		for (int i = 0, length = children.length; i < length; ++i)
@@ -261,9 +260,8 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
 		IResourceDelta sourceDelta = delta.findMember(sourceFolders[i].getProjectRelativePath());
 		if (sourceDelta != null) {
-			if (sourceDelta.getKind() != IResourceDelta.NO_CHANGE && sourceDelta.getKind() != IResourceDelta.CHANGED){
+			if (sourceDelta.getKind() == IResourceDelta.ADDED || sourceDelta.getKind() == IResourceDelta.REMOVED)
 				return false;
-			}
 			int sourceFolderSegmentCount = sourceFolders[i].getLocation().segmentCount();
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
 			for (int c = 0, clength = children.length; c < clength; c++)
