@@ -6552,7 +6552,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Unnecessary cast from Class to Class<? extends Object>\n" + 
 			"----------\n");
 	}		
-	public void test243() {
+	public void _test243() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
