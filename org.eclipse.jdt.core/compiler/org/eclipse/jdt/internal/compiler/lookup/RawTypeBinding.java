@@ -19,12 +19,17 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  */
 public class RawTypeBinding extends ParameterizedTypeBinding {
     
+    /**
+     * Raw type arguments are erasure of respective parameter bounds. But we may not have resolved
+     * these bounds yet if creating raw types while supertype hierarchies are being connected.
+     * Therefore, use 'null' instead, and access these in a lazy way later on (when substituting).
+     */
 	public RawTypeBinding(ReferenceBinding type, LookupEnvironment environment){
 		super(type, null, environment);
 		this.modifiers ^= AccGenericSignature;
 	}    
 	/**
-	 * Ltype<param1 ... paremN>;
+	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;
 	 */
 	public char[] genericTypeSignature() {
