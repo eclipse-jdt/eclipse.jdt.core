@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
+import org.eclipse.jdt.core.util.IModifierConstants;
 
 /**
  * Default implementation of IMethodInfo.
@@ -67,7 +68,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		this.attributesCount = u2At(classFileBytes, 6, offset);
 		this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
 		if (this.attributesCount != 0) {
-			if (no_code_attribute) {
+			if (no_code_attribute && !isAbstract() && !isNative()) {
 				if (this.attributesCount != 1) {
 					this.attributes = new IClassFileAttribute[this.attributesCount - 1];
 				}
@@ -198,4 +199,11 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		return this.attributes;
 	}
 
+	private boolean isAbstract() {
+		return (this.accessFlags & IModifierConstants.ACC_ABSTRACT) != 0;
+	}
+	
+	private boolean isNative() {
+		return (this.accessFlags & IModifierConstants.ACC_NATIVE) != 0;
+	}
 }
