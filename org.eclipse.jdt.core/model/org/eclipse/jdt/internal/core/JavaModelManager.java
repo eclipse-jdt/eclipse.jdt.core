@@ -110,6 +110,32 @@ public class JavaModelManager implements ISaveParticipant {
 
 	public final static IWorkingCopy[] NoWorkingCopy = new IWorkingCopy[0];
 	
+	/*
+	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
+	 * any of the other (for example, if it deregisters itself).
+	 */
+	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
+		for (int i = 0; i < this.elementChangedListenerCount; i++){
+			if (this.elementChangedListeners[i].equals(listener)){
+				
+				// only clone the masks, since we could be in the middle of notifications and one listener decide to change
+				// any event mask of another listeners (yet not notified).
+				int cloneLength = this.elementChangedListenerMasks.length;
+				System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[cloneLength], 0, cloneLength);
+				this.elementChangedListenerMasks[i] = eventMask; // could be different
+				return;
+			}
+		}
+		// may need to grow, no need to clone, since iterators will have cached original arrays and max boundary and we only add to the end.
+		int length;
+		if ((length = this.elementChangedListeners.length) == this.elementChangedListenerCount){
+			System.arraycopy(this.elementChangedListeners, 0, this.elementChangedListeners = new IElementChangedListener[length*2], 0, length);
+			System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[length*2], 0, length);
+		}
+		this.elementChangedListeners[this.elementChangedListenerCount] = listener;
+		this.elementChangedListenerMasks[this.elementChangedListenerCount] = eventMask;
+		this.elementChangedListenerCount++;
+	}
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -434,41 +460,17 @@ public class JavaModelManager implements ISaveParticipant {
 	protected Map elementsOutOfSynchWithBuffers = new HashMap(11);
 	
 	/**
-	 * Turns delta firing on/off. By default it is on.
+	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
 	 */
-	private boolean isFiring= true;
-
-	/**
-	 * Queue of deltas created explicily by the Java Model that
-	 * have yet to be fired.
-	 */
-	ArrayList javaModelDeltas= new ArrayList();
-	/**
-	 * Queue of reconcile deltas on working copies that have yet to be fired.
-	 * This is a table form IWorkingCopy to IJavaElementDelta
-	 */
-	HashMap reconcileDeltas = new HashMap();
-
+	public final DeltaProcessor deltaProcessor = new DeltaProcessor(this);
 
 	/**
 	 * Collection of listeners for Java element deltas
 	 */
-	private IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
-	private int[] elementChangedListenerMasks = new int[5];
-	private int elementChangedListenerCount = 0;
-	public int currentChangeEventType = ElementChangedEvent.PRE_AUTO_BUILD;
-	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
+	public IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
+	public int[] elementChangedListenerMasks = new int[5];
+	public int elementChangedListenerCount = 0;
 
-
-
-	/**
-	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
-	 */
-	public final DeltaProcessor deltaProcessor = new DeltaProcessor(this);
-	/**
-	 * Used to update the JavaModel for <code>IJavaElementDelta</code>s.
-	 */
-	private final ModelUpdater modelUpdater =new ModelUpdater();
 	/**
 	 * Workaround for bug 15168 circular errors not reported  
 	 * This is a cache of the projects before any project addition/deletion has started.
@@ -555,40 +557,6 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/**
-	 * @deprecated - discard once debug has converted to not using it
-	 */
-	public void addElementChangedListener(IElementChangedListener listener) {
-		this.addElementChangedListener(listener, ElementChangedEvent.POST_CHANGE | ElementChangedEvent.POST_RECONCILE);
-	}
-	/**
-	 * addElementChangedListener method comment.
-	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
-	 * any of the other (for example, if it deregisters itself).
-	 */
-	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
-		for (int i = 0; i < this.elementChangedListenerCount; i++){
-			if (this.elementChangedListeners[i].equals(listener)){
-				
-				// only clone the masks, since we could be in the middle of notifications and one listener decide to change
-				// any event mask of another listeners (yet not notified).
-				int cloneLength = this.elementChangedListenerMasks.length;
-				System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[cloneLength], 0, cloneLength);
-				this.elementChangedListenerMasks[i] = eventMask; // could be different
-				return;
-			}
-		}
-		// may need to grow, no need to clone, since iterators will have cached original arrays and max boundary and we only add to the end.
-		int length;
-		if ((length = this.elementChangedListeners.length) == this.elementChangedListenerCount){
-			System.arraycopy(this.elementChangedListeners, 0, this.elementChangedListeners = new IElementChangedListener[length*2], 0, length);
-			System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[length*2], 0, length);
-		}
-		this.elementChangedListeners[this.elementChangedListenerCount] = listener;
-		this.elementChangedListenerMasks[this.elementChangedListenerCount] = eventMask;
-		this.elementChangedListenerCount++;
-	}
-
-	/**
 	 * Starts caching ZipFiles.
 	 * Ignores if there are already clients.
 	 */
@@ -609,8 +577,6 @@ public class JavaModelManager implements ISaveParticipant {
 		} catch (IOException e) {
 		}
 	}
-	
-
 
 	/**
 	 * Configure the plugin with respect to option settings defined in ".options" file
@@ -664,144 +630,6 @@ public class JavaModelManager implements ISaveParticipant {
 	 * @see ISaveParticipant
 	 */
 	public void doneSaving(ISaveContext context){
-	}
-	
-	/**
-	 * Fire Java Model delta, flushing them after the fact after post_change notification.
-	 * If the firing mode has been turned off, this has no effect. 
-	 */
-	public void fire(IJavaElementDelta customDelta, int eventType) {
-
-		if (!this.isFiring) return;
-		
-		if (DeltaProcessor.VERBOSE && (eventType == DEFAULT_CHANGE_EVENT || eventType == ElementChangedEvent.PRE_AUTO_BUILD)) {
-			System.out.println("-----------------------------------------------------------------------------------------------------------------------");//$NON-NLS-1$
-		}
-
-		IJavaElementDelta deltaToNotify;
-		if (customDelta == null){
-			deltaToNotify = this.mergeDeltas(this.javaModelDeltas);
-		} else {
-			deltaToNotify = customDelta;
-		}
-			
-		// Refresh internal scopes
-		if (deltaToNotify != null) {
-			Iterator scopes = this.searchScopes.keySet().iterator();
-			while (scopes.hasNext()) {
-				AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
-				scope.processDelta(deltaToNotify);
-			}
-		}
-			
-		// Notification
-	
-		// Important: if any listener reacts to notification by updating the listeners list or mask, these lists will
-		// be duplicated, so it is necessary to remember original lists in a variable (since field values may change under us)
-		IElementChangedListener[] listeners = this.elementChangedListeners;
-		int[] listenerMask = this.elementChangedListenerMasks;
-		int listenerCount = this.elementChangedListenerCount;
-
-		switch (eventType) {
-			case DEFAULT_CHANGE_EVENT:
-				firePreAutoBuildDelta(deltaToNotify, listeners, listenerMask, listenerCount);
-				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
-				fireReconcileDelta(listeners, listenerMask, listenerCount);
-				break;
-			case ElementChangedEvent.PRE_AUTO_BUILD:
-				firePreAutoBuildDelta(deltaToNotify, listeners, listenerMask, listenerCount);
-				break;
-			case ElementChangedEvent.POST_CHANGE:
-				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
-				fireReconcileDelta(listeners, listenerMask, listenerCount);
-				break;
-		}
-
-	}
-
-	private void firePreAutoBuildDelta(
-		IJavaElementDelta deltaToNotify,
-		IElementChangedListener[] listeners,
-		int[] listenerMask,
-		int listenerCount) {
-			
-		if (DeltaProcessor.VERBOSE){
-			System.out.println("FIRING PRE_AUTO_BUILD Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
-			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
-		}
-		if (deltaToNotify != null) {
-			notifyListeners(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD, listeners, listenerMask, listenerCount);
-		}
-	}
-
-	private void firePostChangeDelta(
-		IJavaElementDelta deltaToNotify,
-		IElementChangedListener[] listeners,
-		int[] listenerMask,
-		int listenerCount) {
-			
-		// post change deltas
-		if (DeltaProcessor.VERBOSE){
-			System.out.println("FIRING POST_CHANGE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
-			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
-		}
-		if (deltaToNotify != null) {
-			// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
-			this.flush();
-			
-			notifyListeners(deltaToNotify, ElementChangedEvent.POST_CHANGE, listeners, listenerMask, listenerCount);
-		} 
-	}		
-	private void fireReconcileDelta(
-		IElementChangedListener[] listeners,
-		int[] listenerMask,
-		int listenerCount) {
-
-
-		IJavaElementDelta deltaToNotify = mergeDeltas(this.reconcileDeltas.values());
-		if (DeltaProcessor.VERBOSE){
-			System.out.println("FIRING POST_RECONCILE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
-			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
-		}
-		if (deltaToNotify != null) {
-			// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
-			this.reconcileDeltas = new HashMap();
-		
-			notifyListeners(deltaToNotify, ElementChangedEvent.POST_RECONCILE, listeners, listenerMask, listenerCount);
-		} 
-	}
-
-	public void notifyListeners(IJavaElementDelta deltaToNotify, int eventType, IElementChangedListener[] listeners, int[] listenerMask, int listenerCount) {
-		final ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, eventType);
-		for (int i= 0; i < listenerCount; i++) {
-			if ((listenerMask[i] & eventType) != 0){
-				final IElementChangedListener listener = listeners[i];
-				long start = -1;
-				if (DeltaProcessor.VERBOSE) {
-					System.out.print("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
-					start = System.currentTimeMillis();
-				}
-				// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
-				Platform.run(new ISafeRunnable() {
-					public void handleException(Throwable exception) {
-						Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
-					}
-					public void run() throws Exception {
-						listener.elementChanged(extraEvent);
-					}
-				});
-				if (DeltaProcessor.VERBOSE) {
-					System.out.println(" -> " + (System.currentTimeMillis()-start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Flushes all deltas without firing them.
-	 */
-	protected void flush() {
-		this.javaModelDeltas = new ArrayList();
 	}
 
 	/**
@@ -1162,53 +990,6 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/**
-	 * Merged all awaiting deltas.
-	 */
-	public IJavaElementDelta mergeDeltas(Collection deltas) {
-		if (deltas.size() == 0) return null;
-		if (deltas.size() == 1) return (IJavaElementDelta)deltas.iterator().next();
-		
-		if (DeltaProcessor.VERBOSE) {
-			System.out.println("MERGING " + deltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		
-		Iterator iterator = deltas.iterator();
-		JavaElementDelta rootDelta = new JavaElementDelta(this.javaModel);
-		boolean insertedTree = false;
-		while (iterator.hasNext()) {
-			JavaElementDelta delta = (JavaElementDelta)iterator.next();
-			if (DeltaProcessor.VERBOSE) {
-				System.out.println(delta.toString());
-			}
-			IJavaElement element = delta.getElement();
-			if (this.javaModel.equals(element)) {
-				IJavaElementDelta[] children = delta.getAffectedChildren();
-				for (int j = 0; j < children.length; j++) {
-					JavaElementDelta projectDelta = (JavaElementDelta) children[j];
-					rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
-					insertedTree = true;
-				}
-				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
-				if (resourceDeltas != null) {
-					for (int i = 0, length = resourceDeltas.length; i < length; i++) {
-						rootDelta.addResourceDelta(resourceDeltas[i]);
-						insertedTree = true;
-					}
-				}
-			} else {
-				rootDelta.insertDeltaTree(element, delta);
-				insertedTree = true;
-			}
-		}
-		if (insertedTree) {
-			return rootDelta;
-		}
-		else {
-			return null;
-		}
-	}	
-
-	/**
 	 *  Returns the info for this element without
 	 *  disturbing the cache ordering.
 	 */
@@ -1300,13 +1081,6 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 	}
-
-	/**
-	 * Registers the given delta with this manager.
-	 */
-	protected void registerJavaModelDelta(IJavaElementDelta delta) {
-		this.javaModelDeltas.add(delta);
-	}
 	
 	/**
 	 * Remembers the given scope in a weak set
@@ -1316,10 +1090,7 @@ public class JavaModelManager implements ISaveParticipant {
 		// NB: The value has to be null so as to not create a strong reference on the scope
 		this.searchScopes.put(scope, null); 
 	}
-
-	/**
-	 * removeElementChangedListener method comment.
-	 */
+	
 	public void removeElementChangedListener(IElementChangedListener listener) {
 		
 		for (int i = 0; i < this.elementChangedListenerCount; i++){
@@ -1349,7 +1120,7 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 	}
-	
+
 	protected void removeInfo(IJavaElement element) {
 		this.cache.removeInfo(element);
 	}
@@ -1534,40 +1305,7 @@ public class JavaModelManager implements ISaveParticipant {
 		} catch (JavaModelException e) {
 		}
 	}
-
-	/**
-	 * Turns the firing mode to on. That is, deltas that are/have been
-	 * registered will be fired.
-	 */
-	public void startDeltas() {
-		this.isFiring= true;
-	}
-
-	/**
-	 * Turns the firing mode to off. That is, deltas that are/have been
-	 * registered will not be fired until deltas are started again.
-	 */
-	public void stopDeltas() {
-		this.isFiring= false;
-	}
-	
-	/**
-	 * Update Java Model given some delta
-	 */
-	public void updateJavaModel(IJavaElementDelta customDelta) {
-
-		if (customDelta == null){
-			for (int i = 0, length = this.javaModelDeltas.size(); i < length; i++){
-				IJavaElementDelta delta = (IJavaElementDelta)this.javaModelDeltas.get(i);
-				this.modelUpdater.processJavaDelta(delta);
-			}
-		} else {
-			this.modelUpdater.processJavaDelta(customDelta);
-		}
-	}
-
-
-	
+		
 	public static IPath variableGet(String variableName){
 		return (IPath)Variables.get(variableName);
 	}

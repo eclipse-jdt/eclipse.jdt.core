@@ -164,13 +164,13 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Registers the given delta with the Java Model Manager.
 	 */
 	protected void addDelta(IJavaElementDelta delta) {
-		JavaModelManager.getJavaModelManager().registerJavaModelDelta(delta);
+		JavaModelManager.getJavaModelManager().deltaProcessor.registerJavaModelDelta(delta);
 	}
 	/*
 	 * Registers the given reconcile delta with the Java Model Manager.
 	 */
 	protected void addReconcileDelta(IWorkingCopy workingCopy, IJavaElementDelta delta) {
-		HashMap reconcileDeltas = JavaModelManager.getJavaModelManager().reconcileDeltas;
+		HashMap reconcileDeltas = JavaModelManager.getJavaModelManager().deltaProcessor.reconcileDeltas;
 		JavaElementDelta previousDelta = (JavaElementDelta)reconcileDeltas.get(workingCopy);
 		if (previousDelta != null) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
@@ -186,7 +186,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Deregister the reconcile delta for the given working copy
 	 */
 	protected void removeReconcileDelta(IWorkingCopy workingCopy) {
-		JavaModelManager.getJavaModelManager().reconcileDeltas.remove(workingCopy);		
+		JavaModelManager.getJavaModelManager().deltaProcessor.reconcileDeltas.remove(workingCopy);		
 	}
 	/**
 	 * @see IProgressMonitor
@@ -695,7 +695,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	public void run(IProgressMonitor monitor) throws CoreException {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		int previousDeltaCount = manager.javaModelDeltas.size();
+		DeltaProcessor deltaProcessor = manager.deltaProcessor;
+		int previousDeltaCount = deltaProcessor.javaModelDeltas.size();
 		try {
 			fMonitor = monitor;
 			pushOperation(this);
@@ -709,8 +710,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		} finally {
 			try {
 				// update JavaModel using deltas that were recorded during this operation
-				for (int i = previousDeltaCount, size = manager.javaModelDeltas.size(); i < size; i++) {
-					manager.updateJavaModel((IJavaElementDelta)manager.javaModelDeltas.get(i));
+				for (int i = previousDeltaCount, size = deltaProcessor.javaModelDeltas.size(); i < size; i++) {
+					deltaProcessor.updateJavaModel((IJavaElementDelta)deltaProcessor.javaModelDeltas.get(i));
 				}
 				
 				// fire only iff:
@@ -718,9 +719,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				// - the operation did produce some delta(s)
 				// - but the operation has not modified any resource
 				if (this.isTopLevelOperation()) {
-					if ((manager.javaModelDeltas.size() > previousDeltaCount || !manager.reconcileDeltas.isEmpty()) 
+					if ((deltaProcessor.javaModelDeltas.size() > previousDeltaCount || !deltaProcessor.reconcileDeltas.isEmpty()) 
 							&& !this.hasModifiedResource()) {
-						manager.fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
+						deltaProcessor.fire(null, DeltaProcessor.DEFAULT_CHANGE_EVENT);
 					} // else deltas are fired while processing the resource delta
 				}
 			} finally {

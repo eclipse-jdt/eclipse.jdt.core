@@ -28,12 +28,14 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -46,6 +48,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
+import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
@@ -145,6 +148,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	private final static int NON_JAVA_RESOURCE = -1;
 	public static boolean VERBOSE = false;
 
+	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
+
 	/*
 	 * Answer a combination of the lastModified stamp and the size.
 	 * Used for detecting external JAR changes
@@ -163,12 +168,34 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * using the various get*(...) to push it. */
 	private Openable currentElement;
 		
+	/*
+	 * Queue of deltas created explicily by the Java Model that
+	 * have yet to be fired.
+	 */
+	public ArrayList javaModelDeltas= new ArrayList();
+	
+	/*
+	 * Queue of reconcile deltas on working copies that have yet to be fired.
+	 * This is a table form IWorkingCopy to IJavaElementDelta
+	 */
+	public HashMap reconcileDeltas = new HashMap();
+
 	public HashMap externalTimeStamps = new HashMap();
 	
 	public IndexManager indexManager = new IndexManager();
 	
+	/*
+	 * Turns delta firing on/off. By default it is on.
+	 */
+	private boolean isFiring= true;
+	
 	private JavaModelManager manager;
 	
+	/*
+	 * Used to update the JavaModel for <code>IJavaElementDelta</code>s.
+	 */
+	private final ModelUpdater modelUpdater =new ModelUpdater();
+
 	/* A set of IJavaProject whose namelookup caches need to be refreshed */
 	private HashSet namelookupsToRefresh = new HashSet();  
 
@@ -285,7 +312,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						true); // generateMarkerOnError
 				}		
 				if (this.currentDelta != null) { // if delta has not been fired while creating markers
-					this.manager.fire(this.currentDelta, JavaModelManager.DEFAULT_CHANGE_EVENT);
+					this.fire(this.currentDelta, DEFAULT_CHANGE_EVENT);
 				}
 			}
 		} finally {
@@ -1068,6 +1095,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 	/*
+	 * Flushes all deltas without firing them.
+	 */
+	public void flush() {
+		this.javaModelDeltas = new ArrayList();
+	}
+	/*
 	 * Finds the root info this path is included in.
 	 * Returns null if not found.
 	 */
@@ -1078,6 +1111,107 @@ public class DeltaProcessor implements IResourceChangeListener {
 			path = path.removeLastSegments(1);
 		}
 		return null;
+	}
+	/*
+	 * Fire Java Model delta, flushing them after the fact after post_change notification.
+	 * If the firing mode has been turned off, this has no effect. 
+	 */
+	public void fire(IJavaElementDelta customDelta, int eventType) {
+
+		if (!this.isFiring) return;
+		
+		if (VERBOSE && (eventType == DEFAULT_CHANGE_EVENT || eventType == ElementChangedEvent.PRE_AUTO_BUILD)) {
+			System.out.println("-----------------------------------------------------------------------------------------------------------------------");//$NON-NLS-1$
+		}
+
+		IJavaElementDelta deltaToNotify;
+		if (customDelta == null){
+			deltaToNotify = this.mergeDeltas(this.javaModelDeltas);
+		} else {
+			deltaToNotify = customDelta;
+		}
+			
+		// Refresh internal scopes
+		if (deltaToNotify != null) {
+			Iterator scopes = this.manager.searchScopes.keySet().iterator();
+			while (scopes.hasNext()) {
+				AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
+				scope.processDelta(deltaToNotify);
+			}
+		}
+			
+		// Notification
+	
+		// Important: if any listener reacts to notification by updating the listeners list or mask, these lists will
+		// be duplicated, so it is necessary to remember original lists in a variable (since field values may change under us)
+		IElementChangedListener[] listeners = this.manager.elementChangedListeners;
+		int[] listenerMask = this.manager.elementChangedListenerMasks;
+		int listenerCount = this.manager.elementChangedListenerCount;
+
+		switch (eventType) {
+			case DEFAULT_CHANGE_EVENT:
+				firePreAutoBuildDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				fireReconcileDelta(listeners, listenerMask, listenerCount);
+				break;
+			case ElementChangedEvent.PRE_AUTO_BUILD:
+				firePreAutoBuildDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				break;
+			case ElementChangedEvent.POST_CHANGE:
+				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+				fireReconcileDelta(listeners, listenerMask, listenerCount);
+				break;
+		}
+	}
+	private void firePreAutoBuildDelta(
+		IJavaElementDelta deltaToNotify,
+		IElementChangedListener[] listeners,
+		int[] listenerMask,
+		int listenerCount) {
+			
+		if (VERBOSE){
+			System.out.println("FIRING PRE_AUTO_BUILD Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
+		}
+		if (deltaToNotify != null) {
+			notifyListeners(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD, listeners, listenerMask, listenerCount);
+		}
+	}
+	private void firePostChangeDelta(
+		IJavaElementDelta deltaToNotify,
+		IElementChangedListener[] listeners,
+		int[] listenerMask,
+		int listenerCount) {
+			
+		// post change deltas
+		if (VERBOSE){
+			System.out.println("FIRING POST_CHANGE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
+		}
+		if (deltaToNotify != null) {
+			// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
+			this.flush();
+			
+			notifyListeners(deltaToNotify, ElementChangedEvent.POST_CHANGE, listeners, listenerMask, listenerCount);
+		} 
+	}		
+	private void fireReconcileDelta(
+		IElementChangedListener[] listeners,
+		int[] listenerMask,
+		int listenerCount) {
+
+
+		IJavaElementDelta deltaToNotify = mergeDeltas(this.reconcileDeltas.values());
+		if (VERBOSE){
+			System.out.println("FIRING POST_RECONCILE Delta ["+Thread.currentThread()+"]:"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println(deltaToNotify == null ? "<NONE>" : deltaToNotify.toString()); //$NON-NLS-1$
+		}
+		if (deltaToNotify != null) {
+			// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
+			this.reconcileDeltas = new HashMap();
+		
+			notifyListeners(deltaToNotify, ElementChangedEvent.POST_RECONCILE, listeners, listenerMask, listenerCount);
+		} 
 	}
 	public void initializeRoots() {
 		// remember roots infos as old roots infos
@@ -1214,6 +1348,77 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 		return false;
 	}
+	private void notifyListeners(IJavaElementDelta deltaToNotify, int eventType, IElementChangedListener[] listeners, int[] listenerMask, int listenerCount) {
+		final ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, eventType);
+		for (int i= 0; i < listenerCount; i++) {
+			if ((listenerMask[i] & eventType) != 0){
+				final IElementChangedListener listener = listeners[i];
+				long start = -1;
+				if (VERBOSE) {
+					System.out.print("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
+					start = System.currentTimeMillis();
+				}
+				// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
+				Platform.run(new ISafeRunnable() {
+					public void handleException(Throwable exception) {
+						Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
+					}
+					public void run() throws Exception {
+						listener.elementChanged(extraEvent);
+					}
+				});
+				if (VERBOSE) {
+					System.out.println(" -> " + (System.currentTimeMillis()-start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+		}
+	}
+	/*
+	 * Merges all awaiting deltas.
+	 */
+	private IJavaElementDelta mergeDeltas(Collection deltas) {
+		if (deltas.size() == 0) return null;
+		if (deltas.size() == 1) return (IJavaElementDelta)deltas.iterator().next();
+		
+		if (VERBOSE) {
+			System.out.println("MERGING " + deltas.size() + " DELTAS ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		
+		Iterator iterator = deltas.iterator();
+		JavaElementDelta rootDelta = new JavaElementDelta(this.manager.javaModel);
+		boolean insertedTree = false;
+		while (iterator.hasNext()) {
+			JavaElementDelta delta = (JavaElementDelta)iterator.next();
+			if (VERBOSE) {
+				System.out.println(delta.toString());
+			}
+			IJavaElement element = delta.getElement();
+			if (this.manager.javaModel.equals(element)) {
+				IJavaElementDelta[] children = delta.getAffectedChildren();
+				for (int j = 0; j < children.length; j++) {
+					JavaElementDelta projectDelta = (JavaElementDelta) children[j];
+					rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
+					insertedTree = true;
+				}
+				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
+				if (resourceDeltas != null) {
+					for (int i = 0, length = resourceDeltas.length; i < length; i++) {
+						rootDelta.addResourceDelta(resourceDeltas[i]);
+						insertedTree = true;
+					}
+				}
+			} else {
+				rootDelta.insertDeltaTree(element, delta);
+				insertedTree = true;
+			}
+		}
+		if (insertedTree) {
+			return rootDelta;
+		}
+		else {
+			return null;
+		}
+	}	
 	/*
 	 * Generic processing for elements with changed contents:<ul>
 	 * <li>The element is closed such that any subsequent accesses will re-open
@@ -1677,6 +1882,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 	/*
+	 * Registers the given delta with this delta processor.
+	 */
+	public void registerJavaModelDelta(IJavaElementDelta delta) {
+		this.javaModelDeltas.add(delta);
+	}
+	/*
 	 * Removes the given element from its parents cache of children. If the
 	 * element does not have a parent, or the parent is not currently open,
 	 * this has no effect. 
@@ -1730,14 +1941,14 @@ public class DeltaProcessor implements IResourceChangeListener {
 						// the following will close project if affected by the property file change
 						try {
 							// don't fire classpath change deltas right away, but batch them
-							this.manager.stopDeltas();
+							this.stopDeltas();
 							this.performPreBuildCheck(delta, null); 
 						} finally {
-							this.manager.startDeltas();
+							this.startDeltas();
 						}
 					}
 					// only fire already computed deltas (resource ones will be processed in post change only)
-					this.manager.fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
+					this.fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
 					break;
 
 				case IResourceChangeEvent.POST_AUTO_BUILD :
@@ -1756,9 +1967,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 							}
 							IJavaElementDelta translatedDelta = this.processResourceDelta(delta);
 							if (translatedDelta != null) { 
-								this.manager.registerJavaModelDelta(translatedDelta);
+								this.registerJavaModelDelta(translatedDelta);
 							}
-							this.manager.fire(null, ElementChangedEvent.POST_CHANGE);
+							this.fire(null, ElementChangedEvent.POST_CHANGE);
 						} finally {
 							// workaround for bug 15168 circular errors not reported 
 							this.manager.javaProjectsCache = null;
@@ -1777,6 +1988,20 @@ public class DeltaProcessor implements IResourceChangeListener {
 		} else {
 			return (RootInfo)this.roots.get(path);
 		}
+	}
+	/*
+	 * Turns the firing mode to on. That is, deltas that are/have been
+	 * registered will be fired.
+	 */
+	private void startDeltas() {
+		this.isFiring= true;
+	}
+	/*
+	 * Turns the firing mode to off. That is, deltas that are/have been
+	 * registered will not be fired until deltas are started again.
+	 */
+	private void stopDeltas() {
+		this.isFiring= false;
 	}
 	/*
 	 * Converts an <code>IResourceDelta</code> and its children into
@@ -2183,6 +2408,20 @@ public class DeltaProcessor implements IResourceChangeListener {
 						indexManager.remove(file.getFullPath().toString(), file.getProject().getProject().getFullPath());
 						break;
 				}
+		}
+	}
+	/*
+	 * Update Java Model given some delta
+	 */
+	public void updateJavaModel(IJavaElementDelta customDelta) {
+
+		if (customDelta == null){
+			for (int i = 0, length = this.javaModelDeltas.size(); i < length; i++){
+				IJavaElementDelta delta = (IJavaElementDelta)this.javaModelDeltas.get(i);
+				this.modelUpdater.processJavaDelta(delta);
+			}
+		} else {
+			this.modelUpdater.processJavaDelta(customDelta);
 		}
 	}
 	/*

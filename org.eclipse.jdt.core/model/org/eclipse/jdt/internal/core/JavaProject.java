@@ -2163,7 +2163,7 @@ public class JavaProject
 			runOperation(op, monitor);
 			
 		} catch (JavaModelException e) {
-			manager.flush();
+			manager.deltaProcessor.flush();
 			throw e;
 		}
 	}
