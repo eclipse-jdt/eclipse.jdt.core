@@ -736,5 +736,21 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(bound, "E", source);
 		assertFalse("Is an upper bound", wildcardType.isUpperBound());
 	}
+
+		public void test0023() throws JavaModelException {
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0023", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+	//		char[] source = sourceUnit.getSource().toCharArray();
+			assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+			CompilationUnit compilationUnit = (CompilationUnit) result;
+			assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+			ASTNode node = getASTNode(compilationUnit, 0, 5);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertEquals("Wrong name", "zip", methodDeclaration.getName().getIdentifier());
+			List typeParameters = methodDeclaration.typeParameters();
+			assertNotNull("No type parameters", typeParameters);
+			assertEquals("Wrong size", 1, typeParameters.size());
+		}
 }
 

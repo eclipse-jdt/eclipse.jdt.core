@@ -3974,6 +3974,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			assertTrue(x.typeArguments().isEmpty());
+		}
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getExpression() == null);
 		assertTrue(x.arguments().size() == 0);
@@ -4006,6 +4009,35 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 			public void set(ASTNode value) {
 				x.setExpression((Expression) value);
+			}
+		});
+
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			genericPropertyListTest(x, x.typeArguments(),
+			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					Type result = targetAst.newSimpleType(targetAst.newSimpleName("X")); //$NON-NLS-1$
+					if (parented) {
+						targetAst.newArrayType(result);
+					}
+					return result;
+				}
+			});
+		}
+		
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
 			}
 		});
 
@@ -6312,12 +6344,28 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			assertTrue(x.typeArguments().isEmpty());
+		}
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.CONSTRUCTOR_INVOCATION);
 		assertTrue(x.structuralPropertiesForType() == 
 			ConstructorInvocation.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
+		
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			genericPropertyListTest(x, x.typeArguments(),
+			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					Type result = targetAst.newSimpleType(targetAst.newSimpleName("X")); //$NON-NLS-1$
+					if (parented) {
+						targetAst.newArrayType(result);
+					}
+					return result;
+				}
+			});
+		}
 		
 		genericPropertyListTest(x, x.arguments(),
 		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
@@ -6355,6 +6403,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			assertTrue(x.typeArguments().isEmpty());
+		}
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION);
 		assertTrue(x.structuralPropertiesForType() == 
@@ -6394,6 +6445,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			genericPropertyListTest(x, x.typeArguments(),
+			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					Type result = targetAst.newSimpleType(targetAst.newSimpleName("X")); //$NON-NLS-1$
+					if (parented) {
+						targetAst.newArrayType(result);
+					}
+					return result;
+				}
+			});
+		}
+		
 		genericPropertyListTest(x, x.arguments(),
 		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -6570,6 +6634,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			assertTrue(x.typeArguments().isEmpty());
+		}
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getQualifier() == null);
 		assertTrue(x.arguments().isEmpty());
@@ -6597,6 +6664,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			genericPropertyListTest(x, x.typeArguments(),
+			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					Type result = targetAst.newSimpleType(targetAst.newSimpleName("X")); //$NON-NLS-1$
+					if (parented) {
+						targetAst.newArrayType(result);
+					}
+					return result;
+				}
+			});
+		}
+		
 		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
@@ -7326,7 +7406,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			assertTrue(x.getName().getParent() == x);
 		} else {
-			assertTrue(x.typeParameters().isEmpty());
+			assertTrue(x.typeArguments().isEmpty());
 			assertTrue(x.getType().getParent() == x);
 		}
 		assertTrue(x.arguments().isEmpty());
@@ -7364,12 +7444,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			genericPropertyListTest(x, x.typeParameters(),
-			  new Property("TypeParameters", true, TypeParameter.class) { //$NON-NLS-1$
+			genericPropertyListTest(x, x.typeArguments(),
+			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
-					TypeParameter result = targetAst.newTypeParameter();
+					Type result = targetAst.newSimpleType(targetAst.newSimpleName("X")); //$NON-NLS-1$
 					if (parented) {
-						targetAst.newMethodDeclaration().typeParameters().add(result);
+						targetAst.newArrayType(result);
 					}
 					return result;
 				}

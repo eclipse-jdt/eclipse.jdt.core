@@ -1247,8 +1247,8 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			x1.setName(N1);
 		} else {
-			x1.typeParameters().add(TP1);
-			x1.setType(PT1);
+			x1.typeArguments().add(PT1);
+			x1.setType(T1);
 		}
 		x1.setAnonymousClassDeclaration(ACD1);
 		TestVisitor v1 = new TestVisitor();
@@ -1258,7 +1258,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			assertTrue(result.equals("[(eCI"+E1S+N1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			assertTrue(result.equals("[(eCI"+E1S+TP1S+PT1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+			assertTrue(result.equals("[(eCI"+E1S+PT1S+T1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	public void testAnonymousClassDeclaration() {
@@ -1304,13 +1304,20 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testConstructorInvocation() {
 		ConstructorInvocation x1 = ast.newConstructorInvocation();
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(sCI"+E1S+E2S+"sCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			assertTrue(result.equals("[(sCI"+E1S+E2S+"sCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			assertTrue(result.equals("[(sCI"+PT1S+E1S+E2S+"sCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 	public void testContinueStatement() {
 		ContinueStatement x1 = ast.newContinueStatement();
@@ -1602,6 +1609,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodInvocation() {
 		MethodInvocation x1 = ast.newMethodInvocation();
 		x1.setExpression(N1);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.setName(N2);
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
@@ -1609,7 +1619,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(eMI"+N1S+N2S+E1S+E2S+"eMI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			assertTrue(result.equals("[(eMI"+N1S+N2S+E1S+E2S+"eMI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			assertTrue(result.equals("[(eMI"+N1S+PT1S+N2S+E1S+E2S+"eMI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	public void testMethodRef() {
@@ -1823,13 +1837,20 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = ast.newSuperConstructorInvocation();
 		x1.setExpression(N1);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(sSC"+N1S+E1S+E2S+"sSC)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			assertTrue(result.equals("[(sSC"+N1S+E1S+E2S+"sSC)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			assertTrue(result.equals("[(sSC"+N1S+PT1S+E1S+E2S+"sSC)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 	public void testSuperFieldAccess() {
 		SuperFieldAccess x1 = ast.newSuperFieldAccess();
@@ -1844,6 +1865,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperMethodInvocation() {
 		SuperMethodInvocation x1 = ast.newSuperMethodInvocation();
 		x1.setQualifier(N1);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.setName(N2);
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
@@ -1851,7 +1875,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(eSM"+N1S+N2S+E1S+E2S+"eSM)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			assertTrue(result.equals("[(eSM"+N1S+N2S+E1S+E2S+"eSM)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			assertTrue(result.equals("[(eSM"+N1S+PT1S+N2S+E1S+E2S+"eSM)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 	public void testSwitchCase() {
 		SwitchCase x1 = ast.newSwitchCase();
