@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0595"));
+		suite.addTest(new ASTConverterTestAST3_2("test0596"));
 		return suite;
 	}
 	/**
@@ -5925,5 +5925,70 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		IBinding binding = importDeclaration.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83098
+	 */
+	public void test0596() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	void m(String[] args) {\n" +
+				"		for (int i= 0; i < args.length; i++) {\n" +
+				"			String string= args[i];\n" +
+				"		}\n" +
+				"		for (int i= 0; i < args.length; i++) {\n" +
+				"			String string= args[i];\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a for statement", ASTNode.FOR_STATEMENT, node.getNodeType());
+			ForStatement forStatement = (ForStatement) node;
+			Statement action = forStatement.getBody();
+			assertEquals("Not a block", ASTNode.BLOCK, action.getNodeType());
+			Block block = (Block) action;
+			List statements = block.statements();
+			assertEquals("Wrong size", 1, statements.size());
+			Statement statement = (Statement) statements.get(0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement;
+			List fragments = variableDeclarationStatement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			
+			node = getASTNode(compilationUnit, 0, 0, 1);
+			assertEquals("Not a for statement", ASTNode.FOR_STATEMENT, node.getNodeType());
+			forStatement = (ForStatement) node;
+			action = forStatement.getBody();
+			assertEquals("Not a block", ASTNode.BLOCK, action.getNodeType());
+			block = (Block) action;
+			statements = block.statements();
+			assertEquals("Wrong size", 1, statements.size());
+			statement = (Statement) statements.get(0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
+			variableDeclarationStatement = (VariableDeclarationStatement) statement;
+			fragments = variableDeclarationStatement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding2 = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding2);
+			
+			assertFalse("Bindings are equals", variableBinding.isEqualTo(variableBinding2));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

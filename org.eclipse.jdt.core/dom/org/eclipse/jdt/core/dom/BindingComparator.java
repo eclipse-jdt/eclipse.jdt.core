@@ -130,7 +130,8 @@ class BindingComparator {
 	static boolean isEqual(VariableBinding variableBinding, VariableBinding variableBinding2) {
 		return variableBinding.modifiers == variableBinding2.modifiers
 				&& CharOperation.equals(variableBinding.name, variableBinding2.name)
-				&& isEqual(variableBinding.type, variableBinding2.type);
+				&& isEqual(variableBinding.type, variableBinding2.type)
+				&& (variableBinding.id == variableBinding2.id);
 	}
 
 	static boolean isEqual(FieldBinding fieldBinding, FieldBinding fieldBinding2) {
