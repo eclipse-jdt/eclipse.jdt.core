@@ -23,7 +23,8 @@ public static Class[] getAllTestClasses() {
 	return new Class[] {
 		ASTConverterTest.class,		
 		ASTConverterTest2.class,
-		ASTConverterJavadocTest.class
+		ASTConverterJavadocTest.class,
+		ASTConverter15Test.class
 	};
 }
 public static Test suite() {

@@ -89,6 +89,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	public void tearDownSuite() throws Exception {
 		ast = null;
 		this.deleteProject("Converter"); //$NON-NLS-1$
+		this.deleteProject("Converter15"); //$NON-NLS-1$
 		
 		super.tearDown();
 	}	
@@ -101,6 +102,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		setupConverterJCL();
 		ast = new AST();
 		setUpJavaProject("Converter"); //$NON-NLS-1$
+		setUpJavaProject("Converter15"); //$NON-NLS-1$
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
 			JavaCore.setClasspathVariables(
@@ -108,40 +110,55 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 				new Path[] {new Path(ConverterTestSetup.getConverterJCLPath()), new Path(ConverterTestSetup.getConverterJCLSourcePath()), new Path(ConverterTestSetup.getConverterJCLRootSourcePath())},
 				null);
 		}		
-	}	
+	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		return runConversion(AST.LEVEL_2_0, unit, resolveBindings);
+	}
+
+	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
+		return runConversion(AST.LEVEL_2_0, unit, position, resolveBindings);
+	}
+
+	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
+		return runConversion(AST.LEVEL_2_0, classFile, position, resolveBindings);
+	}
+	
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
+		return runConversion(AST.LEVEL_2_0, source, unitName, project);
+	}
+	
+	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 
-	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+	public ASTNode runConversion(int astLevel, ICompilationUnit unit, int position, boolean resolveBindings) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 
-	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+	public ASTNode runConversion(int astLevel, IClassFile classFile, int position, boolean resolveBindings) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(classFile);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 	
-	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);
 		return parser.createAST(null);
 	}
 	
-
 	protected ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);

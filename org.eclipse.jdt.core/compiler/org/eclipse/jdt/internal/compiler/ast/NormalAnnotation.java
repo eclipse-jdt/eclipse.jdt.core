@@ -17,14 +17,18 @@ public class NormalAnnotation extends Annotation {
 	
 	public MemberValuePair[] memberValuePairs;
 	
-	public NormalAnnotation(char[][] tokens, long[] sourcePositions) {
+	public NormalAnnotation(char[][] tokens, long[] sourcePositions, int sourceStart) {
 		this.tokens = tokens;
 		this.sourcePositions = sourcePositions;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = (int) sourcePositions[sourcePositions.length - 1];
 	}
 
-	public NormalAnnotation(char[] token, long sourcePosition) {
+	public NormalAnnotation(char[] token, long sourcePosition, int sourceStart) {
 		this.tokens = new char[][] { token };
 		this.sourcePositions = new long[] { sourcePosition };
+		this.sourceStart = sourceStart;
+		this.sourceEnd = (int) sourcePosition;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {

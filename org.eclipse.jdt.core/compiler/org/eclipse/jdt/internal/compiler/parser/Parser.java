@@ -1079,13 +1079,18 @@ protected void consumeAnnotationTypeDeclarationHeader() {
 	// 'interface' push two int positions: the beginning of the class token and its end.
 	// we want to keep the beginning position but get rid of the end position
 	// it is only used for the ClassLiteralAccess positions.
-	annotationTypeDeclaration.declarationSourceStart = this.intStack[this.intPtr--]; 
+	this.intPtr--; // remove the start position of the interface token
 	this.intPtr--; // remove the end position of the interface token
 
 	annotationTypeDeclaration.modifiersSourceStart = this.intStack[this.intPtr--];
 	annotationTypeDeclaration.modifiers = this.intStack[this.intPtr--];
 	if (annotationTypeDeclaration.modifiersSourceStart >= 0) {
 		annotationTypeDeclaration.declarationSourceStart = annotationTypeDeclaration.modifiersSourceStart;
+		this.intPtr--; // remove the position of the '@' token as we have modifiers
+	} else {
+		int atPosition = this.intStack[this.intPtr--];
+		// remove the position of the '@' token as we don't have modifiers
+		annotationTypeDeclaration.declarationSourceStart = atPosition;
 	}
 	// consume annotations
 	int length;
@@ -1136,6 +1141,7 @@ protected void consumeAnnotationTypeMemberDeclaration() {
 
 	//highlight starts at selector start
 	annotationTypeMemberDeclaration.sourceStart = (int) (selectorSource >>> 32);
+	annotationTypeMemberDeclaration.sourceEnd = (int) selectorSource;
 	annotationTypeMemberDeclaration.bodyStart = this.lParenPos+1;
 	
 	// cannot be done in consumeMethodHeader because we have no idea whether or not there
@@ -3542,7 +3548,7 @@ protected void consumeMarkerAnnotation() {
 	MarkerAnnotation markerAnnotation = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
 	if (length == 1) {
-		markerAnnotation = new MarkerAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+		markerAnnotation = new MarkerAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--], this.intStack[this.intPtr--]);
 	} else {
 		char[][] tokens = new char[length][];
 		this.identifierPtr -= length;
@@ -3554,8 +3560,15 @@ protected void consumeMarkerAnnotation() {
 			positions, 
 			0, 
 			length);
-		markerAnnotation = new MarkerAnnotation(tokens, positions);			
+		markerAnnotation = new MarkerAnnotation(tokens, positions, this.intStack[this.intPtr--]);			
 	}
+	int sourceStart = markerAnnotation.sourceStart;
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	} else if (this.modifiersSourceStart > sourceStart) {
+		this.modifiersSourceStart = sourceStart;
+	}
+	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
 	pushOnExpressionStack(markerAnnotation);
 }
 protected void consumeMemberValueArrayInitializer() {
@@ -4004,7 +4017,7 @@ protected void consumeNormalAnnotation() {
 	NormalAnnotation normalAnnotation = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
 	if (length == 1) {
-		normalAnnotation = new NormalAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+		normalAnnotation = new NormalAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--], this.intStack[this.intPtr--]);
 	} else {
 		char[][] tokens = new char[length][];
 		this.identifierPtr -= length;
@@ -4016,7 +4029,7 @@ protected void consumeNormalAnnotation() {
 			positions, 
 			0, 
 			length);
-		normalAnnotation = new NormalAnnotation(tokens, positions);			
+		normalAnnotation = new NormalAnnotation(tokens, positions, this.intStack[this.intPtr--]);			
 	}
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		System.arraycopy(
@@ -4026,6 +4039,13 @@ protected void consumeNormalAnnotation() {
 			0, 
 			length); 
 	}
+	int sourceStart = normalAnnotation.sourceStart;
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	} else if (this.modifiersSourceStart > sourceStart) {
+		this.modifiersSourceStart = sourceStart;
+	}
+	normalAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(normalAnnotation);
 }
 protected void consumeOneDimLoop() {
@@ -5779,7 +5799,7 @@ protected void consumeSingleMemberAnnotation() {
 	SingleMemberAnnotation singleMemberAnnotation = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
 	if (length == 1) {
-		singleMemberAnnotation = new SingleMemberAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+		singleMemberAnnotation = new SingleMemberAnnotation(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--], this.intStack[this.intPtr--]);
 	} else {
 		char[][] tokens = new char[length][];
 		this.identifierPtr -= length;
@@ -5791,10 +5811,17 @@ protected void consumeSingleMemberAnnotation() {
 			positions, 
 			0, 
 			length);
-		singleMemberAnnotation = new SingleMemberAnnotation(tokens, positions);			
+		singleMemberAnnotation = new SingleMemberAnnotation(tokens, positions, this.intStack[this.intPtr--]);			
 	}
 	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
+	int sourceStart = singleMemberAnnotation.sourceStart;
+	if (this.modifiersSourceStart < 0) {
+		this.modifiersSourceStart = sourceStart;
+	} else if (this.modifiersSourceStart > sourceStart) {
+		this.modifiersSourceStart = sourceStart;
+	}
+	singleMemberAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(singleMemberAnnotation);
 }
 protected void consumeSingleStaticImportDeclarationName() {
@@ -6514,6 +6541,9 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNameLPAREN :
 			this.lParenPos = this.scanner.startPosition;
+			break;
+		case TokenNameAT :
+			pushOnIntStack(this.scanner.startPosition);
 			break;
 			//  case TokenNameQUESTION  :
 			//  case TokenNameCOMMA :

@@ -17,6 +17,7 @@ public abstract class Annotation extends Expression {
 	
 	public char[][] tokens;
 	public long[] sourcePositions;
+	public int declarationSourceEnd;
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append('@');

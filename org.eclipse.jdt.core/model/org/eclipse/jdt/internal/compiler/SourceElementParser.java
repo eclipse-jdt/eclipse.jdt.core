@@ -869,17 +869,31 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 	if (isInRange) {
 		int currentModifiers = methodDeclaration.modifiers;
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-		requestor.enterMethod(
-			methodDeclaration.declarationSourceStart, 
-			deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-			returnTypeName(((MethodDeclaration) methodDeclaration).returnType), 
-			methodDeclaration.selector, 
-			methodDeclaration.sourceStart, 
-			selectorSourceEnd, 
-			argumentTypes, 
-			argumentNames, 
-			thrownExceptionTypes); 
+		if (methodDeclaration instanceof MethodDeclaration) {
+			requestor.enterMethod(
+				methodDeclaration.declarationSourceStart, 
+				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
+				returnTypeName(((MethodDeclaration) methodDeclaration).returnType), 
+				methodDeclaration.selector, 
+				methodDeclaration.sourceStart, 
+				selectorSourceEnd, 
+				argumentTypes, 
+				argumentNames, 
+				thrownExceptionTypes);
+		} else {
+			requestor.enterMethod(
+				methodDeclaration.declarationSourceStart, 
+				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
+				returnTypeName(((AnnotationTypeMemberDeclaration) methodDeclaration).returnType), 
+				methodDeclaration.selector, 
+				methodDeclaration.sourceStart, 
+				selectorSourceEnd, 
+				argumentTypes, 
+				argumentNames, 
+				thrownExceptionTypes);
+		}
 	}		
+		
 	this.visitIfNeeded(methodDeclaration);
 
 	if (isInRange){	
