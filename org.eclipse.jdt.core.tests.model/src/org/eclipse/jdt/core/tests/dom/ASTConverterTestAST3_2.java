@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0580"));
+		suite.addTest(new ASTConverterTestAST3_2("test0595"));
 		return suite;
 	}
 	/**
@@ -5907,5 +5907,23 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82985
+	 */
+	public void test0595() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0595", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		List imports = compilationUnit.imports();
+		assertEquals("Wrong size", 1, imports.size());
+		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
+		IBinding binding = importDeclaration.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
 	}
 }

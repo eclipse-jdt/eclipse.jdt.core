@@ -89,7 +89,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0102"));
+		suite.addTest(new ASTConverter15Test("test0107"));
 		return suite;
 	}
 		
@@ -3218,4 +3218,189 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82985
+	 */
+	public void test0103() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0103", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		List imports = compilationUnit.imports();
+		assertEquals("Wrong size", 2, imports.size());
+		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
+		IBinding binding = importDeclaration.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
+		Name name = importDeclaration.getName();
+		binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		SimpleName simpleName = qualifiedName.getName();
+		binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
+		
+		Name name2 = qualifiedName.getQualifier();
+		binding = name2.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name2.getNodeType());
+		qualifiedName = (QualifiedName) name2;
+		simpleName = qualifiedName.getName();
+		binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		
+		Name name3 = qualifiedName.getQualifier();
+		binding = name3.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
+		
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name3.getNodeType());
+		
+		importDeclaration = (ImportDeclaration) imports.get(1);
+		binding = importDeclaration.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertFalse("Not a single name import", importDeclaration.isOnDemand());
+		name = importDeclaration.getName();
+		binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.METHOD, binding.getKind());
+
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
+		qualifiedName = (QualifiedName) name;
+		simpleName = qualifiedName.getName();
+		binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.METHOD, binding.getKind());
+
+		name2 = qualifiedName.getQualifier();
+		binding = name2.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name2.getNodeType());
+		qualifiedName = (QualifiedName) name2;
+		simpleName = qualifiedName.getName();
+		binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		
+		name2 = qualifiedName.getQualifier();
+		binding = name2.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name2.getNodeType());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82985
+	 * TODO (olivier) enable once static imports support either field or method with the same name
+	 */
+	public void _test0104() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0103", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		List imports = compilationUnit.imports();
+		assertEquals("Wrong size", 1, imports.size());
+		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
+		IBinding binding = importDeclaration.resolveBinding();
+		assertNotNull("No binding", binding);
+		int kind = binding.getKind();
+		assertTrue("Wrong type", kind == IBinding.VARIABLE || kind == IBinding.METHOD);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83011
+	 */
+	public void test0105() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"@interface Ann {}\n" +
+				"\n" +
+				"@Ann public class X {}\n";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 1);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			List modifiers = typeDeclaration.modifiers();
+			assertEquals("Wrong size", 2, modifiers.size());
+			IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Not a marker annotation", extendedModifier instanceof MarkerAnnotation);
+			MarkerAnnotation markerAnnotation = (MarkerAnnotation) extendedModifier;
+			ITypeBinding binding = markerAnnotation.resolveTypeBinding();
+			assertNotNull("No binding", binding);
+			Name name = markerAnnotation.getTypeName();
+			binding = name.resolveTypeBinding();
+			assertNotNull("No binding", binding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83011
+	 */
+	public void test0106() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"package p;\n" +
+				"@interface Ann {}\n" +
+				"\n" +
+				"@p.Ann public class X {}\n";
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			node = getASTNode(compilationUnit, 1);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			List modifiers = typeDeclaration.modifiers();
+			assertEquals("Wrong size", 2, modifiers.size());
+			IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Not a marker annotation", extendedModifier instanceof MarkerAnnotation);
+			MarkerAnnotation markerAnnotation = (MarkerAnnotation) extendedModifier;
+			ITypeBinding typeBinding = markerAnnotation.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+			Name name = markerAnnotation.getTypeName();
+			typeBinding = name.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+			IBinding binding = name.resolveBinding();
+			assertNotNull("No binding", binding);
+			assertEquals("Wrong kind of binding", IBinding.TYPE, binding.getKind());
+			assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
+			QualifiedName qualifiedName = (QualifiedName) name;
+			SimpleName simpleName = qualifiedName.getName();
+			binding = simpleName.resolveBinding();
+			assertNotNull("No binding", binding);
+			name = qualifiedName.getQualifier();
+			binding = name.resolveBinding();
+			assertNotNull("No binding", binding);			
+			assertEquals("Wrong kind of binding", IBinding.PACKAGE, binding.getKind());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
 }
