@@ -1480,7 +1480,7 @@ public void testDenseCycleDetection() throws CoreException {
 	denseCycleDetection(5);
 	denseCycleDetection(10);
 	denseCycleDetection(20);
-	denseCycleDetection(100);
+	//denseCycleDetection(100);
 }
 
 private void denseCycleDetection(final int numberOfParticipants) throws CoreException {

@@ -52,6 +52,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	
 	IPath newOutputLocation;
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
+	public static final IClasspathEntry[] UpdateClasspath = new IClasspathEntry[0];
 	public static final IPath ReuseOutputLocation = new Path("Reuse Existing Output Location");  //$NON-NLS-1$
 	
 	/**
@@ -122,34 +123,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 			}
 		}
 		return -1;
-	}
-	/**
-	 * Computes whether a cycle check is needed and updates the needCycleCheck field.
-	 */
-	protected void computeCycleCheck(
-		IClasspathEntry[] oldResolvedPath,
-		IClasspathEntry[] newResolvedPath,
-		JavaModelManager manager,
-		JavaProject project) {
-
-		for (int i = 0, oldLength = oldResolvedPath.length; i < oldLength; i++) {
-			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
-			if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT
-				&& (index == -1
-						|| (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported()))) {
-					this.needCycleCheck = true;
-					return;
-			}
-		}
-
-		for (int i = 0, newLength = newResolvedPath.length; i < newLength; i++) {
-			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
-			if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT
-					&& index == -1) {
-				this.needCycleCheck = true;
-				return; 
-			} // classpath reordering has already been handled in previous loop
-		}
 	}
 
 	/**
@@ -224,17 +197,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void executeOperation() throws JavaModelException {
 
-		// resolve new path (asking for marker creation if problems)
-		JavaProject project = getProject();
-		IClasspathEntry[] newResolvedPath = 
-			project.getResolvedClasspath(
-				this.newRawPath,
-				true, // ignoreUnresolvedEntry
-				this.canChangeResource);// also update cp markers
-				
-		// compute needCycleCheck bit
-		computeCycleCheck(this.oldResolvedPath, newResolvedPath, project.getJavaModelManager(), project);
-
 		// project reference updated - may throw an exception if unable to write .project file
 		updateProjectReferencesIfNecessary();
 
@@ -247,7 +209,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelException originalException = null;
 
 		try {
-			if (this.newRawPath != ReuseClasspath) updateClasspath(newResolvedPath);
+			if (this.newRawPath == UpdateClasspath) this.newRawPath = getProject().getRawClasspath();
+			if (this.newRawPath != ReuseClasspath){
+				updateClasspath();
+			}
 
 		} catch(JavaModelException e){
 			originalException = e;
@@ -292,6 +257,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					needToUpdateDependents = true;
+					this.needCycleCheck = true;
 					continue; 
 				}
 
@@ -313,6 +279,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			} else {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
+					this.needCycleCheck |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
 					continue; 
 				}				
 				needToUpdateDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
@@ -354,6 +321,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// do not notify remote project changes
 				if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					needToUpdateDependents = true;
+					this.needCycleCheck = true;
 					continue; 
 				}
 				addClasspathDeltas(
@@ -438,7 +406,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				
 		IClasspathEntry[] classpathForSave;
 		JavaProject project = getProject();
-		if (this.newRawPath == ReuseClasspath){
+		if (this.newRawPath == ReuseClasspath || this.newRawPath == UpdateClasspath){
 			classpathForSave = project.getRawClasspath();
 		} else {
 			classpathForSave = this.newRawPath;
@@ -478,14 +446,20 @@ public class SetClasspathOperation extends JavaModelOperation {
 		return buffer.toString();
 	}
 
-	private void updateClasspath(IClasspathEntry[] newResolvedPath) throws JavaModelException {
+	private void updateClasspath() throws JavaModelException {
 
-		JavaProject project = getProject();
+		JavaProject project = ((JavaProject) getElementsToProcess()[0]);
 
 		beginTask(Util.bind("classpath.settingProgress", project.getElementName()), 2); //$NON-NLS-1$
 
 		// SIDE-EFFECT: from thereon, the classpath got modified
 		project.setRawClasspath0(this.newRawPath);
+
+		// resolve new path (asking for marker creation if problems)
+		IClasspathEntry[] newResolvedPath = 
+			project.getResolvedClasspath(
+				true, // ignoreUnresolvedEntry
+				this.canChangeResource);// also update cp markers
 
 		if (this.oldResolvedPath != null) {
 			generateClasspathChangeDeltas(
@@ -525,7 +499,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(prerequisiteProjectPath)) {
 							project.setRawClasspath(
-								project.getRawClasspath(), 
+								UpdateClasspath, 
 								SetClasspathOperation.ReuseOutputLocation, 
 								this.fMonitor, 
 								this.canChangeResource, 
@@ -621,12 +595,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 	protected void updateProjectReferencesIfNecessary() throws JavaModelException {
 		
 		if (!this.canChangeResource) return;
-		if (this.newRawPath == ReuseClasspath || !this.needCycleCheck) return;
-
+		if (this.newRawPath == ReuseClasspath || this.newRawPath == UpdateClasspath) return;
+	
 		JavaProject jproject = getProject();
 		String[] oldRequired = jproject.getRequiredProjectNames();
 		String[] newRequired =jproject.projectPrerequisites(jproject.getResolvedClasspath(this.newRawPath, true, false));
-
+	
 		try {		
 			IProject project = jproject.getProject();
 			IProjectDescription description = project.getDescription();
@@ -639,7 +613,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				oldReferences.add(projectName);
 			}
 			HashSet newReferences = (HashSet)oldReferences.clone();
-
+	
 			for (int i = 0; i < oldRequired.length; i++){
 				String projectName = oldRequired[i];
 				newReferences.remove(projectName);
@@ -648,7 +622,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				String projectName = newRequired[i];
 				newReferences.add(projectName);
 			}
-
+	
 			Iterator iter;
 			int newSize = newReferences.size();
 			
@@ -676,10 +650,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 			for (int i = 0; i < newSize; i++){
 				requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
 			}
-
+	
 			description.setReferencedProjects(requiredProjectArray);
 			project.setDescription(description, this.fMonitor);
-
+	
 		} catch(CoreException e){
 			throw new JavaModelException(e);
 		}
