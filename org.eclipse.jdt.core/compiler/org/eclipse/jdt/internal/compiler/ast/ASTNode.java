@@ -137,13 +137,13 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		super();
 	}
 	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
-		boolean warnRawArgs = false, wildcardInvocation = false;
+		boolean warnRawArgs = false, unsafeWildcardInvocation = false;
 		for (int i = 0; i < arguments.length; i++) {
 		    TypeBinding parameterType = method.parameters[i];
 		    TypeBinding argumentType = argumentTypes[i];
 			arguments[i].computeConversion(scope, parameterType, argumentType);
-			if (parameterType.isWildcard() && argumentType != NullBinding) {
-			    wildcardInvocation = true;
+			if (argumentType != NullBinding && parameterType.isWildcard() && ((WildcardBinding)parameterType).kind != Wildcard.SUPER) {
+			    unsafeWildcardInvocation = true;
 			} else if (argumentType != parameterType 
 			        && argumentType.isRawType() 
 			        && (parameterType.isParameterizedType() || parameterType.isGenericType())) {
@@ -153,7 +153,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (argsContainCast) {
 			CastExpression.checkNeedForArgumentCasts(scope, receiver, receiverType, method, arguments, argumentTypes, invocationSite);
 		}
-		if (wildcardInvocation) {
+		if (unsafeWildcardInvocation) {
 		    scope.problemReporter().unsafeWildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
 		} else if (receiverType.isRawType() && method.hasSubstitutedParameters()) {
 		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, receiverType, method);

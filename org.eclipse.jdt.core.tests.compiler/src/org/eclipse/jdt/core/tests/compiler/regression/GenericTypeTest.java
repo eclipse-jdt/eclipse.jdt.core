@@ -4140,12 +4140,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lx.add(x);\n" + 
 			"	^^^^^^^^^\n" + 
-			"Unsafe wildcard operation: The method add(?) of type XList<?> is not applicable for the arguments (X)\n" + 
+			"Unsafe wildcard operation: The method add(?) of type XList<?> is not applicable for the arguments (X). The wildcard parameter ? has no lower bound, and may actually be more restrictive than argument X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	lx.slot = x;\n" + 
 			"	          ^\n" + 
-			"Unsafe wildcard operation: Cannot assign expression of type X to wildcard type ?\n" + 
+			"Unsafe wildcard operation: Cannot assign expression of type X to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
 			"----------\n");
 	}
 	// 59628
@@ -6047,4 +6047,47 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}	
+	// 69141 unsafe wildcard operation tolerates wildcard with lower bounds
+	public void test220() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		ArrayList<? super Integer> al = new ArrayList<Object>();\n" + 
+				"		al.add(new Integer(1)); // (1)\n" + 
+				"		Integer i = al.get(0);  // (2)\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	Integer i = al.get(0);  // (2)\n" + 
+			"	        ^\n" + 
+			"Type mismatch: cannot convert from ? super Integer to Integer\n" + 
+			"----------\n");
+	}		
+	// 69141 variation
+	public void test221() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		ArrayList<? extends Integer> al = new ArrayList<Integer>();\n" + 
+				"		al.add(new Integer(1)); // (1)\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	al.add(new Integer(1)); // (1)\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe wildcard operation: The method add(? extends Integer) of type ArrayList<? extends Integer> is not applicable for the arguments (Integer). The wildcard parameter ? extends Integer has no lower bound, and may actually be more restrictive than argument Integer\n" + 
+			"----------\n");
+	}			
 }

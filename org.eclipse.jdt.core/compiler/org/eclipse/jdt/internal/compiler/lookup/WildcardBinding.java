@@ -23,9 +23,9 @@ public class WildcardBinding extends ReferenceBinding {
 
 	ReferenceBinding genericType;
 	int rank;
-    TypeBinding bound; // when unbound denotes the corresponding type variable (so as to retrieve its bound lazily)
+    public TypeBinding bound; // when unbound denotes the corresponding type variable (so as to retrieve its bound lazily)
 	char[] genericSignature;
-	int kind;
+	public int kind;
 	ReferenceBinding superclass;
 	ReferenceBinding[] superInterfaces;
 	TypeVariableBinding typeVariable; // corresponding variable
@@ -145,7 +145,8 @@ public class WildcardBinding extends ReferenceBinding {
 	        case Wildcard.EXTENDS :
 	            return otherType.isCompatibleWith(this.bound);
 	        default: // SUPER
-	            return this.bound.isCompatibleWith(otherType);
+	        	return this.typeVariable().isCompatibleWith(otherType);
+	            //return this.bound.isCompatibleWith(otherType);  // cannot use lower bound
 	    }        
 	}
 	/**
