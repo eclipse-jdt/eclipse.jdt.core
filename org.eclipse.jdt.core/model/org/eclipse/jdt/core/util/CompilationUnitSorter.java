@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003 IBM Corp. and others.
+ * Copyright (c) 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
+
 package org.eclipse.jdt.core.util;
 
 import java.text.Collator;
@@ -36,6 +37,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.internal.core.SortElementsOperation;
+
 /**
  * The comparator used to sort the elements inside a compilation unit needs to follow the 
  * following constraints:
@@ -97,7 +99,26 @@ import org.eclipse.jdt.internal.core.SortElementsOperation;
  * @since 2.1
  */
 public class CompilationUnitSorter {
-
+	
+	/**
+	 * The class <code>DefaultJavaElementComparator</code> is a standard
+	 * implementation of a comparator.
+	 * <p>
+	 * <ul>
+	 * <li>static fields, arranged alphabetically by name and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>static initializers in order of appearance</li>
+	 * <li>instance fields, arranged alphabetically by name and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>instance initializers in order of appearance</li>
+	 * <li>type declarations, arranged alphabetically by name and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>constructors, arranged by parameter order and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>methods, arranged by alphabetically by name and parameter order and 
+	 * access modifier (public, protected, private, default)</li>
+	 * </p>
+	 */
 	public static class DefaultJavaElementComparator implements Comparator {
 
 		private static final int STATIC_TYPE_CATEGORY = 0;
@@ -336,81 +357,73 @@ public class CompilationUnitSorter {
 	}
 
 	/**
-	 * This field is used to retrieve a property of the AST node used by the compare method. This
-	 * property returns an integer which corresponds to a position that preceeds the starting position
-	 * of the node. The exact value of this property is not important. What matters is that if node a
-	 * is created before node b, then this property for node a will be lower than the same property for
-	 * node b. To be brief, this property should be used if the syntactical order matters.
+	 * Name of auxillary property whose value can be used to determine the
+	 * original relative order of two body declarations. This allows a
+	 * comparator to preserve the relative positions of certain kinds of
+	 * body declarations when required.
+	 * <p>
+	 * All body declarations passed to the comparator's <code>compare</code>
+	 * method by <code>CompilationUnitSorter.sort</code> carry an
+	 * Integer-valued property. The body declaration with the lower value
+	 * comes before the one with the higher value. The exact numeric value
+	 * of these properties is unspecified.
 	 * <pre>
-	 * 		(Integer) astNode.getProperty(CompilationUnitSorter.RELATIVE_ORDER)
+	 * 		Integer i1 = (Integer) astNode1.getProperty(RELATIVE_ORDER);
+	 * 		Integer i2 = (Integer) astNode2.getProperty(RELATIVE_ORDER);
+	 * 		return i1.intValue() - i2.intValue(); // preserve original order
 	 * </pre>
+	 * </p>
 	 * 
 	 * @since 2.1
 	 */
 	public static final String RELATIVE_ORDER = "relativeOrder"; //$NON-NLS-1$
 
 	/**
-	 * Reorders the declarations in this compilation unit according to the given
-	 * comparator.
+	 * Reorders the declarations in the given compilation unit. The caller is
+	 * responsible for arranging in advance that the given compilation unit is
+	 * a working copy, and for saving (or discarding) the changes afterwards.
+	 * <p>
+	 * The optional <code>positions</code> array contains a non-decreasing 
+	 * ordered list of character-based source positions within the compilation
+	 * unit's source code string. Upon return from this method, the positions in
+	 * the array reflect the corresponding new locations in the modified source
+	 * code string, Note that this operation modifies the given array in place.
+	 * </p>
 	 * <p>
 	 * The <code>compare</code> method of the given comparator is passed pairs
 	 * of AST body declarations (subclasses of <code>BodyDeclaration</code>) 
 	 * representing body declarations at the same level. The comparator is
 	 * called on body declarations of nested classes, including anonymous and
-	 * local classes, but always at the same level.
-	 * </p>
-	 * <p>
-	 * The <code>positions</code> array contains character-based source
-	 * positions within the source code for the compilation unit. As the
-	 * declarations are rearranged, the positions in this array are updated to
-	 * reflect the corresponding position in the modified source code.
-	 * </p>
-	 * <p>
-	 * Clients cannot rely on the AST nodes being properly parented nor on their
-	 * usual source ranges. The starting position of the source range for each
-	 * body declaration is available as the <code>RELATIVE_ORDER</code> property
-	 * of the body declaration passed to the comparator.
-	 * </p>
-	 * <p>
-	 * <code>DefaultJavaElementComparator</code> is a standard implementation of
-	 * a comparator.
-	 * <ul>
-	 * <li>static fields, arranged alphabetically by name and access modifier
-	 * (public, protected, private, default)</li>
-	 * <li>static initializers in order of appearance</li>
-	 * <li>instance fields, arranged alphabetically by name and access modifier
-	 * (public, protected, private, default)</li>
-	 * <li>instance initializers in order of appearance</li>
-	 * <li>type declarations, arranged alphabetically by name and access modifier
-	 * (public, protected, private, default)</li>
-	 * <li>constructors, arranged by parameter order and access modifier
-	 * (public, protected, private, default)</li>
-	 * <li>methods, arranged by alphabetically by name and parameter order and 
-	 * access modifier (public, protected, private, default)</li>
+	 * local classes, but always at the same level. Clients must not rely on
+	 * the AST nodes being properly parented or on having source range
+	 * information. The class <code>DefaultJavaElementComparator</code> is a
+	 * standard comparator; however, clients are free to provide their own
+	 * comparator implementations.
 	 * </p>
 	 *
-	 * @param compilationUnit the given working copy
-	 * @param positions an array of increasing positions to map. These are
-	 * character-based source positions inside the original source, for which
-	 * corresponding positions in the modified source will be computed (so as to
-	 * relocate elements associated with the original source). It updates the
-	 * positions array with updated positions. If set to <code>null</code>, then
-	 * no positions are mapped.
-	 * @param comparator the comparator to use for the sorting
+	 * @param compilationUnit the given compilation unit, which must be a 
+	 * working copy
+	 * @param positions an array of source positions to map, or 
+	 * <code>null</code> if none. If supplied, the positions must 
+	 * character-based source positions within the original source code for
+	 * the given compilation unit, arranged in non-decreasing order.
+	 * The array is updated in place when this method returns to reflect the
+	 * corresponding source positions in the permuted source code string.
+	 * @param comparator the comparator capable of ordering 
+	 * <code>BodyDeclaration</code>s
 	 * @param monitor the progress monitor to notify, or <code>null</code> if
 	 * none
-	 * @exception JavaModelException if the compilation unit could not be sorted.
-	 * Reasons include:
+	 * @exception JavaModelException if the compilation unit could not be
+	 * sorted. Reasons include:
 	 * <ul>
 	 * <li> The given compilation unit does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> The given compilation unit is not a working copy</li>
 	 * <li> A <code>CoreException</code> occurred while updating the underlying
 	 * resource
 	 * </ul>
-	 * @exception JavaModelException this exception is thrown if the supplied compilation unit is not an instance of IWorkingCopy
-	 * @exception IllegalArgumentException this exception is thrown if either the supplied compilation unit is null or the comparator is null
+	 * @exception IllegalArgumentException this exception is thrown if either
+	 * the supplied compilation unit is null or the comparator is null
 	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
-	 * @see #RELATIVE_ORDER
 	 * @see #DefaultJavaElementComparator
 	 * @since 2.1
 	 */
