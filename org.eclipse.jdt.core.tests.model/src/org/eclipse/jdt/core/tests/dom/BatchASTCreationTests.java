@@ -44,7 +44,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test047"));
+			suite.addTest(new BatchASTCreationTests("test049"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -1027,6 +1027,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {"[Ljava/lang/Object;"});
 		assertBindingsEqual(
 				"[Ljava/lang/Object;", 
+				bindings);
+	}
+
+	/*
+	 * Ensures that a type variable binding can be created using its key in batch creation.
+	 */
+	public void test049() throws CoreException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {"Ljava/lang/Class<TT;>;:TT;"});
+		assertBindingsEqual(
+				"Ljava/lang/Class<TT;>;:TT;", 
 				bindings);
 	}
 	

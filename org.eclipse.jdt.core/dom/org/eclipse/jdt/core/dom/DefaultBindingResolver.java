@@ -183,7 +183,8 @@ class DefaultBindingResolver extends BindingResolver {
 			case Binding.RAW_TYPE:
 				return getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 			case Binding.ARRAY_TYPE:
-				return new TypeBinding(this, (ArrayBinding) binding);
+			case Binding.TYPE_PARAMETER:
+				return new TypeBinding(this, (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 			case Binding.METHOD:
 				return getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) binding);
 			case Binding.FIELD:
