@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
-
 /**
  * An element changed listener receives notification of changes to Java elements
  * maintained by the Java model.

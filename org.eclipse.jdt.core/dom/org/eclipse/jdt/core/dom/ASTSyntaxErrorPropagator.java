@@ -12,7 +12,6 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.*;
 
 /**
  * Internal AST visitor for propagating syntax errors.

@@ -7,8 +7,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*; 
-
 /**
  * A factory that creates <code>IBuffer</code>s for openables.
  * <p>

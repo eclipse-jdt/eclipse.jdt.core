@@ -11,9 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-
 /**
  * A binding resolver is an internal mechanism for figuring out the binding
  * for a major declaration, type, or name reference.

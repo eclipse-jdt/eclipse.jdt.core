@@ -8,7 +8,6 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.core.*;
 
 /**
  * Represents an entire binary type (single <code>.class</code> file). 

@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 /**

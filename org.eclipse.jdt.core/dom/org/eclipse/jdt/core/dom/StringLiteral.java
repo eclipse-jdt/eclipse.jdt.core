@@ -11,7 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 

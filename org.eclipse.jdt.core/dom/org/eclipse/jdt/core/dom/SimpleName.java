@@ -11,11 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 

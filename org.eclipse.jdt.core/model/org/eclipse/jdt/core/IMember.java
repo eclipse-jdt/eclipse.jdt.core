@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
-
 /**
  * Common protocol for Java elements that can be members of types.
  * This set consists of <code>IType</code>, <code>IMethod</code>, 

@@ -11,8 +11,6 @@ Contributors:
 
 package org.eclipse.jdt.core.compiler;
 
-import org.eclipse.jdt.internal.compiler.*;
-
 /**
  * Exception thrown by a scanner when encountering lexical errors.
  */

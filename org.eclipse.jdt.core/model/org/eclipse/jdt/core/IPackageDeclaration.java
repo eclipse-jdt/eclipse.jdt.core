@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
 
 /**
  * Represents a package declaration in Java compilation unit.

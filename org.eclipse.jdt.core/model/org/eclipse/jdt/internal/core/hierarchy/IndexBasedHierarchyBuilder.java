@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.CreateTypeHierarchyOperation;
 import org.eclipse.jdt.internal.core.HandleFactory;
 import org.eclipse.jdt.internal.core.IPathRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;

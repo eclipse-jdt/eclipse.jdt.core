@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
-
 /**
  * Markers used by the Java model.
  * <p>

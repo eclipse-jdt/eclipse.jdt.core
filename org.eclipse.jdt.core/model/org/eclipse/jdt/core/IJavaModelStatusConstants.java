@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
-
 /**
  * Status codes used with Java model status objects.
  * <p>

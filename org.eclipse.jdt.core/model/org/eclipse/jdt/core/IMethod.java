@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
-
 /**
  * Represents a method (or constructor) declared in a type.
  * <p>

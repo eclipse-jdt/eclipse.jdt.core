@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.resources.IResource;
 
 /**
  * A package fragment is a portion of the workspace corresponding to an entire package,

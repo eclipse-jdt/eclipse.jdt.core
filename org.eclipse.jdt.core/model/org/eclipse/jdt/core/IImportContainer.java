@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
-
 /**
  * Represents an import container is a child of a Java compilation unit that contains
  * all (and only) the import declarations. If a compilation unit has no import

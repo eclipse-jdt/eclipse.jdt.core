@@ -11,7 +11,6 @@ Contributors:
 
 package org.eclipse.jdt.core.compiler;
  
-import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 
 /**

@@ -10,9 +10,6 @@
  *********************************************************************/
 package org.eclipse.jdt.core.util;
 
-import java.io.IOException;
-import java.io.Writer;
-
 /**
  * Description of a code attribute as described in the JVM specifications.
  *  

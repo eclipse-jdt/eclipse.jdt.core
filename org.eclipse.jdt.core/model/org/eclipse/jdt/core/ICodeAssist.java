@@ -10,8 +10,6 @@
  *********************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*;
-
 /**
  * Common protocol for Java elements that support source code assist and code
  * resolve.

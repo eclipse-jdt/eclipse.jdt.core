@@ -11,9 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 
 public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConstants, TypeIds {

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.internal.compiler.Compiler;
-
 /**
  * A callback interface for receiving compilation results.
  */

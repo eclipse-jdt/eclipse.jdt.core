@@ -28,7 +28,6 @@ package org.eclipse.jdt.internal.compiler;
  *
  * Any (parsing) problem encountered is also provided.
  */
-import java.lang.reflect.Constructor;
 
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -38,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
-import java.util.Locale;
 
 public class SourceElementParser extends Parser {
 	

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.internal.compiler.problem.ProblemHandler;
-
 /*
  * Handler policy is responsible to answer the 2 following
  * questions:

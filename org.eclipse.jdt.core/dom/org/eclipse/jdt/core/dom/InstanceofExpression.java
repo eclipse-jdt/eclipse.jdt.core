@@ -11,10 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Instanceof expression AST node type.
  *
