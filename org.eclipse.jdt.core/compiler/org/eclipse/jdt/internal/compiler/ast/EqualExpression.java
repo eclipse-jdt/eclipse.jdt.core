@@ -524,7 +524,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		// (cast)  left   == (cast)  right --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
-		int operatorSignature = ResolveTypeTables[EQUAL_EQUAL][ (leftType.id << 4) + rightType.id];
+		int operatorSignature = OperatorSignatures[EQUAL_EQUAL][ (leftType.id << 4) + rightType.id];
 		left.implicitConversion = operatorSignature >>> 12;
 		right.implicitConversion = (operatorSignature >>> 4) & 0x000FF;
 		bits |= operatorSignature & 0xF;		

@@ -294,7 +294,7 @@ public class CastExpression extends Expression {
 			unnecessaryRightCast = false;
 		}
 		if (unnecessaryLeftCast || unnecessaryRightCast) {
-			int alternateOperatorSignature = OperatorExpression.ResolveTypeTables[operator][(alternateLeftTypeId << 4) + alternateRightTypeId];
+			int alternateOperatorSignature = OperatorExpression.OperatorSignatures[operator][(alternateLeftTypeId << 4) + alternateRightTypeId];
 			// (cast)  left   Op (cast)  right --> result
 			//  1111   0000       1111   0000     1111
 			//  <<16   <<12       <<8    <<4       <<0

@@ -234,7 +234,7 @@ public class UnaryExpression extends OperatorExpression {
 		// (cast)  left   Op (cast)  rigth --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
-		int result = ResolveTypeTables[tableId][(expressionId << 4) + expressionId];
+		int result = OperatorSignatures[tableId][(expressionId << 4) + expressionId];
 		this.expression.implicitConversion = result >>> 12;
 		this.bits |= result & 0xF;
 		switch (result & 0xF) { // only switch on possible result type.....

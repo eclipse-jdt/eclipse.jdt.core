@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 public abstract class OperatorExpression extends Expression implements OperatorIds {
 
-	public static int[][] ResolveTypeTables = new int[NumberOfTables][];
+	public static int[][] OperatorSignatures = new int[NumberOfTables][];
 
 	static {classInitialize();}
 
@@ -23,27 +23,27 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		super();
 	}
 	public static final void classInitialize() {
-		ResolveTypeTables[AND] = get_AND();
-		ResolveTypeTables[AND_AND] = get_AND_AND();
-		ResolveTypeTables[DIVIDE] = get_DIVIDE();
-		ResolveTypeTables[EQUAL_EQUAL] = get_EQUAL_EQUAL();
-		ResolveTypeTables[GREATER] = get_GREATER();
-		ResolveTypeTables[GREATER_EQUAL] = get_GREATER_EQUAL();
-		ResolveTypeTables[LEFT_SHIFT] = get_LEFT_SHIFT();
-		ResolveTypeTables[LESS] = get_LESS();
-		ResolveTypeTables[LESS_EQUAL] = get_LESS_EQUAL();
-		ResolveTypeTables[MINUS] = get_MINUS();
-		ResolveTypeTables[MULTIPLY] = get_MULTIPLY();
-		ResolveTypeTables[OR] = get_OR();
-		ResolveTypeTables[OR_OR] = get_OR_OR();
-		ResolveTypeTables[PLUS] = get_PLUS();
-		ResolveTypeTables[REMAINDER] = get_REMAINDER();
-		ResolveTypeTables[RIGHT_SHIFT] = get_RIGHT_SHIFT();
-		ResolveTypeTables[UNSIGNED_RIGHT_SHIFT] = get_UNSIGNED_RIGHT_SHIFT();
-		ResolveTypeTables[XOR] = get_XOR();
+		OperatorSignatures[AND] = get_AND();
+		OperatorSignatures[AND_AND] = get_AND_AND();
+		OperatorSignatures[DIVIDE] = get_DIVIDE();
+		OperatorSignatures[EQUAL_EQUAL] = get_EQUAL_EQUAL();
+		OperatorSignatures[GREATER] = get_GREATER();
+		OperatorSignatures[GREATER_EQUAL] = get_GREATER_EQUAL();
+		OperatorSignatures[LEFT_SHIFT] = get_LEFT_SHIFT();
+		OperatorSignatures[LESS] = get_LESS();
+		OperatorSignatures[LESS_EQUAL] = get_LESS_EQUAL();
+		OperatorSignatures[MINUS] = get_MINUS();
+		OperatorSignatures[MULTIPLY] = get_MULTIPLY();
+		OperatorSignatures[OR] = get_OR();
+		OperatorSignatures[OR_OR] = get_OR_OR();
+		OperatorSignatures[PLUS] = get_PLUS();
+		OperatorSignatures[REMAINDER] = get_REMAINDER();
+		OperatorSignatures[RIGHT_SHIFT] = get_RIGHT_SHIFT();
+		OperatorSignatures[UNSIGNED_RIGHT_SHIFT] = get_UNSIGNED_RIGHT_SHIFT();
+		OperatorSignatures[XOR] = get_XOR();
 	}
 
-	public static final String generateTableTestCase(){
+	public static final String generateTableTestCase(){ // TODO (olivier) should be extracted into a regression test case
 		//return a String which is a java method allowing to test
 		//the non zero entries of all tables
 	
@@ -139,7 +139,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		{	int operator = operators[i];
 			for (int left=0; left<16;left++)
 			for (int right=0; right<16;right++)
-			{	int result = (ResolveTypeTables[operator][(left<<4)+right]) & 0x0000F;
+			{	int result = (OperatorSignatures[operator][(left<<4)+right]) & 0x0000F;
 				if (result != T_undefined)
 	
 					//1/ First regular computation then 2/ comparaison

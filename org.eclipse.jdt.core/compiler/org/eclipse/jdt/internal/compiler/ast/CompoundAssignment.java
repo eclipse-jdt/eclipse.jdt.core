@@ -118,7 +118,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		//  <<16   <<12       <<8     <<4        <<0
 	
 		// the conversion is stored INTO the reference (info needed for the code gen)
-		int result = OperatorExpression.ResolveTypeTables[operator][ (lhsId << 4) + expressionId];
+		int result = OperatorExpression.OperatorSignatures[operator][ (lhsId << 4) + expressionId];
 		if (result == T_undefined) {
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;

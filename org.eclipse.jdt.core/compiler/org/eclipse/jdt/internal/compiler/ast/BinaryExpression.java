@@ -1710,7 +1710,7 @@ public class BinaryExpression extends OperatorExpression {
 		// Don't test for result = 0. If it is zero, some more work is done.
 		// On the one hand when it is not zero (correct code) we avoid doing the test	
 		int operator = (bits & OperatorMASK) >> OperatorSHIFT;
-		int operatorSignature = ResolveTypeTables[operator][(leftTypeId << 4) + rightTypeId];
+		int operatorSignature = OperatorSignatures[operator][(leftTypeId << 4) + rightTypeId];
 		left.implicitConversion = operatorSignature >>> 12;
 		right.implicitConversion = (operatorSignature >>> 4) & 0x000FF;
 
