@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable, TypeIds {
 	private Constant constant;
 	private boolean isDeprecated;
+	private boolean isSynthetic;
 	private int[] constantPoolOffsets;
 	private int accessFlags;
 	private char[] name;
@@ -68,10 +69,11 @@ public int getModifiers() {
 		// compute the accessflag. Don't forget the deprecated attribute
 		accessFlags = u2At(0);
 		readDeprecatedAttributes();
+		readSyntheticAttribute();
 		if (isDeprecated) {
 			accessFlags |= AccDeprecated;
 		}
-		if (isSynthetic()) {
+		if (isSynthetic) {
 			accessFlags |= AccSynthetic;
 		}
 	}
@@ -238,6 +240,18 @@ private void readDeprecatedAttributes() {
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		if (CharOperation.equals(attributeName, DeprecatedName)) {
 			isDeprecated = true;
+		}
+		readOffset += (6 + u4At(readOffset + 2));
+	}
+}
+private void readSyntheticAttribute() {
+	int attributesCount = u2At(6);
+	int readOffset = 8;
+	for (int i = 0; i < attributesCount; i++) {
+		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
+		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		if (CharOperation.equals(attributeName, SyntheticName)) {
+			isSynthetic = true;
 		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}

@@ -14,6 +14,7 @@ public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Attrib
 	private char[][] exceptionNames;
 	private int[] constantPoolOffsets;
 	private boolean isDeprecated;
+	private boolean isSynthetic;
 	private int accessFlags;
 	private char[] name;
 	private char[] signature;
@@ -84,11 +85,12 @@ public int getModifiers() {
 	if (accessFlags == -1) {
 		// compute the accessflag. Don't forget the deprecated attribute
 		accessFlags = u2At(0);
-		readDeprecatedAttributes();
+		readDeprecatedAttribute();
+		readSyntheticAttribute();
 		if (isDeprecated) {
 			accessFlags |= AccDeprecated;
 		}
-		if (isSynthetic()) {
+		if (isSynthetic) {
 			accessFlags |= AccSynthetic;
 		}
 	}
@@ -131,7 +133,7 @@ public boolean isConstructor() {
 public boolean isSynthetic() {
 	return (getModifiers() & AccSynthetic) != 0;
 }
-private void readDeprecatedAttributes() {
+private void readDeprecatedAttribute() {
 	int attributesCount = u2At(6);
 	int readOffset = 8;
 	for (int i = 0; i < attributesCount; i++) {
@@ -139,6 +141,18 @@ private void readDeprecatedAttributes() {
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		if (CharOperation.equals(attributeName, DeprecatedName)) {
 			isDeprecated = true;
+		}
+		readOffset += (6 + u4At(readOffset + 2));
+	}
+}
+private void readSyntheticAttribute() {
+	int attributesCount = u2At(6);
+	int readOffset = 8;
+	for (int i = 0; i < attributesCount; i++) {
+		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
+		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		if (CharOperation.equals(attributeName, SyntheticName)) {
+			isSynthetic = true;
 		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}
