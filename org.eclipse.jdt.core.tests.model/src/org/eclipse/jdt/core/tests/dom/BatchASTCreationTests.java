@@ -17,9 +17,9 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
-import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -29,11 +29,27 @@ import junit.framework.Test;
 public class BatchASTCreationTests extends AbstractASTTests {
 	
 	public class TestASTRequestor extends ASTRequestor {
+		
 		public ArrayList asts = new ArrayList();
-		public void acceptAST(CompilationUnit ast, ICompilationUnit source) {
-			this.asts.add(ast);
+		public ICompilationUnit[][] workingCopyBatches;
+		public int currentBatch = 0;
+		
+		public TestASTRequestor(ICompilationUnit[] workingCopies) {
+			this.workingCopyBatches= new ICompilationUnit[][] {workingCopies};
 		}
-		public void acceptBinding(IBinding binding, String bindingKey) {
+
+		public TestASTRequestor(ICompilationUnit[][] workingCopyBatches) {
+			this.workingCopyBatches= workingCopyBatches;
+		}
+
+		public void acceptAST(ASTNode node) {
+			this.asts.add(node);
+		}
+
+		public ICompilationUnit[] getSources() {
+			if (this.currentBatch == this.workingCopyBatches.length)
+				return null;
+			return this.workingCopyBatches[this.currentBatch++];
 		}
 	}
 	
@@ -46,7 +62,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test009"));
+			suite.addTest(new BatchASTCreationTests("test006"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -54,7 +70,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.5");
 	}
 	
 	public void tearDownSuite() throws Exception {
@@ -62,54 +78,9 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		super.tearDownSuite();
 	}
 	
-	/*
-	 * Resolves the given cus as a batch. 
-	 * While resolving, for the ASTNode that is marked, ensures that its binding key is the given one.
-	 * On the cuNumber acceptAST(...), retrieve the binding from the given binding key and return it.
-	 */
-	private void assertBindingFound(final MarkerInfo[] markerInfos, final String expectedKey) throws JavaModelException {
-		ICompilationUnit[] workingCopies;
-		workingCopies = createWorkingCopies(markerInfos);
-		class Requestor extends TestASTRequestor {
-			String bindingKey;
-			int index = -1;
-			String foundKey;
-			public void acceptAST(CompilationUnit cu, ICompilationUnit source) {
-				super.acceptAST(cu, source);
-				ASTNode node = findNode(cu, markerInfos[++this.index]);
-				if (node != null) {
-					IBinding binding = null;
-					if (node instanceof PackageDeclaration) {
-						binding = ((PackageDeclaration) node).resolveBinding();
-					} else if (node instanceof TypeDeclaration) {
-						binding = ((TypeDeclaration) node).resolveBinding();
-					} else if (node instanceof AnonymousClassDeclaration) {
-						binding = ((AnonymousClassDeclaration) node).resolveBinding();
-					}
-					this.bindingKey = binding == null ? null : binding.getKey();
-				}
-			}
-			public void acceptBinding(IBinding binding, String key) {
-				super.acceptBinding(binding, key);
-				this.foundKey = binding.getKey();
-			}
-		};
-		Requestor requestor = new Requestor();
-		resolveASTs(workingCopies, new String[] {expectedKey}, requestor);
-		
-		if (!expectedKey.equals(requestor.bindingKey))
-			System.out.println(Util.displayString(expectedKey, 3));
-		assertEquals("Unexpected binding for marked node", expectedKey, requestor.bindingKey);
-		
-		if (!expectedKey.equals(requestor.foundKey)) {
-			System.out.println(Util.displayString(requestor.foundKey, 3));
-		}
-		assertEquals("Unexpected binding found by acceptBinding", expectedKey, requestor.foundKey);
-	}
-
-	private void createASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
+	private void createASTs(TestASTRequestor requestor) {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.createASTs(cus, new String[] {}, requestor, null);
+		parser.createASTs(requestor, null);
 	}
 	
 	private MarkerInfo[] createMarkerInfos(String[] pathAndSources) {
@@ -147,16 +118,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			workingCopies[i].discardWorkingCopy();
 	}
 	
-	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
-		resolveASTs(cus, new String[0], requestor);
+	private void discardWorkingCopies(ICompilationUnit[][] workingCopyBatches) throws JavaModelException {
+		if (workingCopyBatches == null) return;
+		for (int i = 0, length = workingCopyBatches.length; i < length; i++)
+			discardWorkingCopies(workingCopyBatches[i]);
 	}
 	
-	private void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, TestASTRequestor requestor) {
+	private void resolveASTs(TestASTRequestor requestor) {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(getJavaProject("P"));
 		parser.setWorkingCopyOwner(this.owner);
-		parser.createASTs(cus, bindingKeys,  requestor, null);
+		parser.createASTs(requestor, null);
 	}
 	
 	/*
@@ -175,8 +148,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class Y {\n" +
 				"}",
 			});
-			TestASTRequestor requestor = new TestASTRequestor();
-			createASTs(workingCopies, requestor);
+			TestASTRequestor requestor = new TestASTRequestor(workingCopies);
+			createASTs(requestor);
 			assertASTNodesEqual(
 				"package p1;\n" + 
 				"public class X extends Y {\n" + 
@@ -210,8 +183,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}/*end*/",
 			});
 			workingCopies = createWorkingCopies(markerInfos);
-			TestASTRequestor requestor = new TestASTRequestor();
-			resolveASTs(workingCopies, requestor);
+			TestASTRequestor requestor = new TestASTRequestor(workingCopies);
+			resolveASTs(requestor);
 			
 			assertASTNodesEqual(
 				"package p1;\n" + 
@@ -237,9 +210,122 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that ASTs that are required by original source but were not asked for are not handled.
+	 * Test the creation of 3 batches of ASTs without resolving.
 	 */
 	public void test003() throws CoreException {
+		ICompilationUnit[][] workingCopyBatches = new ICompilationUnit[3][];
+		try {
+			workingCopyBatches[0] = createWorkingCopies(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X extends Y {\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"}",
+			});
+			workingCopyBatches[1] = createWorkingCopies(new String[] {});
+			workingCopyBatches[2] = createWorkingCopies(new String[] {
+				"/P/p1/Z.java",
+				"package p1;\n" +
+				"public class Z {\n" +
+				"  Object foo() {\n" +
+				"    return new X();\n" +
+				"  }\n" +
+				"}",
+			});
+			
+			TestASTRequestor requestor = new TestASTRequestor(workingCopyBatches);
+			createASTs(requestor);
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Z {\n" + 
+				"  Object foo(){\n" + 
+				"    return new X();\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
+		} finally {
+			discardWorkingCopies(workingCopyBatches);
+		}
+	}
+	
+	/*
+	 * Test the creation of 3 batches of ASTs with resolving.
+	 */
+	public void test004() throws CoreException {
+		ICompilationUnit[][] workingCopyBatches = new ICompilationUnit[3][];
+		try {
+			MarkerInfo[] firstMarkerInfos = createMarkerInfos(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"/*start*/public class X extends Y {\n" +
+				"}/*end*/",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"}",
+			});
+			workingCopyBatches[0] = createWorkingCopies(firstMarkerInfos);
+			workingCopyBatches[1] = createWorkingCopies(new String[] {});
+			MarkerInfo[] lastMarkerInfos = createMarkerInfos(new String[] {
+				"/P/p1/Z.java",
+				"package p1;\n" +
+				"public class Z {\n" +
+				"  Object foo() {\n" +
+				"    return new /*start*/X/*end*/();\n" +
+				"  }\n" +
+				"}",
+			});
+			workingCopyBatches[2] = createWorkingCopies(lastMarkerInfos);
+			
+			TestASTRequestor requestor = new TestASTRequestor(workingCopyBatches);
+			resolveASTs(requestor);
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Z {\n" + 
+				"  Object foo(){\n" + 
+				"    return new X();\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
+			
+			// compare the bindings coming from the first AST and the last AST
+			TypeDeclaration typeX = (TypeDeclaration) findNode((CompilationUnit) requestor.asts.get(0), firstMarkerInfos[0]);
+			Type newX = (Type) findNode((CompilationUnit) requestor.asts.get(2), lastMarkerInfos[0]);
+			IBinding typeXBinding = typeX.resolveBinding();
+			IBinding newXBinding = newX.resolveBinding();
+			assertTrue("Declaration of X and new X() should have the same binding", typeXBinding == newXBinding);
+		} finally {
+			discardWorkingCopies(workingCopyBatches);
+		}
+	}
+	
+	/*
+	 * Ensure that ASTs that are required by original source but were not asked for are not handled.
+	 */
+	public void _test005() throws CoreException {
 		ICompilationUnit[] workingCopies = null;
 		ICompilationUnit[] otherWorkingCopies = null;
 		try {
@@ -255,8 +341,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class Y {\n" +
 				"}",
 			});
-			TestASTRequestor requestor = new TestASTRequestor();
-			resolveASTs(workingCopies, requestor);
+			TestASTRequestor requestor = new TestASTRequestor(workingCopies);
+			resolveASTs(requestor);
 			
 			assertASTNodesEqual(
 				"package p1;\n" + 
@@ -272,127 +358,50 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a package binding can be retrieved using its key.
+	 * Test the creation of 2 batches of ASTs (first batch refers to CU in second batch) with resolving.
 	 */
-	public void test004() throws CoreException {
-		ICompilationUnit[] workingCopies = null;
+	public void _test006() throws CoreException {
+		ICompilationUnit[][] workingCopyBatches = new ICompilationUnit[2][];
 		try {
-			MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
+			MarkerInfo[] firstMarkerInfos = createMarkerInfos(new String[] {
 				"/P/p1/X.java",
-				"/*start*/package p1;/*end*/\n" +
-				"public class X {\n" +
+				"package p1;\n" +
+				"public class X extends /*start*/Y/*end*/ {\n" +
 				"}",
 			});
-			assertBindingFound(markerInfos, "p1");
-		} finally {
-			discardWorkingCopies(workingCopies);
-		}
-	}
-
-	/*
-	 * Ensure that a type binding can be retrieved using its key.
-	 */
-	public void test005() throws CoreException {
-		ICompilationUnit[] workingCopies = null;
-		try {
-			MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
-				"/P/p1/X.java",
-				"package p1;\n" +
-				"/*start*/public class X extends Y {\n" +
-				"}/*end*/",
-				"/P/p1/Y.java",
-				"package p1;\n" +
-				"public class Y {\n" +
-				"}",
-			});
-			assertBindingFound(markerInfos, "p1/X");
-		} finally {
-			discardWorkingCopies(workingCopies);
-		}
-	}
-
-	/*
-	 * Ensure that a type binding can be retrieved using its key.
-	 */
-	public void test006() throws CoreException {
-		ICompilationUnit[] workingCopies = null;
-		try {
-			MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
-				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X extends Y {\n" +
-				"}",
+			workingCopyBatches[0] = createWorkingCopies(firstMarkerInfos);
+			MarkerInfo[] secondMarkerInfos = createMarkerInfos(new String[] {
 				"/P/p1/Y.java",
 				"package p1;\n" +
 				"/*start*/public class Y {\n" +
 				"}/*end*/",
 			});
-			assertBindingFound(markerInfos, "p1/Y");
+			workingCopyBatches[1] = createWorkingCopies(secondMarkerInfos);
+			
+			TestASTRequestor requestor = new TestASTRequestor(workingCopyBatches);
+			resolveASTs(requestor);
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
+			
+			// compare the bindings coming from the first AST and the last AST
+			Type superX = (Type) findNode((CompilationUnit) requestor.asts.get(0), firstMarkerInfos[0]);
+			TypeDeclaration typeY = (TypeDeclaration) findNode((CompilationUnit) requestor.asts.get(1), secondMarkerInfos[0]);
+			IBinding superXBinding = superX.resolveBinding();
+			IBinding typeYBinding = typeY.resolveBinding();
+			assertTrue("Super of X and Y should be the same", superXBinding == typeYBinding);
 		} finally {
-			discardWorkingCopies(workingCopies);
+			discardWorkingCopies(workingCopyBatches);
 		}
 	}
 	
-	/*
-	 * Ensure that a member type binding can be retrieved using its key.
-	 */
-	public void test007() throws CoreException {
-		ICompilationUnit[] workingCopies = null;
-		try {
-			MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
-				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  /*start*/class Member {\n" +
-				"  }/*end*/" +
-				"}",
-			});
-			assertBindingFound(markerInfos, "p1/X$Member");
-		} finally {
-			discardWorkingCopies(workingCopies);
-		}
-	}
 
-	/*
-	 * Ensure that a member type binding can be retrieved using its key.
-	 */
-	public void test008() throws CoreException {
-		ICompilationUnit[] workingCopies = null;
-		try {
-			MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
-				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  class Member1 {\n" +
-				"    /*start*/class Member2 {\n" +
-				"    }/*end*/" +
-				"  }\n" +
-				"}",
-			});
-			assertBindingFound(markerInfos, "p1/X$Member1$Member2");
-		} finally {
-			discardWorkingCopies(workingCopies);
-		}
-	}
-	/*
-	 * Ensure that an anonymous type binding can be retrieved using its key.
-	 */
-	public void test009() throws CoreException {
-		ICompilationUnit[] workingCopies = null;
-		try {
-			MarkerInfo[] markerInfos = createMarkerInfos(new String[] {
-				"/P/p1/X.java",
-				"package p1;\n" +
-				"public class X {\n" +
-				"  void foo() {\n" +
-				"    new X() /*start*/{\n" +
-				"    }/*end*/;" +
-				"  }\n" +
-				"}",
-			});
-			assertBindingFound(markerInfos, "p1/X$1");
-		} finally {
-			discardWorkingCopies(workingCopies);
-		}
-	}
 }
