@@ -4164,7 +4164,8 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNamePLUS_PLUS :
 		case TokenNameMINUS_MINUS :
-			endPosition = scanner.currentPosition - 1;
+			endPosition = scanner.startPosition;
+			endStatementPosition = scanner.currentPosition - 1;
 			break;
 		case TokenNameRBRACE:
 		case TokenNameSEMICOLON :
@@ -4334,7 +4335,7 @@ protected void consumeUnaryExpression(int op, boolean post) {
 					leftHandSide,
 					IntLiteral.One,
 					op,
-					endPosition); 
+					endStatementPosition); 
 		} else {
 			expressionStack[expressionPtr] = 
 				new PrefixExpression(
