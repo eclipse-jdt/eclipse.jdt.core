@@ -30,7 +30,8 @@ public class BlockScope extends Scope {
 	public int offset; // for variable allocation throughout scopes
 	public int maxOffset; // for variable allocation throughout scopes
 
-	// finally scopes must be shifted behind respective try scope
+	// finally scopes must be shifted behind respective try&catch scope(s) so as to avoid
+	// collisions of secret variables (return address, save value).
 	public BlockScope[] shiftScopes; 
 
 	public final static VariableBinding[] EmulationPathToImplicitThis = {};
@@ -188,8 +189,8 @@ public class BlockScope extends Scope {
 	 * ignoring unused local variables.
 	 * 
 	 * Special treatment to have Try secret return address variables located at non
-	 * colliding positions. Return addresses are not allocated initially, but gathered
-	 * and allocated behind all other variables.
+	 * colliding positions. Return addresses are allocated inside finally block, which allocation
+	 * positions are shifted behind all of the try block and the catch blocks.
 	 */
 	public void computeLocalVariablePositions(
 		int initOffset,
