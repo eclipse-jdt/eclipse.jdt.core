@@ -568,7 +568,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
  * @see IWorkingCopy
  */
 public IJavaElement getWorkingCopy() throws JavaModelException {
-	return this.getWorkingCopy(null, null);
+	return this.getWorkingCopy(null, null, null);
 }
 /**
  * @see IWorkingCopy
