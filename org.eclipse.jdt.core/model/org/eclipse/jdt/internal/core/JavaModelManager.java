@@ -445,7 +445,7 @@ public class JavaModelManager implements ISaveParticipant {
 			this.savedState = null;
 			this.project = project;
 		}
-	};
+	}
 	public static boolean VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;

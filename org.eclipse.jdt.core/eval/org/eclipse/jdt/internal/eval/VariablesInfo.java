@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
  * compiling the code snippet).
  */
 public class VariablesInfo {
-	GlobalVariable[] variables;;
+	GlobalVariable[] variables;
 	int variableCount;
 	char[] packageName;
 	char[] className;

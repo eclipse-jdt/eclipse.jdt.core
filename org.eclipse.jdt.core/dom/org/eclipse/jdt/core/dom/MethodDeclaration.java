@@ -78,7 +78,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList parameters =
-		new ASTNode.NodeList(true, SingleVariableDeclaration.class);;
+		new ASTNode.NodeList(true, SingleVariableDeclaration.class);
 	
 	/**
 	 * The return type; lazily initialized; defaults to void. Note that this 
