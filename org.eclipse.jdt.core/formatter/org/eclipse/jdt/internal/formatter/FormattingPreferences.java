@@ -23,7 +23,7 @@ public class FormattingPreferences {
 	public static final String END_OF_LINE = "end_of_line";						//$NON-NLS-1$
 	public static final String NEXT_LINE = "next_line";							//$NON-NLS-1$
 	public static final String NEXT_LINE_SHIFTED = "next_line_shifted";	//$NON-NLS-1$
-	public static final char DASH = 183;
+	public static final char DASH = ' ';//183;
 	
 	/**
 	 * Preferences keys	 */

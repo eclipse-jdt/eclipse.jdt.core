@@ -762,6 +762,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		if (typeDeclaration.modifiers != NO_MODIFIERS) {
 			this.scribe.printModifiers();
+		} else {
+			this.scribe.printComment(true);
 		}
 		/*
 		 * Type name
@@ -1996,6 +1998,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				types[i].traverse(this, scope);
 			}
 		}
+		this.scribe.printComment(false);
 		return false;
 	}
 
@@ -2138,7 +2141,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			
 		if (constructorDeclaration.modifiers != NO_MODIFIERS) {
 			this.scribe.printModifiers();
-		}
+		} else {
+			this.scribe.printComment(true);
+		}			
 		/*
 		 * Print the method name
 		 */	
