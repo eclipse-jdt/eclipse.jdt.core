@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.lookup;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public interface BaseTypes {
 	final BaseTypeBinding IntBinding = new BaseTypeBinding(TypeIds.T_int, "int"/*nonNLS*/.toCharArray(), new char[] {'I'});

@@ -1,4 +1,11 @@
 package org.eclipse.jdt.internal.compiler.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
+
+// constants used to encode configurable problems (error|warning|ignore)
 
 public interface ConfigurableProblems {
 	final int UnreachableCode = 0x100;

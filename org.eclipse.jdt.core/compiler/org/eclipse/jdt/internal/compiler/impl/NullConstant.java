@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.impl;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public class NullConstant extends Constant {
 	public static final NullConstant Default = new NullConstant();

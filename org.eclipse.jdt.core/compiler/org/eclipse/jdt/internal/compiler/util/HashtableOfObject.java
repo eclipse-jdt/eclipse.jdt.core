@@ -1,4 +1,9 @@
 package org.eclipse.jdt.internal.compiler.util;
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
 
 public final class HashtableOfObject {
 	// to avoid using Enumerations, walk the individual tables skipping nulls

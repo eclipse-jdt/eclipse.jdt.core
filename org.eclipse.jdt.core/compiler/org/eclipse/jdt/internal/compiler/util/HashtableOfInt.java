@@ -1,5 +1,14 @@
 package org.eclipse.jdt.internal.compiler.util;
-
+/*
+ * (c) Copyright IBM Corp. 2000, 2001.
+ * All Rights Reserved.
+ */
+import org.eclipse.jdt.internal.compiler.*;
+ 
+ /**
+  *	Hashtable for non-zero int keys.
+  */
+  
 public final class HashtableOfInt {
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public int[] keyTable;
@@ -33,7 +42,7 @@ public Object get(int key) {
 	int index = key % valueTable.length;
 	int currentKey;
 	while ((currentKey = keyTable[index]) != 0) {
-		if (currentKey == key)	return valueTable[index];
+		if (currentKey == key)  return valueTable[index];
 		index = (index + 1) % keyTable.length;
 	}
 	return null;
@@ -42,7 +51,7 @@ public Object put(int key, Object value) {
 	int index = key % valueTable.length;
 	int currentKey;
 	while ((currentKey = keyTable[index]) != 0) {
-		if (currentKey == key)	return valueTable[index] = value;
+		if (currentKey == key)  return valueTable[index] = value;
 		index = (index + 1) % keyTable.length;
 	}
 	keyTable[index] = key;
