@@ -2431,7 +2431,7 @@ final public void if_acmpeq(Label lbl) {
 	countLabels = 0;
 	stackDepth-=2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_acmpeq, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_acmpne, lbl);
 	} else {	
 		try {
 			position++;
@@ -2446,7 +2446,7 @@ final public void if_acmpne(Label lbl) {
 	countLabels = 0;
 	stackDepth-=2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_acmpne, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_acmpeq, lbl);
 	} else {	
 		try {
 			position++;
@@ -2461,7 +2461,7 @@ final public void if_icmpeq(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_icmpeq, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_icmpne, lbl);
 	} else {	
 		try {
 			position++;
@@ -2476,7 +2476,7 @@ final public void if_icmpge(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_icmpge, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_icmplt, lbl);
 	} else {	
 		try {
 			position++;
@@ -2491,7 +2491,7 @@ final public void if_icmpgt(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_icmpgt, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_icmple, lbl);
 	} else {	
 		try {
 			position++;
@@ -2506,7 +2506,7 @@ final public void if_icmple(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_icmple, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_icmpgt, lbl);
 	} else {	
 		try {
 			position++;
@@ -2521,7 +2521,7 @@ final public void if_icmplt(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_icmplt, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_icmpge, lbl);
 	} else {
 		try {
 			position++;
@@ -2536,7 +2536,7 @@ final public void if_icmpne(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_if_icmpne, lbl);
+		generateWideRevertedConditionalBranch(OPC_if_icmpeq, lbl);
 	} else {
 		try {
 			position++;
@@ -2551,7 +2551,7 @@ final public void ifeq(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_ifeq, lbl);
+		generateWideRevertedConditionalBranch(OPC_ifne, lbl);
 	} else {
 		try {
 			position++;
@@ -2566,7 +2566,7 @@ final public void ifge(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_ifge, lbl);
+		generateWideRevertedConditionalBranch(OPC_iflt, lbl);
 	} else {
 		try {
 			position++;
@@ -2581,7 +2581,7 @@ final public void ifgt(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_ifgt, lbl);
+		generateWideRevertedConditionalBranch(OPC_ifle, lbl);
 	} else {
 		try {
 			position++;
@@ -2596,7 +2596,7 @@ final public void ifle(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_ifle, lbl);
+		generateWideRevertedConditionalBranch(OPC_ifgt, lbl);
 	} else {
 		try {
 			position++;
@@ -2611,7 +2611,7 @@ final public void iflt(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_iflt, lbl);
+		generateWideRevertedConditionalBranch(OPC_ifge, lbl);
 	} else {
 		try {
 			position++;
@@ -2626,7 +2626,7 @@ final public void ifne(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_ifne, lbl);
+		generateWideRevertedConditionalBranch(OPC_ifeq, lbl);
 	} else {
 		try {
 			position++;
@@ -2641,7 +2641,7 @@ final public void ifnonnull(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_ifnonnull, lbl);
+		generateWideRevertedConditionalBranch(OPC_ifnull, lbl);
 	} else {
 		try {
 			position++;
@@ -2656,7 +2656,7 @@ final public void ifnull(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
 	if (this.wideMode) {
-		generateWideConditionalBranch(OPC_ifnull, lbl);
+		generateWideRevertedConditionalBranch(OPC_ifnonnull, lbl);
 	} else {
 		try {
 			position++;
@@ -5695,29 +5695,25 @@ public final void writeUnsignedWord(int value) {
 	}
 }
 
-public void generateWideConditionalBranch(byte opcode, Label lbl) {
-		/* we handle the goto_w problem inside an if.... with some macro expansion
-		 * at the bytecode level
-		 * instead of:
-		 * if_...... lbl
-		 * we have:
-		 *    ifne <l1>
-		 *    goto <l2>
-		 * l1 gotow <l3> // l3 is a wide target
-		 * l2 ....
-		 */
-		Label l1 = new Label(this);
+
+/*
+ * Wide conditional branch compare, improved by swapping comparison opcode
+ *   ifeq WideTarget
+ * becomes
+ *    ifne Intermediate
+ *    gotow WideTarget
+ *    Intermediate:
+ */
+public void generateWideRevertedConditionalBranch(byte revertedOpcode, Label wideTarget) {
+		Label intermediate = new Label(this);
 		try {
 			position++;
-			bCodeStream[classFileOffset++] = opcode;
+			bCodeStream[classFileOffset++] = revertedOpcode;
 		} catch (IndexOutOfBoundsException e) {
-			resizeByteArray(opcode);
+			resizeByteArray(revertedOpcode);
 		}
-		l1.branch();
-		Label l2 = new Label(this);
-		this.internal_goto_(l2);
-		l1.place();
-		this.goto_w(lbl);
-		l2.place();
+		intermediate.branch();
+		this.goto_w(wideTarget);
+		intermediate.place();
 }
 }
