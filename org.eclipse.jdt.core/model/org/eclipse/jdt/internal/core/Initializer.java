@@ -61,13 +61,12 @@ public int getElementType() {
 	return INITIALIZER;
 }
 /**
- * @see JavaElement#getHandleMemento()
+ * @see JavaElement#getHandleMemento(StringBuffer)
  */
-public String getHandleMemento(){
-	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+protected void getHandleMemento(StringBuffer buff) {
+	((JavaElement)getParent()).getHandleMemento(buff);
 	buff.append(getHandleMementoDelimiter());
 	buff.append(this.occurrenceCount);
-	return buff.toString();
 }
 /**
  * @see JavaElement#getHandleMemento()

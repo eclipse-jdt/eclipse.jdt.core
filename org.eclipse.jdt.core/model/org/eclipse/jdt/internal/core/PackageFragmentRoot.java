@@ -344,8 +344,7 @@ public boolean equals(Object o) {
 	if (!(o instanceof PackageFragmentRoot))
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
-	return this.resource.equals(other.resource) &&
-			this.occurrenceCount == other.occurrenceCount && 
+	return this.resource.equals(other.resource) && 
 			this.parent.equals(other.parent);
 }
 
@@ -486,8 +485,6 @@ protected char getHandleMementoDelimiter() {
  */
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
-		case JEM_COUNT:
-			return getHandleUpdatingCountFromMemento(memento, owner);
 		case JEM_PACKAGEFRAGMENT:
 			String pkgName;
 			if (memento.hasMoreTokens()) {
@@ -513,9 +510,9 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 	return null;
 }
 /**
- * @see JavaElement#getHandleMemento()
+ * @see JavaElement#getHandleMemento(StringBuffer)
  */
-public String getHandleMemento(){
+protected void getHandleMemento(StringBuffer buff) {
 	IPath path;
 	IResource underlyingResource = getResource();
 	if (underlyingResource != null) {
@@ -529,14 +526,9 @@ public String getHandleMemento(){
 		// external jar
 		path = getPath();
 	}
-	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+	((JavaElement)getParent()).getHandleMemento(buff);
 	buff.append(getHandleMementoDelimiter());
 	escapeMementoName(buff, path.toString()); 
-	if (this.occurrenceCount > 1) {
-		buff.append(JEM_COUNT);
-		buff.append(this.occurrenceCount);
-	}
-	return buff.toString();
 }
 /**
  * @see IPackageFragmentRoot

@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
-public class LocalVariable extends JavaElement implements ILocalVariable {
+public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	public int declarationSourceStart, declarationSourceEnd;
 	public int nameStart, nameEnd;
@@ -83,10 +83,10 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 	}
 
 	/*
-	 * @see JavaElement#getHandleMemento()
+	 * @see JavaElement#getHandleMemento(StringBuffer)
 	 */
-	public String getHandleMemento(){
-		StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+	protected void getHandleMemento(StringBuffer buff) {
+		((JavaElement)getParent()).getHandleMemento(buff);
 		buff.append(getHandleMementoDelimiter());
 		buff.append(this.name);
 		buff.append(JEM_COUNT);
@@ -103,7 +103,6 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 			buff.append(JEM_COUNT);
 			buff.append(this.occurrenceCount);
 		}
-		return buff.toString();
 	}
 
 	protected char getHandleMementoDelimiter() {

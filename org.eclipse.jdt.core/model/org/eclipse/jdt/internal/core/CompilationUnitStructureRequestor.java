@@ -15,12 +15,7 @@ import java.util.Stack;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -176,7 +171,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 
 		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-		IPackageDeclaration handle = null;
+		PackageDeclaration handle = null;
 		this.packageName= name;
 		
 		if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
@@ -273,7 +268,7 @@ public void enterField(
 
 		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-		IField handle = null;
+		SourceField handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
 			handle = new SourceField(parentHandle, new String(name));
@@ -305,10 +300,10 @@ public void enterInitializer(
 	int modifiers) {
 		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-		IInitializer handle = null;
+		Initializer handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = ((IType) parentHandle).getInitializer(1);
+			handle = new Initializer(parentHandle, 1);
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
@@ -379,7 +374,7 @@ protected void enterMethod(
 
 		SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-		IMethod handle = null;
+		SourceMethod handle = null;
 
 		// translate nulls to empty arrays
 		if (parameterTypes == null) {
@@ -437,24 +432,8 @@ protected void enterType(
 
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-	IType handle = null;
 	String nameString= new String(name);
-	
-	switch(parentHandle.getElementType()) {
-		case IJavaElement.COMPILATION_UNIT:
-			handle = ((ICompilationUnit) parentHandle).getType(nameString);
-			break;
-		case IJavaElement.TYPE:
-			handle = ((IType) parentHandle).getType(nameString);
-			break;
-		case IJavaElement.FIELD:
-		case IJavaElement.INITIALIZER:
-		case IJavaElement.METHOD:
-			handle = ((IMember) parentHandle).getType(nameString, 1); //NB: occurenceCount is computed in resolveDuplicates
-			break;
-		default:
-			Assert.isTrue(false); // Should not happen
-	}
+	SourceType handle = handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	SourceTypeElementInfo info = new SourceTypeElementInfo();
@@ -553,10 +532,9 @@ public void exitMethod(int declarationEnd) {
  * Resolves duplicate handles by incrementing the occurrence count
  * of the handle being created until there is no conflict.
  */
-protected void resolveDuplicates(IJavaElement handle) {
+protected void resolveDuplicates(SourceRefElement handle) {
 	while (this.newElements.containsKey(handle)) {
-		JavaElement h = (JavaElement) handle;
-		h.occurrenceCount++;
+		handle.occurrenceCount++;
 	}
 }
 }

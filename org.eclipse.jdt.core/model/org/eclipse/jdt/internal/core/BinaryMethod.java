@@ -151,10 +151,10 @@ public int getFlags() throws JavaModelException {
 	return info.getModifiers();
 }
 /*
- * @see JavaElement#getHandleMemento()
+ * @see JavaElement#getHandleMemento(StringBuffer)
  */
-public String getHandleMemento() {
-	StringBuffer buff = new StringBuffer(((JavaElement) getParent()).getHandleMemento());
+protected void getHandleMemento(StringBuffer buff) {
+	((JavaElement) getParent()).getHandleMemento(buff);
 	char delimiter = getHandleMementoDelimiter();
 	buff.append(delimiter);
 	escapeMementoName(buff, getElementName());
@@ -166,7 +166,6 @@ public String getHandleMemento() {
 		buff.append(JEM_COUNT);
 		buff.append(this.occurrenceCount);
 	}
-	return buff.toString();
 }
 /*
  * @see JavaElement#getHandleMemento()

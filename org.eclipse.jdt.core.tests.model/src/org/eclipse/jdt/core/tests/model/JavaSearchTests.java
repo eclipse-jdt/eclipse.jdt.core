@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.core.SourceRefElement;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
@@ -230,7 +230,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 		}
 		if (isLocal) {
 			results.append("#");
-			results.append(((JavaElement)type).occurrenceCount);
+			results.append(((SourceRefElement)type).occurrenceCount);
 		}
 	}
 	protected String getPathString(IResource resource, IJavaElement element) {

@@ -472,7 +472,7 @@ public IJavaElement[] findElements(IJavaElement element) {
 	if (element == null) return null;
 	IJavaElement currentElement = this;
 	for (int i = children.size()-1; i >= 0; i--) {
-		JavaElement child = (JavaElement)children.get(i);
+		SourceRefElement child = (SourceRefElement)children.get(i);
 		switch (child.getElementType()) {
 			case IJavaElement.PACKAGE_DECLARATION:
 				currentElement = ((ICompilationUnit)currentElement).getPackageDeclaration(child.getElementName());
@@ -639,8 +639,6 @@ public char[] getFileName(){
  */
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 	switch (token.charAt(0)) {
-		case JEM_COUNT:
-			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
 		case JEM_IMPORTDECLARATION:
 			JavaElement container = (JavaElement)getImportContainer();
 			return container.getHandleFromMemento(token, memento, workingCopyOwner);

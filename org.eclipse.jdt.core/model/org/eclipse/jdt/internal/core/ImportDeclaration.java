@@ -56,17 +56,16 @@ public int getFlags() throws JavaModelException {
 	return info.getModifiers();
 }
 /**
- * @see JavaElement#getHandleMemento()
+ * @see JavaElement#getHandleMemento(StringBuffer)
  * For import declarations, the handle delimiter is associated to the import container already
  */
-public String getHandleMemento(){
-	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+protected void getHandleMemento(StringBuffer buff) {
+	((JavaElement)getParent()).getHandleMemento(buff);
 	escapeMementoName(buff, getElementName());
 	if (this.occurrenceCount > 1) {
 		buff.append(JEM_COUNT);
 		buff.append(this.occurrenceCount);
 	}
-	return buff.toString();
 }
 /**
  * @see JavaElement#getHandleMemento()

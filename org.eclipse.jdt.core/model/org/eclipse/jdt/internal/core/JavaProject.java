@@ -900,8 +900,7 @@ public class JavaProject
 			return false;
 	
 		JavaProject other = (JavaProject) o;
-		return this.project.equals(other.getProject())
-			&& this.occurrenceCount == other.occurrenceCount;
+		return this.project.equals(other.getProject());
 	}
 
 	public boolean exists() {
@@ -1339,8 +1338,6 @@ public class JavaProject
 	 */
 	public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 		switch (token.charAt(0)) {
-			case JEM_COUNT:
-				return getHandleUpdatingCountFromMemento(memento, owner);
 			case JEM_PACKAGEFRAGMENTROOT:
 				String rootPath = IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH;
 				token = null;

@@ -310,8 +310,6 @@ public int getElementType() {
  */
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
-		case JEM_COUNT:
-			return getHandleUpdatingCountFromMemento(memento, owner);
 		case JEM_TYPE:
 			String typeName = memento.nextToken();
 			JavaElement type = new BinaryType(this, typeName);

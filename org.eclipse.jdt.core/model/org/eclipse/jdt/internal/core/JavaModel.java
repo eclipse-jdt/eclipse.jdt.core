@@ -167,8 +167,6 @@ public static void flushExternalFileCache() {
  */
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
-		case JEM_COUNT:
-			return getHandleUpdatingCountFromMemento(memento, owner);
 		case JEM_JAVAPROJECT:
 			String projectName = memento.nextToken();
 			JavaElement project = (JavaElement)getJavaProject(projectName);
@@ -177,10 +175,10 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 	return null;
 }
 /**
- * @see JavaElement#getHandleMemento()
+ * @see JavaElement#getHandleMemento(StringBuffer)
  */
-public String getHandleMemento(){
-	return getElementName();
+protected void getHandleMemento(StringBuffer buff) {
+	buff.append(getElementName());
 }
 /**
  * Returns the <code>char</code> that marks the start of this handles

@@ -29,7 +29,17 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * Abstract class for Java elements which implement ISourceReference.
  */
-/* package */ abstract class SourceRefElement extends JavaElement implements ISourceReference {
+public abstract class SourceRefElement extends JavaElement implements ISourceReference {
+	/*
+	 * A count to uniquely identify this element in the case
+	 * that a duplicate named element exists. For example, if
+	 * there are two fields in a compilation unit with the
+	 * same name, the occurrence count is used to distinguish
+	 * them.  The occurrence count starts at 1 (thus the first 
+	 * occurrence is occurrence 1, not occurrence 0).
+	 */
+	public int occurrenceCount = 1;
+
 protected SourceRefElement(JavaElement parent, String name) {
 	super(parent, name);
 }
@@ -71,6 +81,11 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 	IJavaElement[] elements = new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
 }
+public boolean equals(Object o) {
+	if (!super.equals(o)) return false;
+	if (!(o instanceof SourceRefElement)) return false;
+	return this.occurrenceCount == ((SourceRefElement)o).occurrenceCount;
+}
 /*
  * @see JavaElement#generateInfos
  */
@@ -108,6 +123,23 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
 	}
 	return this;
+}
+protected void getHandleMemento(StringBuffer buff) {
+	super.getHandleMemento(buff);
+	if (this.occurrenceCount > 1) {
+		buff.append(JEM_COUNT);
+		buff.append(this.occurrenceCount);
+	}
+}
+/*
+ * Update the occurence count of the receiver and creates a Java element handle from the given memento.
+ * The given working copy owner is used only for compilation unit handles.
+ */
+public IJavaElement getHandleUpdatingCountFromMemento(MementoTokenizer memento, WorkingCopyOwner owner) {
+	this.occurrenceCount = Integer.parseInt(memento.nextToken());
+	if (!memento.hasMoreTokens()) return this;
+	String token = memento.nextToken();
+	return getHandleFromMemento(token, memento, owner);
 }
 /**
  * Return the first instance of IOpenable in the hierarchy of this
@@ -206,5 +238,12 @@ public void rename(String newName, boolean force, IProgressMonitor monitor) thro
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
 	String[] renamings= new String[] {newName};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
+}
+protected void toStringName(StringBuffer buffer) {
+	super.toStringName(buffer);
+	if (this.occurrenceCount > 1) {
+		buffer.append("#"); //$NON-NLS-1$
+		buffer.append(this.occurrenceCount);
+	}
 }
 }

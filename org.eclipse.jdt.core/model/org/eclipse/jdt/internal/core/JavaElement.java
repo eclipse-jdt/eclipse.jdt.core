@@ -44,16 +44,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public static final char JEM_LOCALVARIABLE = '@';
 
 	/**
-	 * A count to uniquely identify this element in the case
-	 * that a duplicate named element exists. For example, if
-	 * there are two fields in a compilation unit with the
-	 * same name, the occurrence count is used to distinguish
-	 * them.  The occurrence count starts at 1 (thus the first 
-	 * occurrence is occurrence 1, not occurrence 0).
-	 */
-	public int occurrenceCount = 1;
-
-	/**
 	 * This element's parent, or <code>null</code> if this
 	 * element does not have a parent.
 	 */
@@ -117,8 +107,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	
 		// assume instanceof check is done in subclass
 		JavaElement other = (JavaElement) o;		
-		return this.occurrenceCount == other.occurrenceCount &&
-				this.name.equals(other.name) &&
+		return this.name.equals(other.name) &&
 				this.parent.equals(other.parent);
 	}
 	/**
@@ -329,16 +318,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		String token = memento.nextToken();
 		return getHandleFromMemento(token, memento, owner);
 	}
-	/*
-	 * Update the occurence count of the receiver and creates a Java element handle from the given memento.
-	 * The given working copy owner is used only for compilation unit handles.
-	 */
-	public IJavaElement getHandleUpdatingCountFromMemento(MementoTokenizer memento, WorkingCopyOwner owner) {
-		this.occurrenceCount = Integer.parseInt(memento.nextToken());
-		if (!memento.hasMoreTokens()) return this;
-		String token = memento.nextToken();
-		return getHandleFromMemento(token, memento, owner);
-	}
 	/**
 	 * @see IJavaElement
 	 */
@@ -349,14 +328,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see JavaElement#getHandleMemento()
 	 */
 	public String getHandleMemento(){
-		StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+		StringBuffer buff = new StringBuffer();
+		getHandleMemento(buff);
+		return buff.toString();
+	}
+	protected void getHandleMemento(StringBuffer buff) {
+		((JavaElement)getParent()).getHandleMemento(buff);
 		buff.append(getHandleMementoDelimiter());
 		escapeMementoName(buff, getElementName());
-		if (this.occurrenceCount > 1) {
-			buff.append(JEM_COUNT);
-			buff.append(this.occurrenceCount);
-		}
-		return buff.toString();
 	}
 	/**
 	 * Returns the <code>char</code> that marks the start of this handles
@@ -684,9 +663,5 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected void toStringName(StringBuffer buffer) {
 		buffer.append(getElementName());
-		if (this.occurrenceCount > 1) {
-			buffer.append("#"); //$NON-NLS-1$
-			buffer.append(this.occurrenceCount);
-		}
 	}
 }
