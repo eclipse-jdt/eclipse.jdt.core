@@ -303,14 +303,12 @@ public class ClassScope extends Scope {
 			int length = referenceContext.typeParameters.length;
 			typeVariableBindings = new TypeVariableBinding[length];
 			HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);
-			boolean duplicate = false;
 			int count = 0;
 			nextParameter : for (int i = 0; i < length; i++) {
 				TypeParameter typeParameter = referenceContext.typeParameters[i];
 				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
 				
 				if (knownTypeParameterNames.containsKey(typeParameter.name)) {
-					duplicate = true;
 					TypeVariableBinding previousBinding = (TypeVariableBinding) knownTypeParameterNames.get(typeParameter.name);
 					if (previousBinding != null) {
 						for (int j = 0; j < i; j++) {
