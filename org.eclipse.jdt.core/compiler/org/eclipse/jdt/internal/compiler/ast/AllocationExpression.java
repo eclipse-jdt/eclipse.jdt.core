@@ -319,7 +319,9 @@ public class AllocationExpression extends Expression implements InvocationSite {
 					this.typeArguments[i].traverse(visitor, scope);
 				}
 			}
-			this.type.traverse(visitor, scope);
+			if (this.type != null) { // enum constant scenario
+				this.type.traverse(visitor, scope);
+			}
 			if (this.arguments != null) {
 				for (int i = 0, argumentsLength = this.arguments.length; i < argumentsLength; i++)
 					this.arguments[i].traverse(visitor, scope);
