@@ -41,7 +41,7 @@ protected void assertResources(String message, String expected, IResource[] reso
 	
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = resources.length; i < length; i++) {
-		buffer.append(((IResource)resources[i]).getFullPath());
+		buffer.append(resources[i].getFullPath());
 		if (i != length-1) {
 			buffer.append("\n");
 		}

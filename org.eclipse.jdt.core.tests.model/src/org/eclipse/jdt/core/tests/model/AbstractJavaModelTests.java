@@ -524,7 +524,7 @@ protected boolean deltaMovedTo(IJavaElementDelta delta) {
  * Ensure that the positioned element is in the correct position within the parent.
  */
 public void ensureCorrectPositioning(IParent container, IJavaElement sibling, IJavaElement positioned) throws JavaModelException {
-	IJavaElement[] children = ((IParent) container).getChildren();
+	IJavaElement[] children = container.getChildren();
 	if (sibling != null) {
 		// find the sibling
 		boolean found = false;
@@ -595,7 +595,7 @@ protected IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirs
 	if (deltas == null) return null;
 	IJavaElementDelta result = null;
 	for (int i = 0; i < deltas.length; i++) {
-		IJavaElementDelta delta = searchForDelta(element, (IJavaElementDelta) this.deltaListener.deltas[i]);
+		IJavaElementDelta delta = searchForDelta(element, this.deltaListener.deltas[i]);
 		if (delta != null) {
 			if (returnFirst) {
 				return delta;

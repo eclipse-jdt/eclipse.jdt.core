@@ -149,7 +149,7 @@ public void testCreateFolderToolObjects() throws CoreException {
 		assertEquals("IPackageFragment 3 name is incorrect", "x", object.getElementName());
 		assertTrue("package 'com' does not exist", object.exists());
 	
-		IFolder subFolder= ((IFolder)res).getFolder("y");
+		IFolder subFolder= res.getFolder("y");
 		object= JavaCore.create(subFolder);
 		assertTrue("tooling object 'x.y' should be created", object != null);
 		assertTrue("tooling object 'x.y' should be a IPackageFragment", object instanceof IPackageFragment);
