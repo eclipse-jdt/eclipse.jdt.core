@@ -388,7 +388,7 @@ public class CompletionProposal {
 	 * @param completionOffset original offset of code completion request
 	 * @return a new completion proposal
 	 */
-	public CompletionProposal create(int kind, int completionOffset) {
+	public static CompletionProposal create(int kind, int completionOffset) {
 		return new CompletionProposal(kind, completionOffset);
 	}
 	
@@ -517,7 +517,7 @@ public class CompletionProposal {
 	}
 	
 	/**
-	 * Returns the proposed sequence of characters to insert into the
+	 * Sets the proposed sequence of characters to insert into the
 	 * source file buffer, replacing the characters at the specified
 	 * source range. The string can be arbitrary; for example, it might
 	 * include not only the name of a method but a set of parentheses.
