@@ -375,8 +375,9 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 		return true;
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#reconcile()
+	 * @deprecated
 	 */
 	public IMarker[] reconcile() throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
@@ -454,8 +455,9 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
+	/**
 	 * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
+	 * @deprecated
 	 */
 	public void codeComplete(int offset, ICodeCompletionRequestor requestor)
 		throws JavaModelException {

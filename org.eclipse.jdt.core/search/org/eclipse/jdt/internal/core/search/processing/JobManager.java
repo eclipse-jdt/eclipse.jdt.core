@@ -27,6 +27,8 @@ public abstract class JobManager implements Runnable {
 	public static boolean VERBOSE = false;
 	/* flag indicating that the activation has completed */
 	public boolean activated = false;
+	
+	private int awaitingClients = 0;
 
 	/**
 	 * Invoked exactly once, in background, before starting processing any job
@@ -190,25 +192,34 @@ public abstract class JobManager implements Runnable {
 						subProgress.beginTask("", totalWork); //$NON-NLS-1$
 						concurrentJobWork = concurrentJobWork / 2;
 					}
-					while ((awaitingWork = awaitingJobsCount()) > 0) {
-						if (subProgress != null && subProgress.isCanceled())
-							throw new OperationCanceledException();
-						currentJob = currentJob();
-						// currentJob can be null when jobs have been added to the queue but job manager is not enabled
-						if (currentJob != null && currentJob != previousJob) {
-							if (VERBOSE)
-								System.out.println(
-									"-> performing concurrent job ("+ Thread.currentThread()+"): NOT READY - WaitUntilReady - " + searchJob);//$NON-NLS-1$//$NON-NLS-2$
-							if (subProgress != null) {
-								subProgress.subTask(
-									Util.bind("manager.filesToIndex", Integer.toString(awaitingWork))); //$NON-NLS-1$
-								subProgress.worked(1);
-							}
-							previousJob = currentJob;
+					try {
+						synchronized(this) {
+							this.awaitingClients++;
 						}
-						try {
-							Thread.currentThread().sleep(50);
-						} catch (InterruptedException e) {
+						while ((awaitingWork = awaitingJobsCount()) > 0) {
+							if (subProgress != null && subProgress.isCanceled())
+								throw new OperationCanceledException();
+							currentJob = currentJob();
+							// currentJob can be null when jobs have been added to the queue but job manager is not enabled
+							if (currentJob != null && currentJob != previousJob) {
+								if (VERBOSE)
+									System.out.println(
+										"-> performing concurrent job ("+ Thread.currentThread()+"): NOT READY - WaitUntilReady - " + searchJob);//$NON-NLS-1$//$NON-NLS-2$
+								if (subProgress != null) {
+									subProgress.subTask(
+										Util.bind("manager.filesToIndex", Integer.toString(awaitingWork))); //$NON-NLS-1$
+									subProgress.worked(1);
+								}
+								previousJob = currentJob;
+							}
+							try {
+								Thread.currentThread().sleep(50);
+							} catch (InterruptedException e) {
+							}
+						}
+					} finally {
+						synchronized(this) {
+							this.awaitingClients--;
 						}
 					}
 					if (subProgress != null) {
@@ -289,7 +300,9 @@ public abstract class JobManager implements Runnable {
 					moveToNextJob();
 				} finally {
 					executing = false;
-					Thread.currentThread().sleep(50);
+					if (this.awaitingClients == 0) {
+						Thread.currentThread().sleep(50);
+					}
 				}
 			} catch (InterruptedException e) { // background indexing was interrupted
 			}

@@ -483,7 +483,7 @@ public static char[] translatedName(char[] name) {
 
 /**
  * @see ICodeAssist
- * @deprecate - should use codeComplete(int, ICompletionRequestor) instead
+ * @deprecated - should use codeComplete(int, ICompletionRequestor) instead
  */
 public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
 	

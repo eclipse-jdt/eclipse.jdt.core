@@ -177,20 +177,6 @@ public class HierarchyScope extends AbstractSearchScope {
 		}
 		return this.enclosingProjectsAndJars;
 	}
-	/* (non-Javadoc)
-	 * @see IJavaSearchScope#includesBinaries()
-	 * @deprecated
-	 */
-	public boolean includesBinaries() {
-		return true;
-	}
-	/* (non-Javadoc)
-	 * @see IJavaSearchScope#includesClasspaths()
-	 * @deprecated
-	 */
-	public boolean includesClasspaths() {
-		return true;
-	}
 	protected void initialize() {
 		this.resourcePaths = new HashSet();
 		this.elements = new IResource[5];
@@ -208,18 +194,6 @@ public class HierarchyScope extends AbstractSearchScope {
 		this.initialize();
 		fHierarchy.refresh(null);
 		this.buildResourceVector();
-	}
-	/* (non-Javadoc)
-	 * @see IJavaSearchScope#setIncludesBinaries(boolean)
-	 * @deprecated
-	 */
-	public void setIncludesBinaries(boolean includesBinaries) {
-	}
-	/* (non-Javadoc)
-	 * @see IJavaSearchScope#setIncludesClasspaths(boolean)
-	 * @deprecated
-	 */
-	public void setIncludesClasspaths(boolean includesClasspaths) {
 	}
 	public String toString() {
 		return "HierarchyScope on " + ((JavaElement)fHierarchy.getType()).toStringWithAncestors(); //$NON-NLS-1$

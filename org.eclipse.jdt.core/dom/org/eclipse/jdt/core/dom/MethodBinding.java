@@ -130,8 +130,9 @@ class MethodBinding implements IMethodBinding {
 		return this.binding.isDeprecated();
 	}
 
-	/*
+	/**
 	 * @see IBinding#isSynthetic()
+	 * @deprecated
 	 */
 	public boolean isSynthetic() {
 		return this.binding.isSynthetic();

@@ -82,8 +82,9 @@ class PackageBinding implements IPackageBinding {
 		return false;
 	}
 
-	/*
+	/**
 	 * @see IBinding#isSynthetic()
+	 * @deprecated
 	 */
 	public boolean isSynthetic() {
 		return false;

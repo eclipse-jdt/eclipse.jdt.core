@@ -98,8 +98,9 @@ class VariableBinding implements IVariableBinding {
 		return false;
 	}
 
-	/*
+	/**
 	 * @see IBinding#isSynthetic()
+	 * @deprecated
 	 */
 	public boolean isSynthetic() {
 		if (isField()) {

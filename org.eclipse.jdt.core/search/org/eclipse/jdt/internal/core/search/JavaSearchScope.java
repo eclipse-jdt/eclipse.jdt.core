@@ -236,21 +236,6 @@ private IPath fullPath(IJavaElement element) {
 	}
 }
 
-/* (non-Javadoc)
- * @see IJavaSearchScope#includesBinaries()
- * @deprecated
- */
-public boolean includesBinaries() {
-	return true;
-}
-
-/* (non-Javadoc)
- * @see IJavaSearchScope#includesClasspaths()
- * @deprecated
- */
-public boolean includesClasspaths() {
-	return true;
-}
 protected void initialize() {
 	this.paths = new IPath[1];
 	this.pathWithSubFolders = new boolean[1];
@@ -302,15 +287,6 @@ public void processDelta(IJavaElementDelta delta) {
 			}
 			break;
 	}
-}
-public void setIncludesBinaries(boolean includesBinaries) {
-}
-
-/* (non-Javadoc)
- * @see IJavaSearchScope#setIncludeClasspaths
- * @deprecated
- */
-public void setIncludesClasspaths(boolean includesClasspaths) {
 }
 public String toString() {
 	StringBuffer result = new StringBuffer("JavaSearchScope on "); //$NON-NLS-1$

@@ -625,6 +625,7 @@ protected boolean parentExists(){
 
 /**
  * @see IWorkingCopy
+ * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
 	// Reconciling is not supported on non working copies

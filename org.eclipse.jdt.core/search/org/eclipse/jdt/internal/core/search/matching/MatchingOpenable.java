@@ -272,6 +272,14 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 	}
 }
 private void locateMatchesInCompilationUnit(char[] source) throws CoreException {
+	if (this.parsedUnit == null) { // case where no binding resolution is needed
+		// create match set	
+		this.matchSet = new MatchSet(this.locator);
+		this.locator.parser.matchSet = this.matchSet;
+		
+		// diet parse
+		this.parsedUnit = this.locator.dietParse(source);
+	}
 	if (this.parsedUnit != null) {
 		try {
 			this.locator.parser.matchSet = this.matchSet;

@@ -362,8 +362,9 @@ class TypeBinding implements ITypeBinding {
 		return false;
 	}
 
-	/*
+	/**
 	 * @see IBinding#isSynthetic()
+	 * @deprecated
 	 */
 	public boolean isSynthetic() {
 		return false;

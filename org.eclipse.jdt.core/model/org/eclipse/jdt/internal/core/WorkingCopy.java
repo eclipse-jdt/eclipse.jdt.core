@@ -283,29 +283,10 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 }
 /**
  * @see IWorkingCopy
+ * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
-	// create the delta builder (this remembers the current content of the cu)
-	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
-
-	// update the element infos with the content of the working copy
-	this.makeConsistent(null);
-
-	// build the deltas
-	deltaBuilder.buildDeltas();
-	
-	// fire the deltas
-	boolean shouldFire = false;
-	JavaModelManager manager = null;
-	if (deltaBuilder.delta != null) {
-		manager = (JavaModelManager)JavaModelManager.getJavaModelManager();
-		if (deltaBuilder.delta.getAffectedChildren().length > 0) {
-			manager.registerJavaModelDelta(deltaBuilder.delta);
-			shouldFire = true;
-		}
-	}
-	if (shouldFire)
-		manager.fire();
+	this.reconcile(null);
 
 	// report syntax problems
 	return null;
@@ -350,7 +331,7 @@ public void reconcile(IProblemRequestor problemRequestor) throws JavaModelExcept
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
 
 	// update the element infos with the content of the working copy
-	this.makeConsistent(problemRequestor, true, null);
+	this.makeConsistent(problemRequestor, problemRequestor != null, null);
 
 	// build the deltas
 	deltaBuilder.buildDeltas();

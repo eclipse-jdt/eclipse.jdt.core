@@ -506,7 +506,11 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 			
 			int length = filePaths.length;
 			if (progressMonitor != null) {
-				progressMonitor.beginTask("", length * 3); // 1 for file path, 1 for binding creation, 1 for resolution //$NON-NLS-1$
+				if (this.pattern.needsResolve) {
+					progressMonitor.beginTask("", length * 10); // 1 for file path, 3 for parsing, 6 for binding resolution //$NON-NLS-1$
+				} else {
+					progressMonitor.beginTask("", length * 4); // 1 for file path, 3 for parsing //$NON-NLS-1$
+				}
 			}
 	
 			// sort file paths projects
@@ -1279,26 +1283,29 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 	private void locateMatches(JavaProject javaProject, IProgressMonitor progressMonitor) throws JavaModelException {
 		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(javaProject.getPackageFragmentRoots());
 	
-		// binding creation
-		for (int i = 0, length = openables.length; i < length; i++) { 
-			openables[i].buildTypeBindings();
-			if (progressMonitor != null) {
-				if (progressMonitor.isCanceled()) {
-					throw new OperationCanceledException();
-				} else {
-					progressMonitor.worked(1);
+		boolean shouldResolve = this.pattern.needsResolve;
+
+		if (shouldResolve) {
+			// binding creation
+			for (int i = 0, length = openables.length; i < length; i++) { 
+				openables[i].buildTypeBindings();
+				if (progressMonitor != null) {
+					if (progressMonitor.isCanceled()) {
+						throw new OperationCanceledException();
+					} else {
+						progressMonitor.worked(6);
+					}
 				}
 			}
-		}
-
-		// binding resolution
-		boolean shouldResolve = true;
-		try {
-			this.lookupEnvironment.completeTypeBindings();
-		} catch (AbortCompilation e) {
-			// problem with class path: it could not find base classes
-			// continue reporting innacurate matches (since bindings will be null)
-			shouldResolve = false;
+	
+			// binding resolution
+			try {
+				this.lookupEnvironment.completeTypeBindings();
+			} catch (AbortCompilation e) {
+				// problem with class path: it could not find base classes
+				// continue reporting innacurate matches (since bindings will be null)
+				shouldResolve = false;
+			}
 		}
 
 		// matching openable resolution
@@ -1331,7 +1338,7 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 				this.currentMatchingOpenable.reset();
 			}
 			if (progressMonitor != null) {
-				progressMonitor.worked(1);
+				progressMonitor.worked(3);
 			}
 		}
 		this.currentMatchingOpenable = null;
