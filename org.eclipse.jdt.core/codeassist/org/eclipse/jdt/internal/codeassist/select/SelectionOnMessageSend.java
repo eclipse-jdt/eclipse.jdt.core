@@ -41,7 +41,7 @@ public class SelectionOnMessageSend extends MessageSend {
 			MethodBinding closestMethod = null;
 			if(binding != null) {
 				closestMethod = ((ProblemMethodBinding)binding).closestMatch;
-			} else {
+			} else if(receiverType instanceof ReferenceBinding) {
 				closestMethod = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
 			}
 			
