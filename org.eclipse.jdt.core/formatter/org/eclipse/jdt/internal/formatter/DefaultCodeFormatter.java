@@ -40,6 +40,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		this(preferences, null);
 	}
 
+	// TODO (olivier) should rename parameter 'preferences' so as to not confuse with field, as it doesn't match
 	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences, Map options) {
 		if (options == null) {
 			options = JavaCore.getOptions();
