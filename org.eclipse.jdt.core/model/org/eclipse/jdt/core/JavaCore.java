@@ -756,7 +756,7 @@ public static boolean isReferencedBy(IJavaElement element, IMarkerDelta markerDe
  */ 
 
 public static IClasspathEntry newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath) {
-	Assert.isTrue(path.isAbsolute(), "path for IClasspathEntry must be absolute");
+	Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath"/*nonNLS*/));
 	return new ClasspathEntry(
 			IPackageFragmentRoot.K_BINARY, 
 			IClasspathEntry.CPE_LIBRARY, 
@@ -778,7 +778,7 @@ public static IClasspathEntry newLibraryEntry(IPath path, IPath sourceAttachment
  * The prerequisite project is referred to using an absolute path relative to the workspace root.
  */
 public static IClasspathEntry newProjectEntry(IPath path){
-	Assert.isTrue(path.isAbsolute(), "path for IClasspathEntry must be absolute");
+	Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath"/*nonNLS*/));
 	return new ClasspathEntry(IPackageFragmentRoot.K_SOURCE, IClasspathEntry.CPE_PROJECT, path, null, null);
 }
 /**
@@ -798,7 +798,7 @@ public static IRegion newRegion() {
  * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
  */ 
 public static IClasspathEntry newSourceEntry(IPath path){
-	Assert.isTrue(path.isAbsolute(), "path for IClasspathEntry must be absolute");
+	Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath"/*nonNLS*/));
 	return new ClasspathEntry(IPackageFragmentRoot.K_SOURCE, IClasspathEntry.CPE_SOURCE, path, null, null);
 }
 /**

@@ -34,7 +34,7 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 protected CompilationUnit(IPackageFragment parent, String name) {
 	super(COMPILATION_UNIT, parent, name);
 	if (!Util.isJavaFileName(name)) {
-		throw new IllegalArgumentException(Util.bind("element.invalidUnitName"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName"/*nonNLS*/));
 	}
 }
 /**
