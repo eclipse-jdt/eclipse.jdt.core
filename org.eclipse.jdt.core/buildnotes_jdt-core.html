@@ -19,17 +19,19 @@ What's new in this drop</h2>
 <li>Removed deprecated API on <code>IJavaProject</code>. These were not in 1.0, and shouldn't have been
 introduced (incorrectly resurrected from 0.9).
   <ul>
-	<li><code>IJavaProject#getClasspath(...) --> IJavaProject#getRawClasspath(...) </code></li>
-	<li><code>IJavaProject#setClasspath(...) --> IJavaProject#setRawClasspath(...) </code></li>
-	<li><code>IJavaProject#newProjectEntry(...) --> JavaCore#newProjectEntry(...) </code></li>
-	<li><code>IJavaProject#newLibraryEntry(...) --> JavaCore#newLibraryEntry(...) </code></li>
-	<li><code>IJavaProject#newSourceEntry(...) --> JavaCore#newSourceEntry(...) </code></li>
+	<li><code>IJavaProject#getClasspath(...) --&gt; IJavaProject#getRawClasspath(...) </code></li>
+	<li><code>IJavaProject#setClasspath(...) --&gt; IJavaProject#setRawClasspath(...) </code></li>
+	<li><code>IJavaProject#newProjectEntry(...) --&gt; JavaCore#newProjectEntry(...) </code></li>
+	<li><code>IJavaProject#newLibraryEntry(...) --&gt; JavaCore#newLibraryEntry(...) </code></li>
+	<li><code>IJavaProject#newSourceEntry(...) --&gt; JavaCore#newSourceEntry(...) </code></li>
   </ul>
 </li>
-</ul>
+</ul> 
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18920">18920</a>  
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18698">18698</a>  
+Seeing non-java projects in package view
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18920">18920</a>  
 NPE searching for references to a message  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18749">18749</a>
 Missing java doc for IConstantPoolEntry

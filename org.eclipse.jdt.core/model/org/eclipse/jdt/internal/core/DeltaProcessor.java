@@ -435,7 +435,9 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					} else {
 						// workaround for bug 15168 circular errors not reported 
 						// in case the project was removed then added then changed
-						this.addToParentInfo((JavaProject)JavaCore.create(project));
+						if (this.hasJavaNature(project)) { // need nature check - 18698
+							this.addToParentInfo((JavaProject)JavaCore.create(project));
+						}						
 					}					
 				}
 				break;
@@ -1463,8 +1465,10 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			}
 			if (oneChildOnClasspath || res instanceof IProject) {
 				// add orphan children (case of non java resources under project)
-				JavaProject adoptiveProject = (JavaProject)JavaCore.getJavaCore().create(res.getProject());
-				if (adoptiveProject != null) {
+				IProject rscProject = res.getProject();
+				JavaProject adoptiveProject = (JavaProject)JavaCore.getJavaCore().create(rscProject);
+				if (adoptiveProject != null 
+					&& this.hasJavaNature(rscProject)) { // delta iff Java project (18698)
 					for (int i = 0; i < length; i++) {
 						if (orphanChildren[i] != null) {
 							try {
