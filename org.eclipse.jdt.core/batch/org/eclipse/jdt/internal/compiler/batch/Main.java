@@ -680,7 +680,6 @@ private void configure(String[] argv) throws InvalidInputException {
 			out.println(Main.bind("configure.incorrectClasspath",classpaths[i])); //$NON-NLS-1$
 	}
 	if (destinationPath == null) {
-		destinationPath = System.getProperty("user.dir"); //$NON-NLS-1$
 		generatePackagesStructure = false;
 	} else if ("none".equals(destinationPath)) { //$NON-NLS-1$
 		destinationPath = null;
@@ -830,7 +829,31 @@ protected void outputClassFiles(CompilationResult unitResult) {
 
 	if (!((unitResult == null) || (unitResult.hasErrors() && !proceedOnError))) {
 		Enumeration classFiles = unitResult.compiledTypes.elements();
-		if (destinationPath != null) {
+		if (!this.generatePackagesStructure) {
+			while (classFiles.hasMoreElements()) {
+				this.destinationPath = extractDestinationPathFromSourceFile(unitResult);
+				// retrieve the key and the corresponding classfile
+				ClassFile classFile = (ClassFile) classFiles.nextElement();
+				char[] filename = classFile.fileName();
+				int length = filename.length;
+				char[] relativeName = new char[length + 6];
+				System.arraycopy(filename, 0, relativeName, 0, length);
+				System.arraycopy(CLASS_FILE_EXTENSION, 0, relativeName, length, 6);
+				CharOperation.replace(relativeName, '/', File.separatorChar);
+				try {
+					ClassFile.writeToDisk(
+						generatePackagesStructure,
+						destinationPath,
+						new String(relativeName),
+						classFile.getBytes());
+				} catch (IOException e) {
+					String fileName = destinationPath + new String(relativeName);
+					e.printStackTrace();
+					System.out.println(Main.bind("output.noClassFileCreated",fileName)); //$NON-NLS-1$
+				}
+				exportedClassFilesCounter++;
+			}
+		} else if (destinationPath != null) {
 			while (classFiles.hasMoreElements()) {
 				// retrieve the key and the corresponding classfile
 				ClassFile classFile = (ClassFile) classFiles.nextElement();
@@ -964,6 +987,16 @@ public static String bind(String id, String binding) {
  */
 public static String bind(String id, String binding1, String binding2) {
 	return bind(id, new String[] {binding1, binding2});
+}
+
+private String extractDestinationPathFromSourceFile(CompilationResult result) {
+	ICompilationUnit compilationUnit = result.compilationUnit;
+	if (compilationUnit != null) {
+		char[] fileName = compilationUnit.getFileName();
+		int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
+		return new String(CharOperation.subarray(fileName, 0, lastIndex));
+	}
+	return System.getProperty("user.dir");
 }
 
 }
