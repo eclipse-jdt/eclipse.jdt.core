@@ -144,7 +144,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| NoEffectAssignment
 		| IncompatibleNonInheritedInterfaceMethod
 		| NoImplicitStringConversion
-		| FinallyBlockNotCompleting;
+		| FinallyBlockNotCompleting
+		| AssertUsedAsAnIdentifier;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -154,14 +155,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = Lines | Source;
 
-	public long targetJDK = JDK1_1; // default generates for JVM1.1
-	public long complianceLevel = JDK1_3; // by default be compliant with 1.3
+	public long complianceLevel = JDK1_4; // by default be compliant with 1.4
+	public long sourceLevel = JDK1_3; //1.3 source behavior by default
+	public long targetJDK = JDK1_2; // default generates for JVM1.2
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
 
-	// 1.4 feature (assertions are available in source 1.4 mode only)
-	public long sourceLevel = JDK1_3; //1.3 behavior by default
 	
 	// source encoding format
 	public String defaultEncoding = null; // will use the platform default encoding
