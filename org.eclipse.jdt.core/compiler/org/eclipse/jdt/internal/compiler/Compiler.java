@@ -22,7 +22,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public CompilerOptions options;
 	public ProblemReporter problemReporter;
 
-	public static int MaxProblemPerUnit = 50;
+	public static int MaxProblemPerUnit = 100;
 	
 	// management of unit to be processed
 	//public CompilationUnitResult currentCompilationUnitResult;

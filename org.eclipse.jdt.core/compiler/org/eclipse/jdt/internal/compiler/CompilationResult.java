@@ -74,8 +74,8 @@ public CompilationResult(
 private int computePriority(IProblem problem){
 
 	final int P_STATIC = 1000;
-	final int P_OUTSIDE_METHOD = 3000;
-	final int P_FIRST_ERROR = 1000;
+	final int P_OUTSIDE_METHOD = 4000;
+	final int P_FIRST_ERROR = 2000;
 	final int P_ERROR = 10000;
 	
 	int priority = 1000 - problem.getSourceLineNumber(); // early problems first
