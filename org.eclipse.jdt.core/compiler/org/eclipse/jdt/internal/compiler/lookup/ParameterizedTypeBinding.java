@@ -38,7 +38,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.methods = null;		
 		this.arguments = typeArguments;
 		this.environment = environment;
-		this.modifiers = /*type.modifiers |*/ AccGenericSignature;
+		this.modifiers = type.modifiers | AccGenericSignature;
+		this.modifiers ^= AccUnresolved; // clear the bit which is only relevant for raw type
 		for (int i = 0, length = typeArguments.length; i < length; i++) {
 		    if ((typeArguments[i].tagBits & HasTypeVariable) != 0) {
 		        this.tagBits |= HasTypeVariable;
@@ -156,16 +157,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	    methods();	
 		int argCount = argumentTypes.length;
 	
-		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
-			nextMethod : for (int m = methods.length; --m >= 0;) {
-				MethodBinding method = methods[m];
-				if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
-					TypeBinding[] toMatch = method.parameters;
-					for (int p = 0; p < argCount; p++)
-						if (toMatch[p] != argumentTypes[p])
-							continue nextMethod;
-					return method;
-				}
+		// have resolved all arg types & return type of the methods
+		nextMethod : for (int m = methods.length; --m >= 0;) {
+			MethodBinding method = methods[m];
+			if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
+				TypeBinding[] toMatch = method.parameters;
+				for (int p = 0; p < argCount; p++)
+					if (toMatch[p] != argumentTypes[p])
+						continue nextMethod;
+				return method;
 			}
 		}
 		return null;
@@ -181,18 +181,17 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		int selectorLength = selector.length;
 		boolean foundNothing = true;
 	
-		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
-			nextMethod : for (int m = methods.length; --m >= 0;) {
-				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
-					foundNothing = false; // inner type lookups must know that a method with this name exists
-					if (method.parameters.length == argCount) {
-						TypeBinding[] toMatch = method.parameters;
-						for (int p = 0; p < argCount; p++)
-							if (toMatch[p] != argumentTypes[p])
-								continue nextMethod;
-						return method;
-					}
+		// have resolved all arg types & return type of the methods
+		nextMethod : for (int m = methods.length; --m >= 0;) {
+			MethodBinding method = methods[m];
+			if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+				foundNothing = false; // inner type lookups must know that a method with this name exists
+				if (method.parameters.length == argCount) {
+					TypeBinding[] toMatch = method.parameters;
+					for (int p = 0; p < argCount; p++)
+						if (toMatch[p] != argumentTypes[p])
+							continue nextMethod;
+					return method;
 				}
 			}
 		}
@@ -241,13 +240,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 			int count = 0;
 			int lastIndex = -1;
 			int selectorLength = selector.length;
-			if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
-				for (int m = 0, length = methods.length; m < length; m++) {
-					MethodBinding method = methods[m];
-					if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
-						count++;
-						lastIndex = m;
-					}
+			// have resolved all arg types & return type of the methods
+			for (int m = 0, length = methods.length; m < length; m++) {
+				MethodBinding method = methods[m];
+				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+					count++;
+					lastIndex = m;
 				}
 			}
 			if (count == 1)
@@ -286,14 +284,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#implementsInterface(ReferenceBinding, boolean)
 	 */
 	public boolean implementsInterface(ReferenceBinding anInterface, boolean searchHierarchy) {
-		return this.type.implementsInterface(anInterface, searchHierarchy);
+		return this.type.implementsInterface(anInterface, searchHierarchy); // erasure
 	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#implementsMethod(MethodBinding)
 	 */
 	public boolean implementsMethod(MethodBinding method) {
-		return this.type.implementsMethod(method);
+		return this.type.implementsMethod(method); // erasure
 	}
 
 	/**
