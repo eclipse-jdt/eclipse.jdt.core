@@ -2714,4 +2714,30 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// id(java.lang.String) in Y overrides id(T) in X; return type requires unchecked conversion
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	public void test050() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"		 public static <S extends String> S foo() { \n" + 
+				"		     System.out.print(\"String\"); \n" + 
+				"		     return null; \n" + 
+				"		   }\n" + 
+				"		 public static <N extends Number> N foo() { \n" + 
+				"		     System.out.println(\"Number\");\n" + 
+				"		     return null; \n" + 
+				"		 }\n" + 
+				"		 public static void main(String[] args) {\n" + 
+				"		 	X.<String>foo();\n" + 
+				"		 	X.<Number>foo();\n" + 
+				"		 	X o = new X();\n" + 
+				"		    o.<Number>foo();\n" + 
+				"		 }\n" + 
+				"}\n"
+			},
+			"StringNumber"
+		);
+	}	
 }
