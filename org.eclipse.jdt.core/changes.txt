@@ -12,7 +12,7 @@ PRs Closed in this Release
 1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
 
 
-*** BUILD 200 ********************************************************************
+*** BUILD 200 (2.0 STREAM) *******************************************************
 
 What's new in this drop
 ==================================================================================
