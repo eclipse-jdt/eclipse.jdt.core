@@ -346,15 +346,18 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy = cu.getWorkingCopy(owner, null, null);
 			assertTrue("should be in working copy mode", workingCopy.isWorkingCopy());
 			assertTrue("should be opened", workingCopy.isOpen());
+			assertTrue("should exist", workingCopy.exists());
 			
 			workingCopy.discardWorkingCopy();
 			assertTrue("should still be in working copy mode (1)", workingCopy.isWorkingCopy());
 			assertTrue("should still be opened", workingCopy.isOpen());
+			assertTrue("should still exist", workingCopy.exists());
 
 			workingCopy.discardWorkingCopy();
 			workingCopy.discardWorkingCopy();
 			assertTrue("should still be in working copy mode (2)", workingCopy.isWorkingCopy());
 			assertTrue("should no longer be opened", !workingCopy.isOpen());
+			assertTrue("should no longer exist", !workingCopy.exists());
 						
 		} finally {
 			if (workingCopy != null) {
