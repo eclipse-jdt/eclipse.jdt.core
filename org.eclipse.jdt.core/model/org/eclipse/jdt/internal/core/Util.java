@@ -498,7 +498,7 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 		throw new JavaModelException(e);
 	}
 	try {
-		String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+		String encoding = JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);
 		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);

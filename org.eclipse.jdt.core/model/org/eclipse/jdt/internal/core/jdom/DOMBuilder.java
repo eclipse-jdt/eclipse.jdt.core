@@ -11,17 +11,11 @@
 package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
-import org.eclipse.jdt.core.jdom.IDOMField;
-import org.eclipse.jdt.core.jdom.IDOMImport;
-import org.eclipse.jdt.core.jdom.IDOMInitializer;
-import org.eclipse.jdt.core.jdom.IDOMMethod;
-import org.eclipse.jdt.core.jdom.IDOMNode;
-import org.eclipse.jdt.core.jdom.IDOMPackage;
-import org.eclipse.jdt.core.jdom.IDOMType;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.DocumentElementParser;
 import org.eclipse.jdt.internal.compiler.IDocumentElementRequestor;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -56,6 +50,7 @@ public class DOMBuilder extends AbstractDOMBuilder implements IDocumentElementRe
 	 */
 	protected ArrayList fFields;
 
+	Map options = JavaCore.getOptions();
 
 /**
  * Creates a new DOMBuilder
@@ -154,7 +149,7 @@ public IDOMCompilationUnit createCompilationUnit() {
  */
 public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUnit) {
 	initializeBuild(compilationUnit.getContents(), true, true, false);
-	getParser().parseCompilationUnit(compilationUnit);
+	getParser(options).parseCompilationUnit(compilationUnit);
 	return super.createCompilationUnit(compilationUnit);
 }
 /**
@@ -162,7 +157,7 @@ public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUni
  */
 public IDOMField createField(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
-	getParser().parseField(sourceCode);
+	getParser(options).parseField(sourceCode);
 	if (fAbort || fNode == null) {
 		return null;
 	}
@@ -181,7 +176,7 @@ public IDOMField createField(char[] sourceCode) {
 public IDOMField[] createFields(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, false);
 	fFields= new ArrayList();
-	getParser().parseField(sourceCode);
+	getParser(options).parseField(sourceCode);
 	if (fAbort) {
 		return null;
 	}
@@ -209,7 +204,7 @@ public IDOMImport createImport() {
  */
 public IDOMImport createImport(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
-	getParser().parseImport(sourceCode);
+	getParser(options).parseImport(sourceCode);
 	if (fAbort || fNode == null) {
 		return null;
 	}
@@ -223,7 +218,7 @@ public IDOMImport createImport(char[] sourceCode) {
  */
 public IDOMInitializer createInitializer(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
-	getParser().parseInitializer(sourceCode);
+	getParser(options).parseInitializer(sourceCode);
 	if (fAbort || fNode == null || !(fNode instanceof IDOMInitializer)) {
 		return null;
 	}
@@ -235,7 +230,7 @@ public IDOMInitializer createInitializer(char[] sourceCode) {
  */
 public IDOMMethod createMethod(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
-	getParser().parseMethod(sourceCode);
+	getParser(options).parseMethod(sourceCode);
 	if (fAbort || fNode == null) {
 		return null;
 	}
@@ -253,7 +248,7 @@ public IDOMPackage createPackage() {
  */
 public IDOMPackage createPackage(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
-	getParser().parsePackage(sourceCode);
+	getParser(options).parsePackage(sourceCode);
 	if (fAbort || fNode == null) {
 		return null;
 	}
@@ -265,7 +260,7 @@ public IDOMPackage createPackage(char[] sourceCode) {
  */
 public IDOMType createType(char[] sourceCode) {
 	initializeBuild(sourceCode, false, true, false);
-	getParser().parseType(sourceCode);
+	getParser(options).parseType(sourceCode);
 	if (fAbort) {
 		return null;
 	}
@@ -690,8 +685,8 @@ public void exitMethod(int bodyEnd, int declarationEnd) {
 /**
  * Creates a new parser.
  */
-protected DocumentElementParser getParser() {
-	return new DocumentElementParser(this, new DefaultProblemFactory(), new CompilerOptions(JavaCore.getOptions()));
+protected DocumentElementParser getParser(Map settings) {
+	return new DocumentElementParser(this, new DefaultProblemFactory(), new CompilerOptions(settings));
 }
 /**
  * Initializes the builder to create a document fragment.

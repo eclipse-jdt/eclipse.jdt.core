@@ -56,7 +56,15 @@ public static IMarker[] getProblemsFor(IResource resource) {
 	return new IMarker[0];
 }
 
-public static void removeProblemsFor(IResource resource) {
+public static IMarker[] getTasksFor(IResource resource) {
+	try {
+		if (resource != null && resource.exists())
+			return resource.findMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
+	} catch (CoreException e) {} // assume there are no tasks
+	return new IMarker[0];
+}
+
+public static void removeProblemsAndTasksFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists()) {
 			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
@@ -143,7 +151,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		// do not log this exception since its thrown to handle aborted compiles because of missing source files
 		if (DEBUG)
 			System.out.println(Util.bind("build.missingSourceFile", e.missingSourceFile)); //$NON-NLS-1$
-		removeProblemsFor(currentProject); // make this the only problem for this project
+		removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.missingSourceFile", e.missingSourceFile)); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
@@ -424,7 +432,7 @@ private void initializeBuilder() throws CoreException {
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
 
-	String filterSequence = JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
+	String filterSequence = javaProject.getOption(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, true);
 	char[][] filters = filterSequence != null && filterSequence.length() > 0
 		? CharOperation.splitAndTrimOn(',', filterSequence.toCharArray())
 		: null;
@@ -452,7 +460,7 @@ private void initializeBuilder() throws CoreException {
 }
 
 private boolean isWorthBuilding() throws CoreException {
-	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH));
+	boolean abortBuilds = JavaCore.ABORT.equals(this.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true));
 	if (!abortBuilds) return true;
 
 	// Abort build only if there are classpath errors
@@ -473,7 +481,7 @@ private boolean isWorthBuilding() throws CoreException {
 		// remove all existing class files... causes all dependent projects to do the same
 		new BatchImageBuilder(this).scrubOutputFolder();
 
-		removeProblemsFor(currentProject); // remove all compilation problems
+		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
 
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.abortDueToClasspathProblems")); //$NON-NLS-1$
@@ -491,7 +499,7 @@ private boolean isWorthBuilding() throws CoreException {
 			// then allow build (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23357)
 			JavaProject prereqProject = (JavaProject)JavaCore.create(p);
 			if (prereqProject.hasCycleMarker() 
-					&& JavaCore.WARNING.equals(JavaCore.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH))) {
+					&& JavaCore.WARNING.equals(this.javaProject.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true))) {
 				continue;
 			}
 			if (DEBUG)
@@ -501,7 +509,7 @@ private boolean isWorthBuilding() throws CoreException {
 			// remove all existing class files... causes all dependent projects to do the same
 			new BatchImageBuilder(this).scrubOutputFolder();
 
-			removeProblemsFor(currentProject); // make this the only problem for this project
+			removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.prereqProjectWasNotBuilt", p.getName())); //$NON-NLS-1$
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);

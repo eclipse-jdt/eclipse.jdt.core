@@ -14,8 +14,8 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 abstract class ClasspathLocation {
 
-static ClasspathLocation forSourceFolder(String sourceFolderPathname, String outputFolderPathname) {
-	return new ClasspathMultiDirectory(sourceFolderPathname, outputFolderPathname);
+static ClasspathLocation forSourceFolder(String sourceFolderPathname, String outputFolderPathname, String encoding) {
+	return new ClasspathMultiDirectory(sourceFolderPathname, outputFolderPathname, encoding);
 }
 
 static ClasspathLocation forBinaryFolder(String binaryFolderPathname) {

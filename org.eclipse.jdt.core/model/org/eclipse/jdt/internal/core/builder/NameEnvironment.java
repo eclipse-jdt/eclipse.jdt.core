@@ -91,7 +91,7 @@ public static ClasspathLocation[] computeLocations(
 	/* Update cycle marker */
 	IMarker cycleMarker = ((JavaProject) javaProject).getCycleMarker();
 	if (cycleMarker != null) {
-		String circularCPOption = JavaCore.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH);
+		String circularCPOption = javaProject.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
 		int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
 		try {
 			int existingSeverity = ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue();
@@ -106,7 +106,7 @@ public static ClasspathLocation[] computeLocations(
 	int cpCount = 0;
 	int max = classpathEntries.length;
 	ClasspathLocation[] classpathLocations = new ClasspathLocation[max];
-
+	String encoding = javaProject.getOption(JavaCore.CORE_ENCODING, true);
 	boolean firstSourceFolder = true;
 	nextEntry : for (int i = 0; i < max; i++) {
 		IClasspathEntry entry = classpathEntries[i];
@@ -122,7 +122,7 @@ public static ClasspathLocation[] computeLocations(
 					if (sourceFolders != null) { // normal builder mode
 						sourceFolders.add(resource);
 						classpathLocations[cpCount++] =
-							ClasspathLocation.forSourceFolder(resource.getLocation().toString(), outputFolderLocation);
+							ClasspathLocation.forSourceFolder(resource.getLocation().toString(), outputFolderLocation, encoding);
 					} else if (firstSourceFolder) { // add the output folder only once
 						firstSourceFolder = false;
 						classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(outputFolderLocation);

@@ -29,7 +29,7 @@ public void build() {
 
 	try {
 		notifier.subTask(Util.bind("build.scrubbingOutput")); //$NON-NLS-1$
-		JavaBuilder.removeProblemsFor(javaBuilder.currentProject);
+		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
 		scrubOutputFolder();
 		notifier.updateProgressDelta(0.1f);
 

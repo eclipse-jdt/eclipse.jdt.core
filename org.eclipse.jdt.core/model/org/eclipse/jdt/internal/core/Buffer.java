@@ -20,13 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.BufferChangedEvent;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferChangedListener;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 
 /**
  * @see IBuffer
@@ -336,7 +330,7 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 			
 		// use a platform operation to update the resource contents
 		try {
-			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+			String encoding = ((IJavaElement)this.owner).getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 			String contents = this.getContents();
 			if (contents == null) return;
 			byte[] bytes = encoding == null 

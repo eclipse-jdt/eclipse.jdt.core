@@ -16,13 +16,15 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 class ClasspathMultiDirectory extends ClasspathDirectory {
 
 String sourcePath;
+String encoding;
 
-ClasspathMultiDirectory(String sourcePath, String binaryPath) {
+ClasspathMultiDirectory(String sourcePath, String binaryPath, String encoding) {
 	super(binaryPath);
 
 	this.sourcePath = sourcePath;
 	if (!sourcePath.endsWith("/")) //$NON-NLS-1$
 		this.sourcePath += "/"; //$NON-NLS-1$
+	this.encoding = encoding;
 }
 
 public boolean equals(Object o) {
@@ -48,7 +50,7 @@ NameEnvironmentAnswer findSourceFile(
 	for (int i = 0, l = additionalSourceFilenames.length; i < l; i++)
 		if (fullSourceName.equals(additionalSourceFilenames[i]))
 			return new NameEnvironmentAnswer(
-				new SourceFile(fullSourceName, typeName, CharOperation.splitOn('/', qualifiedPackageName.toCharArray())));
+				new SourceFile(fullSourceName, typeName, CharOperation.splitOn('/', qualifiedPackageName.toCharArray()), encoding));
 	return null;
 }
 

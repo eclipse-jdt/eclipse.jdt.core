@@ -10,32 +10,32 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.resources.*;
+import java.io.*;
+import java.util.*; 
 
-import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.xerces.dom.DocumentImpl;
+import org.apache.xml.serialize.Method;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.Serializer;
+import org.apache.xml.serialize.SerializerFactory;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import javax.xml.parsers.*;
-import org.apache.xerces.dom.*;
-import org.apache.xml.serialize.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Handle for a Java Project.
@@ -73,6 +73,16 @@ public class JavaProject
 	 * The platform project this <code>IJavaProject</code> is based on
 	 */
 	protected IProject fProject;
+	
+	/**
+	 * Name of file containing project classpath
+	 */
+	public static final String CLASSPATH_FILENAME = ".classpath";  //$NON-NLS-1$
+
+	/**
+	 * Name of file containing custom project preferences
+	 */
+	public static final String PREF_FILENAME = ".jprefs";  //$NON-NLS-1$
 
 	/**
 	 * Returns a canonicalized path from the given external path.
@@ -952,14 +962,6 @@ public class JavaProject
 		return null;
 	}
 
-	/**
-	 * Returns the qualified name for the classpath server property
-	 * of this project
-	 */
-	public QualifiedName getClasspathPropertyName() {
-		return new QualifiedName(JavaCore.PLUGIN_ID, "classpath"); //$NON-NLS-1$
-	}
-	
 	/*
 	 * Returns the cycle marker associated with this project or null if none.
 	 */
@@ -1075,6 +1077,55 @@ public class JavaProject
 	}
 
 	/**
+	 * @see org.eclipse.jdt.core.IJavaProject#getOption(String, boolean)
+	 */	
+	public String getOption(String optionName, boolean inheritJavaCoreOptions) {
+		
+		if (JavaModelManager.OptionNames.contains(optionName)){
+			
+			Preferences preferences = getPreferences();
+			String value = preferences.getString(optionName).trim();
+			if (value == Preferences.STRING_DEFAULT_DEFAULT){
+				value = inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
+			}
+			return value;
+		}
+		return null;
+	}
+	
+	/**
+	 * @see org.eclipse.jdt.core.IJavaProject#getOptions(boolean)
+	 */
+	public Map getOptions(boolean inheritJavaCoreOptions) {
+		
+		// initialize to the defaults from JavaCore options pool
+		Map options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable(5);
+
+		Preferences preferences = getPreferences();
+		HashSet optionNames = JavaModelManager.OptionNames;
+		
+		// get preferences set to their default
+		if (inheritJavaCoreOptions){
+			String[] defaultPropertyNames = preferences.defaultPropertyNames();
+			for (int i = 0; i < defaultPropertyNames.length; i++){
+				String propertyName = defaultPropertyNames[i];
+				if (optionNames.contains(propertyName)){
+					options.put(propertyName, preferences.getDefaultString(propertyName).trim());
+				}
+			}		
+		}
+		// get custom preferences not set to their default
+		String[] propertyNames = preferences.propertyNames();
+		for (int i = 0; i < propertyNames.length; i++){
+			String propertyName = propertyNames[i];
+			if (optionNames.contains(propertyName)){
+				options.put(propertyName, preferences.getString(propertyName).trim());
+			}
+		}		
+		return options;
+	}
+	
+	/**
 	 * @see IJavaProject
 	 */
 	public IPath getOutputLocation() throws JavaModelException {
@@ -1163,7 +1214,7 @@ public class JavaProject
 			}
 		}
 	}
-
+	
 	/**
 	 * @see IJavaProject
 	 */
@@ -1298,6 +1349,21 @@ public class JavaProject
 	}
 
 	/**
+	 * Returns the project custom preference pool.
+	 * Project preferences may include custom encoding.
+	 */	
+	public Preferences getPreferences(){
+		
+		Preferences preferences;
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(getProject(), true);
+		if ((preferences = perProjectInfo.preferences) != null) return preferences;
+		preferences = loadPreferences();
+		if (preferences == null) preferences = new Preferences();
+		perProjectInfo.preferences = preferences;
+		return preferences;
+	}
+
+	/**
 	 * @see IJavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
@@ -1333,7 +1399,6 @@ public class JavaProject
 			}
 		}
 		if (classpath != null) {
-			perProjectInfo.classpath = classpath;
 			return classpath;
 		}
 		return defaultClasspath();
@@ -1370,15 +1435,17 @@ public class JavaProject
 		JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
 		
 		// reuse cache if not needing to refresh markers or checking bound variables
-		if (ignoreUnresolvedEntry && !generateMarkerOnError){
-			// resolved path is cached on its perProjectInfo
+		if (ignoreUnresolvedEntry && !generateMarkerOnError && perProjectInfo != null){
+			// resolved path is cached on its info
 			IClasspathEntry[] infoPath = perProjectInfo.lastResolvedClasspath;
 			if (infoPath != null) return infoPath;
 		}
 
 		IClasspathEntry[] resolvedPath = getResolvedClasspath(getRawClasspath(), ignoreUnresolvedEntry, generateMarkerOnError);
 
-		perProjectInfo.lastResolvedClasspath = resolvedPath;
+		if (perProjectInfo != null){
+			perProjectInfo.lastResolvedClasspath = resolvedPath;
+		}
 		return resolvedPath;
 	}
 	
@@ -1407,7 +1474,7 @@ public class JavaProject
 				IJavaModelStatus status =
 					JavaConventions.validateClasspathEntry(this, rawEntry, false);
 				if (!status.isOK()) {
-					String incompleteCPOption = JavaCore.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH);
+					String incompleteCPOption = this.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true);
 					createClasspathProblemMarker(
 						status.getMessage(), 
 						JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
@@ -1458,7 +1525,7 @@ public class JavaProject
 							IJavaModelStatus status =
 								JavaConventions.validateClasspathEntry(this, containerRawEntry, false);
 							if (!status.isOK()) {
-								String incompleteCPOption = JavaCore.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH);
+								String incompleteCPOption = this.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true);
 								createClasspathProblemMarker(
 									status.getMessage(), 
 									JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
@@ -1519,13 +1586,12 @@ public class JavaProject
 	 * which form of storage to use appropriately. Shared properties produce real resource files which
 	 * can be shared through a VCM onto a server. Persistent properties are not shareable.
 	 *
-	 * @see JavaProject#setSharedProperty(QualifiedName, String)
+	 * @see JavaProject#setSharedProperty(String, String)
 	 */
-	public String getSharedProperty(QualifiedName key) throws CoreException {
+	public String getSharedProperty(String key) throws CoreException {
 
 		String property = null;
-		String propertyFileName = computeSharedPropertyFileName(key);
-		IFile rscFile = getProject().getFile(propertyFileName);
+		IFile rscFile = getProject().getFile(key);
 		if (rscFile.exists()) {
 			property = new String(Util.getResourceContentsAsByteArray(rscFile));
 		}
@@ -1663,13 +1729,40 @@ public class JavaProject
 	public String loadClasspath() throws JavaModelException {
 
 		try {
-			return getSharedProperty(getClasspathPropertyName());
+			return getSharedProperty(CLASSPATH_FILENAME);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
 	}
 
-	/**
+	/*
+	 * load preferences from a shareable format (VCM-wise)
+	 */
+	 public Preferences loadPreferences() {
+	 	
+	 	Preferences preferences = new Preferences();
+	 	
+//		File prefFile = getProject().getLocation().append(PREF_FILENAME).toFile();
+		File prefFile = getProject().getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor()).append(PREF_FILENAME).toFile();
+		if (prefFile.exists()) { // load preferences from file
+			InputStream in = null;
+			try {
+				in = new BufferedInputStream(new FileInputStream(prefFile));
+				preferences.load(in);
+				return preferences;
+			} catch (IOException e) { // problems loading preference store - quietly ignore
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) { // ignore problems with close
+					}
+				}
+			}
+		}
+		return null;
+	 }
+	 	/**
 	 * @see IJavaProject#newEvaluationContext
 	 */
 	public IEvaluationContext newEvaluationContext() {
@@ -1895,6 +1988,7 @@ public class JavaProject
 		}
 	}
 
+
 	/**
 	 * @see JavaElement#rootedAt(IJavaProject)
 	 */
@@ -1922,11 +2016,9 @@ public class JavaProject
 
 		if (!getProject().exists()) return false;
 
-		QualifiedName classpathProp = getClasspathPropertyName();
-
 		try {
 			// attempt to prove the classpath has not change
-			String fileClasspathString = getSharedProperty(classpathProp);
+			String fileClasspathString = getSharedProperty(CLASSPATH_FILENAME);
 			if (fileClasspathString != null) {
 				IClasspathEntry[] fileEntries = readPaths(fileClasspathString);
 				if (isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
@@ -1942,11 +2034,53 @@ public class JavaProject
 		// actual file saving
 		try {
 			setSharedProperty(
-				classpathProp,
+				CLASSPATH_FILENAME,
 				getClasspathAsXML(newClasspath, newOutputLocation));
 			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
+		}
+	}
+
+	/**
+	 * Save project custom preferences to shareable file (.jprefs)
+	 */
+	private void savePreferences(Preferences preferences) {
+
+		if (preferences == null || !preferences.needsSaving()) {
+			// nothing to save
+			return;
+		}
+	
+		// preferences need to be saved
+		// the preferences file is located in the plug-in's state area
+		// at a well-known name (.jprefs)
+//		File prefFile = getProject().getLocation().append(PREF_FILENAME).toFile();
+		File prefFile = getProject().getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor()).append(PREF_FILENAME).toFile();
+		if (preferences.propertyNames().length == 0) {
+			// there are no preference settings
+			// rather than write an empty file, just delete any existing file
+			if (prefFile.exists()) {
+				prefFile.delete(); // don't worry if delete unsuccessful
+			}
+			return;
+		}
+		
+		// write file, overwriting an existing one
+		OutputStream out = null;
+		try {
+			// do it as carefully as we know how so that we don't lose/mangle
+			// the setting in times of stress
+			out = new BufferedOutputStream(new FileOutputStream(prefFile));
+			preferences.store(out, null);
+		} catch (IOException e) { // problems saving preference store - quietly ignore
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) { // ignore problems with close
+				}
+			}
 		}
 	}
 
@@ -1984,6 +2118,30 @@ public class JavaProject
 	}
 
 	/**
+	 * @see org.eclipse.jdt.core.IJavaProject#setOptions(Map)
+	 */
+	public void setOptions(Map newOptions) {
+
+		Preferences preferences;
+		if (newOptions == null){
+			setPreferences(preferences = new Preferences());
+		} else {
+			preferences = getPreferences();
+			Iterator keys = newOptions.keySet().iterator();
+			while (keys.hasNext()){
+				String key = (String)keys.next();
+				if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
+				// no filtering for encoding (custom encoding for project is allowed)
+				String value = (String)newOptions.get(key);
+				preferences.setValue(key, value);
+			}
+		}
+		
+		// persist options
+		savePreferences(preferences);	
+	}
+
+	/**
 	 * @see IJavaProject
 	 */
 	public void setOutputLocation(IPath outputLocation, IProgressMonitor monitor)
@@ -1996,6 +2154,13 @@ public class JavaProject
 			return;
 		}
 		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, outputLocation, monitor);
+	}
+
+	/*
+	 * Set cached preferences, no preference file is saved, only info is updated	 */
+	public void setPreferences(Preferences preferences) {
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(getProject(), true);
+		perProjectInfo.preferences = preferences;
 	}
 
 	/**
@@ -2117,13 +2282,11 @@ public class JavaProject
 	 * shared properties end up in resource files, and thus cannot be modified during
 	 * delta notifications (a CoreException would then be thrown).
 	 * 
-	 * @see JavaProject#getSharedProperty(QualifiedName key)
+	 * @see JavaProject#getSharedProperty(String key)
 	 */
-	public void setSharedProperty(QualifiedName key, String value)
-		throws CoreException {
+	public void setSharedProperty(String key, String value) throws CoreException {
 
-		String propertyName = computeSharedPropertyFileName(key);
-		IFile rscFile = getProject().getFile(propertyName);
+		IFile rscFile = getProject().getFile(key);
 		InputStream inputStream = new ByteArrayInputStream(value.getBytes());
 		// update the resource content
 		if (rscFile.exists()) {
@@ -2164,7 +2327,7 @@ public class JavaProject
 			
 			if (cycleParticipants.contains(project)){
 				IMarker cycleMarker = project.getCycleMarker();
-				String circularCPOption = JavaCore.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH);
+				String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
 				int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
 				if (cycleMarker != null) {
 					// update existing cycle marker if needed

@@ -10,13 +10,22 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class State {
 
@@ -176,10 +185,11 @@ static State read(DataInputStream in) throws IOException {
 
 	int length = in.readInt();
 	newState.classpathLocations = new ClasspathLocation[length];
+	String encoding = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(newState.javaProjectName)).getOption(JavaCore.CORE_ENCODING, true);
 	for (int i = 0; i < length; ++i) {
 		switch (in.readByte()) {
 			case 1 :
-				newState.classpathLocations[i] = ClasspathLocation.forSourceFolder(in.readUTF(), in.readUTF());
+				newState.classpathLocations[i] = ClasspathLocation.forSourceFolder(in.readUTF(), in.readUTF(), encoding);
 				break;
 			case 2 :
 				newState.classpathLocations[i] = ClasspathLocation.forBinaryFolder(in.readUTF());

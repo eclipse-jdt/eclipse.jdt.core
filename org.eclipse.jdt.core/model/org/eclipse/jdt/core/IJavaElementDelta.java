@@ -229,6 +229,18 @@ public interface IJavaElementDelta {
 	 */
 	public int F_ARCHIVE_CONTENT_CHANGED = 0x8000;
 
+//	/**
+//	 * Change flag indicating that the project custom options have changed on the file system,
+//	 * i.e. independently from a change performed using the <code>IJavaProject#setOptions</code>
+//	 * functionality.
+//	 * This flag is only valid if the element is an <code>IJavaProject</code>
+//	 * 
+//	 * @see IJavaProject#setOptions(Map)
+//	 * @since 2.1
+//	 */
+//	public int F_OPTIONS_CHANGED = 0x10000;
+	
+
 /**
  * Returns deltas for the children that have been added.
  */

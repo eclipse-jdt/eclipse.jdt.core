@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.jdom;
 
+import java.util.Map;
+
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
@@ -50,7 +52,7 @@ public IDOMCompilationUnit createCompilationUnit(String sourceCode, String name)
  */
 public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUnit) {
 	initializeBuild(compilationUnit.getContents(), true, true);
-	getParser().parseCompilationUnit(compilationUnit, false);
+	getParser(JavaCore.getOptions()).parseCompilationUnit(compilationUnit, false);
 	return super.createCompilationUnit(compilationUnit);
 }
 /**
@@ -211,7 +213,7 @@ protected void exitType(int declarationEnd) {
 /**
  * Creates a new parser.
  */
-protected SourceElementParser getParser() {
-	return new SourceElementParser(this, new DefaultProblemFactory(), new CompilerOptions(JavaCore.getOptions()));
+protected SourceElementParser getParser(Map settings) {
+	return new SourceElementParser(this, new DefaultProblemFactory(), new CompilerOptions(settings));
 }
 }

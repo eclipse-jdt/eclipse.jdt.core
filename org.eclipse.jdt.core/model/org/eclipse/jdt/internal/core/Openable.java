@@ -21,19 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.BufferChangedEvent;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferChangedListener;
-import org.eclipse.jdt.core.IBufferFactory;
-import org.eclipse.jdt.core.ICodeCompletionRequestor;
-import org.eclipse.jdt.core.ICompletionRequestor;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
@@ -127,11 +115,12 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	if (position < -1 || position > buffer.getLength()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
-	SearchableEnvironment environment = (SearchableEnvironment) ((JavaProject) getJavaProject()).getSearchableNameEnvironment();
-	NameLookup nameLookup = ((JavaProject) getJavaProject()).getNameLookup();
+	JavaProject project = (JavaProject) getJavaProject();
+	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
+	NameLookup nameLookup = project.getNameLookup();
 	environment.unitToSkip = unitToSkip;
 
-	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), JavaCore.getOptions());
+	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true));
 	engine.complete(cu, position, 0);
 	environment.unitToSkip = null;
 }
@@ -157,10 +146,11 @@ protected void codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit
 	}
 
 	// fix for 1FVGGKF
-	ISearchableNameEnvironment environment = ((JavaProject)getJavaProject()).getSearchableNameEnvironment();
+	JavaProject project = (JavaProject)getJavaProject();
+	ISearchableNameEnvironment environment = project.getSearchableNameEnvironment();
 	
 	// fix for 1FVXGDK
-	SelectionEngine engine = new SelectionEngine(environment, requestor, JavaCore.getOptions());
+	SelectionEngine engine = new SelectionEngine(environment, requestor, project.getOptions(true));
 	engine.select(cu, offset, offset + length - 1);
 }
 /**

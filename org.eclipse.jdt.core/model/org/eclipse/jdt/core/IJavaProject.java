@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.util.Map;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -173,7 +175,38 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @return an array of non-Java resources directly contained in this project
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;
+
+	/**
+	 * Helper method for returning one option value only. Equivalent to <code>(String)this.getOptions(inheritJavaCoreOptions).get(optionName)</code>
+	 * Note that it may answer <code>null</code> if this option does not exist, or if there is no custom value for it.
+	 * <p>
+	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
+	 * </p>
+	 * 
+	 * @param optionName the name of an option
+	 * @param inheritJavaCoreOptions - boolean indicating whether JavaCore options should be inherited as well
+	 * @return the String value of a given option
+	 * @see JavaCore#getDefaultOptions
+	 * @since 2.1
+	 */
+	String getOption(String optionName, boolean inheritJavaCoreOptions);
 	
+	/**
+	 * Returns the table of the current custom options for this project. Projects remember their custom options,
+	 * i.e. only the options different from the the JavaCore global options for the workspace.
+	 * A boolean argument allows to directly merge the project options with global ones from <code>JavaCore</code>.
+	 * <p>
+	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
+	 * </p>
+	 * 
+	 * @param inheritJavaCoreOptions - boolean indicating whether JavaCore options should be inherited as well
+	 * @return table of current settings of all options 
+	 *   (key type: <code>String</code>; value type: <code>String</code>)
+	 * @see JavaCore#getDefaultOptions
+	 * @since 2.1
+	 */
+	Map getOptions(boolean inheritJavaCoreOptions);
+
 	/**
 	 * Returns the full path to the location where the builder writes 
 	 * <code>.class</code> files.
@@ -423,6 +456,21 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 		IRegion region,
 		IProgressMonitor monitor)
 		throws JavaModelException;
+
+	/**
+	 * Sets the project custom options. All and only the options explicitly included in the given table 
+	 * are remembered; all previous option settings are forgotten, including ones not explicitly
+	 * mentioned.
+	 * <p>
+	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
+	 * </p>
+	 * 
+	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
+	 *   or <code>null</code> to flush all custom options (clients will automatically get the global JavaCore options).
+	 * @see JavaCore#getDefaultOptions
+	 * @since 2.1
+	 */
+	void setOptions(Map newOptions);
 
 	/**
 	 * Sets the output location of this project to the location

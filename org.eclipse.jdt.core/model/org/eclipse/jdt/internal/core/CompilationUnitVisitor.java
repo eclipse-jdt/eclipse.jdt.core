@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -136,17 +137,18 @@ public class CompilationUnitVisitor extends Compiler {
 		IAbstractSyntaxTreeVisitor visitor)
 		throws JavaModelException {
 
+		IJavaProject project = unitElement.getJavaProject();
 		CompilationUnitVisitor compilationUnitVisitor =
 			new CompilationUnitVisitor(
 				getNameEnvironment(unitElement),
 				getHandlingPolicy(),
-				JavaCore.getOptions(),
+				project.getOptions(true),
 				getRequestor(),
 				getProblemFactory(visitor));
 
 		CompilationUnitDeclaration unit = null;
 		try {
-			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
 
 			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			char[][] expectedPackageName = null;

@@ -47,6 +47,13 @@ public byte[] getByteContent() throws IOException {
 public char[] getCharContent() throws IOException {
 	return null;
 }
+/**
+ * @see org.eclipse.jdt.internal.core.index.IDocument#getEncoding()
+ */
+public String getEncoding() {
+	return null;
+}
+
 	/**
 	 * @see org.eclipse.jdt.internal.core.index.IDocument#getName()
 	 */

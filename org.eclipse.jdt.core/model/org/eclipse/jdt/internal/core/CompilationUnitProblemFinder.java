@@ -14,16 +14,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IProblemRequestor;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -91,6 +86,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 * Add additional source types
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
+		
 		CompilationResult result =
 			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 		// need to hold onto this
@@ -139,17 +135,18 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
 		
+		IJavaProject project = unitElement.getJavaProject();
 		CompilationUnitProblemFinder problemFinder =
 			new CompilationUnitProblemFinder(
 				getNameEnvironment(unitElement),
 				getHandlingPolicy(),
-				JavaCore.getOptions(),
+				project.getOptions(true),
 				getRequestor(),
 				getProblemFactory(fileName, problemRequestor, monitor));
 
 		CompilationUnitDeclaration unit = null;
 		try {
-			String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
 			
 			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			char[][] expectedPackageName = null;

@@ -240,7 +240,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			// update new resource content
 			try {
 				if (newContent != null){
-					String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 					destFile.setContents(
 						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 						fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
@@ -272,7 +272,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
 			try {
 				if (newContent != null){
-					String encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+					String encoding = source.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
 					destFile.setContents(
 						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 						fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 

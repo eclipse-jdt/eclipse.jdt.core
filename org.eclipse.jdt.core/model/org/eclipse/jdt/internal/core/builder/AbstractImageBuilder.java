@@ -10,21 +10,28 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.core.runtime.*;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Locale;
+
 import org.eclipse.core.resources.*;
-
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.core.*;
-
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.Util;
 
 /**
  * The abstract superclass of image builders.
@@ -76,7 +83,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	}
 
 	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath);
-	this.compiler = newCompiler();
+	this.compiler = newCompiler(javaBuilder.currentProject);
 	this.workQueue = new WorkQueue();
 	this.problemTypeLocations = new ArrayList(3);
 }
@@ -153,6 +160,7 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(String[] filenames, String[] initialTypeNames) {
+	String encoding = this.javaBuilder.javaProject.getOption(JavaCore.CORE_ENCODING, true);
 	int toDo = filenames.length;
 	if (this.compiledAllAtOnce = toDo <= MAX_AT_ONCE) {
 		// do them all now
@@ -161,7 +169,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			String filename = filenames[i];
 			if (JavaBuilder.DEBUG)
 				System.out.println("About to compile " + filename); //$NON-NLS-1$
-			toCompile[i] = new SourceFile(filename, initialTypeNames[i]);
+			toCompile[i] = new SourceFile(filename, initialTypeNames[i], encoding);
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {
@@ -181,7 +189,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 						System.out.println("About to compile " + filename);//$NON-NLS-1$
 					String initialTypeName = initialTypeNames[i];
 					initialNamesInLoop[index] = initialTypeName;
-					toCompile[index++] = new SourceFile(filename, initialTypeName);
+					toCompile[index++] = new SourceFile(filename, initialTypeName, encoding);
 				}
 				i++;
 			}
@@ -284,12 +292,12 @@ protected RuntimeException internalException(CoreException t) {
 	return imageBuilderException;
 }
 
-protected Compiler newCompiler() {
+protected Compiler newCompiler(IProject project) {
 	// called once when the builder is initialized... can override if needed
 	return new Compiler(
 		nameEnvironment,
 		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-		JavaCore.getOptions(),
+		JavaCore.create(project).getOptions(true),
 		this,
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
 }
@@ -318,7 +326,7 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 		int id = problem.getID();
 		switch (id) {
 			case IProblem.IsClassPathCorrect :
-				JavaBuilder.removeProblemsFor(javaBuilder.currentProject); // make this the only problem for this project
+				JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject); // make this the only problem for this project
 				String[] args = problem.getArguments();
 				missingClassFile = args[0];
 				break;

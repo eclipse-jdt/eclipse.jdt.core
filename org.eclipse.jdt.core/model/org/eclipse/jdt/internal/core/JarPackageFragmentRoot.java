@@ -147,7 +147,10 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 					}
 					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, zipPath));
 				}
-				mapper= new SourceMapper(zipPath, rootPath.toOSString());
+				mapper= new SourceMapper(
+					zipPath, 
+					rootPath.toOSString(), 
+					this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true)); // only project options if associated with resource
 			}
 			setSourceMapper(mapper);
 			if (zipPath == null) {

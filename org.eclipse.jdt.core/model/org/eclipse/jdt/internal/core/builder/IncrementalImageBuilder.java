@@ -493,17 +493,11 @@ protected void resetCollections() {
 protected void updateProblemsFor(String sourceLocation, CompilationResult result) throws CoreException {
 	IResource resource = resourceForLocation(sourceLocation);
 	IMarker[] markers = JavaBuilder.getProblemsFor(resource);
-	IProblem[] problems = result.getProblems();
-	boolean hasNoProblems = problems == null;
-	foundProblem : if (!hasNoProblems) {
-		for (int i = 0, length = problems.length; i < length; i++)
-			if (problems[i].getID() != IProblem.Task) break foundProblem;
-		hasNoProblems = true;
-	}
-	if (hasNoProblems && markers.length == 0) return;
+	IProblem[] problems = result.getProblems(); // contains both true problems and todo tasks
+	if (problems == null && markers.length == 0 && JavaBuilder.getTasksFor(resource) == null) return;
 
 	notifier.updateProblemCounts(markers, problems);
-	JavaBuilder.removeProblemsFor(resource);
+	JavaBuilder.removeProblemsAndTasksFor(resource);
 	storeProblemsFor(resource, problems);
 }
 

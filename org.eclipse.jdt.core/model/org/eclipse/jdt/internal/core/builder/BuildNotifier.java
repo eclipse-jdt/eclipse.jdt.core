@@ -184,6 +184,7 @@ protected void updateProblemCounts(IMarker[] oldProblems, IProblem[] newProblems
 	if (newProblems != null) {
 		next : for (int i = 0, newSize = newProblems.length; i < newSize; ++i) {
 			IProblem newProblem = newProblems[i];
+			if (newProblem.getID() == IProblem.Task) continue; // skip task
 			boolean isError = newProblem.isError();
 			String message = newProblem.getMessage();
 
@@ -213,6 +214,7 @@ protected void updateProblemCounts(IMarker[] oldProblems, IProblem[] newProblems
 			if (newProblems != null) {
 				for (int j = 0, newSize = newProblems.length; j < newSize; ++j) {
 					IProblem pb = newProblems[j];
+					if (pb.getID() == IProblem.Task) continue; // skip task
 					if (wasError == pb.isError() && message.equals(pb.getMessage()))
 						continue next;
 				}

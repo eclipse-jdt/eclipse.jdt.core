@@ -10,12 +10,11 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.jdt.core.JavaCore;
+import java.io.*;
+
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-
-import java.io.*;
 
 public class SourceFile implements ICompilationUnit {
 
@@ -24,7 +23,7 @@ public char[] mainTypeName;
 public char[][] packageName;
 String encoding;
 
-public SourceFile(String fileName, String initialTypeName) {
+public SourceFile(String fileName, String initialTypeName, String encoding) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
@@ -33,17 +32,17 @@ public SourceFile(String fileName, String initialTypeName) {
 	this.mainTypeName = CharOperation.subarray(typeName, lastIndex + 1, -1);
 	this.packageName = CharOperation.splitOn('/', typeName, 0, lastIndex - 1);
 
-	this.encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+	this.encoding = encoding;
 }
 
-public SourceFile(String fileName, char[] mainTypeName, char[][] packageName) {
+public SourceFile(String fileName, char[] mainTypeName, char[][] packageName, String encoding) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
 	this.mainTypeName = mainTypeName;
 	this.packageName = packageName;
 
-	this.encoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
+	this.encoding = encoding;
 }
 
 public char[] getContents() {

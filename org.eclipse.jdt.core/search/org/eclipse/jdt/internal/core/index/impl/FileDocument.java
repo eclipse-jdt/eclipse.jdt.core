@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.jdt.core.JavaCore;
+
 /**
  * A <code>FileDocument</code> represents a java.io.File.
  */
@@ -36,6 +38,13 @@ public class FileDocument extends PropertyDocument {
 	public char[] getCharContent() throws IOException {
 		return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file, null);
 	}
+	/**
+	 * @see org.eclipse.jdt.internal.core.index.IDocument#getEncoding()
+	 */
+	public String getEncoding() {
+		return JavaCore.getOption(JavaCore.CORE_ENCODING); // no custom encoding
+	}
+
 	/**
 	 * @see IDocument#getName
 	 */
