@@ -393,6 +393,21 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 		this.optionalAnonymousClassDeclaration = decl;
 		postReplaceChild(oldChild, decl, ANONYMOUS_CLASS_DECLARATION_PROPERTY);
 	}
+	
+	/**
+	 * Resolves and returns the binding for the constructor invoked by this
+	 * enum constant.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 * 
+	 * @return the constructor binding, or <code>null</code> if the binding
+	 *    cannot be resolved
+	 */	
+	public IMethodBinding resolveConstructorBinding() {
+		return this.ast.getBindingResolver().resolveConstructor(this);
+	}
 
 	/**
 	 * Resolves and returns the field binding for this enum constant.

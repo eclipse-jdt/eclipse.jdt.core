@@ -263,6 +263,16 @@ class DefaultBindingResolver extends BindingResolver {
 		this.bindingTables.compilerBindingsToASTBindings.put(packageBinding, binding);
 		return binding;
 	}
+	private int getTypeArguments(ParameterizedQualifiedTypeReference typeReference) {
+		TypeReference[][] typeArguments = typeReference.typeArguments;
+		int value = 0;
+		for (int i = 0, max = typeArguments.length; i < max; i++) {
+			if ((typeArguments[i] != null) || (value != 0)) {
+				value++;
+			}
+		}
+		return value;
+	}
 		
 	/*
 	 * Method declared on BindingResolver.
@@ -377,6 +387,21 @@ class DefaultBindingResolver extends BindingResolver {
 		if (node instanceof ExplicitConstructorCall) {
 			ExplicitConstructorCall explicitConstructorCall = (ExplicitConstructorCall) node;
 			return this.getMethodBinding(explicitConstructorCall.binding);
+		}
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.BindingResolver#resolveConstructor(org.eclipse.jdt.core.dom.EnumConstantDeclaration)
+	 */
+	IMethodBinding resolveConstructor(EnumConstantDeclaration enumConstantDeclaration) {
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(enumConstantDeclaration);
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node; 
+			if (fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT && fieldDeclaration.initialization != null) {
+				AllocationExpression allocationExpression = (AllocationExpression) fieldDeclaration.initialization;
+				return this.getMethodBinding(allocationExpression.binding);
+			}
 		}
 		return null;
 	}
@@ -1164,16 +1189,6 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		}
 		return null;
-	}
-	private int getTypeArguments(ParameterizedQualifiedTypeReference typeReference) {
-		TypeReference[][] typeArguments = typeReference.typeArguments;
-		int value = 0;
-		for (int i = 0, max = typeArguments.length; i < max; i++) {
-			if ((typeArguments[i] != null) || (value != 0)) {
-				value++;
-			}
-		}
-		return value;
 	}
 
 	/*

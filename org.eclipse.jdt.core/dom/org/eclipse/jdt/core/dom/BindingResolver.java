@@ -534,6 +534,28 @@ class BindingResolver {
 	}
 	
 	/**
+	 * Resolves and returns the binding for the constructor being invoked.
+	 * <p>
+	 * The implementation of
+	 * <code>ConstructorInvocation.resolveConstructor</code>
+	 * forwards to this method. Which constructor is invoked is often a function
+	 * of the context in which the expression node is embedded as well as
+	 * the expression subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param enumConstantDeclaration the enum constant declaration of interest
+	 * @return the binding for the constructor being invoked, or 
+	 *    <code>null</code> if no binding is available
+	 */
+	IMethodBinding resolveConstructor(EnumConstantDeclaration enumConstantDeclaration) {
+		return null;
+	}
+	
+	/**
 	 * Resolves the given reference and returns the binding for it.
 	 * <p>
 	 * The implementation of <code>MemberRef.resolveBinding</code> forwards to

@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 //	static {
-//		TESTS_NUMBERS = new int[] { 141 };
+//		TESTS_NUMBERS = new int[] { 145 };
 //	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -817,12 +817,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List bodyDeclarations = enumDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 2, bodyDeclarations.size());
 		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+		IMethodBinding methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "PLUS", source);
 		checkSourceRange(enumConstantDeclaration, "PLUS {\n" +
 				"        @Override\n" + 
 				"        double eval(double x, double y) { return x + y; }\n" + 
 				"    }", source);
-		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());
 		AnonymousClassDeclaration anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
 		checkSourceRange(anonymousClassDeclaration, "{\n" +
@@ -842,6 +845,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 		
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "MINUS", source);
 		checkSourceRange(enumConstantDeclaration, "MINUS {\n" +
 				"        @Override\n" + 
@@ -866,6 +872,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "TIMES", source);
 		checkSourceRange(enumConstantDeclaration, "TIMES {\n" +
 				"        @Override\n" + 
@@ -890,6 +899,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "DIVIDED_BY", source);
 		checkSourceRange(enumConstantDeclaration, "DIVIDED_BY {\n" +
 				"        @Override\n" + 
@@ -934,6 +946,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List enumConstants = enumDeclaration.enumConstants();
 		assertEquals("wrong size", 4, enumConstants.size());
 		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+		IMethodBinding methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "PENNY", source);
 		checkSourceRange(enumConstantDeclaration, "PENNY(1)", source);
 		List arguments = enumConstantDeclaration.arguments();
@@ -948,6 +963,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Different node", node2 == enumConstantDeclaration);
 		
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "NICKEL", source);
 		checkSourceRange(enumConstantDeclaration, "NICKEL(5)", source);
 		arguments = enumConstantDeclaration.arguments();
@@ -960,6 +978,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "NICKEL", binding.getName());
 		
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "DIME", source);
 		checkSourceRange(enumConstantDeclaration, "DIME(10)", source);
 		arguments = enumConstantDeclaration.arguments();
@@ -973,6 +994,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
 		checkSourceRange(enumConstantDeclaration.getName(), "QUARTER", source);
 		checkSourceRange(enumConstantDeclaration, "QUARTER(25)", source);
 		arguments = enumConstantDeclaration.arguments();
@@ -1464,9 +1487,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List enumConstants = enumDeclaration.enumConstants();
 		assertEquals("wrong size", 2, enumConstants.size());
 		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+		IMethodBinding methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration, "GREEN(0, 1)", source);
 		checkSourceRange(enumConstantDeclaration.getName(), "GREEN", source);
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
 		checkSourceRange(enumConstantDeclaration, "RED()", source);
 	}
@@ -1488,9 +1517,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List enumConstants = enumDeclaration.enumConstants();
 		assertEquals("wrong size", 2, enumConstants.size());
 		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+		IMethodBinding methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration, "GREEN(0, 1)", source);
 		checkSourceRange(enumConstantDeclaration.getName(), "GREEN", source);
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
+		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
 		checkSourceRange(enumConstantDeclaration, "RED", source);
 	}
@@ -3016,6 +3051,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List enumConstants = enumDeclaration.enumConstants();
 		assertEquals("wrong size", 3, enumConstants.size());
 		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
+		IMethodBinding methodBinding = enumConstantDeclaration.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a constructor", methodBinding.isConstructor());
 		IVariableBinding variableBinding = enumConstantDeclaration.resolveVariable();
 		assertNotNull("no binding", variableBinding);
 		assertNull("is constant", variableBinding.getConstantValue());
@@ -4315,5 +4353,24 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 		node = compilationUnit.findDeclaringNode(methodBinding);
 		assertNotNull("No declaring node", node);
+    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87350
+    public void _test0145() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public enum X {\n" + 
+    		"    RED, GREEN(), BLUE(17), PINK(1) {/*anon*};\n" + 
+    		"    Color() {}\n" + 
+    		"    Color(int i) {}\n" + 
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 1, "");
     }
 }
