@@ -752,4 +752,19 @@ public void testSearchWithExcludedCompilationUnit2() throws CoreException {
 		"",
 		resultCollector.toString());
 }
+/*
+ * Ensure that an included pattern of the form "com/" includes all the subtree
+ * (regression test for bug 62608 Include pattern ending with slash should include all subtree)
+ */
+public void testTrailingSlash() throws CoreException {
+	setClasspath(new String[] {"/P/src", "a/"});
+	createFolder("/P/src/a/b/c");
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
+	assertSortedElementsEqual(
+		"Unexpected children of root",
+		"a [in src [in P]]\n" + 
+		"a.b [in src [in P]]\n" + 
+		"a.b.c [in src [in P]]",
+		root.getChildren());
+}
 }
