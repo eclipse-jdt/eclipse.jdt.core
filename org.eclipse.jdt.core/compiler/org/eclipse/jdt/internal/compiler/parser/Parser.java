@@ -6864,45 +6864,45 @@ protected void consumeWildcard3WithBounds() {
 }
 protected void consumeWildcardBounds1Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.type = (TypeReference) this.genericsStack[this.genericsPtr];
+	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds1Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.type = (TypeReference) this.genericsStack[this.genericsPtr];
+	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.intPtr--; // remove the starting position of the super keyword
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.type = (TypeReference) this.genericsStack[this.genericsPtr];
+	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.type = (TypeReference) this.genericsStack[this.genericsPtr];
+	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.intPtr--; // remove the starting position of the super keyword
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.type = (TypeReference) this.genericsStack[this.genericsPtr];
+	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.type = (TypeReference) this.genericsStack[this.genericsPtr];
+	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.intPtr--; // remove the starting position of the super keyword
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBoundsExtends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.type = getTypeReference(this.intStack[this.intPtr--]);
+	wildcard.bound = getTypeReference(this.intStack[this.intPtr--]);
 	pushOnGenericsStack(wildcard);
 }
 protected void consumeWildcardBoundsSuper() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.type = getTypeReference(this.intStack[this.intPtr--]);
+	wildcard.bound = getTypeReference(this.intStack[this.intPtr--]);
 	pushOnGenericsStack(wildcard);
 }
 protected void consumeWildcardWithBounds() {

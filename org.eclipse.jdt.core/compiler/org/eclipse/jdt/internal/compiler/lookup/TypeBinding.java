@@ -116,6 +116,14 @@ public boolean isParameterizedType() {
 public boolean isTypeVariable() {
     return false;
 }
+
+/**
+ * Returns true if the type is a wildcard
+ */
+public boolean isWildcard() {
+    return false;
+}
+	
 public TypeBinding leafComponentType(){
 	return this;
 }

@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  */
 public class Wildcard extends SingleTypeReference {
 
-	public TypeReference type;
+	public TypeReference bound;
 	boolean isSuper;
 	/**
 	 * @param source
@@ -31,13 +31,13 @@ public class Wildcard extends SingleTypeReference {
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		output.append('?');
-		if (this.type != null) {
+		if (this.bound != null) {
 			if (this.isSuper) {
 				output.append(" super "); //$NON-NLS-1$
 			} else {
 				output.append(" extends "); //$NON-NLS-1$
 			}
-			this.type.printExpression(0, output);
+			this.bound.printExpression(0, output);
 		}
 		return output;
 	}	
@@ -46,16 +46,16 @@ public class Wildcard extends SingleTypeReference {
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
-		if (this.type != null) {
-			this.type.traverse(visitor, scope);
+		if (this.bound != null) {
+			this.bound.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		visitor.visit(this, scope);
-		if (this.type != null) {
-			this.type.traverse(visitor, scope);
+		if (this.bound != null) {
+			this.bound.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
