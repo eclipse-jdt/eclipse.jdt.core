@@ -128,8 +128,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 	}
 	private void updateClasspath() throws JavaModelException {
 
-		beginTask(Util.bind("classpath.settingProgress"), 2); //$NON-NLS-1$
 		JavaProject project = ((JavaProject) getElementsToProcess()[0]);
+
+		beginTask(Util.bind("classpath.settingProgress", project.getElementName()), 2); //$NON-NLS-1$
 
 		String[] oldRequired = project.getRequiredProjectNames();
 		
@@ -163,8 +164,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void updateOutputLocation() throws JavaModelException {
 		
-		beginTask(Util.bind("classpath.settingOutputLocationProgress"), 2); //$NON-NLS-1$
 		JavaProject project= ((JavaProject) getElementsToProcess()[0]);
+
+		beginTask(Util.bind("classpath.settingOutputLocationProgress", project.getElementName()), 2); //$NON-NLS-1$
 		
 		IPath oldLocation= project.getOutputLocation();
 	
