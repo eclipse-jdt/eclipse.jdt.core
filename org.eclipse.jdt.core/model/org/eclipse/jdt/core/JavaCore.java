@@ -2740,8 +2740,8 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
 	 * for the given path. This method is fully equivalent to calling
-	 * {@link #newContainerEntry(IPath, IPath[], IPath[], boolean)
-	 * newContainerEntry(containerPath, new IPath[0], new IPath[0], false)}.
+	 * {@link #newContainerEntry(IPath, IAccessRule[], IClasspathAttribute[], boolean)
+	 * newContainerEntry(containerPath, new IAccessRule[0], new IClasspathAttribute[0], false)}.
 	 * <p>
 	 * @param containerPath the path identifying the container, it must be formed of two
 	 * 	segments
@@ -2751,19 +2751,18 @@ public final class JavaCore extends Plugin {
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath) {
-			
 		return newContainerEntry(
-			containerPath,
-			ClasspathEntry.INCLUDE_ALL,
-			ClasspathEntry.EXCLUDE_NONE, 
-			false);
+		containerPath,
+		ClasspathEntry.NO_ACCESS_RULES,
+		ClasspathEntry.NO_EXTRA_ATTRIBUTES,
+		false/*not exported*/);
 	}
 
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
 	 * for the given path. This method is fully equivalent to calling
-	 * {@link #newContainerEntry(IPath, IPath[], IPath[], boolean)
-	 * newContainerEntry(containerPath, new IPath[0], new IPath[0], isExported)}. 
+	 * {@link #newContainerEntry(IPath, IAccessRule[], IClasspathAttribute[], boolean)
+	 * newContainerEntry(containerPath, new IAccessRule[0], new IClasspathAttribute[0], isExported)}. 
 	 * 
 	 * @param containerPath the path identifying the container, it must be formed of at least
 	 * 	one segment (ID+hints)
@@ -2776,59 +2775,10 @@ public final class JavaCore extends Plugin {
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newContainerEntry(IPath containerPath, boolean isExported) {
-			
 		return newContainerEntry(
 			containerPath,
-			ClasspathEntry.INCLUDE_ALL,
-			ClasspathEntry.EXCLUDE_NONE, 
-			isExported);
-	}
-
-	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
-	 * for the given path. This method is fully equivalent to calling
-	 * {@link #newContainerEntry(IPath, IPath[], IPath[], IClasspathAttribute[], boolean)
-	 * newContainerEntry(containerPath, accessibleFiles, nonAccessibleFiles, new IClasspathAttribute[0], isExported)}. 
-	 * 
-	 * @param containerPath the path identifying the container, it must be formed of at least
-	 * 	one segment (ID+hints)
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
-	 * @param isExported a boolean indicating whether this entry is contributed to dependent
-	 *    projects in addition to the output location
-	 * @return a new container classpath entry
-	 * 
-	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
-	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
-	 * @since 3.1
-	 * @deprecated usenewContainerEntry(IPath containerPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newContainerEntry(
-			IPath containerPath, 
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			boolean isExported) {
-		
-		return newContainerEntry(containerPath, accessibleFiles, nonAccessibleFiles, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
-	}
-	
-	/**
-	 * @deprecated use newContainerEntry(IPath containerPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported), null, extraAttributes, isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newContainerEntry(
-			IPath containerPath, 
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			IClasspathAttribute[] extraAttributes,
-			boolean isExported) {
-		return newContainerEntry(
-			containerPath,
-			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
-			extraAttributes,
+			ClasspathEntry.NO_ACCESS_RULES,
+			ClasspathEntry.NO_EXTRA_ATTRIBUTES,
 			isExported);
 	}
 
@@ -2967,8 +2917,8 @@ public final class JavaCore extends Plugin {
 	 * JAR or folder identified by the given absolute path. This specifies that all package fragments 
 	 * within the root will have children of type <code>IClassFile</code>.
 	 * This method is fully equivalent to calling
-	 * {@link #newLibraryEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
-	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], false)}.
+	 * {@link #newLibraryEntry(IPath, IPath, IPath, IAccessRule[], IClasspathAttribute[], boolean)
+	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IAccessRule[0], new IClasspathAttribute[0], false)}.
 	 *
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
@@ -2984,12 +2934,12 @@ public final class JavaCore extends Plugin {
 		IPath sourceAttachmentRootPath) {
 			
 		return newLibraryEntry(
-			path,
+			path, 
 			sourceAttachmentPath,
 			sourceAttachmentRootPath,
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE, 
-			false);
+			ClasspathEntry.NO_ACCESS_RULES,
+			ClasspathEntry.NO_EXTRA_ATTRIBUTES,
+			false/*not exported*/);
 	}
 
 	/**
@@ -2997,8 +2947,8 @@ public final class JavaCore extends Plugin {
 	 * identified by the given absolute path. This specifies that all package fragments within the root 
 	 * will have children of type <code>IClassFile</code>.
 	 * This method is fully equivalent to calling
-	 * {@link #newLibraryEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
-	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], isExported)}.
+	 * {@link #newLibraryEntry(IPath, IPath, IPath, IAccessRule[], IClasspathAttribute[], boolean)
+	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, new IAccessRule[0], new IClasspathAttribute[0], isExported)}.
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
@@ -3018,70 +2968,14 @@ public final class JavaCore extends Plugin {
 		boolean isExported) {
 			
 		return newLibraryEntry(
-			path,
-			sourceAttachmentPath,
-			sourceAttachmentRootPath,
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE, 
-			isExported);
-	}
-
-	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_LIBRARY</code> for the JAR or folder
-	 * identified by the given absolute path. This specifies that all package fragments within the root 
-	 * will have children of type <code>IClassFile</code>.
-	 * This method is fully equivalent to calling
-	 * {@link #newLibraryEntry(IPath, IPath, IPath, IPath[], IPath[], IClasspathAttribute[], boolean)
-	 * newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, new IClasspathAttribute[0], isExported)}.
-	 * 
-	 * @param path the absolute path of the binary archive
-	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
-	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
-	 *   and will be automatically converted to <code>null</code>.
-	 * @param sourceAttachmentRootPath the location of the root within the source archive or folder
-	 *    or <code>null</code> if this location should be automatically detected.
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
-	 * @param isExported indicates whether this entry is contributed to dependent
-	 * 	  projects in addition to the output location
-	 * @return a new library classpath entry
-	 * @since 3.1
-	 * @deprecated use newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newLibraryEntry(
-			IPath path,
-			IPath sourceAttachmentPath,
-			IPath sourceAttachmentRootPath,
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			boolean isExported) {
-		return newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
-	}
-	
-	/**
-	 * @deprecated use newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newLibraryEntry(
-			IPath path,
-			IPath sourceAttachmentPath,
-			IPath sourceAttachmentRootPath,
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			IClasspathAttribute[] extraAttributes,
-			boolean isExported) {
-		return newLibraryEntry(
 			path, 
 			sourceAttachmentPath,
 			sourceAttachmentRootPath,
-			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
-			extraAttributes,
+			ClasspathEntry.NO_ACCESS_RULES,
+			ClasspathEntry.NO_EXTRA_ATTRIBUTES,
 			isExported);
 	}
-	
+
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_LIBRARY</code> for the JAR or folder
 	 * identified by the given absolute path. This specifies that all package fragments within the root 
@@ -3171,8 +3065,8 @@ public final class JavaCore extends Plugin {
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.
 	 * This method is fully equivalent to calling
-	 * {@link #newProjectEntry(IPath, IPath[], IPath[], boolean)
-	 * newProjectEntry(path, new IPath[0], new IPath[0], false)}.
+	 * {@link #newProjectEntry(IPath, IAccessRule[], boolean, IClasspathAttribute[], boolean)
+	 * newProjectEntry(path, new IAccessRule[0], true, new IClasspathAttribute[0], false)}.
 	 * 
 	 * @param path the absolute path of the binary archive
 	 * @return a new project classpath entry
@@ -3185,8 +3079,8 @@ public final class JavaCore extends Plugin {
 	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.
 	 * This method is fully equivalent to calling
-	 * {@link #newProjectEntry(IPath, IPath[], IPath[], boolean)
-	 * newProjectEntry(path, new IPath[0], new IPath[0], isExported)}.
+	 * {@link #newProjectEntry(IPath, IAccessRule[], boolean, IClasspathAttribute[], boolean)
+	 * newProjectEntry(path, new IAccessRule[0], true, new IClasspathAttribute[0], isExported)}.
 	 * 
 	 * @param path the absolute path of the prerequisite project
 	 * @param isExported indicates whether this entry is contributed to dependent
@@ -3200,145 +3094,12 @@ public final class JavaCore extends Plugin {
 		
 		return newProjectEntry(
 			path,
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE, 
+			ClasspathEntry.NO_ACCESS_RULES,
+			true,
+			ClasspathEntry.NO_EXTRA_ATTRIBUTES,
 			isExported);
 	}
 
-	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
-	 * for the project identified by the given absolute path.
-	 * This method is fully equivalent to calling
-	 * {@link #newProjectEntry(IPath, IPath[], IPath[], boolean, IClasspathAttribute[], boolean)
-	 * newProjectEntry(path, accessibleFiles, nonAccessibleFiles, true, new IClasspathAttribute[0], isExported)}.
-	 * 
-	 * @param path the absolute path of the prerequisite project
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
-	 * @param isExported indicates whether this entry is contributed to dependent
-	 * 	  projects in addition to the output location
-	 * @return a new project classpath entry
-	 * @since 3.1
-	 * @deprecated use newProjectEntry(IPath path, IAccessRule[] accessRules, boolean combineAccessRestrictions, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newProjectEntry(
-			IPath path, 
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			boolean isExported) {
-		return newProjectEntry(path, accessibleFiles, nonAccessibleFiles, true/*default is to combine access rules*/, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
-	}
-	
-	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
-	 * for the project identified by the given absolute path.
-	 * <p>
-	 * A project entry is used to denote a prerequisite project on a classpath.
-	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
-	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
-	 * whole output location).
-	 * </p>
-	 * <p>
-	 * A project reference allows to indirect through another project, independently from its internal layout. 
-	 * </p><p>
-	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
-	 * </p>
-	 * <p>
-	 * The accessible files patterns determines the initial set of accessible source and class files in 
-	 * the project; the non accessible files patterns are then used to reduce this
-	 * set. A source or class file that is not accessible can still be refered to but it is 
-	 * tagged as being not accessible - the Java builder will create a problem 
-	 * marker for example. The severity of this marker is controled through
-	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
-	 * Note this is different from inclusion and 
-	 * exclusion patterns on source classpath entries, where a source file that
-	 * is excluded is not even compiled.
-	 * When no accessible files patterns are specified, all source and class files
-	 * in the project are initially accessible. On the other hand, specifying one 
-	 * or more accessible files patterns means that all <b>and only</b> source and
-	 * class files matching at least one of the specified patterns are accessible. 
-	 * If non accessible files patterns are specified, the initial set of accessible source and 
-	 * class files is then reduced by eliminating source and class files matched 
-	 * by at least one of the non accessible files patterns. Accessible files and non accessible files 
-	 * patterns look like relative file paths with wildcards and are interpreted 
-	 * relative to each entry's path of the project. Patterns are case-sensitive 
-	 * and they can contain '**', '*' or '?' wildcards (see 
-	 * {@link IClasspathEntry#getExclusionPatterns()} for the full description
-	 * of their syntax and semantics).
-	 * </p>
-	 * <p>
-	 * For example, if one of the project's entry path is 
-	 * <code>/Project/someLib.jar</code>, there are no accessible files filters, and the
-	 * non accessible files pattern is 
-	 * <code>com/xyz/tests/&#42;&#42;</code>, then class files
-	 * like <code>/Project/someLib.jar/com/xyz/Foo.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/utils/Bar.class</code> would be accessible,
-	 * whereas <code>/Project/someLib.jar/com/xyz/tests/T1.class</code>
-	 * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
-	 * accessible. 
-	 * </p>
-	 * <p>
-	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
-	 * this entry. If no extra attributes are provided, an empty array must be passed in.
-	 * </p>
-	 * <p>
-	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
-	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
-	 * If exported, dependent projects will concatenate the accessible files patterns of this entry with the
-	 * accessible files patterns of the projects, and they will concatenate the non accessible files patterns of this entry
-	 * with the non accessible files patterns of the project. 
-	 * </p>
-	 * 
-	 * @param path the absolute path of the prerequisite project
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
-	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
-	 * @param isExported indicates whether this entry is contributed to dependent
-	 * 	  projects in addition to the output location
-	 * @return a new project classpath entry
-	 * @since 3.1
- 	 * @deprecated use newProjectEntry(IPath path, IAccessRule[] accessRules, boolean combineAccessRestrictions, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newProjectEntry(
-			IPath path, 
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			IClasspathAttribute[] extraAttributes,
-			boolean isExported) {
-		return newProjectEntry(
-			path, 
-			accessibleFiles, 
-			nonAccessibleFiles,
-			true/*default is to combine access rules*/,
-			extraAttributes,
-			isExported);
-	}
-	
-	/**
-	 * @deprecated use newProjectEntry(IPath path, IAccessRule[] accessRules, boolean combineAccessRestrictions, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newProjectEntry(
-			IPath path, 
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			boolean combineAccessRestrictions,
-			IClasspathAttribute[] extraAttributes,
-			boolean isExported) {
-		return newProjectEntry(
-			path,
-			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
-			combineAccessRestrictions,
-			extraAttributes,
-			isExported);
-	}
-	
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.
@@ -3617,8 +3378,8 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
 	 * for the given path. This method is fully equivalent to calling
-	 * {@link #newVariableEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
-	 * newLibraryEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], false)}.
+	 * {@link #newVariableEntry(IPath, IPath, IPath, IAccessRule[], IClasspathAttribute[], boolean)
+	 * newVariableEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, new IAccessRule[0], new IClasspathAttribute[0], false)}.
 	 * 
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
@@ -3641,8 +3402,8 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
 	 * for the given path. This method is fully equivalent to calling
-	 * {@link #newVariableEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
-	 * newLibraryEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, new IPath[0], new IPath[0], isExported)}.
+	 * {@link #newVariableEntry(IPath, IPath, IPath, IAccessRule[], IClasspathAttribute[], boolean)
+	 * newVariableEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, new IAccessRule[0], new IClasspathAttribute[0], isExported)}.
 	 * 
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
@@ -3665,70 +3426,13 @@ public final class JavaCore extends Plugin {
 
 		return newVariableEntry(
 			variablePath,
-			variableSourceAttachmentPath, // source attachment
-			variableSourceAttachmentRootPath, // source attachment root			
-			ClasspathEntry.INCLUDE_ALL, 
-			ClasspathEntry.EXCLUDE_NONE, 
+			variableSourceAttachmentPath,
+			variableSourceAttachmentRootPath,
+			ClasspathEntry.NO_ACCESS_RULES,
+			ClasspathEntry.NO_EXTRA_ATTRIBUTES,
 			isExported);
 	}
 
-	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
-	 * for the given path. This method is fully equivalent to calling
-	 * {@link #newVariableEntry(IPath, IPath, IPath, IPath[], IPath[], boolean)
-	 * newLibraryEntry(variablePath, variableSourceAttachmentPath, sourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, new IClasspathAttribute[0], isExported)}.
-	 * 
-	 * @param variablePath the path of the binary archive; first segment is the
-	 *   name of a classpath variable
-	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
-	 *    or <code>null</code> if none; if present, the first segment is the
-	 *    name of a classpath variable (not necessarily the same variable
-	 *    as the one that begins <code>variablePath</code>)
-	 * @param variableSourceAttachmentRootPath the location of the root within the source archive
-	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * @param accessibleFiles the possibly empty list of accessible files patterns
-	 *    represented as relative paths
-	 * @param nonAccessibleFiles the possibly empty list of non accessible files patterns
-	 *    represented as relative paths
-	 * @param isExported indicates whether this entry is contributed to dependent
-	 * 	  projects in addition to the output location
-	 * @return a new variable classpath entry
-	 * @since 3.1
-	 * @deprecated use newVariableEntry(IPath variablePath, IPath variableSourceAttachmentPath, IPath variableSourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newVariableEntry(
-			IPath variablePath,
-			IPath variableSourceAttachmentPath,
-			IPath variableSourceAttachmentRootPath,
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			boolean isExported) {
-		return newVariableEntry(variablePath, variableSourceAttachmentPath, variableSourceAttachmentRootPath, accessibleFiles, nonAccessibleFiles, ClasspathEntry.NO_EXTRA_ATTRIBUTES, isExported);
-	}
-	
-	/**
-	 * @deprecated use newVariableEntry(IPath variablePath, IPath variableSourceAttachmentPath, IPath variableSourceAttachmentRootPath, IAccessRule[] accessRules, IClasspathAttribute[] extraAttributes, boolean isExported) instead
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public static IClasspathEntry newVariableEntry(
-			IPath variablePath,
-			IPath variableSourceAttachmentPath,
-			IPath variableSourceAttachmentRootPath,
-			IPath[] accessibleFiles, 
-			IPath[] nonAccessibleFiles, 
-			IClasspathAttribute[] extraAttributes,
-			boolean isExported) {
-		
-		return newVariableEntry(
-			variablePath,
-			variableSourceAttachmentPath,
-			variableSourceAttachmentRootPath,
-			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
-			extraAttributes,
-			isExported);
-	}
-	
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
 	 * for the given path. The first segment of the path is the name of a classpath variable.

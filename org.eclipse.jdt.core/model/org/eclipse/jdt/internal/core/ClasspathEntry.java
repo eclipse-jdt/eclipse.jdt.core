@@ -233,11 +233,6 @@ public class ClasspathEntry implements IClasspathEntry {
 		return new AccessRuleSet(rules);
 	}
 	
-	// TODO (jerome) remove before 3.1 M6
-	public boolean combineAccessRestrictions() {
-		return combineAccessRules();
-	}
-	
 	public boolean combineAccessRules() {
 		return this.combineAccessRules;
 	}
@@ -740,18 +735,6 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 	
 	/**
-	 * @see IClasspathEntry#getAccessibleFiles()
-	 * @deprecated
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public IPath[] getAccessibleFiles() {
-		if (this.accessRuleSet == null) return INCLUDE_ALL;
-		IPath[] result = getFilePaths(this.accessRuleSet.getAccessRules(), -1);
-		if (result == null) return INCLUDE_ALL;
-		return result;
-	}
-	
-	/**
 	 * @see IClasspathEntry#getAccessRules()
 	 */
 	public IAccessRule[] getAccessRules() {
@@ -768,34 +751,6 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this.accessRuleSet;
 	}
 
-	/**
-	 * @see IClasspathEntry#getNonAccessibleFiles()
-	 * @deprecated
-	 */
-	// TODO (jerome) remove before 3.1 M6
-	public IPath[] getNonAccessibleFiles() {
-		if (this.accessRuleSet == null) return EXCLUDE_NONE;
-		IPath[] result = getFilePaths(this.accessRuleSet.getAccessRules(), IProblem.ForbiddenReference);
-		if (result == null) return EXCLUDE_NONE;
-		return result;
-	}
-	
-	// TODO (jerome) remove before 3.1 M6
-	private IPath[] getFilePaths(AccessRule[] rules, int problemId) {
-		int length;
-		if (rules == null || (length = rules.length) == 0) return null;
-		IPath[] result = new IPath[length];
-		int index = 0;
-		for (int i = 0; i < length; i++) {
-			AccessRule accessRule = rules[i];
-			if (accessRule.problemId == problemId)
-				result[index++] = new Path(new String(accessRule.pattern));
-		}
-		if (index != length)
-			System.arraycopy(result, 0, result = new IPath[index], 0, index);
-		return result;
-	}
-	
 	/**
 	 * @see IClasspathEntry
 	 */
@@ -814,10 +769,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 */
 	public IPath[] getExclusionPatterns() {
-		if (this.entryKind == CPE_SOURCE) // TODO (jerome) remove this check once clients have switched to getAccessibleFiles()
-			return this.exclusionPatterns;
-		else
-			return getNonAccessibleFiles();
+		return this.exclusionPatterns;
 	}
 	
 	public IClasspathAttribute[] getExtraAttributes() {
@@ -843,10 +795,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 */
 	public IPath[] getInclusionPatterns() {
-		if (this.entryKind == CPE_SOURCE) // TODO (jerome) remove this check once clients have switched to getAccessibleFiles()
-			return this.inclusionPatterns;
-		else
-			return getAccessibleFiles();
+		return this.inclusionPatterns;
 	}
 
 	/**
