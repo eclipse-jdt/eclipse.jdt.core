@@ -64,8 +64,6 @@ public final class CompletionEngine
 	private final static int LOCAL = 1;
 	private final static int ARGUMENT = 2;
 	
-	private final static char[][] NO_PREFIX = new char[1][0];
-	
 	int expectedTypesPtr = -1;
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;

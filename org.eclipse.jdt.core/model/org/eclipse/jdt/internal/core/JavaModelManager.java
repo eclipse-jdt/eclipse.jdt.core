@@ -470,17 +470,6 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public IJavaProject[] javaProjectsCache;
 
-
-	/**
-	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
-	 */
-	private static final String WKS_PROP_FILENAME= "workspace.properties"; //$NON-NLS-1$
-
-	/**
-	 * Name of the handle id attribute in a Java marker
-	 */
-	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"; //$NON-NLS-1$
-
 	/**
 	 * Table from IProject to PerProjectInfo.
 	 */

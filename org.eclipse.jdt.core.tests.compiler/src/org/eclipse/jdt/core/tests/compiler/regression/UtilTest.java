@@ -393,7 +393,8 @@ public void test60() {
 		!CharOperation.pathMatch("/P/**/src".toCharArray(), "/P/src/X".toCharArray(), true, '/'));
 	assertTrue("Path pattern matching failure-3",
 		CharOperation.pathMatch("/P/src".toCharArray(), "/P/src".toCharArray(), true, '/'));
-		
+	assertTrue("Path pattern matching failure-4",
+		!CharOperation.pathMatch("A.java".toCharArray(), "/P/src/A.java".toCharArray(), true, '/'));		
 }
 
 public static Class testClass() {
