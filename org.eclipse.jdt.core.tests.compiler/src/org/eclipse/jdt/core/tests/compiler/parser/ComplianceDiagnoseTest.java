@@ -13,14 +13,27 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
 
 public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 public ComplianceDiagnoseTest(String name) {
 	super(name);
 }
-public static Test suite() {
-	return setupSuite(testClass());
-}
+	static {
+		// Use this static to specify a subset of tests using testsNames, testsNumbers or testsRange arrays
+//		testsNames = new String[] { "MissingTagsErrorPublicOverriding" };
+		testsNumbers = new int[] { 23 };
+//		testsRange = new int[] { 78, -1 };
+	}
+	public static Test suite() {
+		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
+			return new RegressionTestSetup(suite(testClass(), testClass().getName(), 4), highestComplianceLevels());
+		} else {
+			// To run a specific test, just uncomment line with testNumbers in static initializer above
+			// and put numbers of tests you want to perform
+			return setupSuite(testClass());
+		}
+	}
 public static Class testClass() {
 	return ComplianceDiagnoseTest.class;
 }
