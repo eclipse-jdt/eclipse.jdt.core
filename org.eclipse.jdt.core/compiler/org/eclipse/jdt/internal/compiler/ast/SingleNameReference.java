@@ -208,7 +208,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			SingleNameReference variableReference;
 			if ((operation.left instanceof SingleNameReference) && ((variableReference = (SingleNameReference) operation.left).binding == binding)) {
 				// i = i + value, then use the variable on the right hand side, since it has the correct implicit conversion
-				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.right, (operation.bits & OperatorMASK) >> OperatorSHIFT, operation.left.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
+				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.right, (operation.bits & OperatorMASK) >> OperatorSHIFT, operation.implicitConversion, valueRequired);
 				return;
 			}
 			int operator = (operation.bits & OperatorMASK) >> OperatorSHIFT;
@@ -219,7 +219,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
 				&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
 				// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
-				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.left, operator, operation.right.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
+				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.left, operator, operation.implicitConversion, valueRequired);
 				return;
 			}
 		}

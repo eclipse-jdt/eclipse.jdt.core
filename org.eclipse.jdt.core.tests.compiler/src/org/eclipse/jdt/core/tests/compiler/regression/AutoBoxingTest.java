@@ -2621,7 +2621,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
         );
     }       
     
-    // inference and autoboxing
+    // type argument inference and autoboxing
     public void test091() {
         this.runConformTest(
             new String[] {
@@ -2641,4 +2641,35 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"foo(String,Integer)foo(String,Integer)"
         );
     }         
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84669
+    public void test092() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X\n" + 
+				"{\n" + 
+				"	public X()\n" + 
+				"	{\n" + 
+				"		super();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public Object convert(Object value)\n" + 
+				"	{\n" + 
+				"		Double d = (Double)value;\n" + 
+				"		d = (d/100);\n" + 
+				"		return d;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args)\n" + 
+				"	{\n" + 
+				"		X test = new X();\n" + 
+				"		Object value = test.convert(new Double(50));\n" + 
+				"		System.out.println(value);\n" +	
+				"	}\n" + 
+				"}\n"
+            },
+			"0.5"
+        );
+    }        
 }
