@@ -43,10 +43,15 @@ Eclipse SDK 3.0M5 Build - ?th October 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Searching for references to and declarations of local variables is now supported (only by passing an 
+     <code>ILocalVariable</code> to the <code>SearchEngine</code>. Searching a local variable by name is not supported.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=37509">37509</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=43967">43967</a>
+Search for references on local variable finds all occurances of variables of that type not just that variable. 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=37509">37509</a>
 Open Declaration opens class declaration for local variables 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45433">45433</a>
 Bug7 (and counting ;-): hundretAssignmentsToFinalVariable()
