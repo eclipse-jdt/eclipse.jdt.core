@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
@@ -63,7 +64,7 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 		containerValues = new HashMap();
 		for (int i = 0; i < values.length; i+=2) {
 			final String projectName = values[i];
-			final String[] libPaths = values[i+1].split(",");
+			final char[][] libPaths = CharOperation.splitOn(',', values[i+1].toCharArray());
 			containerValues.put(
 				projectName, 
 				new IClasspathContainer() {
@@ -71,7 +72,7 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 						int length = libPaths.length;
 						IClasspathEntry[] entries = new IClasspathEntry[length];
 						for (int j = 0; j < length; j++) {
-							entries[j] = JavaCore.newLibraryEntry(new Path(libPaths[j]), null, null);
+							entries[j] = JavaCore.newLibraryEntry(new Path(new String(libPaths[j])), null, null);
 						}
 						return entries;
 					}

@@ -2651,7 +2651,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
 					if (previousContainer != null) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer); //$NON-NLS-1$ //$NON-NLS-2$
+							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						}
 						JavaModelManager.containerPut(affectedProject, containerPath, previousContainer); 
 					}

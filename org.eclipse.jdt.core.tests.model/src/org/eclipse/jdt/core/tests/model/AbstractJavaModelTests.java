@@ -17,6 +17,7 @@ import java.security.CodeSource;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.Util;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -341,11 +342,11 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 					}
 				}
 				if (lib.equals(lib.toUpperCase())) { // all upper case is a var 
-					String[] vars = lib.split(",");
+					char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
 					entries[sourceLength+i] = JavaCore.newVariableEntry(
-						new Path(vars[0]), 
-						vars.length > 1 ? new Path(vars[1]) : null, 
-						vars.length > 2 ? new Path(vars[2]) : null);
+						new Path(new String(vars[0])), 
+						vars.length > 1 ? new Path(new String(vars[1])) : null, 
+						vars.length > 2 ? new Path(new String(vars[2])) : null);
 				} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
 					entries[sourceLength+i] = JavaCore.newContainerEntry(new Path(lib));
 				} else {
