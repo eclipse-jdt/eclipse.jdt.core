@@ -13,12 +13,11 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.IDOMMethod;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
-import org.eclipse.jdt.internal.core.util.CharArrayOps;
-
 /**
  * DOMMethod provides an implementation of IDOMMethod.
  *
@@ -360,7 +359,7 @@ public String getBody() {
 		if (fBody != null) {
 			return fBody;
 		} else {
-			return CharArrayOps.substring(fDocument, fBodyRange[0], fBodyRange[1] + 1 - fBodyRange[0]);
+			return new String(CharOperation.subarray(fDocument, fBodyRange[0], fBodyRange[1] + 1));
 		}
 	} else {
 		return null;
@@ -480,7 +479,7 @@ protected char[] getReturnTypeContents() {
 		if (isReturnTypeAltered()) {
 			return fReturnType.toCharArray();
 		} else {
-			return CharArrayOps.subarray(fDocument, fReturnTypeRange[0], fReturnTypeRange[1] + 1 - fReturnTypeRange[0]);
+			return CharOperation.subarray(fDocument, fReturnTypeRange[0], fReturnTypeRange[1] + 1);
 		}
 
 	}

@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.jdom.IDOMMethod;
 import org.eclipse.jdt.core.jdom.IDOMNode;
@@ -23,8 +24,6 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
-import org.eclipse.jdt.internal.core.util.CharArrayOps;
-
 /**
  * DOMType provides an implementation of IDOMType.
  *
@@ -421,7 +420,7 @@ public String getSuperclass() {
 		if (fSuperclass != null) {
 			return fSuperclass;
 		} else {
-			return CharArrayOps.substring(fDocument, fSuperclassRange[0], fSuperclassRange[1] + 1 - fSuperclassRange[0]);
+			return new String(CharOperation.subarray(fDocument, fSuperclassRange[0], fSuperclassRange[1] + 1));
 		}
 	} else {
 		return null;

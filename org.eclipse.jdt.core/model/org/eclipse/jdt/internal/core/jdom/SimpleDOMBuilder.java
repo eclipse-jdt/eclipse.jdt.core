@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.jdom;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
@@ -20,8 +21,6 @@ import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.core.util.CharArrayOps;
-
 /**
  * A DOM builder that uses the SourceElementParser
  */
@@ -45,7 +44,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 }
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
 	int[] sourceRange= new int[] {declarationStart, declarationEnd};
-	fNode= new DOMPackage(fDocument, sourceRange, CharArrayOps.charToString(name));
+	fNode= new DOMPackage(fDocument, sourceRange, CharOperation.charToString(name));
 	addChild(fNode);	
 }
 /**
@@ -82,11 +81,11 @@ protected void enterAbstractMethod(int declarationStart, int modifiers,
 		
 	int[] sourceRange = {declarationStart, -1}; // will be fixed up on exit
 	int[] nameRange = {nameStart, nameEnd};
-	fNode = new DOMMethod(fDocument, sourceRange, CharArrayOps.charToString(name), nameRange, modifiers, 
-		isConstructor, CharArrayOps.charToString(returnType),
-		CharArrayOps.charcharToString(parameterTypes),
-		CharArrayOps.charcharToString(parameterNames), 
-		CharArrayOps.charcharToString(exceptionTypes));
+	fNode = new DOMMethod(fDocument, sourceRange, CharOperation.charToString(name), nameRange, modifiers, 
+		isConstructor, CharOperation.charToString(returnType),
+		CharOperation.charArrayToStringArray(parameterTypes),
+		CharOperation.charArrayToStringArray(parameterNames), 
+		CharOperation.charArrayToStringArray(exceptionTypes));
 	addChild(fNode);
 	fStack.push(fNode);
 }
@@ -119,8 +118,8 @@ public void enterField(int declarationStart, int modifiers, char[] type, char[] 
 	if (fNode instanceof DOMField) {
 		isSecondary = declarationStart == fNode.fSourceRange[0];
 	}
-	fNode = new DOMField(fDocument, sourceRange, CharArrayOps.charToString(name), nameRange, 
-		modifiers, CharArrayOps.charToString(type), isSecondary);
+	fNode = new DOMField(fDocument, sourceRange, CharOperation.charToString(name), nameRange, 
+		modifiers, CharOperation.charToString(type), isSecondary);
 	addChild(fNode);
 	fStack.push(fNode);
 }
@@ -154,7 +153,7 @@ protected void enterType(int declarationStart, int modifiers, char[] name,
 		int[] sourceRange = {declarationStart, -1}; // will be fixed in the exit
 		int[] nameRange = new int[] {nameStart, nameEnd};
 		fNode = new DOMType(fDocument, sourceRange, new String(name), nameRange,
-			modifiers, CharArrayOps.charcharToString(superinterfaces), isClass);
+			modifiers, CharOperation.charArrayToStringArray(superinterfaces), isClass);
 		addChild(fNode);
 		fStack.push(fNode);
 	}

@@ -11,11 +11,10 @@
 package org.eclipse.jdt.internal.core.jdom;
 
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.IDOMMember;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
-import org.eclipse.jdt.internal.core.util.CharArrayOps;
-
 /**
  * DOMMember provides an implementation of IDOMMember.
  *
@@ -207,7 +206,7 @@ protected char[] generateFlags() {
 	if (flags.length == 0) {
 		return flags;
 	} else {
-		return CharArrayOps.concat(flags, new char[] {' '});
+		return CharOperation.concat(flags, new char[] {' '});
 	}
 }
 /**
@@ -219,7 +218,7 @@ public String getComment() {
 		if (fComment != null) {
 			return fComment;
 		} else {
-			return CharArrayOps.substring(fDocument, fCommentRange[0], fCommentRange[1] + 1 - fCommentRange[0]);
+			return new String(CharOperation.subarray(fDocument, fCommentRange[0], fCommentRange[1] + 1));
 		}
 	} else {
 		return null;
@@ -249,7 +248,7 @@ protected char[] getModifiersText() {
 		if (fModifierRange[0] < 0) {
 			return null;
 		} else {
-			return CharArrayOps.subarray(fDocument, fModifierRange[0], fModifierRange[1] + 1 - fModifierRange[0]);
+			return CharOperation.subarray(fDocument, fModifierRange[0], fModifierRange[1] + 1);
 		}
 	} else {
 		return fModifiers;

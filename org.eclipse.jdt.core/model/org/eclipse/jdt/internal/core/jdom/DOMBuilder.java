@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.DocumentElementParser;
@@ -21,8 +22,6 @@ import org.eclipse.jdt.internal.compiler.IDocumentElementRequestor;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.core.util.CharArrayOps;
-
 /**
  * The DOMBuilder constructs each type of JDOM document fragment,
  * for the DOMFactory. The DOMBuilder has been separated from the
@@ -65,7 +64,7 @@ public void acceptImport(int declarationStart, int declarationEnd, int[] javaDoc
 	int[] nameRange = {nameStart, declarationEnd - 1};
 	
 	/* See 1FVII1P */
-	String importName = CharArrayOps.substring(fDocument, nameRange[0], nameRange[1] + 1 - nameRange[0]);
+	String importName = new String(CharOperation.subarray(fDocument, nameRange[0], nameRange[1] + 1));
 
 	fNode= new DOMImport(fDocument, sourceRange, importName, nameRange, onDemand);
 	addChild(fNode);
@@ -105,7 +104,7 @@ public void acceptPackage(int declarationStart, int declarationEnd, int[] javaDo
 	int nameStartPosition) {
 	int[] sourceRange = {declarationStart, declarationEnd};
 	int[] nameRange = {nameStartPosition, declarationEnd - 1};
-	fNode= new DOMPackage(fDocument, sourceRange, CharArrayOps.charToString(name), nameRange);
+	fNode= new DOMPackage(fDocument, sourceRange, CharOperation.charToString(name), nameRange);
 	addChild(fNode);
 	if (fBuildingSingleMember) {
 		fFinishedSingleMember= true;
@@ -349,11 +348,11 @@ protected void enterAbstractMethod(int declarationStart, int[] javaDocPositions,
 	} else {
 		bodyRange = new int[] {parametersEnd + 1, -1};
 	}
-	fNode = new DOMMethod(fDocument, sourceRange, CharArrayOps.charToString(name), nameRange, commentRange, modifiers, 
-		modifiersRange, isConstructor, CharArrayOps.charToString(returnType), returnTypeRange,
-		CharArrayOps.charcharToString(parameterTypes),
-		CharArrayOps.charcharToString(parameterNames), 
-		parameterRange, CharArrayOps.charcharToString(exceptionTypes), exceptionRange, bodyRange);
+	fNode = new DOMMethod(fDocument, sourceRange, CharOperation.charToString(name), nameRange, commentRange, modifiers, 
+		modifiersRange, isConstructor, CharOperation.charToString(returnType), returnTypeRange,
+		CharOperation.charArrayToStringArray(parameterTypes),
+		CharOperation.charArrayToStringArray(parameterNames), 
+		parameterRange, CharOperation.charArrayToStringArray(exceptionTypes), exceptionRange, bodyRange);
 	addChild(fNode);
 	fStack.push(fNode);
 }
@@ -470,8 +469,8 @@ public void enterField(int declarationStart, int[] javaDocPositions, int modifie
 		if (field.fTypeRange[0] == typeStart)
 			isVariableDeclarator = true;
 	}	
-	fNode = new DOMField(fDocument, sourceRange, CharArrayOps.charToString(name), nameRange, commentRange, 
-		modifiers, modifiersRange, typeRange, CharArrayOps.charToString(type), hasInitializer, 
+	fNode = new DOMField(fDocument, sourceRange, CharOperation.charToString(name), nameRange, commentRange, 
+		modifiers, modifiersRange, typeRange, CharOperation.charToString(type), hasInitializer, 
 		initializerRange, isVariableDeclarator);
 	addChild(fNode);
 	fStack.push(fNode);
@@ -596,7 +595,7 @@ protected void enterType(int declarationStart, int[] javaDocPositions,
 		int[] closeBodyRange = {-1, -1}; // will be fixed in exit		
 		fNode = new DOMType(fDocument, sourceRange, new String(name), nameRange, commentRange, 
 			modifiers, modifiersRange, typeKeywordRange, superclassRange, extendsKeywordRange, 
-			CharArrayOps.charcharToString(superinterfaces), interfacesRange,
+			CharOperation.charArrayToStringArray(superinterfaces), interfacesRange,
 			implementsKeywordRange, openBodyRange, 
 			closeBodyRange, isClass);
 		addChild(fNode);

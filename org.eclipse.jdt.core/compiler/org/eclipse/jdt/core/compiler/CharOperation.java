@@ -163,6 +163,37 @@ public final class CharOperation {
 		System.arraycopy(second, 0, result, length1, length2);
 		return result;
 	}
+	/**
+	 * Returns the char arrays as an array of Strings
+	 * 
+	 * @param charArrays the char array to convert
+	 * @return the char arrays as an array of Strings or null if the given char arrays is null.
+	 * @since 2.2
+	 */
+	public static String[] charArrayToStringArray(char[][] charArrays) {
+		if (charArrays == null) {
+			return null;
+		}
+		String[] strings= new String[charArrays.length];
+		for (int i= 0; i < charArrays.length; i++) {
+			strings[i]= new String(charArrays[i]);
+		}
+		return strings;
+	}
+	/**
+	 * Returns the char array as a String
+
+	 * @param charArray the char array to convert
+	 * @return the char array as a String or null if the given char array is null.
+	 * @since 2.2
+	 */
+	public static String charToString(char[] charArray) {
+		if (charArray == null) {
+			return null;
+		} else {
+			return new String(charArray);
+		}
+	}
 
 	/**
 	 * Answers a new array adding the second array at the end of first array.
@@ -1713,12 +1744,12 @@ public final class CharOperation {
 			return true; // null pattern is equivalent to '*'
 
 		// special case: pattern foo is equivalent to **\foo (not absolute)
-		boolean freeLeadingDoubleStar;
+		boolean freeLeadingDoubleStar= pattern[0] != pathSeparator;
 
 		// offsets inside pattern
 		int pSegmentStart, pLength = pattern.length;
 
-		if (freeLeadingDoubleStar = pattern[0] != pathSeparator){
+		if (freeLeadingDoubleStar){
 			pSegmentStart = 0;
 		} else {
 			pSegmentStart = 1;

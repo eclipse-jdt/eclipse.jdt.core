@@ -13,13 +13,12 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMType;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
-import org.eclipse.jdt.internal.core.util.CharArrayOps;
-
 /**
  * DOMCompilation unit provides an implementation of IDOMCompilationUnit.
  *
@@ -126,7 +125,7 @@ protected void initalizeHeader() {
 	if (child != null) {
 		int childStart = child.getStartPosition();
 		if (childStart > 1) {
-			setHeader(CharArrayOps.substring(fDocument, 0, childStart));
+			setHeader(new String(CharOperation.subarray(fDocument, 0, childStart)));
 		}
 	}
 }
