@@ -445,7 +445,10 @@ public class FlowContext implements TypeConstants {
 
 	public void recordSettingFinal(
 		VariableBinding variable,
-		Reference finalReference) {
+		Reference finalReference,
+		FlowInfo flowInfo) {
+
+		if (!flowInfo.isReachable()) return;
 
 		// for initialization inside looping statement that effectively loops
 		FlowContext context = this;

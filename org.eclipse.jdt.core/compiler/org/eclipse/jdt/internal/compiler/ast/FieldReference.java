@@ -82,7 +82,7 @@ public class FieldReference extends Reference implements InvocationSite {
 						binding,
 						this);
 				} else {
-					flowContext.recordSettingFinal(binding, this);
+					flowContext.recordSettingFinal(binding, this, flowInfo);
 				}
 				flowInfo.markAsDefinitelyAssigned(binding);
 			} else {

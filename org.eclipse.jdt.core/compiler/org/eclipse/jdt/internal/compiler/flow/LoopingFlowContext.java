@@ -109,6 +109,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	boolean recordFinalAssignment(
 		VariableBinding binding,
 		Reference finalAssignment) {
+
 		// do not consider variables which are defined inside this loop
 		if (binding instanceof LocalVariableBinding) {
 			Scope scope = ((LocalVariableBinding) binding).declaringScope;

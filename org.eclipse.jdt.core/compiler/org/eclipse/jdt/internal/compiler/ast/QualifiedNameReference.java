@@ -147,7 +147,7 @@ public class QualifiedNameReference extends NameReference {
 				if (flowInfo.isPotentiallyAssigned(lastFieldBinding)) {
 					currentScope.problemReporter().duplicateInitializationOfBlankFinalField(lastFieldBinding, this);
 				} else {
-					flowContext.recordSettingFinal(lastFieldBinding, this);
+					flowContext.recordSettingFinal(lastFieldBinding, this, flowInfo);
 				}
 				flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
 			} else {

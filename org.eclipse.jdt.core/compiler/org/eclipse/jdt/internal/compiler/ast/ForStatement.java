@@ -150,24 +150,14 @@ public class ForStatement extends Statement {
 			loopContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
 		}
 
-		// infinite loop
-		FlowInfo mergedInfo;
-		if (isConditionOptimizedTrue) {
-			mergedInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(
-					mergedInfo = loopingContext.initsOnBreak);
-			return mergedInfo;
-		}
-
-		//end of loop: either condition false or break
-		mergedInfo =
-			flowInfo.initsWhenFalse().unconditionalInits().mergedWith(
-				loopingContext.initsOnBreak.unconditionalInits());
-		if (isConditionOptimizedTrue && continueLabel == null){
-			mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
-		}
-		mergedInitStateIndex =
-			currentScope.methodScope().recordInitializationStates(mergedInfo);
+		//end of loop
+		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
+				loopingContext.initsOnBreak, 
+				isConditionOptimizedTrue, 
+				flowInfo.initsWhenFalse(), 
+				isConditionOptimizedFalse, 
+				!isConditionTrue /*for(;;){}while(true); unreachable(); */);
+		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 

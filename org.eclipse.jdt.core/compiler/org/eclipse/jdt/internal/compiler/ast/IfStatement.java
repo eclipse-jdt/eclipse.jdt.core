@@ -107,27 +107,13 @@ public class IfStatement extends Statement {
 		}
 
 		// merge THEN & ELSE initializations
-		FlowInfo mergedInfo;
-		if (isConditionOptimizedTrue){
-			if (thenFlowInfo != FlowInfo.DEAD_END) {
-				mergedInfo = thenFlowInfo.addPotentialInitializationsFrom(elseFlowInfo);
-			} else {
-				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
-			}
-
-		} else if (isConditionOptimizedFalse) {
-			if (elseFlowInfo != FlowInfo.DEAD_END) {
-				mergedInfo = elseFlowInfo.addPotentialInitializationsFrom(thenFlowInfo);
-			} else {
-				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
-			}
-
-		} else {
-			mergedInfo = thenFlowInfo.mergedWith(elseFlowInfo.unconditionalInits());
-		}
-
-		mergedInitStateIndex =
-			currentScope.methodScope().recordInitializationStates(mergedInfo);
+		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
+				thenFlowInfo, 
+				isConditionOptimizedTrue, 
+				elseFlowInfo, 
+				isConditionOptimizedFalse,
+				true /*if(true){ return; }  fake-reachable(); */);
+		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 

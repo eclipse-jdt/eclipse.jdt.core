@@ -76,7 +76,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						if (flowInfo.isPotentiallyAssigned(fieldBinding)) {
 							currentScope.problemReporter().duplicateInitializationOfBlankFinalField(fieldBinding, this);
 						} else {
-							flowContext.recordSettingFinal(fieldBinding, this);						
+							flowContext.recordSettingFinal(fieldBinding, this, flowInfo);						
 						}
 						flowInfo.markAsDefinitelyAssigned(fieldBinding);
 					} else {
@@ -99,7 +99,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						} else if (flowInfo.isPotentiallyAssigned(localBinding)) {
 							currentScope.problemReporter().duplicateInitializationOfFinalLocal(localBinding, this);
 						} else {
-							flowContext.recordSettingFinal(localBinding, this);								
+							flowContext.recordSettingFinal(localBinding, this, flowInfo);								
 						}
 					} else {
 						currentScope.problemReporter().cannotAssignToFinalOuterLocal(localBinding, this);

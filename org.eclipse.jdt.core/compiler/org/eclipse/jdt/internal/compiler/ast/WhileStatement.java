@@ -116,24 +116,14 @@ public class WhileStatement extends Statement {
 			}
 		}
 
-		// infinite loop
-		FlowInfo mergedInfo;
-		if (isConditionOptimizedTrue) {
-			mergedInitStateIndex =
-				currentScope.methodScope().recordInitializationStates(
-					mergedInfo = loopingContext.initsOnBreak);
-			return mergedInfo;
-		}
-
-		// end of loop: either condition false or break
-		mergedInfo =
-			postCondInfo.initsWhenFalse().unconditionalInits().mergedWith(
-				loopingContext.initsOnBreak);
-		if (isConditionOptimizedTrue && continueLabel == null){
-			mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
-		}
-		mergedInitStateIndex =
-			currentScope.methodScope().recordInitializationStates(mergedInfo);
+		// end of loop
+		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
+				loopingContext.initsOnBreak, 
+				isConditionOptimizedTrue, 
+				postCondInfo.initsWhenFalse(), 
+				isConditionOptimizedFalse,
+				!isConditionTrue /*while(true); unreachable(); */);
+		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 

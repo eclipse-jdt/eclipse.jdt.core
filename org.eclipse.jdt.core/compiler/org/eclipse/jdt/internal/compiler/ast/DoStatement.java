@@ -85,25 +85,14 @@ public class DoStatement extends Statement {
 			loopingContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
 		}
 
-		// infinite loop
-		FlowInfo mergedInfo;
-		if (isConditionTrue) {
-			mergedInfo = loopingContext.initsOnBreak;
-			/* according to 16.2.10, potential initializations are to be considered in any case
-			if (!mergedInfo.isReachable()) mergedInfo.addPotentialInitializationsFrom(flowInfo.initsWhenFalse());
-			 */
-			mergedInfo.addPotentialInitializationsFrom(flowInfo.initsWhenFalse());
-		} else {
-			// end of loop: either condition false or break
-			mergedInfo =
-				flowInfo.initsWhenFalse().unconditionalInits().mergedWith(
-					loopingContext.initsOnBreak);
-			if (isConditionOptimizedTrue && !loopingContext.initsOnBreak.isReachable()) {
-				mergedInfo.setReachMode(FlowInfo.UNREACHABLE);
-			}
-		}
-		mergedInitStateIndex =
-			currentScope.methodScope().recordInitializationStates(mergedInfo);
+		// end of loop
+		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
+				loopingContext.initsOnBreak, 
+				isConditionOptimizedTrue, 
+				flowInfo.initsWhenFalse(), 
+				isConditionOptimizedFalse, 
+				!isConditionTrue /*do{}while(true); unreachable(); */);
+		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 
