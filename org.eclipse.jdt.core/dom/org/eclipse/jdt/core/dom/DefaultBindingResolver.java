@@ -181,7 +181,11 @@ class DefaultBindingResolver extends BindingResolver {
 		if (index != 0) {
 			node = (AstNode) this.newAstToOldAst.get(arrayType);
 		} else {
-			node = (AstNode) this.newAstToOldAst.get(type);
+			if (parentType instanceof ArrayCreation) {
+				node = (AstNode) this.newAstToOldAst.get(parentType);
+			} else {
+				node = (AstNode) this.newAstToOldAst.get(type);
+			}
 		}
 		if (node != null) {
 			if (node instanceof TypeReference) {
@@ -254,6 +258,9 @@ class DefaultBindingResolver extends BindingResolver {
 					// it should be a type reference
 					return null;
 				}
+			} else if (node instanceof ArrayAllocationExpression) {
+				ArrayAllocationExpression arrayAllocationExpression = (ArrayAllocationExpression) node;
+				return this.getTypeBinding(arrayAllocationExpression.arrayTb);
 			}
 		}
 		return null;
