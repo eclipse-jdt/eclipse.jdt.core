@@ -67,7 +67,8 @@ public IImportDeclaration getImport(String importName) {
 	int index = importName.indexOf(".*"); ///$NON-NLS-1$
 	boolean isOnDemand = index != -1;
 	if (isOnDemand)
-		importName = importName.substring(0, index);
+		// make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
+		importName = new String(importName.substring(0, index));
 	return new ImportDeclaration(this, importName, isOnDemand);
 }
 /*

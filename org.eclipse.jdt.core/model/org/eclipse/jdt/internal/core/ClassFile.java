@@ -60,7 +60,9 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
  */
 protected ClassFile(PackageFragment parent, String name) {
 	super(parent);
-	this.name = name;
+	// don't hold on the .class file extension to save memory
+	// also make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
+	this.name = new String(name); 
 	this.checkAutomaticSourceMapping = false;
 }
 
