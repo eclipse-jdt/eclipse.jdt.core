@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.internal.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.core.*;
@@ -217,7 +218,14 @@ protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags
 			if(((packageName == null || packageName.length == 0) && wc.getPackageDeclarations().length == 0) ||
 				(!(packageName == null || packageName.length == 0) && wc.getPackageDeclaration(new String(packageName)).exists())) {
 					
-				type = wc.getType(new String(typeName));
+				char[][] compoundName = CharOperation.splitOn('.', typeName);
+				if(compoundName.length > 0) {
+					type = wc.getType(new String(compoundName[0]));
+					for (int i = 1, length = compoundName.length; i < length; i++) {
+						type = type.getType(new String(compoundName[i]));
+					}
+				}
+				
 				if(!type.exists()) {
 					type = null;
 				}
