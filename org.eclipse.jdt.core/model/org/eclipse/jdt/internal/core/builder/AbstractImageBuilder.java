@@ -67,7 +67,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	IPath outputPath = outputFolder.getFullPath();
 	int index = sourceFolders.length;
 	if (index == 0) {
-		// handle case of the last source folder is removed... so no source folders exist but the output folder must still be scrubbed
+		// handle case of the last source folder is removed... so no source folders exist but the output folder must still be cleaned
 		this.hasSeparateOutputFolder = !outputPath.equals(javaBuilder.currentProject.getFullPath());
 	} else {
 		this.hasSeparateOutputFolder = true;

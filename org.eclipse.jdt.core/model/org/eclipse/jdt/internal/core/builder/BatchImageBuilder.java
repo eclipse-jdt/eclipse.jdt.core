@@ -28,9 +28,9 @@ public void build() {
 		System.out.println("FULL build"); //$NON-NLS-1$
 
 	try {
-		notifier.subTask(Util.bind("build.scrubbingOutput")); //$NON-NLS-1$
+		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
 		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
-		scrubOutputFolder();
+		cleanOutputFolder();
 		notifier.updateProgressDelta(0.1f);
 
 		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
@@ -78,7 +78,7 @@ protected void addAllSourceFiles(final ArrayList locations, final ArrayList type
 	}
 }
 
-protected void scrubOutputFolder() throws CoreException {
+protected void cleanOutputFolder() throws CoreException {
 	if (hasSeparateOutputFolder) {
 		// outputPath is not on the class path so wipe it clean then copy extra resources back
 		IResource[] members = outputFolder.members(); 

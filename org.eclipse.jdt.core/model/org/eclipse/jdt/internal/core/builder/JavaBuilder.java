@@ -488,7 +488,7 @@ private boolean isWorthBuilding() throws CoreException {
 		// remove all existing class files... causes all dependent projects to do the same
 		// only if the .classpath file could be read
 		if (classpath != JavaProject.INVALID_CLASSPATH) {
-			new BatchImageBuilder(this).scrubOutputFolder();
+			new BatchImageBuilder(this).cleanOutputFolder();
 		}
 
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
@@ -519,7 +519,7 @@ private boolean isWorthBuilding() throws CoreException {
 			// remove all existing class files... causes all dependent projects to do the same
 			// only if the .classpath file could be read
 			if (prereqProject.getRawClasspath() != JavaProject.INVALID_CLASSPATH) {
-				new BatchImageBuilder(this).scrubOutputFolder();
+				new BatchImageBuilder(this).cleanOutputFolder();
 			}
 
 			removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
