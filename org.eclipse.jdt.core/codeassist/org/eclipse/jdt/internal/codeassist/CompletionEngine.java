@@ -194,6 +194,7 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 		
+		boolean isQualified = true;
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
 		if (resolvingImports) {
@@ -207,12 +208,14 @@ public final class CompletionEngine
 							return; // ignore types from the default package from outside it
 				} else {
 					completionName = className;
+					isQualified = false;
 				}
 			}
 			relevance += computeRelevanceForCaseMatching(token, className);
 			relevance += computeRelevanceForExpectingType(packageName, className);
 			relevance += computeRelevanceForClass();
 			relevance += computeRelevanceForException(className);
+			relevance += computeRelevanceForQualification(isQualified);
 		}
 
 		requestor.acceptClass(
@@ -245,8 +248,9 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 
+		boolean isQualified = true;
 		int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForInterestingProposal();
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 			relevance += computeRelevanceForCaseMatching(token, fullyQualifiedName);
@@ -258,11 +262,13 @@ public final class CompletionEngine
 							return; // ignore types from the default package from outside it
 				} else {
 					completionName = interfaceName;
+					isQualified = false;
 				}
 			}
 			relevance += computeRelevanceForCaseMatching(token, interfaceName);
 			relevance += computeRelevanceForExpectingType(packageName, interfaceName);
 			relevance += computeRelevanceForInterface();
+			relevance += computeRelevanceForQualification(isQualified);
 		}
 		
 		requestor.acceptInterface(
@@ -319,6 +325,7 @@ public final class CompletionEngine
 
 		this.knownTypes.put(completionName, this);
 
+		boolean isQualified = true;
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
 		if (resolvingImports) {
@@ -332,10 +339,12 @@ public final class CompletionEngine
 							return; // ignore types from the default package from outside it
 				} else {
 					completionName = typeName;
+					isQualified = false;
 				}
 			}
 			relevance += computeRelevanceForCaseMatching(token, typeName);
 			relevance += computeRelevanceForExpectingType(packageName, typeName);
+			relevance += computeRelevanceForQualification(isQualified);
 		}
 		
 		requestor.acceptType(
