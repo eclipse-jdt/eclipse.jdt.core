@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.compiler.util;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.io.*;
 
 public class Util {
 	/* Bundle containing messages */
@@ -85,6 +86,94 @@ public static String bind(String id) {
  */
 public static void relocalize() {
 	bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+}
+/**
+ * Returns the given bytes as a char array.
+ */
+public static char[] bytesToChar(byte[] bytes) throws IOException {
+
+	return getInputStreamAsCharArray(new ByteArrayInputStream(bytes));
+
+}
+/**
+ * Returns the given input stream's contents as a byte array.
+ * Closes the stream before returning;
+ * @throws IOException if a problem occured reading the stream.
+ */
+public static byte[] getInputStreamAsByteArray(InputStream stream) throws IOException {
+	byte[] contents = new byte[0];
+	try {
+		int contentsLength = 0;
+		int bytesRead = -1;
+		do {
+			int available= stream.available();
+			
+			// resize contents if needed
+			if (contentsLength + available > contents.length) {
+				System.arraycopy(contents, 0, contents = new byte[contentsLength + available], 0, contentsLength);
+			}
+
+			// read as many bytes as possible
+			bytesRead = stream.read(contents, contentsLength, available);
+			
+			if (bytesRead > 0) {
+				// remember length of contents
+				contentsLength += bytesRead;
+			}
+		} while (bytesRead > 0);
+		
+		// resize contents if necessary
+		if (contentsLength < contents.length) {
+			System.arraycopy(contents, 0, contents = new byte[contentsLength], 0, contentsLength);
+		}
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
+	}
+	return contents;
+}
+/**
+ * Returns the given input stream's contents as a character array.
+ * Closes the stream before returning;
+ * @throws IOException if a problem occured reading the stream.
+ */
+public static char[] getInputStreamAsCharArray(InputStream stream) throws IOException {
+	InputStreamReader reader= null;
+	reader= new InputStreamReader(stream);
+	char[] contents = new char[0];
+	try {
+		int contentsLength = 0;
+		int charsRead = -1;
+		do {
+			int available= stream.available();
+			
+			// resize contents if needed
+			if (contentsLength + available > contents.length) {
+				System.arraycopy(contents, 0, contents = new char[contentsLength + available], 0, contentsLength);
+			}
+
+			// read as many chars as possible
+			charsRead = reader.read(contents, contentsLength, available);
+			
+			if (charsRead > 0) {
+				// remember length of contents
+				contentsLength += charsRead;
+			}
+		} while (charsRead > 0);
+		
+		// resize contents if necessary
+		if (contentsLength < contents.length) {
+			System.arraycopy(contents, 0, contents = new char[contentsLength], 0, contentsLength);
+		}
+	} finally {
+		try {
+			reader.close();
+		} catch (IOException e) {
+		}
+	}
+	return contents;
 }
 public static void main(String[] arg){
 	System.out.println(bind("test")); //$NON-NLS-1$

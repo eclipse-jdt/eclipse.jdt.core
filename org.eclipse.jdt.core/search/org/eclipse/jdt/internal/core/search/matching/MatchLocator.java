@@ -104,7 +104,7 @@ public class MatchLocator implements ITypeRequestor {
 			IType type = elementInfo.getHandle();
 			try {
 				final IFile file = (IFile) type.getUnderlyingResource();
-				final char[] source = PotentialMatch.getContents(file);
+				final char[] source = Util.getResourceContentsAsCharArray(file);
 
 				// get main type name
 				final String fileName = file.getFullPath().lastSegment();

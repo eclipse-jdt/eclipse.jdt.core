@@ -92,45 +92,17 @@ private void buildTypeBindings(final char[] source) {
 		this.locator.parsedUnits.put(qualifiedName, null);
 	}
 }
-public static char[] getContents(IFile file) {
-	BufferedInputStream input = null;
-	try {
-		input = new BufferedInputStream(file.getContents(true));
-		StringBuffer buffer= new StringBuffer();
-		int nextChar = input.read();
-		while (nextChar != -1) {
-			buffer.append( (char)nextChar );
-			nextChar = input.read();
-		}
-		int length = buffer.length();
-		char[] result = new char[length];
-		buffer.getChars(0, length, result, 0);
-		return result;
-	} catch (IOException e) {
-		return null;
-	} catch (CoreException e) {
-		return null;
-	} finally {
-		if (input != null) {
-			try {
-				input.close();
-			} catch (IOException e) {
-				// nothing can be done if the file cannot be closed
-			}
-		}
-	}
-}
 public char[] getSource() {
-	if (this.openable instanceof CompilationUnit) {
-		return getContents((IFile)this.resource);
-	} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
-		try {
+	try {
+		if (this.openable instanceof CompilationUnit) {
+			return Util.getResourceContentsAsCharArray((IFile)this.resource);
+		} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
+			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
 			return classFile.getSource().toCharArray();
-		} catch (JavaModelException e) {
+		} else {
 			return null;
 		}
-	} else {
+	} catch (JavaModelException e) {
 		return null;
 	}
 }

@@ -7,19 +7,22 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.resources.*;
+
+import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.Util;
+
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
-
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
-
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 /**
  * A SourceMapper maps source code in a ZIP file to binary types in
@@ -480,8 +483,8 @@ public class SourceMapper
 				byte[] bytes = readEntry(zip, entry);
 				if (bytes != null) {
 					try {
-						source = BufferManager.bytesToChar(bytes);
-					} catch (JavaModelException e) {
+						source = Util.bytesToChar(bytes);
+					} catch (IOException e) {
 						source = null;
 					}
 				}

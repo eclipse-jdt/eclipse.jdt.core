@@ -4,6 +4,11 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
@@ -391,6 +396,38 @@ public static int getParameterCount(char[] sig) {
 			}
 	}
 	return count;
+}
+/**
+ * Returns the given file's contents as a byte array.
+ */
+public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModelException {
+	InputStream stream= null;
+	try {
+		stream = file.getContents(true);
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
+	}
+	try {
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
+	} catch (IOException e) {
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	}
+}
+/**
+ * Returns the given file's contents as a character array.
+ */
+public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
+	InputStream stream= null;
+	try {
+		stream = file.getContents(true);
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
+	}
+	try {
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream);
+	} catch (IOException e) {
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	}
 }
 	/**
 	 * Returns true if the given method signature is valid,

@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.internal.core.Util;
 
 import java.io.*;
 import java.util.*;
@@ -168,8 +169,7 @@ private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 			throw new JavaModelException(e);
 		}
 	} else {
-		byte[] contents = null;
-		contents = BufferManager.getResourceContentsAsBytes(file);
+		byte[] contents = Util.getResourceContentsAsByteArray(file);
 		try {
 			return new ClassFileReader(contents, getElementName().toCharArray());
 		} catch (ClassFormatException cfe) {
