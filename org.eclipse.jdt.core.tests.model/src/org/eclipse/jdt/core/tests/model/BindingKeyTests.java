@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.Signature;
 
 import junit.framework.Test;
 
@@ -251,6 +252,36 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		String key = BindingKey.createArrayTypeBindingKey("I", 2);
 		assertBindingKeyEquals(
 			"[[I",
+			key);
+	}
+
+	/*
+	 * Create a wildcard type binding key
+	 */
+	public void test022() {
+		String key = BindingKey.createWilcardTypeBindingKey(null, Signature.C_STAR);
+		assertBindingKeyEquals(
+			"*",
+			key);
+	}
+
+	/*
+	 * Create a wildcard type binding key
+	 */
+	public void test023() {
+		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/List;", Signature.C_SUPER);
+		assertBindingKeyEquals(
+			"-Ljava/util/List;",
+			key);
+	}
+
+	/*
+	 * Create a wildcard type binding key
+	 */
+	public void test024() {
+		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/List;", Signature.C_EXTENDS);
+		assertBindingKeyEquals(
+			"+Ljava/util/List;",
 			key);
 	}
 }

@@ -52,6 +52,7 @@ What's new in this drop</h2>
 <li>Added API to create a binding key from a type name: <code>BindingKey#createTypeBindingKey(String typeName)</code>.</li>
 <li>Added API to create a parameterized or raw type binding key from a generic type binding key and argument type binding keys:
     <code>BindingKey#createParameterizedTypeBindingKey(String genericTypeKey, String[] argumentTypeKeys)</code>.</li>
+<li>Added API to create a wildcard binding key from a type key and wildcard kind: <code>BindingKey#createWildcardTypeBindingKey(String typeKey, char kind)</code></li>
 <li>Added API to query whether a field is an enum constant: <code>IField#isEnumConstant()</code></li>
 <li>Added API to code assist for access rule management.
 <ul>

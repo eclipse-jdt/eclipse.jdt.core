@@ -112,6 +112,38 @@ public class BindingKey {
 	}
 	
 	/**
+	 * Creates a new wildcard type binding key from the given type binding key and the given wildcard kind
+	 * (one of {@link Signature#C_STAR}, {@link Signature#C_SUPER}, or {@link Signature#C_EXTENDS}.
+	 * If the wildcard is {@link Signature#C_STAR}, the given type binding key is ignored.
+	 * <p>
+	 * For example:
+	 * <pre>
+	 * <code>
+	 * createWilcardTypeBindingKey(null, Signature.C_STAR) -> "*"
+	 * createWilcardTypeBindingKey("Ljava/util/List;", Signature.C_SUPER) -> "-Ljava/util/List;"
+	 * createWilcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_EXTENDS) -> "+Ljava/util/ArrayList;"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param typeKey the binding key of the given type
+	 * @param kind one of {@link Signature#C_STAR}, {@link Signature#C_SUPER}, or {@link Signature#C_EXTENDS}
+	 * @return a new wildcard type binding key
+	 */
+	public static String createWilcardTypeBindingKey(String typeKey, char kind) {
+		// Note this implementation is heavily dependent on WildcardBinding#computeUniqueKey() 
+		switch (kind) {
+			case Signature.C_STAR:
+				return "*"; //$NON-NLS-1$
+			case Signature.C_SUPER:
+				return '-' + typeKey;
+			case Signature.C_EXTENDS:
+				return '+' + typeKey;
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns the declaring type signature of the element represented by this binding key.
 	 * Returns the signature of the element if it is a type.
 	 * 
