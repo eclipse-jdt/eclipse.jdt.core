@@ -58,7 +58,7 @@ public class JavaModelManager implements ISaveParticipant {
 	public static HashSet OptionNames = new HashSet(20);
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
-	public final static String CP_ENTRY_IGNORE = " ##<cp entry ignore>## "; //$NON-NLS-1$
+	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
 		
 	/**
 	 * Classpath containers pool
@@ -527,18 +527,19 @@ public class JavaModelManager implements ISaveParticipant {
 
 			String propertyName = event.getProperty();
 			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
-				// update path cache
 				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
 				String newValue = (String)event.getNewValue();
-				if (newValue == null || newValue.equals(CP_ENTRY_IGNORE)) {
-					Variables.remove(varName);
-				} else {
+				if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
 					Variables.put(varName, new Path(newValue));
+				} else {
+					Variables.remove(varName);
 				}
 			}
 			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
-				// update path cache
-				recreatePersistedContainer(propertyName, ((String)event.getNewValue()).trim(), false);
+				String newValue = (String)event.getNewValue();
+				if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
+					recreatePersistedContainer(propertyName, newValue, false);
+				}
 			}
 		}
 	}
