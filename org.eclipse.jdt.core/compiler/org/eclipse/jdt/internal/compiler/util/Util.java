@@ -17,6 +17,10 @@ public class Util {
 	public final static char[] SUFFIX_CLASS = ".CLASS".toCharArray(); //$NON-NLS-1$
 	public final static char[] SUFFIX_java = ".java".toCharArray(); //$NON-NLS-1$
 	public final static char[] SUFFIX_JAVA = ".JAVA".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_jar = ".jar".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_JAR = ".JAR".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_zip = ".zip".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_ZIP = ".ZIP".toCharArray(); //$NON-NLS-1$
 		
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
@@ -295,6 +299,34 @@ public class Util {
 			}
 		}
 	}
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(".jar") || str.toLowerCase().endsWith(".zip")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isArchiveFileName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_JAR.length;
+		if (nameLength < suffixLength) return false;
+
+		// try to match as JAR file
+		for (int i = 0; i < suffixLength; i++) {
+			char c = name.charAt(nameLength - i - 1);
+			int suffixIndex = suffixLength - i - 1;
+			if (c != SUFFIX_jar[suffixIndex] && c != SUFFIX_JAR[suffixIndex]) {
+
+				// try to match as ZIP file
+				suffixLength = SUFFIX_ZIP.length;
+				if (nameLength < suffixLength) return false;
+				for (int j = 0; j < suffixLength; j++) {
+					c = name.charAt(nameLength - j - 1);
+					suffixIndex = suffixLength - j - 1;
+					if (c != SUFFIX_zip[suffixIndex] && c != SUFFIX_ZIP[suffixIndex]) return false;
+				}
+				return true;
+			}
+		}
+		return true;		
+	}	
 	/**
 	 * Returns true iff str.toLowerCase().endsWith(".class")
 	 * implementation is not creating extra strings.
