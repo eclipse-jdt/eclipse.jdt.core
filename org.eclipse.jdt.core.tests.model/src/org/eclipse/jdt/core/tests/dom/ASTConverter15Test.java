@@ -1738,5 +1738,39 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = type.resolveBinding();
 		assertEquals("Wrong qualified name", "java.util.List<? extends test0064.X>", typeBinding.getQualifiedName());				
 	}
+	
+/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
+	 */
+	public void test0065() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0065", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Wrong node", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertEquals("Wrong qualified name", "test0065.X<T,U>", typeBinding.getQualifiedName());
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Wrong node", ASTNode.RETURN_STATEMENT, node.getNodeType());
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		typeBinding = expression.resolveTypeBinding();
+		assertTrue("Not parameterized", typeBinding.isParameterizedType());
+		assertEquals("Wrong qualified name", "test0065.X<java.lang.String,java.util.List>", typeBinding.getQualifiedName());		
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = declaration.getType();
+		typeBinding = type.resolveBinding();
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0065.X>", typeBinding.getQualifiedName());				
+	}
 }
 
