@@ -101,6 +101,7 @@ public void testSuggestFieldName002() throws CoreException {
 		CharOperation.NO_CHAR_CHAR);
 	
 	assertEquals(
+		"class1\n" + //$NON-NLS-1$
 		"oneClass", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -304,6 +305,58 @@ public void testSuggestFieldName012() throws CoreException {
 	assertEquals(
 		"bar2\n" + //$NON-NLS-1$
 		"fooBar", //$NON-NLS-1$
+		toString(suggestions));
+}
+public void testSuggestFieldName013() throws CoreException {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"java.lang".toCharArray(), //$NON-NLS-1$
+		"Class".toCharArray(), //$NON-NLS-1$
+		0,
+		0,
+		CharOperation.NO_CHAR_CHAR);
+	
+	assertEquals(
+		"class1",//$NON-NLS-1$
+		toString(suggestions));
+}
+public void testSuggestFieldName014() throws CoreException {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"java.lang".toCharArray(), //$NON-NLS-1$
+		"Class".toCharArray(), //$NON-NLS-1$
+		0,
+		0,
+		new char[][]{"class1".toCharArray()}); //$NON-NLS-1$
+	
+	assertEquals(
+		"class2",//$NON-NLS-1$
+		toString(suggestions));
+}
+public void testSuggestFieldName015() throws CoreException {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"".toCharArray(), //$NON-NLS-1$
+		"#".toCharArray(), //$NON-NLS-1$
+		0,
+		0,
+		CharOperation.NO_CHAR_CHAR);
+	
+	assertEquals(
+		"name",//$NON-NLS-1$
+		toString(suggestions));
+}
+public void testSuggestFieldName016() throws CoreException {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"".toCharArray(), //$NON-NLS-1$
+		"#".toCharArray(), //$NON-NLS-1$
+		0,
+		0,
+		new char[][]{"name".toCharArray()}); //$NON-NLS-1$
+	
+	assertEquals(
+		"name2",//$NON-NLS-1$
 		toString(suggestions));
 }
 public void testRemovePrefixAndSuffixForFieldName001() throws CoreException {

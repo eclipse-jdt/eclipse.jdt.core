@@ -2601,6 +2601,7 @@ public void testCompletionVariableName1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
+		"element:class1    completion:class1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
 		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
@@ -2618,6 +2619,7 @@ public void testCompletionVariableName2() throws JavaModelException {
 
 	assertEquals(
 		"element:bar_MyClass    completion:bar_MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
+		"element:class1    completion:class1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
 		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n" +
 		"element:test_Bar_MyClass    completion:test_Bar_MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());

@@ -29,6 +29,8 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * @since 2.1
  */
 public final class NamingConventions {
+	private static final char[] DEFAULT_NAME = "name".toCharArray(); //$NON-NLS-1$
+	
 	private static final char[] GETTER_BOOL_NAME = "is".toCharArray(); //$NON-NLS-1$
 	private static final char[] GETTER_NAME = "get".toCharArray(); //$NON-NLS-1$
 	private static final char[] SETTER_NAME = "set".toCharArray(); //$NON-NLS-1$
@@ -442,22 +444,31 @@ public final class NamingConventions {
 				char[] prefixName = CharOperation.concat(prefixes[j], tempName);
 				for (int k = 0; k < suffixes.length; k++) {
 					char[] suffixName = CharOperation.concat(prefixName, suffixes[k]);
-					int count = 2;
-					int m = 0;
-					while (m < excludedNames.length) {
-						if(CharOperation.equals(suffixName, excludedNames[m], false)) {
-							suffixName = CharOperation.concat(
-								prefixName,
-								String.valueOf(count++).toCharArray(),
-								suffixes[k]
-							);
-							m = 0;
-						} else {
-							m++;
-						}
-					}
+					int count;
+					int m;
+					suffixName =
+						excludeNames(
+							suffixName,
+							prefixName,
+							suffixes[k],
+							excludedNames);
 					if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
 						names[namesCount++] = suffixName;
+					} else {
+						suffixName = CharOperation.concat(
+							prefixName,
+							String.valueOf(1).toCharArray(),
+							suffixes[k]
+						);
+						suffixName =
+							excludeNames(
+								suffixName,
+								prefixName,
+								suffixes[k],
+								excludedNames);
+						if(JavaConventions.validateFieldName(new String(suffixName)).isOK()) {
+							names[namesCount++] = suffixName;
+						}
 					}
 					if(namesCount == names.length) {
 						System.arraycopy(names, 0, names = new char[namesCount * 2][], 0, namesCount);
@@ -467,6 +478,11 @@ public final class NamingConventions {
 			}
 		}
 		System.arraycopy(names, 0, names = new char[namesCount][], 0, namesCount);
+		
+		// if no names were found
+		if(names.length == 0) {
+			names = new char[][]{excludeNames(DEFAULT_NAME, DEFAULT_NAME, CharOperation.NO_CHAR, excludedNames)};
+		}
 		return names;
 	}
 	
@@ -605,5 +621,27 @@ public final class NamingConventions {
 			}
 		}
 		return c;
+	}
+	
+	private static char[] excludeNames(
+		char[] suffixName,
+		char[] prefixName,
+		char[] suffix,
+		char[][] excludedNames) {
+		int count = 2;
+		int m = 0;
+		while (m < excludedNames.length) {
+			if(CharOperation.equals(suffixName, excludedNames[m], false)) {
+				suffixName = CharOperation.concat(
+					prefixName,
+					String.valueOf(count++).toCharArray(),
+					suffix
+				);
+				m = 0;
+			} else {
+				m++;
+			}
+		}
+		return suffixName;
 	}
 }
