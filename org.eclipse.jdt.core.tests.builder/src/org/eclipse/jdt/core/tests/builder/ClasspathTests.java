@@ -63,7 +63,7 @@ public class ClasspathTests extends Tests {
 		expectingOnlySpecificProblemsFor(project3Path,
 			new Problem[] {
 				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project3Path), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Missing required library: '/CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Missing required library: 'CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -85,7 +85,7 @@ public class ClasspathTests extends Tests {
 			new Problem("Build path", "Missing required Java project: CP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 		expectingOnlySpecificProblemFor(project3Path,
-			new Problem("Build path", "Missing required library: '/CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Missing required library: 'CP1/temp.jar'.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
 		env.openProject(project1Path);
