@@ -1,5 +1,4 @@
 package test0197;
-import java.util.*;
 import java.io.File;
 class A {
 	public File getFile() {

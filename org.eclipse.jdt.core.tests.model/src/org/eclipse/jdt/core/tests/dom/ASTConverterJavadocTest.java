@@ -1959,7 +1959,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String [] unbound = { "tho",
 				"from",
 				"A#getList(int,long,boolean)",
-				"#getList(Object,java.util.ArrayList)",
+				"#getList(Object,java.util.AbstractList)",
 				"from",
 				"#getList(int from,long tho)",
 				"to"
