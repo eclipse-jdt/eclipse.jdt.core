@@ -112,6 +112,7 @@ public static Test suite() {
 	
 	// packages
 	suite.addTest(new JavaElementDeltaTests("testAddPackageSourceIsBin"));
+	suite.addTest(new JavaElementDeltaTests("testRenameOuterPkgFragment"));
 	
 	// compilation units
 	suite.addTest(new JavaElementDeltaTests("testAddCuInDefaultPkg1"));
@@ -1039,6 +1040,7 @@ public void testOverwriteClasspath() throws CoreException {
 	}
 }
 
+
 /*
  * Remove the java nature of an existing java project.
  */
@@ -1213,6 +1215,33 @@ public void testRenameMethodAndSave() throws CoreException {
 		if (workingCopy != null) {
 			workingCopy.destroy();
 		}
+		this.deleteProject("P");
+	}
+}
+/*
+ * Rename an outer pkg fragment.
+ * (regression test for bug 24685 Inner package fragments gets deleted - model out of synch)
+ */
+public void testRenameOuterPkgFragment() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.createFolder("P/x/y");
+		this.createFile(
+			"P/x/y/X.java",
+			"package x.y;\n" +
+			"public class X {\n" +
+			"}");
+		this.startDeltas();
+		IPackageFragment pkg = getPackageFragment("P", "", "x");
+		pkg.rename("z", false, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		z[+]: {}"
+		);
+	} finally {
+		this.stopDeltas();
 		this.deleteProject("P");
 	}
 }

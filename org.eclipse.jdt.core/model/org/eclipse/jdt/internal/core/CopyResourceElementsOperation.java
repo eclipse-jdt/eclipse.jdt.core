@@ -184,9 +184,9 @@ public class CopyResourceElementsOperation extends MultiOperation {
 	 * If the operation is rooted in a single project, the delta is rooted in that project
 	 * 	 
 	 */
-	protected void prepareDeltas(IJavaElement sourceElement, IJavaElement destinationElement) {
+	protected void prepareDeltas(IJavaElement sourceElement, IJavaElement destinationElement, boolean isMove) {
 		IJavaProject destProject = destinationElement.getJavaProject();
-		if (isMove()) {
+		if (isMove) {
 			IJavaProject sourceProject = sourceElement.getJavaProject();
 			getDeltaFor(sourceProject).movedFrom(sourceElement, destinationElement);
 			getDeltaFor(destProject).movedTo(destinationElement, sourceElement);
@@ -254,14 +254,14 @@ public class CopyResourceElementsOperation extends MultiOperation {
 		
 			// register the correct change deltas
 			ICompilationUnit destCU = dest.getCompilationUnit(destName);
-			prepareDeltas(source, destCU);
+			prepareDeltas(source, destCU, isMove());
 			if (newCUName != null) {
 				//the main type has been renamed
 				String oldName = source.getElementName();
 				oldName = oldName.substring(0, oldName.length() - 5);
 				String newName = newCUName;
 				newName = newName.substring(0, newName.length() - 5);
-				prepareDeltas(source.getType(oldName), destCU.getType(newName));
+				prepareDeltas(source.getType(oldName), destCU.getType(newName), isMove());
 			}
 		} else {
 			if (!fForce) {
@@ -408,13 +408,10 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			}
 	
 			// Discard empty old package (if still empty after the rename)
+			boolean isEmpty = true;
 			if (isMove()) {
 				// delete remaining files in this package (.class file in the case where Proj=src=bin)
-				boolean isEmpty;
-				if (!srcFolder.exists()) {
-					isEmpty = true;
-				} else {
-					isEmpty = true;
+				if (srcFolder.exists()) {
 					IResource[] remaingFiles = srcFolder.members();
 					for (int i = 0, length = remaingFiles.length; i < length; i++) {
 						IResource file = remaingFiles[i];
@@ -460,7 +457,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			}
 	
 			//register the correct change deltas
-			prepareDeltas(source, newFrag);
+			prepareDeltas(source, newFrag, isMove() && isEmpty);
 		} catch (DOMException dom) {
 			throw new JavaModelException(dom, IJavaModelStatusConstants.DOM_EXCEPTION);
 		} catch (JavaModelException e) {
