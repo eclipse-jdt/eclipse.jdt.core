@@ -124,9 +124,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		| StaticAccessReceiver
 		| NoEffectAssignment
 		| IncompatibleNonInheritedInterfaceMethod
-		| LocalVariableHiding
-		| FieldHiding
-		| AccidentalBooleanAssign
 		| NoImplicitStringConversion;
 
 	// Debug attributes

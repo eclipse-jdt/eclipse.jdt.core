@@ -1274,7 +1274,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			CompilerOptions.DISABLED);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-			CompilerOptions.WARNING);
+			CompilerOptions.IGNORE);
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportNoEffectAssignment,
 			CompilerOptions.WARNING);

@@ -1346,7 +1346,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    of a control statement  (where it probably was meant to be a boolean comparison).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "warning"
+	 *     - default:           "ignore"
 	 *
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
@@ -1952,7 +1952,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		preferences.setDefault(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD, DISABLED);
 		optionNames.add(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD);
 
-		preferences.setDefault(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT, WARNING);
+		preferences.setDefault(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT, IGNORE);
 		optionNames.add(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT);
 
 		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); 
