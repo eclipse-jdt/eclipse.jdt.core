@@ -298,24 +298,6 @@ public class GetSourceTests extends ModifyingResourceTests {
 			deleteFile("/P/p/Y.java");
 		}
 	}
-
-	/*
-	 * Verify fix for bug 73884: [1.5] Unexpected error for class implementing generic interface
-	 * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=73884)
-	 */
-	public void testTypeParameterBug73884() throws CoreException {
-		try {
-			String cuSource = 
-				"package p;\n" +
-				"public interface I<T> {\n" +
-				"}";
-			createFile("/P/p/I.java", cuSource);
-			ITypeParameter[] typeParameters = getCompilationUnit("/P/p/I.java").getType("I").getTypeParameters();
-			assertEquals("Invalid number of type parameters!", 1, typeParameters.length);
-		} finally {
-			deleteFile("/P/p/I.java");
-		}
-	}
 	
 	/**
 	 * Ensure the source for a field contains the modifiers, field
