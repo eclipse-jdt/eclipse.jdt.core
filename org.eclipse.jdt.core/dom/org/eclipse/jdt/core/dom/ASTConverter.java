@@ -3081,17 +3081,63 @@ class ASTConverter {
 		while (fragments.hasNext()) {
 			ASTNode node = (ASTNode) fragments.next();
 			if (node.getNodeType() == ASTNode.MEMBER_REF) {
-				Name name = ((MemberRef)node).getName();
+				MemberRef memberRef = (MemberRef) node;
+				Name name = memberRef.getName();
+				// get compiler node and record nodes
 				int start = name.getStartPosition();
-				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
-				if (compilerNode != null) {
-					recordNodes(node, compilerNode);
+				org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference fieldRef = (org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference) javadoc.getNodeStartingAt(start);
+				if (fieldRef != null) {
+					recordNodes(name, fieldRef);
+					recordNodes(node, fieldRef);
 				}
-			} else if (node.getNodeType() == ASTNode.METHOD_REF ||
-					node.getNodeType() == ASTNode.SIMPLE_NAME ||
+				// Replace qualifier to have all nodes recorded
+				if (memberRef.getQualifier() != null) {
+					memberRef.setQualifier(convert((org.eclipse.jdt.internal.compiler.ast.TypeReference) fieldRef.receiver));
+				}
+			} else if (node.getNodeType() == ASTNode.METHOD_REF) {
+				MethodRef methodRef = (MethodRef) node;
+				// get compiler node and record nodes
+				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(node.getStartPosition());
+				if (compilerNode != null) {
+					recordNodes(methodRef.getName(), compilerNode);
+					recordNodes(methodRef, compilerNode);
+				}
+				// Replace qualifier to have all nodes recorded
+				if (methodRef.getQualifier() != null) {
+					org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = null;
+					if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression) {
+						typeRef = ((org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression)compilerNode).type;
+					} 
+					else if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend) {
+						org.eclipse.jdt.internal.compiler.ast.Expression expression = ((org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend)compilerNode).receiver;
+						if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
+							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
+						}
+					}
+					if (typeRef != null) {
+						methodRef.setQualifier(convert(typeRef));
+					}
+				}
+			} else if (node.getNodeType() == ASTNode.SIMPLE_NAME ||
 					node.getNodeType() == ASTNode.QUALIFIED_NAME) {
 				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(node.getStartPosition());
 				if (compilerNode != null) {
+					if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
+//						convert((org.eclipse.jdt.internal.compiler.ast.TypeReference) compilerNode);
+						org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) compilerNode;
+						Name name = (Name) node;
+						if (name.isQualifiedName()) {
+							SimpleName simpleName = null;
+							while (name.isQualifiedName()) {
+								simpleName = ((QualifiedName) name).getName();
+								recordNodes(simpleName, typeRef);
+								name = ((QualifiedName) name).getQualifier();
+								recordNodes(name, typeRef);
+							}
+//							simpleName = ((QualifiedName) name).getName();
+//							recordNodes(simpleName, typeRef);
+						}
+					}
 					recordNodes(node, compilerNode);
 				}
 			} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
