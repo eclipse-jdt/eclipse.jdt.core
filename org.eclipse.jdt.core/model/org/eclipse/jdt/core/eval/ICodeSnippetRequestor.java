@@ -50,7 +50,7 @@ public interface ICodeSnippetRequestor {
 	 */
 	public static final String RESULT_VALUE_FIELD = EvaluationConstants.RESULT_VALUE_FIELD;
 
-	/*
+	/**
 	 * The field of type java.lang.Class on the code snippet instance that contains the type of the returned value.
 	 * The name of the field (of type <code>java.lang.Class</code>) on the code 
 	 * snippet instance that contains the runtime type of the returned value.
@@ -81,21 +81,21 @@ public interface ICodeSnippetRequestor {
 	 */
 	public static final int CODE_SNIPPET = 2;
 
-	/*
+	/**
 	 * Indicates a compilation problem related to an import declaration.
 	 *
 	 * @see #acceptProblem
 	 */
 	public static final int IMPORT = 3;
 
-	/*
+	/**
 	 * Indicates a compilation problem related to a package declaration.
 	 *
 	 * @see #acceptProblem
 	 */
 	public static final int PACKAGE = 4;
 
-	/*
+	/**
 	 * Indicates an internal problem.
 	 *
 	 * @see #acceptProblem
