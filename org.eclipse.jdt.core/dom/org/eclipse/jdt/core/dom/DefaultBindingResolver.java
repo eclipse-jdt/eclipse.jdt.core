@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -54,6 +55,10 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
  * Internal class for resolving bindings using old ASTs.
  */
 class DefaultBindingResolver extends BindingResolver {
+	
+	private static final char[][] JAVA_LANG_STRINGBUFFER = new char[][] {"java".toCharArray(), "lang".toCharArray(), "StringBuffer".toCharArray()};
+	private static final char[][] JAVA_LANG_EXCEPTION = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Exception".toCharArray()};
+
 	/**
 	 * This map is used to keep the correspondance between new bindings and the 
 	 * compiler bindings. This is an identity map. We should only create one object
@@ -76,6 +81,12 @@ class DefaultBindingResolver extends BindingResolver {
 	 * This map is used to get a binding from its ast node
 	 */
 	Map astNodesToBindings;
+	
+	/**
+	 * Compilation unit scope
+	 */
+	private CompilationUnitScope scope;
+	
 	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
@@ -85,6 +96,15 @@ class DefaultBindingResolver extends BindingResolver {
 		this.bindingsToAstNodes = new HashMap();
 		this.astNodesToBindings = new HashMap();
 	}
+	
+	/**
+	 * Constructor for DefaultBindingResolver.
+	 */
+	DefaultBindingResolver(CompilationUnitScope scope) {
+		this();
+		this.scope = scope;
+	}
+	
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -161,7 +181,35 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveWellKnownType(String name) {
-		return super.resolveWellKnownType(name);
+		if (("boolean".equals(name))
+			|| ("char".equals(name))
+			|| ("byte".equals(name))
+			|| ("short".equals(name))
+			|| ("int".equals(name))
+			|| ("long".equals(name))
+			|| ("float".equals(name))
+			|| ("double".equals(name))
+			|| ("void".equals(name))) {
+			return this.getTypeBinding(this.scope.getBaseType(name.toCharArray()));
+		} else if ("java.lang.Object".equals(name)) {
+			return this.getTypeBinding(this.scope.getJavaLangObject());
+		} else if ("java.lang.String".equals(name)) {
+			return this.getTypeBinding(this.scope.getJavaLangString());
+		} else if ("java.lang.StringBuffer".equals(name)) {
+			return this.getTypeBinding(this.scope.getType(JAVA_LANG_STRINGBUFFER));
+		} else if ("java.lang.Throwable".equals(name)) {
+			return this.getTypeBinding(this.scope.getJavaLangThrowable());
+		} else if ("java.lang.Exception".equals(name)) {
+			return this.getTypeBinding(this.scope.getType(JAVA_LANG_EXCEPTION));
+		} else if ("java.lang.RuntimeException".equals(name)) {
+			return this.getTypeBinding(this.scope.getJavaLangRuntimeException());
+		} else if ("java.lang.Error".equals(name)) {
+			return this.getTypeBinding(this.scope.getJavaLangError());
+		} else if ("java.lang.Class".equals(name)) {
+			return this.getTypeBinding(this.scope.getJavaLangClass());
+	    } else {
+			return super.resolveWellKnownType(name);
+		}
 	}
 	/*
 	 * Method declared on BindingResolver.
@@ -266,7 +314,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(stringLiteral.literalType(this.retrieveEnclosingScope(expression)));
 		} else if (expression instanceof TypeLiteral) {
 			ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(retrieveCompilationUnitScope(expression).getJavaLangClass());
+			return this.getTypeBinding(this.scope.getJavaLangClass());
 		} else if (expression instanceof BooleanLiteral) {
 			BooleanLiteral booleanLiteral = (BooleanLiteral) expression;
 			if (booleanLiteral.booleanValue()) {
@@ -314,19 +362,18 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveImport(ImportDeclaration)
 	 */
 	IBinding resolveImport(ImportDeclaration importDeclaration) {
-		Scope scope = retrieveCompilationUnitScope(importDeclaration);
 		AstNode node = (AstNode) this.newAstToOldAst.get(importDeclaration);
 		if (node instanceof ImportReference) {
 			ImportReference importReference = (ImportReference) node;
 			if (importReference.onDemand) {
-				Binding binding = scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
+				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
 				if ((binding != null) && (binding.isValidBinding())) {
 					IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
 					this.bindingsToAstNodes.put(packageBinding, importDeclaration);
 					return packageBinding;
 				}
 			} else {
-				Binding binding = scope.getTypeOrPackage(importReference.tokens);
+				Binding binding = this.scope.getTypeOrPackage(importReference.tokens);
 				if (binding != null && binding.isValidBinding()) {
 					ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 					this.bindingsToAstNodes.put(typeBinding, importDeclaration);
@@ -341,11 +388,10 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolvePackage(PackageDeclaration)
 	 */
 	IPackageBinding resolvePackage(PackageDeclaration pkg) {
-		Scope scope = retrieveCompilationUnitScope(pkg);
 		AstNode node = (AstNode) this.newAstToOldAst.get(pkg);
 		if (node instanceof ImportReference) {
 			ImportReference importReference = (ImportReference) node;
-			Binding binding = scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
+			Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
 			if ((binding != null) && (binding.isValidBinding())) {
 				IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
 				this.bindingsToAstNodes.put(packageBinding, pkg);
@@ -427,16 +473,6 @@ class DefaultBindingResolver extends BindingResolver {
 		binding = new MethodBinding(this, methodBinding);
 		this.compilerBindingsToASTBindings.put(methodBinding, binding);
 		return binding;
-	}
-
-
-	private Scope retrieveCompilationUnitScope(ASTNode node) {
-		ASTNode currentNode = node;
-		while(!(currentNode instanceof CompilationUnit)) {
-			currentNode = currentNode.getParent();
-		}
-		CompilationUnitDeclaration compilationUnitDeclaration = (CompilationUnitDeclaration) this.newAstToOldAst.get(currentNode);
-		return compilationUnitDeclaration.scope;
 	}
 
 	private BlockScope retrieveEnclosingScope(ASTNode node) {

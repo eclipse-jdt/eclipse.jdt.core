@@ -37,14 +37,12 @@ class ASTConverter {
 	private boolean resolveBindings;
 	
 	public ASTConverter(boolean resolveBindings) {
-		ast = new AST();
 		this.resolveBindings = resolveBindings;
-		if (resolveBindings) {
-			ast.setBindingResolver(new DefaultBindingResolver());
-		} else {
-			ast.setBindingResolver(new BindingResolver());
-		}
 		scanner = new Scanner(true, false);
+	}
+	
+	public void setAST(AST ast) {
+		this.ast = ast;
 	}
 	
 	public CompilationUnit convert(CompilationUnitDeclaration unit, char[] source) {

@@ -227,6 +227,10 @@ public final class AST {
 					new AbstractSyntaxTreeVisitorAdapter());
 				if (compilationUnitDeclaration != null && source != null) {
 					ASTConverter converter = new ASTConverter(true);
+					AST ast = new AST();
+					ast.setBindingResolver(new DefaultBindingResolver(compilationUnitDeclaration.scope));
+					converter.setAST(ast);
+					
 					CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
 					// line end table should be extracted from scanner
 					cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
@@ -268,6 +272,10 @@ public final class AST {
 			CompilationUnitResolver.parse(source);
 
 		ASTConverter converter = new ASTConverter(false);
+		AST ast = new AST();
+		ast.setBindingResolver(new BindingResolver());
+		converter.setAST(ast);
+				
 		CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
 		
 		// line end table should be extracted from scanner
