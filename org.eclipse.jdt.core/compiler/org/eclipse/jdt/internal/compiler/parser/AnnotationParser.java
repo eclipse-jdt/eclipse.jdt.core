@@ -126,6 +126,7 @@ public class AnnotationParser {
 										parseReturn();
 								}
 							} catch (InvalidInputException e) {
+	 							// ignore
 							}
 							continue nextLine;
 						case '*' :
