@@ -49,7 +49,7 @@ public abstract class CodeFormatter {
 	 * and returns a string containing the formatted version.
 	 * 
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
-	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT
+	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN
 	 * @param string the string to format
 	 * @param indentationLevel the initial indentation level, used 
 	 *      to shift left/right the entire source fragment. An initial indentation
@@ -63,7 +63,7 @@ public abstract class CodeFormatter {
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
 	 * @param options options used to set the source level
-	 * @return the formatted output string
+	 * @return the formatted output string or null if the formatting failed
 	 * @see JavaCore#getOptions()
 	 */
 	public abstract String format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator, Map options);

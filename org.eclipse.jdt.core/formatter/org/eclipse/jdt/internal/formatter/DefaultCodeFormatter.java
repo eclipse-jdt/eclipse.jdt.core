@@ -162,7 +162,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	}
 
 	/**
-	 * @see CodeFormatter#format(String, int, int[], String, int)
+	 * @see CodeFormatter#format(int, String, int, int[], String, Map)
 	 */
 	public String format(
 			int kind,
@@ -239,7 +239,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
 			this.positionsMapping = positions;
-			return source;
+			return null;
 		}
 		return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
 	}
@@ -268,7 +268,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		if (expression == null) {
 			// a problem occured while parsing the source
 			this.positionsMapping = positions;
-			return source;
+			return null;
 		}
 		return internalFormatExpression(source, indentationLevel, positions, lineSeparator, options, expression);
 	}
@@ -279,7 +279,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
 			this.positionsMapping = positions;
-			return source;
+			return null;
 		}
 		return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
 	}
@@ -303,7 +303,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
 		}
 
-		return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator, options);
+		return formatCompilationUnit(source, indentationLevel, positions, lineSeparator, options);
 	}
 
 	public String getDebugOutput() {

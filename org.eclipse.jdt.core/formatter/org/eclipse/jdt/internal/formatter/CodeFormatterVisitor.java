@@ -450,7 +450,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return false;
 	}
 
-	private String failedToFormat(final char[] compilationUnitSource) {
+	private String failedToFormat() {
 		if (DEBUG) {
 			System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
 			System.out.println(this.scribe);
@@ -459,19 +459,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (positions != null) {
 			System.arraycopy(positions, 0, this.scribe.mappedPositions, 0, positions.length);
 		}
-		return new String(compilationUnitSource);
-	}
-
-	private String failedToFormat(final String compilationUnitSource) {
-		if (DEBUG) {
-			System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
-			System.out.println(this.scribe);
-		}
-		int[] positions = this.scribe.positionsToMap;
-		if (positions != null) {
-			System.arraycopy(positions, 0, this.scribe.mappedPositions, 0, positions.length);
-		}
-		return compilationUnitSource;
+		return null;
 	}
 
 	private void format(
@@ -687,7 +675,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				formatClassBodyDeclarations(nodes);
 			}
 		} catch(AbortFormatting e){
-			return failedToFormat(compilationUnitSource);
+			return failedToFormat();
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
@@ -703,7 +691,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.reset(positions);
 		
 		if (compilationUnitDeclaration == null || compilationUnitDeclaration.ignoreFurtherInvestigation) {
-			return failedToFormat(string);
+			return failedToFormat();
 		}
 
 		long startTime = System.currentTimeMillis();
@@ -719,7 +707,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		try {
 			compilationUnitDeclaration.traverse(this, compilationUnitDeclaration.scope);
 		} catch(AbortFormatting e){
-			return failedToFormat(compilationUnitSource);
+			return failedToFormat();
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
@@ -758,7 +746,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 			this.scribe.printLastComment();
 		} catch(AbortFormatting e){
-			return failedToFormat(compilationUnitSource);
+			return failedToFormat();
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
@@ -790,7 +778,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			expression.traverse(this, null);
 			this.scribe.printLastComment();
 		} catch(AbortFormatting e){
-			return failedToFormat(compilationUnitSource);
+			return failedToFormat();
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
