@@ -112,7 +112,7 @@ public class StringLiteral extends Expression {
 		if (token == null) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = this.getAST().scanner;
+		Scanner scanner = getAST().scanner;
 		char[] source = token.toCharArray();
 		scanner.setSourceBuffer(source);
 		scanner.resetTo(0, source.length);

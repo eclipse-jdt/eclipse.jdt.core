@@ -13,6 +13,9 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 
+/**
+ * Internal implementation of variable bindings.
+ */
 class VariableBinding implements IVariableBinding {
 
 	private org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding;

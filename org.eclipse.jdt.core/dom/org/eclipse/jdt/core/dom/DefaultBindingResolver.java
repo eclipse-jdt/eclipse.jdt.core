@@ -42,6 +42,9 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
+/**
+ * Internal class for resolving bindings using old ASTs.
+ */
 class DefaultBindingResolver extends BindingResolver {
 
 	/**
@@ -78,8 +81,8 @@ class DefaultBindingResolver extends BindingResolver {
 		this.astNodesToBindings = new HashMap();
 	}
 
-	/**
-	 * @see BindingResolver#resolveName(Name)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	IBinding resolveName(Name name) {
 		// retrieve the old ast node
@@ -237,8 +240,8 @@ class DefaultBindingResolver extends BindingResolver {
 		
 	}
 
-	/**
-	 * @see BindingResolver#resolveType(Type)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveType(Type type) {
 		// retrieve the old ast node
@@ -249,15 +252,15 @@ class DefaultBindingResolver extends BindingResolver {
 		return this.getTypeBinding(typeReference.binding);
 	}
 
-	/**
-	 * @see BindingResolver#resolveWellKnownType(String)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveWellKnownType(String name) {
 		return super.resolveWellKnownType(name);
 	}
 
-	/**
-	 * @see BindingResolver#resolveType(TypeDeclaration)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveType(TypeDeclaration type) {
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.newAstToOldAst.get(type);
@@ -269,8 +272,8 @@ class DefaultBindingResolver extends BindingResolver {
 		return super.resolveType(type);
 	}
 
-	/**
-	 * @see BindingResolver#resolveMethod(MethodDeclaration)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	IMethodBinding resolveMethod(MethodDeclaration method) {
 		AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) this.newAstToOldAst.get(method);
@@ -282,8 +285,8 @@ class DefaultBindingResolver extends BindingResolver {
 		return super.resolveMethod(method);
 	}
 
-	/**
-	 * @see BindingResolver#resolveVariable(VariableDeclaration)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) this.newAstToOldAst.get(variable);
@@ -294,16 +297,16 @@ class DefaultBindingResolver extends BindingResolver {
 		return this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding);
 	}
 
-	/**
-	 * @see BindingResolver#resolveVariable(FieldDeclaration)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	IVariableBinding resolveVariable(FieldDeclaration variable) {
 		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) this.newAstToOldAst.get(variable);
 		return this.getVariableBinding(fieldDeclaration.binding);
 	}
 
-	/**
-	 * @see BindingResolver#resolveExpressionType(Expression)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveExpressionType(Expression expression) {
 		if (expression instanceof ClassInstanceCreation) {
@@ -398,20 +401,23 @@ class DefaultBindingResolver extends BindingResolver {
 		return super.resolveExpressionType(expression);
 	}
 
-	/**
-	 * @see BindingResolver#findDeclaringNode(IBinding)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	public ASTNode findDeclaringNode(IBinding binding) {
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
 	}
 
-	/**
-	 * @see BindingResolver#store(ASTNode, AstNode)
+	/*
+	 * Method declared on BindingResolver.
 	 */
 	void store(ASTNode node, AstNode oldASTNode) {
 		this.newAstToOldAst.put(node, oldASTNode);
 	}
 
+	/*
+	 * Method declared on BindingResolver.
+	 */
 	protected ITypeBinding getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.TypeBinding referenceBinding) {
 		if (referenceBinding == null || !referenceBinding.isValidBinding()) {
 			return null;
@@ -426,7 +432,7 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	/*
-	 * @see BindingResolver#getPackageBinding(PackageBinding)
+	 * Method declared on BindingResolver.
 	 */
 	protected IPackageBinding getPackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
 		if (!packageBinding.isValidBinding()) {
@@ -442,7 +448,7 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	/*
-	 * @see BindingResolver#getVariableBinding(LocalVariableBinding)
+	 * Method declared on BindingResolver.
 	 */
 	protected IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding) {
 		if (!variableBinding.isValidBinding()) {
@@ -458,7 +464,7 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 	
 	/*
-	 * @see BindingResolver#getMethodBinding(MethodBinding)
+	 * Method declared on BindingResolver.
 	 */
 	protected IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
 		if (!methodBinding.isValidBinding()) {

@@ -15,6 +15,9 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
+/**
+ * Internal implementation of package bindings.
+ */
 class PackageBinding implements IPackageBinding {
 
 	private static final String[] NO_NAME_COMPONENTS = new String[0];

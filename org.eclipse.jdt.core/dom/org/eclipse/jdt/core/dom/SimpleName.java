@@ -110,7 +110,7 @@ public class SimpleName extends Name {
 		if (identifier == null) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = this.getAST().scanner;
+		Scanner scanner = getAST().scanner;
 		char[] source = identifier.toCharArray();
 		scanner.setSourceBuffer(source);
 		scanner.resetTo(0, source.length);

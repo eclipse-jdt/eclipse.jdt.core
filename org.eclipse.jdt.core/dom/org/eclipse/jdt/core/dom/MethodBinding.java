@@ -11,6 +11,9 @@
 
 package org.eclipse.jdt.core.dom;
 
+/**
+ * Internal implementation of method bindings.
+ */
 class MethodBinding implements IMethodBinding {
 
 	private static final ITypeBinding[] NO_PARAMETERS = new ITypeBinding[0];

@@ -27,17 +27,23 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 class BindingResolver {
 	
 	/**
-	 * Constructor for BindingResolver.
+	 * Creates a binding resolver.
 	 */
 	BindingResolver() {
 	}
 
 	/**
-	 * Allows the user to store objects inside the binding resolver.
-	 * @param node an ASTNode
-	 * @param binding org.eclipse.jdt.internal.compiler.ast.ASTNode
+	 * Allows the user to store information about the given old/new pair of
+	 * AST nodes.
+	 * <p>
+	 * The default implementation of this method does nothing.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param newNode the new AST node
+	 * @param oldNode the old AST node
 	 */
-	void store(ASTNode node, org.eclipse.jdt.internal.compiler.ast.AstNode oldASTNode) {
+	void store(ASTNode newNode, org.eclipse.jdt.internal.compiler.ast.AstNode oldASTNode) {
 	}
 
 	/**
@@ -214,9 +220,9 @@ class BindingResolver {
 	}
 	
 	/**
-	 * Finds the corresponding AST node in the given compilation unit from 
-	 * which the given binding originated. Returns <code>null</code> if the
-	 * binding does not correspond to any node in this compilation unit.
+	 * Finds the corresponding AST node from which the given binding originated.
+	 * Returns <code>null</code> if the binding does not correspond to any node
+	 * in the compilation unit.
 	 * <p>
 	 * The following table indicates the expected node type for the various
 	 * different kinds of bindings:
@@ -238,30 +244,75 @@ class BindingResolver {
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
+	 * The implementation of <code>CompilationUnit.findDeclaringNode</code>
+	 * forwards to this method.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
 	 * </p>
 	 * 
 	 * @param binding the binding
 	 * @return the corresponding node where the bindings is declared, 
 	 *    or <code>null</code> if none
 	 */
-	public ASTNode findDeclaringNode(IBinding binding) {
+	ASTNode findDeclaringNode(IBinding binding) {
 		return null;
 	}
 
-	protected ITypeBinding getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.TypeBinding referenceBinding) {
+	/**
+	 * Returns the new type binding corresponding to the given old type binding.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param referenceBinding the old type binding
+	 * @return the new type binding
+	 */
+	ITypeBinding getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.TypeBinding referenceBinding) {
 		return null;
 	}
-	protected IPackageBinding getPackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
+
+	/**
+	 * Returns the new package binding corresponding to the given old package binding.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param packageBinding the old package binding
+	 * @return the new package binding
+	 */
+	IPackageBinding getPackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
 		return null;
 	}		
 
-	protected IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
+	/**
+	 * Returns the new method binding corresponding to the given old method binding.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param methodBinding the old method binding
+	 * @return the new method binding
+	 */
+	IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
 		return null;
 	}
 	
-	protected IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
+	/**
+	 * Returns the new variable binding corresponding to the given old variable binding.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param variableBinding the old variable binding
+	 * @return the new variable binding
+	 */
+	IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
 		return null;
 	}
 }

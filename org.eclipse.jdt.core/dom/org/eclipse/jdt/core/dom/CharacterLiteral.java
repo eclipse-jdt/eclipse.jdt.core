@@ -109,7 +109,7 @@ public class CharacterLiteral extends Expression {
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = this.getAST().scanner;
+		Scanner scanner = getAST().scanner;
 		char[] source = value.toCharArray();
 		scanner.setSourceBuffer(source);
 		scanner.resetTo(0, source.length);

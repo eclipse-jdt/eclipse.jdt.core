@@ -88,10 +88,7 @@ public class NumberLiteral extends Expression {
 		if (token == null || token.length() == 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
-		// FIXME - check the token more thoroughly
-		// ideally, scan it to ensure that it is legal
-		Scanner scanner = this.getAST().scanner;
+		Scanner scanner = getAST().scanner;
 		char[] source = token.toCharArray();
 		scanner.setSourceBuffer(source);
 		scanner.resetTo(0, source.length);
@@ -121,6 +118,7 @@ public class NumberLiteral extends Expression {
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();
 		}
+		modifying();
 		this.tokenValue = token;
 	}
 	

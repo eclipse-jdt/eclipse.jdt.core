@@ -26,6 +26,9 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
+/**
+ * Internal class for converting internal compiler ASTs into public ASTs.
+ */
 class ASTConverter {
 
 	private AST ast;

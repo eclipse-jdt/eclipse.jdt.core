@@ -16,6 +16,9 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
+/**
+ * Internal implementation of type bindings.
+ */
 class TypeBinding implements ITypeBinding {
 
 	private static final String NO_NAME = ""; //$NON-NLS-1$	

@@ -29,7 +29,6 @@ import java.util.List;
  */
 public class CompilationUnit extends ASTNode {
 
-	private static Message[] EMPTY_MESSAGES = new Message[0];	
 	/**
 	 * The package declaration, or <code>null</code> if none; initially
 	 * <code>null</code>.
@@ -61,10 +60,15 @@ public class CompilationUnit extends ASTNode {
 	private int[] lineEndTable = new int[0];
 
 	/**
-	 * Arrays of messages reported by the compiler during the resolution or the parsing of 
-	 * this compilation unit.
+	 * Canonical empty list of messages.
 	 */
-	private Message[] messages;
+	private static final Message[] EMPTY_MESSAGES = new Message[0];
+
+	/**
+	 * Messages reported by the compiler during parsing or name resolution;
+	 * defaults to the empty list.
+	 */
+	private Message[] messages = EMPTY_MESSAGES;
 	 
 	/**
 	 * Sets the line end table for this compilation unit.
@@ -75,9 +79,8 @@ public class CompilationUnit extends ASTNode {
 	 * line end table {1, 3, 4}.
 	 * 
 	 * @param lineEndtable the line end table
-	 * @deprecated public is only temporary
 	 */
-	public void setLineEndTable(int[] lineEndTable) {
+	void setLineEndTable(int[] lineEndTable) {
 		if (lineEndTable == null) {
 			throw new NullPointerException();
 		}
@@ -106,6 +109,7 @@ public class CompilationUnit extends ASTNode {
 	 */
 	ASTNode clone(AST target) {
 		CompilationUnit result = new CompilationUnit(target);
+		// n.b do not copy line number table or messages
 		result.setPackage(
 			(PackageDeclaration) ASTNode.copySubtree(target, getPackage()));
 		result.imports().addAll(ASTNode.copySubtrees(target, imports()));
@@ -294,24 +298,26 @@ public class CompilationUnit extends ASTNode {
 	}
 
 	/**
-	 * Return the array of messages reported by the compiler during the resolution or the parsing of 
-	 * this compilation unit.
-	 * If none, return an empty array.
-	 * @return Message[]
+	 * Returns the list of messages reported by the compiler during the parsing 
+	 * or name resolution of this compilation unit.
+	 * 
+	 * @return the list of messages, possibly empty
+	 * @see AST#parseCompilationUnit
 	 */
 	public Message[] getMessages() {
-		if (this.messages == null) {
-			this.messages = EMPTY_MESSAGES;
-		}
-		return this.messages;
+		return messages;
 	}
 
 	/**
-	 * Set the array of messages reported by the compiler during the resolution or the parsing of 
-	 * this compilation unit.
-	 * @param messages Message[]
+	 * Sets the array of messages reported by the compiler during the parsing or
+	 * name resolution of this compilation unit.
+	 * 
+	 * @param messages the list of messages
 	 */
-	public void setMessages(Message[] messages) {
+	void setMessages(Message[] messages) {
+		if (messages == null) {
+			throw new IllegalArgumentException();
+		}
 		this.messages = messages;
 	}
 		

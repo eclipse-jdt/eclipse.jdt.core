@@ -14,6 +14,9 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
 
+/**
+ * Internal AST visitor for propagating syntax errors.
+ */
 class ASTSyntaxErrorPropagator extends ASTVisitor {
 
 	private IProblem[] problems;
@@ -53,42 +56,42 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 	}
 
 	/*
-	 * @see ASTVisitor#visit(FieldDeclaration)
+	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(FieldDeclaration node) {
 		return checkAndTagAsMalformed(node);		
 	}
 
 	/*
-	 * @see ASTVisitor#visit(MethodDeclaration)
+	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(MethodDeclaration node) {
 		return checkAndTagAsMalformed(node);		
 	}
 
 	/*
-	 * @see ASTVisitor#visit(PackageDeclaration)
+	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(PackageDeclaration node) {
 		return checkAndTagAsMalformed(node);		
 	}
 
 	/*
-	 * @see ASTVisitor#visit(ImportDeclaration)
+	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(ImportDeclaration node) {
 		return checkAndTagAsMalformed(node);		
 	}
 
 	/*
-	 * @see ASTVisitor#visit(CompilationUnit)
+	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(CompilationUnit node) {
 		return checkAndTagAsMalformed(node);		
 	}
 
 	/*
-	 * @see ASTVisitor#visit(Initializer)
+	 * Method declared on ASTVisitor.
 	 */
 	public boolean visit(Initializer node) {
 		return checkAndTagAsMalformed(node);		
