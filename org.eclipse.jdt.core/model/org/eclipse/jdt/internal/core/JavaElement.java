@@ -82,7 +82,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * Direct access to the Java Model Manager
 	 */
-	protected static JavaModelManager fgJavaModelManager = JavaModelManager.getJavaModelManager();
+	protected static JavaModelManager fgJavaModelManager;
 	
 	protected static final Object NO_INFO = new Object();
 	
@@ -150,13 +150,16 @@ protected void closing(Object info) throws JavaModelException {
  * @see Object#equals
  */
 public boolean equals(Object o) {
+	
+	if (this == o) return true;
+
+	// Java model parent is null
 	if (fParent == null) return super.equals(o);
-	if (this == o)
-		return true;
+
 	if (o instanceof JavaElement) {
 		JavaElement other = (JavaElement) o;
-		if (fLEType != other.fLEType)
-			return false;
+		if (fLEType != other.fLEType) return false;
+		
 		return fName.equals(other.fName) &&
 				fParent.equals(other.fParent) &&
 				fOccurrenceCount == other.fOccurrenceCount;
@@ -303,6 +306,9 @@ public ICompilationUnit getCompilationUnit() {
  * @exception JavaModelException if the element is not present or not accessible
  */
 public JavaElementInfo getElementInfo() throws JavaModelException {
+	if (fgJavaModelManager == null){
+		System.out.println();
+	}
 	synchronized(fgJavaModelManager){
 		Object info = fgJavaModelManager.getInfo(this);
 		if (info == null) {

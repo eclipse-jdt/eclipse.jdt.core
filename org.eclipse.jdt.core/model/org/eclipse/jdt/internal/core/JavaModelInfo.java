@@ -12,8 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 /**
  * Implementation of IJavaModel. A Java Model is specific to a
- * workspace. To retrieve a workspace's model, use the
- * <code>#getJavaModel(IWorkspace)</code> method.
+ * workspace.
  *
  * @see IJavaModel
  */
@@ -21,22 +20,10 @@ public class JavaModelInfo extends OpenableElementInfo {
 
 
 
-	/**
-	 * Backpointer to my Java Model handle
-	 */
-	protected JavaModel fJavaModel= null;
-
 /**
  * Constructs a new Java Model Info 
  */
-protected JavaModelInfo(JavaModel javaModel) {
-	this.fJavaModel= javaModel;
+protected JavaModelInfo() {
 }
 
-/**
- * Returns the Java Model for this info.
- */
-protected JavaModel getJavaModel() {
-	return fJavaModel;
-}
 }

@@ -49,7 +49,6 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class JavaModel extends Openable implements IJavaModel {
 
-	
 	/**
 	 * A set of java.io.Files used as a cache of external jars that 
 	 * are known to be existing.
@@ -59,7 +58,10 @@ public class JavaModel extends Openable implements IJavaModel {
 		
 /**
  * Constructs a new Java Model on the given workspace.
- *
+ * Note that only one instance of JavaModel handle should ever be created.
+ * One should only indirect through JavaModelManager#getJavaModel() to get
+ * access to it.
+ * 
  * @exception Error if called more than once
  */
 protected JavaModel() throws Error {
@@ -82,7 +84,7 @@ public void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
  * Returns a new element info for this element.
  */
 protected OpenableElementInfo createElementInfo() {
-	return new JavaModelInfo(this);
+	return new JavaModelInfo();
 }
 
 /**
@@ -128,7 +130,7 @@ protected boolean generateInfos(
 	Map newElements,
 	IResource underlyingResource)	throws JavaModelException {
 
-	fgJavaModelManager.putInfo(((JavaModelInfo) info).getJavaModel(), info);
+	fgJavaModelManager.putInfo(fgJavaModelManager.getJavaModel(), info);
 	// determine my children
 	try {
 		IProject[] projects = this.getWorkspace().getRoot().getProjects();

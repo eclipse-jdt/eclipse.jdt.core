@@ -82,17 +82,7 @@ public Object getInfo(IJavaElement element) {
 			return this.childrenCache.get(element);
 	}
 }
-/**
- * Returns the handle to the active Java Model, or <code>null</code> if there
- * is no active Java Model.
- */
-public JavaModel getJavaModel() {
-	if (this.modelInfo == null) {
-		return null;
-	} else {
-		return this.modelInfo.getJavaModel();
-	}
-}
+
 /**
  *  Returns the info for this element without
  *  disturbing the cache ordering.
