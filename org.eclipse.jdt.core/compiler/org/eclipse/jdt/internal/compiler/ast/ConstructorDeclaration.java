@@ -260,7 +260,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			}
 			// local variable attributes
 			codeStream.exitUserScope(scope);
-			codeStream.recordPositionsFrom(0, this.sourceStart);
+			codeStream.recordPositionsFrom(0, this.bodyEnd);
 			classFile.completeCodeAttribute(codeAttributeOffset);
 			attributeNumber++;
 		}
