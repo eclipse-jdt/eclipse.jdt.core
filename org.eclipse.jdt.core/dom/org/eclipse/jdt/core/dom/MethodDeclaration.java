@@ -78,7 +78,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * The "modifiers" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 * TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(MethodDeclaration.class);
@@ -107,7 +107,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * The "returnType" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * @deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the 3.0 API.
+	 * TODO (jeem) - @deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the 3.0 API.
 	 */
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY = 
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$

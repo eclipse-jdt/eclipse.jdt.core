@@ -2964,7 +2964,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, ExtendedModifier.class) { //$NON-NLS-1$
+			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, IExtendedModifier.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 					if (parented) {
@@ -4096,7 +4096,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 		
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, ExtendedModifier.class) { //$NON-NLS-1$
+			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, IExtendedModifier.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 					if (parented) {
@@ -4325,7 +4325,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 		
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, ExtendedModifier.class) { //$NON-NLS-1$
+			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, IExtendedModifier.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 					if (parented) {
@@ -5291,7 +5291,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			return;
 		}
-		genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, ExtendedModifier.class) { //$NON-NLS-1$
+		genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, IExtendedModifier.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 				if (parented) {

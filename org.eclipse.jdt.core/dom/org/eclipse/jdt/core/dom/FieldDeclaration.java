@@ -47,7 +47,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	/**
 	 * The "modifiers" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 * TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(FieldDeclaration.class);

@@ -42,7 +42,7 @@ public class VariableDeclarationStatement extends Statement {
 	/**
 	 * The "modifiers" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 * TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		new SimplePropertyDescriptor(VariableDeclarationStatement.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
@@ -52,7 +52,7 @@ public class VariableDeclarationStatement extends Statement {
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
-		new ChildListPropertyDescriptor(VariableDeclarationStatement.class, "modifiers", ExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
+		new ChildListPropertyDescriptor(VariableDeclarationStatement.class, "modifiers", IExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
 	 * The "type" structural property of this node type.
@@ -118,7 +118,7 @@ public class VariableDeclarationStatement extends Statement {
 	}
 			
 	/**
-	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * The extended modifiers (element type: <code>IExtendedModifier</code>). 
 	 * Null in 2.0. Added in 3.0; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
@@ -281,7 +281,7 @@ public class VariableDeclarationStatement extends Statement {
 	 * </p>
 	 * 
 	 * @return the live list of modifiers and annotations
-	 *    (element type: <code>ExtendedModifier</code>)
+	 *    (element type: <code>IExtendedModifier</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a 2.0 AST
 	 * @since 3.0

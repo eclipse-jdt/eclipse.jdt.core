@@ -70,11 +70,11 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * Used for 3.0 modifiers and annotations.
 	 * 
 	 * @param ext the list of modifier and annotation nodes
-	 * (element type: <code>ExtendedAnnotations</code>)
+	 * (element type: <code>IExtendedModifiers</code>)
 	 */
 	void printModifiers(List ext) {
 		for (Iterator it = ext.iterator(); it.hasNext(); ) {
-			ExtendedModifier p = (ExtendedModifier) it.next();
+			ASTNode p = (ASTNode) it.next();
 			p.accept(this);
 			this.buffer.append(" ");//$NON-NLS-1$
 		}

@@ -20,6 +20,8 @@ import java.util.List;
  * MemberValuePair:
  *   SimpleName <b>=</b> Expression
  * </pre>
+ * Within annotations, only certain kinds of expressions are meaningful,
+ * including other annotations.
  * </p>
  * <p>
  * Note: Support for annotation metadata is an experimental language feature 

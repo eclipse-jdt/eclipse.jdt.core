@@ -171,7 +171,10 @@ public void assertDeletion(IJavaElement[] elementsToDelete) throws JavaModelExce
 	}
 }
 protected void assertTypesEqual(String message, String expected, IType[] types) {
-	this.sortTypes(types);
+	assertTypesEqual(message, expected, types, true);
+}
+protected void assertTypesEqual(String message, String expected, IType[] types, boolean sort) {
+	if (sort) this.sortTypes(types);
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0; i < types.length; i++){
 		buffer.append(types[i].getFullyQualifiedName());

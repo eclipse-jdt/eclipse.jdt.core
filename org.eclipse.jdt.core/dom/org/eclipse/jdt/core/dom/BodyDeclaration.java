@@ -70,7 +70,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	private int modifierFlags = Modifier.NONE;
 	
 	/**
-	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * The extended modifiers (element type: <code>IExtendedModifier</code>). 
 	 * Null in 2.0. Added in 3.0; defaults to an empty list
 	 * (see constructor).
 	 * 
@@ -129,7 +129,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @return the property descriptor
 	 */
 	static final ChildListPropertyDescriptor internalModifiers2PropertyFactory(Class nodeClass) {
-		return new ChildListPropertyDescriptor(nodeClass, "modifiers", ExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
+		return new ChildListPropertyDescriptor(nodeClass, "modifiers", IExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
 	}
 	
 	/**
@@ -234,7 +234,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * </p>
 	 * 
 	 * @return the live list of modifiers and annotations
-	 *    (element type: <code>ExtendedModifier</code>)
+	 *    (element type: <code>IExtendedModifier</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a 2.0 AST
 	 * @since 3.0

@@ -46,7 +46,7 @@ import java.util.Map;
  * 
  * @since 2.0
  */
-public final class Modifier extends ExtendedModifier {
+public final class Modifier extends ASTNode implements IExtendedModifier {
 
 	/**
 	 * Modifier constant (bit mask, value 0) indicating no modifiers.
@@ -510,6 +510,20 @@ public final class Modifier extends ExtendedModifier {
 	 */
 	public int getNodeType() {
 		return MODIFIER;
+	}
+
+	/**
+	 * @see IExtendedModifier#isModifier()
+	 */ 
+	public boolean isModifier() {
+		return true;
+	}
+	
+	/**
+	 * @see IExtendedModifier#isAnnotation()
+	 */ 
+	public boolean isAnnotation() {
+		return false;
 	}
 
 	/* (omit javadoc for this method)

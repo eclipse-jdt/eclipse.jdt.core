@@ -82,7 +82,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * The "modifiers" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 * TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(TypeDeclaration.class);
@@ -111,7 +111,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * The "superclass" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * @deprecated Replaced by {@link #SUPERCLASS_TYPE_PROPERTY} in the 3.0 API.
+	 * TODO (jeem) - @deprecated Replaced by {@link #SUPERCLASS_TYPE_PROPERTY} in the 3.0 API.
 	 */
 	public static final ChildPropertyDescriptor SUPERCLASS_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclaration.class, "superclass", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -119,7 +119,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * The "superInterfaces" structural property of this node type (2.0 API only).
 	 * @since 3.0
-	 * @deprecated Replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY} in the 3.0 API.
+	 * TODO (jeem) - @deprecated Replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY} in the 3.0 API.
 	 */
 	public static final ChildListPropertyDescriptor SUPER_INTERFACES_PROPERTY = 
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "superInterfaces", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
