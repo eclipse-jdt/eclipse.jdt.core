@@ -171,7 +171,8 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Compiler
 	public boolean reportOnlyOneSyntaxError = false;
 	public boolean reportSyntaxErrorIsRequired = true;
 	protected boolean restartRecovery;
-	protected boolean isInsideEnumConstantPart = false;
+	protected boolean[] enumConstantPartStack;
+	protected int enumConstantPartPtr;
 	//scanner token 
 	public Scanner scanner;
 	protected int[] stack = new int[StackIncrement];
@@ -694,6 +695,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.realBlockStack = new int[30];
 	this.identifierPositionStack = new long[30];
 	this.variablesCounter = new int[30];
+	this.enumConstantPartStack = new boolean[30];
 	
 	// javadoc support
 	this.javadocParser = new JavadocParser(this);	
@@ -2796,7 +2798,8 @@ protected void consumeEnumBodyWithConstants() {
 }
 protected void consumeEnumConstantHeaderName() {
 	if (this.currentElement != null) {
-		if (!(this.currentElement instanceof RecoveredType)
+		if (!(this.currentElement instanceof RecoveredType
+					|| (this.currentElement instanceof RecoveredField && ((RecoveredField)currentElement).fieldDeclaration.type == null))
 				|| (this.lastIgnoredToken == TokenNameDOT)) {
 			this.lastCheckPoint = this.scanner.startPosition;
 			this.restartRecovery = true;
@@ -2823,12 +2826,6 @@ protected void consumeEnumConstantHeaderName() {
    }
    pushOnAstStack(enumConstant);
 	if (this.currentElement != null){
-		if (!(this.currentElement instanceof RecoveredType)
-			&& (this.currentToken == TokenNameDOT)){
-			this.lastCheckPoint = (int) (namePosition >>> 32);
-			this.restartRecovery = true;
-			return;
-		}
 		this.lastCheckPoint = enumConstant.sourceEnd + 1;
 		this.currentElement = this.currentElement.add(enumConstant, 0);		
 	}
@@ -2864,13 +2861,6 @@ protected void consumeEnumConstantHeader() {
                length); 
       }
       enumConstant.initialization = allocationExpression;
-      if (this.currentElement != null) {
-         this.currentElement = this.currentElement.add(anonymousType, 0);
-       	this.lastCheckPoint = anonymousType.bodyStart;
-        this.lastIgnoredToken = -1;
-         this.currentToken = 0; // opening brace already taken into account
-         return;
-      }
    } else {
       AllocationExpression allocationExpression = new AllocationExpression();
       allocationExpression.enumConstant = enumConstant;
@@ -2890,18 +2880,26 @@ protected void consumeEnumConstantHeader() {
    
    // recovery
    if (this.currentElement != null) {
-	  if(this.currentToken == TokenNameSEMICOLON) {
-	  	this.isInsideEnumConstantPart = false;
+	  if(foundOpeningBrace) {
+	  	TypeDeclaration anonymousType = (TypeDeclaration) this.astStack[this.astPtr];
+	  	this.currentElement = this.currentElement.add(anonymousType, 0);
+      	this.lastCheckPoint = anonymousType.bodyStart;
+        this.lastIgnoredToken = -1;
+        this.currentToken = 0; // opening brace already taken into account
+	  } else {
+	  	  if(this.currentToken == TokenNameSEMICOLON) {
+		  	this.enumConstantPartStack[this.enumConstantPartPtr] = false;
+		  }
+	      if (!(this.currentElement instanceof RecoveredType)
+	            && (this.currentToken == TokenNameDOT)){
+	         this.lastCheckPoint = enumConstant.sourceStart;
+	         this.restartRecovery = true;
+	         return;
+	      }
+		  this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
+	      this.lastIgnoredToken = -1;
+	      this.restartRecovery = true;
 	  }
-      if (!(this.currentElement instanceof RecoveredType)
-            && (this.currentToken == TokenNameDOT)){
-         this.lastCheckPoint = enumConstant.sourceStart;
-         this.restartRecovery = true;
-         return;
-      }
-	  this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
-      this.lastIgnoredToken = -1;
-      this.restartRecovery = true;
    }
 }
 protected void consumeEnumConstantNoClassBody() {
@@ -2982,7 +2980,6 @@ protected void consumeEnumHeader() {
 	}
 
 	if (this.currentElement != null) {
-		this.isInsideEnumConstantPart = true;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 	
@@ -7878,7 +7875,7 @@ public void goForGenericMethodDeclaration(){
 }
 public void goForHeaders(){
 	//tells the scanner to go for headers only parsing
-	if(this.isInsideEnumConstantPart) {
+	if(this.enumConstantPartPtr > -1 && this.enumConstantPartStack[this.enumConstantPartPtr]) {
 		this.firstToken = TokenNameNOT;
 	} else {
 		this.firstToken = TokenNameUNSIGNED_RIGHT_SHIFT;
@@ -8032,6 +8029,8 @@ public void initialize() {
 	this.compilationUnit = null;
 	this.referenceContext = null;
 	this.endStatementPosition = 0;
+	
+	this.enumConstantPartPtr = -1;
 
 	//remove objects from stack too, while the same parser/compiler couple is
 	//re-used between two compilations ....
@@ -8819,6 +8818,16 @@ protected void pushOnAstStack(ASTNode node) {
 	}
 	this.astLengthStack[this.astLengthPtr] = 1;
 }
+protected void pushOnEnumConstantPartStack(boolean isEnumConstantPart) {
+	int stackLength = this.enumConstantPartStack.length;
+	if (++this.enumConstantPartPtr >= stackLength) {
+		System.arraycopy(
+			this.enumConstantPartStack, 0,
+			this.enumConstantPartStack = new boolean[stackLength + StackIncrement], 0,
+			stackLength);
+	}
+	this.enumConstantPartStack[this.enumConstantPartPtr] = isEnumConstantPart;
+}
 protected void pushOnExpressionStack(Expression expr) {
 
 	int stackLength = this.expressionStack.length;
@@ -8966,8 +8975,8 @@ public void recoveryTokenCheck() {
 		case TokenNameSEMICOLON :
 			this.endStatementPosition = this.scanner.currentPosition - 1;
 			this.endPosition = this.scanner.startPosition - 1; 
-			if(this.isInsideEnumConstantPart && this.dietInt <= 0) {
-				isInsideEnumConstantPart = false;
+			if(this.enumConstantPartPtr > -1 && this.enumConstantPartStack[this.enumConstantPartPtr]) {
+				this.enumConstantPartStack[this.enumConstantPartPtr] = false;
 			}
 			// fall through
 		default : {

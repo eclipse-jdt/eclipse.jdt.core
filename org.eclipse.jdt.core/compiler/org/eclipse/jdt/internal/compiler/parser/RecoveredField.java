@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 
 public class RecoveredField extends RecoveredElement {
 
@@ -80,6 +81,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		// Store type declaration as an anonymous type
 		RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 		this.anonymousTypes[this.anonymousTypeCount++] = element;
+		this.parser().pushOnEnumConstantPartStack(typeDeclaration.getKind() == IGenericType.ENUM);
 		return element;
 	}
 }
@@ -109,13 +111,23 @@ public String toString(int tab){
 }
 public FieldDeclaration updatedFieldDeclaration(){
 
-	if (this.anonymousTypes != null && fieldDeclaration.initialization == null) {
-		for (int i = 0; i < this.anonymousTypeCount; i++){
-			if (anonymousTypes[i].preserveContent){
-				fieldDeclaration.initialization = this.anonymousTypes[i].updatedTypeDeclaration().allocation;
+	if (this.anonymousTypes != null) {
+		if(fieldDeclaration.initialization == null) {
+			for (int i = 0; i < this.anonymousTypeCount; i++){
+				if (anonymousTypes[i].preserveContent){
+					fieldDeclaration.initialization = this.anonymousTypes[i].updatedTypeDeclaration().allocation;
+				}
 			}
+			if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalTypeMASK;
 		}
-		if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalTypeMASK;
+//		else if(fieldDeclaration.type == null) {
+//			// fieldDeclaration is an enum constant
+//			for (int i = 0; i < this.anonymousTypeCount; i++){
+//				if (anonymousTypes[i].preserveContent){
+//					this.anonymousTypes[i].updatedTypeDeclaration();
+//				}
+//			}
+//		}
 	}
 	return fieldDeclaration;
 }

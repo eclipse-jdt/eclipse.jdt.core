@@ -54,6 +54,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0 
 		&& methodDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd){
+		this.parser().enumConstantPartPtr--;
 		return this.parent.add(methodDeclaration, bracketBalanceValue);
 	}
 
@@ -95,6 +96,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0
 		&& fieldDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd) {
+		this.parser().enumConstantPartPtr--;
 		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}
 	if (fields == null) {
@@ -140,6 +142,7 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0 
 		&& memberTypeDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd){
+		this.parser().enumConstantPartPtr--;
 		return this.parent.add(memberTypeDeclaration, bracketBalanceValue);
 	}
 	
@@ -179,7 +182,10 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		this.bracketBalance++;
 	}
 	/* if member type not finished, then member type becomes current */
-	if (memberTypeDeclaration.declarationSourceEnd == 0) return element;
+	if (memberTypeDeclaration.declarationSourceEnd == 0) {
+		this.parser().pushOnEnumConstantPartStack(typeDeclaration.getKind() == IGenericType.ENUM);
+		return element;
+	}
 	return this;
 }
 /*
@@ -461,6 +467,7 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if ((--bracketBalance <= 0) && (parent != null)){
 		this.updateSourceEndIfNecessary(braceStart, braceEnd);
 		this.bodyEnd = braceStart - 1;
+		this.parser().enumConstantPartPtr--;
 		return parent;
 	}
 	return this;
