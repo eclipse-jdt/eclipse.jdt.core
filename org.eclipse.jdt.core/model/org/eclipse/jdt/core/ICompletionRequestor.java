@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
  */
 public interface ICompletionRequestor {
 /**
- * Code assist notification of an anonynous type declaration completion.
+ * Code assist notification of an anonymous type declaration completion.
  * @param superTypePackageName char[]
  * 		Name of the package that contains the super type of thw new anonynous type declaration .
  * 

@@ -11,7 +11,7 @@ Contributors:
 package org.eclipse.jdt.core.util;
 
 /**
- * This interface is intented to be implemented to disassemble
+ * This interface is intended to be implemented to disassemble
  * IClassFileReader onto a String using the proper line separator.
  * 
  * @since 2.0

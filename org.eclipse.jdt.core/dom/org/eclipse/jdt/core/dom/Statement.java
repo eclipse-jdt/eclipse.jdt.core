@@ -65,7 +65,7 @@ public abstract class Statement extends ASTNode {
 	
 	/**
 	 * Returns the leading comment string, including the starting
-	 * and ending comment delimiters, and any embedded linebreaks.
+	 * and ending comment delimiters, and any embedded line breaks.
 	 * <p>
 	 * A leading comment is one that appears before the statement.
 	 * It may be either an end-of-line or a multi-line comment.

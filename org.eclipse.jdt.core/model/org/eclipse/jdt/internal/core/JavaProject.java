@@ -1826,9 +1826,11 @@ public class JavaProject
 	}
 	
 	/**
-	 * Saves the classpath in a shareable format (VCM-wise) if necessary (i.e.&nbsp;semantically different).
+	 * Saves the classpath in a shareable format (VCM-wise) if necessary.
+	 *  (i.e.&nbsp;semantically different).
 	 * Will never write an identical one.
-	 * Returns whether the .classpath file was modified.
+	 * 
+	 * @return Return whether the .classpath file was modified.
 	 */
 	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation) throws JavaModelException {
 

@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
  */
 public interface IJavaSearchScope {
 	/**
-	 * This constant defines the separator the resourcePath string of the <code>encloses(String)</code>
+	 * This constant defines the separator of the resourcePath string of the <code>encloses(String)</code>
 	 * method. If present in the string, it separates the path to the jar file from the path
 	 * to the .class file in the jar.
 	 */

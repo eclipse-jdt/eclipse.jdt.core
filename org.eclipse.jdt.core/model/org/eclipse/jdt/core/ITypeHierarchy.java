@@ -184,7 +184,7 @@ IType[] getSupertypes(IType type);
  */
 IType getType();
 /**
- * Re-computes the type hierarchy reporting progess.
+ * Re-computes the type hierarchy reporting progress.
  *
  * @exception JavaModelException if unable to refresh the hierarchy
  */

@@ -79,7 +79,7 @@ public void accept(
  */
 public void done();
 /**
- * Returns the progress monitor used to setup and report progress.
+ * Returns the progress monitor used to report progress.
  *
  * @return a progress monitor or null if no progress monitor is provided
  */

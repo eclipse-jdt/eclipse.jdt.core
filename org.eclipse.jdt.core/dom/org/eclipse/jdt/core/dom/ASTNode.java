@@ -719,21 +719,21 @@ public abstract class ASTNode {
 		}
 	
 		/**
-		 * @see AbstractCollection
+		 * @see java.util.AbstractCollection#size()
 		 */
 		public int size() {
 			return store.size();
 		}
 	
 		/**
-		 * @see AbstractList
+		 * @see AbstractList#get(int)
 		 */
 		public Object get(int index) {
 			return store.get(index);
 		}
 	
 		/**
-		 * @see List
+		 * @see List#set(int, java.lang.Object)
 		 */
 		public Object set(int index, Object element) {
 			// delink old child from parent, and link new child to parent
@@ -751,7 +751,7 @@ public abstract class ASTNode {
 		}
 		
 		/**
-		 * @see List
+		 * @see List#add(int, java.lang.Object)
 		 */
 		public void add(int index, Object element) {
 			// link new child to parent
@@ -764,7 +764,7 @@ public abstract class ASTNode {
 		}
 		
 		/**
-		 * @see List
+		 * @see List#remove(int)
 		 */
 		public Object remove(int index) {
 			// delink old child from parent

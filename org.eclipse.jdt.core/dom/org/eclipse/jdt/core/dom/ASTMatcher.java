@@ -52,7 +52,7 @@ public class ASTMatcher {
 	}
 
 	/**
-	 * Returns whether the given lists of AST nodes match pairwise according
+	 * Returns whether the given lists of AST nodes match pair wise according
 	 * to <code>ASTNode.subtreeMatch</code>.
 	 * <p>
 	 * Note that this is a convenience method, useful for writing recursive

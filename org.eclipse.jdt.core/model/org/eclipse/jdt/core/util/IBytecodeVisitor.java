@@ -11,7 +11,7 @@ Contributors:
 package org.eclipse.jdt.core.util;
 
 /**
- * Description of a java bytecode visitor. This should be used to walk the bytecode
+ * Description of a Java opcodes visitor. This should be used to walk the opcodes
  * of a ICodeAttribute.
  *  
  * @since 2.0

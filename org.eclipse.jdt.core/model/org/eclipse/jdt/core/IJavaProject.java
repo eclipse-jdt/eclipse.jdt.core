@@ -303,10 +303,10 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	boolean hasBuildState();
 
 	/**
-	 * Returns whether setting this projec's classpath to the given classpath entries
+	 * Returns whether setting this project's classpath to the given classpath entries
 	 * would result in a cycle.
 	 *
-	 * If the set of entries contains some variables, these are resolved in order to determine
+	 * If the set of entries contains some variables, those are resolved in order to determine
 	 * cycles.
 	 */
 	boolean hasClasspathCycle(IClasspathEntry[] entries);
