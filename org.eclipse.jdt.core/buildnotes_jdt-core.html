@@ -47,7 +47,42 @@ Eclipse SDK 3.0 Build - ?th June 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> added optional problem to signal superfluous semicolons.
+<li>To finish closing the gap between compilation units and working copies 
+(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888 </a>), exiting APIs were augmented with
+a <code>WorkingCopyOwner</code> parameter, that defines the working copies to consider in the operation. The following new APIs were added:
+	<ul>
+	<li><code>AST.parseCompilationUnit(char[] source, String unitName, IJavaProject project, WorkingCopyOwner owner)</code></li>
+	<li><code>AST.parseCompilationUnit(IClassFile classFile, boolean resolveBindings, WorkingCopyOwner owner)</code></li>
+	<li><code>AST.parseCompilationUnit(ICompilationUnit unit, boolean resolveBindings, WorkingCopyOwner owner)</code></li>
+	<li><code>IEvaluationContext.codeComplete(String codeSnippet, int position, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
+	<li><code>IEvaluationContext.codeSelect(String codeSnippet, int offset, int length, WorkingCopyOwner owner)</code></li>
+	<li><code>IDOMCompilationUnit.getCompilationUnit(IPackageFragment parent, WorkingCopyOwner owner)</code></li>
+	<li><code>ICodeAssist.codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
+	<li><code>ICodeAssist.codeSelect(int offset, int length, WorkingCopyOwner owner)</code></li>
+	<li><code>ICompilationUnit.reconcile(boolean forceProblemDetection, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+	<li><code>IJavaProject.findElement(IPath path, WorkingCopyOwner owner)</code></li>
+	<li><code>IJavaProject.findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner)</code></li>
+	<li><code>IJavaProject.findType(String fullyQualifiedName, WorkingCopyOwner owner)</code></li>
+	<li><code>IJavaProject.newTypeHierarchy(IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+	<li><code>IJavaProject.newTypeHierarchy(IType type, IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+	<li><code>IPackageFragment.getCompilationUnit(String name, WorkingCopyOwner owner)</code></li>
+	<li><code>IPackageFragment.getCompilationUnits(WorkingCopyOwner owner)</code></li>
+	<li><code>IType.codeComplete(char[] snippet, int insertion, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
+	<li><code>IType.loadTypeHierachy(InputStream input, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+	<li><code>IType.newSupertypeHierarchy(WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+	<li><code>IType.newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+	<li><code>IType.newTypeHierarchy(WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+	<li><code>IType.resolveType(String typeName, WorkingCopyOwner owner)</code></li>
+	<li><code>JavaCore.create(IFile file, WorkingCopyOwner owner)</code></li>
+	<li><code>JavaCore.create(IResource resource, WorkingCopyOwner owner)</code></li>
+	<li><code>JavaCore.create(String handleIdentifier, WorkingCopyOwner owner)</code></li>
+	<li><code>JavaCore.createCompilationUnitFrom(IFile file, WorkingCopyOwner owner)</code></li>
+	<li><code>JavaCore.getWorkingCopies(WorkingCopyOwner owner)</code></li>
+	<li><code>SearchEngine.SearchEngine(WorkingCopyOwner workingCopyOwner)</code></li>
+	<li><code>SearchEngine.createHierarchyScope(IType type, WorkingCopyOwner owner)</code></li>
+	</ul>
+</li>
+<li>Added optional problem to signal superfluous semicolons.
 <pre>
 * COMPILER / Reporting Superfluous Semicolon
 *    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.
