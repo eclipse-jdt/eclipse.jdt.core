@@ -159,53 +159,109 @@ The proposal affects core, launching, java debug UI, and the Java UI components.
 JavaCore</h3>
 JavaCore provides a new type of classpath entry "CPE_CONTAINER",
 which is just a named reference to a set of other classpath entries. 
-A container entry refers to a container path, which will be resolved by
-a <code>ClasspathContainerResolver</code> through an extension point.
+A container entry refers to a container path, which can be resolved by
+a <code>ClasspathContainerInitializer</code> through an extension point,
+or explicitly assigned using a setter method. 
 
 The actual binding from the CPE_Container entry to
 the target classpath entries is implemented in term of an extension point
 to keep Java Core independent of VM install concerns:
-<p><tt>&nbsp;&nbsp; &lt;!ELEMENT classpathContainerResolver
+<p><tt>&nbsp;&nbsp; &lt;!ELEMENT classpathContainerInitializer
 EMPTY></tt>
-<br><tt>&nbsp;&nbsp; &lt;!ATTLIST classpathContainerResolver</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; prefix&nbsp;&nbsp;&nbsp;
+<br><tt>&nbsp;&nbsp; &lt;!ATTLIST classpathContainerInitializer</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 CDATA #REQUIRED</tt>
-<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class&nbsp;&nbsp;&nbsp;&nbsp;
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class&nbsp;&nbsp;
 CDATA #REQUIRED</tt>
 <br><tt>&nbsp;&nbsp; ></tt>
 <ul>
-<li><b>prefix</b> - the prefix of container names for which this resolver will be activated.</li>
-<li><b>class</b> - the class that implements this container resolver.
-The class must implement a public subclass of <code>org.eclipse.jdt.core.ClasspathContainerResolver</code>
+<li><b>id</b> - the container unique name for which this resolver will be activated.</li>
+<li><b>class</b> - the class that implements this container initializer.
+The class must implement a public subclass of <code>org.eclipse.jdt.core.ClasspathContainerInitializer</code>
 with a public 0-argument constructor.</li>
 </ul>
 <tt>&nbsp;&nbsp; abstract class ClasspathContainerResolver
 {</tt>
 <br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-IClasspathEntry[] resolve(IPath containerPath, IJavaProject project) throws
-CoreException;</tt>
+void initialize(IPath containerPath, IJavaProject project) throws CoreException;</tt>
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
-<p>The resolve call passes in a project, this enables
-to resolve a class path in the context of a particular project.
-The resolve method should only be called once to resolve the class path
+<p>The initialize call passes in a project, this enables
+to resolve a classpath container in the context of a particular project.
+The initialize method should only be called once to resolve the class path
 entry (in case of failure, the container will not be considered as having been
 resolved).
 
-<p>It is possible to register a resolved per
-container path prefix, the full container path being passed along to the resolver
-so as to provide additional hints for the container expansion.
-In case multiple resolvers are registered, the one with the longest prefix match
-will be invoked to resolve a given container path (in case of ambiguity, the first
+<p>It is possible to register an initializer per container ID. The full container path 
+being passed along to the initializer is a 2 segments path. The first segment is
+the container ID for which an initializer should be registered. The second segment
+can be used to provide additional hints for the container expansion.
+In case multiple resolvers are registered on the same container ID, the first
 registered one will be used).
 
-<p>JavaCore provides a method to signal JDT/Core that a container definition
-was changed.
-<ul>
-<li><code>JavaCore#classpathContainerChanged(IPath containerPath, IJavaElement scope)</code>. 
-</ul>
-The scope can either refer to a particular project or the entire JavaModel. In reaction
-to invoking this method, the JavaModel will be refreshed and corresponding Java element
+<p>JavaCore provides a method to perform explicit modifications of a container:
+<pre>
+JavaCore#setClasspathContainer(
+	IPath containerPath, 
+	IJavaProject[] affectedProjects, 
+	IClasspathContainer[] respectiveContainers, 
+	IProgressMonitor monitor)
+</pre>
+In particular, this method is to be used in  the context of a classpath initializer so as to perform
+the actual initialization. Note that it allows to modify the value of a container for a set of projects
+at once. In reaction to invoking this method, the JavaModel will be refreshed and corresponding Java element
 changes will be notified.
+
+<p> A classpath container implements <code>org.eclipse.jdt.core.IClasspathContainer</code> and can be queried
+through a JavaCore API: <code>JavaCore#getClasspathContainer(IPath containerPath, IJavaProject project) </code>.
+
+<pre>
+public interface IClasspathContainer {
+	
+	/**
+	 * Kind for a container mapping to an application library
+	 */
+	int K_APPLICATION = 1;
+
+	/**
+	 * Kind for a container mapping to a system library
+	 */
+	int K_SYSTEM = 2;
+
+	/**
+	 * Answers the set of classpath entries this container is mapping to.
+	 * The set of entries associated with a classpath container may contain any of the following:
+	 * - source entries (<code>CPE_SOURCE</code>)
+	 * - library entries (<code>CPE_LIBRARY</code>) 
+	 * - project entries (<code>CPE_PROJECT</code>) 
+	 * - variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved
+	 * A classpath container cannot reference further classpath containers.
+	 */	
+    IClasspathEntry[] getClasspathEntries();
+
+	/**
+	 * Answers a readable description of this container
+	 */	
+    String getDescription();
+
+	/**
+	 * Answers the kind of this container. Can be either:
+	 * - K_APPLICATION  if this container maps to an application library
+	 * - K_SYSTEM  if this container maps to a system library
+	 * Typically, system containers should be placed first on a build path.
+	 */	
+    int getKind();
+
+	/**
+	 * Answers the container path identifying this container.
+	 * A container path is a 2-segments path, formed by an ID segment followed with a clue segment.
+	 * This container ID is used in conjunction with the  clue for resolving to this container.
+	 * The container ID is also used to identify a ClasspathContainerInitializer 
+	 * registered on the extension point "org.eclipse.jdt.core.classpathContainerInitializer", which can
+	 * be invoked if needing to resolve the container before it is explicitely set.
+	 */	
+    IPath getPath();
+}
+</pre>
 
 <p><font color="#FF0000"><b>Issue</b>: The Mac OS X JDK install is
 an interesting case. There the rt.jar is split into two binary JARs (classes.jar,
