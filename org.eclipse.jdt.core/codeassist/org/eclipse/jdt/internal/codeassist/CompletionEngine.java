@@ -2059,22 +2059,29 @@ public final class CompletionEngine
 			SourceTypeBinding[] types = unitScope.topLevelTypes;
 
 			for (int i = 0, length = types.length; i < length; i++) {
-				SourceTypeBinding sourceType = types[i];
+				SourceTypeBinding sourceType = types[i]; 
 
-				if (typeLength > sourceType.sourceName.length)
-					continue;
+				if (typeLength > sourceType.sourceName.length)	continue;
+				
+				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false))	continue;
 
-				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false
-					/* ignore case */
-					))
-					continue;
-
-				requestor.acceptType(
-					sourceType.qualifiedPackageName(),
-					sourceType.sourceName(),
-					sourceType.sourceName(),
-					startPosition - offset,
-					endPosition - offset);
+				if (sourceType.isClass()){
+					requestor.acceptClass(
+						sourceType.qualifiedPackageName(),
+						sourceType.sourceName(),
+						sourceType.sourceName(),
+						sourceType.modifiers,
+						startPosition - offset, 
+						endPosition - offset);
+				} else {
+					requestor.acceptInterface(
+						sourceType.qualifiedPackageName(),
+						sourceType.sourceName(),
+						sourceType.sourceName(),
+						sourceType.modifiers,
+						startPosition - offset,
+						endPosition - offset);
+				}
 			}
 		}
 
