@@ -240,17 +240,6 @@ class DefaultCommentMapper {
 		// Compute last next start and previous end. Next start is the starting position
 		// of first token following node end which is neither a comment nor white spaces.
 		int lastPos = getExtendedEnd(node);
-//		int lastPos = node.getStartPosition() + node.getLength();
-//		scanner.resetTo(lastPos, scanner.source.length-1);
-//		try {
-//			int token = -1;
-//			do {
-//				token = scanner.getNextToken();
-//			} while (token >= TerminalTokens.TokenNameWHITESPACE && token <= TerminalTokens.TokenNameCOMMENT_JAVADOC);
-//			lastPos = scanner.getCurrentTokenStartPosition();
-//		} catch (InvalidInputException e) {
-//			// do nothing
-//		}
 		int previousEnd = node.getStartPosition();
 		
 		// Compute leading and trailing comments for all children nodes at this level
