@@ -457,4 +457,42 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 	}
 
+		/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84398
+	 */
+	public void test024() {
+		IScanner scanner = ToolFactory.createScanner(false, false, true, JavaCore.VERSION_1_5);
+		char[] source = "public class X {\n\n}".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		int counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+		}
+		
+		assertEquals("wrong number of tokens", 5, counter);
+		int[] lineEnds = scanner.getLineEnds();
+		assertNotNull("No line ends", lineEnds);
+		assertEquals("wrong length", 2, lineEnds.length);
+		source = "public class X {}".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		lineEnds = scanner.getLineEnds();
+		assertNotNull("No line ends", lineEnds);
+		assertEquals("wrong length", 0, lineEnds.length);
+		
+		counter = 0;
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+				counter++;
+			}
+		} catch (InvalidInputException e) {
+		}
+		
+		assertEquals("wrong number of tokens", 5, counter);
+		lineEnds = scanner.getLineEnds();
+		assertNotNull("No line ends", lineEnds);
+		assertEquals("wrong length", 0, lineEnds.length);
+	}
 }
