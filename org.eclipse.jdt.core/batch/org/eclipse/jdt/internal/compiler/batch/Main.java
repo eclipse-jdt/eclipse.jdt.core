@@ -324,7 +324,7 @@ private void configure(String[] argv) throws InvalidInputException {
 				throw new InvalidInputException(Main.bind("configure.duplicateCompliance",currentArg)); //$NON-NLS-1$
 			}
 			didSpecifyCompliance = true;
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 			mode = Default;
 			continue;
 		}
