@@ -26,7 +26,7 @@ public final class CharOperation {
 	public static final char[][] NO_CHAR_CHAR = new char[0][];
 	
 	/**
-	 * Returns a new array with appending the suffix character at the end of the array.
+	 * Answers a new array with appending the suffix character at the end of the array.
 	 * <br>
 	 * <br>
 	 * For example:<br>
@@ -58,7 +58,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the concatenation of the two arrays. It returns null if the two arrays are null.
+	 * Answers the concatenation of the two arrays. It answers null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
 	 * If the second array is null, then the first array is returned.
 	 * <br>
@@ -110,8 +110,8 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns a new array adding the second array at the end of first array.
-	 * It returns null if the first and second are null.
+	 * Answers a new array adding the second array at the end of first array.
+	 * It answers null if the first and second are null.
 	 * If the first array is null, then a new array char[][] is created with second.
 	 * If the second array is null, then the first array is returned.
 	 * <br>
@@ -155,7 +155,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the concatenation of the two arrays. It returns null if the two arrays are null.
+	 * Answers the concatenation of the two arrays. It answers null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
 	 * If the second array is null, then the first array is returned.
 	 * <br>
@@ -201,10 +201,10 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the concatenation of the three arrays. It returns null if the three arrays are null.
-	 * If first is null, it returns the concatenation of second and third.
-	 * If second is null, it returns the concatenation of first and third.
-	 * If third is null, it returns the concatenation of first and second.
+	 * Answers the concatenation of the three arrays. It answers null if the three arrays are null.
+	 * If first is null, it answers the concatenation of second and third.
+	 * If second is null, it answers the concatenation of first and third.
+	 * If third is null, it answers the concatenation of first and second.
 	 * <br>
 	 * <br>
 	 * For example:
@@ -274,8 +274,8 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the concatenation of the two arrays inserting the separator character between the two arrays.
-	 * It returns null if the two arrays are null.
+	 * Answers the concatenation of the two arrays inserting the separator character between the two arrays.
+	 * It answers null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
 	 * If the second array is null, then the first array is returned.
 	 * <br>
@@ -335,10 +335,10 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the concatenation of the three arrays inserting the sep1 character between the 
+	 * Answers the concatenation of the three arrays inserting the sep1 character between the 
 	 * two arrays and sep2 between the last two.
-	 * It returns null if the three arrays are null.
-	 * If the first array is null, then it returns the concatenation of second and third inserting
+	 * It answers null if the three arrays are null.
+	 * If the first array is null, then it answers the concatenation of second and third inserting
 	 * the sep2 character between them.
 	 * If the second array is null, then the first array is returned.
 	 * <br>
@@ -400,8 +400,8 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns a new array with prepending the prefix character and appending the suffix 
-	 * character at the end of the array. If array is null, it returns a new array containing the 
+	 * Answers a new array with prepending the prefix character and appending the suffix 
+	 * character at the end of the array. If array is null, it answers a new array containing the 
 	 * prefix and the suffix characters.
 	 * <br>
 	 * <br>
@@ -440,7 +440,7 @@ public final class CharOperation {
 	}
 	
 	/**
-	 * Returns the concatenation of the given array parts using the given separator between each
+	 * Answers the concatenation of the given array parts using the given separator between each
 	 * part and appending the given name at the end.
 	 * <br>
 	 * <br>
@@ -505,7 +505,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the concatenation of the given array parts using the given separator between each
+	 * Answers the concatenation of the given array parts using the given separator between each
 	 * part and appending the given name at the end.
 	 * <br>
 	 * <br>
@@ -570,7 +570,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the concatenation of the given array parts using the given separator between each part.
+	 * Answers the concatenation of the given array parts using the given separator between each part.
 	 * <br>
 	 * <br>
 	 * For example:<br>
@@ -626,7 +626,7 @@ public final class CharOperation {
 	}
 	
 	/**
-	 * Returns true if the array contains an occurrence of character, false otherwise.
+	 * Answers true if the array contains an occurrence of character, false otherwise.
 	 * 
 	 * <br>
 	 * <br>
@@ -663,7 +663,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns true if the array contains an occurrence of character, false otherwise.
+	 * Answers true if the array contains an occurrence of character, false otherwise.
 	 * 
 	 * <br>
 	 * <br>
@@ -697,7 +697,7 @@ public final class CharOperation {
 	}
 	
 	/**
-	 * Returns a deep copy of the toCopy array.
+	 * Answers a deep copy of the toCopy array.
 	 * 
 	 * @param toCopy the array to copy
 	 * @return a deep copy of the toCopy array.
@@ -1063,7 +1063,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns a hashcode for the array
+	 * Answers a hashcode for the array
 	 * 
 	 * @param array the array for which a hashcode is required
 	 * @return the hashcode
@@ -1085,7 +1085,7 @@ public final class CharOperation {
 		return hash & 0x7FFFFFFF;
 	}
 	/**
-	 * Returns true if c is a whitespace according to the JLS (&#92;u000a, &#92;u000c, &#92;u000d, &#92;u0009), otherwise false.
+	 * Answers true if c is a whitespace according to the JLS (&#92;u000a, &#92;u000c, &#92;u000d, &#92;u0009), otherwise false.
 	 * <br>
 	 * <br>
 	 * For example:
@@ -1119,8 +1119,8 @@ public final class CharOperation {
 	}
 	
 	/**
-	 * Returns the first index in the array for which the corresponding character is
-	 * equal to toBeFound. Returns -1 if no occurrence of this character is found.
+	 * Answers the first index in the array for which the corresponding character is
+	 * equal to toBeFound. Answers -1 if no occurrence of this character is found.
 	 * <br>
 	 * <br>
 	 * For example:
@@ -1153,9 +1153,9 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the first index in the array for which the corresponding character is
+	 * Answers the first index in the array for which the corresponding character is
 	 * equal to toBeFound starting the search at index start.
-	 * Returns -1 if no occurrence of this character is found.
+	 * Answers -1 if no occurrence of this character is found.
 	 * <br>
 	 * <br>
 	 * For example:
@@ -1199,9 +1199,9 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the last index in the array for which the corresponding character is
+	 * Answers the last index in the array for which the corresponding character is
 	 * equal to toBeFound starting from the end of the array.
-	 * Returns -1 if no occurrence of this character is found.
+	 * Answers -1 if no occurrence of this character is found.
 	 * <br>
 	 * <br>
 	 * For example:
@@ -1234,9 +1234,9 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the last index in the array for which the corresponding character is
+	 * Answers the last index in the array for which the corresponding character is
 	 * equal to toBeFound stopping at the index startIndex.
-	 * Returns -1 if no occurrence of this character is found.
+	 * Answers -1 if no occurrence of this character is found.
 	 * <br>
 	 * <br>
 	 * For example:
@@ -1283,9 +1283,9 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the last index in the array for which the corresponding character is
+	 * Answers the last index in the array for which the corresponding character is
 	 * equal to toBeFound starting from endIndex to startIndex.
-	 * Returns -1 if no occurrence of this character is found.
+	 * Answers -1 if no occurrence of this character is found.
 	 * <br>
 	 * <br>
 	 * For example:
@@ -1358,7 +1358,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns true if the pattern matches the given name, false otherwise. This char[] pattern matching
+	 * Answers true if the pattern matches the given name, false otherwise. This char[] pattern matching
 	 * accepts wild-cards '*' and '?'.
 	 *
 	 * When not case sensitive, the pattern is assumed to already be lowercased, the
@@ -1418,7 +1418,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns true if the a sub-pattern matches the subpart of the given name, false otherwise.
+	 * Answers true if the a sub-pattern matches the subpart of the given name, false otherwise.
 	 * char[] pattern matching, accepting wild-cards '*' and '?'. Can match only subset of name/pattern.
 	 * end positions are non-inclusive.
 	 * The subpattern is defined by the patternStart and pattternEnd positions.
@@ -1533,7 +1533,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns true if the pattern matches the filepath using the pathSepatator, false otherwise.
+	 * Answers true if the pattern matches the filepath using the pathSepatator, false otherwise.
 	 * 
 	 * Path char[] pattern matching, accepting wild-cards '**', '*' and '?'.
 	 * Path pattern matching is enhancing regular pattern matching in supporting extra rule where '**' represent
@@ -1724,7 +1724,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the number of occurrences of the given character in the given array, 0 if any.
+	 * Answers the number of occurrences of the given character in the given array, 0 if any.
 	 * 
 	 * <br>
 	 * <br>
@@ -1758,7 +1758,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns the number of occurrences of the given character in the given array starting
+	 * Answers the number of occurrences of the given character in the given array starting
 	 * at the given index, 0 if any.
 	 * 
 	 * <br>
@@ -1799,7 +1799,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns true if the given name starts with the given prefix, false otherwise.
+	 * Answers true if the given name starts with the given prefix, false otherwise.
 	 * The comparison is case sensitive.
 	 * <br>
 	 * <br>
@@ -1838,7 +1838,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns true if the given name starts with the given prefix, false otherwise.
+	 * Answers true if the given name starts with the given prefix, false otherwise.
 	 * isCaseSensitive is used to find out whether or not the comparison should be case sensitive.
 	 * <br>
 	 * <br>
@@ -1933,7 +1933,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns a new array of characters with substitutions. No side-effect is operated on the original
+	 * Answers a new array of characters with substitutions. No side-effect is operated on the original
 	 * array, in case no substitution happened, then the result is the same as the
 	 * original one.
 	 * <br>
@@ -2215,7 +2215,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns true if the given array starts with the given characters, false otherwise.
+	 * Answers true if the given array starts with the given characters, false otherwise.
 	 * The comparison is case sensitive.
 	 * <br>
 	 * <br>
@@ -2251,9 +2251,9 @@ public final class CharOperation {
 	}
 	
 	/**
-	 * Returns a new array which is a copy of the given array starting at the given start and 
+	 * Answers a new array which is a copy of the given array starting at the given start and 
 	 * ending at the given end. The given start is inclusive and the given end is exclusive.
-	 * Returns null if start is greater than end, if start is lower than 0 or if end is greater 
+	 * Answers null if start is greater than end, if start is lower than 0 or if end is greater 
 	 * than the length of the given array. If end  equals -1, it is converted to the array length.
 	 * <br>
 	 * <br>
@@ -2298,9 +2298,9 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns a new array which is a copy of the given array starting at the given start and 
+	 * Answers a new array which is a copy of the given array starting at the given start and 
 	 * ending at the given end. The given start is inclusive and the given end is exclusive.
-	 * Returns null if start is greater than end, if start is lower than 0 or if end is greater 
+	 * Answers null if start is greater than end, if start is lower than 0 or if end is greater 
 	 * than the length of the given array. If end  equals -1, it is converted to the array length.
 	 * <br>
 	 * <br>
@@ -2344,7 +2344,7 @@ public final class CharOperation {
 		return result;
 	}
 	/**
-	 * Answers the result of a char[] conversion to lowercase. Returns null if the given chars array is null.
+	 * Answers the result of a char[] conversion to lowercase. Answers null if the given chars array is null.
 	 * <br>
 	 * NOTE: if no conversion was necessary, then answers back the argument one.
 	 * <br>
@@ -2390,7 +2390,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns a new array removing leading and trailing spaces (' '). Returns the given array if there is no
+	 * Answers a new array removing leading and trailing spaces (' '). Answers the given array if there is no
 	 * space characters to remove.
 	 * <br>
 	 * <br>
@@ -2430,7 +2430,7 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Returns a string which is the concatenation of the given array using the '.' as a separator.
+	 * Answers a string which is the concatenation of the given array using the '.' as a separator.
 	 * <br>
 	 * <br>
 	 * For example:
