@@ -389,8 +389,8 @@ public void saveIndexes(){
 		try {
 			monitor.enterWrite();
 			if (IndexManager.VERBOSE){
-				if (index.hasChanged()){
-					System.out.println("-> merging index : "+index.getIndexFile()); //$NON-NLS-1$
+				if (index.hasChanged()){ 
+					System.out.println("-> merging index ("+ Thread.currentThread()+"): "+index.getIndexFile()); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
 			try {

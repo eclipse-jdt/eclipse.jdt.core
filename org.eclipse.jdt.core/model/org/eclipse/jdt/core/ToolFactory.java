@@ -168,7 +168,7 @@ public class ToolFactory {
 	 * Here is a typical scanning loop:
 	 * 
 	 * <code>
-	 *   IScanner scanner = ToolFactory.createScanner(false, false, false);
+	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 	 *   scanner.setSource("int i = 0;".toCharArray());
 	 *   while (true) {
 	 *     int token = scanner.getNextToken();
