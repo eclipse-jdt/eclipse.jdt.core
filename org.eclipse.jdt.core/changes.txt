@@ -1,8 +1,10 @@
+STREAM: 2.0
+
 What's new in this drop
 ==================================================================================
-  *   JCK1.3a compliant. 
-  *  All messages have been externalized. 
-  *  Added 2 new APIs on JavaConventions: 
+  * JCK1.3a compliant. 
+  * All messages have been externalized. 
+  * Added 2 new APIs on JavaConventions: 
          - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
 
@@ -28,6 +30,7 @@ PRs Fixed in this Release (since 1.0NL stream)
 
 PRs Fixed in 1.0NL stream (since 0.9)
 ==================================================================================
+1GH3218: ITPJUI:WIN - mnuemonic problems
 1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
 1GG8T8H: ITPJCORE:ALL - JCK1.3a - dasg04203 - definitely assigned value before the third operand of the conditional operator ? : 
 1GG8T56: ITPJCORE:ALL - JCK1.3a - dasg04103 - definitely assigned value before the second operand of the conditional operator ? : 
@@ -48,7 +51,7 @@ PRs Fixed in 1.0NL stream (since 0.9)
 1GF9Y01: ITPCORE:WIN2000 - NPE when deleting everything in a java file and saving it. 
 1G2F1DT: ITPJCORE:WINNT - Error messages non NLS for JavaModelStatu
 1GGCQZ3: ITPJCORE:ALL - NL problems in xml fil  
-1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP 
+1GFIRSN: ITPJCORE:WINNT - Classpath - Should allow nesting in binary output when no source folder in on CP
 
 
 PRs Closed in this Release
