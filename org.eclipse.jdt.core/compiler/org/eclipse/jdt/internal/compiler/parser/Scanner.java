@@ -2179,6 +2179,13 @@ public final void recordComment(boolean isJavadoc) {
 	this.commentStarts[this.commentPtr] = this.startPosition;
 }
 
+/**
+ * Reposition the scanner on some portion of the original source. The given endPosition is the last valid position.
+ * Beyond this position, the scanner will answer EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
+ * 
+ * @param startPosition the given start position
+ * @param endPosition the given end position
+ */
 public void resetTo(int begin, int end) {
 	//reset the scanner to a given position where it may rescan again
 
