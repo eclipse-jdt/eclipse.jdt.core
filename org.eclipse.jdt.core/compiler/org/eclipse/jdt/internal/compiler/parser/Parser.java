@@ -6744,6 +6744,7 @@ protected void consumeTypeParameter1WithExtends() {
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
+	superType.bits |= ASTNode.IsSuperType;
 	this.genericsStack[this.genericsPtr] = typeParameter;
 }
 protected void consumeTypeParameter1WithExtendsAndBounds() {
@@ -6756,6 +6757,7 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	typeParameter.type = superType;
+	superType.bits |= ASTNode.IsSuperType;	
 	typeParameter.bounds = bounds;
 	for (int i = 0, max = bounds.length; i < max; i++) {
 		bounds[i].bits |= ASTNode.IsSuperType;
@@ -6784,6 +6786,7 @@ protected void consumeTypeParameterWithExtends() {
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
+	superType.bits |= ASTNode.IsSuperType;
 }
 protected void consumeTypeParameterWithExtendsAndBounds() {
 	//TypeParameter ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList
@@ -6794,6 +6797,7 @@ protected void consumeTypeParameterWithExtendsAndBounds() {
 	TypeReference superType = getTypeReference(this.intStack[this.intPtr--]);
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.type = superType;
+	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bounds = bounds;
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
 	for (int i = 0, max = bounds.length; i < max; i++) {
