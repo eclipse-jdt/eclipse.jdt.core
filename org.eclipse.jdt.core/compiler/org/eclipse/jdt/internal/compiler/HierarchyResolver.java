@@ -85,18 +85,22 @@ public void accept(ICompilationUnit sourceUnit) {
 /**
  * Add additional source types
  */
-
 public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
-	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1);
+	// find most enclosing type first (needed when explicit askForType(...) is done 
+	// with a member type (e.g. p.A$B))
+	ISourceType sourceType = sourceTypes[0];
+	while (sourceType.getEnclosingType() != null)
+		sourceType = sourceType.getEnclosingType();
+	
+	// build corresponding compilation unit
+	CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1);
 	CompilationUnitDeclaration unit =
-		SourceTypeConverter.buildCompilationUnit(sourceTypes, false, true, lookupEnvironment.problemReporter, result);
-
+		SourceTypeConverter.buildCompilationUnit(new ISourceType[] {sourceType}, false, true, lookupEnvironment.problemReporter, result);
+		
+	// build bindings
 	if (unit != null) {
 		lookupEnvironment.buildTypeBindings(unit);
-		for (int i = 0, length = sourceTypes.length; i < length; i++) {
-			rememberWithMemberTypes(sourceTypes[i], unit.types[i].binding);
-		}
-
+		rememberWithMemberTypes(sourceType, unit.types[0].binding);
 		lookupEnvironment.completeTypeBindings(unit, false);
 	}
 }
