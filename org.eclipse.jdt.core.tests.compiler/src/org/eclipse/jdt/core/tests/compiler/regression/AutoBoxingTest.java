@@ -1771,4 +1771,58 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"10"
 		);
 	}
+	
+	public void test069() { // assert
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Boolean bool = true;\n" + 
+				"		assert bool : \"failed\";\n" + 
+				"	    System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}
+	
+	public void test070() { // assert
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<Boolean> lb = new ArrayList<Boolean>();\n" + 
+				"		lb.add(true);\n" + 
+				"		Iterator<Boolean> iterator = lb.iterator();\n" + 
+				"		assert iterator.next() : \"failed\";\n" + 
+				"	    System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}	
+	
+	public void test071() { // assert
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<Boolean> lb = new ArrayList<Boolean>();\n" + 
+				"		lb.add(true);\n" + 
+				"		Iterator<Boolean> iterator = lb.iterator();\n" + 
+				"		assert args != null : iterator.next();\n" + 
+				"	    System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}		
+	
 }
