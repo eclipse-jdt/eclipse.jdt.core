@@ -103,12 +103,13 @@ public class ASTMatcher {
 	 * @see AST#subtreeMatch
 	 */
 	public final boolean safeSubtreeMatch(Object node1, Object node2) {
-		if (node1 == node2) {
+		if (node1 == null && node2 == null) {
 			return true;
 		}
 		if (node1 == null || node2 == null) {
 			return false;
 		}
+		// N.B. call subtreeMatch even node1==node2!=null
 		return ((ASTNode) node1).subtreeMatch(this, (ASTNode) node2);
 	}
 
