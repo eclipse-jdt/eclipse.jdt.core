@@ -2718,4 +2718,30 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 			"");
 	}	
+	
+	// check parameter/local target for annotation
+	public void test088() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"\n" + 
+				"@Target(LOCAL_VARIABLE)\n" + 
+				"@interface Annot {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(@Annot int i) {\n" + 
+				"		@Annot int j;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	void foo(@Annot int i) {\n" + 
+			"	         ^^^^^^\n" + 
+			"The annotation @Annot is disallowed for this location\n" + 
+			"----------\n");
+	}		
 }

@@ -261,14 +261,9 @@ public abstract class Annotation extends Expression {
 					case Binding.TYPE :
 					case Binding.GENERIC_TYPE :
 						if (((ReferenceBinding)this.recipient).isAnnotationType()) {
-							if ((metaTagBits & TagBits.AnnotationForAnnotationType) != 0)
+							if ((metaTagBits & (TagBits.AnnotationForAnnotationType|TagBits.AnnotationForType)) != 0)
 							break checkTargetCompatibility;
-						} 
-						if ((metaTagBits & TagBits.AnnotationForType) != 0) 
-							break checkTargetCompatibility;
-						break;
-					case Binding.TYPE_PARAMETER :
-						if ((metaTagBits & TagBits.AnnotationForParameter) != 0)
+						} else if ((metaTagBits & TagBits.AnnotationForType) != 0) 
 							break checkTargetCompatibility;
 						break;
 					case Binding.METHOD :
@@ -283,7 +278,10 @@ public abstract class Annotation extends Expression {
 							break checkTargetCompatibility;
 						break;
 					case Binding.LOCAL :
-						if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0)
+						if (((LocalVariableBinding)this.recipient).isArgument) {
+							if ((metaTagBits & TagBits.AnnotationForParameter) != 0)
+								break checkTargetCompatibility;
+						} else 	if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0)
 							break checkTargetCompatibility;
 						break;
 				}			
