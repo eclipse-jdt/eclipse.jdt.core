@@ -2835,7 +2835,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			}
 		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon_in_for);
 		if (this.preferences.insert_space_after_semicolon_in_for) {
 			this.scribe.space();
 		}
@@ -2843,7 +2843,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (condition != null) {
 			condition.traverse(this, scope);
 		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon_in_for);
 		if (this.preferences.insert_space_after_semicolon_in_for) {
 			this.scribe.space();
 		}

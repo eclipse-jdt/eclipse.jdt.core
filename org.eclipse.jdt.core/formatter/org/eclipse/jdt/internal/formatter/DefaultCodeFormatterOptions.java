@@ -133,6 +133,7 @@ public class DefaultCodeFormatterOptions {
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_PREFIX_OPERATOR = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON = false;
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SWITCH_CONDITION = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE = true;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION = true;
@@ -291,6 +292,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_prefix_operator;
 	public boolean insert_space_before_question_in_conditional;
 	public boolean insert_space_before_semicolon;
+	public boolean insert_space_before_semicolon_in_for;
 	public boolean insert_space_before_switch_condition;
 	public boolean insert_space_before_switch_open_brace;
 	public boolean insert_space_before_synchronized_condition;
@@ -452,6 +454,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PREFIX_OPERATOR, this.insert_space_before_prefix_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL, this.insert_space_before_question_in_conditional ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, this.insert_space_before_semicolon ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR, this.insert_space_before_semicolon_in_for ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_CONDITION, this.insert_space_before_switch_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE, this.insert_space_before_switch_open_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION, this.insert_space_before_synchronized_condition ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -914,6 +917,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeSemicolonOption != null) {
 			this.insert_space_before_semicolon = JavaCore.INSERT.equals(insertSpaceBeforeSemicolonOption);
 		}
+		final Object insertSpaceBeforeSemicolonInForOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR);
+		if (insertSpaceBeforeSemicolonInForOption != null) {
+			this.insert_space_before_semicolon_in_for = JavaCore.INSERT.equals(insertSpaceBeforeSemicolonInForOption);
+		}
 		final Object insertSpaceBeforeSwitchConditionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_CONDITION);
 		if (insertSpaceBeforeSwitchConditionOption != null) {
 			this.insert_space_before_switch_condition = JavaCore.INSERT.equals(insertSpaceBeforeSwitchConditionOption);
@@ -1178,6 +1185,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_prefix_operator = DEFAULT_INSERT_SPACE_BEFORE_PREFIX_OPERATOR;
 		this.insert_space_before_question_in_conditional = DEFAULT_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL;
 		this.insert_space_before_semicolon = DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON;
+		this.insert_space_before_semicolon_in_for = DEFAULT_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR;
 		this.insert_space_before_switch_condition = DEFAULT_INSERT_SPACE_BEFORE_SWITCH_CONDITION;
 		this.insert_space_before_switch_open_brace = DEFAULT_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE;
 		this.insert_space_before_synchronized_condition = DEFAULT_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION;
@@ -1323,6 +1331,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_prefix_operator = false;
 		this.insert_space_before_question_in_conditional = true;
 		this.insert_space_before_semicolon = false;
+		this.insert_space_before_semicolon_in_for = false;
 		this.insert_space_before_switch_condition = true;
 		this.insert_space_before_switch_open_brace = true;
 		this.insert_space_before_synchronized_condition = true;
