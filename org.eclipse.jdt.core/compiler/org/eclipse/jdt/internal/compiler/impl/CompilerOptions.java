@@ -85,10 +85,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// Default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
 	public int warningThreshold = 
-		MethodWithConstructorName | OverriddenPackageDefaultMethod |
-		UsingDeprecatedAPI | MaskedCatchBlock |
-		UnusedLocalVariable | AssertUsedAsAnIdentifier |
-		NoImplicitStringConversion | UnusedImport;
+		MethodWithConstructorName | OverriddenPackageDefaultMethod
+		| UsingDeprecatedAPI | MaskedCatchBlock 
+		| AssertUsedAsAnIdentifier | NoImplicitStringConversion;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -548,6 +547,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				buf.append("\n-unused parameter: WARNING"); //$NON-NLS-1$
 			} else {
 				buf.append("\n-unused parameter: IGNORE"); //$NON-NLS-1$
+			}
+		}
+		if ((errorThreshold & UnusedImport) != 0){
+			buf.append("\n-unused import: ERROR"); //$NON-NLS-1$
+		} else {
+			if ((warningThreshold & UnusedImport) != 0){
+				buf.append("\n-unused import: WARNING"); //$NON-NLS-1$
+			} else {
+				buf.append("\n-unused import: IGNORE"); //$NON-NLS-1$
 			}
 		}
 		if ((errorThreshold & AccessEmulation) != 0){
