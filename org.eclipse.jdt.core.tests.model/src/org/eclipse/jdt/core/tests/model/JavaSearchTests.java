@@ -44,7 +44,7 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 	public void aboutToStart() {
 	}
 	public void accept(IResource resource, int start, int end, IJavaElement element, int accuracy) {
-		JavaSearchMatch match = new FieldDeclarationMatch(element, accuracy, start, end, SearchEngine.getDefaultSearchParticipant(), resource);
+		SearchMatch match = new FieldDeclarationMatch(element, accuracy, start, end, SearchEngine.getDefaultSearchParticipant(), resource);
 		try {
 			acceptSearchMatch(match);
 		} catch (CoreException e) {
@@ -54,10 +54,9 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 	public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
 		try {
 			if (results.length() > 0) results.append("\n");
-			JavaSearchMatch javaMatch = (JavaSearchMatch) match;
-			IResource resource = javaMatch.getResource();
+			IResource resource = match.getResource();
 			IPath path = resource.getProjectRelativePath();
-			IJavaElement element = javaMatch.getJavaElement();
+			IJavaElement element = (IJavaElement) match.getElement();
 			if (path.segmentCount() == 0) {
 				IJavaElement root = element;
 				while (root != null && !(root instanceof IPackageFragmentRoot)) {
@@ -133,8 +132,8 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 							null).getContents();
 					}
 				}
-				int start = javaMatch.getSourceStart();
-				int end = javaMatch.getSourceEnd();
+				int start = match.getOffset();
+				int end = start + match.getLength();
 				if (start == -1 || contents != null) { // retrieving attached source not implemented here
 					results.append(" [");
 					if (start > -1) {
@@ -162,7 +161,7 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 			}
 			if (this.showAccuracy) {
 				results.append(" ");
-				switch (javaMatch.getAccuracy()) {
+				switch (match.getAccuracy()) {
 					case EXACT_MATCH:
 						results.append("EXACT_MATCH");
 						break;
@@ -173,7 +172,7 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 			}
 			if (this.showInsideDoc) {
 				results.append(" ");
-				if (javaMatch.insideDocComment()) {
+				if (match.insideDocComment()) {
 					results.append("INSIDE_JAVADOC");
 				} else {
 					results.append("OUTSIDE_JAVADOC");

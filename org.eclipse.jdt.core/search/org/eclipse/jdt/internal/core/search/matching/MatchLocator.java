@@ -844,7 +844,7 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 	if (type.exists()) return type;
 	return null;
 }
-public JavaSearchMatch newDeclarationMatch(
+public SearchMatch newDeclarationMatch(
 		IJavaElement element,
 		int accuracy,
 		int sourceStart,  
@@ -854,7 +854,7 @@ public JavaSearchMatch newDeclarationMatch(
 	return newDeclarationMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
 }
 
-public JavaSearchMatch newDeclarationMatch(
+public SearchMatch newDeclarationMatch(
 		IJavaElement element,
 		int accuracy,
 		int sourceStart,  
@@ -877,7 +877,7 @@ public JavaSearchMatch newDeclarationMatch(
 	}
 }
 
-public JavaSearchMatch newFieldReferenceMatch(
+public SearchMatch newFieldReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int sourceStart,  
@@ -893,7 +893,7 @@ public JavaSearchMatch newFieldReferenceMatch(
 	return new FieldReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
-public JavaSearchMatch newLocalVariableReferenceMatch(
+public SearchMatch newLocalVariableReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int sourceStart,  
@@ -904,7 +904,7 @@ public JavaSearchMatch newLocalVariableReferenceMatch(
 	return new LocalVariableReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
 }
 
-public JavaSearchMatch newMethodReferenceMatch(
+public SearchMatch newMethodReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int sourceStart,  
@@ -916,7 +916,7 @@ public JavaSearchMatch newMethodReferenceMatch(
 	return new MethodReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, insideDocComment, participant, resource);
 }
 
-public JavaSearchMatch newPackageReferenceMatch(
+public SearchMatch newPackageReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int sourceStart,  
@@ -927,7 +927,7 @@ public JavaSearchMatch newPackageReferenceMatch(
 	return new PackageReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
 }
 
-public JavaSearchMatch newTypeReferenceMatch(
+public SearchMatch newTypeReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int sourceStart,  
@@ -1029,9 +1029,9 @@ protected void report(SearchMatch match) throws CoreException {
 	if (SearchEngine.VERBOSE) {
 		start = System.currentTimeMillis();
 		System.out.println("Reporting match"); //$NON-NLS-1$
-		System.out.println("\tDocument path: " + match.getDocumentPath()); //$NON-NLS-2$//$NON-NLS-1$
-		System.out.println("\tPositions: [" + match.getSourceStart() + ", " + match.getSourceEnd() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		System.out.println("\tJava element: " + match.getDescriptiveLocation()); //$NON-NLS-1$
+		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
+		System.out.println("\tPositions: [offset=" + match.getOffset() + ", length=" + match.getLength() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		System.out.println("\tJava element: " + ((JavaElement)match.getElement()).toStringWithAncestors()); //$NON-NLS-1$
 		System.out.println(match.getAccuracy() == IJavaSearchResultCollector.EXACT_MATCH
 			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$

@@ -88,11 +88,6 @@ public class JavaModelManager implements ISaveParticipant {
 	public static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
 	
 	/**
-	 * Name of the extension point for contributing a search participant
-	 * TODO search participant
-	 */
-	public static final String SEARCH_PARTICIPANT_EXTPOINT_ID = "searchParticipant" ; //$NON-NLS-1$
-	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VARIABLE_INITIALIZATION_IN_PROGRESS = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
