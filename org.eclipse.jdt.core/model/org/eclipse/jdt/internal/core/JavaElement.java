@@ -301,9 +301,6 @@ public ICompilationUnit getCompilationUnit() {
  * @exception JavaModelException if the element is not present or not accessible
  */
 public JavaElementInfo getElementInfo() throws JavaModelException {
-	if (JavaModelManager.getJavaModelManager() == null){
-		System.out.println();
-	}
 	synchronized(JavaModelManager.getJavaModelManager()){
 		Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 		if (info == null) {
