@@ -3625,6 +3625,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameimport);
 		this.scribe.space();
+		if (importRef.isStatic()) {
+			this.scribe.printNextToken(TerminalTokens.TokenNamestatic);
+			this.scribe.space();
+		}
 		if (importRef.onDemand) {
 			this.scribe.printQualifiedReference(importRef.sourceEnd);
 			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
