@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.core.util.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
-import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import java.io.File;
 import java.util.*;
 
@@ -216,14 +215,16 @@ private void initializeBuilder() throws CoreException {
 	}
 	this.lastState = getLastState();
 
-	ObjectVector sourceList;
+	ArrayList sourceList = new ArrayList();
+	this.prereqOutputFolders = new LookupTable();
 	this.classpath = NameEnvironment.computeLocations(
-		this.javaProject,
-		true,
-		sourceList = new ObjectVector(),
-		this.prereqOutputFolders = new LookupTable());
+		workspaceRoot,
+		javaProject,
+		outputFolder.getLocation().toString(),
+		sourceList,
+		prereqOutputFolders);
 	this.sourceFolders = new IContainer[sourceList.size()];
-	sourceList.copyInto(this.sourceFolders);
+	sourceList.toArray(this.sourceFolders);
 }
 
 /**
