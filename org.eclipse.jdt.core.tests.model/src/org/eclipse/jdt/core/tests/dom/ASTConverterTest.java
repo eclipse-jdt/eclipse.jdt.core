@@ -8952,6 +8952,60 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		ITypeBinding binding = type.resolveBinding();
 		assertNull(binding);
 	}
+	/**
+	 * ForStatement ==> ForStatement
+	 */
+	public void test0357() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0357", "Test.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
+		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
+		ForStatement forStatement = this.ast.newForStatement();
+
+		VariableDeclarationFragment iFragment = this.ast.newVariableDeclarationFragment();
+		iFragment.setName(this.ast.newSimpleName("i")); //$NON-NLS-1$
+		iFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
+		VariableDeclarationFragment jFragment = this.ast.newVariableDeclarationFragment();
+		jFragment.setName(this.ast.newSimpleName("j")); //$NON-NLS-1$
+		jFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
+		VariableDeclarationFragment kFragment = this.ast.newVariableDeclarationFragment();
+		kFragment.setName(this.ast.newSimpleName("k")); //$NON-NLS-1$
+		kFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
+
+		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(iFragment);
+		variableDeclarationExpression.setModifiers(Modifier.NONE);
+		variableDeclarationExpression.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
+		variableDeclarationExpression.fragments().add(jFragment);
+		variableDeclarationExpression.fragments().add(kFragment);
+		forStatement.initializers().add(variableDeclarationExpression);
+
+		PostfixExpression iPostfixExpression = this.ast.newPostfixExpression();
+		iPostfixExpression.setOperand(this.ast.newSimpleName("i"));//$NON-NLS-1$
+		iPostfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
+		forStatement.updaters().add(iPostfixExpression);
+		
+		PostfixExpression jPostfixExpression = this.ast.newPostfixExpression();
+		jPostfixExpression.setOperand(this.ast.newSimpleName("j"));//$NON-NLS-1$
+		jPostfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
+		forStatement.updaters().add(jPostfixExpression);
+
+		PostfixExpression kPostfixExpression = this.ast.newPostfixExpression();
+		kPostfixExpression.setOperand(this.ast.newSimpleName("k"));//$NON-NLS-1$
+		kPostfixExpression.setOperator(PostfixExpression.Operator.INCREMENT);
+		forStatement.updaters().add(kPostfixExpression);
+
+		forStatement.setBody(this.ast.newBlock());
+		
+		InfixExpression infixExpression = this.ast.newInfixExpression();
+		infixExpression.setLeftOperand(this.ast.newSimpleName("i"));
+		infixExpression.setOperator(InfixExpression.Operator.LESS);
+		infixExpression.setRightOperand(this.ast.newNumberLiteral("10"));
+		forStatement.setExpression(infixExpression);
+		
+		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
+		checkSourceRange(node, "for (int i=0, j=0, k=0; i<10 ; i++, j++, k++) {}", source); //$NON-NLS-1$
+	}
 	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
