@@ -31,49 +31,7 @@ import org.xml.sax.*;
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
 public class JavaModelManager implements IResourceChangeListener, ISaveParticipant { 	
-	/**
-	 *  Temporary flag to note which Java builder is being used
-	 * @deprecated - should get rid of switch in term
-	 */
-	public static boolean USING_NEW_BUILDER = false;
-	static {
-try {		
-		ResourcesPlugin rscPlugin = ResourcesPlugin.getPlugin();
-		if (rscPlugin != null){
-			IPluginDescriptor descr = rscPlugin.getDescriptor();
-			if (descr != null){
-				IExtensionPoint extPoint = descr.getExtensionPoint("builders");		//$NON-NLS-1$
-				if (extPoint != null){
-					IExtension builderExtension = extPoint.getExtension("org.eclipse.jdt.core.javabuilder"); //$NON-NLS-1$
-					if (builderExtension != null){
-						IConfigurationElement[] elements = builderExtension.getConfigurationElements();
-						for (int i = 0; i < elements.length; i++) {
-							if ("builder".equals(elements[i].getName())){//$NON-NLS-1$
-								IConfigurationElement[] elements2 = elements[i].getChildren();
-								for (int j = 0; j < elements2.length; j++) {
-									if ("run".equals(elements2[j].getName())){//$NON-NLS-1$
-										String builderClass = elements2[j].getAttribute("class");//$NON-NLS-1$
-										if ("org.eclipse.jdt.internal.core.newbuilder.JavaBuilder".equals(builderClass)){//$NON-NLS-1$
-											USING_NEW_BUILDER = true;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-} catch(Error e){
-	e.printStackTrace();
-	throw e;
-} catch(RuntimeException e){
-	e.printStackTrace();
-	throw e;
-}
-	}
-
-/**
+/**
  * Returns whether the given full path (for a package) conflicts with the output location
  * of the given project.
  */
