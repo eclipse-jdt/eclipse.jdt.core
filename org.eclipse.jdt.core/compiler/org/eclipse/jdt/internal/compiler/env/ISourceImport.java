@@ -26,7 +26,7 @@ int getDeclarationSourceStart();
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
- */
+ */ // TODO: 1.5 feature, may need to be removed if static imports are not to be supported
 int getModifiers();
 
 /**

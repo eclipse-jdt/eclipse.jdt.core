@@ -43,7 +43,7 @@ String getElementName();
  * @see Flags
  * @since 2.2
  */
-// TODO: 1.5 feature disabled for now, will resume later on
+// TODO: 1.5 feature disabled for now, will re-enable at a later stage
 //int getFlags() throws JavaModelException;
 
 /**
