@@ -481,8 +481,9 @@ public class ConfigurableOption {
 						order = Integer.parseInt(bundle.getString(bundleKey));
 					
 						String id = bundleKey.substring(0,bundleKey.lastIndexOf('.'));
-						if(partialResult.length <= order)
-							System.arraycopy(partialResult,0,partialResult = new String[order+1],0,partialResult.length);
+						int length = partialResult.length;
+						if(length <= order)
+							System.arraycopy(partialResult,0,partialResult = new String[order+1],0,length);
 						partialResult[order]= id;
 						resultCount++;
 					} catch (NumberFormatException e) {
