@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -51,10 +52,13 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 		String documentPath = this.document.getPath();
 		IPath path = new Path(documentPath);
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
+		Map options = JavaCore.create(project).getOptions(true);
+		// disable task tags to speed up parsing
+		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 		SourceElementParser parser = new SourceElementParser(
 			requestor, 
 			this.problemFactory, 
-			new CompilerOptions(JavaCore.create(project).getOptions(true)), 
+			new CompilerOptions(options), 
 			true/*index local declarations*/,
 			true/*optimize string literals*/);
 		parser.reportOnlyOneSyntaxError = true;
