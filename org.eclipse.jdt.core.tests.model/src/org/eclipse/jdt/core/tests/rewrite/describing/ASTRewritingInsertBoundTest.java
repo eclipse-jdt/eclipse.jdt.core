@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -28,6 +30,8 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
+import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer.SourceRange;
 
 public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
@@ -1594,6 +1598,71 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 	
 
+	public void testTargetSourceRangeComputer () throws Exception {
+		// remove all, add after first and before last
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C {\n");
+		buf.append("    //c1\n");
+		buf.append("\n");
+		buf.append("    public int x1;\n");
+		buf.append("\n");
+		buf.append("    //c2\n");
+		buf.append("\n");
+		buf.append("    public int x2;\n");
+		buf.append("\n");
+		buf.append("    //c3\n");
+		buf.append("\n");
+		buf.append("    public int x3;\n");
+		buf.append("\n");
+		buf.append("    //c4\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+	
+		CompilationUnit astRoot= createAST(cu);
+		
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "C");
+		FieldDeclaration[] decls= type.getFields();
+		
+		final Map extendedRanges= new HashMap();
+		
+		FieldDeclaration f1= decls[0];
+		int off1= buf.indexOf("//c1");
+		int end1= f1.getStartPosition() + f1.getLength();
+		extendedRanges.put(f1, new SourceRange(off1, end1 - off1));
+			
+		rewrite.setTargetSourceRangeComputer(new TargetSourceRangeComputer() {
+			public SourceRange computeSourceRange(ASTNode node) {
+				SourceRange range= (SourceRange) extendedRanges.get(node);
+				if (range != null)
+					return range;
+				return super.computeSourceRange(node);
+			}
+		});
+
+		rewrite.remove(f1, null);
+					
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C {\n");
+		buf.append("    public int x2;\n");
+		buf.append("\n");
+		buf.append("    //c3\n");
+		buf.append("\n");
+		buf.append("    public int x3;\n");
+		buf.append("\n");
+		buf.append("    //c4\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+
+	}
+	
 }
 
 
