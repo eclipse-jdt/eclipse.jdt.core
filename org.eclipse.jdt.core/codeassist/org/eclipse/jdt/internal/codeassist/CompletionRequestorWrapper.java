@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
@@ -151,8 +152,8 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 							proposal.getDeclarationPackageName(),
 							proposal.getDeclarationTypeName(),
 							proposal.getName(),
-							proposal.getParameterPackageNames(),
-							proposal.getParameterTypeNames(),
+							proposal.getParameterPackageNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterPackageNames(),
+							proposal.getParameterTypeNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterTypeNames(),
 							proposal.findParameterNames(null),
 							proposal.getPackageName(),
 							proposal.getTypeName(),
@@ -186,8 +187,8 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 							proposal.getDeclarationPackageName(),
 							proposal.getDeclarationTypeName(),
 							proposal.getName(),
-							proposal.getParameterPackageNames(),
-							proposal.getParameterTypeNames(),
+							proposal.getParameterPackageNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterPackageNames(),
+							proposal.getParameterTypeNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterTypeNames(),
 							proposal.findParameterNames(null),
 							proposal.getPackageName(),
 							proposal.getTypeName(),
@@ -217,8 +218,8 @@ public class CompletionRequestorWrapper extends CompletionRequestor {
 					this.requestor.acceptAnonymousType(
 						proposal.getDeclarationPackageName(),
 						proposal.getDeclarationTypeName(),
-						proposal.getParameterPackageNames(),
-						proposal.getParameterTypeNames(),
+						proposal.getParameterPackageNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterPackageNames(),
+						proposal.getParameterTypeNames() == null ? CharOperation.NO_CHAR_CHAR : proposal.getParameterTypeNames(),
 						proposal.findParameterNames(null),
 						proposal.getCompletion(),
 						proposal.getFlags(),
