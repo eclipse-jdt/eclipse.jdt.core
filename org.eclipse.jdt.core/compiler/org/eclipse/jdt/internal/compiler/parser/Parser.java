@@ -7313,6 +7313,7 @@ protected void resetStacks() {
 	dimensions = 0 ;
 	realBlockStack[realBlockPtr = 0] = 0;
 	recoveredStaticInitializerStart = 0;
+	listLength = 0;
 }
 /*
  * Reset context so as to resume to regular parse loop

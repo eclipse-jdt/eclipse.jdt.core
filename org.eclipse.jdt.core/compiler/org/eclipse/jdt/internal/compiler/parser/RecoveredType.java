@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
 /**
@@ -415,11 +416,22 @@ public void updateFromParserState(){
 	if(this.bodyStartsAtHeaderEnd()){
 		Parser parser = this.parser();
 		/* might want to recover implemented interfaces */
-		if (parser.listLength > 0){ // awaiting interface type references
-			
-			// protection for bugs 15142
-			int typePtr = parser.astPtr - parser.astLengthStack[parser.astLengthPtr];
-			if(typePtr >= 0 && parser.astStack[typePtr] instanceof TypeDeclaration) {
+		// protection for bugs 15142
+		if (parser.listLength > 0 && parser.astLengthPtr > 0){ // awaiting interface type references
+			int length = parser.astLengthStack[parser.astLengthPtr];
+			int astPtr = parser.astPtr - length;
+			boolean canConsume = astPtr >= 0;
+			if(canConsume) {
+				if((!(parser.astStack[astPtr] instanceof TypeDeclaration))) {
+					canConsume = false;
+				}
+				for (int i = 1, max = length + 1; i < max; i++) {
+					if(!(parser.astStack[astPtr + i ] instanceof TypeReference)) {
+						canConsume = false;
+					}
+				}
+			}
+			if(canConsume) {
 				parser.consumeClassHeaderImplements(); 
 				// will reset typeListLength to zero
 				// thus this check will only be performed on first errorCheck after class X implements Y,Z,
