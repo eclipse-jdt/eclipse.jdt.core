@@ -15,7 +15,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 
 public class OrLocator extends PatternLocator {
 
@@ -233,14 +232,5 @@ public int resolveLevel(Binding binding) {
 		}
 	}
 	return level;
-}
-/**
- * @param unitScope The unitScope to set.
- * Set unit scope for all pattern locators.
- */
-protected void setUnitScope(CompilationUnitScope unitScope) {
-	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
-		this.patternLocators[i].setUnitScope(unitScope);
-	}
 }
 }

@@ -21,6 +21,6 @@ public class R1 {
 	public g1.t.m.def.Generic<Object, Exception, RuntimeException> qgen_obj;
 	public g1.t.m.def.Generic<Exception, Exception, RuntimeException> qgen_exc;
 	public g1.t.m.def.Generic<?, ?, ?> qgen_wld;
-	public /**selected node->*/g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException> qgen_thr;
+	public g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException> qgen_thr;
 	public g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> qgen_run;
 }

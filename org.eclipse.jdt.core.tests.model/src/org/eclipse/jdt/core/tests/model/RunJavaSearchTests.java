@@ -27,6 +27,7 @@ public static Class[] getAllTestClasses() {
 	return new Class[] {
 		JavaSearchTests.class,
 		JavaSearchGenericTypeTests.class,
+		JavaSearchGenericTypeErasureTests.class,
 		JavaSearchGenericFieldTests.class,
 		WorkingCopySearchTests.class,
 		JavaSearchJavadocTests.class

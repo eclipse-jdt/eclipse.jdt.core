@@ -42,6 +42,36 @@ public class SearchMatch {
 	 * there are errors in the code or the classpath are not correctly set).
 	 */
 	public static final int A_INACCURATE = 1;
+
+	/**
+	 * The search result match and search pattern are compatible.
+	 * Note this is always the case when either pattern or reference is a raw type.
+	 * Example:
+	 * <ul>
+	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
+	 * 	<li>match:
+	 * 		<ul>
+	 * 		<li><code>List&lt;? extends Throwable&gt;</code></li>
+	 * 		<li><code>List&lt;? super RuntimeException&gt;</code></li>
+	 * 		<li><code>List&lt;?&gt;</code></li>
+	 * 	</li>
+	 * 	</ul>
+	 */
+	public static final int A_COMPATIBLE = 2;
+
+	/**
+	 * The search result match and search pattern has only common erasure.
+	 * Note this is always the case when either pattern or reference is a raw type.
+	 * Example:
+	 * 	<ul>
+	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
+	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
+	 * 	</ul>
+	 */
+	public static final int A_ERASURE = 4;
+	
+	public static final int RAW_MASK = A_COMPATIBLE + A_ERASURE;
+	public static final int RULE_MASK = RAW_MASK; // no other values for the while...
 	
 	private Object element;
 	private int length;
@@ -52,6 +82,9 @@ public class SearchMatch {
 	private IResource resource;
 
 	private boolean insideDocComment = false;
+	
+	// store the rule used while reporting the match
+	private int rule;
 
 	/**
 	 * Creates a new search match.
@@ -139,6 +172,17 @@ public class SearchMatch {
 	}
 
 	/**
+	 * Returns the rule used while creating the match.
+	 * 
+	 * @return the rule of the match
+	 * @since 3.1
+	 * TODO (frederic) currently only set to A_COMPATIBLE, A_ERASURE. Should be finalized for M5.
+	 */
+	public final int getRule() {
+		return rule;
+	}
+
+	/**
 	 * Returns whether this search match is inside a doc comment of a Java
 	 * source file.
 	 * 
@@ -168,6 +212,18 @@ public class SearchMatch {
 	public final void setElement (Object element) {
 		this.element = element;
 	}
+
+	/**
+	 * Sets whether this search match is inside a doc comment of a Java
+	 * source file.
+	 * 
+	 * @param insideDoc <code>true</code> if this search match is inside a doc
+	 * comment, and <code>false</code> otherwise
+	 */
+	public final void setInsideDocComment (boolean insideDoc) {
+		this.insideDocComment = insideDoc;
+	}
+
 	/**
 	 * Sets the length of this search match.
 	 * 
@@ -205,14 +261,13 @@ public class SearchMatch {
 	}
 
 	/**
-	 * Sets whether this search match is inside a doc comment of a Java
-	 * source file.
+	 * Returns the rule used while creating the match.
 	 * 
-	 * @param insideDoc <code>true</code> if this search match is inside a doc
-	 * comment, and <code>false</code> otherwise
+	 * @param rule The rule to set.
+	 * @since 3.1
 	 */
-	public final void setInsideDocComment (boolean insideDoc) {
-		this.insideDocComment = insideDoc;
+	public final void setRule(int rule) {
+		this.rule = rule;
 	}
 
 	/* (non-javadoc)

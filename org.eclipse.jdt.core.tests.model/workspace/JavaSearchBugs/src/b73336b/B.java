@@ -1,3 +1,3 @@
-package bug73336b;
+package b73336b;
 public class B extends X<A, A> {
 }

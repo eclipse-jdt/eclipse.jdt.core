@@ -86,6 +86,10 @@ protected static String showLineSeparators(String string) {
 }
 
 public static List buildTestsList(Class evaluationTestClass) {
+	return buildTestsList(evaluationTestClass, 0);
+}
+
+public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
 	List tests = new ArrayList();
 	Set testNames = new HashSet();
 	Constructor constructor = null;
@@ -101,6 +105,15 @@ public static List buildTestsList(Class evaluationTestClass) {
 
 	// Get all tests from "test%" methods
 	Method[] methods = evaluationTestClass.getDeclaredMethods();
+	Class evaluationTestSuperclass = evaluationTestClass.getSuperclass();
+	for (int i=0; i<inheritedDepth && !Flags.isAbstract(evaluationTestSuperclass.getModifiers()); i++) {
+		Method[] superMethods = evaluationTestSuperclass.getDeclaredMethods();
+		Method[] mergedMethods = new Method[methods.length+superMethods.length];
+		System.arraycopy(superMethods, 0, mergedMethods, 0, superMethods.length);
+		System.arraycopy(methods, 0, mergedMethods, superMethods.length, methods.length);
+		methods = mergedMethods;
+		evaluationTestSuperclass = evaluationTestSuperclass.getSuperclass();
+	}
 	nextMethod: for (int m = 0, max = methods.length; m < max; m++) {
 		try {
 			int modifiers = methods[m].getModifiers();
@@ -110,7 +123,8 @@ public static List buildTestsList(Class evaluationTestClass) {
 				Object[] params = {methName};
 				// no prefix, no subsets => add method
 				if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_RANGE == null) {
-					tests.add(constructor.newInstance(params));
+					if (testNames.add(methName))
+						tests.add(constructor.newInstance(params));
 					continue nextMethod;
 				}
 				// no prefix or method matches prefix
@@ -121,8 +135,8 @@ public static List buildTestsList(Class evaluationTestClass) {
 						for (int i = 0, imax= TESTS_NAMES.length; i<imax; i++) {
 //							if (TESTS_NAMES[i].equals(methName) || TESTS_NAMES[i].equals(methName.substring(numStart))) {
 							if (methName.indexOf(TESTS_NAMES[i]) >= 0) {
-								testNames.add(methName);
-								tests.add(constructor.newInstance(params));
+								if (testNames.add(methName))
+									tests.add(constructor.newInstance(params));
 								continue nextMethod;
 							}
 						}
@@ -164,7 +178,8 @@ public static List buildTestsList(Class evaluationTestClass) {
 
 					// no subset, add all tests
 					if (TESTS_NAMES==null && TESTS_NUMBERS==null && TESTS_RANGE==null) {
-						tests.add(constructor.newInstance(params));
+						if (testNames.add(methName))
+							tests.add(constructor.newInstance(params));
 					}
 				}
 			}

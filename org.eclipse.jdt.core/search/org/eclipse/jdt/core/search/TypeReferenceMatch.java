@@ -40,4 +40,22 @@ public class TypeReferenceMatch extends SearchMatch {
 		super(enclosingElement, accuracy, offset, length, participant, resource);
 		setInsideDocComment(insideDocComment);
 	}
+
+	/**
+	 * Creates a new type reference match.
+	 * 
+	 * @param enclosingElement the inner-most enclosing member that references this type
+	 * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
+	 * @param offset the offset the match starts at, or -1 if unknown
+	 * @param length the length of the match, or -1 if unknown
+	 * @param insideDocComment <code>true</code> if this search match is inside a doc
+	 * comment, and <code>false</code> otherwise
+	 * @param rule the rule which applies on the match
+	 * @param participant the search participant that created the match
+	 * @param resource the resource of the element
+	 */
+	public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy,	int offset, int length, boolean insideDocComment, int rule, SearchParticipant participant, IResource resource) {
+		this(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
+		setRule(rule);
+	}
 }

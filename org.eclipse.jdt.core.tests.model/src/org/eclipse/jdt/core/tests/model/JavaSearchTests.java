@@ -44,6 +44,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 	public StringBuffer results = new StringBuffer();
 	public boolean showAccuracy;
 	public boolean showContext;
+	public boolean showRule;
 	public boolean showInsideDoc;
 	public boolean showProject;
 	public boolean showSynthetic;
@@ -131,7 +132,21 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 				results.append(" ");
 				switch (match.getAccuracy()) {
 					case SearchMatch.A_ACCURATE:
-						results.append("EXACT_MATCH");
+						if (this.showRule) {
+							int rule = match.getRule();
+							if ((rule & SearchMatch.A_COMPATIBLE) != 0) {
+								this.results.append("COMPATIBLE_");
+								if ((rule & SearchMatch.A_ERASURE) != 0)
+									this.results.append("ERASURE_");
+							} else if ((rule & SearchMatch.A_ERASURE) != 0) {
+								this.results.append("ERASURE_");
+							} else {
+								results.append("EXACT_");
+							}
+							results.append("MATCH");
+						} else {
+							results.append("EXACT_MATCH");
+						}
 						break;
 					case SearchMatch.A_INACCURATE:
 						results.append("POTENTIAL_MATCH");
@@ -320,8 +335,8 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX =  "testVarargs";
-//	TESTS_NAMES = new String[] { "testTypeReferenceBug79803" };
-//	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
+//	TESTS_NAMES = new String[] { "testTypeReferenceBug79860", "testTypeReferenceBug79803" };
+//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 	}
 IJavaSearchScope getJavaSearchScope() {
@@ -3738,6 +3753,61 @@ public void testTypeReference40() throws CoreException {
 		"src/s1/E.java [s1.j.l.S.Member]\n" + 
 		"src/s1/E.java s1.E.m [Member]",
 		this.resultCollector);
+}
+
+/**
+ * Type reference for 1.5.
+ * Bug 73336: [1.5][search] Search Engine does not find type references of actual generic type parameters
+ * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=73336)
+ */
+public void testTypeReferenceBug73336() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b73336/A.java").getType("A");
+	
+	search(type,
+		REFERENCES,
+		getJavaSearchScopeBugs("b73336", false),
+		resultCollector);
+	assertSearchResults(
+		"src/b73336/AA.java b73336.AA [A]\n" + 
+		"src/b73336/B.java b73336.B [A]\n" + 
+		"src/b73336/B.java b73336.B [A]\n" + 
+		"src/b73336/C.java b73336.C [A]\n" + 
+		"src/b73336/C.java void b73336.C.foo() [A]\n" + 
+		"src/b73336/C.java void b73336.C.foo() [A]",
+		resultCollector);
+}
+public void testTypeReferenceBug73336b() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b73336b/A.java").getType("A");
+	
+	search(type,
+		REFERENCES,
+		getJavaSearchScopeBugs("b73336b", false), 
+		resultCollector);
+	assertSearchResults(
+		"src/b73336b/B.java b73336b.B [A]\n" + 
+		"src/b73336b/B.java b73336b.B [A]\n" + 
+		"src/b73336b/C.java b73336b.C [A]\n" + 
+		"src/b73336b/C.java b73336b.C [A]\n" + 
+		"src/b73336b/C.java b73336b.C [A]\n" + 
+		"src/b73336b/C.java b73336b.C() [A]\n" + 
+		"src/b73336b/C.java b73336b.C() [A]",
+		resultCollector);
+}
+// Verify that no NPE was raised on following case (which produces compiler error)
+public void testTypeReferenceBug73336c() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b73336c/A.java").getType("A");
+	
+	search(type,
+		REFERENCES,
+		getJavaSearchScopeBugs("b73336c", false), 
+		resultCollector);
+	assertSearchResults(
+			"src/b73336c/B.java b73336c.B [A]\n" + 
+			"src/b73336c/B.java b73336c.B [A]\n" + 
+			"src/b73336c/C.java b73336c.C [A]\n" + 
+			"src/b73336c/C.java b73336c.C [A]\n" + 
+			"src/b73336c/C.java b73336c.C [A]",
+		resultCollector);
 }
 
 /**

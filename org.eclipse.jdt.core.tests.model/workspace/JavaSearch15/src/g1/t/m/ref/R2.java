@@ -15,7 +15,7 @@ public class R2 {
 	public NonGeneric.GenericMember<Exception, Exception, RuntimeException> gen_exc;
 	public NonGeneric.GenericMember<?, ?, ?> gen_wld;
 	public NonGeneric.GenericMember<? extends Throwable, ? extends Exception, ? extends RuntimeException> gen_thr;
-	public /**selected node->*/NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> gen_run;
+	public NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException> gen_run;
 	// Qualified name
 	public g1.t.m.def.NonGeneric.GenericMember qgen;
 	public g1.t.m.def.NonGeneric.GenericMember<Object, Exception, RuntimeException> qgen_obj;

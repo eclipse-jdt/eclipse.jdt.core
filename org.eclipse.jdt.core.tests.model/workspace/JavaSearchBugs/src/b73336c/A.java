@@ -1,2 +1,2 @@
-package bug73336;
+package b73336c;
 public class A {}

@@ -19,7 +19,7 @@ public class R3 {
 	// Qualified name
 	public g1.t.s.def.Generic.MemberGeneric qgen;
 	public g1.t.s.def.Generic<Object>.MemberGeneric<Object> qgen_obj;
-	public /**selected node->*/g1.t.s.def.Generic<Exception>.MemberGeneric<Exception> qgen_exc;
+	public g1.t.s.def.Generic<Exception>.MemberGeneric<Exception> qgen_exc;
 	public g1.t.s.def.Generic<?>.MemberGeneric<?> qgen_wld;
 	public g1.t.s.def.Generic<? extends Throwable>.MemberGeneric<? super RuntimeException> qgen_thr;
 	public g1.t.s.def.Generic<? super RuntimeException>.MemberGeneric<? extends Throwable> qgen_run;

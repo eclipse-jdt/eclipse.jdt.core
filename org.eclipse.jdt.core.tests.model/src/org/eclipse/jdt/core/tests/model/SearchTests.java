@@ -132,13 +132,11 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			return true;
 		}
 	}
+static {
+//	TESTS_NAMES = new String[] { "testSearchPatternCreation25" };
+}
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(SearchTests.class.getName());
-		suite.addTest(new SearchTests("testChangeClasspath2"));
-		return suite;
-	}
-	return new Suite(SearchTests.class);
+	return buildTestSuite(SearchTests.class);
 }
 
 

@@ -21,11 +21,27 @@ public class JavaSearchPattern extends SearchPattern {
 	 * Whether this pattern is case sensitive.
 	 */
 	boolean isCaseSensitive;
+	
+	/*
+	 * Whether this pattern is erasure match.
+	 */
+	boolean isErasureMatch;
 
 	/*
 	 * One of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH.
 	 */
 	int matchMode;
+
+	/**
+	 * Mask used on match rule for match mode.
+	 */
+	public static final int MATCH_MODE_MASK = R_EXACT_MATCH + R_PREFIX_MATCH + R_PATTERN_MATCH + R_REGEXP_MATCH;
+
+	/**
+	 * Mask used on match rule for indexing.
+	 */
+	public static final int MATCH_RULE_INDEX_MASK = MATCH_MODE_MASK + R_CASE_SENSITIVE;
+
 	
 	// Signatures and arguments for parameterized types search
 	char[][] typeSignatures;
@@ -35,7 +51,8 @@ public class JavaSearchPattern extends SearchPattern {
 		super(matchRule);
 		((InternalSearchPattern)this).kind = patternKind;
 		this.isCaseSensitive = (matchRule & R_CASE_SENSITIVE) != 0;
-		this.matchMode = matchRule - (this.isCaseSensitive ? R_CASE_SENSITIVE : 0);
+		this.isErasureMatch = (matchRule & SearchPattern.R_ERASURE_MATCH) != 0;
+		this.matchMode = matchRule & MATCH_MODE_MASK;
 	}
 	
 	public SearchPattern getBlankPattern() {
@@ -49,13 +66,17 @@ public class JavaSearchPattern extends SearchPattern {
 	boolean isCaseSensitive () {
 		return this.isCaseSensitive;
 	}
-	
+
+	boolean isErasureMatch() {
+		return this.isErasureMatch;
+	}
+
 	/**
 	 * Returns whether the pattern includess type arguments information or not.
 	 * @return true if pattern has signature *and* type arguments
 	 */
 	public boolean isParameterized() {
-		return this.typeSignatures != null && this.typeArguments != null;
+		return this.typeArguments != null && this.typeArguments.length > 0;
 	}
 
 	/* (non-Javadoc)
@@ -168,19 +189,21 @@ public class JavaSearchPattern extends SearchPattern {
 		}
 		switch(getMatchMode()) {
 			case R_EXACT_MATCH : 
-				output.append("exact match, "); //$NON-NLS-1$
+				output.append("exact match,"); //$NON-NLS-1$
 				break;
 			case R_PREFIX_MATCH :
-				output.append("prefix match, "); //$NON-NLS-1$
+				output.append("prefix match,"); //$NON-NLS-1$
 				break;
 			case R_PATTERN_MATCH :
-				output.append("pattern match, "); //$NON-NLS-1$
+				output.append("pattern match,"); //$NON-NLS-1$
 				break;
 		}
 		if (isCaseSensitive())
-			output.append("case sensitive"); //$NON-NLS-1$
+			output.append(" case sensitive"); //$NON-NLS-1$
 		else
-			output.append("case insensitive"); //$NON-NLS-1$
+			output.append(" case insensitive"); //$NON-NLS-1$
+		if (isErasureMatch())
+			output.append(", erasure only"); //$NON-NLS-1$
 		return output;
 	}
 	public final String toString() {

@@ -236,6 +236,18 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		locator.reportAccurateFieldReference(qNameRef, element, accuracies);
 	}
 }
+	/* (non-Javadoc)
+	 * Overridden to filter rule values from refined accuracy.
+	 * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#refineAccuracy(int, org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding, char[][][], org.eclipse.jdt.internal.core.search.matching.MatchLocator)
+	 */
+	protected int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterizedBinding, char[][][] patternTypeArguments, MatchLocator locator) {
+		// We can only refine if locator has an unit scope.
+		if (locator.unitScope == null) return accuracy;
+		int refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, patternTypeArguments, false, 0, locator);
+		if (refinedAccuracy > SearchMatch.A_INACCURATE)
+			return -1; // canot accept neither erasure nor compatible match
+		return refinedAccuracy;
+	}
 protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator, SimpleSet knownFields) throws CoreException {
 	// ignore length field
 	if (fieldBinding == ArrayBinding.ArrayLength) return;
@@ -338,7 +350,6 @@ protected int resolveLevelForType(TypeBinding typeBinding) {
 			fieldPattern.typeQualification,
 			fieldPattern.typeArguments,
 			0,
-			((InternalSearchPattern)this.pattern).mustResolve,
 			typeBinding);
 }
 }

@@ -1377,8 +1377,13 @@ protected void assertDeltas(String message, String expected) {
 		return null;
 	}
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		search(element, limitTo, false, scope, requestor);
+	}
+	protected void search(IJavaElement element, int limitTo, boolean rawMatch, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		int matchRule = SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE;
+		if (rawMatch) matchRule |= SearchPattern.R_ERASURE_MATCH;
 		new SearchEngine().search(
-			SearchPattern.createPattern(element, limitTo), 
+			SearchPattern.createPattern(element, limitTo, matchRule),
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
 			requestor,
@@ -1386,14 +1391,19 @@ protected void assertDeltas(String message, String expected) {
 		);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		search(patternString, searchFor, limitTo, false, scope, requestor);
+	}
+	protected void search(String patternString, int searchFor, int limitTo, boolean rawMatch, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
+		int matchRule = matchMode | SearchPattern.R_CASE_SENSITIVE;
+		if (rawMatch) matchRule |= SearchPattern.R_ERASURE_MATCH;
 		SearchPattern pattern = SearchPattern.createPattern(
 			patternString, 
 			searchFor,
 			limitTo, 
-			matchMode | SearchPattern.R_CASE_SENSITIVE);
+			matchRule);
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},

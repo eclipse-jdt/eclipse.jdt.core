@@ -68,7 +68,17 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * Can be combined to previous rules, e.g. R_EXACT_MATCH | R_CASE_SENSITIVE
 	 */
 	public static final int R_CASE_SENSITIVE = 8;
-	
+	/**
+	 * Match rule: The search pattern matches type parameters for parameterized search results.
+	 * Can be combined to all previous rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}
+	 * This rule is not activated by default, so when pattern is List&lt;String&gt;,
+	 * match selection will be only "List&lt;String&gt;" on parameterized type <code>List<String></code>.
+	 * found in the code.
+	 * Reversly, when this is rule is activated, then match selection will be "List".
+	 * @since 3.1
+	 */
+	public static final int R_ERASURE_MATCH = 16;
+
 	private int matchRule;
 
 	/**
@@ -734,6 +744,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		}
 		return null;
 	}
+
 	/**
 	 * Returns a search pattern based on a given Java element. 
 	 * The pattern is used to trigger the appropriate search, and can be parameterized as follows:
@@ -755,6 +766,36 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 */
 	public static SearchPattern createPattern(IJavaElement element, int limitTo) {
+		return createPattern(element, limitTo, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	}
+
+	/**
+	 * Returns a search pattern based on a given Java element. 
+	 * The pattern is used to trigger the appropriate search, and can be parameterized as follows:
+	 *
+	 * @param element the Java element the search pattern is based on
+	 * @param limitTo determines the nature of the expected matches
+	 * 	<ul>
+	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
+	 * 			element. In case the element is a method, declarations of matching methods in subtypes will also
+	 *  		be found, allowing to find declarations of abstract methods, etc.</li>
+	 *
+	 *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
+	 *
+	 *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
+	 *  		above.</li>
+	 *
+	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
+	 *	</ul>
+	 * @param matchRule Same possible values than those described in method {@link #createPattern(String,int,int,int)} plus another possible
+	 * 	new value {@link #R_ERASURE_MATCH} which can be combined with the others. When match rule has {@link #R_ERASURE_MATCH}
+	 * 	bit specified, search engine found all types whose erasure match the given pattern erasure.<br>
+	 * 	By default search engine only finds exact or compatible matches for generic or parameterized types.
+	 * @see SearchMatch for more details on match rule values when reported (specially {@link SearchMatch#A_COMPATIBLE}
+	 * 	and {@link SearchMatch#A_ERASURE}).
+	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
+	 */
+	public static SearchPattern createPattern(IJavaElement element, int limitTo, int matchRule) {
 		SearchPattern searchPattern = null;
 		int lastDot;
 		switch (element.getElementType()) {
@@ -805,7 +846,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeSignature,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.REFERENCES :
 						searchPattern = 
@@ -819,7 +860,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeSignature,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.READ_ACCESSES :
 						searchPattern = 
@@ -833,7 +874,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeSignature,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.WRITE_ACCESSES :
 						searchPattern = 
@@ -847,7 +888,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeSignature,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.ALL_OCCURRENCES :
 						searchPattern =
@@ -861,7 +902,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								typeQualification, 
 								typeSimpleName,
 								typeSignature,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 				}
 				break;
@@ -871,16 +912,17 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				if (lastDot == -1) return null; // invalid import declaration
 				IImportDeclaration importDecl = (IImportDeclaration)element;
 				if (importDecl.isOnDemand()) {
-					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, R_EXACT_MATCH | R_CASE_SENSITIVE);
+					searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, matchRule);
 				} else {
 					searchPattern = 
 						createTypePattern(
 							elementName.substring(lastDot+1).toCharArray(),
 							elementName.substring(0, lastDot).toCharArray(),
 							null,
+							false, // does not need signature
 							null,
-							false,
-							limitTo);
+							limitTo,
+							matchRule);
 				}
 				break;
 			case IJavaElement.LOCAL_VARIABLE :
@@ -893,7 +935,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								false, // no read access
 								false, // no write access
 								localVar,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.REFERENCES :
 						searchPattern = 
@@ -902,7 +944,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								true, // read access
 								true, // write access
 								localVar,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.READ_ACCESSES :
 						searchPattern = 
@@ -911,7 +953,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								true, // read access only
 								false,
 								localVar,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.WRITE_ACCESSES :
 						searchPattern = 
@@ -920,7 +962,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								false,
 								true, // write access only
 								localVar,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 					case IJavaSearchConstants.ALL_OCCURRENCES :
 						searchPattern =
@@ -929,7 +971,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								true, // read access
 								true, // write access
 								localVar,
-								R_EXACT_MATCH | R_CASE_SENSITIVE);
+								matchRule);
 						break;
 				}
 				break;
@@ -996,7 +1038,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									parameterQualifications, 
 									parameterSimpleNames,
 									varargs,
-									R_EXACT_MATCH | R_CASE_SENSITIVE);
+									matchRule);
 						} else {
 							searchPattern = 
 								new MethodPattern(
@@ -1011,7 +1053,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									parameterSimpleNames,
 									varargs,
 									null,
-									R_EXACT_MATCH | R_CASE_SENSITIVE);
+									matchRule);
 						}
 						break;
 					case IJavaSearchConstants.REFERENCES :
@@ -1025,7 +1067,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									parameterQualifications, 
 									parameterSimpleNames,
 									varargs,
-									R_EXACT_MATCH | R_CASE_SENSITIVE);
+									matchRule);
 						} else {
 							searchPattern = 
 								new MethodPattern(
@@ -1040,7 +1082,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									parameterSimpleNames,
 									varargs,
 									method.getDeclaringType(),
-									R_EXACT_MATCH | R_CASE_SENSITIVE);
+									matchRule);
 						}
 						break;
 					case IJavaSearchConstants.ALL_OCCURRENCES :
@@ -1054,7 +1096,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									parameterQualifications, 
 									parameterSimpleNames,
 									varargs,
-									R_EXACT_MATCH | R_CASE_SENSITIVE);
+									matchRule);
 						} else {
 							searchPattern =
 								new MethodPattern(
@@ -1069,7 +1111,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									parameterSimpleNames,
 									varargs,
 									method.getDeclaringType(),
-									R_EXACT_MATCH | R_CASE_SENSITIVE);
+									matchRule);
 						}
 						break;
 				}
@@ -1081,20 +1123,28 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							type.getElementName().toCharArray(), 
 							type.getPackageFragment().getElementName().toCharArray(),
 							enclosingTypeNames(type),
+							true, // need signature
 							signature,
-							true, /* generic type */
-							limitTo);
+							limitTo,
+							matchRule);
+				if (searchPattern == null) { // TODO (frederic) remove when new API IType.getParameterizedName() will be available
+					searchPattern = new TypeReferencePattern(
+						CharOperation.concatWith(type.getPackageFragment().getElementName().toCharArray(), enclosingTypeNames(type), '.'), 
+						type.getElementName().toCharArray(),
+						type,
+						matchRule);
+				}
 				break;
 			case IJavaElement.PACKAGE_DECLARATION :
 			case IJavaElement.PACKAGE_FRAGMENT :
-				searchPattern = createPackagePattern(element.getElementName(), limitTo, R_EXACT_MATCH | R_CASE_SENSITIVE);
+				searchPattern = createPackagePattern(element.getElementName(), limitTo, matchRule);
 				break;
 		}
 		if (searchPattern != null)
 			MatchLocator.setFocus(searchPattern, element);
 		return searchPattern;
 	}
-	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, String typeSignature, boolean generic, int limitTo) {
+	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, boolean needSignature, String typeSignature, int limitTo, int matchRule) {
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS :
 				return new TypeDeclarationPattern(
@@ -1102,20 +1152,20 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					enclosingTypeNames, 
 					simpleName, 
 					IIndexConstants.TYPE_SUFFIX,
-					R_EXACT_MATCH | R_CASE_SENSITIVE);
+					matchRule);
 			case IJavaSearchConstants.REFERENCES :
+				if (needSignature && typeSignature == null) return null;
 				return new TypeReferencePattern(
 					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 					simpleName,
 					typeSignature,
-					generic,
-					R_EXACT_MATCH | R_CASE_SENSITIVE);
+					matchRule);
 			case IJavaSearchConstants.IMPLEMENTORS : 
 				return new SuperTypeReferencePattern(
 					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 					simpleName,
 					true,
-					R_EXACT_MATCH | R_CASE_SENSITIVE);
+					matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
 				return new OrPattern(
 					new TypeDeclarationPattern(
@@ -1123,13 +1173,12 @@ public abstract class SearchPattern extends InternalSearchPattern {
 						enclosingTypeNames, 
 						simpleName, 
 						IIndexConstants.TYPE_SUFFIX,
-						R_EXACT_MATCH | R_CASE_SENSITIVE), 
+						matchRule), 
 					new TypeReferencePattern(
 						CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 						simpleName,
 						typeSignature,
-						generic,
-						R_EXACT_MATCH | R_CASE_SENSITIVE));
+						matchRule));
 		}
 		return null;
 	}
@@ -1200,7 +1249,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				typeSignature = Signature.createTypeSignature(type, false);
 				if (typeSignature.indexOf(Signature.C_GENERIC_START) < 0) {
 					typePart = type.toCharArray();
-					typeSignature = null;
 				} else {
 					typePart = Signature.toCharArray(Signature.getTypeErasure(typeSignature.toCharArray()));
 				}
@@ -1227,7 +1275,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			case IJavaSearchConstants.DECLARATIONS : // cannot search for explicit member types
 				return new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, IIndexConstants.TYPE_SUFFIX, matchRule);
 			case IJavaSearchConstants.REFERENCES :
-				return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, false /* not generic */, matchRule);
+				return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, matchRule);
 			case IJavaSearchConstants.IMPLEMENTORS : 
 				return new SuperTypeReferencePattern(qualificationChars, typeChars, true, matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
@@ -1268,24 +1316,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				return null;
 		}
 	}
-	/*
-	 * Returns the type parameter names of the given type.
-	 *
-	private static char[][] typeParameterNames(IType type) {
-		char[][] paramNames = null;
-		try {
-			if (type instanceof BinaryType) {
-				paramNames = ((BinaryType) type).getTypeParameterNames();
-			} else if (type instanceof SourceType) {
-				paramNames = ((SourceType) type).getTypeParameterNames();
-			}
-		}
-		catch (JavaModelException jme) {
-			return null;
-		}
-		return paramNames;
-	}
-	*/
+
 	/**
 	 * Decode the given index key in this pattern. The decoded index key is used by 
 	 * {@link #matchesDecodedKey(SearchPattern)} to find out if the corresponding index entry 
@@ -1379,7 +1410,10 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		if (pattern == null) return true; // null is as if it was "*"
 		if (name != null) {
 			boolean isCaseSensitive = (this.matchRule & R_CASE_SENSITIVE) != 0;
-			int matchMode = this.matchRule - (isCaseSensitive ? R_CASE_SENSITIVE : 0);
+			boolean isRawMatch = (this.matchRule & R_ERASURE_MATCH) != 0;
+			int matchMode = this.matchRule
+						- (isCaseSensitive ? R_CASE_SENSITIVE : 0)
+						- (isRawMatch ? R_ERASURE_MATCH : 0);
 			switch (matchMode) {
 				case R_EXACT_MATCH :
 					return CharOperation.equals(pattern, name, isCaseSensitive);

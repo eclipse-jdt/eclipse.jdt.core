@@ -874,6 +874,40 @@ public final class CharOperation {
 				return true;
 		return false;
 	}
+
+	/**
+	 * Answers true if the array contains an occurrence of one of the characters, false otherwise.
+	 * 
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    characters = { 'c', 'd' }
+	 *    array = { 'a', ' b'  }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    characters = { 'c', 'd' }
+	 *    array = { 'a', ' b', 'c'  }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param characters the characters to search
+	 * @param array the array in which the search is done
+	 * @return true if the array contains an occurrence of one of the characters, false otherwise.
+	 * @throws NullPointerException if array is null.
+	 */
+	public static final boolean contains(char[] characters, char[] array) {
+		for (int i = array.length; --i >= 0;)
+			for (int j = characters.length; --j >= 0;)
+				if (array[i] == characters[j])
+					return true;
+		return false;
+	}
 	
 	/**
 	 * Answers a deep copy of the toCopy array.

@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchPattern;
 
 /**
  * An <code>Index</code> maps document names to their referenced words in various categories.
@@ -69,7 +70,8 @@ public static String convertPath(String pathString) {
 public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (pattern == null) return true;
 
-	switch(matchRule) {
+	// need to mask some bits of pattern rule (bug 79790)
+	switch(matchRule & JavaSearchPattern.MATCH_RULE_INDEX_MASK) {
 		case SearchPattern.R_EXACT_MATCH :
 			return CharOperation.equals(pattern, word, false);
 		case SearchPattern.R_PREFIX_MATCH :

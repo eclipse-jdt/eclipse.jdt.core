@@ -51,6 +51,35 @@ Eclipse SDK 3.1M4 - ?th December 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> SearchPattern now accept a new flag for match rule: R_ERASURE_MATCH (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79790">79790</a>).<br>
+When this flag is set, search engine will found all types whose erasure matches the given pattern erasure. By default search engine will only find exact or
+compatible matches for generic or parameterized types.<br>
+Added new API method to make this flag settable even while creating pattern using a IJavaElement:
+<ul>
+<lo><code>SearchPattern#createPattern(IJavaElement element, int limitTo, int matchRule)</code></lo>
+</ul>
+</li>
+<li>
+SearchMatch now has a rule field which shows the rule used while reporting the match.<br>
+This is initial implementation for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79866">79866</a> for following values:<br>
+<ul>
+<li>
+SearchMatch_A_COMPATIBLE: means that match and pattern are compatible.<br>
+Example: search pattern: <code>List&lt;Exception&gt;</code> and match: <code>List&lt;? extends Throwable&gt;</code> or <code>List&lt;? super RuntimeException&gt;</code> or <code>List&lt;?&gt;</code> etc...<br>
+Note this is always the case when either pattern or reference is a raw type
+</li>
+<li>
+SearchMatch_A_ERASURE: means that only erasure is common to match and pattern.<br>
+Example: search pattern: <code>List&lt;Exception&gt;</code> and match: <code>List&lt;Object&gt;</code><br>
+Note this is always the case when either pattern or reference is a raw type
+</li>
+</ul>
+Added new API methods to access this field:
+<ul>
+<lo><code>SearchMatch#getRule()</code><br></lo>
+<lo><code>SearchMatch#setRule(int)</code></lo>
+</ul>
+</li>
 <li>Added API IType#getFullyQualifiedParameterizedName() that shows the type parameter/arguments if the type is generic/parameterized.</li>
 <li>Added support in Java model for annotation types and annotations.</li>
 <li>Support for indexing annotation types required the index version to be incremented. 
@@ -63,7 +92,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80672">80672</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79790">79790</a>
+[1.5][search] Need to distinguish between raw and restricted search in the case of instantiated types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80672">80672</a>
 [1.5] Annotation change does not trigger recompilation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80466">80466</a>
 ITypeBinding#getJavaElement() is null for declaration of java.util.List<E>

@@ -10,8 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class TypeReferencePattern extends AndPattern implements IIndexConstants {
@@ -52,10 +59,15 @@ public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRu
 /*
  * Instanciate a type reference pattern with additional information for generics search
  */
-public TypeReferencePattern(char[] qualification, char[] simpleName, String signature, boolean fromJavaElement, int matchRule) {
+public TypeReferencePattern(char[] qualification, char[] simpleName, String signature, int matchRule) {
 	this(qualification, simpleName,matchRule);
 
 	if (signature != null) computeSignature(signature);
+}
+public TypeReferencePattern(char[] qualification, char[] simpleName, IType type, int matchRule) {
+	this(qualification, simpleName, matchRule);
+
+	this.typeArguments = typeParameterNames(type);
 }
 TypeReferencePattern(int matchRule) {
 	super(TYPE_REF_PATTERN, matchRule);
@@ -108,4 +120,47 @@ protected StringBuffer print(StringBuffer output) {
 	output.append(">"); //$NON-NLS-1$
 	return super.print(output);
 }
+	/*
+	 * Returns the type parameter names of the given type.
+	 */
+	private char[][][] typeParameterNames(IType type) {
+		char[][][] typeParameters = new char[10][][];
+		int ptr = -1;
+		try {
+			IJavaElement parent = type;
+			ITypeParameter[] parameters = null;
+			while (parent != null) {
+				switch(parent.getElementType()) {
+					case IJavaElement.CLASS_FILE:
+						if (++ptr > typeParameters.length) {
+							System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
+						}
+						parameters = ((BinaryType) parent).getTypeParameters();
+						break;
+					case IJavaElement.TYPE:
+						if (++ptr > typeParameters.length) {
+							System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
+						}
+						parameters = ((SourceType) parent).getTypeParameters();
+						break;
+					default:
+						if (ptr <0) return null;
+						if (++ptr < typeParameters.length)
+							System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
+						return typeParameters;
+				}
+				int length = parameters==null ? 0 : parameters.length;
+				if (length > 0) {
+					typeParameters[ptr] = new char[length][];
+					for (int i=0; i<length; i++)
+						typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+				}
+				parent = parent.getParent();
+			}
+		}
+		catch (JavaModelException jme) {
+			return null;
+		}
+		return typeParameters;
+	}
 }

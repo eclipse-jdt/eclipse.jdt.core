@@ -1,2 +1,2 @@
-package bug73336;
+package b73336;
 public class AA extends A {}

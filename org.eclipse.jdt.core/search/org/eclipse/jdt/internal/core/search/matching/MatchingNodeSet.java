@@ -32,6 +32,7 @@ SimpleLookupTable matchingNodes = new SimpleLookupTable(3); // node -> accuracy
 private HashtableOfLong matchingNodesKeys = new HashtableOfLong(3); // sourceRange -> node
 static Integer EXACT_MATCH = new Integer(SearchMatch.A_ACCURATE);
 static Integer POTENTIAL_MATCH = new Integer(SearchMatch.A_INACCURATE);
+static Integer ERASURE_MATCH = new Integer(SearchMatch.A_ERASURE);
 
 /**
  * Set of possible matching ast nodes. They need to be resolved
@@ -43,13 +44,16 @@ private HashtableOfLong possibleMatchingNodesKeys = new HashtableOfLong(7);
 public int addMatch(ASTNode node, int matchLevel) {
 	switch (matchLevel) {
 		case PatternLocator.INACCURATE_MATCH:
-			addTrustedMatch(node, false);
+			addTrustedMatch(node, POTENTIAL_MATCH);
 			break;
 		case PatternLocator.POSSIBLE_MATCH:
 			addPossibleMatch(node);
 			break;
+		case PatternLocator.ERASURE_MATCH:
+			addTrustedMatch(node, ERASURE_MATCH);
+			break;
 		case PatternLocator.ACCURATE_MATCH:
-			addTrustedMatch(node, true);
+			addTrustedMatch(node, EXACT_MATCH);
 	}
 	return matchLevel;
 }
@@ -67,6 +71,10 @@ public void addPossibleMatch(ASTNode node) {
 	this.possibleMatchingNodesKeys.put(key, node);
 }
 public void addTrustedMatch(ASTNode node, boolean isExact) {
+	addTrustedMatch(node, isExact ? EXACT_MATCH : POTENTIAL_MATCH);
+	
+}
+void addTrustedMatch(ASTNode node, Integer level) {
 	// remove existing node at same position from set
 	// (case of recovery that created the same node several time
 	// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=29366)
@@ -76,7 +84,7 @@ public void addTrustedMatch(ASTNode node, boolean isExact) {
 		this.matchingNodes.removeKey(existing);
 	
 	// map node to its accuracy level
-	this.matchingNodes.put(node, isExact ? EXACT_MATCH : POTENTIAL_MATCH);
+	this.matchingNodes.put(node, level);
 	this.matchingNodesKeys.put(key, node);
 }
 protected boolean hasPossibleNodes(int start, int end) {
@@ -147,9 +155,17 @@ public String toString() {
 		ASTNode node = (ASTNode) keyTable[i];
 		if (node == null) continue;
 		result.append("\n\t"); //$NON-NLS-1$
-		result.append(valueTable[i] == EXACT_MATCH
-			? "ACCURATE_MATCH: " //$NON-NLS-1$
-			: "INACCURATE_MATCH: "); //$NON-NLS-1$
+		switch (((Integer)valueTable[i]).intValue()) {
+			case SearchMatch.A_ACCURATE:
+				result.append("ACCURATE_MATCH: "); //$NON-NLS-1$
+				break;
+			case SearchMatch.A_INACCURATE:
+				result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
+				break;
+			case SearchMatch.A_ERASURE:
+				result.append("ERASURE_MATCH: "); //$NON-NLS-1$
+				break;
+		}
 		node.print(0, result);
 	}
 
