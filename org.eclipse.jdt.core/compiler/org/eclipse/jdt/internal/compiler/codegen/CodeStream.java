@@ -1430,6 +1430,10 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 
 	anyExceptionHandler = new ExceptionLabel(this, BaseTypes.NullBinding /* represents ClassNotFoundException*/);
+	this.ldc(accessedType == BaseTypes.NullBinding ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
+	this.invokeClassForName();
+
+	/* See https://bugs.eclipse.org/bugs/show_bug.cgi?id=37565
 	if (accessedType == BaseTypes.NullBinding) {
 		this.ldc("java.lang.Object"); //$NON-NLS-1$
 	} else if (accessedType.isArrayType()) {
@@ -1442,7 +1446,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	if (!accessedType.isArrayType()) { // extract the component type, which doesn't initialize the class
 		this.invokeJavaLangClassGetComponentType();
 	}	
-
+	*/
 	/* We need to protect the runtime code from binary inconsistencies
 	in case the accessedType is missing, the ClassNotFoundException has to be converted
 	into a NoClassDefError(old ex message), we thus need to build an exception handler for this one. */
