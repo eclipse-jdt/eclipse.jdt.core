@@ -11,15 +11,72 @@
 
 package org.eclipse.jdt.core.tests.dom;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.AssertStatement;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
 
 public class ASTConverterTest2 extends ConverterTestSetup {
 	
@@ -28,19 +85,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
-
-		if (false) {
-			Class c = ASTConverterTest2.class;
-			Method[] methods = c.getMethods();
-			for (int i = 0, max = methods.length; i < max; i++) {
-				if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-					suite.addTest(new ASTConverterTest2(methods[i].getName()));
-				}
-			}
-			return suite;
+		if (true) {
+			return new Suite(ASTConverterTest2.class);		
 		}
-		suite.addTest(new ASTConverterTest2("test0500"));
+		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
+		suite.addTest(new ASTConverterTest2("test0513"));
 		return suite;
 	}
 	/**
@@ -3262,11 +3311,21 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0);
-		assertEquals("Wrong number of problems", 1, (unit).getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("Not a constructor", declaration.isConstructor());
 		checkSourceRange(declaration, "public A();", source);
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=49429
+	 */
+	public void test0513() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "", "test0513", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 	}
 }
