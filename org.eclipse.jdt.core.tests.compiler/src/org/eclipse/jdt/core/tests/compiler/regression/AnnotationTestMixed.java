@@ -795,11 +795,10 @@ public class AnnotationTestMixed extends AnnotationTest {
 	}
 
 	/**
-	 * Test fix for bug 45592.
-	 * When this bug happened a NPE was thrown in factory.createMethod(...)
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
+	 * Test fix for bug 45596.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45596">45596</a>
 	 */
-	public void testBug45592() {
+	public void testBug45596() {
 		this.runConformTest(
 			new String[] {
 				"test/X.java",
