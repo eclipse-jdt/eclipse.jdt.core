@@ -1507,5 +1507,21 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
 		assertNotNull("No javadoc", enumDeclaration.getJavadoc());
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76100
+	 */
+	public void test0055() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0055", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not an annotation type declaration", ASTNode.ANNOTATION_TYPE_DECLARATION, node.getNodeType());
+		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
+		assertNotNull("No javadoc", annotationTypeDeclaration.getJavadoc());
+	}
 }
 

@@ -844,9 +844,13 @@ PushModifiers ::= $empty
 /.$putCase consumePushModifiers(); $break ./
 /:$readableName PushModifiers:/
 
+PushModifiersForHeader ::= $empty
+/.$putCase consumePushModifiersForHeader(); $break ./
+/:$readableName PushModifiersForHeader:/
+
 PushRealModifiers ::= $empty
 /.$putCase consumePushRealModifiers(); $break ./
-/:$readableName PushModifiers:/
+/:$readableName PushRealModifiers:/
 
 Statement -> StatementWithoutTrailingSubstatement
 Statement -> LabeledStatement
@@ -2008,7 +2012,7 @@ Expression_NotName -> AssignmentExpression_NotName
 AnnotationTypeDeclarationHeader ::= Modifiers '@' PushRealModifiers interface Identifier
 /.$putCase consumeAnnotationTypeDeclarationHeader() ; $break ./
 /:$compliance 1.5:/
-AnnotationTypeDeclarationHeader ::= '@' PushModifiers interface Identifier
+AnnotationTypeDeclarationHeader ::= '@' PushModifiersForHeader interface Identifier
 /.$putCase consumeAnnotationTypeDeclarationHeader() ; $break ./
 /:$readableName AnnotationTypeDeclarationHeader:/
 /:$compliance 1.5:/
