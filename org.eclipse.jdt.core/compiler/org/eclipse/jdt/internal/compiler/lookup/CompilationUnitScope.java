@@ -99,10 +99,7 @@ void buildTypeBindings() {
 			problemReporter().duplicateTypes(referenceContext, typeDecl);
 			continue nextType;
 		}
-		boolean packageExists = currentPackageName == CharOperation.NO_CHAR_CHAR
-			? environment.getTopLevelPackage(typeDecl.name) != null
-			: (fPackage.getPackage(typeDecl.name)) != null;
-		if (packageExists) {
+		if (fPackage != environment.defaultPackage && fPackage.getPackage(typeDecl.name) != null) {
 			// if a package exists, it must be a valid package - cannot be a NotFound problem package
 			problemReporter().typeCollidesWithPackage(referenceContext, typeDecl);
 			continue nextType;
