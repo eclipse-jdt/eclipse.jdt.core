@@ -235,7 +235,7 @@ public class CompilationUnitDeclaration
 					types[i].resolve(scope);
 				}
 			}
-			checkUnusedImports();
+			if (!this.compilationResult.hasSyntaxError()) checkUnusedImports();
 		} catch (AbortCompilationUnit e) {
 			this.ignoreFurtherInvestigation = true;
 			return;

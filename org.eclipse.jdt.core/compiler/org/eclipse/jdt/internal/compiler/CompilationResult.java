@@ -193,6 +193,15 @@ public boolean hasErrors() {
 public boolean hasProblems() {
 	return problemCount != 0;
 }
+public boolean hasSyntaxError(){
+	if (problems != null)
+		for (int i = 0; i < problemCount; i++) {
+			IProblem problem = problems[i];
+			if ((problem.getID() & IProblem.Syntax) != 0 && problem.isError())
+				return true;
+		}
+	return false;
+}
 public boolean hasWarnings() {
 	if (problems != null)
 		for (int i = 0; i < problemCount; i++) {
