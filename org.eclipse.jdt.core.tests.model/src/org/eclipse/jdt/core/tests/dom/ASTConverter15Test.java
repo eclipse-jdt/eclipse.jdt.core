@@ -1616,6 +1616,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = enumDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
 		assertTrue("Not an enum type", typeBinding.isEnum());
+		assertTrue("Not a top level type", typeBinding.isTopLevel());
 	}
 	
 	/**
