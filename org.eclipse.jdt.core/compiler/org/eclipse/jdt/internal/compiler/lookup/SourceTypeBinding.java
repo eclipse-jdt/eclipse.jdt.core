@@ -1053,9 +1053,9 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 	// class T { class M{}}
 	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
 	if (!onlyExactMatch){
-		Enumeration enum = synthetics[FIELD_EMUL].elements();
-		while (enum.hasMoreElements()) {
-			field = (FieldBinding) enum.nextElement();
+		Enumeration accessFields = synthetics[FIELD_EMUL].elements();
+		while (accessFields.hasMoreElements()) {
+			field = (FieldBinding) accessFields.nextElement();
 			if (CharOperation.prefixEquals(SyntheticArgumentBinding.EnclosingInstancePrefix, field.name)
 				&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
 					return field;

@@ -167,11 +167,11 @@ public class CompilationResult {
 	}
 	
 	public ClassFile[] getClassFiles() {
-		Enumeration enum = compiledTypes.elements();
+		Enumeration files = compiledTypes.elements();
 		ClassFile[] classFiles = new ClassFile[compiledTypes.size()];
 		int index = 0;
-		while (enum.hasMoreElements()){
-			classFiles[index++] = (ClassFile)enum.nextElement();
+		while (files.hasMoreElements()){
+			classFiles[index++] = (ClassFile)files.nextElement();
 		}
 		return classFiles;	
 	}
