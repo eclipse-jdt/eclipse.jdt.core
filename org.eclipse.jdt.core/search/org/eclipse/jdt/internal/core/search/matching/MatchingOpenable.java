@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
@@ -287,10 +288,13 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
 						this.matchSet.cuHasBeenResolved = true;
 						this.matchSet.reportMatching(this.parsedUnit);
 					} catch (AbortCompilation e) {
-						// could not resolve (reasons include "could not find library class") 
-						// -> ignore and report innacurate matches
+						// could not resolve: report innacurate matches
 						this.matchSet.cuHasBeenResolved = true;
 						this.matchSet.reportMatching(this.parsedUnit);
+						if (!(e instanceof AbortCompilationUnit)) {
+							// problem with class path
+							throw e;
+						}
 					}
 				} else {
 					// problem ocured while completing the bindings for the base classes
