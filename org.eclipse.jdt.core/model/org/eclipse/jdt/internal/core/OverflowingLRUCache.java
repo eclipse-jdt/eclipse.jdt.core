@@ -116,6 +116,9 @@ protected abstract boolean close(LRUCacheEntry entry);
 		}
 		return new LRUCacheEnumerator(head);
 	}
+	public double fillingRate() {
+		return (fCurrentSpace + fOverflow) * 100.0 / fSpaceLimit;
+	}
 	/**
 	 * This method exposed only for testing purposes!
 	 *
@@ -395,7 +398,7 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
  */
 public String toString() {
 	return 
-		"OverflowingLRUCache " + ((fCurrentSpace + fOverflow) * 100.0 / fSpaceLimit) + "% full\n" + //$NON-NLS-1$ //$NON-NLS-2$
+		"OverflowingLRUCache " + this.fillingRate() + "% full\n" + //$NON-NLS-1$ //$NON-NLS-2$
 		this.toStringContents();
 }
 /**

@@ -409,13 +409,7 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 			}
 	}
 }
-/**
- * Used when incrementally building, so as to force a partial refresh of the Java Model before it got a
- * chance to update by itself.
- */
-public void closeAffectedElements(IResourceDelta delta) {
-	fDeltaProcessor.closeAffectedElements(delta);
-}
+
 
 	/**
 	 * Note that the project is about to be deleted.

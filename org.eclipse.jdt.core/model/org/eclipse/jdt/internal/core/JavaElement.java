@@ -101,6 +101,9 @@ public void close() throws JavaModelException {
 		}
 		closing(info);
 		fgJavaModelManager.removeInfo(this);
+		if (JavaModelManager.VERBOSE){
+			System.out.println("-> Filling rate = " + fgJavaModelManager.fModelInfo.fLRUCache.fillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		}
 	}
 }
 /**

@@ -225,45 +225,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			break;
 	}
 }
-	/**
-	 * Traverse an existing delta and close the affected compilation units.
-	 */
-	protected void closeAffectedElements(IResourceDelta delta) {
 
-		Openable element = (Openable) JavaCore.create(delta.getResource());
-		boolean processChildren = true;
-		if (element != null) {
-			int flags = delta.getFlags();
-			switch (element.getElementType()) {
-				case IJavaElement.CLASS_FILE :
-				case IJavaElement.COMPILATION_UNIT :
-					processChildren = false;
-					switch (delta.getKind()) {
-						case IResourceDelta.ADDED :
-							break;
-						case IResourceDelta.CHANGED :
-							if ((flags & IResourceDelta.CONTENT) != 0) {
-								try {
-									element.close();
-								} catch (JavaModelException e) {
-								}
-							}
-							break;
-						case IResourceDelta.REMOVED :
-							try {
-								element.close();
-							} catch (JavaModelException e) {
-							}
-					}
-			}
-		}
-		if (processChildren) {
-			IResourceDelta[] children = delta.getAffectedChildren();
-			for (int i = 0; i < children.length; i++) {
-				closeAffectedElements(children[i]);
-			}
-		}
-	}
 
 	/**
 	 * Generic processing for elements with changed contents:<ul>

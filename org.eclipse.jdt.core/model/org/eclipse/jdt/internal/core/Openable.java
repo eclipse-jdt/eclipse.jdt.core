@@ -404,6 +404,10 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 
 		// 4) anything special
 		opening(info);
+		
+		if (JavaModelManager.VERBOSE) {
+			System.out.println("-> Filling rate = " + fgJavaModelManager.fModelInfo.fLRUCache.fillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		}
 
 		// if any problems occuring openning the element, ensure that it's info
 		// does not remain in the cache	(some elements, pre-cache their info
