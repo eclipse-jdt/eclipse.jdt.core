@@ -62,6 +62,9 @@ PRs Fixed in 1.0NL stream (since 0.9)
 
 PRs Closed in this Release
 ==================================================================================
+1GGRCGZ: ITPJUI:WIN2000 - Can't rename/copy/move/delete default package
+1GDRXHP: ITPDUI:WINNT - NPE inspecting local var
+1G7RAO5: ITPJCORE:ALL - Java Model Core Tests: JavaProjectTests>>testProjectClose() has been removed
 1GF7PZW: ITPJCORE:WINNT - Evaluation - Walkback reporting error on local variable type 
 1GGLNOQ: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB - use a space instead. 
 1G295FE: ITPJCORE:ALL - Improve package fragment root management for java project 
