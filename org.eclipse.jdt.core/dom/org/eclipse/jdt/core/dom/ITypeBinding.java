@@ -464,8 +464,9 @@ public interface ITypeBinding extends IBinding {
 	 * the erasure type (as computed by this method).
 	 * Example: <code>"Collection"</code>.</li>
 	 * <li>For wildcard types, the name is "?" optionally followed by 
-	 * the keyword "extends" and the name of the bound (as computed by this method)
-	 * when present.
+	 * a single space followed by the keyword "extends" or "super"
+	 * followed a single space followed by the name of the bound (as computed by
+	 * this method) when present.
 	 * Example: <code>"? extends InputStream"</code>.
 	 * </li>
 	 * </ul> 
@@ -780,8 +781,9 @@ public interface ITypeBinding extends IBinding {
 	 * Example: <code>"java.util.Collection"</code>. Note that the
 	 * the type parameters are omitted.</li>
 	 * <li>For wildcard types, the fully qualified name is "?" optionally followed by 
-	 * the keyword "extends" and the fully qualified name of the bound (as computed by
-	 * this method) when present.
+	 * a single space followed by the keyword "extends" or "super" 
+	 * followed a single space followed by the fully qualified name of the bound
+	 * (as computed by this method) when present.
 	 * Example: <code>"? extends java.io.InputStream"</code>.
 	 * </li>
 	 * </ul>
