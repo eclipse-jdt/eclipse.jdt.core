@@ -121,6 +121,8 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 		public void cancel() {
 		}
+		public void ensureReadyBeforeRun() {
+		}
 		public boolean execute(IProgressMonitor progress) {
 			this.startingSem.release();
 			try {
@@ -128,9 +130,6 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			} catch (TimeOutException e) {
 				e.printStackTrace();
 			}
-			return true;
-		}
-		public boolean isReadyToRun() {
 			return true;
 		}
 	}

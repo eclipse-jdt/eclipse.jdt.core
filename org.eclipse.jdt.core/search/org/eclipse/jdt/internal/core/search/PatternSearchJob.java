@@ -48,6 +48,12 @@ public class PatternSearchJob implements IJob {
 	public void cancel() {
 		// search job is cancelled through progress 
 	}
+	public void ensureReadyBeforeRun() {
+		if (this.indexSelector == null) { // only check once. As long as this job is used, it will keep the same index picture
+			this.indexSelector = new IndexSelector(this.scope, this.pattern, this.indexManager);
+			this.indexSelector.getIndexes(); // will only cache answer if all indexes were available originally
+		}
+	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 
 		if (progressMonitor != null && progressMonitor.isCanceled())
@@ -83,13 +89,6 @@ public class PatternSearchJob implements IJob {
 				progressMonitor.done();
 			}
 		}
-	}
-	public boolean isReadyToRun() {
-		if (this.indexSelector == null) { // only check once. As long as this job is used, it will keep the same index picture
-			this.indexSelector = new IndexSelector(this.scope, this.pattern, this.indexManager);
-			this.indexSelector.getIndexes(); // will only cache answer if all indexes were available originally
-		}
-		return true;
 	}
 	public boolean search(IIndex index, IProgressMonitor progressMonitor) {
 

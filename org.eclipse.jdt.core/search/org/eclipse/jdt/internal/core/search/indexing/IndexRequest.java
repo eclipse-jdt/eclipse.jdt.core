@@ -32,10 +32,9 @@ public abstract class IndexRequest implements IJob {
 		this.manager.jobWasCancelled(this.indexPath);
 		this.isCancelled = true;
 	}
-	public boolean isReadyToRun() {
+	public void ensureReadyBeforeRun() {
 		// tag the index as inconsistent
 		this.manager.aboutToUpdateIndex(indexPath, updatedIndexState());
-		return true;
 	}
 	/*
 	 * This code is assumed to be invoked while monitor has read lock
