@@ -543,7 +543,19 @@ class TypeBinding implements ITypeBinding {
 								.append(getName());
 						}
 					}
-					this.key = buffer.toString();
+					ITypeBinding[] typeArgs = this.getTypeArguments();
+					final int typeArgsLength = typeArgs.length;
+					if (typeArgsLength != 0) {
+						buffer.append('<');
+						for (int i = 0; i < typeArgsLength; i++) {
+							buffer.append(typeArgs[i].getKey());
+							if (i != typeArgsLength - 1) {
+								buffer.append(',');
+							}							
+						}
+						buffer.append('>');
+					}
+					this.key = String.valueOf(buffer);
 				} else if (this.binding.isArrayType()) {
 					if (this.getElementType() != null) {
 						StringBuffer buffer = new StringBuffer(this.getElementType().getKey());

@@ -78,7 +78,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0045"));
+		suite.addTest(new ASTConverter15Test("test0046"));
 		return suite;
 	}
 		
@@ -1256,7 +1256,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
 		ASTNode node = getASTNode(compilationUnit, 0);
-		assertEquals("Not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		List typeParameters = typeDeclaration.typeParameters();
 		assertEquals("Wrong size", 1, typeParameters.size());
@@ -1323,6 +1323,33 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding erasure = methodBinding.getErasure();
 		assertNotNull("No erasure", erasure);
 		assertFalse("Not a parameterized method", erasure.isParameterizedMethod());
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72889
+	 */
+	public void test0046() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0046", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 1);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		Type superclassType = typeDeclaration.getSuperclassType();
+		ITypeBinding typeBinding = superclassType.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		String key1 = typeBinding.getKey();
+		node = getASTNode(compilationUnit, 1, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		String key2 = typeBinding.getKey();
+		assertFalse("Same keys", key1.equals(key2));
 	}
 }
 
