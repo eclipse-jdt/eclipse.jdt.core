@@ -4713,7 +4713,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not return value of raw type AX instead of type AX<AX<T,T>,U>. References to generic type AX<E,F> should be parameterized\n" + 
+			"Unsafe type operation: Should not convert expression of raw type AX to type AX<AX<T,T>,U>. References to generic type AX<E,F> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test169() {
@@ -4751,7 +4751,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not return value of raw type AX instead of type AX<T>. References to generic type AX<E> should be parameterized\n" + 
+			"Unsafe type operation: Should not convert expression of raw type AX to type AX<T>. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -4949,17 +4949,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n", 
 			},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
-		"	return new Vector();\n" + 
-		"	       ^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: Should not return value of raw type Vector instead of type Vector<T>. References to generic type Vector<E> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 10)\n" + 
-		"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
-		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe type operation: The cast from Object to parameterized type Vector<Object> will not check conformance of type arguments at runtime\n" + 
-		"----------\n",
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	return new Vector();\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type Vector to type Vector<T>. References to generic type Vector<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from Object to parameterized type Vector<Object> will not check conformance of type arguments at runtime\n" + 
+			"----------\n",
 			null,
 			true,
 			customOptions);
@@ -6244,4 +6244,81 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Cannot create a generic array of X<T>\n" + 
 			"----------\n");
 	}
+	// 69359 - unsafe cast diagnosis
+	public void test227() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" import java.util.*;\n" + 
+				" public class X {\n" + 
+				"  List list() { return null; }\n" + 
+				"  void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
+				"  void m0() { List<X> l = list(); } // unsafe conversion\n" + 
+				"  void m1() { for (X a : list()); } // type mismatch\n" + 
+				"  void m2() { for (Iterator<X> i = list().iterator(); i.hasNext();); }  // unsafe conversion\n" + 
+				"  void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
+				"  void m4() { Collection c = null; List l = (List<?>)c; } // ok\n" + 
+				"  void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
+				"  void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
+				"}\n"	,
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
+			"	                       ^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from List to parameterized type List<X> will not check conformance of type arguments at runtime\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
+			"	                       ^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type List<X> for expression of type List\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	void m0() { List<X> l = list(); } // unsafe conversion\n" + 
+			"	                        ^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type List to type List<X>. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	void m1() { for (X a : list()); } // type mismatch\n" + 
+			"	                       ^^^^^^\n" + 
+			"Type mismatch: cannot convert from element type Object to X\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 7)\n" + 
+			"	void m2() { for (Iterator<X> i = list().iterator(); i.hasNext();); }  // unsafe conversion\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: Should not convert expression of raw type Iterator to type Iterator<X>. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 10)\n" + 
+			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
+			"	                                ^\n" + 
+			"Type mismatch: cannot convert from Collection<X> to List\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 10)\n" + 
+			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
+			"	                                    ^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type Collection<X> for expression of type List\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 11)\n" + 
+			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
+			"	                                ^\n" + 
+			"Type mismatch: cannot convert from Collection<?> to List\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 11)\n" + 
+			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
+			"	                                    ^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast to type Collection<?> for expression of type List\n" + 
+			"----------\n");
+	}	
+	// conversion from raw to X<?> is safe (no unsafe warning)
+	public void test228() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" import java.util.*;\n" + 
+				" public class X {\n" + 
+				" 	List<?> list = new ArrayList();\n" + 
+				" }\n",
+			},
+			"");
+	}		
 }

@@ -349,8 +349,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.modifiers = someType.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
 		if (someArguments != null) {
 			this.arguments = someArguments;
-			for (int i = 0, length = someArguments.length; i < length; i++)
-			    this.tagBits |= someArguments[i].tagBits & (HasTypeVariable | HasWildcard);
+			for (int i = 0, length = someArguments.length; i < length; i++) {
+				TypeBinding someArgument = someArguments[i];
+				if (!someArgument.isWildcard() || ((WildcardBinding) someArgument).kind != Wildcard.UNBOUND) {
+					this.tagBits |= IsBoundParameterizedType;
+				}
+			    this.tagBits |= someArgument.tagBits & (HasTypeVariable | HasWildcard);
+			}
 		}	    
 		this.tagBits |= someType.tagBits & (IsLocalType| IsMemberType | IsNestedType);
 	}

@@ -889,23 +889,21 @@ public interface IProblem {
 	/** @since 3.1 */
 	int UnsafeGenericCast = TypeRelated + 545;
 	/** @since 3.1 */
-	int UnsafeRawReturnValue = TypeRelated + 546;
+	int IllegalInstanceofParameterizedType = Internal + 546;
 	/** @since 3.1 */
-	int IllegalInstanceofParameterizedType = Internal + 547;
+	int IllegalInstanceofTypeParameter = Internal + 547;
 	/** @since 3.1 */
-	int IllegalInstanceofTypeParameter = Internal + 548;
+	int NonGenericMethod = TypeRelated + 548;
 	/** @since 3.1 */
-	int NonGenericMethod = TypeRelated + 549;
+	int IncorrectArityForParameterizedMethod = TypeRelated + 549;
 	/** @since 3.1 */
-	int IncorrectArityForParameterizedMethod = TypeRelated + 550;
+	int ParameterizedMethodArgumentTypeMismatch = TypeRelated + 550;
 	/** @since 3.1 */
-	int ParameterizedMethodArgumentTypeMismatch = TypeRelated + 551;
+	int NonGenericConstructor = TypeRelated + 551;
 	/** @since 3.1 */
-	int NonGenericConstructor = TypeRelated + 552;
+	int IncorrectArityForParameterizedConstructor = TypeRelated + 552;
 	/** @since 3.1 */
-	int IncorrectArityForParameterizedConstructor = TypeRelated + 553;
-	/** @since 3.1 */
-	int ParameterizedConstructorArgumentTypeMismatch = TypeRelated + 554;
+	int ParameterizedConstructorArgumentTypeMismatch = TypeRelated + 553;
 	
 	/**
 	 * Foreach

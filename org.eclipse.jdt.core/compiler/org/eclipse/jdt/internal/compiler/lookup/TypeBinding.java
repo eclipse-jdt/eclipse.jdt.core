@@ -156,6 +156,14 @@ public boolean isTypeVariable() {
     return false;
 }
 
+	
+/**
+ *  Returns true if parameterized type AND not of the form List<?>
+ */
+public boolean isBoundParameterizedType() {
+	return (this.tagBits & TagBits.IsBoundParameterizedType) != 0;
+}
+
 /**
  * Returns true if the type is a wildcard
  */

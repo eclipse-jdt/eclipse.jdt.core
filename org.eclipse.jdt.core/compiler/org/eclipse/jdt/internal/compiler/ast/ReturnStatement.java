@@ -219,8 +219,8 @@ public class ReturnStatement extends Statement {
 		if (methodType == null) 
 			return;
 	
-		if (expressionType.isRawType() && (methodType.isParameterizedType() || methodType.isGenericType())) {
-		    scope.problemReporter().unsafeRawReturnValue(this.expression, expressionType, methodType);
+		if (expressionType.isRawType() && (methodType.isBoundParameterizedType() || methodType.isGenericType())) {
+		    scope.problemReporter().unsafeRawConversion(this.expression, expressionType, methodType);
 		}
 		
 		if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {

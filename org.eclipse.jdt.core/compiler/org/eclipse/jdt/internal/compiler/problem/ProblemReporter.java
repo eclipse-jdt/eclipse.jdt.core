@@ -515,7 +515,6 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawConversion:
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
-		case IProblem.UnsafeRawReturnValue:
 			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
 		
 		case IProblem.FinalBoundForTypeVariable:
@@ -3799,14 +3798,6 @@ public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, Meth
 			location.sourceStart,
 			location.sourceEnd);    
     }
-}
-public void unsafeRawReturnValue(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
-	this.handle(
-		IProblem.UnsafeRawReturnValue,
-		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
-		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
-		expression.sourceStart,
-		expression.sourceEnd);    
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 

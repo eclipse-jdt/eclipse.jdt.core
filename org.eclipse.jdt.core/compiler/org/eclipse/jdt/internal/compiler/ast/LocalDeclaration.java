@@ -193,7 +193,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						|| (variableType.isBaseType() && BaseTypeBinding.isWidening(variableType.id, initializationType.id))
 						|| initializationType.isCompatibleWith(variableType)) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
-						if (initializationType.isRawType() && (variableType.isParameterizedType() || variableType.isGenericType())) {
+						if (initializationType.isRawType() && (variableType.isBoundParameterizedType() || variableType.isGenericType())) {
 							    scope.problemReporter().unsafeRawConversion(this.initialization, initializationType, variableType);
 						}						
 					} else {

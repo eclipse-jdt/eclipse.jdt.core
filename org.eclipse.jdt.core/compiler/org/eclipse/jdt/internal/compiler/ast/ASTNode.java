@@ -150,7 +150,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 			    unsafeWildcardInvocation = true;
 			} else if (argumentType != parameterType 
 			        && argumentType.isRawType() 
-			        && (parameterType.isParameterizedType() || parameterType.isGenericType())) {
+			        && (parameterType.isBoundParameterizedType() || parameterType.isGenericType())) {
 			    scope.problemReporter().unsafeRawConversion(arguments[i], argumentType, parameterType);
 			}
 		}

@@ -46,6 +46,9 @@ public interface TagBits {
 	// test bit to identify if the type's hierarchy is inconsistent
 	final int HierarchyHasProblems = ASTNode.Bit16;
 
+	// set for parameterized type NOT of the form X<?,?>
+	final int IsBoundParameterizedType = ASTNode.Bit24; 
+
 	// used by BinaryTypeBinding
 	final int HasUnresolvedTypeVariables = ASTNode.Bit25;
 	final int HasUnresolvedSuperclass = ASTNode.Bit26;
@@ -55,5 +58,4 @@ public interface TagBits {
 
 	final int HasTypeVariable = ASTNode.Bit30; // set either for type variables (direct) or parameterized types indirectly referencing type variables
 	final int HasWildcard = ASTNode.Bit31; // set either for wildcards (direct) or parameterized types indirectly referencing wildcards
-	
 }

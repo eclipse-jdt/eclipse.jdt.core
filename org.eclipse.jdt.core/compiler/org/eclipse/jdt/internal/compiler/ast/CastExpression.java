@@ -154,6 +154,11 @@ public class CastExpression extends Expression {
 			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
 				if (expressionType.isCompatibleWith(castType)){ // no runtime error
 					if (castType.id == T_String) constant = expression.constant; // (String) cst is still a constant
+					if (castType.isParameterizedType() || castType.isGenericType()) {
+						if (castType.erasure() == expressionType.erasure() && castType != expressionType) {
+							scope.problemReporter().unsafeCast(this);
+						}
+					}
 					return false;
 				}
 				if (castType.isCompatibleWith(expressionType)) {
@@ -169,6 +174,11 @@ public class CastExpression extends Expression {
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 				if (expressionType.isCompatibleWith(castType)) {
+					if (castType.isParameterizedType() || castType.isGenericType()) {
+						if (castType.erasure() == expressionType.erasure() && castType != expressionType) {
+							scope.problemReporter().unsafeCast(this);
+						}
+					}
 					return false;
 				}
 				if (!((ReferenceBinding) expressionType).isFinal()) {
@@ -212,9 +222,21 @@ public class CastExpression extends Expression {
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
 			if (expressionType.isCompatibleWith(castType)) {
+				if (castType.isParameterizedType() || castType.isGenericType()) {
+					if (castType.erasure() == expressionType.erasure() && castType != expressionType) {
+						scope.problemReporter().unsafeCast(this);
+					}
+				}
 				return false; 
 			}
-			if (!castType.isCompatibleWith(expressionType)) {
+			if (castType.isCompatibleWith(expressionType)) {
+				if (castType.isParameterizedType() || castType.isGenericType()) {
+					ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+					if (!match.isParameterizedType() && !match.isGenericType()) {
+						scope.problemReporter().unsafeCast(this);
+					}
+				}				
+			} else {
 				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
 				MethodBinding[] expressionTypeMethods =
 					((ReferenceBinding) expressionType).methods();

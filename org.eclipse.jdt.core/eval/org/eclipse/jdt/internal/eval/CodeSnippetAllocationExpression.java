@@ -198,7 +198,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		    TypeBinding parameterType = binding.parameters[i];
 		    TypeBinding argumentType = argumentTypes[i];
 			arguments[i].computeConversion(scope, parameterType, argumentType);
-			if (argumentType != parameterType && argumentType.isRawType() && parameterType.isParameterizedType()) {
+			if (argumentType != parameterType && argumentType.isRawType() && parameterType.isBoundParameterizedType()) {
 				scope.problemReporter().unsafeRawConversion(arguments[i], argumentType, parameterType);
 			}
 		}
