@@ -818,7 +818,7 @@ public void testClasspathValidation11() throws CoreException {
 }
 /**
  * Should not allow a nested source folder in an output folder.
- * */ 
+ */ 
 public void testClasspathValidation12() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin1");
