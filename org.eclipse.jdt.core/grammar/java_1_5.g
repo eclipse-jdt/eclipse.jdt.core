@@ -1486,12 +1486,9 @@ Catchesopt ::= $empty
 Catchesopt -> Catches
 /:$readableName Catches:/
 
----------------------------------------------------------------------------------------
-
 -----------------------------------------------
 -- 1.5 features : enum type
 -----------------------------------------------
-
 EnumDeclaration ::= Modifiersopt 'enum' Identifier ClassHeaderImplementsopt EnumBody
 /. $putCase consumeEnumDeclaration(); $break ./
 /:$readableName EnumDeclaration:/
