@@ -335,15 +335,6 @@ public int computeSeverity(int problemId){
 			return Ignore;
 */
 		case DuplicateImport :
-			if ((errorThreshold & CompilerOptions.ImportProblem) != 0){
-				// never an error
-				return Warning;
-			}
-			if ((warningThreshold & CompilerOptions.ImportProblem) != 0){
-				return Warning;
-			}
-			return Ignore;
-			
 		case ImportProblemBase + NotFound :
 		case ImportProblemBase + NotVisible :
 		case ImportProblemBase + Ambiguous :

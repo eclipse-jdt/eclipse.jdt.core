@@ -272,15 +272,6 @@ void faultInImports() {
 				if (existingType == typeBinding)
 					continue nextImport;
 					
-				// remove the duplicate existing import
-				for (int j = 0; j < index; j++) {
-					if(resolvedImports[j].resolvedImport == existingType) {
-						if(j + 1 != index) {
-							System.arraycopy(resolvedImports,j + 1, resolvedImports, j, index - (j + 1));	
-						}
-						resolvedImports[--index] = null;
-					}
-				}
 				// either the type collides with a top level type or another imported type
 				for (int j = 0, length = topLevelTypes.length; j < length; j++) {
 					if (CharOperation.equals(topLevelTypes[j].sourceName, existingType.sourceName)) {
