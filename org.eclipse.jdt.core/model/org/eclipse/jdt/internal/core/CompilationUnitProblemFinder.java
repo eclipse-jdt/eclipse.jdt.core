@@ -83,7 +83,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		ICompilerRequestor requestor,
 		IProblemFactory problemFactory) {
 
-		super(environment, policy, settings, requestor, problemFactory, false);
+		super(environment, policy, settings, requestor, problemFactory, true);
 	}
 
 	/**
