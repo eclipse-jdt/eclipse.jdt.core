@@ -60,12 +60,7 @@ public static IMarker[] getTasksFor(IResource resource) {
 	return new IMarker[0];
 }
 
-/**
- * Notification that a build may be initiated, i.e. the JavaModel got notified of PRE_AUTO_BUILD event
- * Note that if auto-build is off, then notification may occur though no actual build will take place.
- * Allow, for instance, to reset compilation problem counters.
- */
-public static void prepareToBuild(IResourceChangeEvent event) {
+public static void finishedBuilding(IResourceChangeEvent event) {
 	BuildNotifier.resetProblemCounters();
 }
 

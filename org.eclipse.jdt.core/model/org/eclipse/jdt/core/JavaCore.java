@@ -2987,6 +2987,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			workspace.addResourceChangeListener(
 				manager.deltaProcessor,
 				IResourceChangeEvent.PRE_AUTO_BUILD
+					| IResourceChangeEvent.POST_AUTO_BUILD
 					| IResourceChangeEvent.POST_CHANGE
 					| IResourceChangeEvent.PRE_DELETE
 					| IResourceChangeEvent.PRE_CLOSE);
