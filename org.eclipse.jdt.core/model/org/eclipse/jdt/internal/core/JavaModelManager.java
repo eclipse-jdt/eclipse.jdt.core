@@ -724,6 +724,9 @@ public class JavaModelManager implements ISaveParticipant {
 				for (int i= 0; i < listenerCount; i++) {
 					if ((listenerMask[i] & ElementChangedEvent.PRE_AUTO_BUILD) != 0){
 						final IElementChangedListener listener = listeners[i];
+						if (DeltaProcessor.VERBOSE) {
+							System.out.println("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
+						}
 						// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
 						Platform.run(new ISafeRunnable() {
 							public void handleException(Throwable exception) {
@@ -758,6 +761,9 @@ public class JavaModelManager implements ISaveParticipant {
 				if ((listenerMask[i] & eventType) != 0){
 					// wrap callbacks with Safe runnable for subsequent listeners to be called when some are causing grief
 					final IElementChangedListener listener = listeners[i];
+					if (DeltaProcessor.VERBOSE) {
+						System.out.println("Listener #" + (i+1) + "=" + listener.toString());//$NON-NLS-1$//$NON-NLS-2$
+					}
 					Platform.run(new ISafeRunnable() {
 						public void handleException(Throwable exception) {
 							Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
