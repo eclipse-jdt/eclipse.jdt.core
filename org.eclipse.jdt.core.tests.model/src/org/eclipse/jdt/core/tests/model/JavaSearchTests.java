@@ -287,6 +287,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testFieldReferenceThroughSubclass"));
 	suite.addTest(new JavaSearchTests("testReadWriteFieldReferenceInCompoundExpression"));
 	suite.addTest(new JavaSearchTests("testReadWriteAccessInQualifiedNameReference"));
+	suite.addTest(new JavaSearchTests("testFieldReferenceInBrackets"));
 	
 	// or pattern
 	suite.addTest(new JavaSearchTests("testOrPattern"));
@@ -867,6 +868,24 @@ public void testFieldReferenceInAnonymousClass() throws JavaModelException, Core
 		resultCollector);
 	assertEquals(
 		"src/D.java D.g() -> void [h]", 
+		resultCollector.toString());
+}
+/**
+ * Field reference in brackets test.
+ * (regression test for bug 23329 search: incorrect range for type references in brackets)
+ */
+public void testFieldReferenceInBrackets() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("A");
+	IField field = type.getField("field");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		field, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/s3/A.java s3.A.bar() -> int [field]",
 		resultCollector.toString());
 }
 /**

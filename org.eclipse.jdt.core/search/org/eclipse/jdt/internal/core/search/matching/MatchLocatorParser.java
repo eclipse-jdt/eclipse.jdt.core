@@ -145,6 +145,12 @@ protected void consumeMethodInvocationSuper() {
 		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
 	}
 }
+protected void consumePrimaryNoNewArray() {
+	// pop parenthesis positions (and don't update expression positions
+	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
+	intPtr--;
+	intPtr--;
+}
 protected void consumeSingleTypeImportDeclarationName() {
 	super.consumeSingleTypeImportDeclarationName();
 	if (this.matchSet != null) {
