@@ -1937,13 +1937,8 @@ class ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.Statement action = statement.action;
 		if (action != null) {
 			forStatement.setBody(convert(statement.action));
-			if (!(action instanceof org.eclipse.jdt.internal.compiler.ast.Block)) {
-				// set the end position of the for statement on the semi-colon
-				retrieveSemiColonPosition(forStatement);
-			}
 		} else {
 			EmptyStatement emptyStatement = this.ast.newEmptyStatement();
-			retrieveSemiColonPosition(forStatement);
 			int start = retrieveStartingSemiColonPosition(statement.sourceStart, compilationUnitSource.length);
 			int end = retrieveEndingSemiColonPosition(start, compilationUnitSource.length);
 			emptyStatement.setSourceRange(start, end - start + 1);
