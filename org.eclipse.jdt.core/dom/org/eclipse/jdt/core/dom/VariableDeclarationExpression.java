@@ -21,8 +21,9 @@ import java.util.List;
  * This kind of node collects together several variable declaration fragments
  * (<code>VariableDeclarationFragment</code>) into a single expression
  * (<code>Expression</code>), all sharing the same modifiers and base type.
- * This type of node is used (only) as the initializer of a
- * <code>ForStatement</code>.
+ * This type of node can be used as the initializer of a
+ * <code>ForStatement</code>, or wrapped in an <code>ExpressionStatement</code>
+ * to form the equivalent of a <code>VariableDeclarationStatement</code>.
  * </p>
  * For JLS2:
  * <pre>

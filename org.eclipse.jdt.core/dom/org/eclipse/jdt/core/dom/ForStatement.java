@@ -25,11 +25,18 @@ import java.util.List;
  * 			[ ForUpdate ] <b>)</b>
  * 			Statement
  * ForInit:
- * 		( VariableDeclarationExpression
- * 			 | { Expression {<b>,</b> Expression } }
+ * 		Expression { <b>,</b> Expression }
  * ForUpdate:
  * 		Expression { <b>,</b> Expression }
  * </pre>
+ * <p>
+ * Note: When variables are declared in the initializer
+ * of a for statement such as "<code>for (int a=1, b=2;;);</code>",
+ * they should be represented as a single
+ * <code>VariableDeclarationExpression</code>
+ * with two fragments, rather than being split up into a pair
+ * of expressions.
+ * </p>
  * 
  * @since 2.0
  */

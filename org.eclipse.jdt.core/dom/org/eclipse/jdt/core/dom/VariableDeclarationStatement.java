@@ -35,6 +35,12 @@ import java.util.List;
  *    { ExtendedModifier } Type VariableDeclarationFragment 
  *        { <b>,</b> VariableDeclarationFragment } <b>;</b>
  * </pre>
+ * <p>
+ * Note: This type of node is a convenience of sorts. 
+ * An equivalent way to represent the same statement is to use
+ * a <code>VariableDeclarationExpression</code>
+ * wrapped in an <code>ExpressionStatement</code>.
+ * </p>
  * 
  * @since 2.0
  */
