@@ -105,15 +105,15 @@ public final class CompletionEngine
 	 * It requires a searchable name environment, which supports some
 	 * specific search APIs, and a requestor to feed back the results to a UI.
 	 *
-	 *  @param environment com.ibm.codeassist.java.api.ISearchableNameEnvironment
+	 *  @param nameEnvironment org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment
 	 *      used to resolve type/package references and search for types/packages
 	 *      based on partial names.
 	 *
-	 *  @param requestor com.ibm.codeassist.java.api.ICompletionRequestor
+	 *  @param requestor org.eclipse.jdt.internal.codeassist.ICompletionRequestor
 	 *      since the engine might produce answers of various forms, the engine 
 	 *      is associated with a requestor able to accept all possible completions.
 	 *
-	 *  @param options com.ibm.compiler.java.api.ConfigurableOptions
+	 *  @param settings java.util.Map
 	 *		set of options used to configure the code assist engine.
 	 */
 	public CompletionEngine(
@@ -600,7 +600,7 @@ public final class CompletionEngine
 	 *  @return void
 	 *      completion results are answered through a requestor.
 	 *
-	 *  @param unit com.ibm.compiler.java.api.env.ICompilationUnit
+	 *  @param sourceUnit org.eclipse.jdt.internal.compiler.env.ICompilationUnit
 	 *      the source of the current compilation unit.
 	 *
 	 *  @param completionPosition int

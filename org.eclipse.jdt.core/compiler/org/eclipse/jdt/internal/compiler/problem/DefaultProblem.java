@@ -128,7 +128,7 @@ public class DefaultProblem
 
 	/**
 	 * Answer the type of problem.
-	 * @see com.ibm.compiler.java.problem.ProblemIrritants
+	 * @see org.eclipse.jdt.internal.compiler.problem.ProblemIrritants
 	 * @return int
 	 */
 	public int getID() {

@@ -48,15 +48,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 * It requires a searchable name environment, which supports some
 	 * specific search APIs, and a requestor to feed back the results to a UI.
 	 *
-	 *  @param environment com.ibm.codeassist.java.api.INameEnvironment
+	 *  @param nameEnvironment org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment
 	 *      used to resolve type/package references and search for types/packages
 	 *      based on partial names.
 	 *
-	 *  @param requestor com.ibm.codeassist.java.api.ISelectionRequestor
+	 *  @param requestor org.eclipse.jdt.internal.codeassist.ISelectionRequestor
 	 *      since the engine might produce answers of various forms, the engine 
 	 *      is associated with a requestor able to accept all possible completions.
 	 *
-	 *  @param options com.ibm.compiler.java.api.ConfigurableOptions
+	 *  @param settings java.util.Map
 	 *		set of options used to configure the code assist engine.
 	 */
 	public SelectionEngine(
@@ -84,6 +84,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	/**
 	 * One result of the search consists of a new class.
+	 * @param packageName char[]
+	 * @param className char[]
+	 * @param modifiers int
 	 *
 	 * NOTE - All package and type names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
@@ -91,7 +94,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *    The default package is represented by an empty array.
 	 */
 	public void acceptClass(char[] packageName, char[] className, int modifiers) {
-
 		if (CharOperation.equals(className, selectedIdentifier)) {
 			if (qualifiedSelection != null
 				&& !CharOperation.equals(
@@ -137,7 +139,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	/**
 	 * One result of the search consists of a new package.
-	 *
+	 * @param packageName char[]
+	 * 
 	 * NOTE - All package names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
 	 *    The default package is represented by an empty array.
@@ -147,7 +150,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	/**
 	 * One result of the search consists of a new type.
-	 *
+	 * @param packageName char[]
+	 * @param typeName char[]
+	 * 
 	 * NOTE - All package and type names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
 	 *    Nested type names are in the qualified form "A.M".
@@ -316,11 +321,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	/**
 	 * Ask the engine to compute the selection at the specified position
 	 * of the given compilation unit.
-	 *
-	 *  @return void
-	 *      the selection result is answered through a requestor.
-	 *
-	 *  @param unit com.ibm.compiler.java.api.env.ICompilationUnit
+
+	 *  @param sourceUnit org.eclipse.jdt.internal.compiler.env.ICompilationUnit
 	 *      the source of the current compilation unit.
 	 *
 	 *  @param selectionSourceStart int
@@ -499,10 +501,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 * Asks the engine to compute the selection of the given type
 	 * from the source type.
 	 *
-	 *  @return void
-	 *      the selection result is answered through a requestor.
-	 *
-	 *  @param sourceType com.ibm.compiler.java.api.env.ISourceType
+	 *  @param sourceType org.eclipse.jdt.internal.compiler.env.ISourceType
 	 *      a source form of the current type in which code assist is invoked.
 	 *
 	 *  @param typeName char[]
