@@ -749,6 +749,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			x1.setName(N1);
 		} else {
+			x1.typeParameters().add(TP1);
 			x1.setType(PT1);
 		}
 		x1.setAnonymousClassDeclaration(ACD1);

@@ -22,12 +22,14 @@ import java.util.List;
  *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  *            [ AnonymousClassDeclaration ]
  * </pre>
- * For 3.0 (corresponding to JLS3), the type name is generalized to
- * a type so that parameterized types can be instantiated:
+ * For 3.0 (corresponding to JLS3), type parameters are added
+ * and the type name is generalized to a type so that parameterized
+ * types can be instantiated:
  * <pre>
  * ClassInstanceCreation:
- *        [ Expression <b>.</b> ] <b>new</b> Type
- *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *        [ Expression <b>.</b> ]
+ *            [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *            <b>new</b> Type <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  *            [ AnonymousClassDeclaration ]
  * </pre>
  * <p>
@@ -64,6 +66,13 @@ import java.util.List;
  */
 public class ClassInstanceCreation extends Expression {
 
+	/**
+	 * The "typeParameters" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY = 
+		new ChildListPropertyDescriptor(ClassInstanceCreation.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
 	/**
 	 * The "expression" structural property of this node type.
 	 * @since 3.0
@@ -126,6 +135,7 @@ public class ClassInstanceCreation extends Expression {
 		
 		createPropertyList(ClassInstanceCreation.class);
 		addProperty(EXPRESSION_PROPERTY);
+		addProperty(TYPE_PARAMETERS_PROPERTY);
 		addProperty(TYPE_PROPERTY);
 		addProperty(ARGUMENTS_PROPERTY);
 		addProperty(ANONYMOUS_CLASS_DECLARATION_PROPERTY);
@@ -157,6 +167,14 @@ public class ClassInstanceCreation extends Expression {
 	private Expression optionalExpression = null;
 	
 	/**
+	 * The type paramters (element type: <code>TypeParameter</code>). 
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
+	 * @since 3.0
+	 */
+	private ASTNode.NodeList typeParameters = null;
+
+	/**
 	 * The type name; lazily initialized; defaults to a unspecified,
 	 * legal type name. Not used in 3.0.
 	 */
@@ -184,8 +202,8 @@ public class ClassInstanceCreation extends Expression {
 	/**
 	 * Creates a new AST node for a class instance creation expression owned 
 	 * by the given AST. By default, there is no qualifying expression,
-	 * an unspecified type, an empty list of arguments,
-	 * and does not declare an anonymous class.
+	 * an empty list of type parameters, an unspecified type, an empty
+     * list of arguments, and does not declare an anonymous class.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -196,6 +214,9 @@ public class ClassInstanceCreation extends Expression {
 	 */
 	ClassInstanceCreation (AST ast) {
 		super(ast);
+		if (ast.apiLevel >= AST.LEVEL_3_0) {
+			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -254,6 +275,9 @@ public class ClassInstanceCreation extends Expression {
 		if (property == ARGUMENTS_PROPERTY) {
 			return arguments();
 		}
+		if (property == TYPE_PARAMETERS_PROPERTY) {
+			return typeParameters();
+		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -277,6 +301,7 @@ public class ClassInstanceCreation extends Expression {
 			result.setName((Name) getName().clone(target));
 		}
 		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+			result.typeParameters().addAll(ASTNode.copySubtrees(target, typeParameters()));
 			result.setType((Type) getType().clone(target));
 		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
@@ -306,9 +331,10 @@ public class ClassInstanceCreation extends Expression {
 				acceptChild(visitor, getName());
 			}
 			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.typeParameters);
 				acceptChild(visitor, getType());
 			}
-			acceptChildren(visitor, arguments);
+			acceptChildren(visitor, this.arguments);
 			acceptChild(visitor, getAnonymousClassDeclaration());
 		}
 		visitor.endVisit(this);
@@ -346,6 +372,30 @@ public class ClassInstanceCreation extends Expression {
 	}
 
 	/**
+	 * Returns the live ordered list of type parameters of this class
+	 * instance creation (added in 3.0 API).
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of type parameters
+	 *    (element type: <code>TypeParameter</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public List typeParameters() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.typeParameters == null) {
+			unsupportedIn2();
+		}
+		return this.typeParameters;
+	}
+	
+    /**
 	 * Returns the name of the type instantiated in this class instance 
 	 * creation expression (2.0 API only).
 	 * 
@@ -491,7 +541,7 @@ public class ClassInstanceCreation extends Expression {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 5 * 4;
+		return BASE_NODE_SIZE + 6 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -499,14 +549,16 @@ public class ClassInstanceCreation extends Expression {
 	 */
 	int treeSize() {
 		// n.b. type == null for ast.API_LEVEL == 2.0
+		// n.b. typeParameters == null for ast.API_LEVEL == 2.0
 		// n.b. typeName == null for ast.API_LEVEL >= 3.0
 		return 
 			memSize()
-			+ (typeName == null ? 0 : getName().treeSize())
-			+ (type == null ? 0 : getType().treeSize())
-			+ (optionalExpression == null ? 0 : getExpression().treeSize())
-			+ arguments.listSize()
-			+ (optionalAnonymousClassDeclaration == null ? 0 : getAnonymousClassDeclaration().treeSize());
+			+ (this.typeName == null ? 0 : getName().treeSize())
+			+ (this.type == null ? 0 : getType().treeSize())
+			+ (this.optionalExpression == null ? 0 : getExpression().treeSize())
+			+ (this.typeParameters == null ? 0 : this.typeParameters.listSize())
+			+ (this.arguments == null ? 0 : this.arguments.listSize())
+			+ (this.optionalAnonymousClassDeclaration == null ? 0 : getAnonymousClassDeclaration().treeSize());
 	}
 }
 

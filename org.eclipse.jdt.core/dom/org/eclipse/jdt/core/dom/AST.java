@@ -3077,9 +3077,9 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented class instance creation 
 	 * ("new") expression node owned by this AST. By default, 
-	 * there is no qualifying expression, an unspecified (but legal) type name,
-	 * an empty list of arguments, and does not declare an anonymous
-	 * class declaration.
+	 * there is no qualifying expression, no type parameters,
+	 * an unspecified (but legal) type name, an empty list of
+	 * arguments, and does not declare an anonymous class declaration.
 	 * 
 	 * @return a new unparented class instance creation expression node
 	 */

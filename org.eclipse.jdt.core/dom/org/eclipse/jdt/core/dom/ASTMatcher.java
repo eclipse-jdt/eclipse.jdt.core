@@ -574,6 +574,9 @@ public class ASTMatcher {
 			}
 		}
 		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.typeParameters(), o.typeParameters())) {
+				return false;
+			}
 			if (!safeSubtreeMatch(node.getType(), o.getType())) {
 				return false;
 			}

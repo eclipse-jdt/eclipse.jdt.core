@@ -1247,6 +1247,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			x1.setName(N1);
 		} else {
+			x1.typeParameters().add(TP1);
 			x1.setType(PT1);
 		}
 		x1.setAnonymousClassDeclaration(ACD1);
@@ -1257,7 +1258,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			assertTrue(result.equals("[(eCI"+E1S+N1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			assertTrue(result.equals("[(eCI"+E1S+PT1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+			assertTrue(result.equals("[(eCI"+E1S+TP1S+PT1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	public void testAnonymousClassDeclaration() {

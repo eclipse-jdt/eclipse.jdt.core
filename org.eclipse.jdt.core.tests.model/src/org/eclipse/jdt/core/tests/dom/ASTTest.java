@@ -7326,6 +7326,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			assertTrue(x.getName().getParent() == x);
 		} else {
+			assertTrue(x.typeParameters().isEmpty());
 			assertTrue(x.getType().getParent() == x);
 		}
 		assertTrue(x.arguments().isEmpty());
@@ -7362,6 +7363,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			genericPropertyListTest(x, x.typeParameters(),
+			  new Property("TypeParameters", true, TypeParameter.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					TypeParameter result = targetAst.newTypeParameter();
+					if (parented) {
+						targetAst.newMethodDeclaration().typeParameters().add(result);
+					}
+					return result;
+				}
+			});
+		}
+		
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
