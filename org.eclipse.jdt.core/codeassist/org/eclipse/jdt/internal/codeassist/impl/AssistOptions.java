@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.impl;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -67,89 +66,103 @@ public class AssistOptions {
 		if (settings == null)
 			return;
 
-		// filter options which are related to the assist component
-		Iterator entries = settings.entrySet().iterator();
-		while (entries.hasNext()) {
-			Map.Entry entry = (Map.Entry)entries.next();
-			if (!(entry.getKey() instanceof String))
-				continue;
-			if (!(entry.getValue() instanceof String))
-				continue;
-			String optionID = (String) entry.getKey();
-			String optionValue = (String) entry.getValue();
+		set(settings);
+	}
+	public void set(Map optionsMap) {
 
-			if (optionID.equals(OPTION_PerformVisibilityCheck)) {
-				if (optionValue.equals(ENABLED)) {
-					this.checkVisibility = true;
-				} else
-					if (optionValue.equals(DISABLED)) {
-						this.checkVisibility = false;
-					}
-				continue;
-			} else if (optionID.equals(OPTION_ForceImplicitQualification)) {
-				if (optionValue.equals(ENABLED)) {
-					this.forceImplicitQualification = true;
-				} else
-					if (optionValue.equals(DISABLED)) {
-						this.forceImplicitQualification = false;
-					}
-				continue;
-			} else if(optionID.equals(OPTION_FieldPrefixes)){
-				if (optionValue.length() == 0) {
+		Object optionValue;
+		if ((optionValue = optionsMap.get(OPTION_PerformVisibilityCheck)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.checkVisibility = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.checkVisibility = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ForceImplicitQualification)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.forceImplicitQualification = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.forceImplicitQualification = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_FieldPrefixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.fieldPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.fieldPrefixes = null;
-				} else {
-					this.fieldPrefixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} else if(optionID.equals(OPTION_StaticFieldPrefixes)){
-				if (optionValue.length() == 0) {
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_StaticFieldPrefixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.staticFieldPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.staticFieldPrefixes = null;
-				} else {
-					this.staticFieldPrefixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} else if(optionID.equals(OPTION_LocalPrefixes)){
-				if (optionValue.length() == 0) {
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_LocalPrefixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.localPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.localPrefixes = null;
-				} else {
-					this.localPrefixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} else if(optionID.equals(OPTION_ArgumentPrefixes)){
-				if (optionValue.length() == 0) {
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ArgumentPrefixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.argumentPrefixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.argumentPrefixes = null;
-				} else {
-					this.argumentPrefixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} else if(optionID.equals(OPTION_FieldSuffixes)){
-				if (optionValue.length() == 0) {
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_FieldSuffixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.fieldSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.fieldSuffixes = null;
-				} else {
-					this.fieldSuffixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} else if(optionID.equals(OPTION_StaticFieldSuffixes)){
-				if (optionValue.length() == 0) {
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_StaticFieldSuffixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.staticFieldSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.staticFieldSuffixes = null;
-				} else {
-					this.staticFieldSuffixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} else if(optionID.equals(OPTION_LocalSuffixes)){
-				if (optionValue.length() == 0) {
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_LocalSuffixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.localSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.localSuffixes = null;
-				} else {
-					this.localSuffixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
-			} else if(optionID.equals(OPTION_ArgumentSuffixes)){
-				if (optionValue.length() == 0) {
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ArgumentSuffixes)) != null) {
+			if (optionValue instanceof String) {
+				String stringValue = (String) optionValue;
+				if (stringValue.length() > 0){
+					this.argumentSuffixes = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
+				} else {
 					this.argumentSuffixes = null;
-				} else {
-					this.argumentSuffixes = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
 				}
-				continue;
 			}
 		}
 	}
