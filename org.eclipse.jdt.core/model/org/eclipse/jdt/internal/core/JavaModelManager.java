@@ -9,9 +9,11 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
-import org.eclipse.core.runtime.*;
+
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
-import org.eclipse.jdt.core.*;
+
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -21,7 +23,8 @@ import org.eclipse.jdt.internal.core.search.indexing.*;
 
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import java.io.*;
+
+import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;
 import javax.xml.parsers.*;
@@ -370,7 +373,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * have yet to be fired.
 	 */
 	private ArrayList javaModelDeltas= new ArrayList();
-	/**
+
+	/**
 	 * Collection of listeners for Java element deltas
 	 */
 	private IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
@@ -426,6 +430,8 @@ public class JavaModelManager implements ISaveParticipant {
 		IProject project;
 		Object savedState;
 		boolean triedRead;
+		IClasspathEntry[] classpath;
+		IClasspathEntry[] lastResolvedClasspath;
 		PerProjectInfo(IProject project) {
 			this.triedRead = false;
 			this.savedState = null;
@@ -882,14 +888,37 @@ public class JavaModelManager implements ISaveParticipant {
 		return info.savedState;
 	}
 
-	/**
-	 * Returns the per-project info for the given project.
+	/*
+	 * Returns the per-project info for the given project. Create the info if the info doesn't exist.
 	 */
 	private PerProjectInfo getPerProjectInfo(IProject project) {
+		return getPerProjectInfo(project, true /* create info */);
+	}
+	
+	/*
+	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
+	 */
+	synchronized PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
 		PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
-		if (info == null) {
+		if (info == null && create) {
 			info= new PerProjectInfo(project);
 			perProjectInfo.put(project, info);
+		}
+		return info;
+	}
+	
+	/*
+	 * Returns  the per-project info for the given project.
+	 * If the info if the info doesn't exist, check for the project existence and create the info.
+	 * @throws JavaModelException if the project doesn't exist.
+	 */
+	PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
+		JavaModelManager.PerProjectInfo info = getPerProjectInfo(project, false /* don't create info */);
+		if (info == null) {
+			if (!project.exists()) {
+				throw ((JavaProject)JavaCore.create(project)).newNotPresentException();
+			}
+			info = getPerProjectInfo(project, true /* create info */);
 		}
 		return info;
 	}
@@ -1294,7 +1323,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * @see ISaveParticipant
 	 */
 	public void saving(ISaveContext context) throws CoreException {
-			int k = context.getKind();
+	
+		int k = context.getKind();
 		if (k == ISaveContext.FULL_SAVE){
 			this.saveBuildState();	// build state
 		} else if (k == ISaveContext.PROJECT_SAVE){
@@ -1309,7 +1339,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * on the projects classpath settings.
 	 */
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
-		// optional behaviour
+
+		// optional behaviour
 		// possible value of index 0 is Compute
 		if (!JavaCore.COMPUTE.equals(JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_ORDER))) return;
 		
@@ -1318,7 +1349,8 @@ public class JavaModelManager implements ISaveParticipant {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceDescription description = workspace.getDescription();
 		String[] wksBuildOrder = description.getBuildOrder();
-		String[] newOrder;
+
+		String[] newOrder;
 		if (wksBuildOrder == null){
 			newOrder = javaBuildOrder;
 		} else {
