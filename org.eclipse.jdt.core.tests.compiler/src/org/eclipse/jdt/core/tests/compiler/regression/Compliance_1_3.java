@@ -48,7 +48,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] { "Bug58069" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-	testsNumbers = new int[] { 78 };
+	//testsNumbers = new int[] { 78 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		testsRange = new int[] { 76, -1 };
 }
