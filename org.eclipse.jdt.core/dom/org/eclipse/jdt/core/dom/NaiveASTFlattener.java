@@ -836,6 +836,7 @@ class NaiveASTFlattener extends ASTVisitor {
 			cc.accept(this);
 		}
 		if (node.getFinally() != null) {
+			buffer.append("finally ");//$NON-NLS-1$
 			node.getFinally().accept(this);
 		}
 		return false;
