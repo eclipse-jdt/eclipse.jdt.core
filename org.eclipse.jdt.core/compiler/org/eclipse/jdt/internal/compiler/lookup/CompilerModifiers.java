@@ -22,7 +22,7 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 
 	final int AccRestrictedAccess = ASTNode.Bit19; 
 	final int AccFromClassFile = ASTNode.Bit20; 
-	final int AccIsConstantValue = ASTNode.Bit20;
+	final int AccEnumConstant = ASTNode.Bit20;
 	final int AccDefaultAbstract = ASTNode.Bit20; 
 	// bit21 - IConstants.AccDeprecated
 	final int AccDeprecatedImplicitly = ASTNode.Bit22; // record whether deprecated itself or contained by a deprecated type

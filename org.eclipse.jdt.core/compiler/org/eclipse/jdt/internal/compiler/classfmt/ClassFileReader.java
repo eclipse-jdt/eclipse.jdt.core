@@ -750,20 +750,17 @@ public boolean isAnonymous() {
 public boolean isBinaryType() {
 	return true;
 }
+
 /**
- * Answer true if the receiver is a class. False otherwise.
- * @return boolean
+ * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
  */
-public boolean isClass() {
-	return (getModifiers() & AccInterface) == 0;
+public int getKind() {
+	int modifiers = getModifiers();
+	if ((modifiers & AccInterface) != 0) return IGenericType.INTERFACE;
+	if ((modifiers & AccEnum) != 0) return IGenericType.ENUM;
+	return IGenericType.CLASS;
 }
-/**
- * Answer true if the receiver is an interface. False otherwise.
- * @return boolean
- */
-public boolean isInterface() {
-	return (getModifiers() & AccInterface) != 0;
-}
+
 /**
  * Answer true if the receiver is a local type, false otherwise
  *

@@ -254,6 +254,20 @@ public void enterConstructor(
 /**
  * @see ISourceElementRequestor
  */
+public void enterEnum(
+	int declarationStart,
+	int modifiers,
+	char[] name,
+	int nameSourceStart,
+	int nameSourceEnd,
+	char[][] superinterfaces) {
+
+	enterType(declarationStart, modifiers, name, nameSourceStart, nameSourceEnd, null, superinterfaces);
+
+}
+/**
+ * @see ISourceElementRequestor
+ */
 public void enterField(
 	int declarationStart,
 	int modifiers,
@@ -487,6 +501,12 @@ public void exitCompilationUnit(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitConstructor(int declarationEnd) {
+	exitMember(declarationEnd);
+}
+/**
+ * @see ISourceElementRequestor
+ */
+public void exitEnum(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**

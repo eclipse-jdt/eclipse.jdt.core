@@ -35,12 +35,25 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return flowInfo;
 	}
 	
+	public static final int FIELD = 1;
+	public static final int INITIALIZER = 2;
+	public static final int ENUM_CONSTANT = 3;
+	public static final int LOCAL_VARIABLE = 4;
+	public static final int PARAMETER = 5;
+	public static final int TYPE_PARAMETER = 6;
+	
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
 	 */
 	public TypeBinding[] genericTypeArguments() {
 		return null;
 	}
+	
+	/**
+	 * Returns the constant kind of this variable declaration
+	 */
+	public abstract int getKind();
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
@@ -56,17 +69,24 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return false;
 	}
 
-	
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
 		type.print(0, output).append(' ').append(this.name); 
-		if (initialization != null) {
-			output.append(" = "); //$NON-NLS-1$
-			initialization.printExpression(indent, output);
+		switch(getKind()) {
+			case ENUM_CONSTANT:
+				if (initialization != null) {
+					initialization.printExpression(indent, output);
+				}
+				return output.append(',');
+			default:
+				if (initialization != null) {
+					output.append(" = "); //$NON-NLS-1$
+					initialization.printExpression(indent, output);
+				}
+				return output.append(';');
 		}
-		return output.append(';');
 	}
 
 	public void resolve(BlockScope scope) {

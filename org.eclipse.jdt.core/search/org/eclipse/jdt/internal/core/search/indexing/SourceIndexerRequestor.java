@@ -166,6 +166,25 @@ public void enterConstructor(int declarationStart, int modifiers, char[] name, i
 	this.methodDepth++;
 }
 /**
+ * @see ISourceElementRequestor#enterEnum(int, int, char[], int, int, char[][])
+ */
+public void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {
+	// eliminate possible qualifications, given they need to be fully resolved again
+	if (superinterfaces != null){
+		for (int i = 0, length = superinterfaces.length; i < length; i++){
+			superinterfaces[i] = CharOperation.lastSegment(superinterfaces[i], '.');
+		}
+	}	
+	char[][] typeNames;
+	if (this.methodDepth > 0) {
+		typeNames = ONE_ZERO_CHAR;
+	} else {
+		typeNames = this.enclosingTypeNames();
+	}
+	this.indexer.addEnumDeclaration(modifiers, packageName, name, typeNames, superinterfaces);
+	this.pushTypeName(name);	
+}
+/**
  * @see ISourceElementRequestor#enterField(int, int, char[], char[], int, int)
  */
 public void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd) {
@@ -225,6 +244,12 @@ public void exitCompilationUnit(int declarationEnd) {
  */
 public void exitConstructor(int declarationEnd) {
 	this.methodDepth--;
+}
+/**
+ * @see ISourceElementRequestor#exitEnum(int)
+ */
+public void exitEnum(int declarationEnd) {
+	popTypeName();	
 }
 /**
  * @see ISourceElementRequestor#exitField(int, int, int)

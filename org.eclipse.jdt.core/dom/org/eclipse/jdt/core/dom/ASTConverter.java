@@ -24,8 +24,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.EnumConstant;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
@@ -34,11 +34,13 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -113,11 +115,11 @@ class ASTConverter {
 		}
 	}
 
-	protected void buildBodyDeclarations(EnumConstant enumConstant, EnumConstantDeclaration enumConstantDeclaration) {
+	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration, EnumConstantDeclaration enumConstantDeclaration) {
 		// add body declaration in the lexical order
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = enumConstant.memberTypes;
-		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = enumConstant.fields;
-		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = enumConstant.methods;
+		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = typeDeclaration.memberTypes;
+		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = typeDeclaration.fields;
+		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 		
 		int fieldsLength = fields == null? 0 : fields.length;
 		int methodsLength = methods == null? 0 : methods.length;
@@ -158,7 +160,11 @@ class ASTConverter {
 			}
 			switch (nextDeclarationType) {
 				case 0 :
-					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, enumConstantDeclaration.bodyDeclarations());
+					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						enumConstantDeclaration.bodyDeclarations().add(convert(nextFieldDeclaration));
+					} else {
+						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, enumConstantDeclaration.bodyDeclarations());
+					}
 					fieldsIndex++;
 					break;
 				case 1 :
@@ -173,7 +179,7 @@ class ASTConverter {
 					break;
 			}
 		}
-		convert(enumConstant.javadoc, enumConstantDeclaration);
+		convert(typeDeclaration.javadoc, enumConstantDeclaration);
 	}
 
 	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration typeDeclaration, AnnotationTypeDeclaration typeDecl) {
@@ -221,7 +227,11 @@ class ASTConverter {
 			}
 			switch (nextDeclarationType) {
 				case 0 :
-					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, typeDecl.bodyDeclarations());
+					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						typeDecl.bodyDeclarations().add(convert(nextFieldDeclaration));
+					} else {
+						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, typeDecl.bodyDeclarations());
+					}
 					fieldsIndex++;
 					break;
 				case 1 :
@@ -244,30 +254,25 @@ class ASTConverter {
 		convert(typeDeclaration.javadoc, typeDecl);
 	}
 	
-	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDeclaration2, EnumDeclaration enumDeclaration) {
+	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDeclaration2, EnumDeclaration enumDeclaration) {
 		// add body declaration in the lexical order
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = enumDeclaration2.memberTypes;
 		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = enumDeclaration2.fields;
 		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = enumDeclaration2.methods;
-		org.eclipse.jdt.internal.compiler.ast.EnumConstant[] enumConstants = enumDeclaration2.enumConstants;
 		
 		int fieldsLength = fields == null? 0 : fields.length;
 		int methodsLength = methods == null? 0 : methods.length;
 		int membersLength = members == null ? 0 : members.length;
-		int enumConstantsLength = enumConstants == null ? 0 : enumConstants.length;
 		int fieldsIndex = 0;
 		int methodsIndex = 0;
 		int membersIndex = 0;
-		int enumConstantsIndex = 0;
 		
 		while ((fieldsIndex < fieldsLength)
 			|| (membersIndex < membersLength)
-			|| (methodsIndex < methodsLength)
-			|| (enumConstantsIndex < enumConstantsLength)) {
+			|| (methodsIndex < methodsLength)) {
 			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration nextFieldDeclaration = null;
 			org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration nextMethodDeclaration = null;
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = null;
-			org.eclipse.jdt.internal.compiler.ast.EnumConstant nextEnumConstant = null;
 		
 			int position = Integer.MAX_VALUE;
 			int nextDeclarationType = -1;
@@ -292,16 +297,13 @@ class ASTConverter {
 					nextDeclarationType = 2; // MEMBER
 				}
 			}
-			if (enumConstantsIndex < enumConstantsLength) {
-				nextEnumConstant = enumConstants[enumConstantsIndex];
-				if (nextEnumConstant.declarationSourceStart < position) {
-					position = nextEnumConstant.declarationSourceStart;
-					nextDeclarationType = 3; // ENUM CONSTANT
-				}
-			}
 			switch (nextDeclarationType) {
 				case 0 :
-					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, enumDeclaration.bodyDeclarations());
+					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						enumDeclaration.enumConstants().add(convert(nextFieldDeclaration));
+					} else {
+						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, enumDeclaration.bodyDeclarations());
+					}
 					fieldsIndex++;
 					break;
 				case 1 :
@@ -314,9 +316,6 @@ class ASTConverter {
 					membersIndex++;
 					enumDeclaration.bodyDeclarations().add(convert(nextMemberDeclaration));
 					break;
-				case 3 :
-					enumConstantsIndex++;
-					enumDeclaration.enumConstants().add(convert(nextEnumConstant));
 			}
 		}
 		convert(enumDeclaration2.javadoc, enumDeclaration);
@@ -367,7 +366,11 @@ class ASTConverter {
 			}
 			switch (nextDeclarationType) {
 				case 0 :
-					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, anonymousClassDeclaration.bodyDeclarations());
+					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						anonymousClassDeclaration.bodyDeclarations().add(convert(nextFieldDeclaration));
+					} else {
+						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, anonymousClassDeclaration.bodyDeclarations());
+					}
 					fieldsIndex++;
 					break;
 				case 1 :
@@ -433,7 +436,11 @@ class ASTConverter {
 			}
 			switch (nextDeclarationType) {
 				case 0 :
-					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, typeDecl.bodyDeclarations());
+					if (nextFieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						typeDecl.bodyDeclarations().add(convert(nextFieldDeclaration));
+					} else {
+						checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, typeDecl.bodyDeclarations());
+					}
 					fieldsIndex++;
 					break;
 				case 1 :
@@ -1413,22 +1420,26 @@ class ASTConverter {
 		return emptyStatement;
 	}
 	
-	public EnumConstantDeclaration convert(EnumConstant enumConstant) {
+	// field is an enum constant
+	public EnumConstantDeclaration convert(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration enumConstant) {
 		checkCanceled();
 		EnumConstantDeclaration enumConstantDeclaration = this.ast.newEnumConstantDeclaration();
 		SimpleName typeName = this.ast.newSimpleName(new String(enumConstant.name));
 		typeName.setSourceRange(enumConstant.sourceStart, enumConstant.sourceEnd - enumConstant.sourceStart + 1);
 		enumConstantDeclaration.setName(typeName);
 		int declarationSourceStart = enumConstant.declarationSourceStart;
-		int declarationSourceEnd = enumConstant.bodyEnd;
-		if ((enumConstant.modifiers & CompilerModifiers.AccSemicolonBody) == 0) {
-			int closingPosition = retrieveRightBrace(declarationSourceEnd, enumConstant.declarationSourceEnd);
-			enumConstantDeclaration.setSourceRange(declarationSourceStart, closingPosition - declarationSourceStart + 1);
+		int declarationSourceEnd = enumConstant.declarationSourceEnd;
+		if (enumConstant.initialization instanceof QualifiedAllocationExpression) {
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousType = ((QualifiedAllocationExpression) enumConstant.initialization).anonymousType;
+			if (anonymousType != null) {
+				int closingPosition = anonymousType.declarationSourceEnd;
+				enumConstantDeclaration.setSourceRange(declarationSourceStart, closingPosition - declarationSourceStart + 1);
+				buildBodyDeclarations(anonymousType, enumConstantDeclaration);
+			}
 		} else {
 			enumConstantDeclaration.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
 		}
-		buildBodyDeclarations(enumConstant, enumConstantDeclaration);
-		final org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = enumConstant.arguments;
+		final org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = ((org.eclipse.jdt.internal.compiler.ast.AllocationExpression) enumConstant.initialization).arguments;
 		if (arguments != null) {
 			for (int i = 0, max = arguments.length; i < max; i++) {
 				enumConstantDeclaration.arguments().add(convert(arguments[i]));
@@ -1440,35 +1451,6 @@ class ASTConverter {
 			enumConstantDeclaration.resolveVariable();
 		}
 		return enumConstantDeclaration;
-	}
-
-	public EnumDeclaration convert(org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDeclaration) {
-		checkCanceled();
-		EnumDeclaration enumDeclaration2 = this.ast.newEnumDeclaration();
-		int modifiers = enumDeclaration.modifiers;
-		modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
-		modifiers &= CompilerModifiers.AccJustFlag;
-		if (modifiers != 0) {
-			setModifiers(enumDeclaration2, enumDeclaration);
-		}
-		SimpleName typeName = this.ast.newSimpleName(new String(enumDeclaration.name));
-		typeName.setSourceRange(enumDeclaration.sourceStart, enumDeclaration.sourceEnd - enumDeclaration.sourceStart + 1);
-		enumDeclaration2.setName(typeName);
-		enumDeclaration2.setSourceRange(enumDeclaration.declarationSourceStart, enumDeclaration.bodyEnd - enumDeclaration.declarationSourceStart + 1);
-		
-		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = enumDeclaration.superInterfaces;
-		if (superInterfaces != null) {
-			for (int index = 0, length = superInterfaces.length; index < length; index++) {
-				enumDeclaration2.superInterfaceTypes().add(convertType(superInterfaces[index]));
-			}					
-		}
-		buildBodyDeclarations(enumDeclaration, enumDeclaration2);
-		if (this.resolveBindings) {
-			recordNodes(enumDeclaration2, enumDeclaration);
-			recordNodes(typeName, enumDeclaration);
-			enumDeclaration2.resolveBinding();
-		}
-		return enumDeclaration2;
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.EqualExpression expression) {
@@ -2346,35 +2328,36 @@ class ASTConverter {
 					return typeDeclarationStatement;
 			}
 		}
-		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.EnumDeclaration
-				&& (statement.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsLocalTypeMASK) != 0) {
-			switch(this.ast.apiLevel) {
-				case AST.JLS2 :
-					return createFakeEmptyStatement(statement);
-				case AST.JLS3 :
-					TypeDeclarationStatement typeDeclarationStatement = this.ast.newTypeDeclarationStatement(convert((org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) statement));
-					TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
-					typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());
-					return typeDeclarationStatement;
-			}
-		}		
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-			TypeDeclaration typeDeclaration = (TypeDeclaration) convert((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) statement);
-			if (typeDeclaration == null) {
-				return createFakeEmptyStatement(statement);
-			} else {
-				TypeDeclarationStatement typeDeclarationStatement = this.ast.newTypeDeclarationStatement(typeDeclaration);
+			ASTNode result = convert((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) statement);
+			if (result.getNodeType() == ASTNode.ENUM_DECLARATION) {
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 :
-						TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
-						typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());					
-						break;
+						return createFakeEmptyStatement(statement);
 					case AST.JLS3 :
-						AbstractTypeDeclaration typeDeclAST3 = typeDeclarationStatement.getDeclaration();
-						typeDeclarationStatement.setSourceRange(typeDeclAST3.getStartPosition(), typeDeclAST3.getLength());					
-						break;
+						TypeDeclarationStatement typeDeclarationStatement = this.ast.newTypeDeclarationStatement((EnumDeclaration) result);
+						TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
+						typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());
+						return typeDeclarationStatement;
 				}
-				return typeDeclarationStatement;
+			} else {
+				TypeDeclaration typeDeclaration = (TypeDeclaration) result;
+				if (typeDeclaration == null) {
+					return createFakeEmptyStatement(statement);
+				} else {
+					TypeDeclarationStatement typeDeclarationStatement = this.ast.newTypeDeclarationStatement(typeDeclaration);
+					switch(this.ast.apiLevel) {
+						case AST.JLS2 :
+							TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
+							typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());					
+							break;
+						case AST.JLS3 :
+							AbstractTypeDeclaration typeDeclAST3 = typeDeclarationStatement.getDeclaration();
+							typeDeclarationStatement.setSourceRange(typeDeclAST3.getStartPosition(), typeDeclAST3.getLength());					
+							break;
+					}
+					return typeDeclarationStatement;
+				}
 			}
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.WhileStatement) {
@@ -2390,7 +2373,10 @@ class ASTConverter {
 		return createFakeEmptyStatement(statement);
 	}
 
-	public StringLiteral convert(org.eclipse.jdt.internal.compiler.ast.StringLiteral expression) {
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.StringLiteral expression) {
+		if (expression instanceof StringLiteralConcatenation) {
+			return convert((StringLiteralConcatenation) expression);
+		}
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
 		char[] tokens = new char[length];
@@ -2496,18 +2482,11 @@ class ASTConverter {
 				return convert((org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration) typeDeclaration);
 			}
 		}
-		if (typeDeclaration instanceof EnumConstant) {
+		if (typeDeclaration.getKind() == IGenericType.ENUM) {
 			if (this.ast.apiLevel == AST.JLS2) {
 				return null;
 			} else {
-				return convert((EnumConstant) typeDeclaration);
-			}
-		}
-		if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) {
-			if (this.ast.apiLevel == AST.JLS2) {
-				return null;
-			} else {
-				return convert((org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) typeDeclaration);
+				return convertToEnumDeclaration(typeDeclaration);
 			}
 		}
 		checkCanceled();
@@ -2518,7 +2497,7 @@ class ASTConverter {
 		if (modifiers != 0) {
 			setModifiers(typeDecl, typeDeclaration);
 		}
-		typeDecl.setInterface(typeDeclaration.isInterface());
+		typeDecl.setInterface(typeDeclaration.getKind() == IGenericType.INTERFACE);
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
 		typeDecl.setName(typeName);
@@ -2730,6 +2709,34 @@ class ASTConverter {
 		return packageDeclaration;
 	}
 	
+	private EnumDeclaration convertToEnumDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
+		checkCanceled();
+		EnumDeclaration enumDeclaration2 = this.ast.newEnumDeclaration();
+		int modifiers = typeDeclaration.modifiers;
+		modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
+		modifiers &= CompilerModifiers.AccJustFlag;
+		if (modifiers != 0) {
+			setModifiers(enumDeclaration2, typeDeclaration);
+		}
+		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
+		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
+		enumDeclaration2.setName(typeName);
+		enumDeclaration2.setSourceRange(typeDeclaration.declarationSourceStart, typeDeclaration.bodyEnd - typeDeclaration.declarationSourceStart + 1);
+		
+		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+		if (superInterfaces != null) {
+			for (int index = 0, length = superInterfaces.length; index < length; index++) {
+				enumDeclaration2.superInterfaceTypes().add(convertType(superInterfaces[index]));
+			}					
+		}
+		buildBodyDeclarations(typeDeclaration, enumDeclaration2);
+		if (this.resolveBindings) {
+			recordNodes(enumDeclaration2, typeDeclaration);
+			recordNodes(typeName, typeDeclaration);
+			enumDeclaration2.resolveBinding();
+		}
+		return enumDeclaration2;
+	}
 	public Expression convertToExpression(org.eclipse.jdt.internal.compiler.ast.Statement statement) {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.Expression) statement);
@@ -3369,13 +3376,6 @@ class ASTConverter {
 				} else {
 					return typeDecl.initializerScope;
 				}
-			} else if (currentNode instanceof EnumDeclaration) {
-				org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDecl = (org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-				if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
-					return enumDecl.staticInitializerScope;
-				} else {
-					return enumDecl.initializerScope;
-				}
 			} else if (currentNode instanceof AnnotationTypeDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration annotationTypeDecl = (org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 				if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
@@ -3397,7 +3397,7 @@ class ASTConverter {
 					return typeDecl.initializerScope;
 				}
 			} else if (currentNode instanceof EnumDeclaration) {
-				org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDecl = (org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
 					return enumDecl.staticInitializerScope;
 				} else {
@@ -4221,7 +4221,7 @@ class ASTConverter {
 	}
 	
 	
-	protected void setModifiers(EnumDeclaration enumDeclaration, org.eclipse.jdt.internal.compiler.ast.EnumDeclaration enumDeclaration2) {
+	protected void setModifiers(EnumDeclaration enumDeclaration, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDeclaration2) {
 		this.scanner.resetTo(enumDeclaration2.declarationSourceStart, enumDeclaration2.sourceStart);
 		this.setModifiers(enumDeclaration, enumDeclaration2.annotations);
 	}

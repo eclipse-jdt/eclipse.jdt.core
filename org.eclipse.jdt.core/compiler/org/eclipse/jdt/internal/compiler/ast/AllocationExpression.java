@@ -24,7 +24,8 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 	public TypeReference[] typeArguments;	
 	public TypeBinding[] genericTypeArguments;
-	
+	public FieldDeclaration enumConstant; // for enum constant initializations
+
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
@@ -74,7 +75,6 @@ public class AllocationExpression extends Expression implements InvocationSite {
 						currentScope.problemReporter().uninitializedLocalVariable(targetLocal, this);
 					}
 				}
-						
 		}
 	}
 	
@@ -95,7 +95,13 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			codeStream.dup();
 		}
 		// better highlight for allocation: display the type individually
-		codeStream.recordPositionsFrom(pc, type.sourceStart);
+		if (this.type != null) { // null for enum constant body
+			codeStream.recordPositionsFrom(pc, this.type.sourceStart);
+		} else {
+			// push enum constant name and ordinal
+			codeStream.ldc(String.valueOf(enumConstant.name));
+			codeStream.generateInlinedValue(enumConstant.binding.id);
+		}
 
 		// handling innerclass instance allocation - enclosing instance arguments
 		if (allocatedType.isNestedType()) {
@@ -196,7 +202,9 @@ public class AllocationExpression extends Expression implements InvocationSite {
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		output.append("new "); //$NON-NLS-1$
+		if (this.type != null) { // type null for enum constant initializations
+			output.append("new "); //$NON-NLS-1$
+		}
 		if (typeArguments != null) {
 			output.append('<');//$NON-NLS-1$
 			int max = typeArguments.length - 1;
@@ -207,7 +215,9 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			typeArguments[max].print(0, output);
 			output.append('>');
 		}
-		type.printExpression(0, output); 
+		if (type != null) { // type null for enum constant initializations
+			type.printExpression(0, output); 
+		}
 		output.append('(');
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
@@ -222,7 +232,12 @@ public class AllocationExpression extends Expression implements InvocationSite {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		constant = NotAConstant;
-		this.resolvedType = type.resolveType(scope);
+		if (this.type == null) {
+			// initialization of an enum constant
+			this.resolvedType = scope.enclosingSourceType();
+		} else {
+			this.resolvedType = this.type.resolveType(scope);
+		}
 		// will check for null after args are resolved
 
 		// resolve type arguments (for generic constructor call)
@@ -264,7 +279,8 @@ public class AllocationExpression extends Expression implements InvocationSite {
 		if (this.resolvedType == null)
 			return null;
 
-		if (!this.resolvedType.canBeInstantiated()) {
+		// null type denotes fake allocation for enum constant inits
+		if (this.type != null && !this.resolvedType.canBeInstantiated()) {
 			scope.problemReporter().cannotInstantiate(type, this.resolvedType);
 			return this.resolvedType;
 		}

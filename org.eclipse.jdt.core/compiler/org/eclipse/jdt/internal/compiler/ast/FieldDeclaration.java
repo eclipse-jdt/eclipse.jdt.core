@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class FieldDeclaration extends AbstractVariableDeclaration {
+	
 	public FieldBinding binding;
 	boolean hasBeenResolved = false;
 	public Javadoc javadoc;
@@ -116,11 +117,13 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	public boolean isField() {
-
-		return true;
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()
+	 */
+	public int getKind() {
+		return this.type == null ? ENUM_CONSTANT : FIELD;
 	}
-
+	
 	public boolean isStatic() {
 
 		if (this.binding != null)
@@ -157,7 +160,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					Scope outerScope = classScope.parent;
 					// only corner case is: lookup of outer field through static declaringType, which isn't detected by #getBinding as lookup starts
 					// from outer scope. Subsequent static contexts are detected for free.
-					Binding existingVariable = outerScope.getBinding(this.name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
+					Binding existingVariable = outerScope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 					if (existingVariable != null && existingVariable.isValidBinding()
 							&& (!(existingVariable instanceof FieldBinding)
 									|| ((FieldBinding) existingVariable).isStatic() 
@@ -167,7 +170,9 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				}
 			}
 			
-			this.type.resolvedType = this.binding.type; // update binding for type reference
+			if (this.type != null ) { // enum constants have no declared type
+				this.type.resolvedType = this.binding.type; // update binding for type reference
+			}
 
 			FieldBinding previousField = initializationScope.initializedField;
 			int previousFieldID = initializationScope.lastVisibleFieldID;
@@ -233,7 +238,14 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 	public void traverse(ASTVisitor visitor, MethodScope scope) {
 
 		if (visitor.visit(this, scope)) {
-			this.type.traverse(visitor, scope);
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+			if (this.type != null) {
+				this.type.traverse(visitor, scope);
+			}
 			if (this.initialization != null)
 				this.initialization.traverse(visitor, scope);
 		}

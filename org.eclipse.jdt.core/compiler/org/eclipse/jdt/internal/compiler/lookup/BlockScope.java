@@ -376,7 +376,7 @@ public class BlockScope extends Scope {
 	 */
 	public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite, boolean needResolve) {
 
-		Binding binding = getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite, needResolve);
+		Binding binding = getBinding(compoundName[0], mask | Binding.TYPE | Binding.PACKAGE, invocationSite, needResolve);
 		invocationSite.setFieldIndex(1);
 		if (binding instanceof VariableBinding) return binding;
 		compilationUnitScope().recordSimpleReference(compoundName[0]);
@@ -428,7 +428,7 @@ public class BlockScope extends Scope {
 			char[] nextName = compoundName[currentIndex++];
 			invocationSite.setFieldIndex(currentIndex);
 			invocationSite.setActualReceiverType(typeBinding);
-			if ((mask & FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
+			if ((mask & Binding.FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
 				if (!binding.isValidBinding())
 					return new ProblemFieldBinding(
 						((FieldBinding) binding).declaringClass,
@@ -437,7 +437,7 @@ public class BlockScope extends Scope {
 				break; // binding is now a field
 			}
 			if ((binding = findMemberType(nextName, typeBinding)) == null) {
-				if ((mask & FIELD) != 0) {
+				if ((mask & Binding.FIELD) != 0) {
 					return new ProblemBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
 						typeBinding,
@@ -453,7 +453,7 @@ public class BlockScope extends Scope {
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					binding.problemId());
 		}
-		if ((mask & FIELD) != 0 && (binding instanceof FieldBinding)) {
+		if ((mask & Binding.FIELD) != 0 && (binding instanceof FieldBinding)) {
 			// was looking for a field and found a field
 			FieldBinding field = (FieldBinding) binding;
 			if (!field.isStatic())
@@ -463,7 +463,7 @@ public class BlockScope extends Scope {
 					NonStaticReferenceInStaticContext);
 			return binding;
 		}
-		if ((mask & TYPE) != 0 && (binding instanceof ReferenceBinding)) {
+		if ((mask & Binding.TYPE) != 0 && (binding instanceof ReferenceBinding)) {
 			// was looking for a type and found a type
 			return binding;
 		}
@@ -483,7 +483,7 @@ public class BlockScope extends Scope {
 		Binding binding =
 			getBinding(
 				compoundName[currentIndex++],
-				VARIABLE | TYPE | PACKAGE,
+				Binding.VARIABLE | Binding.TYPE | Binding.PACKAGE,
 				invocationSite, 
 				true /*resolve*/);
 		if (!binding.isValidBinding())

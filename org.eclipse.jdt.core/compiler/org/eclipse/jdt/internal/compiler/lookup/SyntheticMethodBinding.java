@@ -14,34 +14,34 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 
-public class SyntheticAccessMethodBinding extends MethodBinding {
+public class SyntheticMethodBinding extends MethodBinding {
 
 	public FieldBinding targetReadField;		// read access to a field
 	public FieldBinding targetWriteField;		// write access to a field
 	public MethodBinding targetMethod;	// method or constructor
 	
-	public int accessType;
+	public int kind;
 
 	public final static int FieldReadAccess = 1; 		// field read
 	public final static int FieldWriteAccess = 2; 		// field write
 	public final static int MethodAccess = 3; 		// normal method 
 	public final static int ConstructorAccess = 4; 	// constructor
 	public final static int SuperMethodAccess = 5; // super method
-	public final static int BridgeMethodAccess = 6; // bridge method
-
-	final static char[] AccessMethodPrefix = { 'a', 'c', 'c', 'e', 's', 's', '$' };
+	public final static int BridgeMethod = 6; // bridge method
+	public final static int EnumValues = 7; // enum #values()
+	public final static int EnumValueOf = 8; // enum #valueOf(String)
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
 	
-	public SyntheticAccessMethodBinding(FieldBinding targetField, boolean isReadAccess, ReferenceBinding declaringClass) {
+	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, ReferenceBinding declaringClass) {
 
 		this.modifiers = AccDefault | AccStatic | AccSynthetic;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
-		SyntheticAccessMethodBinding[] knownAccessMethods = declaringSourceType.syntheticAccessMethods();
+		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;
-		this.selector = CharOperation.concat(AccessMethodPrefix, String.valueOf(methodId).toCharArray());
+		this.selector = CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(methodId).toCharArray());
 		if (isReadAccess) {
 			this.returnType = targetField.type;
 			if (targetField.isStatic()) {
@@ -51,7 +51,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				this.parameters[0] = declaringSourceType;
 			}
 			this.targetReadField = targetField;
-			this.accessType = FieldReadAccess;
+			this.kind = FieldReadAccess;
 		} else {
 			this.returnType = VoidBinding;
 			if (targetField.isStatic()) {
@@ -63,7 +63,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				this.parameters[1] = targetField.type;
 			}
 			this.targetWriteField = targetField;
-			this.accessType = FieldWriteAccess;
+			this.kind = FieldWriteAccess;
 		}
 		this.thrownExceptions = NoExceptions;
 		this.declaringClass = declaringSourceType;
@@ -93,7 +93,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				}
 			}
 			if (needRename) { // retry with a selector postfixed by a growing methodId
-				this.setSelector(CharOperation.concat(AccessMethodPrefix, String.valueOf(++methodId).toCharArray()));
+				this.setSelector(CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(++methodId).toCharArray()));
 			}
 		} while (needRename);
 	
@@ -127,7 +127,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 		this.sourceStart = declaringSourceType.scope.referenceContext.sourceStart; // use the target declaring class name position instead
 	}
 
-	public SyntheticAccessMethodBinding(MethodBinding targetMethod, boolean isSuperAccess, ReferenceBinding receiverType) {
+	public SyntheticMethodBinding(MethodBinding targetMethod, boolean isSuperAccess, ReferenceBinding receiverType) {
 	
 		if (targetMethod.isConstructor()) {
 			this.initializeConstructorAccessor(targetMethod);
@@ -136,10 +136,11 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 		}
 	}
 
-	/*
+	/**
 	 * Construct a bridge method
 	 */
-	public SyntheticAccessMethodBinding(MethodBinding overridenMethodToBridge, MethodBinding localTargetMethod) {
+	public SyntheticMethodBinding(MethodBinding overridenMethodToBridge, MethodBinding localTargetMethod) {
+		
 	    this.declaringClass = localTargetMethod.declaringClass;
 	    this.selector = overridenMethodToBridge.selector;
 	    this.modifiers = overridenMethodToBridge.modifiers | AccBridge | AccSynthetic;
@@ -148,12 +149,41 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 	    this.parameters = overridenMethodToBridge.parameters;
 	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;
 	    this.targetMethod = localTargetMethod;
-	    this.accessType = BridgeMethodAccess;
-		SyntheticAccessMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticAccessMethods();
+	    this.kind = BridgeMethod;
+		SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;	    
 	}
 	
+	/**
+	 * Construct enum special methods: values or valueOf methods
+	 */
+	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, char[] selector) {
+		if (selector == TypeConstants.VALUES) {
+		    this.declaringClass = declaringEnum;
+		    this.selector = selector;
+		    this.modifiers = AccFinal | AccPublic | AccStatic;
+		    this.returnType = declaringEnum.scope.createArrayType(declaringEnum, 1);
+		    this.parameters = NoParameters;
+		    this.thrownExceptions = NoExceptions;
+		    this.kind = EnumValues;
+			SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
+			int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+			this.index = methodId;	    
+		} else if (selector == TypeConstants.VALUEOF) {
+		    this.declaringClass = declaringEnum;
+		    this.selector = selector;
+		    this.modifiers = AccFinal | AccPublic | AccStatic;
+		    this.returnType = declaringEnum;
+		    this.parameters = new TypeBinding[]{ declaringEnum.scope.getJavaLangString() };
+		    this.thrownExceptions = NoExceptions;
+		    this.kind = EnumValueOf;
+			SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
+			int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+			this.index = methodId;	    
+		}
+	}
+
 	/**
 	 * An constructor accessor is a constructor with an extra argument (declaringClass), in case of
 	 * collision with an existing constructor, then add again an extra argument (declaringClass again).
@@ -163,13 +193,13 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 		this.targetMethod = accessedConstructor;
 		this.modifiers = AccDefault | AccSynthetic;
 		SourceTypeBinding sourceType = (SourceTypeBinding) accessedConstructor.declaringClass; 
-		SyntheticAccessMethodBinding[] knownAccessMethods = 
-			sourceType.syntheticAccessMethods(); 
-		this.index = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		SyntheticMethodBinding[] knownSyntheticMethods = 
+			sourceType.syntheticMethods(); 
+		this.index = knownSyntheticMethods == null ? 0 : knownSyntheticMethods.length;
 	
 		this.selector = accessedConstructor.selector;
 		this.returnType = accessedConstructor.returnType;
-		this.accessType = ConstructorAccess;
+		this.kind = ConstructorAccess;
 		this.parameters = new TypeBinding[accessedConstructor.parameters.length + 1];
 		System.arraycopy(
 			accessedConstructor.parameters, 
@@ -197,12 +227,12 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 					}
 				}
 				// check for collision with synthetic accessors
-				if (knownAccessMethods != null) {
-					for (int i = 0, length = knownAccessMethods.length; i < length; i++) {
-						if (knownAccessMethods[i] == null)
+				if (knownSyntheticMethods != null) {
+					for (int i = 0, length = knownSyntheticMethods.length; i < length; i++) {
+						if (knownSyntheticMethods[i] == null)
 							continue;
-						if (CharOperation.equals(this.selector, knownAccessMethods[i].selector)
-							&& this.areParametersEqual(knownAccessMethods[i])) {
+						if (CharOperation.equals(this.selector, knownSyntheticMethods[i].selector)
+							&& this.areParametersEqual(knownSyntheticMethods[i])) {
 							needRename = true;
 							break check;
 						}
@@ -242,13 +272,13 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 		this.targetMethod = accessedMethod;
 		this.modifiers = AccDefault | AccStatic | AccSynthetic;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
-		SyntheticAccessMethodBinding[] knownAccessMethods = declaringSourceType.syntheticAccessMethods();
+		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;
 	
-		this.selector = CharOperation.concat(AccessMethodPrefix, String.valueOf(methodId).toCharArray());
+		this.selector = CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(methodId).toCharArray());
 		this.returnType = accessedMethod.returnType;
-		this.accessType = isSuperAccess ? SuperMethodAccess : MethodAccess;
+		this.kind = isSuperAccess ? SuperMethodAccess : MethodAccess;
 		
 		if (accessedMethod.isStatic()) {
 			this.parameters = accessedMethod.parameters;
@@ -285,7 +315,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				}
 			}
 			if (needRename) { // retry with a selector & a growing methodId
-				this.setSelector(CharOperation.concat(AccessMethodPrefix, String.valueOf(++methodId).toCharArray()));
+				this.setSelector(CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(++methodId).toCharArray()));
 			}
 		} while (needRename);
 	
@@ -302,6 +332,6 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 	}
 
 	protected boolean isConstructorRelated() {
-		return accessType == ConstructorAccess;
+		return kind == ConstructorAccess;
 	}
 }

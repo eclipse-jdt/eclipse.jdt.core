@@ -86,32 +86,25 @@ public class HierarchyResolver implements ITypeRequestor {
 			return null;
 		}
 		
-		/*
+		/**
 		 * @see IGenericType#getModifiers()
 		 */
 		public int getModifiers() {
 			return 0;
 		}
 	
-		/*
+		/**
 		 * @see IGenericType#isBinaryType()
 		 */
 		public boolean isBinaryType() {
 			return false;
 		}
 	
-		/*
-		 * @see IGenericType#isClass()
+		/**
+		 * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
 		 */
-		public boolean isClass() {
-			return false;
-		}
-	
-		/*
-		 * @see IGenericType#isInterface()
-		 */
-		public boolean isInterface() {
-			return false;
+		public int getKind() {
+			return 0;
 		}
 		
 		public String toString() {
@@ -377,7 +370,7 @@ private void remember(IType type, ReferenceBinding typeBinding) {
 	
 		HierarchyType hierarchyType = new HierarchyType(
 			type, 
-			!typeDeclaration.isInterface(),
+			typeDeclaration.getKind(),
 			typeDeclaration.name,
 			typeDeclaration.binding.modifiers,
 			superclassName,

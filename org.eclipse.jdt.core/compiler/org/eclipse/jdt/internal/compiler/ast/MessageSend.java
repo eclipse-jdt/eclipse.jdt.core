@@ -325,7 +325,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
 		if (receiver instanceof NameReference 
-				&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
+				&& (((NameReference) receiver).bits & Binding.TYPE) != 0) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
 		}
 		receiver.computeConversion(scope, receiverType, receiverType); // compute generic cast if necessary
@@ -334,7 +334,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (!(receiver.isImplicitThis()
 				|| receiver.isSuper()
 				|| (receiver instanceof NameReference 
-					&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
+					&& (((NameReference) receiver).bits & Binding.TYPE) != 0))) {
 			scope.problemReporter().nonStaticAccessToStaticMethod(this, binding);
 		}
 		if (!receiver.isImplicitThis() && binding.declaringClass != receiverType) {

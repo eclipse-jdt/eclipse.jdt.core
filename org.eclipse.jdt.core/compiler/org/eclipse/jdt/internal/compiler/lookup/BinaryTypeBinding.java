@@ -11,12 +11,12 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /*
@@ -104,7 +104,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 
 	this.modifiers = binaryType.getModifiers();
-	if (binaryType.isInterface())
+	if (binaryType.getKind() == IGenericType.INTERFACE)
 		this.modifiers |= AccInterface;
 		
 	if (binaryType.isAnonymous()) {
@@ -473,7 +473,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	int argCount = argumentTypes.length;
 	nextMethod : for (int m = methods.length; --m >= 0;) {
 		MethodBinding method = methods[m];
-		if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
+		if (method.selector == TypeConstants.INIT && method.parameters.length == argCount) {
 			resolveTypesFor(method);
 			TypeBinding[] toMatch = method.parameters;
 			for (int p = 0; p < argCount; p++)

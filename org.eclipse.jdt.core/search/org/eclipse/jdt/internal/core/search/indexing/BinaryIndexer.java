@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
@@ -478,12 +479,21 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			
 			char[][] superinterfaces = replace('/', '.', reader.getInterfaceNames());
 			char[][] enclosingTypeNames = enclosingTypeName == null ? null : new char[][] {enclosingTypeName};
-			if (reader.isInterface()) {
-				addInterfaceDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
-			} else {
-				char[] superclass = replace('/', '.', reader.getSuperclassName());
-				addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces);
-			}
+			switch (reader.getKind()) {
+				case IGenericType.CLASS :
+					char[] superclass = replace('/', '.', reader.getSuperclassName());
+					addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces);
+					break;
+				case IGenericType.INTERFACE :
+					addInterfaceDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
+					break;
+				case IGenericType.ENUM :
+					addEnumDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
+					break;
+				case IGenericType.ANNOTATION_TYPE :
+					// TODO need support
+					break;
+			}			
 	
 			// first reference all methods declarations and field declarations
 			MethodInfo[] methods = (MethodInfo[]) reader.getMethods();

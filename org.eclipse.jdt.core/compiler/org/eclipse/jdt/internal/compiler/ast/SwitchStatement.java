@@ -11,10 +11,10 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SwitchStatement extends Statement {
@@ -26,8 +26,9 @@ public class SwitchStatement extends Statement {
 	public Label breakLabel;
 	public CaseStatement[] cases;
 	public CaseStatement defaultCase;
-	public int caseCount = 0;
 	public int blockStart;
+	public int caseCount;
+	int[] constants;
 	
 	// for local variables table attributes
 	int preSwitchInitStateIndex = -1;
@@ -101,81 +102,77 @@ public class SwitchStatement extends Statement {
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 	    try {
-			int[] sortedIndexes = new int[caseCount];
-			int[] localKeysCopy;
 			if ((bits & IsReachableMASK) == 0) {
 				return;
 			}
 			int pc = codeStream.position;
 	
 			// prepare the labels and constants
-			breakLabel.initialize(codeStream);
-			CaseLabel[] caseLabels = new CaseLabel[caseCount];
-			int[] constants = new int[caseCount];
-			boolean needSwitch = caseCount != 0;
+			this.breakLabel.initialize(codeStream);
+			CaseLabel[] caseLabels = new CaseLabel[this.caseCount];
+			boolean needSwitch = this.caseCount != 0;
 			for (int i = 0; i < caseCount; i++) {
-				constants[i] = cases[i].constantExpression.constant.intValue();
 				cases[i].targetLabel = (caseLabels[i] = new CaseLabel(codeStream));
 			}
-	
-			// we sort the keys to be able to generate the code for tableswitch or lookupswitch
-			for (int i = 0; i < caseCount; i++) {
-				sortedIndexes[i] = i;
-			}
-			System.arraycopy(
-				constants,
-				0,
-				(localKeysCopy = new int[caseCount]),
-				0,
-				caseCount);
-			CodeStream.sort(localKeysCopy, 0, caseCount - 1, sortedIndexes);
 			CaseLabel defaultLabel = new CaseLabel(codeStream);
 			if (defaultCase != null) {
 				defaultCase.targetLabel = defaultLabel;
 			}
 			// generate expression testes
 			expression.generateCode(currentScope, codeStream, needSwitch);
-	
 			// generate the appropriate switch table/lookup bytecode
 			if (needSwitch) {
-				int max = localKeysCopy[caseCount - 1];
+				int[] sortedIndexes = new int[this.caseCount];
+				// we sort the keys to be able to generate the code for tableswitch or lookupswitch
+				for (int i = 0; i < caseCount; i++) {
+					sortedIndexes[i] = i;
+				}
+				int[] localKeysCopy;
+				System.arraycopy(this.constants, 0, (localKeysCopy = new int[this.caseCount]), 0, this.caseCount);
+				CodeStream.sort(localKeysCopy, 0, this.caseCount - 1, sortedIndexes);
+
+				// for enum constants, actually switch on constant ordinal()
+				if (this.expression.resolvedType.isEnum()) {
+					codeStream.invokeEnumOrdinal(this.expression.resolvedType.constantPoolName());
+				}
+				int max = localKeysCopy[this.caseCount - 1];
 				int min = localKeysCopy[0];
 				if ((long) (caseCount * 2.5) > ((long) max - (long) min)) {
 					
 					// work-around 1.3 VM bug, if max>0x7FFF0000, must use lookup bytecode
 					// see http://dev.eclipse.org/bugs/show_bug.cgi?id=21557
 					if (max > 0x7FFF0000 && currentScope.environment().options.complianceLevel < ClassFileConstants.JDK1_4) {
-						codeStream.lookupswitch(defaultLabel, constants, sortedIndexes, caseLabels);
+						codeStream.lookupswitch(defaultLabel, this.constants, sortedIndexes, caseLabels);
 	
 					} else {
 						codeStream.tableswitch(
 							defaultLabel,
 							min,
 							max,
-							constants,
+							this.constants,
 							sortedIndexes,
 							caseLabels);
 					}
 				} else {
-					codeStream.lookupswitch(defaultLabel, constants, sortedIndexes, caseLabels);
+					codeStream.lookupswitch(defaultLabel, this.constants, sortedIndexes, caseLabels);
 				}
 				codeStream.updateLastRecordedEndPC(codeStream.position);
 			}
 			
 			// generate the switch block statements
 			int caseIndex = 0;
-			if (statements != null) {
-				for (int i = 0, maxCases = statements.length; i < maxCases; i++) {
-					Statement statement = statements[i];
-					if ((caseIndex < caseCount) && (statement == cases[caseIndex])) { // statements[i] is a case
-						this.scope.switchCase = cases[caseIndex]; // record entering in a switch case block
+			if (this.statements != null) {
+				for (int i = 0, maxCases = this.statements.length; i < maxCases; i++) {
+					Statement statement = this.statements[i];
+					if ((caseIndex < this.caseCount) && (statement == this.cases[caseIndex])) { // statements[i] is a case
+						this.scope.switchCase = this.cases[caseIndex]; // record entering in a switch case block
 						if (preSwitchInitStateIndex != -1) {
 							codeStream.removeNotDefinitelyAssignedVariables(currentScope, preSwitchInitStateIndex);
 						}
 						caseIndex++;
 					} else {
-						if (statement == defaultCase) { // statements[i] is a case or a default case
-							this.scope.switchCase = defaultCase; // record entering in a switch case block
+						if (statement == this.defaultCase) { // statements[i] is a case or a default case
+							this.scope.switchCase = this.defaultCase; // record entering in a switch case block
 							if (preSwitchInitStateIndex != -1) {
 								codeStream.removeNotDefinitelyAssignedVariables(currentScope, preSwitchInitStateIndex);
 							}
@@ -185,7 +182,7 @@ public class SwitchStatement extends Statement {
 				}
 			}
 			// place the trailing labels (for break and default case)
-			breakLabel.place();
+			this.breakLabel.place();
 			if (defaultCase == null) {
 				defaultLabel.place();
 			}
@@ -195,7 +192,7 @@ public class SwitchStatement extends Statement {
 				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			}
 			if (scope != currentScope) {
-				codeStream.exitUserScope(scope);
+				codeStream.exitUserScope(this.scope);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 	    } finally {
@@ -224,59 +221,66 @@ public class SwitchStatement extends Statement {
 	public void resolve(BlockScope upperScope) {
 	
 	    try {
-			TypeBinding testType = expression.resolveType(upperScope);
-			if (testType == null)
+			TypeBinding expressionType = expression.resolveType(upperScope);
+			if (expressionType == null)
 				return;
-			expression.computeConversion(upperScope, testType, testType);
-			if (!(expression.isConstantValueOfTypeAssignableToType(testType, IntBinding))) {
-				if (!testType.isCompatibleWith(IntBinding)) {
-					upperScope.problemReporter().incorrectSwitchType(expression, testType);
-					return;
-				}
+			expression.computeConversion(upperScope, expressionType, expressionType);
+			checkType: {
+				if (expressionType.isBaseType()) {
+					if (expression.isConstantValueOfTypeAssignableToType(expressionType, IntBinding))
+						break checkType;
+					if (expressionType.isCompatibleWith(IntBinding))
+						break checkType;
+				} else if (expressionType.isEnum())
+						break checkType;
+				upperScope.problemReporter().incorrectSwitchType(expression, expressionType);
+				// TODO (philippe) could keep analyzing switch statements in case of error
+				return;
 			}
 			if (statements != null) {
 				scope = explicitDeclarations == 0 ? upperScope : new BlockScope(upperScope);
 				int length;
 				// collection of cases is too big but we will only iterate until caseCount
 				cases = new CaseStatement[length = statements.length];
-				int[] casesValues = new int[length];
+				this.constants = new int[length];
 				CaseStatement[] duplicateCaseStatements = null;
 				int duplicateCaseStatementsCounter = 0;
 				int counter = 0;
 				for (int i = 0; i < length; i++) {
 					Constant constant;
 					final Statement statement = statements[i];
-					if ((constant = statement.resolveCase(scope, testType, this)) != null) {
+					if ((constant = statement.resolveCase(scope, expressionType, this)) != Constant.NotAConstant) {
+						int key = constant.intValue();
 						//----check for duplicate case statement------------
-						if (constant != NotAConstant) {
-							int key = constant.intValue();
-							for (int j = 0; j < counter; j++) {
-								if (casesValues[j] == key) {
-									final CaseStatement currentCaseStatement = (CaseStatement) statement;
-									if (duplicateCaseStatements == null) {
-										scope.problemReporter().duplicateCase(cases[j]);
+						for (int j = 0; j < counter; j++) {
+							if (this.constants[j] == key) {
+								final CaseStatement currentCaseStatement = (CaseStatement) statement;
+								if (duplicateCaseStatements == null) {
+									scope.problemReporter().duplicateCase(cases[j]);
+									scope.problemReporter().duplicateCase(currentCaseStatement);
+									duplicateCaseStatements = new CaseStatement[length];
+									duplicateCaseStatements[duplicateCaseStatementsCounter++] = cases[j];
+									duplicateCaseStatements[duplicateCaseStatementsCounter++] = currentCaseStatement;
+								} else {
+									boolean found = false;
+									searchReportedDuplicate: for (int k = 2; k < duplicateCaseStatementsCounter; k++) {
+										if (duplicateCaseStatements[k] == statement) {
+											found = true;
+											break searchReportedDuplicate;
+										}
+									}
+									if (!found) {
 										scope.problemReporter().duplicateCase(currentCaseStatement);
-										duplicateCaseStatements = new CaseStatement[length];
-										duplicateCaseStatements[duplicateCaseStatementsCounter++] = cases[j];
 										duplicateCaseStatements[duplicateCaseStatementsCounter++] = currentCaseStatement;
-									} else {
-										boolean found = false;
-										searchReportedDuplicate: for (int k = 2; k < duplicateCaseStatementsCounter; k++) {
-											if (duplicateCaseStatements[k] == statement) {
-												found = true;
-												break searchReportedDuplicate;
-											}
-										}
-										if (!found) {
-											scope.problemReporter().duplicateCase(currentCaseStatement);
-											duplicateCaseStatements[duplicateCaseStatementsCounter++] = currentCaseStatement;
-										}
 									}
 								}
 							}
-							casesValues[counter++] = key;
 						}
+						this.constants[counter++] = key;
 					}
+				}
+				if (length != counter) { // resize constants array
+					System.arraycopy(this.constants, 0, this.constants = new int[counter], 0, counter);
 				}
 			} else {
 				if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {

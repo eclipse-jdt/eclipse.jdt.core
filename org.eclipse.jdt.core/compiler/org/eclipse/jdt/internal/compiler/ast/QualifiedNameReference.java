@@ -25,8 +25,8 @@ public class QualifiedNameReference extends NameReference {
 	public FieldBinding[] otherBindings, otherCodegenBindings;
 	int[] otherDepths;
 	public int indexOfFirstFieldBinding;//points (into tokens) for the first token that corresponds to first FieldBinding
-	SyntheticAccessMethodBinding syntheticWriteAccessor;
-	SyntheticAccessMethodBinding[] syntheticReadAccessors;
+	SyntheticMethodBinding syntheticWriteAccessor;
+	SyntheticMethodBinding[] syntheticReadAccessors;
 	public TypeBinding genericCast;
 	public TypeBinding[] otherGenericCasts;
 	
@@ -54,7 +54,7 @@ public class QualifiedNameReference extends NameReference {
 		boolean needValue = otherBindingsCount == 0 || !this.otherBindings[0].isStatic();
 		FieldBinding lastFieldBinding = null;
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // reading a field
+			case Binding.FIELD : // reading a field
 				lastFieldBinding = (FieldBinding) binding;
 				if (needValue) {
 					manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0, flowInfo);
@@ -69,7 +69,7 @@ public class QualifiedNameReference extends NameReference {
 					}
 				}
 				break;
-			case LOCAL :
+			case Binding.LOCAL :
 				// first binding is a local variable
 				LocalVariableBinding localBinding;
 				if (!flowInfo
@@ -194,7 +194,7 @@ public class QualifiedNameReference extends NameReference {
 
 		boolean needValue = otherBindingsCount == 0 ? valueRequired : !this.otherBindings[0].isStatic();
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // reading a field
+			case Binding.FIELD : // reading a field
 				if (needValue) {
 					manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0, flowInfo);
 				}
@@ -208,7 +208,7 @@ public class QualifiedNameReference extends NameReference {
 					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 				}
 				break;
-			case LOCAL : // reading a local variable
+			case Binding.LOCAL : // reading a local variable
 				LocalVariableBinding localBinding;
 				if (!flowInfo
 					.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
@@ -254,7 +254,7 @@ public class QualifiedNameReference extends NameReference {
 				scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
 		}
 		bits &= ~RestrictiveFlagMASK; // clear bits
-		bits |= FIELD;
+		bits |= Binding.FIELD;
 		return getOtherFieldBindings(scope);
 	}
 	
@@ -325,7 +325,7 @@ public class QualifiedNameReference extends NameReference {
 						// inline the last field constant
 						codeStream.generateConstant(lastFieldBinding.constant(), implicitConversion);
 					} else {
-						SyntheticAccessMethodBinding accessor =
+						SyntheticMethodBinding accessor =
 							syntheticReadAccessors == null
 								? null
 								: syntheticReadAccessors[syntheticReadAccessors.length - 1];
@@ -362,7 +362,7 @@ public class QualifiedNameReference extends NameReference {
 		boolean valueRequired) {
 			
 		FieldBinding lastFieldBinding = generateReadSequence(currentScope, codeStream);
-		SyntheticAccessMethodBinding accessor =
+		SyntheticMethodBinding accessor =
 			syntheticReadAccessors == null
 				? null
 				: syntheticReadAccessors[syntheticReadAccessors.length - 1];
@@ -410,7 +410,7 @@ public class QualifiedNameReference extends NameReference {
 		boolean valueRequired) {
 	    
 		FieldBinding lastFieldBinding = generateReadSequence(currentScope, codeStream);
-		SyntheticAccessMethodBinding accessor =
+		SyntheticMethodBinding accessor =
 			syntheticReadAccessors == null
 				? null
 				: syntheticReadAccessors[syntheticReadAccessors.length - 1];
@@ -467,7 +467,7 @@ public class QualifiedNameReference extends NameReference {
 		TypeBinding lastGenericCast = null;
 
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD :
+			case Binding.FIELD :
 				lastFieldBinding = (FieldBinding) this.codegenBinding;
 				lastGenericCast = this.genericCast;
 				// if first field is actually constant, we can inline it
@@ -484,7 +484,7 @@ public class QualifiedNameReference extends NameReference {
 					}
 				}
 				break;
-			case LOCAL : // reading the first local variable
+			case Binding.LOCAL : // reading the first local variable
 				if (!needValue) break; // no value needed
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				// regular local variable read
@@ -577,7 +577,7 @@ public class QualifiedNameReference extends NameReference {
 		// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
 		int length = tokens.length;
 		FieldBinding field;
-		if ((bits & FIELD) != 0) {
+		if ((bits & Binding.FIELD) != 0) {
 			field = (FieldBinding) this.binding;
 			if (!field.isStatic()) {
 				//must check for the static status....
@@ -674,7 +674,7 @@ public class QualifiedNameReference extends NameReference {
 		if (((bits & DepthMASK) == 0) || (constant != NotAConstant)) {
 			return;
 		}
-		if ((bits & RestrictiveFlagMASK) == LOCAL) {
+		if ((bits & RestrictiveFlagMASK) == Binding.LOCAL) {
 			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
 		}
 	}
@@ -770,15 +770,15 @@ public class QualifiedNameReference extends NameReference {
 		constant = Constant.NotAConstant;
 		if ((this.codegenBinding = this.binding = scope.getBinding(tokens, bits & RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
 			switch (bits & RestrictiveFlagMASK) {
-				case VARIABLE : //============only variable===========
-				case TYPE | VARIABLE :
+				case Binding.VARIABLE : //============only variable===========
+				case Binding.TYPE | Binding.VARIABLE :
 					if (binding instanceof LocalVariableBinding) {
 						if (!((LocalVariableBinding) binding).isFinal() && ((bits & DepthMASK) != 0))
 							scope.problemReporter().cannotReferToNonFinalOuterLocal(
 								(LocalVariableBinding) binding,
 								this);
 						bits &= ~RestrictiveFlagMASK; // clear bits
-						bits |= LOCAL;
+						bits |= Binding.LOCAL;
 						return this.resolvedType = getOtherFieldBindings(scope);
 					}
 					if (binding instanceof FieldBinding) {
@@ -799,7 +799,7 @@ public class QualifiedNameReference extends NameReference {
 							scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 						}
 						bits &= ~RestrictiveFlagMASK; // clear bits
-						bits |= FIELD;
+						bits |= Binding.FIELD;
 						
 						// check for deprecated receiver type
 						// deprecation check for receiver type if not first token
@@ -812,8 +812,8 @@ public class QualifiedNameReference extends NameReference {
 					}
 					// thus it was a type
 					bits &= ~RestrictiveFlagMASK; // clear bits
-					bits |= TYPE;
-				case TYPE : //=============only type ==============
+					bits |= Binding.TYPE;
+				case Binding.TYPE : //=============only type ==============
 				    TypeBinding type = (TypeBinding) binding;
 					if (isTypeUseDeprecated(type, scope))
 						scope.problemReporter().deprecatedType(type, this);
@@ -852,12 +852,12 @@ public class QualifiedNameReference extends NameReference {
 	}
 	
 	// set the matching synthetic accessor
-	protected void setSyntheticAccessor(FieldBinding fieldBinding, int index, SyntheticAccessMethodBinding syntheticAccessor) {
+	protected void setSyntheticAccessor(FieldBinding fieldBinding, int index, SyntheticMethodBinding syntheticAccessor) {
 		if (index < 0) { // write-access ?
 			syntheticWriteAccessor = syntheticAccessor;
 	    } else {
 			if (syntheticReadAccessors == null) {
-				syntheticReadAccessors = new SyntheticAccessMethodBinding[otherBindings == null ? 1 : otherBindings.length + 1];
+				syntheticReadAccessors = new SyntheticMethodBinding[otherBindings == null ? 1 : otherBindings.length + 1];
 			}
 			syntheticReadAccessors[index] = syntheticAccessor;
 	    }

@@ -52,7 +52,7 @@ public CodeSnippetSingleNameReference(char[] source, long pos, EvaluationContext
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
 
 	switch (this.bits & RestrictiveFlagMASK) {
-		case FIELD : // reading a field
+		case Binding.FIELD : // reading a field
 			// check if reading a final blank field
 			FieldBinding fieldBinding;
 			if ((fieldBinding = (FieldBinding) this.binding).isBlankFinal() 
@@ -62,7 +62,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 			break;
-		case LOCAL : // reading a local variable
+		case Binding.LOCAL : // reading a local variable
 			LocalVariableBinding localBinding;
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
 				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
@@ -85,7 +85,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	}
 	FieldBinding fieldBinding = (FieldBinding) this.binding;
 	this.bits &= ~RestrictiveFlagMASK; // clear bits
-	this.bits |= FIELD;
+	this.bits |= Binding.FIELD;
 	if (!fieldBinding.isStatic()) {
 		// must check for the static status....
 		if (this.evaluationContext.isStatic) {
@@ -128,7 +128,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 		}
 	}
 	switch (this.bits & RestrictiveFlagMASK) {
-		case FIELD : // assigning to a field
+		case Binding.FIELD : // assigning to a field
 			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 				if (!fieldBinding.isStatic()) { // need a receiver?
@@ -172,7 +172,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 				}
 			}
 			return;
-		case LOCAL : // assigning to a local variable
+		case Binding.LOCAL : // assigning to a local variable
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			if (localBinding.resolvedPosition != -1) {
 				assignment.expression.generateCode(currentScope, codeStream, true);
@@ -217,7 +217,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		}
 	} else {
 		switch (this.bits & RestrictiveFlagMASK) {
-			case FIELD : // reading a field
+			case Binding.FIELD : // reading a field
 				FieldBinding fieldBinding;
 				if (valueRequired) {
 					if (!(fieldBinding = (FieldBinding) this.codegenBinding).isConstantValue()) { // directly use inlined value for constant fields
@@ -261,7 +261,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					}
 				}
 				break;
-			case LOCAL : // reading a local
+			case Binding.LOCAL : // reading a local
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				if (valueRequired) {
 					// outer local?
@@ -285,7 +285,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
  */
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, MethodBinding writeAccessor, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 	switch (this.bits & RestrictiveFlagMASK) {
-		case FIELD : // assigning to a field
+		case Binding.FIELD : // assigning to a field
 			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.isStatic()) {
 				if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
@@ -326,7 +326,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 				}
 			}
 			break;
-		case LOCAL : // assigning to a local variable (cannot assign to outer local)
+		case Binding.LOCAL : // assigning to a local variable (cannot assign to outer local)
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			Constant assignConstant;
 			int increment;
@@ -383,7 +383,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	}
 	// store the result back into the variable
 	switch (this.bits & RestrictiveFlagMASK) {
-		case FIELD : // assigning to a field
+		case Binding.FIELD : // assigning to a field
 			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 				fieldStore(codeStream, fieldBinding, writeAccessor, valueRequired);
@@ -402,7 +402,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 				((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(fieldBinding);
 			}
 			return;
-		case LOCAL : // assigning to a local variable
+		case Binding.LOCAL : // assigning to a local variable
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			if (valueRequired) {
 				if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
@@ -416,7 +416,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 }
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	switch (this.bits & RestrictiveFlagMASK) {
-		case FIELD : // assigning to a field
+		case Binding.FIELD : // assigning to a field
 			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 				if (fieldBinding.isStatic()) {
@@ -499,7 +499,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(fieldBinding);
 			}
 			return;
-		case LOCAL : // assigning to a local variable
+		case Binding.LOCAL : // assigning to a local variable
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			// using incr bytecode if possible
 			if (localBinding.type == IntBinding) {
@@ -572,7 +572,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	        this.genericCast = fieldCodegenBinding.type.genericCast(parameterizedField.type);
 	    }		    
 	}		
-	if ((this.bits & FIELD) != 0) {
+	if ((this.bits & Binding.FIELD) != 0) {
 		FieldBinding fieldBinding = (FieldBinding) this.binding;
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding

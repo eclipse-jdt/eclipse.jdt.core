@@ -952,24 +952,32 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 				enclosingType = enclosingType.enclosingType;
 			}
-			
-			if(!typeDeclaration.isInterface()) {
-				this.requestor.acceptClass(
-					packageName,
-					qualifiedSourceName,
-					false,
-					true,
-					this.actualSelectionStart,
-					this.actualSelectionEnd);
-			} else {
-				this.requestor.acceptInterface(
-					packageName,
-					qualifiedSourceName,
-					false,
-					true,
-					this.actualSelectionStart,
-					this.actualSelectionEnd);
-			}
+			switch (typeDeclaration.getKind()) {
+				case IGenericType.CLASS :
+					this.requestor.acceptClass(
+						packageName,
+						qualifiedSourceName,
+						false,
+						true,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+					break;
+				case IGenericType.INTERFACE :
+					this.requestor.acceptInterface(
+						packageName,
+						qualifiedSourceName,
+						false,
+						true,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+					break;
+				case IGenericType.ENUM :
+					// TODO (david) need support
+					break;
+				case IGenericType.ANNOTATION_TYPE :
+					// TODO (david) need support
+					break;
+			}			
 			this.noProposal = false;
 			return true;
 		}

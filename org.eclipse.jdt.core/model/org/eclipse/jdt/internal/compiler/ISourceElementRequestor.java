@@ -87,6 +87,8 @@ public interface ISourceElementRequestor {
 	void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes,
 			char[][] parameterNames, char[][] exceptionTypes);
 
+	void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces);
+
 	void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd);
 	
 	void enterInitializer(int declarationStart, int modifiers);
@@ -103,6 +105,8 @@ public interface ISourceElementRequestor {
 	void exitCompilationUnit(int declarationEnd);
 	
 	void exitConstructor(int declarationEnd);
+
+	void exitEnum(int declarationEnd);
 	
 	/*
 	 * initializationStart denotes the source start of the expression used for

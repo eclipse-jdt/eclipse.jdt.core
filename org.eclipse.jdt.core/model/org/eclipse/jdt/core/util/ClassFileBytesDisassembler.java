@@ -31,7 +31,7 @@ public abstract class ClassFileBytesDisassembler {
 	
 	/**
 	 * This mode corresponds to the detailed mode plus the constant pool contents and
-	 * any other information that could be useful for debugging purpose.
+	 * any further information that would be useful for debugging purpose.
 	 * @since 3.1
 	 */
 	public final static int SYSTEM = 3;

@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -596,7 +597,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 					this.identifierPositionStack[this.identifierPtr--],
 					this.evaluationContext); 
 			ref.bits &= ~ASTNode.RestrictiveFlagMASK;
-			ref.bits |= LOCAL | FIELD;
+			ref.bits |= Binding.LOCAL | Binding.FIELD;
 			return ref;
 		}
 
@@ -618,7 +619,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 				(int) this.identifierPositionStack[this.identifierPtr + length],
 				this.evaluationContext); // sourceEnd
 		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
-		ref.bits |= LOCAL | FIELD;
+		ref.bits |= Binding.LOCAL | Binding.FIELD;
 		return ref;
 	} else {
 		return super.getUnspecifiedReferenceOptimized();

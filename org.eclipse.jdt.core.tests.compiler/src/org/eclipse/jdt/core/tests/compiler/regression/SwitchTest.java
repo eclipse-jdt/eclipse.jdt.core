@@ -176,6 +176,36 @@ public void test007() {
 		"----------\n"
 	);
 }
+public void test008() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		switch(args.length){\n" + 
+		"		}\n" + 
+		"		System.out.println(\"SUCCESS\");\n" + 
+		"	}\n" + 
+		"}\n",
+	},
+	"SUCCESS");
+}
+public void test009() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"    public static void main(String argv[]) {\n" + 
+		"        switch (81391861) {\n" + 
+		"        case (81391861) :\n" + 
+		"        	System.out.println(\"SUCCESS\");\n" + 
+		"            break;\n" + 
+		"        default:\n" + 
+		"        	System.out.println(\"FAILED\");\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n",
+	},
+	"SUCCESS");
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }

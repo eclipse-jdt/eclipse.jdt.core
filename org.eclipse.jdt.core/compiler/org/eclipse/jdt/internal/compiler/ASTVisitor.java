@@ -140,18 +140,6 @@ public abstract class ASTVisitor {
 	public void endVisit(EmptyStatement emptyStatement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(EnumConstant enumDeclaration, ClassScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(EnumDeclaration enumDeclaration, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(EnumDeclaration enumDeclaration, ClassScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(EnumDeclaration enumDeclaration, CompilationUnitScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(EqualExpression equalExpression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -585,18 +573,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(EmptyStatement emptyStatement, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(EnumConstant enumConstant, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(EnumDeclaration enumDeclaration, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(EnumDeclaration enumDeclaration, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(EnumDeclaration enumDeclaration, CompilationUnitScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(EqualExpression equalExpression, BlockScope scope) {

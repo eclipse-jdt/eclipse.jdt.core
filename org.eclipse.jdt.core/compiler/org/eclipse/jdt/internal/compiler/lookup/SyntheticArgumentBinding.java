@@ -34,14 +34,11 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 	public LocalVariableBinding actualOuterLocalVariable;
 	// if the argument has a matching synthetic field
 	public FieldBinding matchingField;
-
-	final static char[] OuterLocalPrefix = { 'v', 'a', 'l', '$' };
-	final static char[] EnclosingInstancePrefix = { 't', 'h', 'i', 's', '$' };
 	
 	public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable) {
 
 		super(
-			CharOperation.concat(OuterLocalPrefix, actualOuterLocalVariable.name), 
+			CharOperation.concat(TypeConstants.SYNTHETIC_OUTER_LOCAL_PREFIX, actualOuterLocalVariable.name), 
 			actualOuterLocalVariable.type, 
 			AccFinal,
 			true);
@@ -52,7 +49,7 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 
 		super(
 			CharOperation.concat(
-				SyntheticArgumentBinding.EnclosingInstancePrefix,
+				TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
 				String.valueOf(enclosingType.depth()).toCharArray()),
 			enclosingType, 
 			AccFinal,

@@ -28,6 +28,8 @@ public interface IIndexConstants {
 	};
 	char CLASS_SUFFIX = 'C';
 	char INTERFACE_SUFFIX = 'I';
+	char ENUM_SUFFIX = 'E';
+	char ANNOTATION_TYPE_SUFFIX = 'A';
 	char TYPE_SUFFIX = 0;
 	char SEPARATOR= '/';
 

@@ -114,6 +114,11 @@ public void enterConstructor(int declarationStart, int modifiers, char[] name, i
 }
 /**
  */
+public void enterEnum(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces) {
+	enterType(declarationStart, modifiers, name, nameStart, nameEnd, null, superinterfaces, false);
+}
+/**
+ */
 public void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameStart, int nameEnd) {
 
 	int[] sourceRange = {declarationStart, -1};
@@ -185,6 +190,14 @@ public void exitConstructor(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**
+ * Finishes the configuration of the class DOM object which
+ * was created by a previous enterEnum call.
+ *
+ * @see ISourceElementRequestor#exitEnum(int)
+ */
+public void exitEnum(int declarationEnd) {
+	exitType(declarationEnd);
+}/**
  */
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	exitMember(declarationEnd);

@@ -49,7 +49,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -785,7 +784,7 @@ class DefaultBindingResolver extends BindingResolver {
 				if (importReference.onDemand) {
 					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, importReference.isStatic());
 					if (binding != null) {
-						if (binding.bindingType() == BindingIds.PACKAGE) {
+						if (binding.bindingType() == Binding.PACKAGE) {
 							IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
 							if (packageBinding == null) {
 								return null;

@@ -119,6 +119,24 @@ public void alreadyDefinedLabel(char[] labelName, ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void ambiguousArgumentToVarargsMethod(MethodBinding method, InvocationSite location) {
+	TypeBinding lastParam = method.parameters[method.parameters.length-1];
+	if (method.isConstructor()) {
+		this.handle(
+			IProblem.AmbiguousArgumentToVarargsConstructor,
+			new String[] {new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
+			new String[] {new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
+			location.sourceStart(),
+			location.sourceEnd());
+	} else {
+		this.handle(
+			IProblem.AmbiguousArgumentToVarargsMethod,
+			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
+			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
+			location.sourceStart(),
+			location.sourceEnd());
+	}
+}
 public void annotationTypeMemberDeclarationWithConstructorName(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
 	this.handle(
 		IProblem.AnnotationButConstructorName,
@@ -195,19 +213,20 @@ public void boundsMustBeAnInterface(ASTNode location, TypeBinding type) {
 		location.sourceEnd);
 }
 public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
+	MethodBinding method = location.binding;
 	if (location.isConstructor()) {
 		this.handle(
 			IProblem.BytecodeExceeds64KLimitForConstructor,
-			new String[] {new String(location.selector), parametersAsString(location.binding.parameters, false)},
-			new String[] {new String(location.selector), parametersAsString(location.binding.parameters, true)},
+			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 			Error | Abort,
 			location.sourceStart,
 			location.sourceEnd);
 	} else {
 		this.handle(
 			IProblem.BytecodeExceeds64KLimit,
-			new String[] {new String(location.selector), parametersAsString(location.binding.parameters, false)},
-			new String[] {new String(location.selector), parametersAsString(location.binding.parameters, true)},
+			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+			new String[] {new String(location.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 			Error | Abort,
 			location.sourceStart,
 			location.sourceEnd);
@@ -280,8 +299,8 @@ public void cannotDefineDimensionsAndInitializer(ArrayAllocationExpression expre
 public void cannotDireclyInvokeAbstractMethod(MessageSend messageSend, MethodBinding method) {
 	this.handle(
 		IProblem.DirectInvocationOfAbstractMethod,
-		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 		messageSend.sourceStart,
 		messageSend.sourceEnd);
 }
@@ -529,9 +548,9 @@ public int computeSeverity(int problemId){
 		case IProblem.ForbiddenReference:
 			return this.options.getSeverity(CompilerOptions.ForbiddenReference);
 
-		case IProblem.InexactParameterToVarargsConstructor :
-		case IProblem.InexactParameterToVarargsMethod :
-			return this.options.getSeverity(CompilerOptions.InexactVarargsArgument);
+		case IProblem.AmbiguousArgumentToVarargsConstructor :
+		case IProblem.AmbiguousArgumentToVarargsMethod :
+			return this.options.getSeverity(CompilerOptions.AmbiguousVarargsArgument);
 
 		/*
 		 * Javadoc syntax errors
@@ -729,15 +748,15 @@ public void deprecatedMethod(MethodBinding method, ASTNode location) {
 	if (method.isConstructor()) {
 		this.handle(
 			IProblem.UsingDeprecatedConstructor,
-			new String[] {new String(method.declaringClass.readableName()), parametersAsString(method.parameters, false)},
-			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsString(method.parameters, true)},
+			new String[] {new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false)},
+			new String[] {new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true)},
 			location.sourceStart,
 			location.sourceEnd);
 	} else {
 		this.handle(
 			IProblem.UsingDeprecatedMethod,
-			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 			location.sourceStart,
 			location.sourceEnd);
 	}
@@ -803,6 +822,23 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 		location.sourceStart,
 		location.sourceEnd);
 }
+
+public void duplicateEnumSpecialMethod(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
+    MethodBinding method = methodDecl.binding;
+	this.handle(
+		IProblem.CannotDeclareEnumSpecialMethod,
+		new String[] {
+	        new String(methodDecl.selector),
+			new String(method.declaringClass.readableName()),
+			typesAsString(method.isVarargs(), method.parameters, false)},
+		new String[] {
+			new String(methodDecl.selector),
+			new String(method.declaringClass.shortReadableName()),
+			typesAsString(method.isVarargs(), method.parameters, true)},
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+
 public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
     MethodBinding method = methodDecl.binding;
     boolean duplicateErasure = false;
@@ -826,13 +862,13 @@ public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclarat
 			new String[] {
 		        new String(methodDecl.selector),
 				new String(method.declaringClass.readableName()),
-				parametersAsString(method.parameters, false),
-				parametersAsString(erasures, false) } ,
+				typesAsString(method.isVarargs(), method.parameters, false),
+				typesAsString(method.isVarargs(), erasures, false) } ,
 			new String[] {
 				new String(methodDecl.selector),
 				new String(method.declaringClass.shortReadableName()),
-				parametersAsString(method.parameters, true),
-				parametersAsString(erasures, true) },
+				typesAsString(method.isVarargs(), method.parameters, true),
+				typesAsString(method.isVarargs(), erasures, true) },
 			methodDecl.sourceStart,
 			methodDecl.sourceEnd);
     } else {
@@ -841,11 +877,11 @@ public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclarat
 			new String[] {
 		        new String(methodDecl.selector),
 				new String(method.declaringClass.readableName()),
-				parametersAsString(method.parameters, false)},
+				typesAsString(method.isVarargs(), method.parameters, false)},
 			new String[] {
 				new String(methodDecl.selector),
 				new String(method.declaringClass.shortReadableName()),
-				parametersAsString(method.parameters, true)},
+				typesAsString(method.isVarargs(), method.parameters, true)},
 			methodDecl.sourceStart,
 			methodDecl.sourceEnd);
     }
@@ -1313,6 +1349,42 @@ public void illegalModifierForClass(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalModifierForEnum(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierForEnum,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
+public void illegalModifierForLocalEnum(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierForLocalEnum,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
+public void illegalModifierForMemberEnum(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierForMemberEnum,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
+public void illegalModifierForEnumConstant(ReferenceBinding type, FieldDeclaration fieldDecl) {
+	String[] arguments = new String[] {new String(fieldDecl.name)};
+	this.handle(
+		IProblem.IllegalModifierForEnumConstant,
+		arguments,
+		arguments,
+		fieldDecl.sourceStart,
+		fieldDecl.sourceEnd);
+}
 public void illegalModifierForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(
@@ -1371,6 +1443,24 @@ public void illegalModifierForMemberInterface(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
 		IProblem.IllegalModifierForMemberInterface,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
+public void illegalModifierForAnnotationType(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierForAnnotationType,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
+public void illegalModifierForMemberAnnotationType(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierForMemberAnnotationType,
 		arguments,
 		arguments,
 		type.sourceStart(),
@@ -1600,16 +1690,16 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
     if (location == null) {
 		this.handle(
 			IProblem.IncorrectArityForParameterizedType,
-			new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
-			new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
+			new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false)},
+			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 			AbortCompilation | Error,
 			0,
 			1);        
     }
 	this.handle(
 		IProblem.IncorrectArityForParameterizedType,
-		new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
-		new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
+		new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false)},
+		new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -1640,8 +1730,8 @@ public void indirectAccessToStaticField(ASTNode location, FieldBinding field){
 public void indirectAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
 		IProblem.IndirectAccessToStaticMethod,
-		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -1652,23 +1742,6 @@ public void indirectAccessToStaticType(ASTNode location, ReferenceBinding type) 
 		new String[] {new String(type.enclosingType().shortReadableName()), new String(type.sourceName) },
 		location.sourceStart,
 		location.sourceEnd);
-}
-public void inexactParameterToVarargsMethod(MethodBinding method, InvocationSite location) {
-	if (method.isConstructor()) {
-		this.handle(
-			IProblem.InexactParameterToVarargsConstructor,
-			new String[] {new String(method.declaringClass.readableName()), parametersAsString(method.parameters, false)},
-			new String[] {new String(method.declaringClass.shortReadableName()), parametersAsString(method.parameters, true)},
-			location.sourceStart(),
-			location.sourceEnd());
-	} else {
-		this.handle(
-			IProblem.InexactParameterToVarargsMethod,
-			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
-			location.sourceStart(),
-			location.sourceEnd());
-	}
 }
 public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	StringBuffer concreteSignature = new StringBuffer();
@@ -1773,6 +1846,16 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 		(statement instanceof ExplicitConstructorCall)
 			&& (((ExplicitConstructorCall) statement).accessMode == ExplicitConstructorCall.ImplicitSuper);
 
+	int sourceStart = statement.sourceStart;
+	int sourceEnd = statement.sourceEnd;
+	if (statement instanceof AllocationExpression) {
+		AllocationExpression allocation = (AllocationExpression)statement;
+		if (allocation.enumConstant != null) {
+			sourceStart = allocation.enumConstant.sourceStart;
+			sourceEnd = allocation.enumConstant.sourceEnd;
+		}
+	}
+	
 	int id = IProblem.UndefinedConstructor; //default...
     MethodBinding shownConstructor = targetConstructor;
 	switch (targetConstructor.problemId()) {
@@ -1817,22 +1900,22 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				IProblem.GenericConstructorTypeArgumentMismatch,
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
-				        parametersAsString(shownConstructor.parameters, false), 
+				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, false), 
 				        new String(shownConstructor.declaringClass.readableName()), 
-				        parametersAsString(substitutedConstructor.parameters, false), 
+				        typesAsString(substitutedConstructor.isVarargs(), substitutedConstructor.parameters, false), 
 				        new String(typeArgument.readableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
-				        parametersAsString(shownConstructor.parameters, true), 
+				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, true), 
 				        new String(shownConstructor.declaringClass.shortReadableName()), 
-				        parametersAsString(substitutedConstructor.parameters, true), 
+				        typesAsString(substitutedConstructor.isVarargs(), substitutedConstructor.parameters, true), 
 				        new String(typeArgument.shortReadableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, true) },
-				statement.sourceStart,
-				statement.sourceEnd);		    
+				sourceStart,
+				sourceEnd);		    
 			return;		    
 			
 		case TypeParameterArityMismatch :
@@ -1843,33 +1926,33 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 					IProblem.NonGenericConstructor,
 					new String[] { 
 					        new String(shownConstructor.declaringClass.sourceName()),
-					        parametersAsString(shownConstructor.parameters, false), 
+					        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, false), 
 					        new String(shownConstructor.declaringClass.readableName()), 
-					        parametersAsString(targetConstructor.parameters, false) },
+					        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, false) },
 					new String[] { 
 					        new String(shownConstructor.declaringClass.sourceName()),
-					        parametersAsString(shownConstructor.parameters, true), 
+					        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, true), 
 					        new String(shownConstructor.declaringClass.shortReadableName()), 
-					        parametersAsString(targetConstructor.parameters, true) },
-					statement.sourceStart,
-					statement.sourceEnd);		    
+					        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, true) },
+					sourceStart,
+					sourceEnd);		    
 			} else {
 				this.handle(
 					IProblem.IncorrectArityForParameterizedConstructor  ,
 					new String[] { 
 					        new String(shownConstructor.declaringClass.sourceName()),
-					        parametersAsString(shownConstructor.parameters, false), 
+					        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, false), 
 					        new String(shownConstructor.declaringClass.readableName()), 
-							parametersAsString(shownConstructor.typeVariables, false),
-					        parametersAsString(targetConstructor.parameters, false) },
+							typesAsString(false, shownConstructor.typeVariables, false),
+					        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, false) },
 					new String[] { 
 					        new String(shownConstructor.declaringClass.sourceName()),
-					        parametersAsString(shownConstructor.parameters, true), 
+					        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, true), 
 					        new String(shownConstructor.declaringClass.shortReadableName()), 
-							parametersAsString(shownConstructor.typeVariables, true),
-					        parametersAsString(targetConstructor.parameters, true) },
-					statement.sourceStart,
-					statement.sourceEnd);		    
+							typesAsString(false, shownConstructor.typeVariables, true),
+					        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, true) },
+					sourceStart,
+					sourceEnd);		    
 			}
 			return;
 		case ParameterizedMethodTypeMismatch :
@@ -1879,18 +1962,18 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				IProblem.ParameterizedConstructorArgumentTypeMismatch,
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
-				        parametersAsString(shownConstructor.parameters, false), 
+				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, false), 
 				        new String(shownConstructor.declaringClass.readableName()), 
-						parametersAsString(((ParameterizedGenericMethodBinding)shownConstructor).typeArguments, false),
-				        parametersAsString(targetConstructor.parameters, false) },
+						typesAsString(false, ((ParameterizedGenericMethodBinding)shownConstructor).typeArguments, false),
+				        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, false) },
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
-				        parametersAsString(shownConstructor.parameters, true), 
+				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, true), 
 				        new String(shownConstructor.declaringClass.shortReadableName()), 
-						parametersAsString(((ParameterizedGenericMethodBinding)shownConstructor).typeArguments, true),
-				        parametersAsString(targetConstructor.parameters, true) },
-				statement.sourceStart,
-				statement.sourceEnd);		    
+						typesAsString(false, ((ParameterizedGenericMethodBinding)shownConstructor).typeArguments, true),
+				        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, true) },
+				sourceStart,
+				sourceEnd);		    
 			return;
 		case TypeArgumentsForRawGenericMethod :
 			problemConstructor = (ProblemMethodBinding) targetConstructor;
@@ -1899,16 +1982,16 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				IProblem.TypeArgumentsForRawGenericConstructor,
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
-				        parametersAsString(shownConstructor.parameters, false), 
+				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, false), 
 				        new String(shownConstructor.declaringClass.readableName()), 
-				        parametersAsString(targetConstructor.parameters, false) },
+				        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, false) },
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
-				        parametersAsString(shownConstructor.parameters, true), 
+				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, true), 
 				        new String(shownConstructor.declaringClass.shortReadableName()), 
-				        parametersAsString(targetConstructor.parameters, true) },
-				statement.sourceStart,
-				statement.sourceEnd);	
+				        typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, true) },
+				sourceStart,
+				sourceEnd);	
 			return;
 		case NoError : // 0
 		default :
@@ -1918,10 +2001,10 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 
 	this.handle(
 		id,
-		new String[] {new String(targetConstructor.declaringClass.readableName()), parametersAsString(shownConstructor.parameters, false)},
-		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), parametersAsString(shownConstructor.parameters, true)},
-		statement.sourceStart,
-		statement.sourceEnd);
+		new String[] {new String(targetConstructor.declaringClass.readableName()), typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, false)},
+		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, true)},
+		sourceStart,
+		sourceEnd);
 }
 public void invalidContinue(ASTNode location) {
 	this.handle(
@@ -2158,10 +2241,10 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 			ProblemMethodBinding problemMethod = (ProblemMethodBinding) method;
 			if (problemMethod.closestMatch != null) {
 			    	shownMethod = problemMethod.closestMatch;
-					String closestParameterTypeNames = parametersAsString(shownMethod.parameters, false);
-					String parameterTypeNames = parametersAsString(method.parameters, false);
-					String closestParameterTypeShortNames = parametersAsString(shownMethod.parameters, true);
-					String parameterTypeShortNames = parametersAsString(method.parameters, true);
+					String closestParameterTypeNames = typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false);
+					String parameterTypeNames = typesAsString(method.isVarargs(), method.parameters, false);
+					String closestParameterTypeShortNames = typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true);
+					String parameterTypeShortNames = typesAsString(method.isVarargs(), method.parameters, true);
 					if (closestParameterTypeShortNames.equals(parameterTypeShortNames)){
 						closestParameterTypeShortNames = closestParameterTypeNames;
 						parameterTypeShortNames = parameterTypeNames;
@@ -2222,17 +2305,17 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				IProblem.GenericMethodTypeArgumentMismatch,
 				new String[] { 
 				        new String(shownMethod.selector),
-				        parametersAsString(shownMethod.parameters, false), 
+				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false), 
 				        new String(shownMethod.declaringClass.readableName()), 
-				        parametersAsString(substitutedMethod.parameters, false), 
+				        typesAsString(substitutedMethod.isVarargs(), substitutedMethod.parameters, false), 
 				        new String(typeArgument.readableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] { 
 				        new String(shownMethod.selector),
-				        parametersAsString(shownMethod.parameters, true), 
+				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true), 
 				        new String(shownMethod.declaringClass.shortReadableName()), 
-				        parametersAsString(substitutedMethod.parameters, true), 
+				        typesAsString(substitutedMethod.isVarargs(), substitutedMethod.parameters, true), 
 				        new String(typeArgument.shortReadableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, true) },
@@ -2247,14 +2330,14 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 					IProblem.NonGenericMethod ,
 					new String[] { 
 					        new String(shownMethod.selector),
-					        parametersAsString(shownMethod.parameters, false), 
+					        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false), 
 					        new String(shownMethod.declaringClass.readableName()), 
-					        parametersAsString(method.parameters, false) },
+					        typesAsString(method.isVarargs(), method.parameters, false) },
 					new String[] { 
 					        new String(shownMethod.selector),
-					        parametersAsString(shownMethod.parameters, true), 
+					        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true), 
 					        new String(shownMethod.declaringClass.shortReadableName()), 
-					        parametersAsString(method.parameters, true) },
+					        typesAsString(method.isVarargs(), method.parameters, true) },
 					(int) (messageSend.nameSourcePosition >>> 32),
 					(int) messageSend.nameSourcePosition);		    
 			} else {
@@ -2262,16 +2345,16 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 					IProblem.IncorrectArityForParameterizedMethod  ,
 					new String[] { 
 					        new String(shownMethod.selector),
-					        parametersAsString(shownMethod.parameters, false), 
+					        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false), 
 					        new String(shownMethod.declaringClass.readableName()), 
-							parametersAsString(shownMethod.typeVariables, false),
-					        parametersAsString(method.parameters, false) },
+							typesAsString(false, shownMethod.typeVariables, false),
+					        typesAsString(method.isVarargs(), method.parameters, false) },
 					new String[] { 
 					        new String(shownMethod.selector),
-					        parametersAsString(shownMethod.parameters, true), 
+					        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true), 
 					        new String(shownMethod.declaringClass.shortReadableName()), 
-							parametersAsString(shownMethod.typeVariables, true),
-					        parametersAsString(method.parameters, true) },
+							typesAsString(false, shownMethod.typeVariables, true),
+					        typesAsString(method.isVarargs(), method.parameters, true) },
 					(int) (messageSend.nameSourcePosition >>> 32),
 					(int) messageSend.nameSourcePosition);		    
 			}
@@ -2283,16 +2366,16 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				IProblem.ParameterizedMethodArgumentTypeMismatch,
 				new String[] { 
 				        new String(shownMethod.selector),
-				        parametersAsString(shownMethod.parameters, false), 
+				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false), 
 				        new String(shownMethod.declaringClass.readableName()), 
-						parametersAsString(((ParameterizedGenericMethodBinding)shownMethod).typeArguments, false),
-				        parametersAsString(method.parameters, false) },
+						typesAsString(false, ((ParameterizedGenericMethodBinding)shownMethod).typeArguments, false),
+				        typesAsString(method.isVarargs(), method.parameters, false) },
 				new String[] { 
 				        new String(shownMethod.selector),
-				        parametersAsString(shownMethod.parameters, true), 
+				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true), 
 				        new String(shownMethod.declaringClass.shortReadableName()), 
-						parametersAsString(((ParameterizedGenericMethodBinding)shownMethod).typeArguments, true),
-				        parametersAsString(method.parameters, true) },
+						typesAsString(false, ((ParameterizedGenericMethodBinding)shownMethod).typeArguments, true),
+				        typesAsString(method.isVarargs(), method.parameters, true) },
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);		    
 			return;
@@ -2303,14 +2386,14 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				IProblem.TypeArgumentsForRawGenericMethod ,
 				new String[] { 
 				        new String(shownMethod.selector),
-				        parametersAsString(shownMethod.parameters, false), 
+				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false), 
 				        new String(shownMethod.declaringClass.readableName()), 
-				        parametersAsString(method.parameters, false) },
+				        typesAsString(method.isVarargs(), method.parameters, false) },
 				new String[] { 
 				        new String(shownMethod.selector),
-				        parametersAsString(shownMethod.parameters, true), 
+				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true), 
 				        new String(shownMethod.declaringClass.shortReadableName()), 
-				        parametersAsString(method.parameters, true) },
+				        typesAsString(method.isVarargs(), method.parameters, true) },
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);		       
 			return;
@@ -2324,10 +2407,10 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 		id,
 		new String[] {
 			new String(method.declaringClass.readableName()),
-			new String(shownMethod.selector), parametersAsString(shownMethod.parameters, false)},
+			new String(shownMethod.selector), typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false)},
 		new String[] {
 			new String(method.declaringClass.shortReadableName()),
-			new String(shownMethod.selector), parametersAsString(shownMethod.parameters, true)},
+			new String(shownMethod.selector), typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true)},
 		(int) (messageSend.nameSourcePosition >>> 32),
 		(int) messageSend.nameSourcePosition);
 }
@@ -2514,7 +2597,7 @@ public void invalidUsageOfAnnotationDeclarations(AnnotationTypeDeclaration annot
 		annotationTypeDeclaration.sourceStart,
 		annotationTypeDeclaration.sourceEnd);
 }
-public void invalidUsageOfEnumDeclarations(EnumDeclaration enumDeclaration) {
+public void invalidUsageOfEnumDeclarations(TypeDeclaration enumDeclaration) {
 	this.handle(
 		IProblem.InvalidUsageOfEnumDeclarations,
 		NoArgument, 
@@ -2671,15 +2754,15 @@ public void javadocDeprecatedMethod(MethodBinding method, ASTNode location, int 
 		if (method.isConstructor()) {
 			this.handle(
 				IProblem.JavadocUsingDeprecatedConstructor,
-				new String[] {new String(method.declaringClass.readableName()), parametersAsString(method.parameters, false)},
-				new String[] {new String(method.declaringClass.shortReadableName()), parametersAsString(method.parameters, true)},
+				new String[] {new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false)},
+				new String[] {new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true)},
 				location.sourceStart,
 				location.sourceEnd);
 		} else {
 			this.handle(
 				IProblem.JavadocUsingDeprecatedMethod,
-				new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-				new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+				new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+				new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 				location.sourceStart,
 				location.sourceEnd);
 		}
@@ -2785,8 +2868,8 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 
 	this.handle(
 		id,
-		new String[] {new String(targetConstructor.declaringClass.readableName()), parametersAsString(targetConstructor.parameters, false)},
-		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), parametersAsString(targetConstructor.parameters, true)},
+		new String[] {new String(targetConstructor.declaringClass.readableName()), typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, false)},
+		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), typesAsString(targetConstructor.isVarargs(), targetConstructor.parameters, true)},
 		statement.sourceStart,
 		statement.sourceEnd);
 }
@@ -2857,10 +2940,10 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 	if (id == IProblem.JavadocUndefinedMethod) {
 		ProblemMethodBinding problemMethod = (ProblemMethodBinding) method;
 		if (problemMethod.closestMatch != null) {
-				String closestParameterTypeNames = parametersAsString(problemMethod.closestMatch.parameters, false);
-				String parameterTypeNames = parametersAsString(method.parameters, false);
-				String closestParameterTypeShortNames = parametersAsString(problemMethod.closestMatch.parameters, true);
-				String parameterTypeShortNames = parametersAsString(method.parameters, true);
+				String closestParameterTypeNames = typesAsString(problemMethod.closestMatch.isVarargs(), problemMethod.closestMatch.parameters, false);
+				String parameterTypeNames = typesAsString(method.isVarargs(), method.parameters, false);
+				String closestParameterTypeShortNames = typesAsString(problemMethod.closestMatch.isVarargs(), problemMethod.closestMatch.parameters, true);
+				String parameterTypeShortNames = typesAsString(method.isVarargs(), method.parameters, true);
 				if (closestParameterTypeShortNames.equals(parameterTypeShortNames)){
 					closestParameterTypeShortNames = closestParameterTypeNames;
 					parameterTypeShortNames = parameterTypeNames;
@@ -2889,10 +2972,10 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 		id,
 		new String[] {
 			new String(method.declaringClass.readableName()),
-			new String(method.selector), parametersAsString(method.parameters, false)},
+			new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false)},
 		new String[] {
 			new String(method.declaringClass.shortReadableName()),
-			new String(method.selector), parametersAsString(method.parameters, true)},
+			new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 		(int) (messageSend.nameSourcePosition >>> 32),
 		(int) messageSend.nameSourcePosition);
 }
@@ -3090,16 +3173,16 @@ public void methodNameClash(MethodBinding currentMethod, MethodBinding inherited
 			IProblem.MethodNameClash,
 			new String[] {
 				new String(currentMethod.selector),
-				parametersAsString(currentMethod.original().parameters, false),
+				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, false),
 				new String(currentMethod.declaringClass.readableName()),
-				parametersAsString(inheritedMethod.original().parameters, false),
+				typesAsString(inheritedMethod.original().isVarargs(), inheritedMethod.original().parameters, false),
 				new String(inheritedMethod.declaringClass.readableName()),
 			 }, 
 			new String[] {
 				new String(currentMethod.selector),
-				parametersAsString(currentMethod.original().parameters, true),
+				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, true),
 				new String(currentMethod.declaringClass.shortReadableName()),
-				parametersAsString(inheritedMethod.original().parameters, true),
+				typesAsString(inheritedMethod.original().isVarargs(), inheritedMethod.original().parameters, true),
 				new String(inheritedMethod.declaringClass.shortReadableName()),
 			 }, 
 			currentMethod.sourceStart(),
@@ -3193,8 +3276,8 @@ public void mustSpecifyPackage(CompilationUnitDeclaration compUnitDecl) {
 public void mustUseAStaticMethod(MessageSend messageSend, MethodBinding method) {
 	this.handle(
 		IProblem.StaticMethodRequested,
-		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 		messageSend.sourceStart,
 		messageSend.sourceEnd);
 }
@@ -3230,11 +3313,11 @@ public void needToEmulateMethodAccess(
 			IProblem.NeedToEmulateConstructorAccess, 
 			new String[] {
 				new String(method.declaringClass.readableName()), 
-				parametersAsString(method.parameters, false)
+				typesAsString(method.isVarargs(), method.parameters, false)
 			 }, 
 			new String[] {
 				new String(method.declaringClass.shortReadableName()), 
-				parametersAsString(method.parameters, true)
+				typesAsString(method.isVarargs(), method.parameters, true)
 			 }, 
 			location.sourceStart, 
 			location.sourceEnd); 
@@ -3244,12 +3327,12 @@ public void needToEmulateMethodAccess(
 			new String[] {
 				new String(method.declaringClass.readableName()), 
 				new String(method.selector), 
-				parametersAsString(method.parameters, false)
+				typesAsString(method.isVarargs(), method.parameters, false)
 			 }, 
 			new String[] {
 				new String(method.declaringClass.shortReadableName()), 
 				new String(method.selector), 
-				parametersAsString(method.parameters, true)
+				typesAsString(method.isVarargs(), method.parameters, true)
 			 }, 
 			location.sourceStart, 
 			location.sourceEnd); 
@@ -3317,8 +3400,8 @@ public void nonGenericTypeCannotBeParameterized(ASTNode location, TypeBinding ty
 	if (location == null) { // binary case
 	    this.handle(
 			IProblem.NonGenericType,
-			new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
-			new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
+			new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false)},
+			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 			AbortCompilation | Error,
 			0,
 			1);
@@ -3326,8 +3409,8 @@ public void nonGenericTypeCannotBeParameterized(ASTNode location, TypeBinding ty
 	}
     this.handle(
 		IProblem.NonGenericType,
-		new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false)},
-		new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true)},
+		new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false)},
+		new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -3342,8 +3425,8 @@ public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
 public void nonStaticAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
 		IProblem.NonStaticAccessToStaticMethod,
-		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method.parameters, false)},
-		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsString(method.parameters, true)},
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false)},
+		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true)},
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -3536,15 +3619,7 @@ private String parameterBoundAsString(TypeVariableBinding typeVariable, boolean 
 	}
 	return nameBuffer.toString();
 }
-private String parametersAsString(TypeBinding[] params, boolean makeShort) {
-	StringBuffer buffer = new StringBuffer(10);
-	for (int i = 0, length = params.length; i < length; i++) {
-		if (i != 0)
-			buffer.append(", "); //$NON-NLS-1$
-		buffer.append(new String(makeShort ? params[i].shortReadableName() : params[i].readableName()));
-	}
-	return buffer.toString();
-}
+
 public void parseError(
 	int startPosition, 
 	int endPosition, 
@@ -3843,8 +3918,8 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 	if (location == null) { // binary case
 	    this.handle(
 			IProblem.RawMemberTypeCannotBeParameterized,
-			new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false), new String(type.enclosingType().readableName())},
-			new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true), new String(type.enclosingType().shortReadableName())},
+			new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false), new String(type.enclosingType().readableName())},
+			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true), new String(type.enclosingType().shortReadableName())},
 			AbortCompilation | Error,
 			0,
 			1);
@@ -3852,8 +3927,8 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 	}
     this.handle(
 		IProblem.RawMemberTypeCannotBeParameterized,
-		new String[] {new String(type.readableName()), parametersAsString(argumentTypes, false), new String(type.enclosingType().readableName())},
-		new String[] {new String(type.shortReadableName()), parametersAsString(argumentTypes, true), new String(type.enclosingType().shortReadableName())},
+		new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false), new String(type.enclosingType().readableName())},
+		new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true), new String(type.enclosingType().shortReadableName())},
 		location.sourceStart,
 		location.sourceEnd);
 }
@@ -3863,11 +3938,11 @@ public void recursiveConstructorInvocation(ExplicitConstructorCall constructorCa
 		IProblem.RecursiveConstructorInvocation,
 		new String[] {
 			new String(constructorCall.binding.declaringClass.readableName()), 
-			parametersAsString(constructorCall.binding.parameters, false)
+			typesAsString(constructorCall.binding.isVarargs(), constructorCall.binding.parameters, false)
 		},
 		new String[] {
 			new String(constructorCall.binding.declaringClass.shortReadableName()), 
-			parametersAsString(constructorCall.binding.parameters, true)
+			typesAsString(constructorCall.binding.isVarargs(), constructorCall.binding.parameters, true)
 		},
 		constructorCall.sourceStart,
 		constructorCall.sourceEnd);
@@ -4209,6 +4284,19 @@ public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding type
 		location.sourceStart,
 		location.sourceEnd);
 }
+private String typesAsString(boolean isVarargs, TypeBinding[] types, boolean makeShort) {
+	StringBuffer buffer = new StringBuffer(10);
+	for (int i = 0, length = types.length; i < length; i++) {
+		if (i != 0)
+			buffer.append(", "); //$NON-NLS-1$
+		TypeBinding type = types[i];
+		boolean isVarargType = isVarargs && i == length-1;
+		if (isVarargType) type = ((ArrayBinding)type).elementsType();
+		buffer.append(new String(makeShort ? type.shortReadableName() : type.readableName()));
+		if (isVarargType) buffer.append("..."); //$NON-NLS-1$
+	}
+	return buffer.toString();
+}
 public void undefinedLabel(BranchStatement statement) {
 	String[] arguments = new String[] {new String(statement.label)};
 	this.handle(
@@ -4435,12 +4523,12 @@ public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, Meth
 			IProblem.UnsafeRawConstructorInvocation,
 			new String[] {
 				new String(receiverType.readableName()),
-				parametersAsString(method.original().parameters, false),
+				typesAsString(method.original().isVarargs(), method.original().parameters, false),
 				new String(receiverType.erasure().readableName()),
 			 }, 
 			new String[] {
 				new String(receiverType.shortReadableName()),
-				parametersAsString(method.original().parameters, true),
+				typesAsString(method.original().isVarargs(), method.original().parameters, true),
 				new String(receiverType.erasure().shortReadableName()),
 			 }, 
 			location.sourceStart,
@@ -4450,13 +4538,13 @@ public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, Meth
 			IProblem.UnsafeRawMethodInvocation,
 			new String[] {
 				new String(method.selector),
-				parametersAsString(method.original().parameters, false),
+				typesAsString(method.original().isVarargs(), method.original().parameters, false),
 				new String(receiverType.readableName()),
 				new String(receiverType.erasure().readableName()),
 			 }, 
 			new String[] {
 				new String(method.selector),
-				parametersAsString(method.original().parameters, true),
+				typesAsString(method.original().isVarargs(), method.original().parameters, true),
 				new String(receiverType.shortReadableName()),
 				new String(receiverType.erasure().shortReadableName()),
 			 }, 
@@ -4471,7 +4559,7 @@ public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding 
 			new String[] {
 				new String(currentMethod.returnType.readableName()),
 				new String(currentMethod.selector),
-				parametersAsString(currentMethod.original().parameters, false),
+				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, false),
 				new String(currentMethod.declaringClass.readableName()),
 				new String(inheritedMethod.returnType.readableName()),
 				//new String(inheritedMethod.returnType.erasure().readableName()),
@@ -4479,7 +4567,7 @@ public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding 
 			new String[] {
 				new String(currentMethod.returnType.shortReadableName()),
 				new String(currentMethod.selector),
-				parametersAsString(currentMethod.original().parameters, true),
+				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, true),
 				new String(currentMethod.declaringClass.shortReadableName()),
 				new String(inheritedMethod.returnType.shortReadableName()),
 				//new String(inheritedMethod.returnType.erasure().shortReadableName()),
@@ -4503,12 +4591,12 @@ public void unusedDeclaredThrownException(ReferenceBinding exceptionType, Abstra
 			IProblem.UnusedConstructorDeclaredThrownException,
 			new String[] {
 				new String(method.binding.declaringClass.readableName()),
-				parametersAsString(method.binding.parameters, false),
+				typesAsString(method.binding.isVarargs(), method.binding.parameters, false),
 				new String(exceptionType.readableName()),
 			 }, 
 			new String[] {
 				new String(method.binding.declaringClass.shortReadableName()),
-				parametersAsString(method.binding.parameters, true),
+				typesAsString(method.binding.isVarargs(), method.binding.parameters, true),
 				new String(exceptionType.shortReadableName()),
 			 }, 
 			location.sourceStart,
@@ -4519,13 +4607,13 @@ public void unusedDeclaredThrownException(ReferenceBinding exceptionType, Abstra
 			new String[] {
 				new String(method.binding.declaringClass.readableName()),
 				new String(method.selector),
-				parametersAsString(method.binding.parameters, false),
+				typesAsString(method.binding.isVarargs(), method.binding.parameters, false),
 				new String(exceptionType.readableName()),
 			 }, 
 			new String[] {
 				new String(method.binding.declaringClass.shortReadableName()),
 				new String(method.selector),
-				parametersAsString(method.binding.parameters, true),
+				typesAsString(method.binding.isVarargs(), method.binding.parameters, true),
 				new String(exceptionType.shortReadableName()),
 			 }, 
 			location.sourceStart,
@@ -4562,11 +4650,11 @@ public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 			IProblem.UnusedPrivateConstructor,
 		new String[] {
 			new String(constructor.declaringClass.readableName()),
-			parametersAsString(constructor.parameters, false)
+			typesAsString(constructor.isVarargs(), constructor.parameters, false)
 		 }, 
 		new String[] {
 			new String(constructor.declaringClass.shortReadableName()),
-			parametersAsString(constructor.parameters, true)
+			typesAsString(constructor.isVarargs(), constructor.parameters, true)
 		 }, 
 		constructorDecl.sourceStart,
 		constructorDecl.sourceEnd);
@@ -4646,12 +4734,12 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 		new String[] {
 			new String(method.declaringClass.readableName()),
 			new String(method.selector),
-			parametersAsString(method.parameters, false)
+			typesAsString(method.isVarargs(), method.parameters, false)
 		 }, 
 		new String[] {
 			new String(method.declaringClass.shortReadableName()),
 			new String(method.selector),
-			parametersAsString(method.parameters, true)
+			typesAsString(method.isVarargs(), method.parameters, true)
 		 }, 
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
@@ -4744,17 +4832,17 @@ public void wildcardInvocation(ASTNode location, TypeBinding receiverType, Metho
 			IProblem.WildcardConstructorInvocation,
 			new String[] {
 				new String(receiverType.sourceName()),
-				parametersAsString(method.parameters, false),
+				typesAsString(method.isVarargs(), method.parameters, false),
 				new String(receiverType.readableName()),
-				parametersAsString(arguments, false),
+				typesAsString(false, arguments, false),
 				new String(offendingArgument.readableName()),
 				new String(offendingParameter.readableName()),
 			 }, 
 			new String[] {
 				new String(receiverType.sourceName()),
-				parametersAsString(method.parameters, true),
+				typesAsString(method.isVarargs(), method.parameters, true),
 				new String(receiverType.shortReadableName()),
-				parametersAsString(arguments, true),
+				typesAsString(false, arguments, true),
 				new String(offendingArgument.shortReadableName()),
 				new String(offendingParameter.shortReadableName()),
 			 }, 
@@ -4765,17 +4853,17 @@ public void wildcardInvocation(ASTNode location, TypeBinding receiverType, Metho
 			IProblem.WildcardMethodInvocation,
 			new String[] {
 				new String(method.selector),
-				parametersAsString(method.parameters, false),
+				typesAsString(method.isVarargs(), method.parameters, false),
 				new String(receiverType.readableName()),
-				parametersAsString(arguments, false),
+				typesAsString(false, arguments, false),
 				new String(offendingArgument.readableName()),
 				new String(offendingParameter.readableName()),
 			 }, 
 			new String[] {
 				new String(method.selector),
-				parametersAsString(method.parameters, true),
+				typesAsString(method.isVarargs(), method.parameters, true),
 				new String(receiverType.shortReadableName()),
-				parametersAsString(arguments, true),
+				typesAsString(false, arguments, true),
 				new String(offendingArgument.shortReadableName()),
 				new String(offendingParameter.shortReadableName()),
 			 }, 

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
@@ -50,10 +51,14 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 				
+			// skip enum implicit methods
+			if (binding.declaringClass.isEnum() && (this.selector == TypeConstants.VALUES || this.selector == TypeConstants.VALUEOF))
+				return;
+
 			// may be in a non necessary <clinit> for innerclass with static final constant fields
 			if (binding.isAbstract() || binding.isNative())
 				return;
-
+			
 			ExceptionHandlingFlowContext methodContext =
 				new ExceptionHandlingFlowContext(
 					initializationContext,
@@ -122,19 +127,22 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		
 		// by grammatical construction, interface methods are always abstract
-		if (!scope.enclosingSourceType().isInterface()){
-
-			// if a method has an semicolon body and is not declared as abstract==>error
-			// native methods may have a semicolon body 
-			if ((modifiers & AccSemicolonBody) != 0) {
-				if ((modifiers & AccNative) == 0)
-					if ((modifiers & AccAbstract) == 0)
-						scope.problemReporter().methodNeedBody(this);
-			} else {
-				// the method HAS a body --> abstract native modifiers are forbiden
-				if (((modifiers & AccNative) != 0) || ((modifiers & AccAbstract) != 0))
-					scope.problemReporter().methodNeedingNoBody(this);
-			}
+		switch (scope.referenceType().getKind()) {
+			case IGenericType.ENUM :
+				if (this.selector == TypeConstants.VALUES) break;
+				if (this.selector == TypeConstants.VALUEOF) break;
+			case IGenericType.CLASS :
+				// if a method has an semicolon body and is not declared as abstract==>error
+				// native methods may have a semicolon body 
+				if ((modifiers & AccSemicolonBody) != 0) {
+					if ((modifiers & AccNative) == 0)
+						if ((modifiers & AccAbstract) == 0)
+							scope.problemReporter().methodNeedBody(this);
+				} else {
+					// the method HAS a body --> abstract native modifiers are forbiden
+					if (((modifiers & AccNative) != 0) || ((modifiers & AccAbstract) != 0))
+						scope.problemReporter().methodNeedingNoBody(this);
+				}
 		}
 		super.resolveStatements(); 
 	}

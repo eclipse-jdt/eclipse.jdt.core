@@ -1100,24 +1100,24 @@ public void test022() {
 		"    35  iconst_0\n" + 
 		"    36  istore_2\n" + 
 		"    37  aload_1\n" + 
-		"    38  invokevirtual #32 <Method java/util/ArrayList.iterator()Ljava/util/Iterator;>\n" + 
+		"    38  invokevirtual #31 <Method java/util/ArrayList.iterator()Ljava/util/Iterator;>\n" + 
 		"    41  astore 4\n" + 
 		"    43  goto 64\n" + 
 		"    46  aload 4\n" + 
-		"    48  invokeinterface [nargs : 1] #38 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
+		"    48  invokeinterface [nargs : 1] #37 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
 		"    53  checkcast #20 java/lang/Integer\n" + 
 		"    56  astore_3\n" + 
 		"    57  iload_2\n" + 
 		"    58  aload_3\n" + 
-		"    59  invokevirtual #42 <Method java/lang/Integer.intValue()I>\n" + 
+		"    59  invokevirtual #41 <Method java/lang/Integer.intValue()I>\n" + 
 		"    62  iadd\n" + 
 		"    63  istore_2\n" + 
 		"    64  aload 4\n" + 
-		"    66  invokeinterface [nargs : 1] #46 <Interface method java/util/Iterator.hasNext()Z>\n" + 
+		"    66  invokeinterface [nargs : 1] #45 <Interface method java/util/Iterator.hasNext()Z>\n" + 
 		"    71  ifne 46\n" + 
-		"    74  getstatic #52 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    74  getstatic #51 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    77  iload_2\n" + 
-		"    78  invokevirtual #57 <Method java/io/PrintStream.println(I)V>\n" + 
+		"    78  invokevirtual #56 <Method java/io/PrintStream.println(I)V>\n" + 
 		"    81  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
@@ -1246,17 +1246,17 @@ public void test024() {
 		"    51  iload 5\n" + 
 		"    53  if_icmplt 32\n" + 
 		"    56  aload_2\n" + 
-		"    57  invokeinterface [nargs : 1] #33 <Interface method java/util/List.iterator()Ljava/util/Iterator;>\n" + 
+		"    57  invokeinterface [nargs : 1] #32 <Interface method java/util/List.iterator()Ljava/util/Iterator;>\n" + 
 		"    62  astore 4\n" + 
 		"    64  goto 82\n" + 
 		"    67  aload 4\n" + 
-		"    69  invokeinterface [nargs : 1] #39 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
+		"    69  invokeinterface [nargs : 1] #38 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
 		"    74  astore_3\n" + 
-		"    75  getstatic #45 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    75  getstatic #44 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    78  aload_3\n" + 
-		"    79  invokevirtual #51 <Method java/io/PrintStream.print(Ljava/lang/Object;)V>\n" + 
+		"    79  invokevirtual #50 <Method java/io/PrintStream.print(Ljava/lang/Object;)V>\n" + 
 		"    82  aload 4\n" + 
-		"    84  invokeinterface [nargs : 1] #55 <Interface method java/util/Iterator.hasNext()Z>\n" + 
+		"    84  invokeinterface [nargs : 1] #54 <Interface method java/util/Iterator.hasNext()Z>\n" + 
 		"    89  ifne 67\n" + 
 		"    92  return\n" + 
 		"      Line numbers:\n" + 
@@ -1526,23 +1526,23 @@ public void test028() {
 		"    122  iload_2\n" + 
 		"    123  invokevirtual #26 <Method java/util/ArrayList.get(I)Ljava/lang/Object;>\n" + 
 		"    126  checkcast #17 java/util/ArrayList\n" + 
-		"    129  invokevirtual #39 <Method java/util/ArrayList.iterator()Ljava/util/Iterator;>\n" + 
+		"    129  invokevirtual #38 <Method java/util/ArrayList.iterator()Ljava/util/Iterator;>\n" + 
 		"    132  astore 4\n" + 
 		"    134  goto 155\n" + 
 		"    137  aload 4\n" + 
-		"    139  invokeinterface [nargs : 1] #45 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
-		"    144  checkcast #47 java/lang/String\n" + 
+		"    139  invokeinterface [nargs : 1] #44 <Interface method java/util/Iterator.next()Ljava/lang/Object;>\n" + 
+		"    144  checkcast #46 java/lang/String\n" + 
 		"    147  astore_3\n" + 
-		"    148  getstatic #53 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    148  getstatic #52 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"    151  aload_3\n" + 
-		"    152  invokevirtual #59 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    152  invokevirtual #58 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
 		"    155  aload 4\n" + 
-		"    157  invokeinterface [nargs : 1] #63 <Interface method java/util/Iterator.hasNext()Z>\n" + 
+		"    157  invokeinterface [nargs : 1] #62 <Interface method java/util/Iterator.hasNext()Z>\n" + 
 		"    162  ifne 137\n" + 
 		"    165  iinc 2 1\n" + 
 		"    168  iload_2\n" + 
 		"    169  aload_1\n" + 
-		"    170  invokevirtual #67 <Method java/util/ArrayList.size()I>\n" + 
+		"    170  invokevirtual #66 <Method java/util/ArrayList.size()I>\n" + 
 		"    173  if_icmplt 121\n" + 
 		"    176  return\n" + 
 		"      Line numbers:\n" + 

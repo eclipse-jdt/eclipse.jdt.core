@@ -91,7 +91,7 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
-protected void classInstanceCreation(boolean alwaysQualified) {
+protected void classInstanceCreation(boolean hasClassBody) {
 	
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
@@ -103,7 +103,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		&& (astStack[astPtr] == null)) {
 
 		if (this.indexOfAssistIdentifier() < 0) {
-			super.classInstanceCreation(alwaysQualified);
+			super.classInstanceCreation(hasClassBody);
 			return;
 		}
 		QualifiedAllocationExpression alloc;
@@ -141,7 +141,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		}
 		this.isOrphanCompletionNode = true;
 	} else {
-		super.classInstanceCreation(alwaysQualified);
+		super.classInstanceCreation(hasClassBody);
 	}
 }
 protected void consumeArrayCreationExpressionWithoutInitializer() {
@@ -187,11 +187,10 @@ protected void consumeEnterAnonymousClassBody() {
 	TypeReference typeReference = getTypeReference(0);
 	this.setAssistIdentifier(oldIdent);		
 
-	QualifiedAllocationExpression alloc;
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
-		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
-		alloc = anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
+	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+	anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+	QualifiedAllocationExpression alloc = new SelectionOnQualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 
@@ -249,11 +248,10 @@ protected void consumeEnterAnonymousClassBodySimpleName() {
 	TypeReference typeReference = getTypeReference(0);
 	this.setAssistIdentifier(oldIdent);	
 
-	QualifiedAllocationExpression alloc;
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
-		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
-		alloc = anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
+	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+	anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+	QualifiedAllocationExpression alloc = new SelectionOnQualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
 

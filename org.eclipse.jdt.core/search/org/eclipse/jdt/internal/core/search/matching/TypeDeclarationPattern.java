@@ -25,12 +25,14 @@ public char[][] enclosingTypeNames;
 
 // set to CLASS_SUFFIX for only matching classes 
 // set to INTERFACE_SUFFIX for only matching interfaces
+// set to ENUM_SUFFIX for only matching enums
+// set to ANNOTATION_TYPE_SUFFIX for only matching annotation types
 // set to TYPE_SUFFIX for matching both classes and interfaces
-public char classOrInterface; 
+public char typeSuffix; 
 
 protected static char[][] CATEGORIES = { TYPE_DECL };
 
-public static char[] createIndexKey(char[] typeName, char[] packageName, char[][] enclosingTypeNames, char classOrInterface) {
+public static char[] createIndexKey(char[] typeName, char[] packageName, char[][] enclosingTypeNames, char typeSuffix) {
 	int typeNameLength = typeName == null ? 0 : typeName.length;
 	int packageLength = packageName == null ? 0 : packageName.length;
 	int enclosingNamesLength = 0;
@@ -65,7 +67,7 @@ public static char[] createIndexKey(char[] typeName, char[] packageName, char[][
 		}
 	}
 	result[pos++] = SEPARATOR;
-	result[pos] = classOrInterface;
+	result[pos] = typeSuffix;
 	return result;
 }
 
@@ -73,7 +75,7 @@ public TypeDeclarationPattern(
 	char[] pkg,
 	char[][] enclosingTypeNames,
 	char[] simpleName,
-	char classOrInterface,
+	char typeSuffix,
 	int matchRule) {
 
 	this(matchRule);
@@ -88,7 +90,7 @@ public TypeDeclarationPattern(
 			this.enclosingTypeNames[i] = CharOperation.toLowerCase(enclosingTypeNames[i]);
 	}
 	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
-	this.classOrInterface = classOrInterface;
+	this.typeSuffix = typeSuffix;
 
 	((InternalSearchPattern)this).mustResolve = this.pkg != null && this.enclosingTypeNames != null;
 }
@@ -117,7 +119,7 @@ public void decodeIndexKey(char[] key) {
 		this.enclosingTypeNames = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO_CHAR : CharOperation.splitOn('.', names);
 	}
 
-	this.classOrInterface = key[key.length - 1];
+	this.typeSuffix = key[key.length - 1];
 }
 public SearchPattern getBlankPattern() {
 	return new TypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
@@ -127,10 +129,12 @@ public char[][] getIndexCategories() {
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	TypeDeclarationPattern pattern = (TypeDeclarationPattern) decodedPattern;
-	switch(this.classOrInterface) {
+	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
 		case INTERFACE_SUFFIX :
-			if (this.classOrInterface != pattern.classOrInterface) return false;
+		case ENUM_SUFFIX :
+		case ANNOTATION_TYPE_SUFFIX :
+			if (this.typeSuffix != pattern.typeSuffix) return false;
 	}
 
 	if (!matchesName(this.simpleName, pattern.simpleName))
@@ -173,9 +177,15 @@ EntryResult[] queryIn(Index index) throws IOException {
 		case R_PATTERN_MATCH :
 			if (this.pkg == null) {
 				if (this.simpleName == null) {
-					if (this.classOrInterface == CLASS_SUFFIX || this.classOrInterface == INTERFACE_SUFFIX)
-						key = new char[] {ONE_STAR[0],  SEPARATOR,
-							isCaseSensitive() ? this.classOrInterface : Character.toLowerCase(this.classOrInterface)}; // find all classes or all interfaces
+					switch(this.typeSuffix) {
+						case CLASS_SUFFIX :
+						case INTERFACE_SUFFIX :
+						case ENUM_SUFFIX :
+						case ANNOTATION_TYPE_SUFFIX :
+							key = new char[] {ONE_STAR[0],  SEPARATOR,
+								isCaseSensitive() ? this.typeSuffix : Character.toLowerCase(this.typeSuffix)}; // find all classes or all interfaces
+							break;
+					}
 				} else if (this.simpleName[this.simpleName.length - 1] != '*') {
 					key = CharOperation.concat(this.simpleName, ONE_STAR, SEPARATOR);
 				}
@@ -191,12 +201,18 @@ EntryResult[] queryIn(Index index) throws IOException {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
-	switch (classOrInterface){
+	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			buffer.append("ClassDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
 			buffer.append("InterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
+			break;
+		case ENUM_SUFFIX :
+			buffer.append("EnumDeclarationPattern: pkg<"); //$NON-NLS-1$
+			break;
+		case ANNOTATION_TYPE_SUFFIX :
+			buffer.append("AnnotationTypeDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		default :
 			buffer.append("TypeDeclarationPattern: pkg<"); //$NON-NLS-1$

@@ -188,7 +188,7 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
-	private void generateCode(ClassFile classFile) {
+	public void generateCode(ClassFile classFile) {
 
 		classFile.generateMethodInfoHeader(this.binding);
 		int methodAttributeOffset = classFile.contentsOffset;

@@ -40,7 +40,7 @@ public class ClassLiteralAccess extends Expression {
 				// no field generated in interface case (would'nt verify) see 1FHHEZL
 				|| sourceType.isBaseType()))
 				&& currentScope.environment().options.sourceLevel <= ClassFileConstants.JDK1_5) {
-			syntheticField = sourceType.addSyntheticField(targetType, currentScope);
+			syntheticField = sourceType.addSyntheticFieldForClassLiteral(targetType, currentScope);
 		}
 		return flowInfo;
 	}

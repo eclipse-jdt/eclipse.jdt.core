@@ -252,31 +252,7 @@ public class HandleFactory {
 				}
 				// don't pop local/anonymous types (used to count how many occurrences are in the initializer)
 			}
-			
-			public boolean visit(EnumDeclaration node, BlockScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(EnumDeclaration node, BlockScope scope) {
-				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
-				    pop(node);
-				}
-				// don't pop local/anonymous types (used to count how many occurrences are in the method)
-			}
-			
-			public boolean visit(EnumDeclaration node, ClassScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(EnumDeclaration node, ClassScope scope) {
-				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
-				    pop(node);
-				}
-				// don't pop local/anonymous types (used to count how many occurrences are in the initializer)
-			}
-
+						
 			public boolean visit(MethodDeclaration node, ClassScope scope) {
 			    push(node);
 				if (node == toBeFound) throw new EndVisit();
@@ -294,25 +270,6 @@ public class HandleFactory {
 			public void endVisit(TypeDeclaration node, CompilationUnitScope scope) {
 				pop(node);
 			}
-			
-			public boolean visit(EnumDeclaration node, CompilationUnitScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(EnumDeclaration node, CompilationUnitScope scope) {
-				pop(node);
-			}
-			
-			public boolean visit(EnumConstant node, ClassScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(EnumConstant node, ClassScope scope) {
-				pop(node);
-			}
-
 		}
 		Visitor visitor = new Visitor();
 		try {
@@ -497,13 +454,16 @@ public class HandleFactory {
 					for (int i = 0, length = type.fields.length; i < length; i++) {
 						FieldDeclaration field = type.fields[i];
 						if (field.declarationSourceStart < elementPosition && field.declarationSourceEnd > elementPosition) {
-							if (field.isField()) {
-								newElement = parentType.getField(new String(field.name));
-							} else {
-								newElement = parentType.getInitializer(occurenceCount);
+							switch (field.getKind()) {
+								case AbstractVariableDeclaration.FIELD :
+									newElement = parentType.getField(new String(field.name));
+									break;
+								case AbstractVariableDeclaration.INITIALIZER :
+									newElement = parentType.getInitializer(occurenceCount);
+									break;
 							}
 							break;
-						} else if (!field.isField()) {
+						} else if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
 							occurenceCount++;
 						}
 					}

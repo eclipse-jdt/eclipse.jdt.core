@@ -192,15 +192,23 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			}
 		}
 		// now do the caching
-		if (suppliedType.isClass()) {
-			if (superHandle == null) {
-				this.hierarchy.addRootClass(typeHandle);
-			} else {
-				this.hierarchy.cacheSuperclass(typeHandle, superHandle);
-			}
-		} else {
-			this.hierarchy.addInterface(typeHandle);
-		}
+		switch (suppliedType.getKind()) {
+			case IGenericType.CLASS :
+				if (superHandle == null) {
+					this.hierarchy.addRootClass(typeHandle);
+				} else {
+					this.hierarchy.cacheSuperclass(typeHandle, superHandle);
+				}
+				break;
+			case IGenericType.INTERFACE :
+				this.hierarchy.addInterface(typeHandle);
+				break;
+			case IGenericType.ENUM :
+				// TODO (jerome) add support - enum extends Enum implicitly
+				break;
+			case IGenericType.ANNOTATION_TYPE :
+				break;
+		}		
 		if (interfaceHandles == null) {
 			interfaceHandles = TypeHierarchy.NO_TYPE;
 		}
@@ -254,11 +262,21 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	protected IType lookupBinaryHandle(IBinaryType typeInfo) {
 		int flag;
 		String qualifiedName;
-		if (typeInfo.isClass()) {
-			flag = NameLookup.ACCEPT_CLASSES;
-		} else {
-			flag = NameLookup.ACCEPT_INTERFACES;
-		}
+		switch (typeInfo.getKind()) {
+			case IGenericType.CLASS :
+				flag = NameLookup.ACCEPT_CLASSES;
+				break;
+			case IGenericType.INTERFACE :
+				flag = NameLookup.ACCEPT_INTERFACES;
+				break;
+			case IGenericType.ENUM :
+				flag = NameLookup.ACCEPT_ENUMS;
+				break;
+			default:
+				//case IGenericType.ANNOTATION :
+				flag = NameLookup.ACCEPT_ANNOTATIONS;
+				break;
+		}			
 		char[] bName = typeInfo.getName();
 		qualifiedName = new String(ClassFile.translatedName(bName));
 		if (qualifiedName.equals(this.focusQualifiedName)) return getType();

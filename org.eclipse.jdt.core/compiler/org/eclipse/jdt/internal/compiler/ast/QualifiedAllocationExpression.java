@@ -34,6 +34,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 	public QualifiedAllocationExpression(TypeDeclaration anonymousType) {
 		this.anonymousType = anonymousType;
+		anonymousType.allocation = this;
 	}
 
 	public FlowInfo analyseCode(
@@ -96,8 +97,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			codeStream.dup();
 		}
 		// better highlight for allocation: display the type individually
-		codeStream.recordPositionsFrom(pc, type.sourceStart);
-
+		if (this.type != null) { // null for enum constant body
+			codeStream.recordPositionsFrom(pc, this.type.sourceStart);
+		} else {
+			// push enum constant name and ordinal
+			codeStream.ldc(String.valueOf(enumConstant.name));
+			codeStream.generateInlinedValue(enumConstant.binding.id);
+		}
 		// handling innerclass instance allocation - enclosing instance arguments
 		if (allocatedType.isNestedType()) {
 			codeStream.generateSyntheticEnclosingInstanceValues(
@@ -228,7 +234,12 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				}
 			}
 		} else {
-			receiverType = type.resolveType(scope);
+			if (this.type == null) {
+				// initialization of an enum constant
+				receiverType = scope.enclosingSourceType();
+			} else {
+				receiverType = this.type.resolveType(scope);
+			}			
 		}
 		if (receiverType == null) {
 			hasError = true;
@@ -327,7 +338,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			checkInvocationArguments(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this);
 
 		// Update the anonymous inner class : superclass, interface  
-		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);
+		binding = anonymousType.createDefaultConstructorWithBinding(inheritedBinding);
 		return this.resolvedType = anonymousType.binding; // 1.2 change
 	}
 	

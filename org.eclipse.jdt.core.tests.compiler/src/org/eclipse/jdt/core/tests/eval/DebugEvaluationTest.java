@@ -3774,7 +3774,7 @@ public void testNegative004() {
 		}
 	}
 	assertEquals("Unexpected errors",
-		"The final field System.out cannot be assigned. It must be blank in this context, not qualified and not in compound assignment|",
+		"The final field System.out cannot be assigned|",
 		buffer == null ? "none" : buffer.toString());
 }
 }

@@ -241,11 +241,15 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 		if (!checkTypeName(pattern.simpleName, patternString, fullyQualifiedTypeName, pattern.isCaseSensitive())) return false;
 	}
 
-	switch (pattern.classOrInterface) {
+	switch (pattern.typeSuffix) {
 		case CLASS_SUFFIX:
-			return !type.isInterface();
+			return type.getKind() == IGenericType.CLASS;
 		case INTERFACE_SUFFIX:
-			return type.isInterface();
+			return type.getKind() == IGenericType.INTERFACE;
+		case ENUM_SUFFIX:
+			return type.getKind() == IGenericType.ENUM;
+		case ANNOTATION_TYPE_SUFFIX:
+			return type.getKind() == IGenericType.ANNOTATION_TYPE;
 		case TYPE_SUFFIX: // nothing
 	}
 	return true;

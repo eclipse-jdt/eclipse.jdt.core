@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
@@ -19,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
 /**
@@ -108,9 +110,19 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 				fieldCount); 
 		}
 	}
-	RecoveredField element = fieldDeclaration.isField() 
-								? new RecoveredField(fieldDeclaration, this, bracketBalanceValue)
-								: new RecoveredInitializer(fieldDeclaration, this, bracketBalanceValue);
+	RecoveredField element;
+	switch (fieldDeclaration.getKind()) {
+		case AbstractVariableDeclaration.FIELD:
+		case AbstractVariableDeclaration.ENUM_CONSTANT:
+			element = new RecoveredField(fieldDeclaration, this, bracketBalanceValue);
+			break;
+		case AbstractVariableDeclaration.INITIALIZER:
+			element = new RecoveredInitializer(fieldDeclaration, this, bracketBalanceValue);
+			break;
+		default:
+			// never happens, as field is always identified
+			return this;
+	}
 	fields[fieldCount++] = element;
 
 	/* consider that if the opening brace was not found, it is there */
@@ -365,7 +377,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 		}
 		typeDeclaration.methods = methodDeclarations;
 	} else {
-		if (!hasConstructor && !typeDeclaration.isInterface()) {// if was already reduced, then constructor
+		if (!hasConstructor && typeDeclaration.getKind() != IGenericType.INTERFACE) {// if was already reduced, then constructor
 			boolean insideFieldInitializer = false;
 			RecoveredElement parentElement = this.parent; 
 			while (parentElement != null){
@@ -375,7 +387,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 				}
 				parentElement = parentElement.parent;
 			}
-			typeDeclaration.createsInternalConstructor(!parser().diet || insideFieldInitializer, true);
+			typeDeclaration.createDefaultConstructor(!parser().diet || insideFieldInitializer, true);
 		} 
 	}
 	if (parent instanceof RecoveredType){

@@ -49,28 +49,28 @@ protected void checkcast(int baseId) {
 	this.bCodeStream[this.classFileOffset++] = OPC_checkcast;
 	switch (baseId) {
 		case T_byte :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangByte());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangByteConstantPoolName));
 			break;
 		case T_short :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangShort());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangShortConstantPoolName));
 			break;
 		case T_char :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangCharacter());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangCharacterConstantPoolName));
 			break;
 		case T_int :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangInteger());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangIntegerConstantPoolName));
 			break;
 		case T_long :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangLong());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangLongConstantPoolName));
 			break;
 		case T_float :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangFloat());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangFloatConstantPoolName));
 			break;
 		case T_double :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangDouble());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangDoubleConstantPoolName));
 			break;
 		case T_boolean :
-			writeUnsignedShort(this.constantPool.literalIndexForJavaLangBoolean());
+			writeUnsignedShort(this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangBooleanConstantPoolName));
 	}
 }
 public void generateEmulatedAccessForMethod(Scope scope, MethodBinding methodBinding) {
@@ -99,7 +99,7 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 	this.invokeClassForName();
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
+	this.newArray(scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -155,7 +155,7 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	this.ldc(String.valueOf(methodBinding.selector));
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
+	this.newArray(scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -215,166 +215,261 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 	invokespecial(methodBinding);
 }
 public void getBaseTypeValue(int baseTypeID) {
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
 	switch (baseTypeID) {
 		case T_byte :
 			// invokevirtual: byteValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangByteByteValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangByteConstantPoolName,
+					QualifiedNamesConstants.BYTEVALUE_BYTE_METHOD_NAME,
+					QualifiedNamesConstants.BYTEVALUE_BYTE_METHOD_SIGNATURE);
 			break;
 		case T_short :
 			// invokevirtual: shortValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangShortShortValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangShortConstantPoolName,
+					QualifiedNamesConstants.SHORTVALUE_SHORT_METHOD_NAME,
+					QualifiedNamesConstants.SHORTVALUE_SHORT_METHOD_SIGNATURE);
 			break;
 		case T_char :
 			// invokevirtual: charValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangCharacterCharValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangCharacterConstantPoolName,
+					QualifiedNamesConstants.CHARVALUE_CHARACTER_METHOD_NAME,
+					QualifiedNamesConstants.CHARVALUE_CHARACTER_METHOD_SIGNATURE);
 			break;
 		case T_int :
 			// invokevirtual: intValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangIntegerIntValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangIntegerConstantPoolName,
+					QualifiedNamesConstants.INTVALUE_INTEGER_METHOD_NAME,
+					QualifiedNamesConstants.INTVALUE_INTEGER_METHOD_SIGNATURE);
 			break;
 		case T_long :
 			// invokevirtual: longValue()
-			this.stackDepth++;
-			if (this.stackDepth > this.stackMax)
-				this.stackMax = this.stackDepth;
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangLongLongValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					2, // return type size
+					QualifiedNamesConstants.JavaLangLongConstantPoolName,
+					QualifiedNamesConstants.LONGVALUE_LONG_METHOD_NAME,
+					QualifiedNamesConstants.LONGVALUE_LONG_METHOD_SIGNATURE);
 			break;
 		case T_float :
 			// invokevirtual: floatValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangFloatFloatValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangFloatConstantPoolName,
+					QualifiedNamesConstants.FLOATVALUE_FLOAT_METHOD_NAME,
+					QualifiedNamesConstants.FLOATVALUE_FLOAT_METHOD_SIGNATURE);
 			break;
 		case T_double :
 			// invokevirtual: doubleValue()
-			this.stackDepth++;
-			if (this.stackDepth > this.stackMax)
-				this.stackMax = this.stackDepth;
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangDoubleDoubleValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					2, // return type size
+					QualifiedNamesConstants.JavaLangDoubleConstantPoolName,
+					QualifiedNamesConstants.DOUBLEVALUE_DOUBLE_METHOD_NAME,
+					QualifiedNamesConstants.DOUBLEVALUE_DOUBLE_METHOD_SIGNATURE);
 			break;
 		case T_boolean :
 			// invokevirtual: booleanValue()
-			writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangBooleanBooleanValue());
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangBooleanConstantPoolName,
+					QualifiedNamesConstants.BOOLEANVALUE_BOOLEAN_METHOD_NAME,
+					QualifiedNamesConstants.BOOLEANVALUE_BOOLEAN_METHOD_SIGNATURE);
 	}
 }
 protected void invokeAccessibleObjectSetAccessible() {
 	// invokevirtual: java.lang.reflect.AccessibleObject.setAccessible(Z)V;
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectAccessibleObjectSetAccessible());
-	this.stackDepth-=2;
+	this.invoke(
+			OPC_invokevirtual,
+			1, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JAVALANGREFLECTACCESSIBLEOBJECT_CONSTANTPOOLNAME,
+			QualifiedNamesConstants.SETACCESSIBLE_NAME,
+			QualifiedNamesConstants.SETACCESSIBLE_SIGNATURE);
 }
 protected void invokeArrayNewInstance() {
-	// invokestatic: java.lang.reflect.Array.newInstance(Ljava.lang.Class;int[])Ljava.lang.reflect.Array;
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokestatic;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectArrayNewInstance());
-	this.stackDepth--;
+	// invokestatic: java.lang.reflect.Array.newInstance(Ljava.lang.Class;int[])Ljava.lang.Object;
+	this.invoke(
+			OPC_invokestatic,
+			2, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JAVALANGREFLECTARRAY_CONSTANTPOOLNAME,
+			QualifiedNamesConstants.NewInstance,
+			QualifiedNamesConstants.NewInstanceSignature);
 }
 protected void invokeClassGetDeclaredConstructor() {
 	// invokevirtual: java.lang.Class getDeclaredConstructor([Ljava.lang.Class)Ljava.lang.reflect.Constructor;
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangClassGetDeclaredConstructor());
-	this.stackDepth--;
+	this.invoke(
+			OPC_invokevirtual,
+			1, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangClassConstantPoolName,
+			QualifiedNamesConstants.GETDECLAREDCONSTRUCTOR_NAME,
+			QualifiedNamesConstants.GETDECLAREDCONSTRUCTOR_SIGNATURE);
 }
 protected void invokeClassGetDeclaredField() {
 	// invokevirtual: java.lang.Class.getDeclaredField(Ljava.lang.String)Ljava.lang.reflect.Field;
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangClassGetDeclaredField());
-	this.stackDepth--;
+	this.invoke(
+			OPC_invokevirtual,
+			1, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangClassConstantPoolName,
+			QualifiedNamesConstants.GETDECLAREDFIELD_NAME,
+			QualifiedNamesConstants.GETDECLAREDFIELD_SIGNATURE);
 }
 protected void invokeClassGetDeclaredMethod() {
 	// invokevirtual: java.lang.Class getDeclaredMethod(Ljava.lang.String, [Ljava.lang.Class)Ljava.lang.reflect.Method;
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangClassGetDeclaredMethod());
-	this.stackDepth-=2;
+	this.invoke(
+			OPC_invokevirtual,
+			2, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangClassConstantPoolName,
+			QualifiedNamesConstants.GETDECLAREDMETHOD_NAME,
+			QualifiedNamesConstants.GETDECLAREDMETHOD_SIGNATURE);
 }
 protected void invokeJavaLangReflectConstructorNewInstance() {
 	// invokevirtual: java.lang.reflect.Constructor.newInstance([Ljava.lang.Object;)Ljava.lang.Object;
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectConstructorNewInstance());
-	this.stackDepth--;
+	this.invoke(
+			OPC_invokevirtual,
+			1, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangReflectConstructor,
+			QualifiedNamesConstants.NewInstance,
+			QualifiedNamesConstants.JavaLangReflectConstructorNewInstanceSignature);
 }
 protected void invokeJavaLangReflectFieldGetter(int typeID) {
-	this.countLabels = 0;
-	int usedTypeID;
-	if (typeID == T_null)
-		usedTypeID = T_Object;
-	else
-		usedTypeID = typeID;
-	// invokevirtual
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int returnTypeSize = 1;
+	char[] signature = null;
+	char[] selector = null;
+	switch (typeID) {
+		case T_int :
+			selector = QualifiedNamesConstants.GET_INT_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_INT_METHOD_SIGNATURE;
+			break;
+		case T_byte :
+			selector = QualifiedNamesConstants.GET_BYTE_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_BYTE_METHOD_SIGNATURE;
+			break;
+		case T_short :
+			selector = QualifiedNamesConstants.GET_SHORT_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_SHORT_METHOD_SIGNATURE;
+			break;
+		case T_long :
+			selector = QualifiedNamesConstants.GET_LONG_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_LONG_METHOD_SIGNATURE;
+			returnTypeSize = 2;
+			break;
+		case T_float :
+			selector = QualifiedNamesConstants.GET_FLOAT_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_FLOAT_METHOD_SIGNATURE;
+			break;
+		case T_double :
+			selector = QualifiedNamesConstants.GET_DOUBLE_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_DOUBLE_METHOD_SIGNATURE;
+			returnTypeSize = 2;
+			break;
+		case T_char :
+			selector = QualifiedNamesConstants.GET_CHAR_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_CHAR_METHOD_SIGNATURE;
+			break;
+		case T_boolean :
+			selector = QualifiedNamesConstants.GET_BOOLEAN_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_BOOLEAN_METHOD_SIGNATURE;
+			break;
+		default :
+			selector = QualifiedNamesConstants.GET_OBJECT_METHOD_NAME;
+			signature = QualifiedNamesConstants.GET_OBJECT_METHOD_SIGNATURE;
+			break;
 	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexJavaLangReflectFieldGetter(typeID));
-	if ((usedTypeID != T_long) && (usedTypeID != T_double)) {
-		this.stackDepth--;
-	}
+	this.invoke(
+			OPC_invokevirtual,
+			1, // argCount
+			returnTypeSize, // return type size
+			QualifiedNamesConstants.JAVALANGREFLECTFIELD_CONSTANTPOOLNAME,
+			selector,
+			signature);
 }
 protected void invokeJavaLangReflectFieldSetter(int typeID) {
-	this.countLabels = 0;
-	int usedTypeID;
-	if (typeID == T_null)
-		usedTypeID = T_Object;
-	else
-		usedTypeID = typeID;
-	// invokevirtual
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int argCount = 2;
+	char[] signature = null;
+	char[] selector = null;
+	switch (typeID) {
+		case T_int :
+			selector = QualifiedNamesConstants.SET_INT_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_INT_METHOD_SIGNATURE;
+			break;
+		case T_byte :
+			selector = QualifiedNamesConstants.SET_BYTE_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_BYTE_METHOD_SIGNATURE;
+			break;
+		case T_short :
+			selector = QualifiedNamesConstants.SET_SHORT_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_SHORT_METHOD_SIGNATURE;
+			break;
+		case T_long :
+			selector = QualifiedNamesConstants.SET_LONG_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_LONG_METHOD_SIGNATURE;
+			argCount = 3;
+			break;
+		case T_float :
+			selector = QualifiedNamesConstants.SET_FLOAT_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_FLOAT_METHOD_SIGNATURE;
+			break;
+		case T_double :
+			selector = QualifiedNamesConstants.SET_DOUBLE_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_DOUBLE_METHOD_SIGNATURE;
+			argCount = 3;
+			break;
+		case T_char :
+			selector = QualifiedNamesConstants.SET_CHAR_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_CHAR_METHOD_SIGNATURE;
+			break;
+		case T_boolean :
+			selector = QualifiedNamesConstants.SET_BOOLEAN_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_BOOLEAN_METHOD_SIGNATURE;
+			break;
+		default :
+			selector = QualifiedNamesConstants.SET_OBJECT_METHOD_NAME;
+			signature = QualifiedNamesConstants.SET_OBJECT_METHOD_SIGNATURE;
+			break;
 	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexJavaLangReflectFieldSetter(typeID));
-	if ((usedTypeID != T_long) && (usedTypeID != T_double)) {
-		this.stackDepth-=3;
-	} else {
-		this.stackDepth-=4;
-	}
+	this.invoke(
+			OPC_invokevirtual,
+			argCount, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JAVALANGREFLECTFIELD_CONSTANTPOOLNAME,
+			selector,
+			signature);
 }
 protected void invokeJavaLangReflectMethodInvoke() {
 	// invokevirtual: java.lang.reflect.Method.invoke(Ljava.lang.Object;[Ljava.lang.Object;)Ljava.lang.Object;
-	this.countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	this.position++;
-	this.bCodeStream[this.classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(((CodeSnippetConstantPool) this.constantPool).literalIndexForJavaLangReflectMethodInvoke());
-	this.stackDepth-=2;
+	this.invoke(
+			OPC_invokevirtual,
+			2, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JAVALANGREFLECTMETHOD_CONSTANTPOOLNAME,
+			QualifiedNamesConstants.INVOKE_METHOD_METHOD_NAME,
+			QualifiedNamesConstants.INVOKE_METHOD_METHOD_SIGNATURE);
 }
 private final void resizeByteArray() {
 	int length = bCodeStream.length;

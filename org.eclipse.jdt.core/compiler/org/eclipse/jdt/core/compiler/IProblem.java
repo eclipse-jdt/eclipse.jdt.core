@@ -986,14 +986,37 @@ public interface IProblem {
 	/**
 	 * Corrupted binaries
 	 */
+	/** @since 3.1 */
 	int CorruptedSignature = Internal + 700;
-	
+
+	/**
+	 * Enum
+	 */
+	/** @since 3.1 */
+	int IllegalModifierForEnum = TypeRelated + 750;
+	/** @since 3.1 */
+	int IllegalModifierForEnumConstant = FieldRelated + 751;	
+	/** @since 3.1 */
+	int IllegalModifierForLocalEnum = TypeRelated + 752;
+	/** @since 3.1 */
+	int IllegalModifierForMemberEnum = TypeRelated + 753;
+	/** @since 3.1 */
+	int CannotDeclareEnumSpecialMethod = MethodRelated + 754;
+
 	/**
 	 * Var args
 	 */
+	/** @since 3.1 */
 	int IllegalExtendedDimensionsForVarArgs = Syntax + Internal + 800;
 	/** @since 3.1 */
-	int InexactParameterToVarargsMethod = MethodRelated + 801;
+	int AmbiguousArgumentToVarargsMethod = MethodRelated + 801;
 	/** @since 3.1 */
-	int InexactParameterToVarargsConstructor = ConstructorRelated + 802;
+	int AmbiguousArgumentToVarargsConstructor = ConstructorRelated + 802;
+		
+	/**
+	 * Annotation
+	 */
+	int IllegalModifierForAnnotationType = TypeRelated + 851;
+	int IllegalModifierForMemberAnnotationType = TypeRelated + 851;
+	
 }

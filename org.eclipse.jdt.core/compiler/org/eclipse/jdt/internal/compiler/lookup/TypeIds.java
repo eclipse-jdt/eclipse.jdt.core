@@ -68,6 +68,8 @@ public interface TypeIds {
 	final int T_JavaLangIterable = 38;
 	final int T_JavaUtilIterator = 39;
 	final int T_JavaLangStringBuilder = 40;
+	final int T_JavaLangEnum = 41;
+	final int T_JavaLangIllegalArgumentException = 42;
 	
 	final int NoId = Integer.MAX_VALUE;
 

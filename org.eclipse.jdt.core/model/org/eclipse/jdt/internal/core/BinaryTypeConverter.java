@@ -194,7 +194,7 @@ public class BinaryTypeConverter {
 		neededCount = isInterface ? 0 : neededCount;
 		typeDeclaration.methods = new AbstractMethodDeclaration[methodCount + neededCount];
 		if (neededCount != 0) { // add default constructor in first position
-			typeDeclaration.methods[0] = typeDeclaration.createsInternalConstructor(false, false);
+			typeDeclaration.methods[0] = typeDeclaration.createDefaultConstructor(false, false);
 		}
 		for (int i = 0; i < methodCount; i++) {
 			AbstractMethodDeclaration method =convert(methods[i], type, compilationResult);

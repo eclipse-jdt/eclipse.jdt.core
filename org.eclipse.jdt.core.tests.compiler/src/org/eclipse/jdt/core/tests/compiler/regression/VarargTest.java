@@ -352,97 +352,97 @@ public class VarargTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	Y.byte2(null);\n" + 
 			"	^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method byte2(byte[][]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method byte2(byte[]...) from the type Y. Argument should be casted to byte[][] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	Y.byte2((byte) 1);\n" + 
 			"	  ^^^^^\n" + 
-			"The method byte2(byte[][]) in the type Y is not applicable for the arguments (byte)\n" + 
+			"The method byte2(byte[]...) in the type Y is not applicable for the arguments (byte)\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	Y.byte2(new byte[][][] {});\n" + 
 			"	  ^^^^^\n" + 
-			"The method byte2(byte[][]) in the type Y is not applicable for the arguments (byte[][][])\n" + 
+			"The method byte2(byte[]...) in the type Y is not applicable for the arguments (byte[][][])\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Y.object(null);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object(Object...) from the type Y. Argument should be casted to Object[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 11)\n" + 
 			"	Y.object(new byte[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object(Object...) from the type Y. Argument should be casted to Object[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 12)\n" + 
 			"	Y.object(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object(Object...) from the type Y. Argument should be casted to Object[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 15)\n" + 
 			"	Y.object(new String[] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object(Object...) from the type Y. Argument should be casted to Object[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 16)\n" + 
 			"	Y.object(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object(Object...) from the type Y. Argument should be casted to Object[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"9. WARNING in X.java (at line 18)\n" + 
 			"	Y.object2(null);\n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object2(Object[][]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object2(Object[]...) from the type Y. Argument should be casted to Object[][] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"10. ERROR in X.java (at line 19)\n" + 
 			"	Y.object2((byte) 1);\n" + 
 			"	  ^^^^^^^\n" + 
-			"The method object2(Object[][]) in the type Y is not applicable for the arguments (byte)\n" + 
+			"The method object2(Object[]...) in the type Y is not applicable for the arguments (byte)\n" + 
 			"----------\n" + 
 			"11. ERROR in X.java (at line 20)\n" + 
 			"	Y.object2(new byte[] {});\n" + 
 			"	  ^^^^^^^\n" + 
-			"The method object2(Object[][]) in the type Y is not applicable for the arguments (byte[])\n" + 
+			"The method object2(Object[]...) in the type Y is not applicable for the arguments (byte[])\n" + 
 			"----------\n" + 
 			"12. WARNING in X.java (at line 22)\n" + 
 			"	Y.object2(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object2(Object[][]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object2(Object[]...) from the type Y. Argument should be casted to Object[][] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"13. ERROR in X.java (at line 24)\n" + 
 			"	Y.object2(new String());\n" + 
 			"	  ^^^^^^^\n" + 
-			"The method object2(Object[][]) in the type Y is not applicable for the arguments (String)\n" + 
+			"The method object2(Object[]...) in the type Y is not applicable for the arguments (String)\n" + 
 			"----------\n" + 
 			"14. WARNING in X.java (at line 26)\n" + 
 			"	Y.object2(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method object2(Object[][]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method object2(Object[]...) from the type Y. Argument should be casted to Object[][] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"15. WARNING in X.java (at line 28)\n" + 
 			"	Y.string(null);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the varargs method string(String[]) from the type Y\n" + 
+			"Ambiguous argument for the varargs method string(String...) from the type Y. Argument should be casted to String[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"16. ERROR in X.java (at line 31)\n" + 
 			"	Y.string(new String[][] {});\n" + 
 			"	  ^^^^^^\n" + 
-			"The method string(String[]) in the type Y is not applicable for the arguments (String[][])\n" + 
+			"The method string(String...) in the type Y is not applicable for the arguments (String[][])\n" + 
 			"----------\n" + 
 			"17. ERROR in X.java (at line 33)\n" + 
 			"	Y.string(new Object());\n" + 
 			"	  ^^^^^^\n" + 
-			"The method string(String[]) in the type Y is not applicable for the arguments (Object)\n" + 
+			"The method string(String...) in the type Y is not applicable for the arguments (Object)\n" + 
 			"----------\n" + 
 			"18. ERROR in X.java (at line 34)\n" + 
 			"	Y.string(new Object[] {});\n" + 
 			"	  ^^^^^^\n" + 
-			"The method string(String[]) in the type Y is not applicable for the arguments (Object[])\n" + 
+			"The method string(String...) in the type Y is not applicable for the arguments (Object[])\n" + 
 			"----------\n" + 
 			"19. ERROR in X.java (at line 35)\n" + 
 			"	Y.string(new Object[][] {});\n" + 
 			"	  ^^^^^^\n" + 
-			"The method string(String[]) in the type Y is not applicable for the arguments (Object[][])\n" + 
+			"The method string(String...) in the type Y is not applicable for the arguments (Object[][])\n" + 
 			"----------\n");
 	}
 
@@ -467,12 +467,12 @@ public class VarargTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	y = new Y(true, null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the vararg constructor Y(boolean, Object[])\n" + 
+			"Ambiguous argument for the varargs constructor Y(boolean, Object...). Argument should be casted to Object[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	y = new Y(\'i\', null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the vararg constructor Y(char, int[][])\n" + 
+			"Ambiguous argument for the varargs constructor Y(char, int[]...). Argument should be casted to int[][] to disambiguate, since it is passed as is\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -499,12 +499,12 @@ public class VarargTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	y = new Y(true, null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the vararg constructor Y(boolean, Object[])\n" + 
+			"Ambiguous argument for the varargs constructor Y(boolean, Object...). Argument should be casted to Object[] to disambiguate, since it is passed as is\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	y = new Y(\'i\', null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^\n" + 
-			"Inexact argument for the vararg constructor Y(char, int[][])\n" + 
+			"Ambiguous argument for the varargs constructor Y(char, int[]...). Argument should be casted to int[][] to disambiguate, since it is passed as is\n" + 
 			"----------\n");
 	}
 
@@ -578,7 +578,7 @@ public class VarargTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	public void count(int[] values) {}\n" + 
 			"	  ^^^^^\n" + 
-			"The method count(int[]) is overriding a vararg method from X\n" + 
+			"The method count(int[]) is overriding a varargs method from X\n" + 
 			"----------\n");
 	}
 }

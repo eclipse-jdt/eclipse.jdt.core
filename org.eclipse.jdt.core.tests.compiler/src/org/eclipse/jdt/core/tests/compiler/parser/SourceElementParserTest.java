@@ -266,6 +266,51 @@ public void enterField(
 				source)); 
 
 }
+/**
+ * enterEnum method comment.
+ */
+public void enterEnum(
+	int declarationStart, 
+	int modifiers, 
+	char[] name, 
+	int nameSourceStart, 
+	int nameSourceEnd, 
+	char[][] superinterfaces) {
+
+	if (currentType == null) {
+		// top level type
+		currentType = 
+			new SourceType(
+				null, 
+				declarationStart, 
+				modifiers, 
+				name, 
+				nameSourceStart, 
+				nameSourceEnd, 
+				null, 
+				superinterfaces, 
+				source); 
+		currentType.setPackage(currentPackage);
+		setImports();
+	} else {
+		// member type
+		SourceType memberType;
+		currentType.addMemberType(
+			memberType = 
+				new SourceType(
+					currentType.getName(), 
+					declarationStart, 
+					modifiers, 
+					name, 
+					nameSourceStart, 
+					nameSourceEnd, 
+					null, 
+					superinterfaces, 
+					source)); 
+		memberType.parent = currentType;
+		currentType = memberType;
+	}
+}
 
 /**
  * enterInitializer method comment.
@@ -388,6 +433,15 @@ public void exitCompilationUnit(int declarationEnd) {}
 public void exitConstructor(int declarationEnd) {
 	
 	currentMethod.setDeclarationSourceEnd(declarationEnd);
+}
+/**
+ * exitEnum method comment.
+ */
+public void exitEnum(int declarationEnd) {
+	currentType.setDeclarationSourceEnd(declarationEnd);
+	if (currentType.parent != null) {
+		currentType = currentType.parent;
+	}
 }
 /**
  * exitField method comment.

@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.codegen.QualifiedNamesConstants;
 
 public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	public int modifiers;
@@ -46,7 +46,7 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 	}
 }
 public MethodBinding(int modifiers, TypeBinding[] parameters, ReferenceBinding[] thrownExceptions, ReferenceBinding declaringClass) {
-	this(modifiers, ConstructorDeclaration.ConstantPoolName, VoidBinding, parameters, thrownExceptions, declaringClass);
+	this(modifiers, TypeConstants.INIT, VoidBinding, parameters, thrownExceptions, declaringClass);
 }
 // special API used to change method declaring class for runtime visibility check
 public MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding declaringClass) {
@@ -338,10 +338,7 @@ public final boolean isBridge() {
 /* Answer true if the receiver is a constructor
 */
 public final boolean isConstructor() {
-	return selector == ConstructorDeclaration.ConstantPoolName;
-}
-protected boolean isConstructorRelated() {
-	return isConstructor();
+	return selector == TypeConstants.INIT;
 }
 
 /* Answer true if the receiver has default visibility
@@ -539,9 +536,13 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 	buffer.append('(');
 	
 	TypeBinding[] targetParameters = this.parameters;
-	boolean considerSynthetics = isConstructorRelated() && declaringClass.isNestedType();
-	if (considerSynthetics) {
-		
+	boolean isConstructor = isConstructor();
+	if (isConstructor && declaringClass.isEnum()) { // insert String name,int ordinal 
+		buffer.append(QualifiedNamesConstants.JavaLangStringSignature);
+		buffer.append(BaseTypes.IntBinding.signature());
+	}
+	boolean needSynthetics = isConstructor && declaringClass.isNestedType();
+	if (needSynthetics) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
 		int count = syntheticArgumentTypes == null ? 0 : syntheticArgumentTypes.length;
@@ -549,8 +550,8 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 			buffer.append(syntheticArgumentTypes[i].signature());
 		}
 		
-		if (this instanceof SyntheticAccessMethodBinding) {
-			targetParameters = ((SyntheticAccessMethodBinding)this).targetMethod.parameters;
+		if (this instanceof SyntheticMethodBinding) {
+			targetParameters = ((SyntheticMethodBinding)this).targetMethod.parameters;
 		}
 	}
 
@@ -559,7 +560,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 			buffer.append(targetParameters[i].signature());
 		}
 	}
-	if (considerSynthetics) {
+	if (needSynthetics) {
 		SyntheticArgumentBinding[] syntheticOuterArguments = declaringClass.syntheticOuterLocalVariables();
 		int count = syntheticOuterArguments == null ? 0 : syntheticOuterArguments.length;
 		for (int i = 0; i < count; i++) {

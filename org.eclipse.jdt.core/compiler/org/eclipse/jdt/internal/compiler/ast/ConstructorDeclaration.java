@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	public ExplicitConstructorCall constructorCall;
-	public final static char[] ConstantPoolName = "<init>".toCharArray(); //$NON-NLS-1$
+	
 	public boolean isDefaultConstructor = false;
 	public TypeParameter[] typeParameters;
 
@@ -225,18 +225,19 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			// initialize local positions - including initializer scope.
 			ReferenceBinding declaringClass = binding.declaringClass;
 
-			int argSlotSize = 1; // this==aload0
-			
+			int enumOffset = declaringClass.isEnum() ? 2 : 0; // String name, int ordinal
+			int argSlotSize = 1 + enumOffset; // this==aload0
+
 			if (declaringClass.isNestedType()){
 				NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
 				this.scope.extraSyntheticArguments = nestedType.syntheticOuterLocalVariables();
 				scope.computeLocalVariablePositions(// consider synthetic arguments if any
-					nestedType.enclosingInstancesSlotSize + 1,
+					nestedType.enclosingInstancesSlotSize + 1 + enumOffset,
 					codeStream);
 				argSlotSize += nestedType.enclosingInstancesSlotSize;
 				argSlotSize += nestedType.outerLocalVariablesSlotSize;
 			} else {
-				scope.computeLocalVariablePositions(1,  codeStream);
+				scope.computeLocalVariablePositions(1 + enumOffset,  codeStream);
 			}
 				
 			if (arguments != null) {
@@ -357,10 +358,10 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		//fill up the constructor body with its statements
 		if (ignoreFurtherInvestigation)
 			return;
-		if (isDefaultConstructor){
-			constructorCall = SuperReference.implicitSuperConstructorCall();
-			constructorCall.sourceStart = sourceStart;
-			constructorCall.sourceEnd = sourceEnd; 
+		if (isDefaultConstructor && this.constructorCall == null){
+			this.constructorCall = SuperReference.implicitSuperConstructorCall();
+			this.constructorCall.sourceStart = this.sourceStart;
+			this.constructorCall.sourceEnd = this.sourceEnd; 
 			return;
 		}
 		parser.parse(this, unit);

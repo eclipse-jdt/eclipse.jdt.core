@@ -104,14 +104,14 @@ public class Assignment extends Expression {
 	}
 	FieldBinding getLastField(Expression someExpression) {
 	    if (someExpression instanceof SingleNameReference) {
-	        if ((someExpression.bits & RestrictiveFlagMASK) == BindingIds.FIELD) {
+	        if ((someExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
 	            return (FieldBinding) ((SingleNameReference)someExpression).binding;
 	        }
 	    } else if (someExpression instanceof FieldReference) {
 	        return ((FieldReference)someExpression).binding;
 	    } else if (someExpression instanceof QualifiedNameReference) {
 	        QualifiedNameReference qName = (QualifiedNameReference) someExpression;
-	        if (qName.otherBindings == null && ((someExpression.bits & RestrictiveFlagMASK) == BindingIds.FIELD)) {
+	        if (qName.otherBindings == null && ((someExpression.bits & RestrictiveFlagMASK) == Binding.FIELD)) {
 	            return (FieldBinding)qName.binding;
 	        } else {
 	            return qName.otherBindings[qName.otherBindings.length - 1];

@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
 public abstract class Scope
-	implements BaseTypes, BindingIds, CompilerModifiers, ProblemReasons, TagBits, TypeConstants, TypeIds {
+	implements BaseTypes, CompilerModifiers, ProblemReasons, TagBits, TypeConstants, TypeIds {
 
 	public final static int BLOCK_SCOPE = 1;
 	public final static int CLASS_SCOPE = 3;
@@ -1268,7 +1268,7 @@ public abstract class Scope
 		try {
 			Binding binding = null;
 			FieldBinding problemField = null;
-			if ((mask & VARIABLE) != 0) {
+			if ((mask & Binding.VARIABLE) != 0) {
 				boolean insideStaticContext = false;
 				boolean insideConstructorCall = false;
 
@@ -1447,14 +1447,14 @@ public abstract class Scope
 			}
 
 			// We did not find a local or instance variable.
-			if ((mask & TYPE) != 0) {
+			if ((mask & Binding.TYPE) != 0) {
 				if ((binding = getBaseType(name)) != null)
 					return binding;
-				binding = getTypeOrPackage(name, (mask & PACKAGE) == 0 ? TYPE : TYPE | PACKAGE);
-				if (binding.isValidBinding() || mask == TYPE)
+				binding = getTypeOrPackage(name, (mask & Binding.PACKAGE) == 0 ? Binding.TYPE : Binding.TYPE | Binding.PACKAGE);
+				if (binding.isValidBinding() || mask == Binding.TYPE)
 					return binding;
 				// answer the problem type binding if we are only looking for a type
-			} else if ((mask & PACKAGE) != 0) {
+			} else if ((mask & Binding.PACKAGE) != 0) {
 				compilationUnitScope().recordSimpleReference(name);
 				if ((binding = environment().getTopLevelPackage(name)) != null)
 					return binding;
@@ -1478,10 +1478,10 @@ public abstract class Scope
 			    	methodBinding = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);				
 				return methodBinding;
 			}
-			MethodBinding[] methods = receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
+			MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT);
 			if (methods == NoMethods)
 				return new ProblemMethodBinding(
-					ConstructorDeclaration.ConstantPoolName,
+					TypeConstants.INIT,
 					argumentTypes,
 					NotFound);
 	
@@ -1499,7 +1499,7 @@ public abstract class Scope
 			}
 			if (compatibleIndex == 0) {
 				if (problemMethod == null)
-					return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, argumentTypes, NotFound);
+					return new ProblemMethodBinding(TypeConstants.INIT, argumentTypes, NotFound);
 				return problemMethod;
 			}
 			// need a more descriptive error... cannot convert from X to Y
@@ -1515,7 +1515,7 @@ public abstract class Scope
 			if (visibleIndex == 0)
 				return new ProblemMethodBinding(
 					compatible[0],
-					ConstructorDeclaration.ConstantPoolName,
+					TypeConstants.INIT,
 					compatible[0].parameters,
 					NotVisible);
 			return mostSpecificClassMethodBinding(visible, visibleIndex, invocationSite);
@@ -1832,7 +1832,14 @@ public abstract class Scope
 		problemReporter().isClassPathCorrect(JAVA_LANG_CLONEABLE, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
-
+	public final ReferenceBinding getJavaLangEnum() {
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ENUM);
+		ReferenceBinding type = environment().getType(JAVA_LANG_ENUM);
+		if (type != null) return type;
+	
+		problemReporter().isClassPathCorrect(JAVA_LANG_ENUM, referenceCompilationUnit());
+		return null; // will not get here since the above error aborts the compilation
+	}
 	public final ReferenceBinding getJavaLangError() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ERROR);
 		ReferenceBinding type = environment().getType(JAVA_LANG_ERROR);
@@ -1947,7 +1954,7 @@ public abstract class Scope
 	*/
 	public final Binding getPackage(char[][] compoundName) {
 		compilationUnitScope().recordQualifiedReference(compoundName);
-		Binding binding = getTypeOrPackage(compoundName[0], TYPE | PACKAGE);
+		Binding binding = getTypeOrPackage(compoundName[0], Binding.TYPE | Binding.PACKAGE);
 		if (binding == null)
 			return new ProblemReferenceBinding(compoundName[0], NotFound);
 		if (!binding.isValidBinding())
@@ -1984,7 +1991,7 @@ public abstract class Scope
 		// Would like to remove this test and require senders to specially handle base types
 		TypeBinding binding = getBaseType(name);
 		if (binding != null) return binding;
-		return (ReferenceBinding) getTypeOrPackage(name, TYPE);
+		return (ReferenceBinding) getTypeOrPackage(name, Binding.TYPE);
 	}
 
 	/* Answer the type binding that corresponds to the given name, starting the lookup in the receiver
@@ -2028,7 +2035,7 @@ public abstract class Scope
 
 		compilationUnitScope().recordQualifiedReference(compoundName);
 		Binding binding =
-			getTypeOrPackage(compoundName[0], typeNameLength == 1 ? TYPE : TYPE | PACKAGE);
+			getTypeOrPackage(compoundName[0], typeNameLength == 1 ? Binding.TYPE : Binding.TYPE | Binding.PACKAGE);
 		if (binding == null)
 			return new ProblemReferenceBinding(compoundName[0], NotFound);
 		if (!binding.isValidBinding())
@@ -2093,7 +2100,7 @@ public abstract class Scope
 		Scope scope = this;
 		ReferenceBinding foundType = null;
 		boolean insideStaticContext = false;
-		if ((mask & TYPE) == 0) {
+		if ((mask & Binding.TYPE) == 0) {
 			Scope next = scope;
 			while ((next = scope.parent) != null)
 				scope = next;
@@ -2182,7 +2189,7 @@ public abstract class Scope
 		CompilationUnitScope unitScope = (CompilationUnitScope) scope;
 		PackageBinding currentPackage = unitScope.fPackage; 
 		// ask for the imports + name
-		if ((mask & TYPE) != 0) {
+		if ((mask & Binding.TYPE) != 0) {
 			// check single type imports.
 
 			ImportBinding[] imports = unitScope.imports;
@@ -2249,7 +2256,7 @@ public abstract class Scope
 		}
 
 		unitScope.recordSimpleReference(name);
-		if ((mask & PACKAGE) != 0) {
+		if ((mask & Binding.PACKAGE) != 0) {
 			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
 			if (packageBinding != null) return packageBinding;
 		}
@@ -2269,7 +2276,7 @@ public abstract class Scope
 			TypeBinding binding = getBaseType(compoundName[0]);
 			if (binding != null) return binding;
 		}
-		Binding binding = getTypeOrPackage(compoundName[0], TYPE | PACKAGE);
+		Binding binding = getTypeOrPackage(compoundName[0], Binding.TYPE | Binding.PACKAGE);
 		if (!binding.isValidBinding()) return binding;
 
 		int currentIndex = 1;

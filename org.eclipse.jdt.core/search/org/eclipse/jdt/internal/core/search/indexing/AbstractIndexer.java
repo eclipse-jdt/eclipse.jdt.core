@@ -65,6 +65,20 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addTypeReference(simpleTypeName);
 		addIndexEntry(CONSTRUCTOR_REF, ConstructorPattern.createIndexKey(simpleTypeName, argCount));
 	}
+	public void addEnumDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, ENUM_SUFFIX));
+
+		if (superinterfaces != null) {
+			for (int i = 0, max = superinterfaces.length; i < max; i++) {
+				char[] superinterface = erasure(superinterfaces[i]);
+				addTypeReference(superinterface);
+				addIndexEntry(
+					SUPER_REF,
+					SuperTypeReferencePattern.createIndexKey(
+						modifiers, packageName, name, enclosingTypeNames, INTERFACE_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+			}
+		}
+	}	
 	public void addFieldDeclaration(char[] typeName, char[] fieldName) {
 		addIndexEntry(FIELD_DECL, FieldPattern.createIndexKey(fieldName));
 		addTypeReference(typeName);

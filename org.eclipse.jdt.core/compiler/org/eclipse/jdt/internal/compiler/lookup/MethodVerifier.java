@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -210,7 +211,7 @@ For each inherited method identifier (message pattern - vm signature minus the r
 					complain about missing implementation only if type is NOT an interface or abstract
 */
 void checkMethods() {
-	boolean mustImplementAbstractMethods = this.type.isClass() && !this.type.isAbstract();
+	boolean mustImplementAbstractMethods = ((this.type.modifiers & IConstants.AccInterface) == 0) && !this.type.isAbstract();
 	boolean skipInheritedMethods = mustImplementAbstractMethods && this.type.superInterfaces() == NoSuperInterfaces
 		&& this.type.superclass() != null && !this.type.superclass().isAbstract(); // have a single concrete superclass so only check overridden methods
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
@@ -314,8 +315,8 @@ void computeInheritedMethods() {
 	if (itsInterfaces != NoSuperInterfaces)
 		interfacesToVisit[++lastPosition] = itsInterfaces;
 
-	ReferenceBinding superType = this.type.isClass()
-		? this.type.superclass()
+	ReferenceBinding superType = (this.type.modifiers & IConstants.AccInterface) == 0
+		? this.type.superclass() // class or enum
 		: this.type.scope.getJavaLangObject(); // check interface methods against Object
 	HashtableOfObject nonVisibleDefaultMethods = new HashtableOfObject(3); // maps method selectors to an array of methods
 	boolean allSuperclassesAreAbstract = true;

@@ -1156,7 +1156,9 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
-		buf.append("    enum MyEnum {a,b,c}\n");
+		buf.append("    enum MyEnum {\n");
+		buf.append("        a, b, c\n");
+		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());		
 	}

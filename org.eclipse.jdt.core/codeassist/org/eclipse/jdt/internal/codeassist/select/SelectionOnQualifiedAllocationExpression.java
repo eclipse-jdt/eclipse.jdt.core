@@ -45,7 +45,7 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 	}
 	
 	public SelectionOnQualifiedAllocationExpression(TypeDeclaration anonymous) {
-		anonymousType = anonymous ;
+		super(anonymous);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {

@@ -20,6 +20,8 @@ public class CaseStatement extends Statement {
 	
 	public Expression constantExpression;
 	public CaseLabel targetLabel;
+	boolean isEnumConstant;
+	
 	public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
 		this.constantExpression = constantExpression;
 		this.sourceEnd = sourceEnd;
@@ -32,7 +34,7 @@ public class CaseStatement extends Statement {
 		FlowInfo flowInfo) {
 
 		if (constantExpression != null) {
-			if (constantExpression.constant == NotAConstant) {
+			if (!this.isEnumConstant && constantExpression.constant == NotAConstant) {
 				currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
 			}
 			this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
@@ -73,9 +75,13 @@ public class CaseStatement extends Statement {
 		// no-op : should use resolveCase(...) instead.
 	}
 
+	/**
+	 * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
+	 * @see org.eclipse.jdt.internal.compiler.ast.Statement#resolveCase(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.ast.SwitchStatement)
+	 */
 	public Constant resolveCase(
 		BlockScope scope,
-		TypeBinding switchType,
+		TypeBinding switchExpressionType,
 		SwitchStatement switchStatement) {
 
 	    scope.switchCase = this; // record entering in a switch case block
@@ -87,18 +93,26 @@ public class CaseStatement extends Statement {
 	
 			// on error the last default will be the selected one ...	
 			switchStatement.defaultCase = this;
-			return null;
+			return NotAConstant;
 		}
 		// add into the collection of cases of the associated switch statement
 		switchStatement.cases[switchStatement.caseCount++] = this;
 		TypeBinding caseType = constantExpression.resolveType(scope);
-		if (caseType == null || switchType == null) return null;
-		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchType))
-			return constantExpression.constant;
-		if (caseType.isCompatibleWith(switchType))
-			return constantExpression.constant;
-		scope.problemReporter().typeMismatchError(caseType, switchType, constantExpression);
-		return null;
+		if (caseType == null || switchExpressionType == null) return NotAConstant;
+		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)
+				|| caseType.isCompatibleWith(switchExpressionType)) {
+			if (caseType.isEnum()) {
+				this.isEnumConstant = true;
+				if (constantExpression instanceof NameReference
+						&& (constantExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
+					return Constant.fromValue(((NameReference)constantExpression).fieldBinding().id); // ordinal value
+				}
+			} else {
+				return constantExpression.constant;
+			}
+		}
+		scope.problemReporter().typeMismatchError(caseType, switchExpressionType, constantExpression);
+		return NotAConstant;
 	}
 
 

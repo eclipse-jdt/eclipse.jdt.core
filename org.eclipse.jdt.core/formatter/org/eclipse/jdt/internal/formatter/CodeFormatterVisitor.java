@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration;
@@ -48,8 +49,6 @@ import org.eclipse.jdt.internal.compiler.ast.ContinueStatement;
 import org.eclipse.jdt.internal.compiler.ast.DoStatement;
 import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
 import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
-import org.eclipse.jdt.internal.compiler.ast.EnumConstant;
-import org.eclipse.jdt.internal.compiler.ast.EnumDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -105,6 +104,7 @@ import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -350,6 +350,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			int previousFieldStart = -1;
 			do {
 				if (fieldStart < methodStart && fieldStart < typeStart) {
+					if (field.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						// filter out enum constants
+						previousFieldStart = fieldStart;
+						if (++fieldIndex < fieldCount) { // find next field if any
+							fieldStart = (field = typeDeclaration.fields[fieldIndex]).declarationSourceStart;
+						} else {
+							fieldStart = Integer.MAX_VALUE;
+						}
+						continue;
+					}
 					// next member is a field
 					if (fieldStart == previousFieldStart){ 
 						ASTNode previousMember = members[index - 1];
@@ -877,11 +887,22 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Type name
 		 */
-		if (typeDeclaration.isInterface()) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameinterface, true); 
-		} else {
-			this.scribe.printNextToken(TerminalTokens.TokenNameclass, true); 
-		}
+        switch(typeDeclaration.getKind()) {
+        	case IGenericType.CLASS :
+				this.scribe.printNextToken(TerminalTokens.TokenNameclass, true); 
+        		break;
+        	case IGenericType.INTERFACE :
+				this.scribe.printNextToken(TerminalTokens.TokenNameinterface, true); 
+        		break;
+        	case IGenericType.ENUM :
+				this.scribe.printNextToken(TerminalTokens.TokenNameenum, true); 
+        		break;
+        	case IGenericType.ANNOTATION_TYPE :
+        		// TODO (olivier) need to be merged with format(AnnotationTypeDecl)
+				this.scribe.printNextToken(TerminalTokens.TokenNameAT, this.preferences.insert_space_before_at_in_annotation_type_declaration);
+				this.scribe.printNextToken(TerminalTokens.TokenNameinterface, this.preferences.insert_space_after_at_in_annotation_type_declaration); 
+        		break;
+        }
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
 
 		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
@@ -938,11 +959,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 */
 		final TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 		if (superInterfaces != null) {
-			
+			int alignment_for_superinterfaces;
+			switch(typeDeclaration.getKind()) {
+				case IGenericType.ENUM :
+					alignment_for_superinterfaces = this.preferences.alignment_for_superinterfaces_in_enum_declaration;
+					break;
+				default:
+					alignment_for_superinterfaces = this.preferences.alignment_for_superinterfaces_in_type_declaration;
+					break;
+			}
 			int superInterfaceLength = superInterfaces.length;
 			Alignment interfaceAlignment =this.scribe.createAlignment(
 					"superInterfaces",//$NON-NLS-1$
-					this.preferences.alignment_for_superinterfaces_in_type_declaration,
+					alignment_for_superinterfaces,
 					superInterfaceLength+1,  // implements token is first fragment
 					this.scribe.scanner.currentPosition);
 			this.scribe.enterAlignment(interfaceAlignment);
@@ -950,7 +979,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			do {
 				try {
 					this.scribe.alignFragment(interfaceAlignment, 0);
-					if (typeDeclaration.isInterface()) {
+					if (typeDeclaration.getKind() == IGenericType.INTERFACE) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);
 					} else  {
 						this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
@@ -981,20 +1010,69 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Type body
 		 */
-		String class_declaration_brace = this.preferences.brace_position_for_type_declaration;
-
+		String class_declaration_brace;
+		boolean space_before_opening_brace;
+		switch(typeDeclaration.getKind()) {
+			case IGenericType.ENUM :
+				class_declaration_brace = this.preferences.brace_position_for_enum_declaration;
+				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_enum_declaration;
+				break;
+			default:
+				class_declaration_brace = this.preferences.brace_position_for_type_declaration;
+				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_type_declaration;
+				break;
+		}
         formatLeftCurlyBrace(line, class_declaration_brace);
-		formatTypeOpeningBrace(class_declaration_brace, this.preferences.insert_space_before_opening_brace_in_type_declaration, typeDeclaration);
+		formatTypeOpeningBrace(class_declaration_brace, space_before_opening_brace, typeDeclaration);
 		
-		if (this.preferences.indent_body_declarations_compare_to_type_header) {
+		
+		boolean indent_body_declarations_compare_to_header;
+		switch(typeDeclaration.getKind()) {
+			case IGenericType.ENUM :
+				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_enum_declaration_header;
+				break;
+			default:
+				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_type_header;
+				break;
+		}		
+		if (indent_body_declarations_compare_to_header) {
 			this.scribe.indent();
+		}
+		
+		if (typeDeclaration.getKind() == IGenericType.ENUM) {
+			FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
+			if (fieldDeclarations != null) {
+				int length = fieldDeclarations.length;
+				loop: for (int i = 0; i < length; i++) {
+					FieldDeclaration fieldDeclaration = fieldDeclarations[i];
+					if (fieldDeclaration.getKind() != AbstractVariableDeclaration.ENUM_CONSTANT) {
+						break loop;
+					}
+					if (i < length) {
+						fieldDeclaration.traverse(this, typeDeclaration.initializerScope);
+					}
+					if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
+						if (this.preferences.insert_space_after_comma_in_enum_declarations) {
+							this.scribe.space();
+						}
+						this.scribe.printTrailingComment();
+					}
+				}
+			} else {
+				this.scribe.printNewLine();
+			}
+			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printTrailingComment();
+			}
 		}
 
 		formatTypeMembers(typeDeclaration);
 
 		this.scribe.printComment();
 		
-		if (this.preferences.indent_body_declarations_compare_to_type_header) {
+		if (indent_body_declarations_compare_to_header) {
 			this.scribe.unIndent();
 		}
 		
@@ -1035,30 +1113,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		memberTypeDeclaration.traverse(this, scope);
 	}
 	
-	private void format(
-			EnumDeclaration enumDeclaration,
-			ClassScope scope,
-			boolean isChunkStart,
-			boolean isFirstClassBodyDeclaration) {
-
-		if (isFirstClassBodyDeclaration) {
-			int newLinesBeforeFirstClassBodyDeclaration = this.preferences.blank_lines_before_first_class_body_declaration;
-			if (newLinesBeforeFirstClassBodyDeclaration > 0) {
-				this.scribe.printEmptyLines(newLinesBeforeFirstClassBodyDeclaration);
-			}
-		} else {
-			int newLineBeforeChunk = isChunkStart ? this.preferences.blank_lines_before_new_chunk : 0;
-			if (newLineBeforeChunk > 0) {
-				this.scribe.printEmptyLines(newLineBeforeChunk);
-			}
-			final int newLinesBeforeMember = this.preferences.blank_lines_before_member_type;
-			if (newLinesBeforeMember > 0) {
-				this.scribe.printEmptyLines(newLinesBeforeMember);
-			}
-		}
-		enumDeclaration.traverse(this, scope);
-	}
-
 	private void formatAnonymousTypeDeclaration(TypeDeclaration typeDeclaration) {
 		/*
 		 * Type body
@@ -1574,7 +1628,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	private void formatEnumConstantArguments(
-			EnumConstant enumConstant,
+			FieldDeclaration enumConstant,
 			boolean spaceBeforeOpenParen, 
 			boolean spaceBetweenEmptyParameters,
 			boolean spaceBeforeClosingParen, 
@@ -1588,7 +1642,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeOpenParen); 
-		final Expression[] arguments = enumConstant.arguments;
+		final Expression[] arguments = ((AllocationExpression) enumConstant.initialization).arguments;
 		if (arguments != null) {
 			int argumentLength = arguments.length;
 			Alignment argumentsAlignment = this.scribe.createAlignment(
@@ -1765,7 +1819,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					ASTNode member = members[i];
 					if (member instanceof FieldDeclaration) {
 						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_FIELD, i, this.scribe.scanner.currentPosition);
-						if (member instanceof MultiFieldDeclaration){
+						if (member instanceof MultiFieldDeclaration) {
 							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
 							
 							if (multiField.isStatic()) {
@@ -1803,9 +1857,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					} else if (member instanceof TypeDeclaration) {
 						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_TYPE, i, this.scribe.scanner.currentPosition);
 						format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart, i == 0);
-					} else if (member instanceof EnumDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_ENUM, i, this.scribe.scanner.currentPosition);
-						format((EnumDeclaration) member, typeDeclaration.scope, isChunkStart, i == 0);						
 					}
 					if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -3107,7 +3158,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printTrailingComment();
 		return false;	
 	}
-	public boolean visit(EnumConstant enumConstant, ClassScope scope) {
+	// field is an enum constant
+	public boolean visit(FieldDeclaration enumConstant, MethodScope scope) {
         /*
          * Print comments to get proper line number
          */
@@ -3126,385 +3178,49 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.preferences.insert_space_after_comma_in_enum_constant_arguments,
 			this.preferences.alignment_for_arguments_in_enum_constant);			
 		
-		int fieldsCount = enumConstant.fields == null ? 0 : enumConstant.fields.length;
-		int methodsCount = enumConstant.methods == null ? 0 : enumConstant.methods.length;
-		int enumsCount = enumConstant.enums == null ? 0 : enumConstant.enums.length;
-		int membersCount = enumConstant.memberTypes == null ? 0 : enumConstant.memberTypes.length;
-		
-		if (fieldsCount != 0 || methodsCount != 0 || membersCount != 0 || enumsCount != 0) {
-			/*
-			 * Type body
-			 */
-			String enum_constant_brace = this.preferences.brace_position_for_enum_constant;
-	
-	        formatLeftCurlyBrace(line, enum_constant_brace);
-			formatTypeOpeningBrace(enum_constant_brace, this.preferences.insert_space_before_opening_brace_in_enum_constant, enumConstant);
+		Expression initialization = enumConstant.initialization;
+		if (initialization instanceof QualifiedAllocationExpression) {
+			TypeDeclaration typeDeclaration = ((QualifiedAllocationExpression) initialization).anonymousType;
+			int fieldsCount = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length;
+			int methodsCount = typeDeclaration.methods == null ? 0 : typeDeclaration.methods.length;
+			int membersCount = typeDeclaration.memberTypes == null ? 0 : typeDeclaration.memberTypes.length;
 			
-			if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
-				this.scribe.indent();
-			}
-	
-			formatTypeMembers(enumConstant);
-	
-			this.scribe.printComment();
-			
-			if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
-				this.scribe.unIndent();
-			}
-			
-			if (this.preferences.insert_new_line_in_empty_enum_constant) {
-				this.scribe.printNewLine();
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-			this.scribe.printTrailingComment();
-			if (enum_constant_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
-				this.scribe.unIndent();
-			}
-			if (hasComments()) {
-				this.scribe.printNewLine();
-			}
-		}
-		return false;
-	}
-	public boolean visit(EnumDeclaration enumDeclaration, BlockScope scope) {
-        /*
-         * Print comments to get proper line number
-         */
-        this.scribe.printComment();
-        final int line = this.scribe.line; 
-        
-        this.scribe.printModifiers(enumDeclaration.annotations, this);
-		this.scribe.printNextToken(TerminalTokens.TokenNameenum, true); 
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
-
-		/* 
-		 * Super Interfaces 
-		 */
-		final TypeReference[] superInterfaces = enumDeclaration.superInterfaces;
-		if (superInterfaces != null) {
-			int superInterfaceLength = superInterfaces.length;
-			Alignment interfaceAlignment =this.scribe.createAlignment(
-					"superInterfaces",//$NON-NLS-1$
-					this.preferences.alignment_for_superinterfaces_in_enum_declaration,
-					superInterfaceLength+1,  // implements token is first fragment
-					this.scribe.scanner.currentPosition);
-			this.scribe.enterAlignment(interfaceAlignment);
-			boolean ok = false;
-			do {
-				try {
-					this.scribe.alignFragment(interfaceAlignment, 0);
-					this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
-					for (int i = 0; i < superInterfaceLength; i++) {
-						if (i > 0) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_superinterfaces);
-							this.scribe.printTrailingComment();
-							this.scribe.alignFragment(interfaceAlignment, i + 1);
-							if (this.preferences.insert_space_after_comma_in_superinterfaces) {
-								this.scribe.space();
-							}
-							superInterfaces[i].traverse(this, scope);
-						} else {
-							this.scribe.alignFragment(interfaceAlignment, i + 1);
-							this.scribe.space();
-							superInterfaces[i].traverse(this, scope);
-						}
-					}
-					ok = true;
-				} catch (AlignmentException e) {
-					this.scribe.redoAlignment(e);
+			if (fieldsCount != 0 || methodsCount != 0 || membersCount != 0) {
+				/*
+				 * Type body
+				 */
+				String enum_constant_brace = this.preferences.brace_position_for_enum_constant;
+		
+		        formatLeftCurlyBrace(line, enum_constant_brace);
+				formatTypeOpeningBrace(enum_constant_brace, this.preferences.insert_space_before_opening_brace_in_enum_constant, typeDeclaration);
+				
+				if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
+					this.scribe.indent();
 				}
-			} while (!ok);
-			this.scribe.exitAlignment(interfaceAlignment, true);
-		}
-
-		/*
-		 * Type body
-		 */
-		String enum_declaration_brace = this.preferences.brace_position_for_enum_declaration;
-
-        formatLeftCurlyBrace(line, enum_declaration_brace);
-		formatTypeOpeningBrace(enum_declaration_brace, this.preferences.insert_space_before_opening_brace_in_enum_declaration, enumDeclaration);
 		
-		if (this.preferences.indent_body_declarations_compare_to_type_header) {
-			this.scribe.indent();
-		}
-
-		EnumConstant[] enumConstants = enumDeclaration.enumConstants;
-		if (enumConstants != null) {
-			int length = enumConstants.length;
-			for (int i = 0; i < length; i++) {
-				if (i < length - 1) {
-					enumConstants[i].traverse(this, enumDeclaration.scope);					
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
-					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
-						this.scribe.space();
-					}
-					this.scribe.printTrailingComment();
-				} else if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
-					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
-						this.scribe.space();
-					}
-					this.scribe.printTrailingComment();
+				formatTypeMembers(typeDeclaration);
+		
+				this.scribe.printComment();
+				
+				if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
+					this.scribe.unIndent();
 				}
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
-		} else {
-			this.scribe.printNewLine();
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
-		}
-		
-		formatTypeMembers(enumDeclaration);
-
-		this.scribe.printComment();
-		
-		if (this.preferences.indent_body_declarations_compare_to_enum_declaration_header) {
-			this.scribe.unIndent();
-		}
-		
-		if (this.preferences.insert_new_line_in_empty_enum_declaration) {
-			this.scribe.printNewLine();
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-		this.scribe.printTrailingComment();
-		if (enum_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
-			this.scribe.unIndent();
-		}
-		if (hasComments()) {
-			this.scribe.printNewLine();
-		}
-		return false;
-	}
-	public boolean visit(EnumDeclaration enumDeclaration, ClassScope scope) {
-        /*
-         * Print comments to get proper line number
-         */
-        this.scribe.printComment();
-        final int line = this.scribe.line; 
-        
-        this.scribe.printModifiers(enumDeclaration.annotations, this);
-		this.scribe.printNextToken(TerminalTokens.TokenNameenum, true); 
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
-
-		/* 
-		 * Super Interfaces 
-		 */
-		final TypeReference[] superInterfaces = enumDeclaration.superInterfaces;
-		if (superInterfaces != null) {
-			int superInterfaceLength = superInterfaces.length;
-			Alignment interfaceAlignment =this.scribe.createAlignment(
-					"superInterfaces",//$NON-NLS-1$
-					this.preferences.alignment_for_superinterfaces_in_enum_declaration,
-					superInterfaceLength+1,  // implements token is first fragment
-					this.scribe.scanner.currentPosition);
-			this.scribe.enterAlignment(interfaceAlignment);
-			boolean ok = false;
-			do {
-				try {
-					this.scribe.alignFragment(interfaceAlignment, 0);
-					this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
-					for (int i = 0; i < superInterfaceLength; i++) {
-						if (i > 0) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_superinterfaces);
-							this.scribe.printTrailingComment();
-							this.scribe.alignFragment(interfaceAlignment, i + 1);
-							if (this.preferences.insert_space_after_comma_in_superinterfaces) {
-								this.scribe.space();
-							}
-							superInterfaces[i].traverse(this, scope);
-						} else {
-							this.scribe.alignFragment(interfaceAlignment, i + 1);
-							this.scribe.space();
-							superInterfaces[i].traverse(this, scope);
-						}
-					}
-					ok = true;
-				} catch (AlignmentException e) {
-					this.scribe.redoAlignment(e);
+				
+				if (this.preferences.insert_new_line_in_empty_enum_constant) {
+					this.scribe.printNewLine();
 				}
-			} while (!ok);
-			this.scribe.exitAlignment(interfaceAlignment, true);
-		}
-
-		/*
-		 * Type body
-		 */
-		String enum_declaration_brace = this.preferences.brace_position_for_enum_declaration;
-
-        formatLeftCurlyBrace(line, enum_declaration_brace);
-		formatTypeOpeningBrace(enum_declaration_brace, this.preferences.insert_space_before_opening_brace_in_enum_declaration, enumDeclaration);
-		
-		if (this.preferences.indent_body_declarations_compare_to_type_header) {
-			this.scribe.indent();
-		}
-
-		EnumConstant[] enumConstants = enumDeclaration.enumConstants;
-		if (enumConstants != null) {
-			int length = enumConstants.length;
-			for (int i = 0; i < length; i++) {
-				if (i < length - 1) {
-					enumConstants[i].traverse(this, enumDeclaration.scope);					
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
-					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
-						this.scribe.space();
-					}
-					this.scribe.printTrailingComment();
-				} else if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
-					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
-						this.scribe.space();
-					}
-					this.scribe.printTrailingComment();
-				}
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
-		} else {
-			this.scribe.printNewLine();
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-			this.scribe.printTrailingComment();
-		}
-		
-		formatTypeMembers(enumDeclaration);
-
-		this.scribe.printComment();
-		
-		if (this.preferences.indent_body_declarations_compare_to_enum_declaration_header) {
-			this.scribe.unIndent();
-		}
-		
-		if (this.preferences.insert_new_line_in_empty_enum_declaration) {
-			this.scribe.printNewLine();
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-		this.scribe.printTrailingComment();
-		if (enum_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
-			this.scribe.unIndent();
-		}
-		if (hasComments()) {
-			this.scribe.printNewLine();
-		}
-		return false;
-	}
-	public boolean visit(EnumDeclaration enumDeclaration,
-			CompilationUnitScope scope) {
-        /*
-         * Print comments to get proper line number
-         */
-        this.scribe.printComment();
-        final int line = this.scribe.line; 
-        
-        this.scribe.printModifiers(enumDeclaration.annotations, this);
-		this.scribe.printNextToken(TerminalTokens.TokenNameenum, true); 
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
-
-		/* 
-		 * Super Interfaces 
-		 */
-		final TypeReference[] superInterfaces = enumDeclaration.superInterfaces;
-		if (superInterfaces != null) {
-			int superInterfaceLength = superInterfaces.length;
-			Alignment interfaceAlignment =this.scribe.createAlignment(
-					"superInterfaces",//$NON-NLS-1$
-					this.preferences.alignment_for_superinterfaces_in_enum_declaration,
-					superInterfaceLength+1,  // implements token is first fragment
-					this.scribe.scanner.currentPosition);
-			this.scribe.enterAlignment(interfaceAlignment);
-			boolean ok = false;
-			do {
-				try {
-					this.scribe.alignFragment(interfaceAlignment, 0);
-					this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
-					for (int i = 0; i < superInterfaceLength; i++) {
-						if (i > 0) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_superinterfaces);
-							this.scribe.printTrailingComment();
-							this.scribe.alignFragment(interfaceAlignment, i + 1);
-							if (this.preferences.insert_space_after_comma_in_superinterfaces) {
-								this.scribe.space();
-							}
-							superInterfaces[i].traverse(this, scope);
-						} else {
-							this.scribe.alignFragment(interfaceAlignment, i + 1);
-							this.scribe.space();
-							superInterfaces[i].traverse(this, scope);
-						}
-					}
-					ok = true;
-				} catch (AlignmentException e) {
-					this.scribe.redoAlignment(e);
-				}
-			} while (!ok);
-			this.scribe.exitAlignment(interfaceAlignment, true);
-		}
-
-		/*
-		 * Type body
-		 */
-		String enum_declaration_brace = this.preferences.brace_position_for_enum_declaration;
-
-        formatLeftCurlyBrace(line, enum_declaration_brace);
-		formatTypeOpeningBrace(enum_declaration_brace, this.preferences.insert_space_before_opening_brace_in_enum_declaration, enumDeclaration);
-		
-		if (this.preferences.indent_body_declarations_compare_to_type_header) {
-			this.scribe.indent();
-		}
-
-		EnumConstant[] enumConstants = enumDeclaration.enumConstants;
-		if (enumConstants != null) {
-			int length = enumConstants.length;
-			for (int i = 0; i < length; i++) {
-				enumConstants[i].traverse(this, enumDeclaration.scope);					
-				if (i < length - 1) {
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
-					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
-						this.scribe.space();
-					}
-					this.scribe.printTrailingComment();
-				} else if (isNextToken(TerminalTokens.TokenNameCOMMA)) {
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_enum_declarations);
-					if (this.preferences.insert_space_after_comma_in_enum_declarations) {
-						this.scribe.space();
-					}
-					this.scribe.printTrailingComment();
-				}
-			}
-			if (this.isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 				this.scribe.printTrailingComment();
+				if (enum_constant_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+					this.scribe.unIndent();
+				}
+				if (hasComments()) {
+					this.scribe.printNewLine();
+				}
 			}
-		} else {
-			this.scribe.printNewLine();
-			if (this.isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-				this.scribe.printTrailingComment();
-			}
-		}
-		
-		formatTypeMembers(enumDeclaration);
-
-		this.scribe.printComment();
-		
-		if (this.preferences.indent_body_declarations_compare_to_enum_declaration_header) {
-			this.scribe.unIndent();
-		}
-		
-		if (this.preferences.insert_new_line_in_empty_enum_declaration) {
-			this.scribe.printNewLine();
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-		this.scribe.printTrailingComment();
-		if (enum_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
-			this.scribe.unIndent();
-		}
-		if (hasComments()) {
-			this.scribe.printNewLine();
 		}
 		return false;
 	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.EqualExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */

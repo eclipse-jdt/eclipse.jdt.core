@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -61,12 +62,22 @@ public class NameLookup implements SuffixConstants {
 	/**
 	 * Accept flag for specifying classes.
 	 */
-	public static final int ACCEPT_CLASSES = 0x00000002;
+	public static final int ACCEPT_CLASSES = ASTNode.Bit2;
 
 	/**
 	 * Accept flag for specifying interfaces.
 	 */
-	public static final int ACCEPT_INTERFACES = 0x00000004;
+	public static final int ACCEPT_INTERFACES = ASTNode.Bit3;
+	
+	/**
+	 * Accept flag for specifying enums.
+	 */
+	public static final int ACCEPT_ENUMS = ASTNode.Bit4;
+
+	/**
+	 * Accept flag for specifying annotations.
+	 */
+	public static final int ACCEPT_ANNOTATIONS = ASTNode.Bit5;
 
 	public static boolean VERBOSE = false;
 
@@ -447,6 +458,8 @@ public class NameLookup implements SuffixConstants {
 	 *
 	 * @see #ACCEPT_CLASSES
 	 * @see #ACCEPT_INTERFACES
+	 * @see #ACCEPT_ENUMS
+	 * @see #ACCEPT_ANNOTATIONS
 	 */
 	public IType findType(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags) {
 		if (pkg == null) return null;
@@ -521,6 +534,8 @@ public class NameLookup implements SuffixConstants {
 	 *
 	 * @see #ACCEPT_CLASSES
 	 * @see #ACCEPT_INTERFACES
+	 * @see #ACCEPT_ENUMS
+	 * @see #ACCEPT_ANNOTATIONS
 	 */
 	public IType findType(String name, boolean partialMatch, int acceptFlags) {
 		int index= name.lastIndexOf('.');
@@ -635,6 +650,8 @@ public class NameLookup implements SuffixConstants {
 	 *
 	 * @see #ACCEPT_CLASSES
 	 * @see #ACCEPT_INTERFACES
+	 * @see #ACCEPT_ENUMS
+	 * @see #ACCEPT_ANNOTATIONS
 	 */
 	public void seekTypes(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
 /*		if (VERBOSE) {

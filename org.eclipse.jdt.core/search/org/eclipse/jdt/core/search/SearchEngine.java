@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -602,12 +603,20 @@ public class SearchEngine {
 		return getWorkingCopies();
 	}
 
-	boolean match(char classOrInterface, char[] patternPkg, char[] patternTypeName, int matchRule, boolean isClass, char[] pkg, char[] typeName) {
-		switch(classOrInterface) {
+	boolean match(char patternTypeSuffix, char[] patternPkg, char[] patternTypeName, int matchRule, int typeKind, char[] pkg, char[] typeName) {
+		switch(patternTypeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX :
-				if (!isClass) return false;
+				if (typeKind != IGenericType.CLASS) return false;
+				break;
 			case IIndexConstants.INTERFACE_SUFFIX :
-				if (isClass) return false;
+				if (typeKind != IGenericType.INTERFACE) return false;
+				break;
+			case IIndexConstants.ENUM_SUFFIX :
+				if (typeKind != IGenericType.ENUM) return false;
+				break;
+			case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
+				if (typeKind != IGenericType.ANNOTATION_TYPE) return false;
+				break;
 			case IIndexConstants.TYPE_SUFFIX : // nothing
 		}
 	
@@ -818,23 +827,29 @@ public class SearchEngine {
 	
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 			
-		final char classOrInterface;
+		final char typeSuffix;
 		switch(searchFor){
 			case IJavaSearchConstants.CLASS :
-				classOrInterface = IIndexConstants.CLASS_SUFFIX;
+				typeSuffix = IIndexConstants.CLASS_SUFFIX;
 				break;
 			case IJavaSearchConstants.INTERFACE :
-				classOrInterface = IIndexConstants.INTERFACE_SUFFIX;
+				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.ENUM :
+				typeSuffix = IIndexConstants.ENUM_SUFFIX;
+				break;
+			case IJavaSearchConstants.ANNOTATION_TYPE :
+				typeSuffix = IIndexConstants.ANNOTATION_TYPE_SUFFIX;
 				break;
 			default : 
-				classOrInterface = IIndexConstants.TYPE_SUFFIX;
+				typeSuffix = IIndexConstants.TYPE_SUFFIX;
 				break;
 		}
 		final TypeDeclarationPattern pattern = new TypeDeclarationPattern(
 			packageName,
 			null, // do find member types
 			typeName,
-			classOrInterface,
+			typeSuffix,
 			matchRule);
 		
 		final HashSet workingCopyPaths = new HashSet();
@@ -851,11 +866,19 @@ public class SearchEngine {
 				TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
 				if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
 						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
-					boolean isClass = record.classOrInterface != IIndexConstants.INTERFACE_SUFFIX;
-					if (isClass) {
-						nameRequestor.acceptClass(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath);
-					} else {
+					switch (record.typeSuffix) {
+						case IIndexConstants.CLASS_SUFFIX :
+							nameRequestor.acceptClass(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath);
+							break;
+						case IIndexConstants.INTERFACE_SUFFIX :
 						nameRequestor.acceptInterface(record.pkg, record.simpleName, record.enclosingTypeNames, documentPath);
+							break;
+						case IIndexConstants.ENUM_SUFFIX :
+							// TODO (frederic) need support
+							break;
+						case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
+							// TODO (frederic) need support
+							break;
 					}
 				}
 				return true;
@@ -896,11 +919,30 @@ public class SearchEngine {
 								enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 							}
 							char[] simpleName = type.getElementName().toCharArray();
-							if (match(classOrInterface, packageName, typeName, matchRule, type.isClass(), packageDeclaration, simpleName)) {
-								if (type.isClass()) {
-									nameRequestor.acceptClass(packageDeclaration, simpleName, enclosingTypeNames, path);
-								} else {
-									nameRequestor.acceptInterface(packageDeclaration, simpleName, enclosingTypeNames, path);
+							int kind;
+							if (type.isClass()) {
+								kind = IGenericType.CLASS;
+							} else if (type.isInterface()) {
+								kind = IGenericType.INTERFACE;
+							} else if (type.isEnum()) {
+								kind = IGenericType.ENUM;
+							} else /*if (type.isAnnotation())*/ {
+								kind = IGenericType.ANNOTATION_TYPE;
+							}
+							if (match(typeSuffix, packageName, typeName, matchRule, kind, packageDeclaration, simpleName)) {
+								switch(kind) {
+									case IGenericType.CLASS:
+										nameRequestor.acceptClass(packageDeclaration, simpleName, enclosingTypeNames, path);
+										break;
+									case IGenericType.INTERFACE:
+										nameRequestor.acceptInterface(packageDeclaration, simpleName, enclosingTypeNames, path);
+										break;
+									case IGenericType.ENUM:
+										// TODO need support
+										break;
+									case IGenericType.ANNOTATION_TYPE:
+										// TODO need support
+										break;
 								}
 							}
 						}
@@ -930,17 +972,26 @@ public class SearchEngine {
 									return false; // no local/anonymous type
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
-									if (match(classOrInterface, packageName, typeName, matchRule, !typeDeclaration.isInterface(), packageDeclaration, typeDeclaration.name)) {
-										if (!typeDeclaration.isInterface()) {
-											nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
-										} else {
-											nameRequestor.acceptInterface(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+									if (match(typeSuffix, packageName, typeName, matchRule, typeDeclaration.getKind(), packageDeclaration, typeDeclaration.name)) {
+										switch(typeDeclaration.getKind()) {
+											case IGenericType.CLASS:
+												nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+												break;
+											case IGenericType.INTERFACE:
+												nameRequestor.acceptInterface(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+												break;
+											case IGenericType.ENUM:
+												// TODO need support
+												break;
+											case IGenericType.ANNOTATION_TYPE:
+												// TODO need support
+												break;
 										}
 									}
 									return true;
 								}
 								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-									if (match(classOrInterface, packageName, typeName, matchRule, !memberTypeDeclaration.isInterface(), packageDeclaration, memberTypeDeclaration.name)) {
+									if (match(typeSuffix, packageName, typeName, matchRule, memberTypeDeclaration.getKind(), packageDeclaration, memberTypeDeclaration.name)) {
 										// compute encloising type names
 										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
@@ -953,10 +1004,19 @@ public class SearchEngine {
 											}
 										}
 										// report
-										if (!memberTypeDeclaration.isInterface()) {
-											nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
-										} else {
-											nameRequestor.acceptInterface(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+										switch(memberTypeDeclaration.getKind()) {
+											case IGenericType.CLASS:
+												nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+												break;
+											case IGenericType.INTERFACE:
+												nameRequestor.acceptInterface(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+												break;
+											case IGenericType.ENUM:
+												// TODO need support
+												break;
+											case IGenericType.ANNOTATION_TYPE:
+												// TODO need support
+												break;
 										}
 									}
 									return true;

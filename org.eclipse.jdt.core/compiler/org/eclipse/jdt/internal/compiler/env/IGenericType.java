@@ -11,6 +11,18 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 public interface IGenericType extends IDependent {
+
+	// Type kinds
+	int CLASS = 1;
+	int INTERFACE = 2;
+	int ENUM = 3;	
+	int ANNOTATION_TYPE = 4;
+	
+/**
+ * Returns the kind of this type CLASS, INTERFACE, ENUM, ANNOTATION_TYPE
+ */
+int getKind();
+
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
@@ -24,6 +36,4 @@ int getModifiers();
  */
 
 boolean isBinaryType();
-boolean isClass();
-boolean isInterface();
 }

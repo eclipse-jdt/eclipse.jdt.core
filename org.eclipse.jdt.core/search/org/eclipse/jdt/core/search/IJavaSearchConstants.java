@@ -68,6 +68,18 @@ public interface IJavaSearchConstants {
 	 */
 	int INTERFACE= 6;
 
+	/**
+	 * The searched element is an enum.
+	 * More selective than using TYPE
+	 */
+	int ENUM= 7;
+
+	/**
+	 * The searched element is an annotation type.
+	 * More selective than using TYPE
+	 */
+	int ANNOTATION_TYPE= 8;
+
 	/* Nature of match */
 	
 	/**

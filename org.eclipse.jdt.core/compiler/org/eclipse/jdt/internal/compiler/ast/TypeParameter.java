@@ -21,6 +21,14 @@ public class TypeParameter extends AbstractVariableDeclaration {
     public TypeVariableBinding binding;
 	public TypeReference[] bounds;
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()
+	 */
+	public int getKind() {
+		return TYPE_PARAMETER;
+	}
+
+	
 	public void resolve(ClassScope scope) {
 	    // TODO (philippe) add warning for detecting variable name collisions
 	}

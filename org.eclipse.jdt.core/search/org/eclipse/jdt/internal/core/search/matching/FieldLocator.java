@@ -67,12 +67,16 @@ public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 				referencesLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 	int declarationsLevel = IMPOSSIBLE_MATCH;
-	if (this.pattern.findDeclarations)
-		if (node.isField()) // ignore field initializers
-			if (matchesName(this.pattern.name, node.name))
-				if (matchesTypeReference(((FieldPattern)this.pattern).typeSimpleName, node.type))
-					declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-
+	if (this.pattern.findDeclarations) {
+		switch (node.getKind()) {
+			case AbstractVariableDeclaration.FIELD :
+			case AbstractVariableDeclaration.ENUM_CONSTANT :
+				if (matchesName(this.pattern.name, node.name))
+					if (matchesTypeReference(((FieldPattern)this.pattern).typeSimpleName, node.type))
+						declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				break;
+		}
+	}
 	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 }
 //public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT

@@ -15,7 +15,6 @@ public interface TypeConstants {
 	final char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	final char[] IO = "io".toCharArray(); //$NON-NLS-1$
 	final char[] REFLECT = "reflect".toCharArray(); //$NON-NLS-1$
-	final char[] CharArray_JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
 	final char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
 	final char[] CLONE = "clone".toCharArray(); //$NON-NLS-1$
 	final char[] GETCLASS = "getClass".toCharArray(); //$NON-NLS-1$
@@ -27,6 +26,8 @@ public interface TypeConstants {
 	final char[] WRITEREPLACE = "writeReplace".toCharArray(); //$NON-NLS-1$
 	final char[] READOBJECT = "readObject".toCharArray(); //$NON-NLS-1$
 	final char[] WRITEOBJECT = "writeObject".toCharArray(); //$NON-NLS-1$
+	final char[] CharArray_JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
+	final char[] CharArray_JAVA_LANG_ENUM = "java.lang.Enum".toCharArray(); //$NON-NLS-1$
 	final char[] CharArray_JAVA_IO_OBJECTINPUTSTREAM = "java.io.ObjectInputStream".toCharArray(); //$NON-NLS-1$
 	final char[] CharArray_JAVA_IO_OBJECTOUTPUTSTREAM = "java.io.ObjectOutputStream".toCharArray(); //$NON-NLS-1$
 	final char[] CharArray_JAVA_IO_OBJECTSTREAMFIELD = "java.io.ObjectStreamField".toCharArray(); //$NON-NLS-1$
@@ -38,6 +39,18 @@ public interface TypeConstants {
     final char[] WILDCARD_MINUS = { '-' };
     final char[] WILDCARD_STAR = { '*' };
     final char[] WILDCARD_PLUS = { '+' };
+	final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
+	final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
+	final char[] INT = "int".toCharArray(); //$NON-NLS-1$
+	final char[] LONG = "long".toCharArray(); //$NON-NLS-1$
+	final char[] FLOAT = "float".toCharArray(); //$NON-NLS-1$
+	final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1$
+	final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
+	final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
+	final char[] NULL = "null".toCharArray(); //$NON-NLS-1$
+	final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+    final char[] VALUES = "values".toCharArray(); //$NON-NLS-1$
+    final char[] VALUEOF = "valueOf".toCharArray(); //$NON-NLS-1$
     
 	// Constant compound names
 	final char[][] JAVA_LANG = {JAVA, LANG};
@@ -46,8 +59,10 @@ public interface TypeConstants {
 	final char[][] JAVA_LANG_CLASS = {JAVA, LANG, "Class".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_CLASSNOTFOUNDEXCEPTION = {JAVA, LANG, "ClassNotFoundException".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_CLONEABLE = {JAVA, LANG, "Cloneable".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_ENUM = {JAVA, LANG, "Enum".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_EXCEPTION = {JAVA, LANG, "Exception".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_ERROR = {JAVA, LANG, "Error".toCharArray()}; //$NON-NLS-1$
+	final char[][] JAVA_LANG_ILLEGALARGUMENTEXCEPTION = {JAVA, LANG, "IllegalArgumentException".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_ITERABLE = {JAVA, LANG, "Iterable".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_NOCLASSDEFERROR = {JAVA, LANG, "NoClassDefError".toCharArray()}; //$NON-NLS-1$
 	final char[][] JAVA_LANG_OBJECT = {JAVA, LANG, OBJECT};
@@ -86,4 +101,14 @@ public interface TypeConstants {
 	final ReferenceBinding[] NoSuperInterfaces = new ReferenceBinding[0];
 	final ReferenceBinding[] NoMemberTypes = new ReferenceBinding[0];
 	final TypeVariableBinding[] NoTypeVariables = new TypeVariableBinding[0];
+	
+	// Synthetics
+	final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
+	final char[] CLINIT = "<clinit>".toCharArray(); //$NON-NLS-1$
+	final char[] SYNTHETIC_ENUM_VALUES = "ENUM$VALUES".toCharArray(); //$NON-NLS-1$
+	final char[] SYNTHETIC_ASSERT_DISABLED = "$assertionsDisabled".toCharArray(); //$NON-NLS-1$
+	final char[] SYNTHETIC_CLASS = "class$".toCharArray(); //$NON-NLS-1$
+	final char[] SYNTHETIC_OUTER_LOCAL_PREFIX = "val$".toCharArray(); //$NON-NLS-1$
+	final char[] SYNTHETIC_ENCLOSING_INSTANCE_PREFIX = "this$".toCharArray(); //$NON-NLS-1$
+	final char[] SYNTHETIC_ACCESS_METHOD_PREFIX =  "access$".toCharArray(); //$NON-NLS-1$
 }

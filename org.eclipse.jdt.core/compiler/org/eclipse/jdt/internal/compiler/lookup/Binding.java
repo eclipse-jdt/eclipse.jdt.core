@@ -10,7 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-public abstract class Binding implements BindingIds, CompilerModifiers, ProblemReasons {
+public abstract class Binding implements CompilerModifiers, ProblemReasons {
+	
+	// binding kinds
+	public static final int FIELD = 1;
+	public static final int LOCAL = 2;
+	public static final int VARIABLE = FIELD | LOCAL;
+	public static final int TYPE = 4;
+	public static final int METHOD = 8;
+	public static final int PACKAGE = 16;
+	public static final int IMPORT = 32;
+	
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.
 	*

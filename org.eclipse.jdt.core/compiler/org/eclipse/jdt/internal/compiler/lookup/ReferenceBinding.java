@@ -45,7 +45,7 @@ public MethodBinding[] availableMethods() {
 */
 
 public boolean canBeInstantiated() {
-	return !(isAbstract() || isInterface());
+	return (this.modifiers & (AccAbstract|AccInterface|AccEnum|AccAnnotation)) == 0;
 }
 /* Answer true if the receiver is visible to the invocationPackage.
 */
@@ -246,6 +246,8 @@ public void computeId() {
 				id = T_JavaLangError;
 			else if (CharOperation.equals(typeName, JAVA_LANG_EXCEPTION[2]))
 				id = T_JavaLangException;
+			else if (CharOperation.equals(typeName, JAVA_LANG_ENUM[2]))
+				id = T_JavaLangEnum;
 			return;
 		case 'F' :
 			if (CharOperation.equals(typeName, JAVA_LANG_FLOAT[2]))
@@ -256,6 +258,8 @@ public void computeId() {
 				id = T_JavaLangInteger;
 			else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
 				id = T_JavaLangIterable;
+			else if (CharOperation.equals(typeName, JAVA_LANG_ILLEGALARGUMENTEXCEPTION[2]))
+				id = T_JavaLangIllegalArgumentException;
 			return;
 		case 'L' :
 			if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
@@ -527,6 +531,9 @@ boolean implementsMethod(MethodBinding method) {
 public final boolean isAbstract() {
 	return (modifiers & AccAbstract) != 0;
 }
+public boolean isAnnotationType() {
+	return (modifiers & AccAnnotation) != 0;
+}
 public final boolean isAnonymousType() {
 	return (tagBits & IsAnonymousType) != 0;
 }
@@ -534,7 +541,7 @@ public final boolean isBinaryBinding() {
 	return (tagBits & IsBinaryBinding) != 0;
 }
 public boolean isClass() {
-	return (modifiers & AccInterface) == 0;
+	return (modifiers & (AccInterface|AccAnnotation|AccEnum)) == 0;
 }
 /*
  * Returns true if the type hierarchy is being connected
@@ -575,13 +582,17 @@ public final boolean isDefault() {
 public final boolean isDeprecated() {
 	return (modifiers & AccDeprecated) != 0;
 }
+public boolean isEnum() {
+	return (modifiers & AccEnum) != 0;
+}
 /* Answer true if the receiver is final and cannot be subclassed
 */
 public final boolean isFinal() {
 	return (modifiers & AccFinal) != 0;
 }
 public boolean isInterface() {
-	return (modifiers & AccInterface) != 0;
+	// only consider strict interfaces
+	return (modifiers & (AccInterface | AccAnnotation)) == AccInterface;
 }
 
 /* Answer true if the receiver has private visibility

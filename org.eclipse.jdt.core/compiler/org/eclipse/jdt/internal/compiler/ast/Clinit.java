@@ -20,15 +20,13 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class Clinit extends AbstractMethodDeclaration {
 	
-	public final static char[] ConstantPoolName = "<clinit>".toCharArray(); //$NON-NLS-1$
-
 	private FieldBinding assertionSyntheticFieldBinding = null;
 	private FieldBinding classLiteralSyntheticField = null;
 
 	public Clinit(CompilationResult compilationResult) {
 		super(compilationResult);
 		modifiers = 0;
-		selector = ConstantPoolName;
+		selector = TypeConstants.CLINIT;
 	}
 
 	public void analyseCode(
@@ -163,15 +161,39 @@ public class Clinit extends AbstractMethodDeclaration {
 			jumpLabel.place();
 			codeStream.putstatic(this.assertionSyntheticFieldBinding);
 		}
-		// generate initializers
+		// generate static fields/initializers/enum constants
+		int enumCount = 0;
 		if (declaringType.fields != null) {
 			for (int i = 0, max = declaringType.fields.length; i < max; i++) {
-				FieldDeclaration fieldDecl;
-				if ((fieldDecl = declaringType.fields[i]).isStatic()) {
+				FieldDeclaration fieldDecl = declaringType.fields[i];
+				if (fieldDecl.isStatic()) {
 					fieldDecl.generateCode(staticInitializerScope, codeStream);
+				}
+				if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+					enumCount++;
 				}
 			}
 		}
+		// enum need to initialize $VALUES synthetic cache of enum constants
+		if (enumCount > 0) {
+			if (declaringType.fields != null) {
+				// $VALUES := new <EnumType>[<enumCount>]
+				codeStream.generateInlinedValue(enumCount);
+				codeStream.anewarray(declaringType.binding);
+				for (int i = 0, max = declaringType.fields.length; i < max; i++) {
+					FieldDeclaration fieldDecl = declaringType.fields[i];
+					// $VALUES[i] = <enum-constant-i>
+					if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+						codeStream.dup();
+						codeStream.generateInlinedValue(fieldDecl.binding.id);
+						codeStream.getstatic(fieldDecl.binding);
+						codeStream.aastore();
+					}
+				}
+				codeStream.putstatic(declaringType.enumValuesSyntheticfield);
+			}
+		}
+		
 		if (codeStream.position == 0) {
 			// do not need to output a Clinit if no bytecodes
 			// so we reset the offset inside the byte array contents.
@@ -231,7 +253,6 @@ public class Clinit extends AbstractMethodDeclaration {
 		visitor.endVisit(this, classScope);
 	}
 
-	// 1.4 feature
 	public void setAssertionSupport(FieldBinding assertionSyntheticFieldBinding, boolean needClassLiteralField) {
 
 		this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
@@ -241,7 +262,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			this.scope.outerMostMethodScope().enclosingSourceType();
 		if (needClassLiteralField) {
 			this.classLiteralSyntheticField =
-				sourceType.addSyntheticField(sourceType, scope);
+				sourceType.addSyntheticFieldForClassLiteral(sourceType, scope);
 		}
 	}
 

@@ -139,15 +139,15 @@ public class ClassFile
 		// now we continue to generate the bytes inside the contents array
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
 		contents[contentsOffset++] = (byte) accessFlags;
-		int classNameIndex = constantPool.literalIndex(aType);
+		int classNameIndex = constantPool.literalIndexForType(aType.constantPoolName());
 		contents[contentsOffset++] = (byte) (classNameIndex >> 8);
 		contents[contentsOffset++] = (byte) classNameIndex;
 		int superclassNameIndex;
 		if (aType.isInterface()) {
-			superclassNameIndex = constantPool.literalIndexForJavaLangObject();
+			superclassNameIndex = constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangObjectConstantPoolName);
 		} else {
 			superclassNameIndex =
-				(aType.superclass == null ? 0 : constantPool.literalIndex(aType.superclass));
+				(aType.superclass == null ? 0 : constantPool.literalIndexForType(aType.superclass.constantPoolName()));
 		}
 		contents[contentsOffset++] = (byte) (superclassNameIndex >> 8);
 		contents[contentsOffset++] = (byte) superclassNameIndex;
@@ -156,7 +156,7 @@ public class ClassFile
 		contents[contentsOffset++] = (byte) (interfacesCount >> 8);
 		contents[contentsOffset++] = (byte) interfacesCount;
 		for (int i = 0; i < interfacesCount; i++) {
-			int interfaceIndex = constantPool.literalIndex(superInterfacesBinding[i]);
+			int interfaceIndex = constantPool.literalIndexForType(superInterfacesBinding[i].constantPoolName());
 			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
 			contents[contentsOffset++] = (byte) interfaceIndex;
 		}
@@ -284,14 +284,14 @@ public class ClassFile
 			for (int i = 0; i < numberOfInnerClasses; i++) {
 				ReferenceBinding innerClass = innerClassesBindings[i];
 				int accessFlags = innerClass.getAccessFlags();
-				int innerClassIndex = constantPool.literalIndex(innerClass);
+				int innerClassIndex = constantPool.literalIndexForType(innerClass.constantPoolName());
 				// inner class index
 				contents[contentsOffset++] = (byte) (innerClassIndex >> 8);
 				contents[contentsOffset++] = (byte) innerClassIndex;
 				// outer class index: anonymous and local have no outer class index
 				if (innerClass.isMemberType()) {
 					// member or member of local
-					int outerClassIndex = constantPool.literalIndex(innerClass.enclosingType());
+					int outerClassIndex = constantPool.literalIndexForType(innerClass.enclosingType().constantPoolName());
 					contents[contentsOffset++] = (byte) (outerClassIndex >> 8);
 					contents[contentsOffset++] = (byte) outerClassIndex;
 				} else {
@@ -854,30 +854,38 @@ public class ClassFile
 			completeMethodInfo(methodAttributeOffset, attributeNumber);
 		}
 		// add synthetic methods infos
-		SyntheticAccessMethodBinding[] syntheticAccessMethods = this.referenceBinding.syntheticAccessMethods();
-		if (syntheticAccessMethods != null) {
-			for (int i = 0, max = syntheticAccessMethods.length; i < max; i++) {
-				SyntheticAccessMethodBinding accessMethodBinding = syntheticAccessMethods[i];
-				switch (accessMethodBinding.accessType) {
-					case SyntheticAccessMethodBinding.FieldReadAccess :
+		SyntheticMethodBinding[] syntheticMethods = this.referenceBinding.syntheticMethods();
+		if (syntheticMethods != null) {
+			for (int i = 0, max = syntheticMethods.length; i < max; i++) {
+				SyntheticMethodBinding syntheticMethod = syntheticMethods[i];
+				switch (syntheticMethod.kind) {
+					case SyntheticMethodBinding.FieldReadAccess :
 						// generate a method info to emulate an reading access to
 						// a non-accessible field
-						addSyntheticFieldReadAccessMethod(accessMethodBinding);
+						addSyntheticFieldReadAccessMethod(syntheticMethod);
 						break;
-					case SyntheticAccessMethodBinding.FieldWriteAccess :
+					case SyntheticMethodBinding.FieldWriteAccess :
 						// generate a method info to emulate an writing access to
 						// a non-accessible field
-						addSyntheticFieldWriteAccessMethod(accessMethodBinding);
+						addSyntheticFieldWriteAccessMethod(syntheticMethod);
 						break;
-					case SyntheticAccessMethodBinding.MethodAccess :
-					case SyntheticAccessMethodBinding.SuperMethodAccess :
-					case SyntheticAccessMethodBinding.BridgeMethodAccess :
+					case SyntheticMethodBinding.MethodAccess :
+					case SyntheticMethodBinding.SuperMethodAccess :
+					case SyntheticMethodBinding.BridgeMethod :
 						// generate a method info to emulate an access to a non-accessible method / super-method or bridge method
-						addSyntheticMethodAccessMethod(accessMethodBinding);
+						addSyntheticMethodAccessMethod(syntheticMethod);
 						break;
-					case SyntheticAccessMethodBinding.ConstructorAccess :
+					case SyntheticMethodBinding.ConstructorAccess :
 						// generate a method info to emulate an access to a non-accessible constructor
-						addSyntheticConstructorAccessMethod(accessMethodBinding);
+						addSyntheticConstructorAccessMethod(syntheticMethod);
+						break;
+					case SyntheticMethodBinding.EnumValues :
+						// generate a method info to define <enum>#values()
+						addSyntheticEnumValuesMethod(syntheticMethod);
+						break;
+					case SyntheticMethodBinding.EnumValueOf :
+						// generate a method info to define <enum>#valueOf(String)
+						addSyntheticEnumValueOfMethod(syntheticMethod);
 						break;
 				}
 			}
@@ -1025,12 +1033,87 @@ public class ClassFile
 
 	/**
 	 * INTERNAL USE-ONLY
-	 * Generate the byte for a problem method info that correspond to a synthetic method that
-	 * generate an access to a private constructor.
+	 *  Generate the bytes for a synthetic method that implements Enum#values() for a given enum type
+	 *
+	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
+	 */	
+	public void addSyntheticEnumValuesMethod(SyntheticMethodBinding methodBinding) {
+
+		generateMethodInfoHeader(methodBinding);
+		// We know that we won't get more than 1 attribute: the code attribute 
+		contents[contentsOffset++] = 0;
+		contents[contentsOffset++] = 1;
+		// Code attribute
+		int codeAttributeOffset = contentsOffset;
+		generateCodeAttributeHeader();
+		codeStream.init(this);
+		codeStream.generateSyntheticBodyForEnumValues(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.lineSeparatorPositions);
+//		// add the synthetic attribute
+//		int syntheticAttributeNameIndex =
+//			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
+//		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
+//		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
+//		// the length of a synthetic attribute is equals to 0
+//		contents[contentsOffset++] = 0;
+//		contents[contentsOffset++] = 0;
+//		contents[contentsOffset++] = 0;
+//		contents[contentsOffset++] = 0;
+			
+	}
+
+	/**
+	 * INTERNAL USE-ONLY
+	 *  Generate the bytes for a synthetic method that implements Enum#valueOf(String) for a given enum type
+	 *
+	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
+	 */	
+	public void addSyntheticEnumValueOfMethod(SyntheticMethodBinding methodBinding) {
+
+		generateMethodInfoHeader(methodBinding);
+		// We know that we won't get more than 1 attribute: the code attribute 
+		contents[contentsOffset++] = 0;
+		contents[contentsOffset++] = 1;
+		// Code attribute
+		int codeAttributeOffset = contentsOffset;
+		generateCodeAttributeHeader();
+		codeStream.init(this);
+		codeStream.generateSyntheticBodyForEnumValueOf(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.lineSeparatorPositions);
+//		// add the synthetic attribute
+//		int syntheticAttributeNameIndex =
+//			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
+//		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
+//		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
+//		// the length of a synthetic attribute is equals to 0
+//		contents[contentsOffset++] = 0;
+//		contents[contentsOffset++] = 0;
+//		contents[contentsOffset++] = 0;
+//		contents[contentsOffset++] = 0;
+			
+	}
+		
+	/**
+	 * INTERNAL USE-ONLY
+	 * Generate the bytes for a synthetic method that provides an access to a private constructor.
 	 *
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */
-	public void addSyntheticConstructorAccessMethod(SyntheticAccessMethodBinding methodBinding) {
+	public void addSyntheticConstructorAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
 		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
 		contents[contentsOffset++] = 0;
@@ -1040,7 +1123,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForConstructorAccess(methodBinding);
-		completeCodeAttributeForSyntheticAccessMethod(
+		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,
 			((SourceTypeBinding) methodBinding.declaringClass)
@@ -1067,7 +1150,7 @@ public class ClassFile
 	 *
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */
-	public void addSyntheticFieldReadAccessMethod(SyntheticAccessMethodBinding methodBinding) {
+	public void addSyntheticFieldReadAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
 		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
 		contents[contentsOffset++] = 0;
@@ -1077,7 +1160,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForFieldReadAccess(methodBinding);
-		completeCodeAttributeForSyntheticAccessMethod(
+		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,
 			((SourceTypeBinding) methodBinding.declaringClass)
@@ -1104,7 +1187,7 @@ public class ClassFile
 	 *
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */
-	public void addSyntheticFieldWriteAccessMethod(SyntheticAccessMethodBinding methodBinding) {
+	public void addSyntheticFieldWriteAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
 		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
 		contents[contentsOffset++] = 0;
@@ -1114,7 +1197,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForFieldWriteAccess(methodBinding);
-		completeCodeAttributeForSyntheticAccessMethod(
+		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,
 			((SourceTypeBinding) methodBinding.declaringClass)
@@ -1136,12 +1219,11 @@ public class ClassFile
 
 	/**
 	 * INTERNAL USE-ONLY
-	 * Generate the byte for a problem method info that correspond to a synthetic method that
-	 * generate an access to a private method.
+	 * Generate the bytes for a synthetic method that provides access to a private method.
 	 *
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */
-	public void addSyntheticMethodAccessMethod(SyntheticAccessMethodBinding methodBinding) {
+	public void addSyntheticMethodAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
 		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
 		contents[contentsOffset++] = 0;
@@ -1151,7 +1233,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForMethodAccess(methodBinding);
-		completeCodeAttributeForSyntheticAccessMethod(
+		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,
 			((SourceTypeBinding) methodBinding.declaringClass)
@@ -1304,9 +1386,9 @@ public class ClassFile
 					int nameIndex;
 					if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
 						/* represents ClassNotFoundException, see class literal access*/
-						nameIndex = constantPool.literalIndexForJavaLangClassNotFoundException();
+						nameIndex = constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangClassNotFoundExceptionConstantPoolName);
 					} else {
-						nameIndex = constantPool.literalIndex(exceptionHandler.exceptionType);
+						nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
 					}
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) nameIndex;
@@ -1616,9 +1698,9 @@ public class ClassFile
 					int nameIndex;
 					if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
 						/* represents denote ClassNotFoundException, see class literal access*/
-						nameIndex = constantPool.literalIndexForJavaLangClassNotFoundException();
+						nameIndex = constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangClassNotFoundExceptionConstantPoolName);
 					} else {
-						nameIndex = constantPool.literalIndex(exceptionHandler.exceptionType);
+						nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
 					}
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) nameIndex;
@@ -2262,8 +2344,8 @@ public class ClassFile
 	 * @param binding org.eclipse.jdt.internal.compiler.lookup.SyntheticAccessMethodBinding
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
-	public void completeCodeAttributeForSyntheticAccessMethod(
-		SyntheticAccessMethodBinding binding,
+	public void completeCodeAttributeForSyntheticMethod(
+		SyntheticMethodBinding binding,
 		int codeAttributeOffset,
 		int[] startLineIndexes) {
 		// reinitialize the contents with the byte modified by the code stream
@@ -2654,7 +2736,7 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) (length >> 8);
 			contents[contentsOffset++] = (byte) length;
 			for (int i = 0; i < length; i++) {
-				int exceptionIndex = constantPool.literalIndex(thrownsExceptions[i]);
+				int exceptionIndex = constantPool.literalIndexForType(thrownsExceptions[i].constantPoolName());
 				contents[contentsOffset++] = (byte) (exceptionIndex >> 8);
 				contents[contentsOffset++] = (byte) exceptionIndex;
 			}

@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredBlock;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredElement;
@@ -117,7 +118,7 @@ public RecoveredElement buildInitialRecoveryState(){
 			for (int i = 0; i < type.fields.length; i++){
 				FieldDeclaration field = type.fields[i];					
 				if (field != null
-						&& !field.isField()
+						&& field.getKind() == AbstractVariableDeclaration.INITIALIZER
 						&& field.declarationSourceStart <= scanner.initialPosition
 						&& scanner.initialPosition <= field.declarationSourceEnd
 						&& scanner.eofPosition <= field.declarationSourceEnd+1){
@@ -904,7 +905,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 		reference = this.createQualifiedAssistNameReference(subset, assistIdentifier(), positions);
 	}
 	reference.bits &= ~ASTNode.RestrictiveFlagMASK;
-	reference.bits |= LOCAL | FIELD;
+	reference.bits |= Binding.LOCAL | Binding.FIELD;
 	
 	assistNode = reference;
 	lastCheckPoint = reference.sourceEnd + 1;

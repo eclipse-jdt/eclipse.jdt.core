@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionRequestorWrapper;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -522,8 +523,8 @@ public boolean isClass() throws JavaModelException {
  * @since 3.0
  */
 public boolean isEnum() throws JavaModelException {
-	// TODO (jerome) - missing implementation - should only return true for enum classes
-	return false;
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	return info.getKind() == IGenericType.ENUM;
 }
 
 /**
@@ -531,8 +532,7 @@ public boolean isEnum() throws JavaModelException {
  */
 public boolean isInterface() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
-	// TODO (jerome) - isInterface should not return true for annotation types
-	return info.isInterface();
+	return info.getKind() == IGenericType.INTERFACE;
 }
 
 /**
@@ -540,8 +540,8 @@ public boolean isInterface() throws JavaModelException {
  * @since 3.0
  */
 public boolean isAnnotation() throws JavaModelException {
-	// TODO (jerome) - missing implementation - should only return true for annotation types
-	return false;
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	return info.getKind() == IGenericType.ANNOTATION_TYPE;
 }
 
 /**

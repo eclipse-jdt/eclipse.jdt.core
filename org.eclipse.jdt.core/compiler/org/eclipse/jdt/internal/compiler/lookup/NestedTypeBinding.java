@@ -91,7 +91,7 @@ public class NestedTypeBinding extends SourceTypeBinding {
 		if (synthLocal == null) return null;
 	
 		if (synthLocal.matchingField == null)
-			synthLocal.matchingField = addSyntheticField(actualOuterLocalVariable);
+			synthLocal.matchingField = addSyntheticFieldForInnerclass(actualOuterLocalVariable);
 		return synthLocal;
 	}
 
@@ -103,7 +103,7 @@ public class NestedTypeBinding extends SourceTypeBinding {
 		if (synthLocal == null) return null;
 	
 		if (synthLocal.matchingField == null)
-			synthLocal.matchingField = addSyntheticField(targetEnclosingType);
+			synthLocal.matchingField = addSyntheticFieldForInnerclass(targetEnclosingType);
 		return synthLocal;
 	}
 

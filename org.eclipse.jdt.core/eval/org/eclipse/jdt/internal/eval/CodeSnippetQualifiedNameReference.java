@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -53,7 +54,7 @@ public CodeSnippetQualifiedNameReference(char[][] sources, long[] positions, int
 public TypeBinding checkFieldAccess(BlockScope scope) {
 	// check for forward references
 	this.bits &= ~RestrictiveFlagMASK; // clear bits
-	this.bits |= FIELD;
+	this.bits |= Binding.FIELD;
 	return getOtherFieldBindings(scope);
 }
 public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
@@ -284,7 +285,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 	TypeBinding lastGenericCast = null;
 	
 	switch (this.bits & RestrictiveFlagMASK) {
-		case FIELD :
+		case Binding.FIELD :
 			lastFieldBinding = (FieldBinding) this.codegenBinding;
 			lastGenericCast = this.genericCast;
 			// if first field is actually constant, we can inline it
@@ -317,7 +318,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 				}				
 			}
 			break;
-		case LOCAL : // reading the first local variable
+		case Binding.LOCAL : // reading the first local variable
 			if (!needValue) break; // no value needed
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			// regular local variable read
@@ -390,7 +391,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
 
 	int length = this.tokens.length;
-	if ((this.bits & FIELD) != 0) {
+	if ((this.bits & Binding.FIELD) != 0) {
 		if (!((FieldBinding) this.binding).isStatic()) { //must check for the static status....
 			if (this.indexOfFirstFieldBinding == 1) {
 				//the field is the first token of the qualified reference....
@@ -422,7 +423,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	
 	// fill the first constant (the one of the binding)
 	this.constant =
-		((this.bits & FIELD) != 0)
+		((this.bits & Binding.FIELD) != 0)
 			? FieldReference.getConstantFor((FieldBinding) this.binding, this, false, scope)
 			: ((VariableBinding) this.binding).constant();
 
@@ -602,7 +603,7 @@ public TypeBinding resolveTypeVisibility(BlockScope scope) {
 	CodeSnippetScope localScope = new CodeSnippetScope(scope);
 	if ((this.codegenBinding = this.binding = localScope.getBinding(this.tokens, this.bits & RestrictiveFlagMASK, this, (ReferenceBinding) this.delegateThis.type)).isValidBinding()) {
 		this.bits &= ~RestrictiveFlagMASK; // clear bits
-		this.bits |= FIELD;
+		this.bits |= Binding.FIELD;
 		return getOtherFieldBindings(scope);
 	}
 	//========error cases===============

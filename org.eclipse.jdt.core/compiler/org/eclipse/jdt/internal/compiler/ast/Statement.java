@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
@@ -41,43 +41,53 @@ public abstract class Statement extends ASTNode {
 		return false;
 	}
 
+	/**
+	 * Generate invocation arguments, considering varargs methods
+	 */
 	public void generateArguments(MethodBinding binding, Expression[] arguments, BlockScope currentScope, CodeStream codeStream) {
+		
 		if (binding.isVarargs()) {
-			// 5 possibilities exist for a call to the vararg method foo(int i, int ... value) : foo(1), foo(1, null), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new int[] {1, 2})
+			// 5 possibilities exist for a call to the vararg method foo(int i, int ... value) : 
+			//      foo(1), foo(1, null), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new int[] {1, 2})
 			TypeBinding[] params = binding.parameters;
-			int lastIndex = params.length - 1;
-			for (int i = 0; i < lastIndex; i++) {
+			int paramLength = params.length;
+			int varArgIndex = paramLength - 1;
+			for (int i = 0; i < varArgIndex; i++) {
 				arguments[i].generateCode(currentScope, codeStream, true);
 			}
 
-			ArrayBinding varArgsType = (ArrayBinding) params[lastIndex]; // parameterType has to be an array type
+			ArrayBinding varArgsType = (ArrayBinding) params[varArgIndex]; // parameterType has to be an array type
 			int argLength = arguments == null ? 0 : arguments.length;
-			if (lastIndex < argLength) { // vararg argument was provided
-				if (params.length == argLength) {
-					TypeBinding lastType = arguments[lastIndex].resolvedType;
-					if (varArgsType.dimensions() == lastType.dimensions() || lastType == NullBinding) {
-						// called with matching array : foo(1, new int[] {1, 2}
-						arguments[lastIndex].generateCode(currentScope, codeStream, true);
-						return;
+
+			generateVarargsArgument: {
+				if (argLength >= paramLength) {
+					// right number of arguments - could be inexact - pass argument as is
+					TypeBinding lastType = arguments[varArgIndex].resolvedType;
+					if (lastType == NullBinding || varArgsType.dimensions() == lastType.dimensions()) {
+						// foo(1, new int[]{2, 3}) or foo(1, null) --> last arg is passed as-is
+						arguments[varArgIndex].generateCode(currentScope, codeStream, true);
+						break generateVarargsArgument;
 					}
+					// right number but not directly compatible or too many arguments - wrap extra into array
+					// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
+					// need to gen elements into an array, then gen each remaining element into created array
+					codeStream.generateInlinedValue(argLength - varArgIndex);
+					codeStream.newArray(varArgsType); // create a mono-dimensional array
+					int elementsTypeID = varArgsType.elementsType().id;
+					for (int i = varArgIndex; i < argLength; i++) {
+						codeStream.dup();
+						codeStream.generateInlinedValue(i - varArgIndex);
+						arguments[i].generateCode(currentScope, codeStream, true);
+						codeStream.arrayAtPut(elementsTypeID, false);
+					}
+				} else { // not enough arguments - pass extra empty array
+					// scenario: foo(1) --> foo(1, new int[0])
+					// generate code for an empty array of parameterType
+					codeStream.generateInlinedValue(0);
+					codeStream.newArray(varArgsType); // create a mono-dimensional array
 				}
-				// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
-				// need to gen elements into an array, then gen each remaining element into created array
-				codeStream.generateInlinedValue(argLength - lastIndex);
-				codeStream.newArray(currentScope, varArgsType); // create a mono-dimensional array
-				int elementsTypeID = varArgsType.elementsType().id;
-				for (int i = 0, max = argLength - lastIndex; i < max; i++) {
-					codeStream.dup();
-					codeStream.generateInlinedValue(i);
-					arguments[i + lastIndex].generateCode(currentScope, codeStream, true);
-					codeStream.arrayAtPut(elementsTypeID, false);
-				}
-			} else {
-				// generate code for an empty array of parameterType
-				codeStream.generateInlinedValue(0);
-				codeStream.newArray(currentScope, varArgsType); // create a mono-dimensional array
 			}
-		} else if (arguments != null) {
+		} else if (arguments != null) { // standard generation for method arguments
 			for (int i = 0, max = arguments.length; i < max; i++)
 				arguments[i].generateCode(currentScope, codeStream, true);
 		}
@@ -111,11 +121,14 @@ public abstract class Statement extends ASTNode {
 
 	public abstract void resolve(BlockScope scope);
 	
+	/**
+	 * Returns case constant associated to this statement (NotAConstant if none)
+	 */
 	public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
 		// statement within a switch that are not case are treated as normal statement.... 
 
 		resolve(scope);
-		return null;
+		return NotAConstant;
 	}
 
 }

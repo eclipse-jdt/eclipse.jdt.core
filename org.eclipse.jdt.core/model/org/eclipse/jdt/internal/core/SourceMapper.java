@@ -604,6 +604,20 @@ public class SourceMapper
 	}
 	
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(int, int, char[], int, int, char[][])
+	 */
+	public void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {
+		enterClass(
+			declarationStart,
+			modifiers,
+			name,
+			nameSourceStart,
+			nameSourceEnd,
+			null,
+			superinterfaces);
+	}
+	
+	/**
 	 * @see ISourceElementRequestor
 	 */
 	public void enterField(
@@ -707,6 +721,13 @@ public class SourceMapper
 	 */
 	public void exitConstructor(int declarationEnd) {
 		exitMethod(declarationEnd);
+	}
+	
+	/**
+	 * @see ISourceElementRequestor
+	 */
+	public void exitEnum(int declarationEnd) {
+		exitClass(declarationEnd);
 	}
 	
 	/**

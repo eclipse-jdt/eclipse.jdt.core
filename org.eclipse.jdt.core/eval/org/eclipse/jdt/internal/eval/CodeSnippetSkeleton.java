@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -129,11 +130,11 @@ public boolean isAnonymous() {
 public boolean isBinaryType() {
 	return true;
 }
-public boolean isClass() {
-	return true;
-}
-public boolean isInterface() {
-	return false;
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
+ */
+public int getKind() {
+	return IGenericType.CLASS;
 }
 public boolean isLocal() {
 	return false;

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -27,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
@@ -541,7 +541,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 */
 
 public Binding getBinding(char[][] compoundName, int mask, InvocationSite invocationSite, ReferenceBinding receiverType) {
-	Binding binding = getBinding(compoundName[0], mask | TYPE | PACKAGE, invocationSite, true /*resolve*/);
+	Binding binding = getBinding(compoundName[0], mask | Binding.TYPE | Binding.PACKAGE, invocationSite, true /*resolve*/);
 	invocationSite.setFieldIndex(1);
 	if (!binding.isValidBinding() || binding instanceof VariableBinding)
 		return binding;
@@ -590,13 +590,13 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 	}
 
-	if ((mask & FIELD) != 0 && (binding instanceof FieldBinding)) { // was looking for a field and found a field
+	if ((mask & Binding.FIELD) != 0 && (binding instanceof FieldBinding)) { // was looking for a field and found a field
 		FieldBinding field = (FieldBinding) binding;
 		if (!field.isStatic())
 			return new ProblemFieldBinding(field.declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
 		return binding;
 	}
-	if ((mask & TYPE) != 0 && (binding instanceof ReferenceBinding)) { // was looking for a type and found a type
+	if ((mask & Binding.TYPE) != 0 && (binding instanceof ReferenceBinding)) { // was looking for a type and found a type
 		return binding;
 	}
 
@@ -620,9 +620,9 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 			return methodBinding;
 		}
 	}
-	MethodBinding[] methods = receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
+	MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT);
 	if (methods == NoMethods) {
-		return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, argumentTypes, NotFound);
+		return new ProblemMethodBinding(TypeConstants.INIT, argumentTypes, NotFound);
 	}
 	MethodBinding[] compatible = new MethodBinding[methods.length];
 	int compatibleIndex = 0;
@@ -632,7 +632,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 			compatible[compatibleIndex++] = compatibleMethod;
 	}
 	if (compatibleIndex == 0)
-		return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, argumentTypes, NotFound); // need a more descriptive error... cannot convert from X to Y
+		return new ProblemMethodBinding(TypeConstants.INIT, argumentTypes, NotFound); // need a more descriptive error... cannot convert from X to Y
 
 	MethodBinding[] visible = new MethodBinding[compatibleIndex];
 	int visibleIndex = 0;
@@ -646,7 +646,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 		return visible[0];
 	}
 	if (visibleIndex == 0) {
-		return new ProblemMethodBinding(compatible[0], ConstructorDeclaration.ConstantPoolName, compatible[0].parameters, NotVisible);
+		return new ProblemMethodBinding(compatible[0], TypeConstants.INIT, compatible[0].parameters, NotVisible);
 	}
 	return mostSpecificClassMethodBinding(visible, visibleIndex, invocationSite);
 }

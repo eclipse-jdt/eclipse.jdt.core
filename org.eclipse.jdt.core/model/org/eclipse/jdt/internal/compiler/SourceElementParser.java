@@ -46,7 +46,6 @@ public class SourceElementParser extends CommentRecorderParser {
 	char[][] typeNames;
 	char[][] superTypeNames;
 	int nestedTypeIndex;
-	static final char[] JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
 	NameReference[] unknownRefs;
 	int unknownRefsCounter;
 	LocalDeclarationVisitor localDeclarationVisitor = null;
@@ -63,8 +62,7 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
 		notifySourceElementRequestor(typeDeclaration, sourceType == null);
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
-	}
-	
+	}	
 }
 
 public SourceElementParser(
@@ -624,10 +622,19 @@ protected FieldDeclaration createFieldDeclaration(char[] fieldName, int sourceSt
 }
 protected CompilationUnitDeclaration endParse(int act) {
 	if (sourceType != null) {
-		if (sourceType.isInterface()) {
-			consumeInterfaceDeclaration();
-		} else {
-			consumeClassDeclaration();
+		switch (sourceType.getKind()) {
+			case IGenericType.CLASS :
+				consumeClassDeclaration();
+				break;
+			case IGenericType.INTERFACE :
+				consumeInterfaceDeclaration();
+				break;
+			case IGenericType.ENUM :
+				consumeEnumDeclaration();
+				break;
+			case IGenericType.ANNOTATION_TYPE :
+				consumeAnnotationTypeDeclaration();
+				break;
 		}
 	}
 	if (compilationUnit != null) {
@@ -773,7 +780,7 @@ public NameReference getUnspecifiedReferenceOptimized() {
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
 		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
-		ref.bits |= LOCAL | FIELD;
+		ref.bits |= Binding.LOCAL | Binding.FIELD;
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
 		}
@@ -799,7 +806,7 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	// sourceStart
 	 (int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 	ref.bits &= ~ASTNode.RestrictiveFlagMASK;
-	ref.bits |= LOCAL | FIELD;
+	ref.bits |= Binding.LOCAL | Binding.FIELD;
 	if (reportReferenceInfo) {
 		this.addUnknownRef(ref);
 	}
@@ -894,8 +901,8 @@ public void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit) 
 private void notifyAllUnknownReferences() {
 	for (int i = 0, max = this.unknownRefsCounter; i < max; i++) {
 		NameReference nameRef = this.unknownRefs[i];
-		if ((nameRef.bits & BindingIds.VARIABLE) != 0) {
-			if ((nameRef.bits & BindingIds.TYPE) == 0) { 
+		if ((nameRef.bits & Binding.VARIABLE) != 0) {
+			if ((nameRef.bits & Binding.TYPE) == 0) { 
 				// variable but not type
 				if (nameRef instanceof SingleNameReference) { 
 					// local var or field
@@ -919,7 +926,7 @@ private void notifyAllUnknownReferences() {
 					requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
 				}
 			}
-		} else if ((nameRef.bits & BindingIds.TYPE) != 0) {
+		} else if ((nameRef.bits & Binding.TYPE) != 0) {
 			if (nameRef instanceof SingleNameReference) {
 				requestor.acceptTypeReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
 			} else {
@@ -1124,55 +1131,57 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 				scanner.initialPosition <= fieldDeclaration.declarationSourceStart
 				&& scanner.eofPosition >= fieldDeclaration.declarationSourceEnd;
 
-	if (fieldDeclaration.isField()) {
-		int fieldEndPosition = fieldDeclaration.declarationSourceEnd;
-		if (fieldDeclaration instanceof SourceFieldDeclaration) {
-			fieldEndPosition = ((SourceFieldDeclaration) fieldDeclaration).fieldEndPosition;
-			if (fieldEndPosition == 0) {
-				// use the declaration source end by default
-				fieldEndPosition = fieldDeclaration.declarationSourceEnd;
+	switch(fieldDeclaration.getKind()) {
+		case AbstractVariableDeclaration.FIELD:
+			int fieldEndPosition = fieldDeclaration.declarationSourceEnd;
+			if (fieldDeclaration instanceof SourceFieldDeclaration) {
+				fieldEndPosition = ((SourceFieldDeclaration) fieldDeclaration).fieldEndPosition;
+				if (fieldEndPosition == 0) {
+					// use the declaration source end by default
+					fieldEndPosition = fieldDeclaration.declarationSourceEnd;
+				}
 			}
-		}
-		if (isInRange) {
-			int currentModifiers = fieldDeclaration.modifiers;
-			boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-			requestor.enterField(
-				fieldDeclaration.declarationSourceStart, 
-				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.'),
-				fieldDeclaration.name, 
-				fieldDeclaration.sourceStart, 
-				fieldDeclaration.sourceEnd); 
-		}
-		this.visitIfNeeded(fieldDeclaration);
-		if (isInRange){
-			requestor.exitField(
-				// filter out initializations that are not a constant (simple check)
-				(fieldDeclaration.initialization == null 
-						|| fieldDeclaration.initialization instanceof ArrayInitializer
-						|| fieldDeclaration.initialization instanceof AllocationExpression
-						|| fieldDeclaration.initialization instanceof ArrayAllocationExpression
-						|| fieldDeclaration.initialization instanceof Assignment
-						|| fieldDeclaration.initialization instanceof ClassLiteralAccess
-						|| fieldDeclaration.initialization instanceof MessageSend
-						|| fieldDeclaration.initialization instanceof ArrayReference
-						|| fieldDeclaration.initialization instanceof ThisReference) ? 
-					-1 :  
-					fieldDeclaration.initialization.sourceStart, 
-				fieldEndPosition,
-				fieldDeclaration.declarationSourceEnd);
-		}
-
-	} else {
-		if (isInRange){
-			requestor.enterInitializer(
-				fieldDeclaration.declarationSourceStart,
-				fieldDeclaration.modifiers); 
-		}
-		this.visitIfNeeded((Initializer)fieldDeclaration);
-		if (isInRange){
-			requestor.exitInitializer(fieldDeclaration.declarationSourceEnd);
-		}
+			if (isInRange) {
+				int currentModifiers = fieldDeclaration.modifiers;
+				boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+				requestor.enterField(
+					fieldDeclaration.declarationSourceStart, 
+					deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
+					CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.'),
+					fieldDeclaration.name, 
+					fieldDeclaration.sourceStart, 
+					fieldDeclaration.sourceEnd); 
+			}
+			this.visitIfNeeded(fieldDeclaration);
+			if (isInRange){
+				requestor.exitField(
+					// filter out initializations that are not a constant (simple check)
+					(fieldDeclaration.initialization == null 
+							|| fieldDeclaration.initialization instanceof ArrayInitializer
+							|| fieldDeclaration.initialization instanceof AllocationExpression
+							|| fieldDeclaration.initialization instanceof ArrayAllocationExpression
+							|| fieldDeclaration.initialization instanceof Assignment
+							|| fieldDeclaration.initialization instanceof ClassLiteralAccess
+							|| fieldDeclaration.initialization instanceof MessageSend
+							|| fieldDeclaration.initialization instanceof ArrayReference
+							|| fieldDeclaration.initialization instanceof ThisReference) ? 
+						-1 :  
+						fieldDeclaration.initialization.sourceStart, 
+					fieldEndPosition,
+					fieldDeclaration.declarationSourceEnd);
+			}
+			break;
+		case AbstractVariableDeclaration.INITIALIZER:
+			if (isInRange){
+				requestor.enterInitializer(
+					fieldDeclaration.declarationSourceStart,
+					fieldDeclaration.modifiers); 
+			}
+			this.visitIfNeeded((Initializer)fieldDeclaration);
+			if (isInRange){
+				requestor.exitInitializer(fieldDeclaration.declarationSourceEnd);
+			}
+			break;
 	}
 }
 public void notifySourceElementRequestor(
@@ -1193,159 +1202,202 @@ public void notifySourceElementRequestor(
 	}
 }
 public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence) {
-	
-	// range check
-	boolean isInRange = 
-				scanner.initialPosition <= typeDeclaration.declarationSourceStart
-				&& scanner.eofPosition >= typeDeclaration.declarationSourceEnd;
-	
-	FieldDeclaration[] fields = typeDeclaration.fields;
-	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-	TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
-	int fieldCounter = fields == null ? 0 : fields.length;
-	int methodCounter = methods == null ? 0 : methods.length;
-	int memberTypeCounter = memberTypes == null ? 0 : memberTypes.length;
-	int fieldIndex = 0;
-	int methodIndex = 0;
-	int memberTypeIndex = 0;
-	boolean isInterface = typeDeclaration.isInterface();
-
-	if (notifyTypePresence){
-		char[][] interfaceNames = null;
-		int superInterfacesLength = 0;
-		TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
-		if (superInterfaces != null) {
-			superInterfacesLength = superInterfaces.length;
-			interfaceNames = new char[superInterfacesLength][];
-		} else {
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
-				// see PR 3442
-				QualifiedAllocationExpression alloc = typeDeclaration.allocation;
-				if (alloc != null && alloc.type != null) {
-					superInterfaces = new TypeReference[] { typeDeclaration.allocation.type};
-					superInterfacesLength = 1;
-					interfaceNames = new char[1][];
-				}
-			}
-		}
-		if (superInterfaces != null) {
-			for (int i = 0; i < superInterfacesLength; i++) {
-				interfaceNames[i] = 
-					CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
-			}
-		}
-		if (isInterface) {
-			if (isInRange){
-				int currentModifiers = typeDeclaration.modifiers;
-				boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-				requestor.enterInterface(
-					typeDeclaration.declarationSourceStart, 
-					deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-					typeDeclaration.name, 
-					typeDeclaration.sourceStart, 
-					sourceEnd(typeDeclaration), 
-					interfaceNames);
-			}
-			notifySourceElementRequestor(typeDeclaration.typeParameters);			
-			if (nestedTypeIndex == typeNames.length) {
-				// need a resize
-				System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-				System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-			}
-			typeNames[nestedTypeIndex] = typeDeclaration.name;
-			superTypeNames[nestedTypeIndex++] = JAVA_LANG_OBJECT;
-		} else {
-			TypeReference superclass = typeDeclaration.superclass;
-			if (superclass == null) {
-				if (isInRange){
-					requestor.enterClass(
-						typeDeclaration.declarationSourceStart, 
-						typeDeclaration.modifiers, 
-						typeDeclaration.name, 
-						typeDeclaration.sourceStart, 
-						sourceEnd(typeDeclaration), 
-						null, 
-						interfaceNames);
-				}
-			} else {
-				if (isInRange){
-					requestor.enterClass(
-						typeDeclaration.declarationSourceStart, 
-						typeDeclaration.modifiers, 
-						typeDeclaration.name, 
-						typeDeclaration.sourceStart, 
-						sourceEnd(typeDeclaration), 
-						CharOperation.concatWith(superclass.getParameterizedTypeName(), '.'), 
-						interfaceNames);
-				}
-			}
-			notifySourceElementRequestor(typeDeclaration.typeParameters);			
-			if (nestedTypeIndex == typeNames.length) {
-				// need a resize
-				System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-				System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-			}
-			typeNames[nestedTypeIndex] = typeDeclaration.name;
-			superTypeNames[nestedTypeIndex++] = superclass == null ? JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
-		}
-	}
-	while ((fieldIndex < fieldCounter)
-		|| (memberTypeIndex < memberTypeCounter)
-		|| (methodIndex < methodCounter)) {
-		FieldDeclaration nextFieldDeclaration = null;
-		AbstractMethodDeclaration nextMethodDeclaration = null;
-		TypeDeclaration nextMemberDeclaration = null;
-
-		int position = Integer.MAX_VALUE;
-		int nextDeclarationType = -1;
-		if (fieldIndex < fieldCounter) {
-			nextFieldDeclaration = fields[fieldIndex];
-			if (nextFieldDeclaration.declarationSourceStart < position) {
-				position = nextFieldDeclaration.declarationSourceStart;
-				nextDeclarationType = 0; // FIELD
-			}
-		}
-		if (methodIndex < methodCounter) {
-			nextMethodDeclaration = methods[methodIndex];
-			if (nextMethodDeclaration.declarationSourceStart < position) {
-				position = nextMethodDeclaration.declarationSourceStart;
-				nextDeclarationType = 1; // METHOD
-			}
-		}
-		if (memberTypeIndex < memberTypeCounter) {
-			nextMemberDeclaration = memberTypes[memberTypeIndex];
-			if (nextMemberDeclaration.declarationSourceStart < position) {
-				position = nextMemberDeclaration.declarationSourceStart;
-				nextDeclarationType = 2; // MEMBER
-			}
-		}
-		switch (nextDeclarationType) {
-			case 0 :
-				fieldIndex++;
-				notifySourceElementRequestor(nextFieldDeclaration);
-				break;
-			case 1 :
-				methodIndex++;
-				notifySourceElementRequestor(nextMethodDeclaration);
-				break;
-			case 2 :
-				memberTypeIndex++;
-				notifySourceElementRequestor(nextMemberDeclaration, true);
-		}
-	}
-	if (notifyTypePresence){
-		if (isInRange){
-			if (isInterface) {
-				requestor.exitInterface(typeDeclaration.declarationSourceEnd);
-			} else {
-				requestor.exitClass(typeDeclaration.declarationSourceEnd);
-			}
-		}
-		nestedTypeIndex--;
-	}
+   
+   // range check
+   boolean isInRange = 
+            scanner.initialPosition <= typeDeclaration.declarationSourceStart
+            && scanner.eofPosition >= typeDeclaration.declarationSourceEnd;
+   
+   FieldDeclaration[] fields = typeDeclaration.fields;
+   AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+   TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
+   int fieldCounter = fields == null ? 0 : fields.length;
+   int methodCounter = methods == null ? 0 : methods.length;
+   int memberTypeCounter = memberTypes == null ? 0 : memberTypes.length;
+   int fieldIndex = 0;
+   int methodIndex = 0;
+   int memberTypeIndex = 0;
+ 
+   if (notifyTypePresence){
+      char[][] interfaceNames = null;
+      int superInterfacesLength = 0;
+      TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+      if (superInterfaces != null) {
+         superInterfacesLength = superInterfaces.length;
+         interfaceNames = new char[superInterfacesLength][];
+      } else {
+         if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+            // see PR 3442
+            QualifiedAllocationExpression alloc = typeDeclaration.allocation;
+            if (alloc != null && alloc.type != null) {
+               superInterfaces = new TypeReference[] { alloc.type};
+               superInterfacesLength = 1;
+               interfaceNames = new char[1][];
+            }
+         }
+      }
+      if (superInterfaces != null) {
+         for (int i = 0; i < superInterfacesLength; i++) {
+            interfaceNames[i] = 
+               CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
+         }
+      }
+      switch (typeDeclaration.getKind()) {
+         case IGenericType.CLASS :
+         case IGenericType.ANNOTATION_TYPE :
+            TypeReference superclass = typeDeclaration.superclass;
+            if (superclass == null) {
+               if (isInRange){
+                  requestor.enterClass(
+                     typeDeclaration.declarationSourceStart, 
+                     typeDeclaration.modifiers, 
+                     typeDeclaration.name, 
+                     typeDeclaration.sourceStart, 
+                     sourceEnd(typeDeclaration), 
+                     null, 
+                     interfaceNames);
+               }
+            } else {
+               if (isInRange){
+                  requestor.enterClass(
+                     typeDeclaration.declarationSourceStart, 
+                     typeDeclaration.modifiers, 
+                     typeDeclaration.name, 
+                     typeDeclaration.sourceStart, 
+                     sourceEnd(typeDeclaration), 
+                     CharOperation.concatWith(superclass.getParameterizedTypeName(), '.'), 
+                     interfaceNames);
+               }
+            }
+            notifySourceElementRequestor(typeDeclaration.typeParameters);         
+            if (nestedTypeIndex == typeNames.length) {
+               // need a resize
+               System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
+               System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
+            }
+            typeNames[nestedTypeIndex] = typeDeclaration.name;
+            superTypeNames[nestedTypeIndex++] = superclass == null ? TypeConstants.CharArray_JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
+            break;
+ 
+         case IGenericType.INTERFACE :
+            if (isInRange){
+               int currentModifiers = typeDeclaration.modifiers;
+               boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+               requestor.enterInterface(
+                  typeDeclaration.declarationSourceStart, 
+                  deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
+                  typeDeclaration.name, 
+                  typeDeclaration.sourceStart, 
+                  sourceEnd(typeDeclaration), 
+                  interfaceNames);
+            }
+            notifySourceElementRequestor(typeDeclaration.typeParameters);         
+            if (nestedTypeIndex == typeNames.length) {
+               // need a resize
+               System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
+               System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
+            }
+            typeNames[nestedTypeIndex] = typeDeclaration.name;
+            superTypeNames[nestedTypeIndex++] = TypeConstants.CharArray_JAVA_LANG_OBJECT;
+            break;
+ 
+         case IGenericType.ENUM :
+ 
+            if (isInRange){
+               int currentModifiers = typeDeclaration.modifiers;
+               boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+               requestor.enterEnum(
+                  typeDeclaration.declarationSourceStart, 
+                  deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
+                  typeDeclaration.name, 
+                  typeDeclaration.sourceStart, 
+                  sourceEnd(typeDeclaration), 
+                  interfaceNames);
+            }
+            notifySourceElementRequestor(typeDeclaration.typeParameters);         
+            if (nestedTypeIndex == typeNames.length) {
+               // need a resize
+               System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
+               System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
+            }
+            typeNames[nestedTypeIndex] = typeDeclaration.name;
+            superTypeNames[nestedTypeIndex++] = TypeConstants.CharArray_JAVA_LANG_ENUM;
+            break;
+ 
+//         case IGenericType.ANNOTATION_TYPE :
+            // TODO need support
+//            break;
+      }      
+   }
+   while ((fieldIndex < fieldCounter)
+      || (memberTypeIndex < memberTypeCounter)
+      || (methodIndex < methodCounter)) {
+      FieldDeclaration nextFieldDeclaration = null;
+      AbstractMethodDeclaration nextMethodDeclaration = null;
+      TypeDeclaration nextMemberDeclaration = null;
+ 
+      int position = Integer.MAX_VALUE;
+      int nextDeclarationType = -1;
+      if (fieldIndex < fieldCounter) {
+         nextFieldDeclaration = fields[fieldIndex];
+         if (nextFieldDeclaration.declarationSourceStart < position) {
+            position = nextFieldDeclaration.declarationSourceStart;
+            nextDeclarationType = 0; // FIELD
+         }
+      }
+      if (methodIndex < methodCounter) {
+         nextMethodDeclaration = methods[methodIndex];
+         if (nextMethodDeclaration.declarationSourceStart < position) {
+            position = nextMethodDeclaration.declarationSourceStart;
+            nextDeclarationType = 1; // METHOD
+         }
+      }
+      if (memberTypeIndex < memberTypeCounter) {
+         nextMemberDeclaration = memberTypes[memberTypeIndex];
+         if (nextMemberDeclaration.declarationSourceStart < position) {
+            position = nextMemberDeclaration.declarationSourceStart;
+            nextDeclarationType = 2; // MEMBER
+         }
+      }
+      switch (nextDeclarationType) {
+         case 0 :
+            fieldIndex++;
+            notifySourceElementRequestor(nextFieldDeclaration);
+            break;
+         case 1 :
+            methodIndex++;
+            notifySourceElementRequestor(nextMethodDeclaration);
+            break;
+         case 2 :
+            memberTypeIndex++;
+            notifySourceElementRequestor(nextMemberDeclaration, true);
+      }
+   }
+   if (notifyTypePresence){
+      if (isInRange){
+         switch (typeDeclaration.getKind()) {
+            case IGenericType.CLASS :
+            case IGenericType.ANNOTATION_TYPE :
+               requestor.exitClass(typeDeclaration.declarationSourceEnd);
+               break;
+            case IGenericType.INTERFACE :
+               requestor.exitInterface(typeDeclaration.declarationSourceEnd);
+               break;
+            case IGenericType.ENUM :
+               requestor.exitEnum(typeDeclaration.declarationSourceEnd);
+               break;
+/*            case IGenericType.ANNOTATION_TYPE :
+               // TODO need support
+               //requestor.exitAnnotationType(typeDeclaration.declarationSourceEnd);
+               break;*/
+         }         
+      }
+      nestedTypeIndex--;
+   }
 }
 private int sourceEnd(TypeDeclaration typeDeclaration) {
 	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+		// TODO for enum constant body, type is null
 		return typeDeclaration.allocation.type.sourceEnd;
 	} else {
 		return typeDeclaration.sourceEnd;

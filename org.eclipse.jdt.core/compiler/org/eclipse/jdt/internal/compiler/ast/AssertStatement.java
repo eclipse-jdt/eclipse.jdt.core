@@ -169,7 +169,7 @@ public class AssertStatement extends Statement {
 			outerMostClass = (SourceTypeBinding) enclosing;
 		}
 
-		this.assertionSyntheticFieldBinding = outerMostClass.addSyntheticField(this, currentScope);
+		this.assertionSyntheticFieldBinding = outerMostClass.addSyntheticFieldForAssert(currentScope);
 
 		// find <clinit> and enable assertion support
 		TypeDeclaration typeDeclaration = outerMostClass.scope.referenceType();

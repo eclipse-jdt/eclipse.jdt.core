@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -53,8 +54,9 @@ public class TypeDeclaration
 	public QualifiedAllocationExpression allocation; // for anonymous only
 	public TypeDeclaration enclosingType; // for member types only
 	
+	public FieldBinding enumValuesSyntheticfield; 	// for enum
+
 	// 1.5 support
-	public EnumDeclaration[] enums;
 	public TypeParameter[] typeParameters;
 	
 	public TypeDeclaration(CompilationResult compilationResult){
@@ -287,7 +289,7 @@ public class TypeDeclaration
 							methods[i] = m;
 						}
 					} else {
-						if (this.isInterface()) {
+						if (this.getKind() == IGenericType.INTERFACE) {
 							// report the problem and continue the parsing
 							parser.problemReporter().interfaceCannotHaveConstructors(
 								(ConstructorDeclaration) am);
@@ -305,7 +307,7 @@ public class TypeDeclaration
 		return this.compilationResult;
 	}
 
-	public ConstructorDeclaration createsInternalConstructor(
+	public ConstructorDeclaration createDefaultConstructor(
 		boolean needExplicitConstructorCall,
 		boolean needToInsert) {
 
@@ -317,7 +319,7 @@ public class TypeDeclaration
 		//the constructor
 		ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
 		constructor.isDefaultConstructor = true;
-		constructor.selector = name;
+		constructor.selector = this.name;
 		if (modifiers != AccDefault) {
 			constructor.modifiers =
 				(((this.bits & ASTNode.IsMemberTypeMASK) != 0) && (modifiers & AccPrivate) != 0)
@@ -358,7 +360,7 @@ public class TypeDeclaration
 	}
 	
 	// anonymous type constructor creation
-	public MethodBinding createsInternalConstructorWithBinding(MethodBinding inheritedConstructorBinding) {
+	public MethodBinding createDefaultConstructorWithBinding(MethodBinding inheritedConstructorBinding) {
 
 		//Add to method'set, the default constuctor that just recall the
 		//super constructor with the same arguments
@@ -609,6 +611,16 @@ public class TypeDeclaration
 		generateCode((ClassFile) null);
 	}
 
+	public int getKind() {
+		if ((modifiers & AccInterface) != 0) {
+			if ((modifiers & AccAnnotation) != 0) 
+				return IGenericType.ANNOTATION_TYPE;
+			return IGenericType.INTERFACE;
+		} else if ((modifiers & AccEnum) != 0) 
+			return IGenericType.ENUM;
+		return IGenericType.CLASS;
+	}
+	
 	public boolean hasErrors() {
 		return this.ignoreFurtherInvestigation;
 	}
@@ -696,11 +708,10 @@ public class TypeDeclaration
 				}
 			}
 		}
-	}
-
-	public boolean isInterface() {
-
-		return (modifiers & AccInterface) != 0;
+		// enable enum support ?
+		if (this.binding.isEnum()) {
+			this.enumValuesSyntheticfield = this.binding.addSyntheticFieldForEnumValues();
+		}
 	}
 
 	/* 
@@ -761,12 +772,15 @@ public class TypeDeclaration
 			return true;
 		if (fields == null)
 			return false;
-		if (isInterface())
+		
+		if (getKind() == IGenericType.INTERFACE)
 			return true; // fields are implicitly statics
 		for (int i = fields.length; --i >= 0;) {
 			FieldDeclaration field = fields[i];
 			//need to test the modifier directly while there is no binding yet
 			if ((field.modifiers & AccStatic) != 0)
+				return true; // TODO (philippe) shouldn't it check whether field is initializer or has some initial value ?
+			if (field.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
 				return true;
 		}
 		return false;
@@ -788,16 +802,27 @@ public class TypeDeclaration
 		//methods
 		if (methods != null) {
 			int length = methods.length;
-			for (int i = 0; i < length; i++)
+			for (int i = 0; i < length; i++) {
 				methods[i].parseStatements(parser, unit);
+			}
 		}
 
 		//initializers
 		if (fields != null) {
 			int length = fields.length;
 			for (int i = 0; i < length; i++) {
-				if (fields[i] instanceof Initializer) {
-					((Initializer) fields[i]).parseStatements(parser, this, unit);
+				final FieldDeclaration fieldDeclaration = fields[i];
+				switch(fieldDeclaration.getKind()) {
+					case AbstractVariableDeclaration.INITIALIZER:
+						((Initializer) fieldDeclaration).parseStatements(parser, this, unit);
+						break;
+					case AbstractVariableDeclaration.ENUM_CONSTANT:
+						FieldDeclaration enumConstant = fieldDeclaration;
+						final Expression expression = enumConstant.initialization;
+						if (expression instanceof QualifiedAllocationExpression) {
+							((QualifiedAllocationExpression) expression).anonymousType.parseMethod(parser, unit);
+						}
+						break;						
 				}
 			}
 		}
@@ -825,7 +850,7 @@ public class TypeDeclaration
 		}
 		if (fields != null) {
 			for (int fieldI = 0; fieldI < fields.length; fieldI++) {
-				if (fields[fieldI] != null) {
+				if (fields[fieldI] != null) { // TODO (olivier) should improve to deal with enumconstants using ',' separator
 					output.append('\n');
 					fields[fieldI].print(indent + 1, output);
 				}
@@ -846,7 +871,20 @@ public class TypeDeclaration
 	public StringBuffer printHeader(int indent, StringBuffer output) {
 
 		printModifiers(this.modifiers, output);
-		output.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
+		switch (getKind()) {
+			case IGenericType.CLASS :
+				output.append("class "); //$NON-NLS-1$
+				break;
+			case IGenericType.INTERFACE :
+				output.append("interface "); //$NON-NLS-1$
+				break;
+			case IGenericType.ENUM :
+				output.append("enum "); //$NON-NLS-1$
+				break;
+			case IGenericType.ANNOTATION_TYPE :
+				output.append("@interface "); //$NON-NLS-1$
+				break;
+		}			
 		output.append(name);
 		if (typeParameters != null) {
 			output.append("<");//$NON-NLS-1$
@@ -861,7 +899,16 @@ public class TypeDeclaration
 			superclass.print(0, output);
 		}
 		if (superInterfaces != null && superInterfaces.length > 0) {
-			output.append(isInterface() ? " extends " : " implements ");//$NON-NLS-2$ //$NON-NLS-1$
+			switch (getKind()) {
+				case IGenericType.CLASS :
+				case IGenericType.ENUM :
+					output.append(" implements "); //$NON-NLS-1$
+					break;
+				case IGenericType.INTERFACE :
+				case IGenericType.ANNOTATION_TYPE :
+					output.append(" extends "); //$NON-NLS-1$
+					break;
+			}			
 			for (int i = 0; i < superInterfaces.length; i++) {
 				if (i > 0) output.append( ", "); //$NON-NLS-1$
 				superInterfaces[i].print(0, output);
@@ -899,24 +946,29 @@ public class TypeDeclaration
 			if (this.fields != null) {
 				for (int i = 0, count = this.fields.length; i < count; i++) {
 					FieldDeclaration field = this.fields[i];
-					if (field.isField()) {
-						FieldBinding fieldBinding = field.binding;
-						if (fieldBinding == null) {
-							// still discover secondary errors
-							if (field.initialization != null) field.initialization.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
-							this.ignoreFurtherInvestigation = true;
-							continue;
-						}
-						if (needSerialVersion
-								&& ((fieldBinding.modifiers & (AccStatic | AccFinal)) == (AccStatic | AccFinal))
-								&& CharOperation.equals(TypeConstants.SERIALVERSIONUID, fieldBinding.name)
-								&& BaseTypes.LongBinding == fieldBinding.type) {
-							needSerialVersion = false;
-						}
-						this.maxFieldCount++;
-						lastVisibleFieldID = field.binding.id;
-					} else { // initializer
-						 ((Initializer) field).lastVisibleFieldID = lastVisibleFieldID + 1;
+					switch(field.getKind()) {
+						case AbstractVariableDeclaration.FIELD:
+						case AbstractVariableDeclaration.ENUM_CONSTANT:
+							FieldBinding fieldBinding = field.binding;
+							if (fieldBinding == null) {
+								// still discover secondary errors
+								if (field.initialization != null) field.initialization.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
+								this.ignoreFurtherInvestigation = true;
+								continue;
+							}
+							if (needSerialVersion
+									&& ((fieldBinding.modifiers & (AccStatic | AccFinal)) == (AccStatic | AccFinal))
+									&& CharOperation.equals(TypeConstants.SERIALVERSIONUID, fieldBinding.name)
+									&& BaseTypes.LongBinding == fieldBinding.type) {
+								needSerialVersion = false;
+							}
+							this.maxFieldCount++;
+							lastVisibleFieldID = field.binding.id;
+							break;
+
+						case AbstractVariableDeclaration.INITIALIZER:
+							 ((Initializer) field).lastVisibleFieldID = lastVisibleFieldID + 1;
+							break;
 					}
 					field.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
 				}
@@ -1030,11 +1082,6 @@ public class TypeDeclaration
 					for (int i = 0; i < length; i++)
 						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (this.enums != null) {
-					int length = this.enums.length;
-					for (int i = 0; i < length; i++)
-						this.enums[i].traverse(visitor, scope);
-				}
 				if (this.fields != null) {
 					int length = this.fields.length;
 					for (int i = 0; i < length; i++) {
@@ -1090,11 +1137,6 @@ public class TypeDeclaration
 					for (int i = 0; i < length; i++)
 						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (this.enums != null) {
-					int length = this.enums.length;
-					for (int i = 0; i < length; i++)
-						this.enums[i].traverse(visitor, scope);
-				}				
 				if (this.fields != null) {
 					int length = this.fields.length;
 					for (int i = 0; i < length; i++) {
@@ -1150,11 +1192,6 @@ public class TypeDeclaration
 					for (int i = 0; i < length; i++)
 						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (this.enums != null) {
-					int length = this.enums.length;
-					for (int i = 0; i < length; i++)
-						this.enums[i].traverse(visitor, scope);
-				}					
 				if (this.fields != null) {
 					int length = this.fields.length;
 					for (int i = 0; i < length; i++) {

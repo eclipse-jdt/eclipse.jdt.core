@@ -254,7 +254,7 @@ public final void anewarray(TypeBinding typeBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_anewarray;
-	writeUnsignedShort(constantPool.literalIndex(typeBinding));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
 }
 final public void areturn() {
 	if (DEBUG) System.out.println(position + "\t\tareturn"); //$NON-NLS-1$
@@ -488,14 +488,14 @@ final public void castore() {
 	bCodeStream[classFileOffset++] = OPC_castore;
 }
 public final void checkcast(TypeBinding typeBinding) {
-	if (DEBUG) System.out.println(position + "\t\tcheckcast:"+typeBinding); //$NON-NLS-1$
+	if (DEBUG) System.out.println(position + "\t\tcheckcast:"+typeBinding.debugName()); //$NON-NLS-1$
 	countLabels = 0;
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_checkcast;
-	writeUnsignedShort(constantPool.literalIndex(typeBinding));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
 }
 final public void d2f() {
 	if (DEBUG) System.out.println(position + "\t\td2f"); //$NON-NLS-1$
@@ -1808,7 +1808,7 @@ public void generateSyntheticOuterArgumentValues(BlockScope currentScope, Refere
 /**
  * @param accessBinding the access method binding to generate
  */
-public void generateSyntheticBodyForConstructorAccess(SyntheticAccessMethodBinding accessBinding) {
+public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding accessBinding) {
 
 	initializeMaxLocals(accessBinding);
 
@@ -1852,7 +1852,71 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticAccessMethodBindi
 	this.invokespecial(constructorBinding);
 	this.return_();
 }
-public void generateSyntheticBodyForFieldReadAccess(SyntheticAccessMethodBinding accessBinding) {
+// TODO (philippe) could rewrite to use System.arraycopy(...) instead of array#clone()
+public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBinding) {
+	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
+	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
+	initializeMaxLocals(methodBinding);
+	TypeBinding enumArray = methodBinding.returnType;
+	ReferenceBinding object = scope.getJavaLangObject();
+	this.getstatic(enumValuesSyntheticfield);
+	this.invokevirtual(
+		new UpdatedMethodBinding(
+										enumArray,
+										AccPublic,
+										CLONE,
+										object,
+										NoParameters,
+										NoExceptions,
+										object));
+	this.checkcast(enumArray);
+	this.areturn();
+}
+//	static X valueOf(String name) {
+//		X[] values;
+//		for (int i = (values = $VALUES).length; i > 0; i--) {
+//			X value;
+//			if (name.equals(value = values[i])) return value;
+//		}
+//		throw new IllegalArgumentException(name);
+//	}			
+public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBinding) {
+	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
+	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
+		initializeMaxLocals(methodBinding);
+		Label loopCond = new Label(this);
+		Label loopStart = new Label(this);
+		Label wrongConstant = new Label(this);
+		
+		this.getstatic(enumValuesSyntheticfield);
+		this.dup();
+		this.astore_1();
+		this.arraylength();
+		this.istore_2();
+		this.goto_(loopCond);
+		loopStart.place();
+		this.aload_0();
+		this.aload_1();
+		this.iload_2();
+		this.aaload();
+		this.dup();
+		this.astore_3();
+		this.invokeStringEquals();
+		this.ifeq(wrongConstant);
+		this.aload_3();
+		this.areturn();
+		wrongConstant.place();
+		this.iinc(2, -1);
+		loopCond.place();
+		this.iload_2();
+		this.ifgt(loopStart);
+		this.newJavaLangIllegalArgumentException();
+		this.dup();
+		this.aload_0();
+		this.invokeJavaLangIllegalArgumentExceptionStringConstructor();
+		this.athrow();
+}
+public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
 	FieldBinding fieldBinding = accessBinding.targetReadField;
 	TypeBinding type;
@@ -1879,7 +1943,7 @@ public void generateSyntheticBodyForFieldReadAccess(SyntheticAccessMethodBinding
 	} else
 		this.areturn();
 }
-public void generateSyntheticBodyForFieldWriteAccess(SyntheticAccessMethodBinding accessBinding) {
+public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
 	FieldBinding fieldBinding = accessBinding.targetWriteField;
 	if (fieldBinding.isStatic()) {
@@ -1892,13 +1956,13 @@ public void generateSyntheticBodyForFieldWriteAccess(SyntheticAccessMethodBindin
 	}
 	this.return_();
 }
-public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding accessBinding) {
+public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBinding) {
 
 	initializeMaxLocals(accessBinding);
 	MethodBinding methodBinding = accessBinding.targetMethod;
 	TypeBinding[] parameters = methodBinding.parameters;
 	int length = parameters.length;
-	TypeBinding[] arguments = accessBinding.accessType == SyntheticAccessMethodBinding.BridgeMethodAccess 
+	TypeBinding[] arguments = accessBinding.kind == SyntheticMethodBinding.BridgeMethod 
 													? accessBinding.parameters
 													: null;
 	int resolvedPosition;
@@ -1930,7 +1994,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding ac
 		if (methodBinding.isConstructor()
 			|| methodBinding.isPrivate()
 			// qualified super "X.super.foo()" targets methods from superclass
-			|| accessBinding.accessType == SyntheticAccessMethodBinding.SuperMethodAccess){
+			|| accessBinding.kind == SyntheticMethodBinding.SuperMethodAccess){
 			this.invokespecial(methodBinding);
 		} else {
 			if (methodBinding.declaringClass.isInterface()){
@@ -1967,88 +2031,161 @@ final public byte[] getContents() {
 }
 final public void getfield(FieldBinding fieldBinding) {
 	if (DEBUG) System.out.println(position + "\t\tgetfield:"+fieldBinding); //$NON-NLS-1$
-	countLabels = 0;
+	int returnTypeSize = 1;
 	if ((fieldBinding.type.id == T_double) || (fieldBinding.type.id == T_long)) {
-		if (++stackDepth > stackMax)
-			stackMax = stackDepth;
+		returnTypeSize = 2;
+	}
+	generateFieldAccess(
+			OPC_getfield,
+			returnTypeSize,
+			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.name,
+			fieldBinding.type.signature());
+}
+private void generateFieldAccess(byte opcode, int returnTypeSize, char[] declaringClass, char[] name, char[] signature) {
+	countLabels = 0;
+	switch(opcode) {
+		case OPC_getfield :
+			if (returnTypeSize == 2) {
+				stackDepth++;
+			}
+			break;
+		case OPC_getstatic :
+			if (returnTypeSize == 2) {
+				stackDepth += 2;
+			} else {
+				stackDepth++;
+			}
+			break;
+		case OPC_putfield :
+			if (returnTypeSize == 2) {
+				stackDepth -= 3;
+			} else {
+				stackDepth -= 2;
+			}
+			break;
+		case OPC_putstatic :
+			if (returnTypeSize == 2) {
+				stackDepth -= 2;
+			} else {
+				stackDepth--;
+			}
+	}
+	if (stackDepth > stackMax) {
+		stackMax = stackDepth;
 	}
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
-	bCodeStream[classFileOffset++] = OPC_getfield;
-	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
+	bCodeStream[classFileOffset++] = opcode;
+	writeUnsignedShort(constantPool.literalIndexForField(declaringClass, name, signature));
 }
 final public void getstatic(FieldBinding fieldBinding) {
 	if (DEBUG) System.out.println(position + "\t\tgetstatic:"+fieldBinding); //$NON-NLS-1$
-	countLabels = 0;
-	if ((fieldBinding.type.id == T_double) || (fieldBinding.type.id == T_long))
-		stackDepth += 2;
-	else
-		stackDepth += 1;
-	if (stackDepth > stackMax)
-		stackMax = stackDepth;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int returnTypeSize = 1;
+	if ((fieldBinding.type.id == T_double) || (fieldBinding.type.id == T_long)) {
+		returnTypeSize = 2;
 	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_getstatic;
-	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
+	generateFieldAccess(
+			OPC_getstatic,
+			returnTypeSize,
+			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.name,
+			fieldBinding.type.signature());
 }
 public void getTYPE(int baseTypeID) {
 	countLabels = 0;
-	if (++stackDepth > stackMax)
-		stackMax = stackDepth;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_getstatic;
 	switch (baseTypeID) {
 		case T_byte :
 			// getstatic: java.lang.Byte.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Byte.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangByteTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangByteConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_short :
 			// getstatic: java.lang.Short.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Short.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangShortTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangShortConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_char :
 			// getstatic: java.lang.Character.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Character.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangCharacterTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangCharacterConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_int :
 			// getstatic: java.lang.Integer.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Integer.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangIntegerTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangIntegerConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_long :
 			// getstatic: java.lang.Long.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Long.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangLongTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangLongConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_float :
 			// getstatic: java.lang.Float.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Float.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangFloatTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangFloatConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_double :
 			// getstatic: java.lang.Double.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Double.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangDoubleTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangDoubleConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_boolean :
 			// getstatic: java.lang.Boolean.TYPE			
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Boolean.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangBooleanTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangBooleanConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 		case T_void :
 			// getstatic: java.lang.Void.TYPE
 			if (DEBUG) System.out.println(position + "\t\tgetstatic: java.lang.Void.TYPE"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangVoidTYPE());
+			generateFieldAccess(
+					OPC_getstatic,
+					1,
+					QualifiedNamesConstants.JavaLangVoidConstantPoolName,
+					QualifiedNamesConstants.TYPE,
+					QualifiedNamesConstants.JavaLangClassSignature);
 			break;
 	}
 }
@@ -2817,44 +2954,53 @@ final public void instance_of(TypeBinding typeBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_instanceof;
-	writeUnsignedShort(constantPool.literalIndex(typeBinding));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
 }
 public void invokeClassForName() {
 	// invokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;
 	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.Class.forName(Ljava.lang.String;)Ljava.lang.Class;"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokestatic;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangClassForName());
+	this.invoke(
+		OPC_invokestatic,
+		1, // argCount
+		1, // return type size
+		QualifiedNamesConstants.JavaLangClassConstantPoolName,
+		QualifiedNamesConstants.ForName,
+		QualifiedNamesConstants.ForNameSignature);
 }
 public void invokeJavaLangClassDesiredAssertionStatus() {
 	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.desiredAssertionStatus()Z;"); //$NON-NLS-1$
-	countLabels = 0;
-	stackDepth--;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangClassDesiredAssertionStatus());
+	this.invoke(
+			OPC_invokevirtual,
+			0, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangClassConstantPoolName,
+			QualifiedNamesConstants.DesiredAssertionStatus,
+			QualifiedNamesConstants.DesiredAssertionStatusSignature);
 }
 
 public void invokeJavaLangClassGetComponentType() {
 	// invokevirtual: java.lang.Class.getComponentType()java.lang.Class;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.getComponentType()java.lang.Class;"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangClassGetComponentType());
+	this.invoke(
+			OPC_invokevirtual,
+			0, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangClassConstantPoolName,
+			QualifiedNamesConstants.GetComponentType,
+			QualifiedNamesConstants.GetComponentTypeSignature);
 }
-
+public void invokeEnumOrdinal(char[] enumTypeConstantPoolName) {
+	// invokevirtual: <enumConstantPoolName>.ordinal()
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: "+new String(enumTypeConstantPoolName)+".ordinal()"); //$NON-NLS-1$ //$NON-NLS-2$
+	this.invoke(
+			OPC_invokevirtual,
+			0, // argCount
+			1, // return type size
+			enumTypeConstantPoolName,
+			QualifiedNamesConstants.Ordinal,
+			QualifiedNamesConstants.OrdinalSignature);
+}
 final public void invokeinterface(MethodBinding methodBinding) {
 	// initialized to 1 to take into account this  immediately
 	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: " + methodBinding); //$NON-NLS-1$
@@ -2892,37 +3038,35 @@ final public void invokeinterface(MethodBinding methodBinding) {
 public void invokeJavaLangErrorConstructor() {
 	// invokespecial: java.lang.Error<init>(Ljava.lang.String;)V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.Error<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	stackDepth -= 2;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangErrorConstructor());
+	this.invoke(
+			OPC_invokespecial,
+			1, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JavaLangErrorConstantPoolName,
+			QualifiedNamesConstants.Init,
+			QualifiedNamesConstants.StringConstructorSignature);
 }
 public void invokeNoClassDefFoundErrorStringConstructor() {
 	// invokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	stackDepth -= 2;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundErrorStringConstructor());
+	this.invoke(
+			OPC_invokespecial,
+			1, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JavaLangNoClassDefFoundErrorConstantPoolName,
+			QualifiedNamesConstants.Init,
+			QualifiedNamesConstants.StringConstructorSignature);
 }
 public void invokeObjectGetClass() {
 	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Object.getClass()Ljava.lang.Class;"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangObjectGetClass());
+	this.invoke(
+			OPC_invokevirtual,
+			0, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangObjectConstantPoolName,
+			QualifiedNamesConstants.GetClass,
+			QualifiedNamesConstants.GetClassSignature);
 }
 
 final public void invokespecial(MethodBinding methodBinding) {
@@ -3016,85 +3160,187 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 			System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
 		}
 	}
-	countLabels = 0;
-	int usedTypeID;
-	if (typeID == T_null) {
-		usedTypeID = T_String;
-	} else {
-		usedTypeID = typeID;
+	int argCount = 1;
+	int returnType = 1;
+	char[] declarinClass = null;
+	char[] selector = QualifiedNamesConstants.Append;
+	char[] signature = null;
+	switch (typeID) {
+		case T_int :
+		case T_byte :
+		case T_short :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendIntSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendIntSignature;
+			}
+			break;
+		case T_long :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendLongSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendLongSignature;
+			}
+			argCount = 2;
+			break;
+		case T_float :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendFloatSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendFloatSignature;
+			}
+			break;
+		case T_double :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendDoubleSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendDoubleSignature;
+			}
+			argCount = 2;
+			break;
+		case T_char :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendCharSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendCharSignature;
+			}
+			break;
+		case T_boolean :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendBooleanSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendBooleanSignature;
+			}
+			break;
+		case T_Object :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendObjectSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendObjectSignature;
+			}
+			break;
+		case T_String :
+		case T_null :
+			if (this.targetLevel >= JDK1_5) {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+				signature = QualifiedNamesConstants.StringBuilderAppendStringSignature;
+			} else {
+				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+				signature = QualifiedNamesConstants.StringBufferAppendStringSignature;
+			}
+			break;
 	}
-	// invokevirtual
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	if (this.targetLevel >= JDK1_5) {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderAppend(typeID));
-	} else {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferAppend(typeID));
-	}
-	if ((usedTypeID == T_long) || (usedTypeID == T_double)) {
-		stackDepth -= 2;
-	} else {
-		stackDepth--;
-	}
+	this.invoke(
+			OPC_invokevirtual,
+			argCount, // argCount
+			returnType, // return type size
+			declarinClass,
+			selector,
+			signature);
 }
 
 public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 	// invokespecial: java.lang.AssertionError.<init>(typeBindingID)V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.AssertionError.<init>(typeBindingID)V"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int argCount = 1;
+	char[] signature = null;
+	switch (typeBindingID) {
+		case T_int :
+		case T_byte :
+		case T_short :
+			signature = QualifiedNamesConstants.AssertionErrorIntConstrSignature;
+			break;
+		case T_long :
+			signature = QualifiedNamesConstants.AssertionErrorLongConstrSignature;
+			argCount = 2;
+			break;
+		case T_float :
+			signature = QualifiedNamesConstants.AssertionErrorFloatConstrSignature;
+			break;
+		case T_double :
+			signature = QualifiedNamesConstants.AssertionErrorDoubleConstrSignature;
+			argCount = 2;
+			break;
+		case T_char :
+			signature = QualifiedNamesConstants.AssertionErrorCharConstrSignature;
+			break;
+		case T_boolean :
+			signature = QualifiedNamesConstants.AssertionErrorBooleanConstrSignature;
+			break;
+		case T_Object :
+		case T_String :
+		case T_null :
+			signature = QualifiedNamesConstants.AssertionErrorObjectConstrSignature;
+			break;
 	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorConstructor(typeBindingID));
-	stackDepth -= 2;
+	this.invoke(
+			OPC_invokespecial,
+			argCount, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JavaLangAssertionErrorConstantPoolName,
+			QualifiedNamesConstants.Init,
+			signature);
 }
 
 public void invokeJavaLangAssertionErrorDefaultConstructor() {
 	// invokespecial: java.lang.AssertionError.<init>()V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.AssertionError.<init>()V"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorDefaultConstructor());
-	stackDepth --;
+	this.invoke(
+			OPC_invokespecial,
+			0, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JavaLangAssertionErrorConstantPoolName,
+			QualifiedNamesConstants.Init,
+			QualifiedNamesConstants.DefaultConstructorSignature);
 }
+
+public void invokeJavaLangIllegalArgumentExceptionStringConstructor() {
+	// invokespecial: java.lang.IllegalArgumentException.<init>(String)V
+	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.IllegalArgumentException.<init>(java.lang.String)V"); //$NON-NLS-1$
+	this.invoke(
+			OPC_invokespecial,
+			1, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JavaLangIllegalArgumentExceptionConstantPoolName,
+			QualifiedNamesConstants.Init,
+			QualifiedNamesConstants.StringConstructorSignature);
+}
+
 public void invokeJavaUtilIteratorHasNext() {
 	// invokeinterface java.util.Iterator.hasNext()Z
 	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: java.util.Iterator.hasNext()Z"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 4 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position += 3;
-	bCodeStream[classFileOffset++] = OPC_invokeinterface;
-	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorHasNext());
-	bCodeStream[classFileOffset++] = 1;
-	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
-	// the number of bytes.
-	bCodeStream[classFileOffset++] = 0;
+	this.invoke(
+			OPC_invokeinterface,
+			0, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaUtilIteratorConstantPoolName,
+			QualifiedNamesConstants.HasNext,
+			QualifiedNamesConstants.HasNextSignature);
 }
 public void invokeJavaUtilIteratorNext() {
 	// invokeinterface java.util.Iterator.next()java.lang.Object
 	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: java.util.Iterator.next()java.lang.Object"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 4 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position += 3;
-	bCodeStream[classFileOffset++] = OPC_invokeinterface;
-	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorNext());
-	bCodeStream[classFileOffset++] = 1;
-	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
-	// the number of bytes.
-	bCodeStream[classFileOffset++] = 0;
+	this.invoke(
+			OPC_invokeinterface,
+			0, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaUtilIteratorConstantPoolName,
+			QualifiedNamesConstants.Next,
+			QualifiedNamesConstants.NextSignature);
 }
 public void invokeStringConcatenationDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
@@ -3105,18 +3351,17 @@ public void invokeStringConcatenationDefaultConstructor() {
 			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
 		}
 	}
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokespecial;
+	char[] declaringClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
 	if (this.targetLevel >= JDK1_5) {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderDefaultConstructor());
-	} else {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferDefaultConstructor());
+		declaringClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
 	}
-	stackDepth--;
+	this.invoke(
+			OPC_invokespecial,
+			0, // argCount
+			0, // return type size
+			declaringClass,
+			QualifiedNamesConstants.Init,
+			QualifiedNamesConstants.DefaultConstructorSignature);
 }
 public void invokeStringConcatenationStringConstructor() {
 	if (DEBUG) {
@@ -3126,18 +3371,17 @@ public void invokeStringConcatenationStringConstructor() {
 			System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 		}
 	}
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokespecial;
+	char[] declaringClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
 	if (this.targetLevel >= JDK1_5) {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderConstructor());
-	} else {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferConstructor());
+		declaringClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
 	}
-	stackDepth -= 2;
+	this.invoke(
+			OPC_invokespecial,
+			1, // argCount
+			0, // return type size
+			declaringClass,
+			QualifiedNamesConstants.Init,
+			QualifiedNamesConstants.StringConstructorSignature);
 }
 
 public void invokeStringConcatenationToString() {
@@ -3148,62 +3392,141 @@ public void invokeStringConcatenationToString() {
 			System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
 		}
 	}
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokevirtual;
+	char[] declaringClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
 	if (this.targetLevel >= JDK1_5) {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderToString());
-	} else {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferToString());
+		declaringClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
 	}
+	this.invoke(
+			OPC_invokevirtual,
+			0, // argCount
+			1, // return type size
+			declaringClass,
+			QualifiedNamesConstants.ToString,
+			QualifiedNamesConstants.ToStringSignature);
+}
+public void invokeStringEquals() {
+	// invokevirtual: java.lang.String.equals(java.lang.Object)
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.String.equals(...)"); //$NON-NLS-1$
+	this.invoke(
+			OPC_invokevirtual,
+			1, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangStringConstantPoolName,
+			QualifiedNamesConstants.Equals,
+			QualifiedNamesConstants.EqualsSignature);
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.String.intern()"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringIntern());
+	this.invoke(
+			OPC_invokevirtual,
+			0, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangStringConstantPoolName,
+			QualifiedNamesConstants.Intern,
+			QualifiedNamesConstants.InternSignature);
 }
 public void invokeStringValueOf(int typeID) {
 	// invokestatic: java.lang.String.valueOf(argumentType)
 	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.String.valueOf(...)"); //$NON-NLS-1$
-	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int argCount = 1;
+	char[] signature = null;
+	switch (typeID) {
+		case T_int :
+		case T_byte :
+		case T_short :
+			signature = QualifiedNamesConstants.ValueOfIntSignature;
+			break;
+		case T_long :
+			signature = QualifiedNamesConstants.ValueOfLongSignature;
+			argCount = 2;
+			break;
+		case T_float :
+			signature = QualifiedNamesConstants.ValueOfFloatSignature;
+			break;
+		case T_double :
+			signature = QualifiedNamesConstants.ValueOfDoubleSignature;
+			argCount = 2;
+			break;
+		case T_char :
+			signature = QualifiedNamesConstants.ValueOfCharSignature;
+			break;
+		case T_boolean :
+			signature = QualifiedNamesConstants.ValueOfBooleanSignature;
+			break;
+		case T_Object :
+		case T_String :
+		case T_null :
+			signature = QualifiedNamesConstants.ValueOfObjectSignature;
+			break;
 	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokestatic;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringValueOf(typeID));
+	this.invoke(
+			OPC_invokestatic,
+			argCount, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangStringConstantPoolName,
+			QualifiedNamesConstants.ValueOf,
+			signature);
 }
 public void invokeSystemArraycopy() {
 	// invokestatic #21 <Method java/lang/System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V>
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V"); //$NON-NLS-1$
-	countLabels = 0;
-	stackDepth-=5;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokestatic;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangSystemArraycopy());
+	this.invoke(
+			OPC_invokevirtual,
+			5, // argCount
+			0, // return type size
+			QualifiedNamesConstants.JavaLangSystemConstantPoolName,
+			QualifiedNamesConstants.ArrayCopy,
+			QualifiedNamesConstants.ArrayCopySignature);
 }
 public void invokeThrowableGetMessage() {
 	// invokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;"); //$NON-NLS-1$
+	this.invoke(
+			OPC_invokevirtual,
+			0, // argCount
+			1, // return type size
+			QualifiedNamesConstants.JavaLangThrowableConstantPoolName,
+			QualifiedNamesConstants.GetMessage,
+			QualifiedNamesConstants.GetMessageSignature);
+}
+final public void invoke(int opcode, int argsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
 	countLabels = 0;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int argCount = argsSize;
+	switch(opcode) {
+		case OPC_invokeinterface :
+			if (classFileOffset + 4 >= bCodeStream.length) {
+				resizeByteArray();
+			}
+			position +=3;
+			bCodeStream[classFileOffset++] = OPC_invokeinterface;
+			writeUnsignedShort(constantPool.literalIndexForMethod(declaringClass, selector, signature, true));
+			argCount++;
+			bCodeStream[classFileOffset++] = (byte) argCount;
+			bCodeStream[classFileOffset++] = 0;
+			break;
+		case OPC_invokevirtual :
+		case OPC_invokespecial :
+			if (classFileOffset + 2 >= bCodeStream.length) {
+				resizeByteArray();
+			}
+			position++;
+			bCodeStream[classFileOffset++] = (byte) opcode;
+			writeUnsignedShort(constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
+			argCount++;
+			break;
+		case OPC_invokestatic :
+			if (classFileOffset + 2 >= bCodeStream.length) {
+				resizeByteArray();
+			}
+			position++;
+			bCodeStream[classFileOffset++] = OPC_invokestatic;
+			writeUnsignedShort(constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
 	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangThrowableGetMessage());
+	stackDepth += returnTypeSize - argCount;
+	if (stackDepth > stackMax) {
+		stackMax = stackDepth;
+	}
 }
 final public void invokevirtual(MethodBinding methodBinding) {
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual:"+methodBinding); //$NON-NLS-1$
@@ -3753,7 +4076,7 @@ final public void ldc(String constant) {
 }
 final public void ldc(TypeBinding typeBinding) {
 	countLabels = 0;
-	int index = constantPool.literalIndex(typeBinding);
+	int index = constantPool.literalIndexForType(typeBinding.constantPoolName());
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
@@ -4421,14 +4744,14 @@ final public void multianewarray(TypeBinding typeBinding, int dimensions) {
 	}
 	position += 2;
 	bCodeStream[classFileOffset++] = OPC_multianewarray;
-	writeUnsignedShort(constantPool.literalIndex(typeBinding));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
 	bCodeStream[classFileOffset++] = (byte) dimensions;
 }
 /**
  * We didn't call it new, because there is a conflit with the new keyword
  */
 final public void new_(TypeBinding typeBinding) {
-	if (DEBUG) System.out.println(position + "\t\tnew:"+typeBinding); //$NON-NLS-1$
+	if (DEBUG) System.out.println(position + "\t\tnew:"+typeBinding.debugName()); //$NON-NLS-1$
 	countLabels = 0;
 	stackDepth++;
 	if (stackDepth > stackMax)
@@ -4438,7 +4761,7 @@ final public void new_(TypeBinding typeBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndex(typeBinding));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
 }
 final public void newarray(int array_Type) {
 	if (DEBUG) System.out.println(position + "\t\tnewarray:"+array_Type); //$NON-NLS-1$
@@ -4450,7 +4773,7 @@ final public void newarray(int array_Type) {
 	bCodeStream[classFileOffset++] = OPC_newarray;
 	bCodeStream[classFileOffset++] = (byte) array_Type;
 }
-public void newArray(Scope scope, ArrayBinding arrayBinding) {
+public void newArray(ArrayBinding arrayBinding) {
 	TypeBinding component = arrayBinding.elementsType();
 	switch (component.id) {
 		case T_int :
@@ -4493,7 +4816,7 @@ public void newJavaLangError() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangError());
+	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangErrorConstantPoolName));
 }
 
 public void newJavaLangAssertionError() {
@@ -4508,9 +4831,22 @@ public void newJavaLangAssertionError() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionError());
+	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangAssertionErrorConstantPoolName));
 }
-
+public void newJavaLangIllegalArgumentException() {
+	// new: java.lang.IllegalArgumentException
+	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.IllegalArgumentException"); //$NON-NLS-1$
+	countLabels = 0;
+	stackDepth++;
+	if (stackDepth > stackMax)
+		stackMax = stackDepth;
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
+	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_new;
+	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangIllegalArgumentExceptionConstantPoolName));
+}
 public void newNoClassDefFoundError() {
 	// new: java.lang.NoClassDefFoundError
 	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.NoClassDefFoundError"); //$NON-NLS-1$
@@ -4523,7 +4859,7 @@ public void newNoClassDefFoundError() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundError());
+	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangNoClassDefFoundErrorConstantPoolName));
 }
 public void newStringContatenation() {
 	// new: java.lang.StringBuffer
@@ -4546,9 +4882,9 @@ public void newStringContatenation() {
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
 	if (this.targetLevel >= JDK1_5) {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilder());
+		writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName));
 	} else {
-		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuffer());
+		writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangStringBufferConstantPoolName));
 	}
 }
 public void newWrapperFor(int typeID) {
@@ -4564,39 +4900,39 @@ public void newWrapperFor(int typeID) {
 	switch (typeID) {
 		case T_int : // new: java.lang.Integer
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Integer"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangInteger());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangIntegerConstantPoolName));
 			break;
 		case T_boolean : // new: java.lang.Boolean
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Boolean"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangBoolean());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangBooleanConstantPoolName));
 			break;
 		case T_byte : // new: java.lang.Byte
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Byte"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangByte());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangByteConstantPoolName));
 			break;
 		case T_char : // new: java.lang.Character
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Character"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangCharacter());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangCharacterConstantPoolName));
 			break;
 		case T_float : // new: java.lang.Float
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Float"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangFloat());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangFloatConstantPoolName));
 			break;
 		case T_double : // new: java.lang.Double
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Double"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangDouble());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangDoubleConstantPoolName));
 			break;
 		case T_short : // new: java.lang.Short
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Short"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangShort());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangShortConstantPoolName));
 			break;
 		case T_long : // new: java.lang.Long
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Long"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangLong());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangLongConstantPoolName));
 			break;
 		case T_void : // new: java.lang.Void
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Void"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForJavaLangVoid());
+			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangVoidConstantPoolName));
 	}
 }
 final public void nop() {
@@ -4630,37 +4966,29 @@ final public void pop2() {
 }
 final public void putfield(FieldBinding fieldBinding) {
 	if (DEBUG) System.out.println(position + "\t\tputfield:"+fieldBinding); //$NON-NLS-1$
-	countLabels = 0;
-	int id;
-	if (((id = fieldBinding.type.id) == T_double) || (id == T_long))
-		stackDepth -= 3;
-	else
-		stackDepth -= 2;
-	if (stackDepth > stackMax)
-		stackMax = stackDepth;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int returnTypeSize = 1;
+	if ((fieldBinding.type.id == T_double) || (fieldBinding.type.id == T_long)) {
+		returnTypeSize = 2;
 	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_putfield;
-	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
+	generateFieldAccess(
+			OPC_putfield,
+			returnTypeSize,
+			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.name,
+			fieldBinding.type.signature());
 }
 final public void putstatic(FieldBinding fieldBinding) {
 	if (DEBUG) System.out.println(position + "\t\tputstatic:"+fieldBinding); //$NON-NLS-1$
-	countLabels = 0;
-	int id;
-	if (((id = fieldBinding.type.id) == T_double) || (id == T_long))
-		stackDepth -= 2;
-	else
-		stackDepth -= 1;
-	if (stackDepth > stackMax)
-		stackMax = stackDepth;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
+	int returnTypeSize = 1;
+	if ((fieldBinding.type.id == T_double) || (fieldBinding.type.id == T_long)) {
+		returnTypeSize = 2;
 	}
-	position++;
-	bCodeStream[classFileOffset++] = OPC_putstatic;
-	writeUnsignedShort(constantPool.literalIndex(fieldBinding));
+	generateFieldAccess(
+			OPC_putstatic,
+			returnTypeSize,
+			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.name,
+			fieldBinding.type.signature());
 }
 public void record(LocalVariableBinding local) {
 	if (!generateLocalVariableTableAttributes)

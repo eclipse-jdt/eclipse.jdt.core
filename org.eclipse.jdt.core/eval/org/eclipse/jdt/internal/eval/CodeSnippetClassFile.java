@@ -16,6 +16,8 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.codegen.QualifiedNamesConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -56,7 +58,7 @@ public CodeSnippetClassFile(
 
 	this.constantPoolOffset = this.headerOffset;
 	this.headerOffset += 2;
-	this.constantPool = new CodeSnippetConstantPool(this);
+	this.constantPool = new ConstantPool(this);
 	int accessFlags = aType.getAccessFlags();
 	
 	if (aType.isClass()) {
@@ -84,15 +86,15 @@ public CodeSnippetClassFile(
 	// now we continue to generate the bytes inside the contents array
 	this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 	this.contents[this.contentsOffset++] = (byte) accessFlags;
-	int classNameIndex = this.constantPool.literalIndex(aType);
+	int classNameIndex = this.constantPool.literalIndexForType(aType.constantPoolName());
 	this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
 	this.contents[this.contentsOffset++] = (byte) classNameIndex;
 	int superclassNameIndex;
 	if (aType.isInterface()) {
-		superclassNameIndex = this.constantPool.literalIndexForJavaLangObject();
+		superclassNameIndex = this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangObjectConstantPoolName);
 	} else {
 		superclassNameIndex =
-			(aType.superclass == null ? 0 : this.constantPool.literalIndex(aType.superclass));
+			(aType.superclass == null ? 0 : this.constantPool.literalIndexForType(aType.superclass.constantPoolName()));
 	}
 	this.contents[this.contentsOffset++] = (byte) (superclassNameIndex >> 8);
 	this.contents[this.contentsOffset++] = (byte) superclassNameIndex;
@@ -102,7 +104,7 @@ public CodeSnippetClassFile(
 	this.contents[this.contentsOffset++] = (byte) interfacesCount;
 	if (superInterfacesBinding != null) {
 		for (int i = 0; i < interfacesCount; i++) {
-			int interfaceIndex = this.constantPool.literalIndex(superInterfacesBinding[i]);
+			int interfaceIndex = this.constantPool.literalIndexForType(superInterfacesBinding[i].constantPoolName());
 			this.contents[this.contentsOffset++] = (byte) (interfaceIndex >> 8);
 			this.contents[this.contentsOffset++] = (byte) interfaceIndex;
 		}

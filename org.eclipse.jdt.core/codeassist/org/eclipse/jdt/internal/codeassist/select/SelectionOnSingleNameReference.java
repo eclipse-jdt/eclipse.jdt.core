@@ -30,6 +30,7 @@ package org.eclipse.jdt.internal.codeassist.select;
  */
 
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
@@ -43,7 +44,7 @@ public SelectionOnSingleNameReference(char[] source, long pos) {
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// it can be a package, type, member type, local variable or field
-	binding = scope.getBinding(token, VARIABLE | TYPE | PACKAGE, this, true /*resolve*/);
+	binding = scope.getBinding(token, Binding.VARIABLE | Binding.TYPE | Binding.PACKAGE, this, true /*resolve*/);
 	if (!binding.isValidBinding()) {
 		if (binding instanceof ProblemFieldBinding) {
 			// tolerate some error cases

@@ -50,7 +50,7 @@ public int resolveLevel(Binding binding) {
 
 	TypeBinding type = (TypeBinding) binding;
 
-	switch (this.pattern.classOrInterface) {
+	switch (this.pattern.typeSuffix) {
 		case CLASS_SUFFIX:
 			if (type.isInterface()) return IMPOSSIBLE_MATCH;
 			break;

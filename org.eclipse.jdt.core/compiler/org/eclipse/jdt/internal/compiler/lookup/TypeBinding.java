@@ -85,6 +85,9 @@ public char[] genericTypeSignature() {
     return signature();
 }
 public abstract PackageBinding getPackage();
+public boolean isAnnotationType() {
+	return false;
+}
 /* Answer true if the receiver is an array
 */
 public final boolean isArrayType() {
@@ -102,6 +105,9 @@ public boolean isClass() {
 */
 public abstract boolean isCompatibleWith(TypeBinding right);
 
+public boolean isEnum() {
+	return false;
+}
 /**
  * Returns true if a type is identical to another one,
  * or for generic types, true if compared to its raw type.

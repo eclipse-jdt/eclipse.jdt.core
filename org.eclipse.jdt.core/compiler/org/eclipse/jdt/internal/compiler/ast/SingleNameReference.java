@@ -38,7 +38,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		// compound assignment extra work
 		if (isCompound) { // check the variable part is initialized if blank final
 			switch (bits & RestrictiveFlagMASK) {
-				case FIELD : // reading a field
+				case Binding.FIELD : // reading a field
 					FieldBinding fieldBinding;
 					if ((fieldBinding = (FieldBinding) binding).isBlankFinal() 
 							&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
@@ -48,7 +48,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					}
 					manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 					break;
-				case LOCAL : // reading a local variable
+				case Binding.LOCAL : // reading a local variable
 					// check if assigning a final blank field
 					LocalVariableBinding localBinding;
 					if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
@@ -66,7 +66,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			flowInfo = assignment.expression.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 		}
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // assigning to a field
+			case Binding.FIELD : // assigning to a field
 				manageSyntheticAccessIfNecessary(currentScope, flowInfo, false /*write-access*/);
 	
 				// check if assigning a final field
@@ -85,7 +85,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					}
 				}
 				break;
-			case LOCAL : // assigning to a local variable 
+			case Binding.LOCAL : // assigning to a local variable 
 				LocalVariableBinding localBinding = (LocalVariableBinding) binding;
 				if (!flowInfo.isDefinitelyAssigned(localBinding)){// for local variable debug attributes
 					bits |= FirstAssignmentToLocalMASK;
@@ -117,7 +117,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
 	
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // reading a field
+			case Binding.FIELD : // reading a field
 				if (valueRequired) {
 					manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 				}
@@ -130,7 +130,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					}
 				}
 				break;
-			case LOCAL : // reading a local variable
+			case Binding.LOCAL : // reading a local variable
 				LocalVariableBinding localBinding;
 				if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) binding)) {
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
@@ -151,7 +151,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		FieldBinding fieldBinding = (FieldBinding) binding;
 		
 		bits &= ~RestrictiveFlagMASK; // clear bits
-		bits |= FIELD;
+		bits |= Binding.FIELD;
 		if (!((FieldBinding) binding).isStatic()) {
 			// must check for the static status....
 			if (scope.methodScope().isStatic) {
@@ -186,7 +186,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
 		if (runtimeTimeType == null || compileTimeType == null)
 			return;				
-		if ((bits & FIELD) != 0 && this.binding != null && this.binding.isValidBinding()) {
+		if ((bits & Binding.FIELD) != 0 && this.binding != null && this.binding.isValidBinding()) {
 			// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
 			FieldBinding originalBinding = ((FieldBinding)this.binding).original();
 			if (originalBinding != this.binding) {
@@ -223,7 +223,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			}
 		}
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // assigning to a field
+			case Binding.FIELD : // assigning to a field
 				FieldBinding fieldBinding;
 				if (!(fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) { // need a receiver?
 					if ((bits & DepthMASK) != 0) {
@@ -241,7 +241,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				}
 				// no need for generic cast as value got dupped
 				return;
-			case LOCAL : // assigning to a local variable
+			case Binding.LOCAL : // assigning to a local variable
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				if (localBinding.resolvedPosition != -1) {
 					assignment.expression.generateCode(currentScope, codeStream, true);
@@ -294,7 +294,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			}
 		} else {
 			switch (bits & RestrictiveFlagMASK) {
-				case FIELD : // reading a field
+				case Binding.FIELD : // reading a field
 					FieldBinding fieldBinding;
 					if (valueRequired) {
 						if (!(fieldBinding = (FieldBinding) this.codegenBinding).isConstantValue()) { // directly use inlined value for constant fields
@@ -325,7 +325,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						}
 					}
 					break;
-				case LOCAL : // reading a local
+				case Binding.LOCAL : // reading a local
 					LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 					if (valueRequired) {
 						// outer local?
@@ -366,7 +366,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	 */
 	public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, MethodBinding writeAccessor, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // assigning to a field
+			case Binding.FIELD : // assigning to a field
 				FieldBinding fieldBinding;
 				if ((fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) {
 					if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
@@ -390,7 +390,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					}
 				}
 				break;
-			case LOCAL : // assigning to a local variable (cannot assign to outer local)
+			case Binding.LOCAL : // assigning to a local variable (cannot assign to outer local)
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				Constant assignConstant;
 				int increment;
@@ -451,11 +451,11 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 		// store the result back into the variable
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // assigning to a field
+			case Binding.FIELD : // assigning to a field
 				fieldStore(codeStream, (FieldBinding) this.codegenBinding, writeAccessor, valueRequired);
 				// no need for generic cast as value got dupped
 				return;
-			case LOCAL : // assigning to a local variable
+			case Binding.LOCAL : // assigning to a local variable
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				if (valueRequired) {
 					if ((localBinding.type == LongBinding) || (localBinding.type == DoubleBinding)) {
@@ -470,7 +470,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	
 	public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 		switch (bits & RestrictiveFlagMASK) {
-			case FIELD : // assigning to a field
+			case Binding.FIELD : // assigning to a field
 				FieldBinding fieldBinding;
 				if ((fieldBinding = (FieldBinding) this.codegenBinding).isStatic()) {
 					if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
@@ -514,7 +514,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
 				// no need for generic cast 
 				return;
-			case LOCAL : // assigning to a local variable
+			case Binding.LOCAL : // assigning to a local variable
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				// using incr bytecode if possible
 				if (localBinding.type == IntBinding) {
@@ -562,7 +562,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		//If inlinable field, forget the access emulation, the code gen will directly target it
 		if (((bits & DepthMASK) == 0) || (constant != NotAConstant)) return;
 	
-		if ((bits & RestrictiveFlagMASK) == LOCAL) {
+		if ((bits & RestrictiveFlagMASK) == Binding.LOCAL) {
 			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
 		}
 	}
@@ -574,7 +574,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		if (constant != NotAConstant)
 			return;
 	
-		if ((bits & FIELD) != 0) {
+		if ((bits & Binding.FIELD) != 0) {
 			FieldBinding fieldBinding = (FieldBinding) binding;
 			FieldBinding codegenField = fieldBinding.original();
 			this.codegenBinding = codegenField;
@@ -634,13 +634,13 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		
 		if ((this.codegenBinding = this.binding = scope.getBinding(token, bits & RestrictiveFlagMASK, this, true /*resolve*/)).isValidBinding()) {
 			switch (bits & RestrictiveFlagMASK) {
-				case VARIABLE : // =========only variable============
-				case VARIABLE | TYPE : //====both variable and type============
+				case Binding.VARIABLE : // =========only variable============
+				case Binding.VARIABLE | Binding.TYPE : //====both variable and type============
 					if (binding instanceof VariableBinding) {
 						VariableBinding variable = (VariableBinding) binding;
 						if (binding instanceof LocalVariableBinding) {
 							bits &= ~RestrictiveFlagMASK;  // clear bits
-							bits |= LOCAL;
+							bits |= Binding.LOCAL;
 							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
 								constant = variable.constant();
 							} else {
@@ -661,8 +661,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	
 					// thus it was a type
 					bits &= ~RestrictiveFlagMASK;  // clear bits
-					bits |= TYPE;
-				case TYPE : //========only type==============
+					bits |= Binding.TYPE;
+				case Binding.TYPE : //========only type==============
 					constant = Constant.NotAConstant;
 					//deprecated test
 					TypeBinding type = (TypeBinding)binding;

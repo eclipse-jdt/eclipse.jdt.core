@@ -173,15 +173,15 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 			positions = qNameRef.sourcePositions;
 			switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
-				case BindingIds.FIELD : // reading a field
+				case Binding.FIELD : // reading a field
 					typeBinding = qNameRef.actualReceiverType;
 					break;
-				case BindingIds.TYPE : //=============only type ==============
+				case Binding.TYPE : //=============only type ==============
 					if (qNameRef.binding instanceof TypeBinding)
 						typeBinding = (TypeBinding) qNameRef.binding;
 					break;
-				case BindingIds.VARIABLE : //============unbound cases===========
-				case BindingIds.TYPE | BindingIds.VARIABLE :
+				case Binding.VARIABLE : //============unbound cases===========
+				case Binding.TYPE | Binding.VARIABLE :
 					Binding binding = qNameRef.binding; 
 					if (binding instanceof TypeBinding) {
 						typeBinding = (TypeBinding) binding;
@@ -283,14 +283,14 @@ public int resolveLevel(Binding binding) {
 protected int resolveLevel(QualifiedNameReference qNameRef) {
 	TypeBinding typeBinding = null;
 	switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
-		case BindingIds.FIELD : // reading a field
+		case Binding.FIELD : // reading a field
 			if (qNameRef.tokens.length < (qNameRef.otherBindings == null ? 3 : qNameRef.otherBindings.length + 3))
 				return IMPOSSIBLE_MATCH; // must be at least p1.A.x
 			typeBinding = qNameRef.actualReceiverType;
 			break;
-		case BindingIds.LOCAL : // reading a local variable
+		case Binding.LOCAL : // reading a local variable
 			return IMPOSSIBLE_MATCH; // no package match in it
-		case BindingIds.TYPE : //=============only type ==============
+		case Binding.TYPE : //=============only type ==============
 			if (qNameRef.binding instanceof TypeBinding)
 				typeBinding = (TypeBinding) qNameRef.binding;
 			break;
@@ -298,8 +298,8 @@ protected int resolveLevel(QualifiedNameReference qNameRef) {
 		 * Handling of unbound qualified name references. The match may reside in the resolved fragment,
 		 * which is recorded inside the problem binding, along with the portion of the name until it became a problem.
 		 */
-		case BindingIds.VARIABLE : //============unbound cases===========
-		case BindingIds.TYPE | BindingIds.VARIABLE :
+		case Binding.VARIABLE : //============unbound cases===========
+		case Binding.TYPE | Binding.VARIABLE :
 			Binding binding = qNameRef.binding; 
 			if (binding instanceof ProblemReferenceBinding) {
 				typeBinding = (TypeBinding) binding;

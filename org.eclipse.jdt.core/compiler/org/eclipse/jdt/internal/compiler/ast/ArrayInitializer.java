@@ -47,7 +47,7 @@ public class ArrayInitializer extends Expression {
 		int pc = codeStream.position;
 		int expressionLength = (expressions == null) ? 0: expressions.length;
 		codeStream.generateInlinedValue(expressionLength);
-		codeStream.newArray(currentScope, binding);
+		codeStream.newArray(binding);
 		if (expressions != null) {
 			// binding is an ArrayType, so I can just deal with the dimension
 			int elementsTypeID = binding.dimensions > 1 ? -1 : binding.leafComponentType.id;

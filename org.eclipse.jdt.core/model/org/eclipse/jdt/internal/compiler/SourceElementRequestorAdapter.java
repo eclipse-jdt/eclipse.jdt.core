@@ -162,7 +162,13 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		
 		// default implementation: do nothing
 	}
-
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(int, int, char[], int, int, char[][])
+	 */
+	public void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {
+		// default implementation: do nothing
+	}
+	
 	/**
 	 * @see ISourceElementRequestor#enterField(int, int, char[], char[], int, int)
 	 */
@@ -254,6 +260,13 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		// default implementation: do nothing
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#exitEnum(int)
+	 */
+	public void exitEnum(int declarationEnd) {
+		// default implementation: do nothing
+	}
+	
 	/**
 	 * @see ISourceElementRequestor#exitField(int, int, int)
 	 */

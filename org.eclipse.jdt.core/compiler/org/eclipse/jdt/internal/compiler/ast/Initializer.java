@@ -57,16 +57,18 @@ public class Initializer extends FieldDeclaration {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	public boolean isField() {
-
-		return false;
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()
+	 */
+	public int getKind() {
+		return INITIALIZER;
 	}
-
+	
 	public boolean isStatic() {
 
 		return (modifiers & AccStatic) != 0;
 	}
-
+	
 	public void parseStatements(
 		Parser parser,
 		TypeDeclaration typeDeclaration,

@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -189,7 +188,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
 			nextMethod : for (int m = methods.length; --m >= 0;) {
 				MethodBinding method = methods[m];
-				if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
+				if (method.selector == TypeConstants.INIT && method.parameters.length == argCount) {
 					TypeBinding[] toMatch = method.parameters;
 					for (int p = 0; p < argCount; p++)
 						if (toMatch[p] != argumentTypes[p])
@@ -198,7 +197,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				}
 			}
 		} else {
-			MethodBinding[] constructors = getMethods(ConstructorDeclaration.ConstantPoolName); // takes care of duplicates & default abstract methods
+			MethodBinding[] constructors = getMethods(TypeConstants.INIT); // takes care of duplicates & default abstract methods
 			nextConstructor : for (int c = constructors.length; --c >= 0;) {
 				MethodBinding constructor = constructors[c];
 				TypeBinding[] toMatch = constructor.parameters;

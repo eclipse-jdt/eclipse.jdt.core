@@ -38,7 +38,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		//by default the position are the one of the field (not true for super access)
 		sourceStart = (int) (pos >>> 32);
 		sourceEnd = (int) (pos & 0x00000000FFFFFFFFL);
-		bits |= BindingIds.FIELD;
+		bits |= Binding.FIELD;
 
 	}
 
@@ -509,7 +509,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			// static field accessed through receiver? legal but unoptimal (optional warning)
 			if (!(isImplicitThisRcv
 					|| (receiver instanceof NameReference 
-						&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
+						&& (((NameReference) receiver).bits & Binding.TYPE) != 0))) {
 				scope.problemReporter().nonStaticAccessToStaticField(this, binding);
 			}
 			if (!isImplicitThisRcv && binding.declaringClass != receiverType) {

@@ -221,16 +221,16 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 	TypeBinding typeBinding = null;
 	int lastIndex = qNameRef.tokens.length - 1;
 	switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
-		case BindingIds.FIELD : // reading a field
+		case Binding.FIELD : // reading a field
 			typeBinding = qNameRef.actualReceiverType;
 			lastIndex -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
 			break;
-		case BindingIds.TYPE : //=============only type ==============
+		case Binding.TYPE : //=============only type ==============
 			if (binding instanceof TypeBinding)
 				typeBinding = (TypeBinding) binding;
 			break;
-		case BindingIds.VARIABLE : //============unbound cases===========
-		case BindingIds.TYPE | BindingIds.VARIABLE :
+		case Binding.VARIABLE : //============unbound cases===========
+		case Binding.TYPE | Binding.VARIABLE :
 			if (binding instanceof ProblemReferenceBinding) {
 				typeBinding = (TypeBinding) binding;
 			} else if (binding instanceof ProblemFieldBinding) {
@@ -315,16 +315,16 @@ protected void reportDeclaration(ASTNode reference, IJavaElement element, MatchL
 		Binding binding = qNameRef.binding;
 		maxType = qNameRef.tokens.length - 1;
 		switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
-			case BindingIds.FIELD : // reading a field
+			case Binding.FIELD : // reading a field
 				typeBinding = qNameRef.actualReceiverType;
 				maxType -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
 				break;
-			case BindingIds.TYPE : //=============only type ==============
+			case Binding.TYPE : //=============only type ==============
 				if (binding instanceof TypeBinding)
 					typeBinding = (TypeBinding) binding;
 				break;
-			case BindingIds.VARIABLE : //============unbound cases===========
-			case BindingIds.TYPE | BindingIds.VARIABLE :
+			case Binding.VARIABLE : //============unbound cases===========
+			case Binding.TYPE | Binding.VARIABLE :
 				if (binding instanceof ProblemFieldBinding) {
 					typeBinding = qNameRef.actualReceiverType;
 					maxType -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
@@ -433,14 +433,14 @@ protected int resolveLevel(NameReference nameRef) {
 	TypeBinding typeBinding = null;
 	QualifiedNameReference qNameRef = (QualifiedNameReference) nameRef;
 	switch (qNameRef.bits & ASTNode.RestrictiveFlagMASK) {
-		case BindingIds.FIELD : // reading a field
+		case Binding.FIELD : // reading a field
 			if (qNameRef.tokens.length < (qNameRef.otherBindings == null ? 2 : qNameRef.otherBindings.length + 2))
 				return IMPOSSIBLE_MATCH; // must be at least A.x
 			typeBinding = nameRef.actualReceiverType;
 			break;
-		case BindingIds.LOCAL : // reading a local variable
+		case Binding.LOCAL : // reading a local variable
 			return IMPOSSIBLE_MATCH; // no type match in it
-		case BindingIds.TYPE : //=============only type ==============
+		case Binding.TYPE : //=============only type ==============
 			if (binding instanceof TypeBinding)
 				typeBinding = (TypeBinding) binding;
 			break;
@@ -448,8 +448,8 @@ protected int resolveLevel(NameReference nameRef) {
 		 * Handling of unbound qualified name references. The match may reside in the resolved fragment,
 		 * which is recorded inside the problem binding, along with the portion of the name until it became a problem.
 		 */
-		case BindingIds.VARIABLE : //============unbound cases===========
-		case BindingIds.TYPE | BindingIds.VARIABLE :
+		case Binding.VARIABLE : //============unbound cases===========
+		case Binding.TYPE | Binding.VARIABLE :
 			if (binding instanceof ProblemReferenceBinding) {
 				typeBinding = (TypeBinding) binding;
 			} else if (binding instanceof ProblemFieldBinding) {

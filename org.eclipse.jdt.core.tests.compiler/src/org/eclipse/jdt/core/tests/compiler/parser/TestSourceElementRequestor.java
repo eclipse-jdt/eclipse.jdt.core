@@ -77,6 +77,10 @@ public void enterCompilationUnit() {}
  */
 public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {}
 /**
+ * enterEnum method comment.
+ */
+public void enterEnum(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {}
+/**
  * enterField method comment.
  */
 public void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd) {}
@@ -101,6 +105,10 @@ public void exitCompilationUnit(int declarationEnd) {}
  * exitConstructor method comment.
  */
 public void exitConstructor(int declarationEnd) {}
+/**
+ * exitEnum method comment.
+ */
+public void exitEnum(int declarationEnd) {}
 /**
  * exitField method comment.
  */

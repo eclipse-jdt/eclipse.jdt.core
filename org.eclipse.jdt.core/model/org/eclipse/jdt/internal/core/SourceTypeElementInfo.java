@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
@@ -181,6 +182,14 @@ public char[][] getInterfaceNames() {
 	return this.superInterfaceNames;
 }
 /**
+ * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
+ */
+public int getKind() {
+	if ((this.flags & IConstants.AccInterface) != 0) return IGenericType.INTERFACE;
+	if ((this.flags & IConstants.AccEnum) != 0) return IGenericType.ENUM;
+	return IGenericType.CLASS;
+}
+/**
  * @see ISourceType
  */
 public ISourceType[] getMemberTypes() {
@@ -277,18 +286,6 @@ public char[][] getTypeParameterNames() {
  */
 public boolean isBinaryType() {
 	return false;
-}
-/**
- * @see ISourceType
- */
-public boolean isClass() {
-	return (this.flags & IConstants.AccInterface) == 0;
-}
-/**
- * @see ISourceType
- */
-public boolean isInterface() {
-	return (this.flags & IConstants.AccInterface) != 0;
 }
 /**
  * Sets the handle for this type info

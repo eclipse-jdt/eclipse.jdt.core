@@ -49,7 +49,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			File f = new File(EVAL_DIRECTORY + File.separator + className + ".class");
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.SYSTEM);
 			int index = result.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
 				System.out.println(Util.displayString(result, 3));
@@ -2719,6 +2719,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"// Compiled from I.java (version 1.2 : 46.0, no super bit)\n" + 
 			"abstract public interface I extends java.lang.Object {\n" + 
+			"  Constant pool:\n" + 
+			"    constant #1 utf8: I\n" + 
+			"    constant #2 class: #1 I\n" + 
+			"    constant #3 utf8: java/lang/Object\n" + 
+			"    constant #4 class: #3 java/lang/Object\n" + 
+			"    constant #5 utf8: SourceFile\n" + 
+			"    constant #6 utf8: I.java\n" + 
 			"}";
 		checkClassFile("I", source, expectedOutput);
 	}

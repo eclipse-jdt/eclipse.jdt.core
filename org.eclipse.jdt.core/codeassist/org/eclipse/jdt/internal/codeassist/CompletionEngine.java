@@ -3328,7 +3328,7 @@ public final class CompletionEngine
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
-						if(binding.bindingType() == BindingIds.TYPE) {
+						if(binding.bindingType() == Binding.TYPE) {
 							this.findMemberTypes(
 									token,
 									(ReferenceBinding) binding,
@@ -3338,7 +3338,7 @@ public final class CompletionEngine
 									typesFound);
 						}
 					} else {
-						if (binding.bindingType() == BindingIds.TYPE) {
+						if (binding.bindingType() == Binding.TYPE) {
 							ReferenceBinding typeBinding = (ReferenceBinding) binding;
 							int typeLength = token.length;
 							
@@ -3564,7 +3564,7 @@ public final class CompletionEngine
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
-						if(binding.bindingType() == BindingIds.TYPE) {
+						if(binding.bindingType() == Binding.TYPE) {
 							findFields(
 								token,
 								(ReferenceBinding)binding,
@@ -3593,7 +3593,7 @@ public final class CompletionEngine
 								false);
 						}
 					} else {
-						if (binding.bindingType() == BindingIds.FIELD) {
+						if (binding.bindingType() == Binding.FIELD) {
 								findFields(
 										token,
 										new FieldBinding[]{(FieldBinding)binding},
@@ -3891,7 +3891,7 @@ public final class CompletionEngine
 				if(operator == OperatorIds.LESS) {
 					if(binaryExpression.left instanceof SingleNameReference){
 						SingleNameReference name = (SingleNameReference) binaryExpression.left;
-						Binding b = scope.getBinding(name.token, BindingIds.VARIABLE | BindingIds.TYPE, name, false);
+						Binding b = scope.getBinding(name.token, Binding.VARIABLE | Binding.TYPE, name, false);
 						if(b instanceof ReferenceBinding) {
 							TypeVariableBinding[] typeVariableBindings =((ReferenceBinding)b).typeVariables();
 							if(typeVariableBindings != null && typeVariableBindings.length > 0) {

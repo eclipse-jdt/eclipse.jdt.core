@@ -458,7 +458,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			/* by default, we assume that one is needed. */
 			int extraConstructor = 0;
 			int methodCount = 0;
-			boolean isInterface = type.isInterface();
+			boolean isInterface = type.getKind() == IGenericType.INTERFACE;
 			if (!isInterface) {
 				extraConstructor = needConstructor ? 1 : 0;
 				for (int i = 0; i < sourceMethodCount; i++) {
@@ -476,7 +476,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			}
 			type.methods = new AbstractMethodDeclaration[methodCount + extraConstructor];
 			if (extraConstructor != 0) { // add default constructor in first position
-				type.methods[0] = type.createsInternalConstructor(false, false);
+				type.methods[0] = type.createDefaultConstructor(false, false);
 			}
 			int index = 0;
 			for (int i = 0; i < sourceMethodCount; i++) {

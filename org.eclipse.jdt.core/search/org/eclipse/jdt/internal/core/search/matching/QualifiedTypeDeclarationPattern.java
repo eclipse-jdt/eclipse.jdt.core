@@ -18,12 +18,12 @@ public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern impl
 
 protected char[] qualification;
 
-public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char classOrInterface, int matchRule) {
+public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char typeSuffix, int matchRule) {
 	this(matchRule);
 
 	this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
 	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
-	this.classOrInterface = classOrInterface;
+	this.typeSuffix = typeSuffix;
 
 	((InternalSearchPattern)this).mustResolve = this.qualification != null;
 }
@@ -46,29 +46,37 @@ public void decodeIndexKey(char[] key) {
 		this.qualification[slash - start] = '.';
 	}
 
-	this.classOrInterface = key[key.length - 1];
+	this.typeSuffix = key[key.length - 1];
 }
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
-	switch(this.classOrInterface) {
+	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
 		case INTERFACE_SUFFIX :
-			if (this.classOrInterface != pattern.classOrInterface) return false;
+		case ENUM_SUFFIX :
+		case ANNOTATION_TYPE_SUFFIX :
+			if (this.typeSuffix != pattern.typeSuffix) return false;
 	}
 
 	return matchesName(this.simpleName, pattern.simpleName) && matchesName(this.qualification, pattern.qualification);
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
-	switch (classOrInterface){
+	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			buffer.append("ClassDeclarationPattern: qualification<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
 			buffer.append("InterfaceDeclarationPattern: qualification<"); //$NON-NLS-1$
+			break;
+		case ENUM_SUFFIX :
+			buffer.append("EnumDeclarationPattern: qualification<"); //$NON-NLS-1$
+			break;
+		case ANNOTATION_TYPE_SUFFIX :
+			buffer.append("AnnotationTypeDeclarationPattern: qualification<"); //$NON-NLS-1$
 			break;
 		default :
 			buffer.append("TypeDeclarationPattern: qualification<"); //$NON-NLS-1$

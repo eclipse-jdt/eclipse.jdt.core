@@ -48,8 +48,9 @@ public class AnnotationTypeDeclaration extends TypeDeclaration {
 			output.append(" extends ");  //$NON-NLS-1$
 			superclass.print(0, output);
 		}
+		// TODO annotations cannot extend anything
 		if (superInterfaces != null && superInterfaces.length > 0) {
-			output.append(isInterface() ? " extends " : " implements ");//$NON-NLS-2$ //$NON-NLS-1$
+			output.append(" extends "); //$NON-NLS-1$
 			for (int i = 0; i < superInterfaces.length; i++) {
 				if (i > 0) output.append( ", "); //$NON-NLS-1$
 				superInterfaces[i].print(0, output);
@@ -61,14 +62,6 @@ public class AnnotationTypeDeclaration extends TypeDeclaration {
 	public StringBuffer printBody(int indent, StringBuffer output) {
 
 		output.append(" {"); //$NON-NLS-1$
-		if (this.enums != null) {
-			for (int i = 0; i < this.enums.length; i++) {
-				if (this.enums[i] != null) {
-					output.append('\n');
-					this.enums[i].print(indent + 1, output);
-				}
-			}
-		}
 		if (this.annotationTypeMemberDeclarations != null) {
 			for (int i = 0; i < this.annotationTypeMemberDeclarations.length; i++) {
 				if (this.annotationTypeMemberDeclarations[i] != null) {
@@ -129,12 +122,6 @@ public class AnnotationTypeDeclaration extends TypeDeclaration {
 					for (int i = 0; i < length; i++)
 						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (this.enums != null) {
-					int length = this.enums.length;
-					for (int i = 0; i < length; i++) {
-						this.enums[i].traverse(visitor, scope);
-					}
-				}				
 				if (this.annotationTypeMemberDeclarations != null) {
 					int length = this.annotationTypeMemberDeclarations.length;
 					for (int i = 0; i < length; i++) {
@@ -187,12 +174,6 @@ public class AnnotationTypeDeclaration extends TypeDeclaration {
 					for (int i = 0; i < length; i++)
 						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (this.enums != null) {
-					int length = this.enums.length;
-					for (int i = 0; i < length; i++) {
-						this.enums[i].traverse(visitor, scope);
-					}
-				}				
 				if (this.annotationTypeMemberDeclarations != null) {
 					int length = this.annotationTypeMemberDeclarations.length;
 					for (int i = 0; i < length; i++) {
@@ -246,12 +227,6 @@ public class AnnotationTypeDeclaration extends TypeDeclaration {
 					for (int i = 0; i < length; i++)
 						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (this.enums != null) {
-					int length = this.enums.length;
-					for (int i = 0; i < length; i++) {
-						this.enums[i].traverse(visitor, scope);
-					}
-				}				
 				if (this.annotationTypeMemberDeclarations != null) {
 					int length = this.annotationTypeMemberDeclarations.length;
 					for (int i = 0; i < length; i++) {

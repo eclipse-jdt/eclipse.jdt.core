@@ -20,7 +20,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	public Expression[] arguments;
 	public Expression qualification;
 	public MethodBinding binding;							// exact binding resulting from lookup
-	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
+	protected MethodBinding codegenBinding;		// actual binding used for code generation (if no synthetic accessor)
 	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 	public int accessMode;
 	public TypeReference[] typeArguments;
@@ -103,8 +103,14 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			int pc = codeStream.position;
 			codeStream.aload_0();
 
-			// handling innerclass constructor invocation
 			ReferenceBinding targetType = this.codegenBinding.declaringClass;
+			
+			// special name&ordinal argument generation for enum constructors
+			if (targetType.erasure().id == T_JavaLangEnum || targetType.isEnum()) {
+				codeStream.aload_1(); // pass along name param as name arg
+				codeStream.iload_2(); // pass along ordinal param as ordinal arg
+			}
+			// handling innerclass constructor invocation
 			// handling innerclass instance allocation - enclosing instance arguments
 			if (targetType.isNestedType()) {
 				codeStream.generateSyntheticEnclosingInstanceValues(
@@ -113,8 +119,9 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					discardEnclosingInstance ? null : qualification,
 					this);
 			}
-			// regular code gen
-			generateArguments(binding, arguments, currentScope, codeStream);
+			// generate arguments
+			generateArguments(binding, arguments, currentScope, codeStream);			
+			
 			// handling innerclass instance allocation - outer local arguments
 			if (targetType.isNestedType()) {
 				codeStream.generateSyntheticOuterArgumentValues(
@@ -310,6 +317,9 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				if (argHasError) {
 					return;
 				}
+			} else if (receiverType.erasure().id == T_JavaLangEnum) {
+				// TODO (philippe) get rid of once well-known binding is available
+				argumentTypes = new TypeBinding[] { scope.getJavaLangString(), BaseTypes.IntBinding };
 			}
 			if ((binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope))

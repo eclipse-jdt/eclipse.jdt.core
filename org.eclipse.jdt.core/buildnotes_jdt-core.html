@@ -51,6 +51,8 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Improved problem descriptions to show ellipsis in varargs method signatures
+</li>
 <li>Added <code>org.eclipse.jdt.core.util.ClassFileBytesDisassembler#SYSTEM</code> field to support an extra-detailed output from the
 disassembler. It can show constant pool contents.
 </li>
@@ -62,14 +64,14 @@ disassembler. It can show constant pool contents.
 </li>
 </ul>
 </li>
-<li>Added compiler option to diagnose inexact argument for varargs method invocations. Matching problem IDs are 
-<code>IProblem.InexactParameterToVarargsMethod</code> & <code>IProblem.InexactParameterToVarargsConstructor</code>
+<li>Added compiler option to diagnose ambiguous argument for varargs method invocations. Matching problem IDs are 
+<code>IProblem.AmbiguousArgumentToVarargsMethod</code> & <code>IProblem.AmbiguousArgumentToVarargsConstructor</code>
 <pre>
-* COMPILER / Reporting Inexact Argument for Varargs Method/Constructor Invocation
-*    When enabled, the compiler will issue an error or a warning whenever a varargs method/constructor is invoked with an inexact 
+* COMPILER / Reporting Ambiguous Argument for Varargs Method/Constructor Invocation
+*    When enabled, the compiler will issue an error or a warning whenever a varargs method/constructor is invoked with an ambiguous 
 *    argument (e.g. Class.getMethod(String name, Class ... args )  invoked with arguments ("foo", null))
-*    with inexact type match.
-*     - option id:         "org.eclipse.jdt.core.compiler.problem.inexactVarargsArgument"
+*    wich should rather be explicitly casted to varargs type since will be passed as is.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.ambiguousVarargsArgument"
 *     - possible values:   { "error", "warning", "ignore" }
 *     - default:           "warning"
 </pre>

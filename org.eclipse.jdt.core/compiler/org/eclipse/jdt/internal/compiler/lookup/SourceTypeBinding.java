@@ -16,10 +16,9 @@ import java.util.Iterator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -45,7 +44,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public final static int RECEIVER_TYPE_EMUL = 3;
 	HashMap[] synthetics;
 	char[] genericReferenceTypeSignature;
-	
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -114,7 +112,7 @@ public void addDefaultAbstractMethods() {
 *	Answer the new field or the existing field if one already existed.
 */
 
-public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVariable) {
+public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOuterLocalVariable) {
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
 	}
@@ -125,7 +123,7 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
-			CharOperation.concat(SyntheticArgumentBinding.OuterLocalPrefix, actualOuterLocalVariable.name), 
+			CharOperation.concat(TypeConstants.SYNTHETIC_OUTER_LOCAL_PREFIX, actualOuterLocalVariable.name), 
 			actualOuterLocalVariable.type, 
 			AccPrivate | AccFinal | AccSynthetic, 
 			this, 
@@ -146,7 +144,7 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 				FieldDeclaration fieldDecl = typeDecl.fields[i];
 				if (fieldDecl.binding == existingField) {
 					synthField.name = CharOperation.concat(
-						SyntheticArgumentBinding.OuterLocalPrefix,
+						TypeConstants.SYNTHETIC_OUTER_LOCAL_PREFIX,
 						actualOuterLocalVariable.name,
 						("$" + String.valueOf(index++)).toCharArray()); //$NON-NLS-1$
 					needRecheck = true;
@@ -161,7 +159,7 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 *	Answer the new field or the existing field if one already existed.
 */
 
-public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
+public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingType) {
 
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
@@ -174,7 +172,7 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			CharOperation.concat(
-				SyntheticArgumentBinding.EnclosingInstancePrefix,
+				TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
 				String.valueOf(enclosingType.depth()).toCharArray()),
 			enclosingType,
 			AccDefault | AccFinal | AccSynthetic,
@@ -201,7 +199,7 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 *	Answer the new field or the existing field if one already existed.
 */
 
-public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockScope) {
+public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, BlockScope blockScope) {
 
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
@@ -214,7 +212,9 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	FieldBinding synthField = (FieldBinding) synthetics[CLASS_LITERAL_EMUL].get(targetType);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
-			("class$" + synthetics[CLASS_LITERAL_EMUL].size()).toCharArray(), //$NON-NLS-1$
+			CharOperation.concat(
+				TypeConstants.SYNTHETIC_CLASS,
+				String.valueOf(synthetics[CLASS_LITERAL_EMUL].size()).toCharArray()),
 			blockScope.getJavaLangClass(),
 			AccDefault | AccStatic | AccSynthetic,
 			this,
@@ -240,7 +240,7 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 /* Add a new synthetic field for the emulation of the assert statement.
 *	Answer the new field or the existing field if one already existed.
 */
-public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScope blockScope) {
+public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
@@ -252,7 +252,7 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get("assertionEmulation"); //$NON-NLS-1$
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
-			"$assertionsDisabled".toCharArray(), //$NON-NLS-1$
+			TypeConstants.SYNTHETIC_ASSERT_DISABLED,
 			BooleanBinding,
 			AccDefault | AccStatic | AccSynthetic | AccFinal,
 			this,
@@ -273,7 +273,54 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 				FieldDeclaration fieldDecl = typeDecl.fields[i];
 				if (fieldDecl.binding == existingField) {
 					synthField.name = CharOperation.concat(
-						"$assertionsDisabled".toCharArray(), //$NON-NLS-1$
+						TypeConstants.SYNTHETIC_ASSERT_DISABLED,
+						("_" + String.valueOf(index++)).toCharArray()); //$NON-NLS-1$
+					needRecheck = true;
+					break;
+				}
+			}
+		}
+	} while (needRecheck);
+	return synthField;
+}
+
+/* Add a new synthetic field for recording all enum constant values
+*	Answer the new field or the existing field if one already existed.
+*/
+public FieldBinding addSyntheticFieldForEnumValues() {
+
+	if (synthetics == null) {
+		synthetics = new HashMap[4];
+	}
+	if (synthetics[FIELD_EMUL] == null) {
+		synthetics[FIELD_EMUL] = new HashMap(5);
+	}
+
+	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get("enumConstantValues"); //$NON-NLS-1$
+	if (synthField == null) {
+		synthField = new SyntheticFieldBinding(
+			TypeConstants.SYNTHETIC_ENUM_VALUES,
+			scope.createArrayType(this,1),
+			AccPrivate | AccStatic | AccSynthetic | AccFinal,
+			this,
+			Constant.NotAConstant,
+			synthetics[FIELD_EMUL].size());
+		synthetics[FIELD_EMUL].put("enumConstantValues", synthField); //$NON-NLS-1$
+	}
+	// ensure there is not already such a field defined by the user
+	// ensure there is not already such a field defined by the user
+	boolean needRecheck;
+	int index = 0;
+	do {
+		needRecheck = false;
+		FieldBinding existingField;
+		if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
+				FieldDeclaration fieldDecl = typeDecl.fields[i];
+				if (fieldDecl.binding == existingField) {
+					synthField.name = CharOperation.concat(
+						TypeConstants.SYNTHETIC_ENUM_VALUES,
 						("_" + String.valueOf(index++)).toCharArray()); //$NON-NLS-1$
 					needRecheck = true;
 					break;
@@ -288,7 +335,7 @@ public FieldBinding addSyntheticField(AssertStatement assertStatement, BlockScop
 	Answer the new method or the existing method if one already existed.
 */
 
-public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
+public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
 
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
@@ -297,16 +344,43 @@ public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField,
 		synthetics[METHOD_EMUL] = new HashMap(5);
 	}
 
-	SyntheticAccessMethodBinding accessMethod = null;
-	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(targetField);
+	SyntheticMethodBinding accessMethod = null;
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(targetField);
 	if (accessors == null) {
-		accessMethod = new SyntheticAccessMethodBinding(targetField, isReadAccess, this);
-		synthetics[METHOD_EMUL].put(targetField, accessors = new SyntheticAccessMethodBinding[2]);
+		accessMethod = new SyntheticMethodBinding(targetField, isReadAccess, this);
+		synthetics[METHOD_EMUL].put(targetField, accessors = new SyntheticMethodBinding[2]);
 		accessors[isReadAccess ? 0 : 1] = accessMethod;		
 	} else {
 		if ((accessMethod = accessors[isReadAccess ? 0 : 1]) == null) {
-			accessMethod = new SyntheticAccessMethodBinding(targetField, isReadAccess, this);
+			accessMethod = new SyntheticMethodBinding(targetField, isReadAccess, this);
 			accessors[isReadAccess ? 0 : 1] = accessMethod;
+		}
+	}
+	return accessMethod;
+}
+/* Add a new synthetic method the enum type. Selector can either be 'values' or 'valueOf'.
+ * char[] constants from TypeConstants must be used: TypeConstants.VALUES/VALUEOF
+*/
+
+public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
+
+	if (synthetics == null) {
+		synthetics = new HashMap[4];
+	}
+	if (synthetics[METHOD_EMUL] == null) {
+		synthetics[METHOD_EMUL] = new HashMap(5);
+	}
+
+	SyntheticMethodBinding accessMethod = null;
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(selector);
+	if (accessors == null) {
+		accessMethod = new SyntheticMethodBinding(this, selector);
+		synthetics[METHOD_EMUL].put(selector, accessors = new SyntheticMethodBinding[2]);
+		accessors[0] = accessMethod;		
+	} else {
+		if ((accessMethod = accessors[0]) == null) {
+			accessMethod = new SyntheticMethodBinding(this, selector);
+			accessors[0] = accessMethod;
 		}
 	}
 	return accessMethod;
@@ -316,7 +390,7 @@ public SyntheticAccessMethodBinding addSyntheticMethod(FieldBinding targetField,
 	Answer the new method or the existing method if one already existed.
 */
 
-public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
+public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
 
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
@@ -325,15 +399,15 @@ public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMetho
 		synthetics[METHOD_EMUL] = new HashMap(5);
 	}
 
-	SyntheticAccessMethodBinding accessMethod = null;
-	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(targetMethod);
+	SyntheticMethodBinding accessMethod = null;
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(targetMethod);
 	if (accessors == null) {
-		accessMethod = new SyntheticAccessMethodBinding(targetMethod, isSuperAccess, this);
-		synthetics[METHOD_EMUL].put(targetMethod, accessors = new SyntheticAccessMethodBinding[2]);
+		accessMethod = new SyntheticMethodBinding(targetMethod, isSuperAccess, this);
+		synthetics[METHOD_EMUL].put(targetMethod, accessors = new SyntheticMethodBinding[2]);
 		accessors[isSuperAccess ? 0 : 1] = accessMethod;		
 	} else {
 		if ((accessMethod = accessors[isSuperAccess ? 0 : 1]) == null) {
-			accessMethod = new SyntheticAccessMethodBinding(targetMethod, isSuperAccess, this);
+			accessMethod = new SyntheticMethodBinding(targetMethod, isSuperAccess, this);
 			accessors[isSuperAccess ? 0 : 1] = accessMethod;
 		}
 	}
@@ -342,7 +416,7 @@ public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMetho
 /* 
  * Record the fact that bridge methods need to be generated to override certain inherited methods
  */
-public SyntheticAccessMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding localTargetMethod) {
+public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding localTargetMethod) {
     
 	if (synthetics == null) {
 		synthetics = new HashMap[4];
@@ -362,15 +436,15 @@ public SyntheticAccessMethodBinding addSyntheticBridgeMethod(MethodBinding inher
 		}
 	}
 
-	SyntheticAccessMethodBinding accessMethod = null;
-	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
+	SyntheticMethodBinding accessMethod = null;
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
 	if (accessors == null) {
-		accessMethod = new SyntheticAccessMethodBinding(inheritedMethodToBridge, localTargetMethod);
-		synthetics[METHOD_EMUL].put(inheritedMethodToBridge, accessors = new SyntheticAccessMethodBinding[2]);
+		accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, localTargetMethod);
+		synthetics[METHOD_EMUL].put(inheritedMethodToBridge, accessors = new SyntheticMethodBinding[2]);
 		accessors[1] = accessMethod;		
 	} else {
 		if ((accessMethod = accessors[1]) == null) {
-			accessMethod = new SyntheticAccessMethodBinding(inheritedMethodToBridge, localTargetMethod);
+			accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, localTargetMethod);
 			accessors[1] = accessMethod;
 		}
 	}
@@ -491,7 +565,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
-			if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
+			if (method.selector == TypeConstants.INIT && method.parameters.length == argCount) {
 				TypeBinding[] toMatch = method.parameters;
 				for (int p = 0; p < argCount; p++)
 					if (toMatch[p] != argumentTypes[p])
@@ -500,7 +574,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 			}
 		}
 	} else {
-		MethodBinding[] constructors = getMethods(ConstructorDeclaration.ConstantPoolName); // takes care of duplicates & default abstract methods
+		MethodBinding[] constructors = getMethods(TypeConstants.INIT); // takes care of duplicates & default abstract methods
 		nextConstructor : for (int c = constructors.length; --c >= 0;) {
 			MethodBinding constructor = constructors[c];
 			TypeBinding[] toMatch = constructor.parameters;
@@ -641,11 +715,11 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
 /* 
  * Answer the bridge method associated for an  inherited methods or null if one does not exist
  */
-public SyntheticAccessMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
+public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
     
 	if (synthetics == null) return null;
 	if (synthetics[METHOD_EMUL] == null) return null;
-	SyntheticAccessMethodBinding[] accessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
 	if (accessors == null) return null;
 	return accessors[1];
 }
@@ -765,18 +839,44 @@ public MethodBinding[] methods() {
 					MethodBinding method2 = methods[j];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
 						if (method.areParameterErasuresEqual(method2)) {
-							if (methodDecl == null) {
-								methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
-								scope.problemReporter().duplicateMethodInType(this, methodDecl);
-								methodDecl.binding = null;
-								methods[i] = null;
-								failed++;
-							}
+							if (methodDecl == null) 	methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
 							AbstractMethodDeclaration method2Decl = method2.sourceMethod();
-							scope.problemReporter().duplicateMethodInType(this, method2Decl);
-							method2Decl.binding = null;
-							methods[j] = null;
-							failed++;
+							// could collide with special methods for enumerations
+							if (methodDecl == null) {
+								if (method.selector == TypeConstants.VALUEOF
+										|| method.selector == TypeConstants.VALUES) {
+									if (method2Decl != null) {
+										scope.problemReporter().duplicateEnumSpecialMethod(this, method2Decl);
+										method2Decl.binding = null;
+									}
+									// leave enum special method to minimize secondary error (further references to it)
+									methods[j] = null;
+									failed++;
+								}
+							} else if (method2Decl == null) {
+								if (method2.selector == TypeConstants.VALUEOF
+										|| method2.selector == TypeConstants.VALUES) {
+									if (methodDecl != null) {
+										scope.problemReporter().duplicateEnumSpecialMethod(this, methodDecl);
+										methodDecl.binding = null;
+									}
+									// leave enum special method to minimize secondary error (further references to it)
+									methods[i] = null;
+									failed++;
+								}
+							} else {
+								if (methodDecl.binding != null) {
+									scope.problemReporter().duplicateMethodInType(this, methodDecl);
+									methodDecl.binding = null;
+								}
+								if (method2Decl != null) {
+									scope.problemReporter().duplicateMethodInType(this, method2Decl);
+									method2Decl.binding = null;
+								}
+								methods[i] = null;
+								methods[j] = null;
+								failed+=2;
+							}
 						}
 					}
 				}
@@ -823,7 +923,11 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 			FieldBinding previousField = initializationScope.initializedField;
 			try {
 				initializationScope.initializedField = field;
-				TypeBinding fieldType = fieldDecls[f].type.resolveType(initializationScope);
+				FieldDeclaration fieldDecl = fieldDecls[f];
+				TypeBinding fieldType = 
+					fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
+						? this // enum constant is implicitly of declaring enum type
+						: fieldDecl.type.resolveType(initializationScope);
 				field.type = fieldType;
 				field.modifiers &= ~AccUnresolved;
 				if (fieldType == null) {
@@ -961,13 +1065,13 @@ public ReferenceBinding[] superInterfaces() {
 	return superInterfaces;
 }
 // TODO (philippe) could be a performance issue since some senders are building the list just to count them
-public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
+public SyntheticMethodBinding[] syntheticMethods() {
 	
 	if (synthetics == null || synthetics[METHOD_EMUL] == null || synthetics[METHOD_EMUL].size() == 0) return null;
 
 	// difficult to compute size up front because of the embedded arrays so assume there is only 1
 	int index = 0;
-	SyntheticAccessMethodBinding[] bindings = new SyntheticAccessMethodBinding[1];
+	SyntheticMethodBinding[] bindings = new SyntheticMethodBinding[1];
 	Iterator fieldsOrMethods = synthetics[METHOD_EMUL].keySet().iterator();
 	while (fieldsOrMethods.hasNext()) {
 
@@ -975,12 +1079,12 @@ public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 
 		if (fieldOrMethod instanceof MethodBinding) {
 
-			SyntheticAccessMethodBinding[] methodAccessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(fieldOrMethod);
+			SyntheticMethodBinding[] methodAccessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(fieldOrMethod);
 			int numberOfAccessors = 0;
 			if (methodAccessors[0] != null) numberOfAccessors++;
 			if (methodAccessors[1] != null) numberOfAccessors++;
 			if (index + numberOfAccessors > bindings.length)
-				System.arraycopy(bindings, 0, (bindings = new SyntheticAccessMethodBinding[index + numberOfAccessors]), 0, index);
+				System.arraycopy(bindings, 0, (bindings = new SyntheticMethodBinding[index + numberOfAccessors]), 0, index);
 			if (methodAccessors[0] != null) 
 				bindings[index++] = methodAccessors[0]; // super access 
 			if (methodAccessors[1] != null) 
@@ -988,12 +1092,12 @@ public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 
 		} else {
 
-			SyntheticAccessMethodBinding[] fieldAccessors = (SyntheticAccessMethodBinding[]) synthetics[METHOD_EMUL].get(fieldOrMethod);
+			SyntheticMethodBinding[] fieldAccessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(fieldOrMethod);
 			int numberOfAccessors = 0;
 			if (fieldAccessors[0] != null) numberOfAccessors++;
 			if (fieldAccessors[1] != null) numberOfAccessors++;
 			if (index + numberOfAccessors > bindings.length)
-				System.arraycopy(bindings, 0, (bindings = new SyntheticAccessMethodBinding[index + numberOfAccessors]), 0, index);
+				System.arraycopy(bindings, 0, (bindings = new SyntheticMethodBinding[index + numberOfAccessors]), 0, index);
 			if (fieldAccessors[0] != null) 
 				bindings[index++] = fieldAccessors[0]; // read access
 			if (fieldAccessors[1] != null) 
@@ -1003,9 +1107,9 @@ public SyntheticAccessMethodBinding[] syntheticAccessMethods() {
 
 	// sort them in according to their own indexes
 	int length;
-	SyntheticAccessMethodBinding[] sortedBindings = new SyntheticAccessMethodBinding[length = bindings.length];
+	SyntheticMethodBinding[] sortedBindings = new SyntheticMethodBinding[length = bindings.length];
 	for (int i = 0; i < length; i++){
-		SyntheticAccessMethodBinding binding = bindings[i];
+		SyntheticMethodBinding binding = bindings[i];
 		sortedBindings[binding.index] = binding;
 	}
 	return sortedBindings;
@@ -1152,7 +1256,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 		Iterator accessFields = synthetics[FIELD_EMUL].values().iterator();
 		while (accessFields.hasNext()) {
 			field = (FieldBinding) accessFields.next();
-			if (CharOperation.prefixEquals(SyntheticArgumentBinding.EnclosingInstancePrefix, field.name)
+			if (CharOperation.prefixEquals(TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX, field.name)
 				&& ((ReferenceBinding) field.type).findSuperTypeErasingTo(targetEnclosingType) != null)
 					return field;
 		}

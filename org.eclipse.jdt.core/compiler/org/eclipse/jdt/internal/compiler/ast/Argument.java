@@ -35,7 +35,7 @@ public class Argument extends LocalDeclaration {
 		// record the resolved type into the type reference
 		int modifierFlag = this.modifiers;
 
-		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
+		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
@@ -63,10 +63,17 @@ public class Argument extends LocalDeclaration {
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()
+	 */
+	public int getKind() {
+		return PARAMETER;
+	}
+
 	public boolean isVarArgs() {
 		return (this.type.bits & IsVarArgs) != 0;
 	}
-
+		
 	public StringBuffer print(int indent, StringBuffer output) {
 
 		printIndent(indent, output);
@@ -106,7 +113,7 @@ public class Argument extends LocalDeclaration {
 			return null;
 		}
 		
-		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
+		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);

@@ -12,13 +12,14 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Clinit;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -68,9 +69,13 @@ public class ClassScope extends Scope {
 		FieldDeclaration[] fields = referenceContext.fields;
 		int size = fields.length;
 		int count = 0;
-		for (int i = 0; i < size; i++)
-			if (fields[i].isField())
-				count++;
+		for (int i = 0; i < size; i++) {
+			switch (fields[i].getKind()) {
+				case AbstractVariableDeclaration.FIELD:
+				case AbstractVariableDeclaration.ENUM_CONSTANT:
+					count++;
+			}
+		}
 
 		if (hierarchyIsInconsistent)
 			count++;
@@ -81,7 +86,7 @@ public class ClassScope extends Scope {
 		count = 0;
 		for (int i = 0; i < size; i++) {
 			FieldDeclaration field = fields[i];
-			if (!field.isField()) {
+			if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
 				if (referenceContext.binding.isInterface())
 					problemReporter().interfaceCannotHaveInitializers(referenceContext.binding, field);
 			} else {
@@ -171,7 +176,7 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < size; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.isInterface()) {
+				if (memberContext.getKind() == IGenericType.INTERFACE) {
 					problemReporter().nestedClassCannotDeclareInterface(memberContext);
 					continue nextMember;
 				}
@@ -222,7 +227,7 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < length; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.isInterface()
+				if (memberContext.getKind() == IGenericType.INTERFACE
 					&& sourceType.isNestedType()
 					&& sourceType.isClass()
 					&& !sourceType.isStatic()) {
@@ -256,34 +261,49 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildMethods() {
-		if (referenceContext.methods == null) {
-			referenceContext.binding.methods = NoMethods;
-			return;
+		
+		// iterate the method declarations to create the bindings
+		int bindingCount;
+		AbstractMethodDeclaration[] methods = referenceContext.methods;
+		int size = methods == null ? 0 : methods.length;
+		boolean isEnum = referenceContext.getKind() == IGenericType.ENUM;
+		if (isEnum) {
+			// reserve 2 slots for special enum methods: #values() and #valueOf(String)
+			bindingCount = 2;
+		} else {
+			if (size == 0) {
+				referenceContext.binding.methods = NoMethods;
+				return;
+			}
+			bindingCount = 0;
 		}
 
-		// iterate the method declarations to create the bindings
-		AbstractMethodDeclaration[] methods = referenceContext.methods;
-		int size = methods.length;
+		// look for <clinit> method
 		int clinitIndex = -1;
 		for (int i = 0; i < size; i++) {
-			if (methods[i] instanceof Clinit) {
+			if (methods[i].isClinit()) {
 				clinitIndex = i;
 				break;
 			}
 		}
-		MethodBinding[] methodBindings = new MethodBinding[clinitIndex == -1 ? size : size - 1];
-
-		int count = 0;
+		MethodBinding[] methodBindings = new MethodBinding[(clinitIndex == -1 ? size : size - 1) + bindingCount/*reserve room for special enum methods*/];
+		// create special methods for enums
+		if (isEnum) {
+		    SourceTypeBinding sourceType = referenceContext.binding;
+			methodBindings[0] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUES); // add <EnumType>[] values() 
+			methodBindings[1] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUEOF); // add <EnumType> valueOf() 
+		}
+		// create bindings for source methods
 		for (int i = 0; i < size; i++) {
 			if (i != clinitIndex) {
 				MethodScope scope = new MethodScope(this, methods[i], false);
 				MethodBinding methodBinding = scope.createMethod(methods[i]);
 				if (methodBinding != null) // is null if binding could not be created
-					methodBindings[count++] = methodBinding;
+					methodBindings[bindingCount++] = methodBinding;
 			}
 		}
-		if (count != methodBindings.length)
-			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
+		if (bindingCount != methodBindings.length)
+			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[bindingCount], 0, bindingCount);
 
 		referenceContext.binding.methods = methodBindings;
 		referenceContext.binding.modifiers |= AccUnresolved; // until methods() is sent
@@ -349,11 +369,16 @@ public class ClassScope extends Scope {
 				modifiers |= AccStrictfp;
 			if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
 				modifiers |= AccDeprecatedImplicitly;
-			if (enclosingType.isInterface())
+			if ((enclosingType.modifiers & AccInterface) != 0)
 				modifiers |= AccPublic;
 		} else if (sourceType.isLocalType()) {
-			if (sourceType.isAnonymousType()) 
+			if (sourceType.isAnonymousType()) {
 			    modifiers |= AccFinal;
+			    // set AccEnum flag for anonymous body of enum constants
+			    if (referenceContext.allocation.type == null) {
+			    	modifiers |= AccEnum;
+			    }
+			}
 			Scope scope = this;
 			do {
 				switch (scope.kind) {
@@ -398,13 +423,18 @@ public class ClassScope extends Scope {
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & AccJustFlag;
 
-		if ((realModifiers & AccInterface) != 0) {
+		if ((realModifiers & AccInterface) != 0) { // interface and annotation type
 			// detect abnormal cases for interfaces
 			if (isMemberType) {
 				int unexpectedModifiers =
-					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccInterface | AccStrictfp);
-				if ((realModifiers & unexpectedModifiers) != 0)
-					problemReporter().illegalModifierForMemberInterface(sourceType);
+					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccInterface | AccStrictfp | AccAnnotation);
+				if ((realModifiers & unexpectedModifiers) != 0) {
+					if ((realModifiers & AccAnnotation) != 0) {
+						problemReporter().illegalModifierForMemberAnnotationType(sourceType);
+					} else {
+						problemReporter().illegalModifierForMemberInterface(sourceType);
+					}
+				}
 				/*
 				} else if (sourceType.isLocalType()) { //interfaces cannot be defined inside a method
 					int unexpectedModifiers = ~(AccAbstract | AccInterface | AccStrictfp);
@@ -412,13 +442,38 @@ public class ClassScope extends Scope {
 						problemReporter().illegalModifierForLocalInterface(sourceType);
 				*/
 			} else {
-				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccInterface | AccStrictfp);
-				if ((realModifiers & unexpectedModifiers) != 0)
-					problemReporter().illegalModifierForInterface(sourceType);
+				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccInterface | AccStrictfp | AccAnnotation);
+				if ((realModifiers & unexpectedModifiers) != 0) {
+					if ((realModifiers & AccAnnotation) != 0) {
+						problemReporter().illegalModifierForAnnotationType(sourceType);
+					} else {
+						problemReporter().illegalModifierForInterface(sourceType);
+					}
+				}
 			}
 			modifiers |= AccAbstract;
+		} else if ((realModifiers & AccEnum) != 0) {
+			// detect abnormal cases for enums
+			if (isMemberType) { // includes member types defined inside local types
+				int unexpectedModifiers =
+					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccFinal | AccStrictfp | AccEnum);
+				if ((realModifiers & unexpectedModifiers) != 0)
+					problemReporter().illegalModifierForMemberEnum(sourceType);
+			} else if (sourceType.isLocalType()) {
+				int unexpectedModifiers = ~(AccAbstract | AccFinal | AccStrictfp | AccEnum);
+				if ((realModifiers & unexpectedModifiers) != 0)
+					problemReporter().illegalModifierForLocalEnum(sourceType);
+			} else {
+				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccFinal | AccStrictfp | AccEnum);
+				if ((realModifiers & unexpectedModifiers) != 0)
+					problemReporter().illegalModifierForEnum(sourceType);
+			}
+
+			// check that Final and Abstract are not set together
+			if ((realModifiers & (AccFinal | AccAbstract)) == (AccFinal | AccAbstract))
+				problemReporter().illegalModifierCombinationFinalAbstractForClass(sourceType);
 		} else {
-			// detect abnormal cases for types
+			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
 				int unexpectedModifiers =
 					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccFinal | AccStrictfp);
@@ -504,6 +559,16 @@ public class ClassScope extends Scope {
 			if ((modifiers & AccJustFlag) != expectedValue)
 				problemReporter().illegalModifierForInterfaceField(fieldBinding.declaringClass, fieldDecl);
 			fieldBinding.modifiers = modifiers;
+			return;
+			
+		} else if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+			// check that they are not modifiers in source
+			if ((modifiers & AccJustFlag) != 0)
+				problemReporter().illegalModifierForEnumConstant(fieldBinding.declaringClass, fieldDecl);
+		
+			// set the modifiers
+			int implicitValue = AccPublic | AccStatic | AccFinal | AccEnumConstant;
+			fieldBinding.modifiers|= implicitValue;
 			return;
 		}
 
@@ -649,18 +714,28 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperclass() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-		if (sourceType.id == T_Object) { // handle the case of redefining java.lang.Object up front
+
+		// handle the case of redefining root types up front
+		switch (sourceType.id) {
+			case T_JavaLangObject :
 			sourceType.superclass = null;
 			sourceType.superInterfaces = NoSuperInterfaces;
-			if (sourceType.isInterface())
+			if (!sourceType.isClass())
 				problemReporter().objectMustBeClass(sourceType);
 			if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
 				problemReporter().objectCannotHaveSuperTypes(sourceType);
 			return true; // do not propagate Object's hierarchy problems down to every subtype
+
+			case T_JavaLangEnum :
+				// TODO (kent) need to check is generic class with exactly one unbound parameter, and defines constructor Enum(String,int)
 		}
 		if (referenceContext.superclass == null) {
-			sourceType.superclass = getJavaLangObject();
-			return !detectCycle(sourceType, sourceType.superclass, null);
+			if (sourceType.isEnum()) {
+				return connectEnumSuperclass();
+			} else {
+				sourceType.superclass = getJavaLangObject();
+				return !detectCycle(sourceType, sourceType.superclass, null);				
+			}
 		}
 		TypeReference superclassRef = referenceContext.superclass;
 		ReferenceBinding superclass = findSupertype(superclassRef);
@@ -682,6 +757,34 @@ public class ClassScope extends Scope {
 		if ((sourceType.superclass.tagBits & BeginHierarchyCheck) == 0)
 			detectCycle(sourceType, sourceType.superclass, null);
 		return false; // reported some error against the source type
+	}
+
+	/**
+	 *  enum X (implicitly) extends Enum<X>
+	 */
+	private boolean connectEnumSuperclass() {
+		
+		SourceTypeBinding sourceType = referenceContext.binding;
+				
+		ReferenceBinding rootEnumType = getJavaLangEnum();
+		boolean foundCycle = detectCycle(sourceType, rootEnumType, null);
+		// arity check for well-known Enum<E>
+		TypeVariableBinding[] refTypeVariables = rootEnumType.typeVariables();
+		if (refTypeVariables == NoTypeVariables) { // check generic
+			problemReporter().nonGenericTypeCannotBeParameterized(null, rootEnumType, new TypeBinding[]{ sourceType } );
+			return false; // cannot reach here as AbortCompilation is thrown
+		} else if (1 != refTypeVariables.length) { // check arity
+			problemReporter().incorrectArityForParameterizedType(null, rootEnumType, new TypeBinding[]{ sourceType });
+			return false; // cannot reach here as AbortCompilation is thrown
+		}			
+		// check argument type compatibility
+		ParameterizedTypeBinding  superType = createParameterizedType(rootEnumType, new TypeBinding[]{ sourceType } , null);
+		sourceType.superclass = superType;
+		// bound check
+		if (!refTypeVariables[0].boundCheck(superType, sourceType)) {
+			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
+		}
+		return !foundCycle;
 	}
 
 	/*

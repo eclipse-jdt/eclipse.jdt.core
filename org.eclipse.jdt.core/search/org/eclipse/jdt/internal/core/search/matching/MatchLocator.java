@@ -514,14 +514,16 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 protected IJavaElement createHandle(FieldDeclaration fieldDeclaration, TypeDeclaration typeDeclaration, IJavaElement parent) {
 	if (!(parent instanceof IType)) return parent;
 
-	if (fieldDeclaration.isField())
-		return ((IType) parent).getField(new String(fieldDeclaration.name));
-
+	switch (fieldDeclaration.getKind()) {
+		case AbstractVariableDeclaration.FIELD :
+		case AbstractVariableDeclaration.ENUM_CONSTANT :
+			return ((IType) parent).getField(new String(fieldDeclaration.name));
+	}
 	// find occurence count of the given initializer in its type declaration
 	int occurrenceCount = 0;
 	FieldDeclaration[] fields = typeDeclaration.fields;
 	for (int i = 0, length = fields.length; i < length; i++) {
-		if (!fields[i].isField()) {
+		if (fields[i].getKind() == AbstractVariableDeclaration.INITIALIZER) {
 			occurrenceCount++;
 			if (fields[i].equals(fieldDeclaration)) break;
 		}
