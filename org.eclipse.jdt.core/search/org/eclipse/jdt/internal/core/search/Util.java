@@ -1,14 +1,12 @@
 package org.eclipse.jdt.internal.core.search;
-
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-
-
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 public class Util {
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
