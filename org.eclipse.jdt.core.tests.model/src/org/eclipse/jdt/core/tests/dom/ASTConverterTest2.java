@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.model.CancelCounter;
 import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class ASTConverterTest2 extends ConverterTestSetup {
 	
@@ -39,7 +41,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0570"};
+//		TESTS_NAMES = new String[] {"test0571"};
 //		TESTS_NUMBERS =  new int[] { 536 };
 	}
 	public static Test suite() {
@@ -5191,6 +5193,30 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Ensures that the bindings for a member type in a .class file can be created.
+	 */
+	public void test0571() throws CoreException, IOException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL_LIB"}, "");
+			String source =
+				"public class X {\n" +
+				"  public class Y {\n" +
+				"  }\n" +
+				"}";
+			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, "1.4");
+			IClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
+			CompilationUnit unit = (CompilationUnit) runConversion(AST.JLS3, classFile, 0, true);
+			IProblem[] problems = unit.getProblems();
+			StringBuffer buffer = new StringBuffer();
+			for (int i = 0, length = problems.length; i < length; i++)
+				Util.appendProblem(buffer, problems[i], source.toCharArray(), i);
+			assertEquals("Unexpected problems", "", buffer.toString());
+		} finally {
+			deleteProject("P");
 		}
 	}
 }
