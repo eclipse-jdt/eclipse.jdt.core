@@ -888,7 +888,9 @@ class NaiveASTFlattener extends ASTVisitor {
 		}
 		if (node.getTagName() != null) {
 			this.buffer.append(node.getTagName());
-			this.buffer.append(" ");//$NON-NLS-1$
+			if (node.fragments().size() > 0) {
+				this.buffer.append(" ");//$NON-NLS-1$
+			}
 		}
 		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
 			ASTNode e = (ASTNode) it.next();
