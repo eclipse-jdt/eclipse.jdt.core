@@ -293,6 +293,14 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 		char[] superInterfaceName = superInterfaceNames[i];
 		int lastSeparator = CharOperation.lastIndexOf(separator, superInterfaceName);
 		char[] simpleName = lastSeparator == -1 ? superInterfaceName : CharOperation.subarray(superInterfaceName, lastSeparator+1, superInterfaceName.length);
+		
+		// case of binary inner type -> take the last part
+		int start = CharOperation.lastIndexOf('$', simpleName) + 1;
+		if (start != 0) {
+			int nameLength = simpleName.length - start;
+			System.arraycopy(simpleName, start, simpleName = new char[nameLength], 0, nameLength);
+		}
+		
 		if (bindingIndex < bindingLength) {
 			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
 
@@ -457,9 +465,9 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 		if (typeBinding.isInterface()){ // do not connect interfaces to Object
 			superclass = null;
 		} else {
-			superclass = this.findSuperClass(suppliedType, typeBinding);
+			superclass = findSuperClass(suppliedType, typeBinding);
 		}
-		IGenericType[] superinterfaces = this.findSuperInterfaces(suppliedType, typeBinding);
+		IGenericType[] superinterfaces = findSuperInterfaces(suppliedType, typeBinding);
 		
 		this.requestor.connect(suppliedType, superclass, superinterfaces);
 	}

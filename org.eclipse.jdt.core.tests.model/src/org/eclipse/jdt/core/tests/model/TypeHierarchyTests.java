@@ -309,6 +309,22 @@ public void testGetType() throws JavaModelException {
 	// hierarchy created on a region
 	assertTrue("Unexpected focus type for hierarchy on region", this.typeHierarchy.getType() == null);
 }
+/*
+ * Ensures that a hierarchy on an type that implements a binary inner interface is correct.
+ * (regression test for bug 58440 type hierarchy incomplete when implementing fully qualified interface)
+ */
+public void testImplementBinaryInnerInterface() throws JavaModelException {
+	IClassFile cf = getClassFile("TypeHierarchy", "test58440.jar", "p58440", "Y.class");
+	IType type = cf.getType();
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y [in Y.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Inner [in X$Inner.class [in p58440 [in test58440.jar [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
 /**
  * Ensures that a hierarchy on an inner type is correctly rooted.
  */
