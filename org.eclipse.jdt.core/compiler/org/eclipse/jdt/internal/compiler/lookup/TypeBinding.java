@@ -225,7 +225,7 @@ public boolean isPartOfRawType() {
 
 /**
  * Returns true if the two types are statically known to be different at compile-time,
- * e.g. a type variable is not probably known to be distinct from another type
+ * e.g. a type variable is not provably known to be distinct from another type
  */
 public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 	if (this == otherType) return false;
