@@ -3182,6 +3182,18 @@ public void invokeStringValueOf(int typeID) {
 	bCodeStream[classFileOffset++] = OPC_invokestatic;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangStringValueOf(typeID));
 }
+public void invokeSystemArraycopy() {
+	// invokestatic #21 <Method java/lang/System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V>
+	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V"); //$NON-NLS-1$
+	countLabels = 0;
+	stackDepth-=5;
+	if (classFileOffset + 2 >= bCodeStream.length) {
+		resizeByteArray();
+	}
+	position++;
+	bCodeStream[classFileOffset++] = OPC_invokestatic;
+	writeUnsignedShort(constantPool.literalIndexForJavaLangSystemArraycopy());
+}
 public void invokeThrowableGetMessage() {
 	// invokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;"); //$NON-NLS-1$

@@ -46,10 +46,10 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	protected FieldNameAndTypeCache nameAndTypeCacheForFields;
 	protected MethodNameAndTypeCache nameAndTypeCacheForMethods;
 	int[] wellKnownTypes = new int[23];
-	int[] wellKnownMethods = new int[49];
+	int[] wellKnownMethods = new int[50];
 	int[] wellKnownFields = new int[9];
 	int[] wellKnownFieldNameAndTypes = new int[2];
-	int[] wellKnownMethodNameAndTypes = new int[43];
+	int[] wellKnownMethodNameAndTypes = new int[44];
 	public byte[] poolContent;
 	public int currentIndex = 1;
 	public int currentOffset;
@@ -139,6 +139,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int STRINGBUILDER_APPEND_STRING_METHOD = 46;
 	final static int STRINGBUILDER_APPEND_BOOLEAN_METHOD = 47;
 	final static int STRINGBUILDER_APPEND_DOUBLE_METHOD = 48;
+	final static int SYSTEM_ARRAYCOPY_METHOD = 49;
 	
 	// predefined constant index for well known name and type for fields
 	final static int TYPE_JAVALANGCLASS_NAME_AND_TYPE = 0;
@@ -187,6 +188,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int APPEND_STRING_STRINGBUILDER_METHOD_NAME_AND_TYPE = 40;
 	final static int APPEND_BOOLEAN_STRINGBUILDER_METHOD_NAME_AND_TYPE = 41;
 	final static int APPEND_DOUBLE_STRINGBUILDER_METHOD_NAME_AND_TYPE = 42;
+	final static int ARRAYCOPY_METHOD_NAME_AND_TYPE = 43;
 	
 	
 	public ClassFile classFile;
@@ -423,6 +425,16 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 					}
 				}
 			}
+			if ((methodBinding.parameters.length == 5)
+					&& CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.ArrayCopy)
+					&& methodBinding.returnType.id == T_void
+					&& methodBinding.parameters[0].id == T_JavaLangObject
+					&& methodBinding.parameters[1].id == T_int
+					&& methodBinding.parameters[2].id == T_JavaLangObject
+					&& methodBinding.parameters[3].id == T_int
+					&& methodBinding.parameters[4].id == T_int) {
+				return ARRAYCOPY_METHOD_NAME_AND_TYPE;
+			}
 			break;
 		case 't' :
 			if ((methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_JavaLangString) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.ToString))) {
@@ -654,6 +666,16 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
 			if ((firstChar == 'e') && (methodBinding.parameters.length == 1) && (methodBinding.parameters[0].id == T_int) && (methodBinding.returnType.id == T_void) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Exit))) {
 				// This method binding is exit(int)
 				return SYSTEM_EXIT_METHOD;
+			}
+			if (firstChar == 'a' && (methodBinding.parameters.length == 5)
+					&& CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.ArrayCopy)
+					&& methodBinding.returnType.id == T_void
+					&& methodBinding.parameters[0].id == T_JavaLangObject
+					&& methodBinding.parameters[1].id == T_int
+					&& methodBinding.parameters[2].id == T_JavaLangObject
+					&& methodBinding.parameters[3].id == T_int
+					&& methodBinding.parameters[4].id == T_int) {
+				return SYSTEM_ARRAYCOPY_METHOD;
 			}
 			break;
 		case T_JavaLangThrowable :
@@ -3270,10 +3292,44 @@ public int literalIndexForJavaLangSystem() {
 }
 /**
  * This method returns the index into the constantPool corresponding to the 
- * method descriptor. It can be either an interface method reference constant
- * or a method reference constant.
+ * method descriptor.
  *
- * @return <CODE>int</CODE>
+ * @return index in the constant pool
+ */
+public int literalIndexForJavaLangSystemArraycopy() {
+	int index;
+	int nameAndTypeIndex;
+	int classIndex;
+	// Looking into the method ref table
+	if ((index = wellKnownMethods[SYSTEM_ARRAYCOPY_METHOD]) == 0) {
+		classIndex = literalIndexForJavaLangSystem();
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[ARRAYCOPY_METHOD_NAME_AND_TYPE]) == 0) {
+			int nameIndex = literalIndex(QualifiedNamesConstants.ArrayCopy);
+			int typeIndex = literalIndex(QualifiedNamesConstants.ArrayCopySignature);
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[ARRAYCOPY_METHOD_NAME_AND_TYPE] = currentIndex++;
+			writeU1(NameAndTypeTag);
+			writeU2(nameIndex);
+			writeU2(typeIndex);
+		}
+		index = wellKnownMethods[SYSTEM_ARRAYCOPY_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		// Write the method ref constant into the constant pool
+		// First add the tag
+		writeU1(MethodRefTag);
+		// Then write the class index
+		writeU2(classIndex);
+		// The write the nameAndType index
+		writeU2(nameAndTypeIndex);
+	}
+	return index;
+}
+/**
+ * This method returns the index into the constantPool corresponding to the 
+ * method descriptor.
+ *
+ * @return index in the constant pool
  */
 public int literalIndexForJavaLangSystemExitInt() {
 	int index;

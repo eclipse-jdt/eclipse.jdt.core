@@ -104,4 +104,6 @@ public interface QualifiedNamesConstants {
 	char[] HasNextSignature = "()Z".toCharArray();//$NON-NLS-1$
 	char[] Next = "next".toCharArray();//$NON-NLS-1$
 	char[] NextSignature = "()Ljava/lang/Object;".toCharArray();//$NON-NLS-1$
+	char[] ArrayCopy = "arraycopy".toCharArray(); //$NON-NLS-1$
+	char[] ArrayCopySignature = "(Ljava/lang/Object;ILjava/lang/Object;II)V".toCharArray(); //$NON-NLS-1$
 }
