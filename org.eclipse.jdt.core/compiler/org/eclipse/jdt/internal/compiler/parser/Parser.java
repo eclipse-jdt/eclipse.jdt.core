@@ -7979,10 +7979,10 @@ public final void memberValueArrayInitializer(int length) {
 	//expressionPtr points on the last elt of the arrayInitializer, 
 	// in other words, it has not been decremented yet.
 
-	MemberValueArrayInitializer memberValueArrayInitializer = new MemberValueArrayInitializer();
+	ArrayInitializer memberValueArrayInitializer = new ArrayInitializer();
 	if (length != 0) {
 		this.expressionPtr -= length;
-		System.arraycopy(this.expressionStack, this.expressionPtr + 1, memberValueArrayInitializer.memberValues = new Expression[length], 0, length);
+		System.arraycopy(this.expressionStack, this.expressionPtr + 1, memberValueArrayInitializer.expressions = new Expression[length], 0, length);
 	}
 	pushOnExpressionStack(memberValueArrayInitializer);
 	//positionning

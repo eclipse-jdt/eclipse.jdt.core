@@ -1642,7 +1642,7 @@ class ASTConverter {
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.TypeReference) expression);
-		}				
+		}
 		return null;
 	}
 
