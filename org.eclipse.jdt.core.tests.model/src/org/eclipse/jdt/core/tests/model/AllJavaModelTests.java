@@ -144,6 +144,9 @@ public static Test suite() {
 	// Working copy owner tests
 	suite.addTest(WorkingCopyOwnerTests.suite());
 
+	//Delete Java element tests
+	suite.addTest(DeleteTests.suite());
+	
 	return suite;
 }
 
