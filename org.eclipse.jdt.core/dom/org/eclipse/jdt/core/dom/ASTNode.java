@@ -1294,12 +1294,12 @@ public abstract class ASTNode {
 				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 			}
 			ASTNode.checkNewChild(ASTNode.this, newChild, this.propertyDescriptor.cycleRisk, this.propertyDescriptor.elementType);
+			ASTNode.this.ast.preReplaceChildEvent(ASTNode.this, oldChild, newChild, this.propertyDescriptor);
 			Object result = this.store.set(index, newChild);
 			// n.b. setParent will call ast.modifying()
-			ASTNode.this.ast.preRemoveChildEvent(ASTNode.this, oldChild, this.propertyDescriptor);
 			oldChild.setParent(null, null);
 			newChild.setParent(ASTNode.this, this.propertyDescriptor);
-			ASTNode.this.ast.postAddChildEvent(ASTNode.this, newChild, this.propertyDescriptor);
+			ASTNode.this.ast.postReplaceChildEvent(ASTNode.this, oldChild, newChild, this.propertyDescriptor);
 			return result;
 		}
 		
@@ -1317,6 +1317,7 @@ public abstract class ASTNode {
 			// link new child to parent
 			ASTNode newChild = (ASTNode) element;
 			ASTNode.checkNewChild(ASTNode.this, newChild, this.propertyDescriptor.cycleRisk, this.propertyDescriptor.elementType);
+			ASTNode.this.ast.preAddChildEvent(ASTNode.this, newChild, this.propertyDescriptor);
 			this.store.add(index, element);
 			updateCursors(index, +1);
 			// n.b. setParent will call ast.modifying()
@@ -1343,6 +1344,7 @@ public abstract class ASTNode {
 			oldChild.setParent(null, null);
 			Object result = this.store.remove(index);
 			updateCursors(index, -1);
+			ASTNode.this.ast.postRemoveChildEvent(ASTNode.this, oldChild, this.propertyDescriptor);
 			return result;
 
 		}
