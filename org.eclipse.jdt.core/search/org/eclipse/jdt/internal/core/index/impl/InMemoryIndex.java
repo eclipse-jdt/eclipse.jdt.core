@@ -20,28 +20,27 @@ public class InMemoryIndex {
 	/**
 	 * hashtable of WordEntrys = words+numbers of the files they appear in.
 	 */
-	protected HashtableOfObject words= new HashtableOfObject(1023);
+	protected WordEntryHashedArray words;
 
 	/**
 	 * Vector of IndexedFiles = file name + a unique number.
 	 */
-	protected ObjectVector files= new ObjectVector();
+	protected ObjectVector files;
 
 	/**
 	 * Number of references in the index (not the number of actual words).
 	 */
-	protected int wordCount= 0;
+	protected int wordCount;
 
 	/**
 	 * Size of the index.
 	 */
-	protected long footprint= 0;
+	protected long footprint;
 
-	protected long indexFileSize;
 	private WordEntry[] sortedWordEntries;
 	private IndexedFile[] sortedFiles;
 	public InMemoryIndex() {
-		super();
+		init();
 	}
 	/**
 	 * @see IIndex#addFile
@@ -75,7 +74,7 @@ public class InMemoryIndex {
 		if (entry == null) {
 			entry= new WordEntry(word);
 			entry.addRef(fileNum);
-			this.words.put(word, entry);
+			this.words.add(entry);
 			this.sortedWordEntries= null;
 			this.footprint += entry.footprint();
 		} else {
@@ -106,6 +105,7 @@ public class InMemoryIndex {
 	 * Returns the indexed file with the given path, or null if such file does not exist.
 	 */
 	public IndexedFile getIndexedFile(String path) {
+		// duplicate paths do exist but by walking the collection backwards, the latest is found
 		for (int i= files.size; i > 0; i--) {
 			IndexedFile file= (IndexedFile) files.elementAt(i - 1);
 			if (file.getPath().equals(path))
@@ -143,12 +143,7 @@ public class InMemoryIndex {
 	 */
 	protected WordEntry[] getSortedWordEntries() {
 		if (this.sortedWordEntries == null) {
-			WordEntry[] words= new WordEntry[this.words.size()];
-			int numWords= 0;
-			Object[] entries= this.words.valueTable;
-			for (int i= entries.length; i-- > 0;)
-				if (entries[i] != null)
-					words[numWords++]= (WordEntry) entries[i];
+			WordEntry[] words= this.words.asArray();
 			Util.sort(words);
 			this.sortedWordEntries= words;
 		}
@@ -164,8 +159,8 @@ public class InMemoryIndex {
 	 * Initialises the fields of the index
 	 */
 	public void init() {
-		words= new HashtableOfObject(1023);
-		files= new ObjectVector(); // want to change this to a lookup table
+		words= new WordEntryHashedArray(501);
+		files= new ObjectVector();
 		wordCount= 0;
 		footprint= 0;
 		sortedWordEntries= null;
