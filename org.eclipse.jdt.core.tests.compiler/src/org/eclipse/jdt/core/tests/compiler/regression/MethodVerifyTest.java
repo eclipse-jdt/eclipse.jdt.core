@@ -2483,7 +2483,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"The method foo() of type XS must override a superclass method\n" + 
 			"----------\n"
 		);
-	}	
+	}
+
 	public void test045() {
 		this.runConformTest(
 			new String[] {
@@ -2499,7 +2500,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-	}	
+	}
+
 	// ensure no unchecked warning
 	public void test046() {
 		this.runNegativeTest(
@@ -2521,7 +2523,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
-	}		
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87157
 	public void test047() {
 		this.runConformTest(
@@ -2543,5 +2546,136 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 		"0.0");
-	}	
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048() {
+		this.runConformTest(
+			new String[] {
+				"X1.java",
+				"import java.util.*;\n" + 
+				"public class X1 extends LinkedHashMap<String, String> {\n" + 
+				"    public Object putAll(Map<String,String> a) { return null; }\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X2.java",
+				"public class X2 extends Y<String> {\n" + 
+				"    public Object foo(I<String> z) { return null; }\n" + 
+				"}\n" +
+				"class Y<T> implements I<T> {\n" + 
+				"    public void foo(I<? extends T> a) {}\n" + 
+				"}\n" +
+				"interface I<T> {\n" +
+				"    public void foo(I<? extends T> a);\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X3.java",
+				"public class X3 extends Y<String> {\n" + 
+				"    public void foo(I<String> z) {}\n" + 
+				"}\n" +
+				"class Y<T> implements I<T> {\n" + 
+				"    public void foo(I<? extends T> a) {}\n" + 
+				"}\n" +
+				"interface I<T> {\n" +
+				"    public void foo(I<? extends T> a);\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X3.java (at line 2)\r\n" + 
+			"	public void foo(I<String> z) {}\r\n" + 
+			"	            ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(I<String>) of type X3 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+			"----------\n"
+			// name clash: foo(I<java.lang.String>) in X and foo(I<? extends T>) in Y<java.lang.String> have the same erasure, yet neither overrides the other
+		);
+		this.runConformTest(
+			new String[] {
+				"X4.java",
+				"public class X4 extends Y<String> {\n" + 
+				"    public String foo(I<String> z) { return null; }\n" + 
+				"}\n" +
+				"class Y<T> implements I<T> {\n" + 
+				"    public Object foo(I<? extends T> a) { return null; }\n" + 
+				"}\n" +
+				"interface I<T> {\n" +
+				"    public Object foo(I<? extends T> a);\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X5.java",
+				"public class X5 extends Y<String> {\n" + 
+				"    public Object foo(I<String> z) { return null; }\n" + 
+				"}\n" +
+				"class Y<T> implements I<T> {\n" + 
+				"    public String foo(I<? extends T> a) { return null; }\n" + 
+				"}\n" +
+				"interface I<T> {\n" +
+				"    public String foo(I<? extends T> a);\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X6.java",
+				"public class X6 extends Y<String> {\n" + 
+				"    public void foo(I<String> z) {}\n" + 
+				"}\n" +
+				"class Y<T> implements I<T> {\n" + 
+				"    public Object foo(I<? extends T> a) { return null; }\n" + 
+				"}\n" +
+				"interface I<T> {\n" +
+				"    public Object foo(I<? extends T> a);\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X7.java",
+				"public class X7 extends Y<String> {\n" + 
+				"    public String foo(I<String> z) { return null; }\n" + 
+				"}\n" +
+				"class Y<T> implements I<T> {\n" + 
+				"    public T foo(I<? extends T> a) { return null; }\n" + 
+				"}\n" +
+				"interface I<T> {\n" +
+				"    public T foo(I<? extends T> a);\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X8.java",
+				"public class X8 extends Y<String> {\n" + 
+				"    public Object foo(I<String> z) { return null; }\n" + 
+				"}\n" +
+				"class Y<T> implements I<T> {\n" + 
+				"    public T foo(I<? extends T> a) { return null; }\n" + 
+				"}\n" +
+				"interface I<T> {\n" +
+				"    public T foo(I<? extends T> a);\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X8.java (at line 2)\r\n" + 
+			"	public Object foo(I<String> z) { return null; }\r\n" + 
+			"	              ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(I<String>) of type X8 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+			"----------\n"
+			// name clash: foo(I<java.lang.String>) in X7 and foo(I<? extends T>) in Y<java.lang.String> have the same erasure, yet neither overrides the other
+		);
+	}
 }

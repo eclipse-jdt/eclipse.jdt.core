@@ -340,7 +340,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
    return substitute;
 }
 boolean detectInheritedMethodClash(MethodBinding inherited, MethodBinding otherInherited) {
-	if (!inherited.areParameterErasuresEqual(otherInherited)) return false;
+	if (!inherited.areParameterErasuresEqual(otherInherited) || inherited.returnType.erasure() != otherInherited.returnType.erasure()) return false;
 	if (doTypeVariablesClash(inherited, otherInherited) || doParametersClash(inherited, otherInherited)) {
 		problemReporter().inheritedMethodsHaveNameClash(this.type, inherited, otherInherited);
 		return true;
@@ -349,7 +349,7 @@ boolean detectInheritedMethodClash(MethodBinding inherited, MethodBinding otherI
 }
 boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	MethodBinding original = inherited.original(); // can be the same as inherited
-	if (!current.areParameterErasuresEqual(original)) return false;
+	if (!current.areParameterErasuresEqual(original) || current.returnType.erasure() != original.returnType.erasure()) return false;
 	if (doTypeVariablesClash(current, inherited) || doParametersClash(current, original)) {
 		problemReporter(current).methodNameClash(current, original);
 		return true;
