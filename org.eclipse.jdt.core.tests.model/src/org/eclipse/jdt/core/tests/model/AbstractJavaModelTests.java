@@ -159,7 +159,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertSearchResults(String message, String expected, Object collector) {
 		String actual = collector.toString();
 		if (!expected.equals(actual)) {
-			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+			System.out.print(displayString(actual, 2));
 			System.out.println(",");
 		}
 		assertEquals(
@@ -944,12 +944,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			CharOperation.replace(
 				displayString.toCharArray(), 
 				getExternalJCLPath().toString().toCharArray(), 
-				("\"+  getExternalJCLPath() +\"").toCharArray());
+				("\"+ getExternalJCLPath() + \"").toCharArray());
 		toDisplay = 
 			CharOperation.replace(
 				toDisplay, 
 				getExternalJCLSourcePath().toString().toCharArray(), 
-				("\"+  getExternalJCLSourcePath() +\"").toCharArray());
+				("\"+ getExternalJCLSourcePath() + \"").toCharArray());
 		return new String(toDisplay);
 	}
 	public byte[] read(java.io.File file) throws java.io.IOException {

@@ -45,23 +45,27 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 		try {
 			if (results.length() > 0) results.append("\n");
 			IResource resource = match.getResource();
-			IPath path = resource.getProjectRelativePath();
 			IJavaElement element = (IJavaElement) match.getElement();
-			if (path.segmentCount() == 0) {
-				IJavaElement root = element;
-				while (root != null && !(root instanceof IPackageFragmentRoot)) {
-					root = root.getParent();
-				}
-				if (root != null) {
-					IPackageFragmentRoot pkgFragmentRoot = (IPackageFragmentRoot)root;
-					if (pkgFragmentRoot.isExternal()) {
-						results.append(pkgFragmentRoot.getPath().toOSString());
-					} else {
-						results.append(pkgFragmentRoot.getPath());
+			if (resource != null) {
+				IPath path = resource.getProjectRelativePath();
+				if (path.segmentCount() == 0) {
+					IJavaElement root = element;
+					while (root != null && !(root instanceof IPackageFragmentRoot)) {
+						root = root.getParent();
 					}
+					if (root != null) {
+						IPackageFragmentRoot pkgFragmentRoot = (IPackageFragmentRoot)root;
+						if (pkgFragmentRoot.isExternal()) {
+							results.append(pkgFragmentRoot.getPath().toOSString());
+						} else {
+							results.append(pkgFragmentRoot.getPath());
+						}
+					}
+				} else {
+					results.append(path);
 				}
 			} else {
-				results.append(path);
+				results.append(element.getPath());
 			}
 			if (this.showProject) {
 				IProject project = element.getJavaProject().getProject();
@@ -295,6 +299,7 @@ public static Test suite() {
 	// package declaration
 	suite.addTest(new JavaSearchTests("testSimplePackageDeclaration"));
 	suite.addTest(new JavaSearchTests("testVariousPackageDeclarations"));
+	suite.addTest(new JavaSearchTests("testPackageDeclaration"));
 	
 	// package reference
 	suite.addTest(new JavaSearchTests("testSimplePackageReference"));
@@ -2095,6 +2100,22 @@ public void testOrPattern() throws CoreException {
 		"src/e8/A.java void e8.A.m() [m] POTENTIAL_MATCH\n" + 
 		"src/q9/I.java void q9.I.m() [m] EXACT_MATCH\n" + 
 		"src/q9/I.java void q9.A1.m() [m] EXACT_MATCH",
+		resultCollector);
+}
+/**
+ * Package declaration test.
+ * (regression test for bug 62698 NPE while searching for declaration of binary package)
+ */
+public void testPackageDeclaration() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", getExternalJCLPathString(), "java.lang");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		pkg, 
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		getExternalJCLPath() + " java.lang",
 		resultCollector);
 }
 /**
