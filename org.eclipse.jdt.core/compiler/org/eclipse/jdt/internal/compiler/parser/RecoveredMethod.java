@@ -293,10 +293,14 @@ public void updateFromParserState(){
 		/* might want to recover arguments or thrown exceptions */
 		if (parser.listLength > 0){ // awaiting interface type references
 			/* has consumed the arguments - listed elements must be thrown exceptions */
-			if (methodDeclaration.sourceEnd == parser.rParenPos){
-				parser.consumeMethodHeaderThrowsClause(); 
-				// will reset typeListLength to zero
-				// thus this check will only be performed on first errorCheck after void foo() throws X, Y,
+			if (methodDeclaration.sourceEnd == parser.rParenPos) {
+				if (parser.astStack[parser.astPtr] instanceof TypeReference){
+					parser.consumeMethodHeaderThrowsClause(); 
+					// will reset typeListLength to zero
+					// thus this check will only be performed on first errorCheck after void foo() throws X, Y,
+				} else {
+					parser.listLength = 0;
+				}
 			} else {
 				/* has not consumed arguments yet, listed elements must be arguments */
 				if (parser.currentToken == TokenNameLPAREN || parser.currentToken == TokenNameSEMICOLON){
