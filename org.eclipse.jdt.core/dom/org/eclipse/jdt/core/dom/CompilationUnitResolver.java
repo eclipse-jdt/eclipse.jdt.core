@@ -561,18 +561,19 @@ class CompilationUnitResolver extends Compiler {
 				this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			}
 			
-			// remaining binding keys are package binding keys or base type binding keys
+			// remaining binding keys
 			DefaultBindingResolver resolver = new DefaultBindingResolver(null, owner, this.bindingTables, this);
 			Object[] keys = this.requestedKeys.valueTable;
 			for (int j = 0, keysLength = keys.length; j < keysLength; j++) {
 				BindingKey key = (BindingKey) keys[j];
 				if (key == null) continue;
 				Binding compilerBinding = key.getCompilerBinding(this);
-				IBinding binding = resolver.getBinding(compilerBinding);
-				
-				// pass it to requestor
-				if (binding != null)
-					astRequestor.acceptBinding(((BindingKey) this.requestedKeys.valueTable[j]).getKey(), binding);
+				if (compilerBinding != null) {
+					IBinding binding = resolver.getBinding(compilerBinding);
+					if (binding != null)
+						// pass it to requestor
+						astRequestor.acceptBinding(((BindingKey) this.requestedKeys.valueTable[j]).getKey(), binding);
+				}
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
