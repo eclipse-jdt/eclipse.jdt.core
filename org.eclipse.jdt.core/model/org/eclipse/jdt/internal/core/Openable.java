@@ -98,7 +98,7 @@ protected void closeBuffer() {
 /**
  * This element is being closed.  Do any necessary cleanup.
  */
-protected void closing(Object info) throws JavaModelException {
+protected void closing(Object info) {
 	closeBuffer();
 }
 protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {

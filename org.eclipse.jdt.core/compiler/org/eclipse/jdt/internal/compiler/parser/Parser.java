@@ -6170,7 +6170,7 @@ protected static byte[] readByteTable(String filename) throws java.io.IOExceptio
 	}
 	return bytes;
 }
-protected static String[] readReadableNameTable(String filename) throws java.io.IOException {
+protected static String[] readReadableNameTable(String filename) {
 	String[] result = new String[name.length];
 
 	ResourceBundle bundle;

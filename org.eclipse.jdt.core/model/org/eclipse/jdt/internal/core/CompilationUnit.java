@@ -171,7 +171,7 @@ public void close() throws JavaModelException {
 /*
  * @see Openable#closing
  */
-protected void closing(Object info) throws JavaModelException {
+protected void closing(Object info) {
 	if (getPerWorkingCopyInfo() == null) {
 		super.closing(info);
 	} // else the buffer of a working copy must remain open for the lifetime of the working copy

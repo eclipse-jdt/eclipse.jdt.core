@@ -480,7 +480,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 	}
 }
 
-protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) throws CoreException {
+protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) {
 	char[][] previousTypeNames = newState.getDefinedTypeNamesFor(sourceLocator);
 	if (previousTypeNames == null)
 		previousTypeNames = new char[][] {mainTypeName};

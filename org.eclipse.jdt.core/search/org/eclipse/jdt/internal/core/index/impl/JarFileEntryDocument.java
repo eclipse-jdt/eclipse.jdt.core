@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index.impl;
 
-import java.io.IOException;
 import java.util.zip.ZipEntry;
 
 import org.eclipse.core.runtime.Path;
@@ -39,14 +38,14 @@ public JarFileEntryDocument(ZipEntry entry, byte[] contents, Path zipFilePath) {
  * This API always return null for a JarFileDocument
  * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
  */
-public byte[] getByteContent() throws IOException {
+public byte[] getByteContent() {
 	return this.byteContents;
 }
 /**
  * This API always return null for a JarFileDocument
  * @see org.eclipse.jdt.internal.core.index.IDocument#getCharContent()
  */
-public char[] getCharContent() throws IOException {
+public char[] getCharContent() {
 	return null;
 }
 /**
@@ -66,7 +65,7 @@ public String getEncoding() {
  * This API always return null for a JarFileDocument
  * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
  */
-public String getStringContent() throws java.io.IOException {
+public String getStringContent() {
 	return null;
 }
 	/**

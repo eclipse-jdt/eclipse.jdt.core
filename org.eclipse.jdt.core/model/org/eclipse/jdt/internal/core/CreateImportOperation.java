@@ -57,7 +57,7 @@ public CreateImportOperation(String importName, ICompilationUnit parentElement) 
 /**
  * @see CreateTypeMemberOperation#generateElementDOM
  */
-protected IDOMNode generateElementDOM() throws JavaModelException {
+protected IDOMNode generateElementDOM() {
 	if (fCUDOM.getChild(fImportName) == null) {
 		DOMFactory factory = new DOMFactory();
 		//not a duplicate

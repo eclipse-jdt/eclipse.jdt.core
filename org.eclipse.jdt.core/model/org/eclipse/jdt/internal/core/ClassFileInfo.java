@@ -120,7 +120,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
  * Returns the list of children (<code>BinaryMember</code>s) of the
  * <code>BinaryType</code> of our <code>ClassFile</code>.
  */
-IJavaElement[] getBinaryChildren(HashMap newElements) throws JavaModelException {
+IJavaElement[] getBinaryChildren(HashMap newElements) {
 	if (this.binaryChildren == null) {
 		readBinaryChildren(newElements, null/*type info not known here*/);
 	}

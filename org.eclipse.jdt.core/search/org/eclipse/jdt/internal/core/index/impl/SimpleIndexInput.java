@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.core.index.IDocument;
@@ -40,13 +39,13 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#close()
 	 */
-	public void close() throws IOException {
+	public void close() {
 		sortedFiles= null;
 	}
 	/**
 	 * @see IndexInput#getCurrentFile()
 	 */
-	public IndexedFile getCurrentFile() throws IOException {
+	public IndexedFile getCurrentFile() {
 		if (!hasMoreFiles())
 			return null;
 		return currentFile;
@@ -54,7 +53,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#getIndexedFile(int)
 	 */
-	public IndexedFile getIndexedFile(int fileNum) throws IOException {
+	public IndexedFile getIndexedFile(int fileNum) {
 		for (int i= 0; i < sortedFiles.length; i++)
 			if (sortedFiles[i].getFileNumber() == fileNum)
 				return sortedFiles[i];
@@ -63,7 +62,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#getIndexedFile(IDocument)
 	 */
-	public IndexedFile getIndexedFile(IDocument document) throws IOException {
+	public IndexedFile getIndexedFile(IDocument document) {
 		String name= document.getName();
 		for (int i= index.getNumFiles(); i >= 1; i--) {
 			IndexedFile file= getIndexedFile(i);
@@ -115,7 +114,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#open()
 	 */
-	public void open() throws IOException {
+	public void open() {
 		sortedWordEntries= index.getSortedWordEntries();
 		sortedFiles= index.getSortedFiles();
 		filePosition= 1;
@@ -126,7 +125,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#query(String)
 	 */
-	public IQueryResult[] query(String word) throws IOException {
+	public IQueryResult[] query(String word) {
 		char[] wordChar= word.toCharArray();
 		WordEntry wordEntry= index.getWordEntry(wordChar);
 		int[] fileNums= wordEntry.getRefs();
@@ -135,16 +134,16 @@ public class SimpleIndexInput extends IndexInput {
 			files[i]= getIndexedFile(fileNums[i]);
 		return files;
 	}
-	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
+	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) {
 		return null;
 	}
-	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
+	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) {
 			return null;
 	}
 	/**
 	 * @see IndexInput#queryInDocumentNames(String)
 	 */
-	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
+	public IQueryResult[] queryInDocumentNames(String word) {
 		setFirstFile();
 		ArrayList matches= new ArrayList();
 		while (hasMoreFiles()) {
@@ -160,7 +159,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#setFirstFile()
 	 */
-	protected void setFirstFile() throws IOException {
+	protected void setFirstFile() {
 		filePosition= 1;
 		if (sortedFiles.length > 0) {
 			currentFile= sortedFiles[0];
@@ -169,7 +168,7 @@ public class SimpleIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#setFirstWord()
 	 */
-	protected void setFirstWord() throws IOException {
+	protected void setFirstWord() {
 		wordPosition= 1;
 		if (sortedWordEntries.length > 0)
 			currentWordEntry= sortedWordEntries[0];

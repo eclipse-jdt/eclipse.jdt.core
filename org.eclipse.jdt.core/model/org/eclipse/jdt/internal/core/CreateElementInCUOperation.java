@@ -199,7 +199,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	/**
 	 * Creates and returns the handles for the elements this operation created.
 	 */
-	protected IJavaElement[] generateResultHandles() throws JavaModelException {
+	protected IJavaElement[] generateResultHandles() {
 		return new IJavaElement[]{generateResultHandle()};
 	}
 	/**

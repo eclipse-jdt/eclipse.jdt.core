@@ -223,7 +223,7 @@ protected void createProblemFor(IResource resource, String message, String probl
 	}
 }
 
-protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) throws CoreException {
+protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) {
 	if (duplicateTypeNames == null) {
 		newState.record(sourceLocator, result.qualifiedReferences, result.simpleNameReferences, mainTypeName, definedTypeNames);
 		return;

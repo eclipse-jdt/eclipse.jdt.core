@@ -549,7 +549,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	/**
 	 * Makes sure that <code>cu</code> declares to be in the <code>pkgName</code> package.
 	 */
-	private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) throws JavaModelException {
+	private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) {
 		boolean defaultPackage = pkgName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME);
 		boolean seenPackageNode = false;
 		Enumeration enum = domCU.getChildren();

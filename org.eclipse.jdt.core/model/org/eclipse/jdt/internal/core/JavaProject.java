@@ -237,7 +237,7 @@ public class JavaProject
 
 		return true;
 	}
-	protected void closing(Object info) throws JavaModelException {
+	protected void closing(Object info) {
 		
 		// forget source attachment recommendations
 		Object[] children = ((JavaElementInfo)info).children;

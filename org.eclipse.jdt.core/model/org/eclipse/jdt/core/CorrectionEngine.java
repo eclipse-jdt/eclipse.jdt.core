@@ -180,7 +180,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 	when the correction failed is kept for later.
 	 * @since 2.0
 	 */
-	private void computeCorrections(ICompilationUnit unit, int id, int start, int end, String[] arguments, ICorrectionRequestor requestor) throws JavaModelException{
+	private void computeCorrections(ICompilationUnit unit, int id, int start, int end, String[] arguments, ICorrectionRequestor requestor) {
 
 		if(id == -1 || arguments == null || start == -1 || end == -1)
 			return;		

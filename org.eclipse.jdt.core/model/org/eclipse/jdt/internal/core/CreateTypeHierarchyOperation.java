@@ -46,7 +46,7 @@ public class CreateTypeHierarchyOperation extends JavaModelOperation {
  * given type within the specified region, in the context of
  * the given project.
  */
-public CreateTypeHierarchyOperation(IRegion region, IJavaProject project, ICompilationUnit[] workingCopies, IType element, boolean computeSubtypes) throws JavaModelException {
+public CreateTypeHierarchyOperation(IRegion region, IJavaProject project, ICompilationUnit[] workingCopies, IType element, boolean computeSubtypes) {
 	super(element);
 	this.typeHierarchy = new RegionBasedTypeHierarchy(region, project, workingCopies, element, computeSubtypes);
 }
@@ -54,7 +54,7 @@ public CreateTypeHierarchyOperation(IRegion region, IJavaProject project, ICompi
  * Constructs an operation to create a type hierarchy for the
  * given type and working copies.
  */
-public CreateTypeHierarchyOperation(IType element, ICompilationUnit[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
+public CreateTypeHierarchyOperation(IType element, ICompilationUnit[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) {
 	super(element);
 	ICompilationUnit[] copies;
 	if (workingCopies != null) {
@@ -70,7 +70,7 @@ public CreateTypeHierarchyOperation(IType element, ICompilationUnit[] workingCop
  * Constructs an operation to create a type hierarchy for the
  * given type and working copies.
  */
-public CreateTypeHierarchyOperation(IType element, ICompilationUnit[] workingCopies, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
+public CreateTypeHierarchyOperation(IType element, ICompilationUnit[] workingCopies, IJavaProject project, boolean computeSubtypes) {
 	super(element);
 	ICompilationUnit[] copies;
 	if (workingCopies != null) {

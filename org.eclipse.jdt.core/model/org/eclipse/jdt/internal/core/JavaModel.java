@@ -60,7 +60,7 @@ public class JavaModel extends Openable implements IJavaModel {
 protected JavaModel() throws Error {
 	super(null, "" /*workspace has empty name*/); //$NON-NLS-1$
 }
-protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)	throws JavaModelException {
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)	/*throws JavaModelException*/ {
 
 	// determine my children
 	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
@@ -258,7 +258,7 @@ public IResource getResource() {
 /**
  * @see IOpenable
  */
-public IResource getUnderlyingResource() throws JavaModelException {
+public IResource getUnderlyingResource() {
 	return null;
 }
 /**

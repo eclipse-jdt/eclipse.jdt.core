@@ -304,7 +304,7 @@ public class Index implements IIndex {
 	/**
 	 * @see IIndex#remove
 	 */
-	public void remove(String documentName) throws IOException {
+	public void remove(String documentName) {
 		IndexedFile file= addsIndex.getIndexedFile(documentName);
 		if (file != null) {
 			//the file is in the adds Index, we remove it from this one
@@ -325,7 +325,7 @@ public class Index implements IIndex {
 	 * Removes the given document from the given index (MergeFactory.ADDS_INDEX for the
 	 * in memory index, MergeFactory.OLD_INDEX for the index on the disk).
 	 */
-	protected void remove(IndexedFile file, int index) throws IOException {
+	protected void remove(IndexedFile file, int index) {
 		String name= file.getPath();
 		if (index == MergeFactory.ADDS_INDEX) {
 			Int lastRemoved= (Int) removedInAdds.get(name);

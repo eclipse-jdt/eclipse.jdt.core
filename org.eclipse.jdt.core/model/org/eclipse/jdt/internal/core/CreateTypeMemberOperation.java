@@ -77,7 +77,7 @@ protected void generateNewCompilationUnitDOM(ICompilationUnit cu) throws JavaMod
  * Generates a <code>IDOMNode</code> based on the source of this operation
  * when there is likely a syntax error in the source.
  */
-protected IDOMNode generateSyntaxIncorrectDOM() throws JavaModelException {
+protected IDOMNode generateSyntaxIncorrectDOM() {
 	//create some dummy source to generate a dom node
 	StringBuffer buff = new StringBuffer();
 	buff.append(Util.LINE_SEPARATOR + " public class A {" + Util.LINE_SEPARATOR); //$NON-NLS-1$

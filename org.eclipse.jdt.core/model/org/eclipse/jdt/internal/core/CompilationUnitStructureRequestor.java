@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -113,7 +112,7 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected HashtableOfObject typeRefCache;
 	protected HashtableOfObject unknownRefCache;
 
-protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) throws JavaModelException {
+protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) {
 	this.unit = unit;
 	this.unitInfo = unitInfo;
 	this.newElements = newElements;

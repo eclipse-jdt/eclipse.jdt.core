@@ -260,7 +260,7 @@ public class SourceMapper
 	 * Closes this <code>SourceMapper</code>'s zip file. Once this is done, this
 	 * <code>SourceMapper</code> cannot be used again.
 	 */
-	public void close() throws JavaModelException {
+	public void close() {
 		fSourceRanges = null;
 		fParameterNames = null;
 	}

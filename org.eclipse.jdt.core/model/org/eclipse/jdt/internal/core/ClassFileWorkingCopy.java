@@ -279,7 +279,7 @@ public IType findPrimaryType() {
 	/*
 	 * @see IJavaElement#isStructureKnown()
 	 */
-	public boolean isStructureKnown() throws JavaModelException {
+	public boolean isStructureKnown() {
 		return false;
 	}
 

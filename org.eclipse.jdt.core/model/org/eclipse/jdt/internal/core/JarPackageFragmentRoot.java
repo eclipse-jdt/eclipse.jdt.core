@@ -181,11 +181,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	}
 	/**
 	 * A Jar is always K_BINARY.
-	 *
-	 * @exception NotPresentException if the project and root do
-	 *      not exist.
 	 */
-	protected int determineKind(IResource underlyingResource) throws JavaModelException {
+	protected int determineKind(IResource underlyingResource) {
 		return IPackageFragmentRoot.K_BINARY;
 	}
 	/**

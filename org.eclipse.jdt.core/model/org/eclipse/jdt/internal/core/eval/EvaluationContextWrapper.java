@@ -78,7 +78,7 @@ public IGlobalVariable[] allVariables() {
 /**
  * Checks to ensure that there is a previously built state.
  */
-protected void checkBuilderState() throws JavaModelException {
+protected void checkBuilderState() {
 	
 	return;
 }

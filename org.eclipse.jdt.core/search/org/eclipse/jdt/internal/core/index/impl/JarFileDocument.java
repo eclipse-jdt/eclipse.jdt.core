@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.index.impl;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
@@ -33,14 +32,14 @@ public class JarFileDocument implements IDocument {
 	 * This API always return null for a JarFileDocument
 	 * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
 	 */
-	public byte[] getByteContent() throws IOException {
+	public byte[] getByteContent() {
 		return null;
 	}
 	/**
 	 * This API always return null for a JarFileDocument
 	 * @see org.eclipse.jdt.internal.core.index.IDocument#getCharContent()
 	 */
-	public char[] getCharContent() throws IOException {
+	public char[] getCharContent() {
 		return null;
 	}
 	/**
@@ -68,7 +67,7 @@ public class JarFileDocument implements IDocument {
 	 * This API always return null for a JarFileDocument
 	 * @see org.eclipse.jdt.internal.core.index.IDocument#getByteContent()
 	 */
-	public String getStringContent() throws java.io.IOException {
+	public String getStringContent() {
 		return null;
 	}
 	/**
