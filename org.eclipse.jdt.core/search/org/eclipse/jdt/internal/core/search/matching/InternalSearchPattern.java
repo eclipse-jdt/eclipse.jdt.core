@@ -28,12 +28,8 @@ public abstract class InternalSearchPattern {
 	 */
 	IJavaElement focus;
 
-	final int kind;
+	int kind;
 	boolean mustResolve = true;
-	
-	public InternalSearchPattern(int kind) {
-		this.kind = kind;
-	}
 	
 	void acceptMatch(String documentName, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 		String documentPath = Index.convertPath(documentName);
@@ -76,7 +72,7 @@ public abstract class InternalSearchPattern {
 	}
 	EntryResult[] queryIn(Index index) throws IOException {
 		SearchPattern pattern = (SearchPattern) this;
-		return index.query(pattern.getMatchCategories(), pattern.getIndexKey(), pattern.getMatchRule());
+		return index.query(pattern.getIndexCategories(), pattern.getIndexKey(), pattern.getMatchRule());
 	}
 
 }

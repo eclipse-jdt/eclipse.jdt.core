@@ -85,7 +85,7 @@ public class LabeledStatement extends Statement {
 		
 		int pc = codeStream.position;
 		if (targetLabel != null) {
-			targetLabel.codeStream = codeStream;
+			targetLabel.initialize(codeStream);
 			if (statement != null) {
 				statement.generateCode(currentScope, codeStream);
 			}
@@ -126,11 +126,5 @@ public class LabeledStatement extends Statement {
 			if (this.statement != null) this.statement.traverse(visitor, blockScope);
 		}
 		visitor.endVisit(this, blockScope);
-	}
-
-	public void resetStateForCodeGeneration() {
-		if (this.targetLabel != null) {	
-			this.targetLabel.resetStateForCodeGeneration();
-		}
 	}
 }

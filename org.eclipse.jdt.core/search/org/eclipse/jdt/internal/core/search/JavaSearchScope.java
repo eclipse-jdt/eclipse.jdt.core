@@ -246,17 +246,14 @@ public boolean encloses(IJavaElement element) {
 			IJavaElement scopeElement = (IJavaElement)this.elements.get(i);
 			IJavaElement searchedElement = element;
 			while (searchedElement != null) {
-				if (searchedElement.equals(scopeElement)) {
+				if (searchedElement.equals(scopeElement))
 					return true;
-				} else {
-					searchedElement = searchedElement.getParent();
-				}
+				searchedElement = searchedElement.getParent();
 			}
 		}
 		return false;
-	} else {
-		return this.encloses(this.fullPath(element));
 	}
+	return this.encloses(this.fullPath(element));
 }
 
 /* (non-Javadoc)
@@ -268,19 +265,18 @@ public IPath[] enclosingProjectsAndJars() {
 private IPath fullPath(IJavaElement element) {
 	if (element instanceof IPackageFragmentRoot) {
 		return ((IPackageFragmentRoot)element).getPath();
-	} else 	{
-		IJavaElement parent = element.getParent();
-		IPath parentPath = parent == null ? null : this.fullPath(parent);
-		IPath childPath;
-		if (element instanceof IPackageFragment) {
-			childPath = new Path(element.getElementName().replace('.', '/'));
-		} else if (element instanceof IOpenable) {
-			childPath = new Path(element.getElementName());
-		} else {
-			return parentPath;
-		}
-		return parentPath == null ? childPath : parentPath.append(childPath);
 	}
+	IJavaElement parent = element.getParent();
+	IPath parentPath = parent == null ? null : this.fullPath(parent);
+	IPath childPath;
+	if (element instanceof IPackageFragment) {
+		childPath = new Path(element.getElementName().replace('.', '/'));
+	} else if (element instanceof IOpenable) {
+		childPath = new Path(element.getElementName());
+	} else {
+		return parentPath;
+	}
+	return parentPath == null ? childPath : parentPath.append(childPath);
 }
 
 protected void initialize() {

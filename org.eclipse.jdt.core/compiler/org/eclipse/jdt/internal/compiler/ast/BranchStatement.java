@@ -55,12 +55,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	SubRoutineStatement.reenterExceptionHandlers(subroutines, -1, codeStream);
 }
-public void resetStateForCodeGeneration() {
-	if (this.targetLabel != null) {
-		this.targetLabel.resetStateForCodeGeneration();
-	}
-}
-
 public void resolve(BlockScope scope) {
 	// nothing to do during name resolution
 }

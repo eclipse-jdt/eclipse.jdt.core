@@ -687,7 +687,7 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	// only for this possible match and its required types.
 	this.nameEnvironment = possibleMatchSize == 1
 		? (INameEnvironment) searchableEnvironment
-		: (INameEnvironment) new JavaSearchNameEnvironment(project);
+		: (INameEnvironment) new JavaSearchNameEnvironment(project, this.workingCopies);
 
 	// create lookup environment
 	this.options = new CompilerOptions(project.getOptions(true));
@@ -1239,7 +1239,7 @@ protected void reportAccurateFieldReference(QualifiedNameReference qNameRef, IJa
 		if (token != TerminalTokens.TokenNameEOF) {
 			char[] currentTokenSource = scanner.getCurrentTokenSource();
 			boolean equals = false;
-			while (i < length && !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource)));
+			while (i < length && !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource))){/*empty*/}
 			if (equals && (previousValid == -1 || previousValid == i - 2)) {
 				previousValid = i - 1;
 				if (refSourceStart == -1)

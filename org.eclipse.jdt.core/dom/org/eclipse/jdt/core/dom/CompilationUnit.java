@@ -28,14 +28,14 @@ import org.eclipse.text.edits.TextEdit;
  * The source range for this type of node is ordinarily the entire source file,
  * including leading and trailing whitespace and comments.
  * </p>
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * CompilationUnit:
  *    [ PackageDeclaration ]
  *        { ImportDeclaration }
  *        { TypeDeclaration | <b>;</b> }
  * </pre>
- * For 3.0 (corresponding to JLS3), the kinds of type declarations
+ * For JLS3, the kinds of type declarations
  * grew to include enum and annotation type declarations:
  * <pre>
  * CompilationUnit:
@@ -338,9 +338,9 @@ public class CompilationUnit extends ASTNode {
 	 * Returns the live list of nodes for the top-level type declarations of this 
 	 * compilation unit, in order of appearance.
      * <p>
-     * Note that in 3.0, the types may include both enum declarations
-     * and annotation type declarations introduced in JDK 1.5.
-     * For 2.0, the elements are always <code>TypeDeclaration</code>.
+     * Note that in JLS3, the types may include both enum declarations
+     * and annotation type declarations introduced in J2SE 1.5.
+     * For JLS2, the elements are always <code>TypeDeclaration</code>.
      * </p>
 	 * 
 	 * @return the live list of top-level type declaration

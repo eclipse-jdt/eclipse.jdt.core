@@ -42,12 +42,9 @@ public RecoveredElement(RecoveredElement parent, int bracketBalance, Parser pars
 public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (this.parent == null) {
-		return this; // ignore
-	} else {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(methodDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(methodDeclaration, bracketBalanceValue);
-	}
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(methodDeclaration.declarationSourceStart - 1));	
+	return this.parent.add(methodDeclaration, bracketBalanceValue);
 }
 /*
  * Record a nested block declaration
@@ -55,12 +52,9 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (this.parent == null) {
-		return this; // ignore
-	} else {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(nestedBlockDeclaration.sourceStart - 1));	
-		return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
-	}
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(nestedBlockDeclaration.sourceStart - 1));	
+	return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
 }
 /*
  * Record a field declaration
@@ -68,12 +62,9 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (this.parent == null) {
-		return this; // ignore
-	} else {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(fieldDeclaration, bracketBalanceValue);
-	}
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));	
+	return this.parent.add(fieldDeclaration, bracketBalanceValue);
 }
 /*
  *	Record an import reference
@@ -81,12 +72,9 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 public RecoveredElement add(ImportReference importReference, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
-	if (this.parent == null) {
-		return this; // ignore
-	} else {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(importReference.declarationSourceStart - 1));	
-		return this.parent.add(importReference, bracketBalanceValue);
-	}
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(importReference.declarationSourceStart - 1));	
+	return this.parent.add(importReference, bracketBalanceValue);
 }
 /*
  * Record a local declaration
@@ -94,12 +82,9 @@ public RecoveredElement add(ImportReference importReference, int bracketBalanceV
 public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (this.parent == null) {
-		return this; // ignore
-	} else {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(localDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(localDeclaration, bracketBalanceValue);
-	}
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(localDeclaration.declarationSourceStart - 1));	
+	return this.parent.add(localDeclaration, bracketBalanceValue);
 }
 /*
  * Record a statement
@@ -107,12 +92,9 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
-	if (this.parent == null) {
-		return this; // ignore
-	} else {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(statement.sourceStart - 1));	
-		return this.parent.add(statement, bracketBalanceValue);
-	}
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(statement.sourceStart - 1));	
+	return this.parent.add(statement, bracketBalanceValue);
 }
 /*
  *	Record a type declaration
@@ -120,12 +102,9 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
-	if (this.parent == null) {
-		return this; // ignore
-	} else {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(typeDeclaration, bracketBalanceValue);
-	}
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));	
+	return this.parent.add(typeDeclaration, bracketBalanceValue);
 }
 /*
  * Answer the depth of this element, considering the parent link.

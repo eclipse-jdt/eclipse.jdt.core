@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.HashMap;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
@@ -17,11 +18,13 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 //import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 //import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -38,8 +41,28 @@ public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConsta
 	
 	ClasspathLocation[] locations;
 	
-public JavaSearchNameEnvironment(IJavaProject javaProject) {
+	/*
+	 * A map from the fully qualified slash-separated name of the main type (String) to the working copy
+	 */
+	HashMap workingCopies;
+	
+public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.ICompilationUnit[] copies) {
 	computeClasspathLocations(javaProject.getProject().getWorkspace().getRoot(), (JavaProject) javaProject);
+	try {
+		int length = copies == null ? 0 : copies.length;
+		this.workingCopies = new HashMap(length);
+		for (int i = 0; i < length; i++) {
+			org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
+			IPackageDeclaration[] pkgs = workingCopy.getPackageDeclarations();
+			String pkg = pkgs.length > 0 ? pkgs[0].getElementName() : ""; //$NON-NLS-1$
+			String cuName = workingCopy.getElementName();
+			String mainTypeName = cuName.substring(0, cuName.length() - SUFFIX_JAVA.length);
+			String qualifiedMainTypeName = pkg.length() == 0 ? mainTypeName : pkg.replace('.', '/') + '/' + mainTypeName;
+			this.workingCopies.put(qualifiedMainTypeName, workingCopy);
+		}
+	} catch (JavaModelException e) {
+		// working copy doesn't exist: cannot happen
+	}
 }
 
 public void cleanup() {
@@ -106,10 +129,15 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					sourceFileName = qSourceFileName.substring(typeNameStart);
 				}
 			}
-			answer = location.findClass(
-				sourceFileName,
-				qPackageName,
-				qSourceFileName);
+			ICompilationUnit workingCopy = (ICompilationUnit) this.workingCopies.get(qualifiedTypeName);
+			if (workingCopy != null) {
+				answer = new NameEnvironmentAnswer(workingCopy);
+			} else {
+				answer = location.findClass(
+					sourceFileName,
+					qPackageName,
+					qSourceFileName);
+			}
 		} else {
 			if (binaryFileName == null) {
 				qBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;

@@ -22,16 +22,28 @@ import org.eclipse.jdt.internal.core.search.matching.*;
 /**
  * A search pattern defines how search results are found. Use <code>SearchPattern.createPattern</code>
  * to create a search pattern.
- *
+ * <p>
+ * Search patterns are used during the search phase to decode index entries that were added during the indexing phase
+ * (see {@link SearchDocument#addIndexEntry(char[], char[])}). When an index is queried, the 
+ * index categories and keys to consider are retrieved from the search pattern using {@link #getIndexCategories()} and
+ * {@link #getIndexKey()}, as well as the match rule (see {@link #getMatchRule()}). A blank pattern is
+ * then created (see {@link #getBlankPattern()}). This blank pattern is used as a record as follows.
+ * For each index entry in the given index categories and that starts with the given key, the blank pattern is fed using 
+ * {@link #decodeIndexKey(char[])}. The original pattern is then asked if it matches the decoded key using
+ * {@link #matchesDecodedKey(SearchPattern)}. If it matches, a search doument is created for this index entry
+ * using {@link SearchParticipant#getDocument(String)}.
+ * 
+ * </p><p>
+ * This class is intended to be subclassed by clients. A default behavior is provided for each of the methods above, that
+ * clients can ovveride if they wish.
+ * </p>
  * @see #createPattern(org.eclipse.jdt.core.IJavaElement, int)
  * @see #createPattern(String, int, int, int, boolean)
  * @since 3.0
  */
 public abstract class SearchPattern extends InternalSearchPattern {
 
-	/**
-	 * Rules for pattern matching: (exact, prefix, pattern) [ | case sensitive]
-	 */
+	// Rules for pattern matching: (exact, prefix, pattern) [ | case sensitive]
 	/**
 	 * Match rule: The search pattern matches exactly the search result,
 	 * that is, the source of the search result equals the search pattern.
@@ -49,36 +61,34 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	/**
 	 * Match rule: The search pattern contains a regular expression.
 	 */
-	public static final int R_REGEXP_MATCH = 3;
+	public static final int R_REGEXP_MATCH = 4;
 	/**
 	 * Match rule: The search pattern matches the search result only if cases are the same.
 	 * Can be combined to previous rules, e.g. R_EXACT_MATCH | R_CASE_SENSITIVE
 	 */
-	public static final int R_CASE_SENSITIVE = 4;
-
-	/**
-	 * Whether this pattern is case sensitive.
-	 */
-	private final boolean isCaseSensitive;
+	public static final int R_CASE_SENSITIVE = 8;
 	
-	/**
-	 * One of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH.
-	 */
-	private final int matchMode;
+	private int matchRule;
 
-	protected SearchPattern(int patternKind, int matchRule) {
-		super(patternKind);
-		this.isCaseSensitive = (matchRule & R_CASE_SENSITIVE) != 0;
-		this.matchMode = matchRule - (this.isCaseSensitive ? R_CASE_SENSITIVE : 0);
+	/**
+	 * Creates a search pattern with the rule to apply for matching index keys. 
+	 * It can be exact match, prefix match, pattern match or regexp match.
+	 * Rule can also be combined with a case sensitivity flag.
+	 * 
+	 * @param matchRule the rule to apply for matching index keys. 
+	 */
+	public SearchPattern(int matchRule) {
+		this.matchRule = matchRule;
 	}
 
 	/**
-	 * Returns a search pattern that combines the given two patterns into a "and" pattern.
-	 * The search result will match both the left pattern and the right pattern.
+	 * Returns a search pattern that combines the given two patterns into an
+	 * "and" pattern. The search result will match both the left pattern and
+	 * the right pattern.
 	 *
 	 * @param leftPattern the left pattern
 	 * @param rightPattern the right pattern
-	 * @return a "and" pattern
+	 * @return an "and" pattern
 	 */
 	public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 		return MatchLocator.createAndPattern(leftPattern, rightPattern);
@@ -635,16 +645,18 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		return null;
 	}
 	/**
-	 * Returns a search pattern that combines the given two patterns into a "or" pattern.
-	 * The search result will match either the left pattern or the right pattern.
+	 * Returns a search pattern that combines the given two patterns into an
+	 * "or" pattern. The search result will match either the left pattern or the
+	 * right pattern.
 	 *
 	 * @param leftPattern the left pattern
 	 * @param rightPattern the right pattern
-	 * @return a "or" pattern
+	 * @return an "or" pattern
 	 */
 	public static SearchPattern createOrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 		return new OrPattern(leftPattern, rightPattern);
 	}
+	
 	private static SearchPattern createPackagePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 		int matchRule = isCaseSensitive ? matchMode | R_CASE_SENSITIVE : matchMode;
 		switch (limitTo) {
@@ -698,9 +710,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *
 	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
-	 * @param matchMode one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH.
-	 * @param isCaseSensitive indicates whether the search is case sensitive or not.
-	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed.
+	 * @param matchMode one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH
+	 * @param isCaseSensitive indicates whether the search is case sensitive or not
+	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
 	 */
 	public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchMode, boolean isCaseSensitive) {
 		if (stringPattern == null || stringPattern.length() == 0) return null;
@@ -1190,17 +1202,12 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		}
 	}
 	/**
-	 * Encode the given index key into a char array.
-	 * 
-	 * @param key the given key
-	 * @param matchMode the match mode
-	 * @return the encoded key
-	 */
-	public static char[] encodeIndexKey(char[] key, int matchMode) {
-		return key; // null means match all words
-	}
-	/**
-	 * Decode the given index key in this pattern.
+	 * Decode the given index key in this pattern. The decoded index key is used by 
+	 * {@link #matchesDecodedKey(SearchPattern)} to find out if the corresponding index entry 
+	 * should be considered.
+	 * <p>
+	 * This method should be re-implemented in subclasses that need to decode an index key.
+	 * </p>
 	 * 
 	 * @param key the given index key
 	 */
@@ -1209,20 +1216,26 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	}
 	/**
 	 * Returns a blank pattern that can be used as a record to decode an index key.
+	 * <p>
+	 * Implementors of this method should return a new search pattern that is going to be used
+	 * to decode index keys.
+	 * </p>
 	 * 
 	 * @return a new blank pattern
 	 * @see #decodeIndexKey(char[])
 	 */
-	public SearchPattern getBlankPattern() {
-		return null; // called from findIndexMatches(), override as necessary
-	}
+	public abstract SearchPattern getBlankPattern();
 	/**
-	 * Returns a key to find in relevant index categories, if null then all words are matched.
+	 * Returns a key to find in relevant index categories, if null then all index entries are matched.
 	 * The key will be matched according to some match rule. These potential matches
 	 * will be further narrowed by the match locator, but precise match locating can be expensive,
 	 * and index query should be as accurate as possible so as to eliminate obvious false hits.
+	 * <p>
+	 * This method should be re-implemented in subclasses that need to narrow down the
+	 * index query.
+	 * </p>
 	 * 
-	 * @return an index key from this pattern
+	 * @return an index key from this pattern, or <code>null</code> if all index entries are matched.
 	 */
 	public char[] getIndexKey() {
 		return null; // called from queryIn(), override as necessary
@@ -1232,22 +1245,15 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * These potential matches will be further narrowed by the match locator, but precise
 	 * match locating can be expensive, and index query should be as accurate as possible
 	 * so as to eliminate obvious false hits.
+	 * <p>
+	 * This method should be re-implemented in subclasses that need to narrow down the
+	 * index query.
+	 * </p>
 	 * 
 	 * @return an array of index categories
 	 */
-	public char[][] getMatchCategories() {
+	public char[][] getIndexCategories() {
 		return CharOperation.NO_CHAR_CHAR; // called from queryIn(), override as necessary
-	}
-	/**
-	 * Returns the match mode.
-	 * 
-	 * @return one of {@link IJavaSearchConstants#EXACT_MATCH},
-	 * {@link IJavaSearchConstants#PREFIX_MATCH},
-	 * {@link IJavaSearchConstants#PATTERN_MATCH},
-	 * {@link IJavaSearchConstants#REGEXP_MATCH}}
-	 */
-	public final int getMatchMode() {
-		return this.matchMode;
 	}
 	/**
 	 * Returns the rule to apply for matching index keys. Can be exact match, prefix match, pattern match or regexp match.
@@ -1255,46 +1261,47 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 
 	 * @return the rule to apply for matching index keys
 	 */	
-	public int getMatchRule() {
-		return this.matchMode + (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
-	}
-	/**
-	 * Returns whether this pattern is case-sensitive.
-	 * 
-	 * @return <code>true</code> if this pattern is case-sensitive, and
-	 * <code>false</code> otherwise
-	 */
-	public final boolean isCaseSensitive () {
-		return this.isCaseSensitive;
+	public final int getMatchRule() {
+		return this.matchRule;
 	}
 	/**
 	 * Returns whether this pattern matches the given pattern (representing a decoded index key).
+	 * <p>
+	 * This method should be re-implemented in subclasses that need to narrow down the
+	 * index query.
+	 * </p>
 	 * 
 	 * @param decodedPattern a pattern representing a decoded index key
-	 * @return whther this pattern matches the given pattern
+	 * @return whether this pattern matches the given pattern
 	 */
 	public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 		return true; // called from findIndexMatches(), override as necessary if index key is encoded
 	}
 	/**
 	 * Returns whether the given name matches the given pattern.
+	 * <p>
+	 * This method should be re-implemented in subclasses that need to define how
+	 * a name matches a pattern.
+	 * </p>
 	 * 
-	 * @param pattern the given pattern or null to represent "*"
+	 * @param pattern the given pattern, or <code>null</code> to represent "*"
 	 * @param name the given name
 	 * @return whether the given name matches the given pattern
 	 */
 	public boolean matchesName(char[] pattern, char[] name) {
 		if (pattern == null) return true; // null is as if it was "*"
 		if (name != null) {
-			switch (this.matchMode) {
+			boolean isCaseSensitive = (this.matchRule & R_CASE_SENSITIVE) != 0;
+			int matchMode = this.matchRule - (isCaseSensitive ? R_CASE_SENSITIVE : 0);
+			switch (matchMode) {
 				case R_EXACT_MATCH :
-					return CharOperation.equals(pattern, name, this.isCaseSensitive);
+					return CharOperation.equals(pattern, name, isCaseSensitive);
 				case R_PREFIX_MATCH :
-					return CharOperation.prefixEquals(pattern, name, this.isCaseSensitive);
+					return CharOperation.prefixEquals(pattern, name, isCaseSensitive);
 				case R_PATTERN_MATCH :
-					if (!this.isCaseSensitive)
+					if (!isCaseSensitive)
 						pattern = CharOperation.toLowerCase(pattern);
-					return CharOperation.match(pattern, name, this.isCaseSensitive);
+					return CharOperation.match(pattern, name, isCaseSensitive);
 				case R_REGEXP_MATCH :
 					// TODO (jerome) implement regular expression match
 					return true;

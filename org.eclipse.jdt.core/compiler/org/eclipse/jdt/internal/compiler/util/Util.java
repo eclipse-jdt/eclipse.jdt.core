@@ -22,7 +22,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class Util implements SuffixConstants {
@@ -176,7 +175,7 @@ public class Util implements SuffixConstants {
 		InputStream stream = null;
 		try {
 			stream = new BufferedInputStream(new FileInputStream(file));
-			return Util.getInputStreamAsCharArray(stream, (int) file.length(), encoding);
+			return getInputStreamAsCharArray(stream, (int) file.length(), encoding);
 		} finally {
 			if (stream != null) {
 				try {
@@ -187,6 +186,24 @@ public class Util implements SuffixConstants {
 			}
 		}
 	}
+	/*
+	 * NIO support to get input stream as byte array.
+	 * Not used as with JDK 1.4.2 this support is slower than standard IO one...
+	 * Keep it as comment for future in case of next JDK versions improve performance
+	 * in this area...
+	 *
+	public static byte[] getInputStreamAsByteArray(FileInputStream stream, int length)
+		throws IOException {
+
+		FileChannel channel = stream.getChannel();
+		int size = (int)channel.size();
+		if (length >= 0 && length < size) size = length;
+		byte[] contents = new byte[size];
+		ByteBuffer buffer = ByteBuffer.wrap(contents);
+		channel.read(buffer);
+		return contents;
+	}
+	*/
 	/**
 	 * Returns the given input stream's contents as a byte array.
 	 * If a length is specified (ie. if length != -1), only length bytes
@@ -246,6 +263,29 @@ public class Util implements SuffixConstants {
 
 		return contents;
 	}
+	/*
+	 * NIO support to get input stream as char array.
+	 * Not used as with JDK 1.4.2 this support is slower than standard IO one...
+	 * Keep it as comment for future in case of next JDK versions improve performance
+	 * in this area...
+	public static char[] getInputStreamAsCharArray(FileInputStream stream, int length, String encoding)
+		throws IOException {
+		
+		FileChannel channel = stream.getChannel();
+		int size = (int)channel.size();
+		if (length >= 0 && length < size) size = length;
+		Charset charset = encoding==null?systemCharset:Charset.forName(encoding);
+		if (charset != null) {
+			MappedByteBuffer bbuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+		    CharsetDecoder decoder = charset.newDecoder();
+		    CharBuffer buffer = decoder.decode(bbuffer);
+		    char[] contents = new char[buffer.limit()];
+		    buffer.get(contents);
+		    return contents;
+		}
+		throw new UnsupportedCharsetException(SYSTEM_FILE_ENCODING);
+	}
+	*/
 	/**
 	 * Returns the given input stream's contents as a character array.
 	 * If a length is specified (ie. if length != -1), only length chars
@@ -464,5 +504,4 @@ public class Util implements SuffixConstants {
 			return Boolean.FALSE;
 		}
 	}
-	
 }

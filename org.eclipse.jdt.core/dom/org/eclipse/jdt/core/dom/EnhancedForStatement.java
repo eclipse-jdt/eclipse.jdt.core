@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Enhanced For statement AST node type (added in 3.0 API).
+ * Enhanced For statement AST node type (added in JLS3 API).
  *
  * <pre>
  * EnhancedForStatement:

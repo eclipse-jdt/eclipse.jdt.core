@@ -209,7 +209,7 @@ public int getNextToken() throws InvalidInputException {
 					// compute end of empty identifier.
 					// if the empty identifier is at the start of a next token the end of
 					// empty identifier is the end of the next token (eg. "<empty token>next").
-				 	while(getNextCharAsJavaIdentifierPart());
+				 	while(getNextCharAsJavaIdentifierPart()){/*empty*/}
 				 	this.endOfEmptyToken = this.currentPosition - 1;
 					this.currentPosition = this.startPosition; // for being detected as empty free identifier
 					return TokenNameIdentifier;

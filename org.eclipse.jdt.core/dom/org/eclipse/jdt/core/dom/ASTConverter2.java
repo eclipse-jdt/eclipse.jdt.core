@@ -301,10 +301,10 @@ class ASTConverter2 extends ASTConverter {
 		}
 		if (typeParameters != null) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					declaration.setFlags(ASTNode.MALFORMED);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					for (int i = 0, max = typeParameters.length; i < max; i++) {
 						declaration.typeParameters().add(convert(typeParameters[i]));
 					}
@@ -321,10 +321,10 @@ class ASTConverter2 extends ASTConverter {
 		}
 		if (expression instanceof ParameterizedAllocationExpression) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					classInstanceCreation.setFlags(ASTNode.MALFORMED);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					ParameterizedAllocationExpression parameterizedAllocationExpression = (ParameterizedAllocationExpression) expression;
 					TypeReference[] typeArguments = parameterizedAllocationExpression.typeArguments;
 					if (typeArguments != null) {
@@ -459,10 +459,10 @@ class ASTConverter2 extends ASTConverter {
 			}
 			if (statement instanceof ParameterizedExplicitConstructorCall) {
 				switch(this.ast.apiLevel) {
-					case AST.LEVEL_2_0 :
+					case AST.JLS2 :
 						superConstructorInvocation.setFlags(ASTNode.MALFORMED);
 						break;
-					case AST.LEVEL_3_0 :
+					case AST.JLS3 :
 						ParameterizedExplicitConstructorCall parameterizedExplicitConstructorCall = (ParameterizedExplicitConstructorCall) statement;
 						TypeReference[] typeArguments = parameterizedExplicitConstructorCall.typeArguments;
 						if (typeArguments != null) {
@@ -484,10 +484,10 @@ class ASTConverter2 extends ASTConverter {
 			}
 			if (statement instanceof ParameterizedExplicitConstructorCall) {
 				switch(this.ast.apiLevel) {
-					case AST.LEVEL_2_0 :
+					case AST.JLS2 :
 						constructorInvocation.setFlags(ASTNode.MALFORMED);
 						break;
-					case AST.LEVEL_3_0 :
+					case AST.JLS3 :
 						ParameterizedExplicitConstructorCall parameterizedExplicitConstructorCall = (ParameterizedExplicitConstructorCall) statement;
 						TypeReference[] typeArguments = parameterizedExplicitConstructorCall.typeArguments;
 						if (typeArguments != null) {
@@ -575,10 +575,10 @@ class ASTConverter2 extends ASTConverter {
 		}
 		if (allocation instanceof ParameterizedQualifiedAllocationExpression) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					classInstanceCreation.setFlags(ASTNode.MALFORMED);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					ParameterizedQualifiedAllocationExpression parameterizedQualifiedAllocationExpression = (ParameterizedQualifiedAllocationExpression) allocation;
 					TypeReference[] typeArguments = parameterizedQualifiedAllocationExpression.typeArguments;
 					if (typeArguments != null) {
@@ -658,10 +658,10 @@ class ASTConverter2 extends ASTConverter {
 		// the type references level.
 		if (typeDeclaration.superclass != null) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					typeDecl.setSuperclass(convert(typeDeclaration.superclass));
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					typeDecl.setSuperclassType(convertType(typeDeclaration.superclass));
 					break;
 			}
@@ -670,12 +670,12 @@ class ASTConverter2 extends ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 		if (superInterfaces != null) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					for (int index = 0, length = superInterfaces.length; index < length; index++) {
 						typeDecl.superInterfaces().add(convert(superInterfaces[index]));
 					}
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					for (int index = 0, length = superInterfaces.length; index < length; index++) {
 						typeDecl.superInterfaceTypes().add(convertType(superInterfaces[index]));
 					}
@@ -684,10 +684,10 @@ class ASTConverter2 extends ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParameters = typeDeclaration.typeParameters;
 		if (typeParameters != null) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					typeDecl.setFlags(ASTNode.MALFORMED);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					for (int index = 0, length = typeParameters.length; index < length; index++) {
 						typeDecl.typeParameters().add(convert(typeParameters[index]));
 					}
@@ -771,7 +771,7 @@ class ASTConverter2 extends ASTConverter {
 		packageDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
 		packageDeclaration.setName(name);
 		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = importReference.annotations;
-		if (annotations != null && this.ast.apiLevel == AST.LEVEL_3_0) {
+		if (annotations != null && this.ast.apiLevel == AST.JLS3) {
 			for (int i = 0, max = annotations.length; i < max; i++) {
 				packageDeclaration.annotations().add(convert(annotations[i]));
 			}

@@ -184,9 +184,9 @@ public class ForStatement extends Statement {
 		// label management
 		Label actionLabel = new Label(codeStream);
 		Label conditionLabel = new Label(codeStream);
-		breakLabel.codeStream = codeStream;
+		breakLabel.initialize(codeStream);
 		if (continueLabel != null) {
-			continueLabel.codeStream = codeStream;
+			continueLabel.initialize(codeStream);
 		}
 		// jump over the actionBlock
 		if ((condition != null)
@@ -280,15 +280,6 @@ public class ForStatement extends Statement {
 			action.printStatement(tab + 1, output); //$NON-NLS-1$
 		}
 		return output.append(';');
-	}
-
-	public void resetStateForCodeGeneration() {
-		if (this.breakLabel != null) {
-			this.breakLabel.resetStateForCodeGeneration();
-		}
-		if (this.continueLabel != null) {
-			this.continueLabel.resetStateForCodeGeneration();
-		}
 	}
 
 	public void resolve(BlockScope upperScope) {

@@ -69,51 +69,48 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 				}
 			}
 			return false;
-		} else {
-			// projectOrJarPath is a project
-			JavaProject focusProject = focus instanceof JarPackageFragmentRoot ? (JavaProject)focus.getParent() : (JavaProject)focus;
-			if (isPolymorphicSearch) {
-				// look for refering project
-				IClasspathEntry[] entries = focusProject.getExpandedClasspath(true);
-				for (int i = 0, length = entries.length; i < length; i++) {
-					IClasspathEntry entry = entries[i];
-					if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 
-						&& entry.getPath().equals(projectOrJarPath)) {
-							return true;
-					}
-				}
-			}
-			if (focus instanceof JarPackageFragmentRoot) {
-				// focus is part of a jar
-				IPath focusPath = focus.getPath();
-				IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-				for (int i = 0, length = entries.length; i < length; i++) {
-					IClasspathEntry entry = entries[i];
-					if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
-						&& entry.getPath().equals(focusPath)) {
-							return true;
-					}
-				}
-				return false;
-			} else {
-				// focus is part of a project
-				if (focus.equals(project)) {
-					return true;
-				} else {
-					// look for dependent projects
-					IPath focusPath = focusProject.getProject().getFullPath();
-					IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-					for (int i = 0, length = entries.length; i < length; i++) {
-						IClasspathEntry entry = entries[i];
-						if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 
-							&& entry.getPath().equals(focusPath)) {
-								return true;
-						}
-					}
-					return false;
+		}
+		// projectOrJarPath is a project
+		JavaProject focusProject = focus instanceof JarPackageFragmentRoot ? (JavaProject)focus.getParent() : (JavaProject)focus;
+		if (isPolymorphicSearch) {
+			// look for refering project
+			IClasspathEntry[] entries = focusProject.getExpandedClasspath(true);
+			for (int i = 0, length = entries.length; i < length; i++) {
+				IClasspathEntry entry = entries[i];
+				if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 
+					&& entry.getPath().equals(projectOrJarPath)) {
+						return true;
 				}
 			}
 		}
+		if (focus instanceof JarPackageFragmentRoot) {
+			// focus is part of a jar
+			IPath focusPath = focus.getPath();
+			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
+			for (int i = 0, length = entries.length; i < length; i++) {
+				IClasspathEntry entry = entries[i];
+				if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
+					&& entry.getPath().equals(focusPath)) {
+						return true;
+				}
+			}
+			return false;
+		} 
+		// focus is part of a project
+		if (focus.equals(project)) {
+			return true;
+		} 
+		// look for dependent projects
+		IPath focusPath = focusProject.getProject().getFullPath();
+		IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
+		for (int i = 0, length = entries.length; i < length; i++) {
+			IClasspathEntry entry = entries[i];
+			if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 
+				&& entry.getPath().equals(focusPath)) {
+					return true;
+			}
+		}
+		return false;
 	} catch (JavaModelException e) {
 		return false;
 	}
@@ -162,8 +159,7 @@ private static IJavaProject getJavaProject(IPath path, IJavaModel model) {
 	IJavaProject project = model.getJavaProject(path.lastSegment());
 	if (project.exists()) {
 		return project;
-	} else {
-		return null;
 	}
+	return null;
 }
 }

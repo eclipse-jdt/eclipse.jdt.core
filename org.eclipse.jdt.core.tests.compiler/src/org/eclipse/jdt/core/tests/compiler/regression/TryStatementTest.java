@@ -774,6 +774,52 @@ public void test024() {
 		"Unreachable catch block for LookupException. It is already handled by the catch block for DataException\n" + 
 		"----------\n");
 }
+// 60081
+public void test025() {
+	
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"public class X\n" + 
+			"{\n" + 
+			"    {\n" + 
+			"        String licenseFileName = \"C:/Program Files/Jatt/bin/license.key\";\n" + 
+			"        File licenseFile = new File(licenseFileName);\n" + 
+			"        try {\n" + 
+			"            BufferedReader licenseReader = new BufferedReader(\n" + 
+			"                new FileReader(licenseFile));\n" + 
+			"            StringBuffer buf = new StringBuffer();\n" + 
+			"            String line = null;\n" + 
+			"            while ((line = licenseReader.readLine()) != null) {\n" + 
+			"                char[] chars = line.toCharArray();\n" + 
+			"                for (int i = 0; i < line.length(); i++) {\n" + 
+			"                    if (!Character.isSpace(line.charAt(i))) {\n" + 
+			"                        buf.append(line.charAt(i));\n" + 
+			"                    }\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"            \n" + 
+			"        } catch (FileNotFoundException e) {\n" + 
+			"            throw new Error(\"License file not found\", e);\n" + 
+			"        } catch (IOException e) {\n" + 
+			"            throw new Error(\"License file cannot be read\", e);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"  public X()\n" + 
+			"  {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public X(X r) \n" + 
+			"  {\n" + 
+			"  }    \n" + 
+			"  public static void main(String[] args) {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"SUCCESS");
+}
 
 public static Class testClass() {
 	return TryStatementTest.class;

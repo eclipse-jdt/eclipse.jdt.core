@@ -179,7 +179,7 @@ public class ASTMatcher {
 			return false;
 		}
 		AnnotationTypeDeclaration o = (AnnotationTypeDeclaration) other;
-		// node type added in 3.0 - ignore old 2.0-style modifiers
+		// node type added in JLS3 - ignore old JLS2-style modifiers
 		return (safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())
 				&& safeSubtreeMatch(node.getName(), o.getName())
@@ -206,7 +206,7 @@ public class ASTMatcher {
 			return false;
 		}
 		AnnotationTypeMemberDeclaration o = (AnnotationTypeMemberDeclaration) other;
-		// node type added in 3.0 - ignore old 2.0-style modifiers
+		// node type added in JLS3 - ignore old JLS2-style modifiers
 		return (safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())
 				&& safeSubtreeMatch(node.getType(), o.getType())

@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -72,25 +69,23 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	public static Test suiteForComplianceLevel(String level, Class testClass) {
 		TestSuite suite = new TestSuite(level);
 		try {
-			Class[] paramTypes = new Class[] { String.class };
-			Constructor constructor = testClass.getConstructor(paramTypes);
 			// Javadoc ENABLED
 			String support = CompilerOptions.DISABLED;
 			if (DOC_COMMENT_SUPPORT == null) {
-				suite.addTest(suiteForJavadocSupport(level, testClass, constructor, CompilerOptions.ENABLED));
+				suite.addTest(suiteForJavadocSupport(level, testClass, CompilerOptions.ENABLED));
 			} else {
 				support =  DOC_COMMENT_SUPPORT;
 			}
 
 			// Javadoc DISABLED
-			suite.addTest(suiteForJavadocSupport(level, testClass, constructor, support));
+			suite.addTest(suiteForJavadocSupport(level, testClass, support));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		return suite;
 	}
 
-	public static Test suiteForJavadocSupport(String level, Class testClass, Constructor constructor, String support) {
+	public static Test suiteForJavadocSupport(String level, Class testClass, String support) {
 		Test suite = suite(testClass, "Doc "+support);
 		return new RegressionTestSetup(suite, level, support);
 	}

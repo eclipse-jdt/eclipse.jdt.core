@@ -82,7 +82,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	
 	/**
 	 * Appends the text representation of the given modifier flags, followed by a single space.
-	 * Used for 2.0 modifiers.
+	 * Used for JLS2 modifiers.
 	 * 
 	 * @param modifiers the modifier flags
 	 */

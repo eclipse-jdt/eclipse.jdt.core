@@ -191,6 +191,12 @@ public class TryStatement extends SubRoutineStatement {
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
+		// in case the labels needs to be reinitialized
+		// when the code generation is restarted in wide mode
+		if (this.anyExceptionLabelsCount > 0) {
+			this.anyExceptionLabels = NO_EXCEPTION_HANDLER;
+			this.anyExceptionLabelsCount = 0;
+		}
 		int pc = codeStream.position;
 		final int NO_FINALLY = 0;									// no finally block
 		final int FINALLY_SUBROUTINE = 1; 					// finally is generated as a subroutine (using jsr/ret bytecodes)
@@ -218,7 +224,7 @@ public class TryStatement extends SubRoutineStatement {
 			exceptionLabels[i] = new ExceptionLabel(codeStream, catchArguments[i].binding.type);
 		}
 		if (subRoutineStartLabel != null) {
-			subRoutineStartLabel.codeStream = codeStream;
+			subRoutineStartLabel.initialize(codeStream);
 			this.enterAnyExceptionHandler(codeStream);
 		}
 		// generate the try block
@@ -449,13 +455,6 @@ public class TryStatement extends SubRoutineStatement {
 
 		return output;
 	}
-	
-	public void resetStateForCodeGeneration() {
-		super.resetStateForCodeGeneration();
-		if (this.subRoutineStartLabel != null) {
-			this.subRoutineStartLabel.resetStateForCodeGeneration();
-		}
-	}	
 
 	public void resolve(BlockScope upperScope) {
 

@@ -346,7 +346,7 @@ private final static byte[] buildFileOfByteFor(String filename, String tag, Stri
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag));
+	while (!tokens[i++].equals(tag)){/*empty*/}
 	//read upto the }
 	
 	byte[] bytes = new byte[tokens.length]; //can't be bigger
@@ -369,7 +369,7 @@ private final static char[] buildFileOfIntFor(String filename, String tag, Strin
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag));
+	while (!tokens[i++].equals(tag)){/*empty*/}
 	//read upto the }
 	
 	char[] chars = new char[tokens.length]; //can't be bigger
@@ -392,7 +392,7 @@ private final static void buildFileOfShortFor(String filename, String tag, Strin
 
 	int i = 0;
 	//read upto the tag
-	while (!tokens[i++].equals(tag));
+	while (!tokens[i++].equals(tag)){/*empty*/}
 	//read upto the }
 	
 	char[] chars = new char[tokens.length]; //can't be bigger
@@ -717,7 +717,7 @@ public final void arrayInitializer(int length) {
 	int searchPosition = length == 0 ? this.endPosition + 1 : ai.expressions[0].sourceStart;
 	try {
 		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
-		while (this.scanner.source[--searchPosition] != '{');
+		while (this.scanner.source[--searchPosition] != '{'){/*empty*/}
 	} catch (IndexOutOfBoundsException ex) {
 		//should never occur (except for strange cases like whose describe above)
 		searchPosition = (length == 0 ? this.endPosition : ai.expressions[0].sourceStart) - 1;
@@ -909,7 +909,7 @@ protected void checkNonNLSAfterBodyEnd(int declarationEnd){
 	if(this.scanner.currentPosition - 1 <= declarationEnd) {
 		this.scanner.eofPosition = declarationEnd < Integer.MAX_VALUE ? declarationEnd + 1 : declarationEnd;
 		try {
-			while(this.scanner.getNextToken() != TokenNameEOF);
+			while(this.scanner.getNextToken() != TokenNameEOF){/*empty*/}
 			checkNonExternalizedStringLiteral();
 		} catch (InvalidInputException e) {
 			// Nothing to do
@@ -8036,7 +8036,7 @@ called in order to remember (when needed) the consumed token */
 // (int)asr[asi(act)]
 // name[symbol_index[currentKind]]
 protected void parse() {
-	if(DEBUG) System.out.println("-- ENTER INSIDE PARSE METHOD --");  //$NON-NLS-1$
+	if (DEBUG) System.out.println("-- ENTER INSIDE PARSE METHOD --");  //$NON-NLS-1$
 	boolean isDietParse = this.diet;
 	int oldFirstToken = getFirstToken();
 	this.hasError = false;
@@ -8063,57 +8063,50 @@ protected void parse() {
 				this.hasError = true;
 			}
 			if (resumeOnSyntaxError()) {
-				if (act == ERROR_ACTION) {
-					this.lastErrorEndPosition = errorPos;
-				}
+				if (act == ERROR_ACTION) this.lastErrorEndPosition = errorPos;
 				act = START_STATE;
 				this.stateStackTop = -1;
 				this.currentToken = getFirstToken();
 				continue ProcessTerminals;
-			} else {
-				act = ERROR_ACTION;
-			}	break ProcessTerminals;
+			}
+			act = ERROR_ACTION;
+			break ProcessTerminals;
 		}
 		if (act <= NUM_RULES) {
 			this.stateStackTop--;
-		} else {
-			if (act > ERROR_ACTION) { /* shift-reduce */
-				consumeToken(this.currentToken);
-				if (this.currentElement != null) {
-					this.recoveryTokenCheck();
+
+		} else if (act > ERROR_ACTION) { /* shift-reduce */
+			consumeToken(this.currentToken);
+			if (this.currentElement != null) this.recoveryTokenCheck();
+			try {
+				this.currentToken = this.scanner.getNextToken();
+			} catch(InvalidInputException e){
+				if (!this.hasReportedError){
+					this.problemReporter().scannerError(this, e.getMessage());
+					this.hasReportedError = true;
 				}
-				try {
+				this.lastCheckPoint = this.scanner.currentPosition;
+				this.restartRecovery = true;
+			}					
+			act -= ERROR_ACTION;
+			
+		} else {
+		    if (act < ACCEPT_ACTION) { /* shift */
+				consumeToken(this.currentToken);
+				if (this.currentElement != null) this.recoveryTokenCheck();
+				try{
 					this.currentToken = this.scanner.getNextToken();
-				} catch(InvalidInputException e) {
-					if (!this.hasReportedError) {
+				} catch(InvalidInputException e){
+					if (!this.hasReportedError){
 						this.problemReporter().scannerError(this, e.getMessage());
 						this.hasReportedError = true;
 					}
 					this.lastCheckPoint = this.scanner.currentPosition;
 					this.restartRecovery = true;
 				}					
-				act -= ERROR_ACTION;
-			} else {
-				if (act < ACCEPT_ACTION) { /* shift */
-					consumeToken(this.currentToken);
-					if (this.currentElement != null) {
-						this.recoveryTokenCheck();
-					}
-					try {
-						this.currentToken = this.scanner.getNextToken();
-					} catch(InvalidInputException e) {
-						if (!this.hasReportedError) {
-							this.problemReporter().scannerError(this, e.getMessage());
-							this.hasReportedError = true;
-						}
-						this.lastCheckPoint = this.scanner.currentPosition;
-						this.restartRecovery = true;
-					}					
-					continue ProcessTerminals;
-				} else {
-					break ProcessTerminals;
-				}
+				continue ProcessTerminals;
 			}
+			break ProcessTerminals;
 		}
 			
 		ProcessNonTerminals : do { /* reduce */
@@ -8124,10 +8117,10 @@ protected void parse() {
 	}
 	endParse(act);
 	
-	if(this.reportSyntaxErrorIsRequired && this.hasError) {
+	if (this.reportSyntaxErrorIsRequired && this.hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}
-	if(DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
+	if (DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 	parse(cd, unit, false);
@@ -8401,7 +8394,7 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 	/* automaton initialization */
 	initialize();
 	goForClassBodyDeclarations();
-	/* this.scanner initialization */
+	/* scanner initialization */
 	this.scanner.setSource(source);
 	this.scanner.resetTo(offset, offset + length - 1);
 	if (this.javadocParser != null && this.javadocParser.checkDocComment) {
@@ -8432,9 +8425,8 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 		this.astPtr -= astLength;
 		System.arraycopy(this.astStack, this.astPtr + 1, result, 0, astLength);
 		return result;
-	} else {
-		return null;
 	}
+	return null;
 }
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
 

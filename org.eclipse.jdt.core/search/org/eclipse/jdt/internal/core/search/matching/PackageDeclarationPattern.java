@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class PackageDeclarationPattern extends SearchPattern implements IIndexConstants {
+public class PackageDeclarationPattern extends JavaSearchPattern implements IIndexConstants {
 
 protected char[] pkgName;
 

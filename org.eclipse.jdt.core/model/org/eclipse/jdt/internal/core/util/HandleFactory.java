@@ -171,7 +171,7 @@ public class HandleFactory {
 		    }
 		    
 		    public void pop(ASTNode node) {
-		    	while (this.nodeIndex >= 0 && this.nodeStack[this.nodeIndex--] != node);
+		    	while (this.nodeIndex >= 0 && this.nodeStack[this.nodeIndex--] != node){/*empty*/}
 		    }
 		    
 			public boolean visit(Argument node, BlockScope scope) {

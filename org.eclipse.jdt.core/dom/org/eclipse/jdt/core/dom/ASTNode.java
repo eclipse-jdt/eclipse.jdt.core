@@ -1752,27 +1752,27 @@ public abstract class ASTNode {
 	
 	/**
      * Checks that this AST operation is not used when
-     * building level 2.0 ASTs.
+     * building JLS2 level ASTs.
 
      * @exception UnsupportedOperationException
 	 * @since 3.0
      */
 	final void unsupportedIn2() {
 	  if (this.ast.apiLevel == AST.JLS2) {
-	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  	throw new UnsupportedOperationException("Operation not supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}
 
 	/**
      * Checks that this AST operation is only used when
-     * building level 2.0 ASTs.
+     * building JLS2 level ASTs.
 
      * @exception UnsupportedOperationException
 	 * @since 3.0
      */
 	final void supportedOnlyIn2() {
 	  if (this.ast.apiLevel != AST.JLS2) {
-	  	throw new UnsupportedOperationException("Operation only supported in 2.0 AST"); //$NON-NLS-1$
+	  	throw new UnsupportedOperationException("Operation only supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}
 

@@ -130,6 +130,105 @@ Incorrect highlighting for type problem in qualified type name
 [1.5] ArrayStoreException in 1.5 parser
 
 
+<a name="v_426"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M9 Build - ?th April 2004
+<br>Project org.eclipse.jdt.core v_426
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_426">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Tuned the diagnosis for unnecessary else statements to tolerate else-if constructs.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=57749">57749</a>
+Search in working copies doesn't find all matches 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60235">60235</a>
+WorkingCopyOwner needs clarification on
+
+
+<a name="v_425"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M9 Build - 28th April 2004
+<br>Project org.eclipse.jdt.core v_425
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_425">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API to register/deregister a pre-processing resource change listener:
+<pre>
+	/**
+	 * Adds the given listener for POST_CHANGE resource change events to the Java core. 
+	 * The listener is guarantied to be notified of the POST_CHANGE resource change event before
+	 * the Java core starts processing the resource change event itself.
+	 * 
+	 * Has no effect if an identical listener is already registered.
+	 * 
+	 * @param listener the listener
+	 * @see #removePreResourceChangeListener(IResourceChangeListener)
+	 * @since 3.0
+	 */
+	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener);
+	
+	/**
+	 * Removes the given pre-processing resource changed listener.
+	 *
+	 * Has no affect if an identical listener is not registered.
+	 *
+	 * @param listener the listener
+	 * @since 3.0
+	 */
+	public static void removePreProcessingResourceChangedListener(IResourceChangeListener listener);
+</pre>
+</li>
+<li>When diagnostic for unnecessary semicolon is enabled, the compiler will also flag empty
+control-flow statement: e.g. if (bool);.  Note that the naming of the option is going soon
+to be revised to better reflect this evolution.
+Empty control-flow statement problem ID is: <tt>IProblem.EmptyControlFlowStatement</tt>.
+</li>
+<li>Added compiler style option to report situation where a statement is unnecessarily nested
+in else clause, e.g.: 
+<pre>
+ if (bool) 
+   return;
+ else
+   System.out.println();   // no need to be inside else
+</pre>    
+Associated problem ID is: <tt>IProblem.UnnecessaryElse</tt>.
+<pre>
+* COMPILER / Reporting Unnecessary Else
+*    When enabled, the compiler will issue an error or a warning when a statement is unnecessarily
+*    nested within an else clause (in situation where then clause is not completing normally).
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unnecessaryElse"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=42493">42493</a>
+Error message when evaluating: Expressionopt?
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=32061">32061</a>
+No code assist in instance variable inner class
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49904">49904</a>
+[DCR] Quick Assist : unneeded else
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60081">60081</a>
+[Compiler] java.lang.VerifyError: Illegal target of jump or branch
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52805">52805</a>
+[DCR] Compiler should warn when using if (test);
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=58652">58652</a>
+ImageBuilderInternalException during auto build
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60108">60108</a>
+SearchMatch should implement toString() 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60078">60078</a>
+NPE in ASTConverter
+
 <a name="v_424"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>

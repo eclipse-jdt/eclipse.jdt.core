@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Normal annotation node (added in 3.0 API).
+ * Normal annotation node (added in JLS3 API).
  * <p>
  * <pre>
  * NormalAnnotation:

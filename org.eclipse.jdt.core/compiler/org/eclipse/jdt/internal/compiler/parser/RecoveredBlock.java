@@ -27,12 +27,11 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 public class RecoveredBlock extends RecoveredStatement implements CompilerModifiers, TerminalTokens, BaseTypes {
 
 	public Block blockDeclaration;
-
 	public RecoveredStatement[] statements;
 	public int statementCount;
-
 	public boolean preserveContent = false;
 	public RecoveredLocalVariable pendingArgument;
+	
 public RecoveredBlock(Block block, RecoveredElement parent, int bracketBalance){
 	super(block, parent, bracketBalance);
 	this.blockDeclaration = block;
@@ -91,13 +90,9 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 		/* do not consider a local variable starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (this.blockDeclaration.sourceEnd != 0 
-		&& localDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
-
-		if (delegatedByParent){
-			return this; //ignore
-		} else {
-			return this.parent.add(localDeclaration, bracketBalanceValue);
-		}
+			&& localDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
+		if (delegatedByParent) return this; //ignore
+		return this.parent.add(localDeclaration, bracketBalanceValue);
 	}
 
 	RecoveredLocalVariable element = new RecoveredLocalVariable(localDeclaration, this, bracketBalanceValue);
@@ -126,13 +121,9 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue, boolean del
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (this.blockDeclaration.sourceEnd != 0 
-		&& stmt.sourceStart > this.blockDeclaration.sourceEnd){
-			
-		if (delegatedByParent){
-			return this; //ignore
-		} else {
-			return this.parent.add(stmt, bracketBalanceValue);
-		}			
+			&& stmt.sourceStart > this.blockDeclaration.sourceEnd){
+		if (delegatedByParent) return this; //ignore
+		return this.parent.add(stmt, bracketBalanceValue);
 	}
 			
 	RecoveredStatement element = new RecoveredStatement(stmt, this, bracketBalanceValue);
@@ -154,12 +145,9 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	/* do not consider a type starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (this.blockDeclaration.sourceEnd != 0 
-		&& typeDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
-		if (delegatedByParent){
-			return this; //ignore
-		} else {
-			return this.parent.add(typeDeclaration, bracketBalanceValue);
-		}
+			&& typeDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
+		if (delegatedByParent) return this; //ignore
+		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 			
 	RecoveredStatement element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);

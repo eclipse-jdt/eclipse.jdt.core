@@ -267,7 +267,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 			if (nextChar != '[') {
 				numOfParams++;
 				if (nextChar == 'L')
-					while ((nextChar = methodDescriptor[++index]) != ';');
+					while ((nextChar = methodDescriptor[++index]) != ';'){/*empty*/}
 			}
 		}
 
@@ -279,9 +279,9 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 			index = 1;
 			int end = 0;   // first character is always '(' so skip it
 			for (int i = 0; i < numOfParams; i++) {
-				while ((nextChar = methodDescriptor[++end]) == '[');
+				while ((nextChar = methodDescriptor[++end]) == '['){/*empty*/}
 				if (nextChar == 'L')
-					while ((nextChar = methodDescriptor[++end]) != ';');
+					while ((nextChar = methodDescriptor[++end]) != ';'){/*empty*/}
 	
 				if (i >= startIndex)   // skip the synthetic arg if necessary
 					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end, false);

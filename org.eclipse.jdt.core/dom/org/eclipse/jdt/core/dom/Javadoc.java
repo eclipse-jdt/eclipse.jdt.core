@@ -29,10 +29,10 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 public class Javadoc extends Comment {
 	
 	/**
-	 * The "comment" structural property of this node type (2.0 API only).
+	 * The "comment" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #TAGS_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #TAGS_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor COMMENT_PROPERTY = 
 		new SimplePropertyDescriptor(Javadoc.class, "comment", String.class, MANDATORY); //$NON-NLS-1$
 	
@@ -208,7 +208,7 @@ public class Javadoc extends Comment {
 	 * 
 	 * @return the doc comment string
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 * @deprecated The comment string was replaced in the 3.0 release
 	 * by a representation of the structure of the doc comment.
 	 * See {@link #tags() tags}.
@@ -226,7 +226,7 @@ public class Javadoc extends Comment {
 	 * @param docComment the doc comment string
 	 * @exception IllegalArgumentException if the Java comment string is invalid
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 * @deprecated The comment string was replaced in the 3.0 release
 	 * by a representation of the structure of the doc comment.
 	 * See {@link #tags() tags}.

@@ -339,13 +339,13 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration constructorDeclaration = (org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration) methodDeclaration;
 			explicitConstructorCall = constructorDeclaration.constructorCall;
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					// set the return type to VOID
 					PrimitiveType returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
 					returnType.setSourceRange(methodDeclaration.sourceStart, 0);
 					methodDecl.setReturnType(returnType);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					methodDecl.setReturnType2(null);
 			}
 		} else {
@@ -506,10 +506,10 @@ class ASTConverter {
 		
 		if (argument.isVarArgs) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					variableDecl.setFlags(ASTNode.MALFORMED);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					variableDecl.setVarargs(true);
 			}
 		}
@@ -1905,10 +1905,10 @@ class ASTConverter {
 		// the type references level.
 		if (typeDeclaration.superclass != null) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					typeDecl.setSuperclass(convert(typeDeclaration.superclass));
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					typeDecl.setSuperclassType(convertType(typeDeclaration.superclass));
 					break;
 			}
@@ -1917,12 +1917,12 @@ class ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 		if (superInterfaces != null) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					for (int index = 0, length = superInterfaces.length; index < length; index++) {
 						typeDecl.superInterfaces().add(convert(superInterfaces[index]));
 					}
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					for (int index = 0, length = superInterfaces.length; index < length; index++) {
 						typeDecl.superInterfaces().add(convertType(superInterfaces[index]));
 					}
@@ -2012,10 +2012,10 @@ class ASTConverter {
 		int modifiers = importReference.modifiers;
 		if (modifiers != IConstants.AccDefault) {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					importDeclaration.setFlags(ASTNode.MALFORMED);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					if (modifiers == IConstants.AccStatic) {
 						importDeclaration.setStatic(true);
 					} else {
@@ -3457,10 +3457,10 @@ class ASTConverter {
 					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					switch(this.ast.apiLevel) {
-						case AST.LEVEL_2_0 :
+						case AST.JLS2 :
 							methodDeclaration.setReturnType(elementType);
 							break;
-						case AST.LEVEL_3_0 :
+						case AST.JLS3 :
 							methodDeclaration.setReturnType2(elementType);
 						break;
 					}
@@ -3479,10 +3479,10 @@ class ASTConverter {
 					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					switch(this.ast.apiLevel) {
-						case AST.LEVEL_2_0 :
+						case AST.JLS2 :
 							methodDeclaration.setReturnType(subarrayType);
 							break;
-						case AST.LEVEL_3_0 :
+						case AST.JLS3 :
 							methodDeclaration.setReturnType2(subarrayType);
 						break;
 					}
@@ -3490,20 +3490,20 @@ class ASTConverter {
 				}
 			} else {
 				switch(this.ast.apiLevel) {
-					case AST.LEVEL_2_0 :
+					case AST.JLS2 :
 						methodDeclaration.setReturnType(type);
 						break;
-					case AST.LEVEL_3_0 :
+					case AST.JLS3 :
 						methodDeclaration.setReturnType2(type);
 					break;
 				}
 			}
 		} else {
 			switch(this.ast.apiLevel) {
-				case AST.LEVEL_2_0 :
+				case AST.JLS2 :
 					methodDeclaration.setReturnType(type);
 					break;
-				case AST.LEVEL_3_0 :
+				case AST.JLS3 :
 					methodDeclaration.setReturnType2(type);
 				break;
 			}

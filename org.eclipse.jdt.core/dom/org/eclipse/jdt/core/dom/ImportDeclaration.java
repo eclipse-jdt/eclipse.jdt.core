@@ -16,12 +16,12 @@ import java.util.List;
 /**
  * Import declaration AST node type.
  *
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * ImportDeclaration:
  *    <b>import</b> Name [ <b>.</b> <b>*</b> ] <b>;</b>
  * </pre>
- * For 3.0 (corresponding to JLS3), static was added:
+ * For JLS3, static was added:
  * <pre>
  * ImportDeclaration:
  *    <b>import</b> [ <b>static</b> ] Name [ <b>.</b> <b>*</b> ] <b>;</b>
@@ -45,7 +45,7 @@ public class ImportDeclaration extends ASTNode {
 		new SimplePropertyDescriptor(ImportDeclaration.class, "onDemand", boolean.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "static" structural property of this node type (added in 3.0 API).
+	 * The "static" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor STATIC_PROPERTY = 
@@ -112,7 +112,7 @@ public class ImportDeclaration extends ASTNode {
 
 	/**
 	 * Static versus regular; defaults to regular import.
-	 * Added in 3.0; not used in 2.0.
+	 * Added in JLS3; not used in JLS2.
 	 * @since 3.0
 	 */
 	private boolean isStatic = false;
@@ -299,7 +299,7 @@ public class ImportDeclaration extends ASTNode {
 	}
 	
 	/**
-	 * Returns whether this import declaration is a static import (added in 3.0 API).
+	 * Returns whether this import declaration is a static import (added in JLS3 API).
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
@@ -310,7 +310,7 @@ public class ImportDeclaration extends ASTNode {
 	 * @return <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public boolean isStatic() {
@@ -319,7 +319,7 @@ public class ImportDeclaration extends ASTNode {
 	}
 		
 	/**
-	 * Sets whether this import declaration is a static import (added in 3.0 API).
+	 * Sets whether this import declaration is a static import (added in JLS3 API).
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
@@ -330,7 +330,7 @@ public class ImportDeclaration extends ASTNode {
 	 * @param isStatic <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public void setStatic(boolean isStatic) {

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Type declaration AST node type. A type declaration
  * is the union of a class declaration and an interface declaration.
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * TypeDeclaration:
  * 		ClassDeclaration
@@ -32,7 +32,7 @@ import java.util.List;
  *			[ <b>extends</b> Type { <b>,</b> Type } ]
  * 			<b>{</b> { InterfaceBodyDeclaration | <b>;</b> } <b>}</b>
  * </pre>
- * For 3.0 (corresponding to JLS3), type parameters and reified modifiers
+ * For JLS3, type parameters and reified modifiers
  * (and annotations) were added, and the superclass type name and superinterface 
  * types names are generalized to type so that parameterized types can be 
  * referenced:
@@ -74,15 +74,15 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		internalJavadocPropertyFactory(TypeDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(TypeDeclaration.class);
 	
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
@@ -103,44 +103,44 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		new ChildPropertyDescriptor(TypeDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "superclass" structural property of this node type (2.0 API only).
+	 * The "superclass" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #SUPERCLASS_TYPE_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #SUPERCLASS_TYPE_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor SUPERCLASS_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclaration.class, "superclass", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "superInterfaces" structural property of this node type (2.0 API only).
+	 * The "superInterfaces" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY} in the JLS3 API.
 	public static final ChildListPropertyDescriptor SUPER_INTERFACES_PROPERTY = 
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "superInterfaces", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "superclassType" structural property of this node type (added in 3.0 API).
+	 * The "superclassType" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor SUPERCLASS_TYPE_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclaration.class, "superclassType", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "superInterfaceTypes" structural property of this node type (added in 3.0 API).
+	 * The "superInterfaceTypes" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor SUPER_INTERFACE_TYPES_PROPERTY = 
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "superInterfaceTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
-	 * The "typeParameters" structural property of this node type (added in 3.0 API).
+	 * The "typeParameters" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY = 
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
-	 * The "bodyDeclarations" structural property of this node type (added in 3.0 API).
+	 * The "bodyDeclarations" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY = 
@@ -212,7 +212,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	
 	/**
 	 * The type paramters (element type: <code>TypeParameter</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
 	 */
@@ -227,7 +227,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The superinterface names (element type: <code>Name</code>). 
-	 * 2.0 only; defaults to an empty list. Not used in 3.0.
+	 * JLS2 only; defaults to an empty list. Not used in JLS3.
 	 * (see constructor).
 	 * 
 	 */
@@ -236,14 +236,14 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * The optional superclass type; <code>null</code> if none.
 	 * Defaults to none. Note that this field is not used for
-	 * interface declarations. Null in 2.0. Added in 3.0.
+	 * interface declarations. Null in JLS2. Added in JLS3.
 	 * @since 3.0
 	 */
 	private Type optionalSuperclassType = null;
 
 	/**
 	 * The superinterface types (element type: <code>Type</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
 	 */
@@ -513,7 +513,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * Returns the live ordered list of type parameters of this type 
-	 * declaration (added in 3.0 API). This list is non-empty for parameterized types.
+	 * declaration (added in JLS3 API). This list is non-empty for parameterized types.
 	 * <p>
 	 * Note: This API element is only needed for dealing with Java code that uses
 	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
@@ -524,7 +524,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @return the live list of type parameters
 	 *    (element type: <code>TypeParameter</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List typeParameters() {
@@ -537,7 +537,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	
 	/**
 	 * Returns the name of the superclass declared in this type
-	 * declaration, or <code>null</code> if there is none (2.0 API only).
+	 * declaration, or <code>null</code> if there is none (JLS2 API only).
 	 * <p>
 	 * Note that this child is not relevant for interface 
 	 * declarations (although it does still figure in subtree
@@ -547,9 +547,9 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @return the superclass name node, or <code>null</code> if 
 	 *    there is none
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getSuperclassType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getSuperclassType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getSuperclass() {
 	    supportedOnlyIn2();
 		return this.optionalSuperclassName;
@@ -557,7 +557,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	* Returns the superclass declared in this type
-	* declaration, or <code>null</code> if there is none (added in 3.0 API).
+	* declaration, or <code>null</code> if there is none (added in JLS3 API).
 	* <p>
 	* Note that this child is not relevant for interface 
 	* declarations (although it does still figure in subtree
@@ -567,7 +567,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	* @return the superclass type node, or <code>null</code> if 
 	*    there is none
 	* @exception UnsupportedOperationException if this operation is used in
-	* a 2.0 AST
+	* a JLS2 AST
 	* @since 3.0
 	*/ 
 	public Type getSuperclassType() {
@@ -577,7 +577,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * Sets or clears the name of the superclass declared in this type
-	 * declaration (2.0 API only).
+	 * declaration (JLS2 API only).
 	 * <p>
 	 * Note that this child is not relevant for interface 
 	 * declarations (although it does still figure in subtree
@@ -592,9 +592,9 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem ) deprecated In the JLS3 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setSuperclass(Name superclassName) {
 	    supportedOnlyIn2();
 		ASTNode oldChild = this.optionalSuperclassName;
@@ -605,7 +605,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * Sets or clears the superclass declared in this type
-	 * declaration (added in 3.0 API).
+	 * declaration (added in JLS3 API).
 	 * <p>
 	 * Note that this child is not relevant for interface declarations
 	 * (although it does still figure in subtree equality comparisons).
@@ -619,7 +619,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public void setSuperclassType(Type superclassType) {
@@ -632,7 +632,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * Returns the live ordered list of names of superinterfaces of this type 
-	 * declaration (2.0 API only). For a class declaration, these are the names
+	 * declaration (JLS2 API only). For a class declaration, these are the names
 	 * of the interfaces that this class implements; for an interface
 	 * declaration, these are the names of the interfaces that this interface
 	 * extends.
@@ -640,9 +640,9 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @return the live list of interface names
 	 *    (element type: <code>Name</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>superInterfaceTypes()</code>
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>superInterfaceTypes()</code>
 	public List superInterfaces() {
 		// more efficient than just calling supportedOnlyIn2() to check
 		if (this.superInterfaceNames == null) {
@@ -653,14 +653,14 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	
 	/**
 	 * Returns the live ordered list of superinterfaces of this type 
-	 * declaration (added in 3.0 API). For a class declaration, these are the interfaces
+	 * declaration (added in JLS3 API). For a class declaration, these are the interfaces
 	 * that this class implements; for an interface declaration,
 	 * these are the interfaces that this interface extends.
 	 * 
 	 * @return the live list of interface types
 	 *    (element type: <code>Type</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List superInterfaceTypes() {

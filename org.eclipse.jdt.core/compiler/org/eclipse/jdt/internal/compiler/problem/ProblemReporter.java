@@ -494,7 +494,8 @@ public int computeSeverity(int problemId){
 			return this.options.getSeverity(CompilerOptions.AccidentalBooleanAssign);
 
 		case IProblem.SuperfluousSemicolon:
-			return this.options.getSeverity(CompilerOptions.SuperfluousSemicolon);
+		case IProblem.EmptyControlFlowStatement:
+			return this.options.getSeverity(CompilerOptions.EmptyStatement);
 
 		case IProblem.UndocumentedEmptyBlock:
 			return this.options.getSeverity(CompilerOptions.UndocumentedEmptyBlock);
@@ -513,6 +514,9 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UnqualifiedFieldAccess:
 			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
+		
+		case IProblem.UnnecessaryElse:
+			return this.options.getSeverity(CompilerOptions.UnnecessaryElse);
 
 		case IProblem.UnsafeRawConstructorInvocation:
 		case IProblem.UnsafeRawMethodInvocation:
@@ -897,6 +901,14 @@ public void duplicateTypes(CompilationUnitDeclaration compUnitDecl, TypeDeclarat
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd,
 		compUnitDecl.compilationResult);
+}
+public void emptyControlFlowStatement(int sourceStart, int sourceEnd) {
+	this.handle(
+		IProblem.EmptyControlFlowStatement,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);	
 }
 public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params) {
 	StringBuffer buffer = new StringBuffer();
@@ -3515,6 +3527,14 @@ public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) 
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		reference.sourceStart,
 		end);
+}
+public void unnecessaryElse(ASTNode location) {
+	this.handle(
+		IProblem.UnnecessaryElse,
+		NoArgument,
+		NoArgument,
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void unnecessaryEnclosingInstanceSpecification(Expression expression, ReferenceBinding targetType) {
 	this.handle(

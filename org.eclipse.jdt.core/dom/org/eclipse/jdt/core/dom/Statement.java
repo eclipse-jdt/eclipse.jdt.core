@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * There are many kinds of statements.
  * <p>
  * The grammar combines both Statement and BlockStatement.
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * Statement:
  *    Block
@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  *    ConstructorInvocation
  *    SuperConstructorInvocation
  * </pre>
- * For 3.0 (corresponding to JLS3), an enhanced for node type was added:
+ * For JLS3, an enhanced for node type was added:
  * <pre>
  * Statement:
  *    Block

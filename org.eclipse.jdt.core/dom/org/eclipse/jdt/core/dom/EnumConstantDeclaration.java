@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Enumeration constant declaration AST node type (added in 3.0 API).
+ * Enumeration constant declaration AST node type (added in JLS3 API).
  *
  * <pre>
  * EnumConstantDeclaration:
@@ -211,7 +211,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * Method declared on BodyDeclaration.
 	 */
 	final SimplePropertyDescriptor internalModifiersProperty() {
-		// this property will not be asked for (node type did not exist in 2.0)
+		// this property will not be asked for (node type did not exist in JLS2)
 		return null;
 	}
 

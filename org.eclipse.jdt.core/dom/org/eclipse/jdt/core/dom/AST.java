@@ -93,7 +93,7 @@ public final class AST {
      *
 	 * @since 3.0
 	 */
-	// TODO (jeem) deprecated Clients should use the level 3 API.
+	// TODO (jeem) deprecated Clients should use the JLS3 API.
 	public static final int JLS2 = 2;
 	
 	/**
@@ -115,20 +115,6 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public static final int JLS3 = 3;
-	
-	/**
-	 * @since 3.0
-	 * @deprecated Renamed {@link #JLS2}.
-	 * // TODO (jeem) - remove after I20040427
-	 */
-	public static final int LEVEL_2_0 = JLS2;
-	
-	/**
-	 * @since 3.0
-	 * @deprecated Renamed {@link #JLS3}.
-	 * // TODO (jeem) - remove after I20040427
-	 */
-	public static final int LEVEL_3_0 = JLS3;
 	
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
@@ -227,7 +213,7 @@ public final class AST {
 	 * 
 	 * @see JavaCore#getDefaultOptions()
 	 */
-	// TODO (jeem) deprecated Clients should port their code to use the new 3.0 API and call {@link #newAST(int)} instead of using this constructor.
+	// TODO (jeem) deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST() {
 		this(JavaCore.getDefaultOptions());
 	}
@@ -286,7 +272,7 @@ public final class AST {
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
 	 */
-	// TODO (jeem) deprecated Clients should port their code to use the new 3.0 API and call {@link #newAST(int)} instead of using this constructor.
+	// TODO (jeem) deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST(Map options) {
 		this(JLS2);
 		// override scanner if 1.4 asked for
@@ -307,7 +293,7 @@ public final class AST {
      * (AST) following the specified set of API rules. 
      * <p>
      * Clients should use this method. It is provided only so that
-     * test suites can create AST instances that employ the 2.0 APIs.
+     * test suites can create AST instances that employ the JLS2 APIs.
      * </p>
      * 
  	 * @param level the API level; one of the LEVEL constants
@@ -1099,27 +1085,27 @@ public final class AST {
 
 	/**
      * Checks that this AST operation is not used when
-     * building level 2.0 ASTs.
+     * building level JLS2 ASTs.
 
      * @exception UnsupportedOperationException
 	 * @since 3.0
      */
 	void unsupportedIn2() {
 	  if (this.apiLevel == AST.JLS2) {
-	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  	throw new UnsupportedOperationException("Operation not supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}
 
 	/**
      * Checks that this AST operation is only used when
-     * building level 2.0 ASTs.
+     * building level JLS2 ASTs.
 
      * @exception UnsupportedOperationException
 	 * @since 3.0
      */
 	void supportedOnlyIn2() {
 	  if (this.apiLevel != AST.JLS2) {
-	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  	throw new UnsupportedOperationException("Operation not supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}
 
@@ -1356,7 +1342,7 @@ public final class AST {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public ParameterizedType newParameterizedType(Type type) {
@@ -1378,7 +1364,7 @@ public final class AST {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public QualifiedType newQualifiedType(Type qualifier, SimpleName name) {
@@ -1399,7 +1385,7 @@ public final class AST {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public WildcardType newWildcardType() {
@@ -1545,7 +1531,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented enum constant declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public EnumConstantDeclaration newEnumConstantDeclaration() {
@@ -1561,7 +1547,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented enum declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public EnumDeclaration newEnumDeclaration() {
@@ -1575,7 +1561,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented type parameter node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public TypeParameter newTypeParameter() {
@@ -1590,7 +1576,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented annotation type declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public AnnotationTypeDeclaration newAnnotationTypeDeclaration() {
@@ -1606,7 +1592,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented annotation type member declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public AnnotationTypeMemberDeclaration newAnnotationTypeMemberDeclaration() {
@@ -1622,7 +1608,7 @@ public final class AST {
 	 * @return a new unparented modifier node
 	 * @exception IllegalArgumentException if the primitive type code is invalid
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public Modifier newModifier(Modifier.ModifierKeyword keyword) {
@@ -2066,7 +2052,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented throw statement node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public EnhancedForStatement newEnhancedForStatement() {
@@ -2522,7 +2508,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented normal annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public NormalAnnotation newNormalAnnotation() {
@@ -2536,7 +2522,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented marker annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public MarkerAnnotation newMarkerAnnotation() {
@@ -2550,7 +2536,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented single member annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public SingleMemberAnnotation newSingleMemberAnnotation() {
@@ -2564,7 +2550,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented member value pair node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */
 	public MemberValuePair newMemberValuePair() {

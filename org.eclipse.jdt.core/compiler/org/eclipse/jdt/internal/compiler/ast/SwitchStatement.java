@@ -109,7 +109,7 @@ public class SwitchStatement extends Statement {
 			int pc = codeStream.position;
 	
 			// prepare the labels and constants
-			breakLabel.codeStream = codeStream;
+			breakLabel.initialize(codeStream);
 			CaseLabel[] caseLabels = new CaseLabel[caseCount];
 			int[] constants = new int[caseCount];
 			boolean needSwitch = caseCount != 0;
@@ -225,13 +225,6 @@ public class SwitchStatement extends Statement {
 		}
 		output.append("\n"); //$NON-NLS-1$
 		return printIndent(indent, output).append('}');
-	}
-
-	public void resetStateForCodeGeneration() {
-
-		if (this.breakLabel != null) {
-			this.breakLabel.resetStateForCodeGeneration();
-		}
 	}
 
 	public void resolve(BlockScope upperScope) {

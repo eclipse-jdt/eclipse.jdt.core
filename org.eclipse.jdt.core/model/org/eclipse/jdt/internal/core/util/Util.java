@@ -1133,9 +1133,8 @@ public class Util {
 				result.append(lastLine);
 			}
 			return result.getContents();
-		} else {
-			return text;
 		}
+		return text;
 	}
 
 	/**

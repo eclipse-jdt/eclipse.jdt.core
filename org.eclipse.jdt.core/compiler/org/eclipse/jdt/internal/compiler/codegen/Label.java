@@ -23,6 +23,7 @@ public class Label {
 	public int[] forwardReferences = new int[10]; // Add an overflow check here.
 	public int forwardReferenceCount = 0;
 	private boolean isWide = false;
+	
 public Label() {
 	// for creating labels ahead of code generation
 }
@@ -128,6 +129,11 @@ public void inlineForwardReferencesFromLabelsTargeting(int gotoLocation) {
 			break; // same target labels should be contiguous
 		}
 	}
+}
+public void initialize(CodeStream stream) {
+    this.codeStream = stream;
+   	this.position = POS_NOT_SET;
+	this.forwardReferenceCount = 0; 
 }
 public boolean isStandardLabel(){
 	return true;
@@ -252,10 +258,5 @@ public String toString() {
 		buffer.append(forwardReferences[forwardReferenceCount-1]);
 	buffer.append("] )"); //$NON-NLS-1$
 	return buffer.toString();
-}
-
-public void resetStateForCodeGeneration() {
-	this.position = POS_NOT_SET;
-	this.forwardReferenceCount = 0;
 }
 }

@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Type node for a parameterized type (added in 3.0 API).
+ * Type node for a parameterized type (added in JLS3 API).
  * These nodes are used for type references (as opposed to
  * declarations of parameterized types.)
  * <pre>

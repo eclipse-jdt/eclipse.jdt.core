@@ -95,7 +95,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0546"));
+		suite.addTest(new ASTConverterTest2("test0547"));
 		return suite;
 	}
 	/**
@@ -4645,7 +4645,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
-		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Wrong key", "test0545/First$Test", typeBinding.getKey());
@@ -4665,7 +4665,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		node = getASTNode(unit, 0, 0);
-		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		typeDeclaration = (TypeDeclaration) node;
 		typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Wrong key", "test0545/Third$Test", typeBinding.getKey());
@@ -4676,7 +4676,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		node = getASTNode(unit, 0);
-		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		typeDeclaration = (TypeDeclaration) node;
 		typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Wrong key", "test0545/Test", typeBinding.getKey());
@@ -4723,5 +4723,30 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
 		ITypeBinding typeBinding5 = (ITypeBinding) binding;
 		assertTrue("An anonymous type binding", !typeBinding5.isAnonymous());		
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60078
+	 */
+	public void test0547() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0547", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertEquals("not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong key", "test0547/A/voidfoo()/Local", typeBinding.getKey());
+		
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 3, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("not a type declaration statement", ASTNode.TYPE_DECLARATION, bodyDeclaration.getNodeType()); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration2 = (TypeDeclaration) bodyDeclaration;
+		
+		typeBinding = typeDeclaration2.resolveBinding();
+		assertEquals("Wrong key", "test0547/Local$LocalMember", typeBinding.getKey());
 	}
 }

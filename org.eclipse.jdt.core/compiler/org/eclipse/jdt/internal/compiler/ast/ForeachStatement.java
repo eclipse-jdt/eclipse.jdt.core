@@ -197,9 +197,9 @@ public class ForeachStatement extends Statement {
 		// label management
 		Label actionLabel = new Label(codeStream);
 		Label conditionLabel = new Label(codeStream);
-		breakLabel.codeStream = codeStream;
+		breakLabel.initialize(codeStream);
 		if (this.continueLabel != null) {
-			this.continueLabel.codeStream = codeStream;
+			this.continueLabel.initialize(codeStream);
 		}
 		// jump over the actionBlock
 		codeStream.goto_(conditionLabel);
@@ -298,15 +298,6 @@ public class ForeachStatement extends Statement {
 			this.action.printStatement(tab + 1, output); //$NON-NLS-1$
 		}
 		return output;
-	}
-
-	public void resetStateForCodeGeneration() {
-		if (this.breakLabel != null) {
-			this.breakLabel.resetStateForCodeGeneration();
-		}
-		if (this.continueLabel != null) {
-			this.continueLabel.resetStateForCodeGeneration();
-		}
 	}
 
 	public void resolve(BlockScope upperScope) {

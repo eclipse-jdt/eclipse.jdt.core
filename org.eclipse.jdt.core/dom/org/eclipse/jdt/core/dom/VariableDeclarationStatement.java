@@ -21,13 +21,13 @@ import java.util.List;
  * (<code>VariableDeclarationFragment</code>) into a statement 
  * (<code>Statement</code>), all sharing the same modifiers and base type.
  * </p>
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * VariableDeclarationStatement:
  *    { Modifier } Type VariableDeclarationFragment 
  *        { <b>,</b> VariableDeclarationFragment } <b>;</b>
  * </pre>
- * For 3.0 (corresponding to JLS3), the modifier flags were replaced by
+ * For JLS3, the modifier flags were replaced by
  * a list of modifier nodes (intermixed with annotations):
  * <pre>
  * VariableDeclarationStatement:
@@ -40,15 +40,15 @@ import java.util.List;
 public class VariableDeclarationStatement extends Statement {
 	
 	/**
-	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		new SimplePropertyDescriptor(VariableDeclarationStatement.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
@@ -119,7 +119,7 @@ public class VariableDeclarationStatement extends Statement {
 			
 	/**
 	 * The extended modifiers (element type: <code>IExtendedModifier</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
 	 */
@@ -127,7 +127,7 @@ public class VariableDeclarationStatement extends Statement {
 	
 	/**
 	 * The modifier flagss; bit-wise or of Modifier flags.
-	 * Defaults to none. Not used in 3.0.
+	 * Defaults to none. Not used in JLS3.
 	 */
 	private int modifierFlags = Modifier.NONE;
 		
@@ -268,7 +268,7 @@ public class VariableDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the live ordered list of modifiers and annotations
-	 * of this declaration (added in 3.0 API).
+	 * of this declaration (added in JLS3 API).
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable declarations.
@@ -277,7 +277,7 @@ public class VariableDeclarationStatement extends Statement {
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>IExtendedModifier</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List modifiers() {
@@ -291,7 +291,7 @@ public class VariableDeclarationStatement extends Statement {
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
-	 * In the 3.0 API, this method is a convenience method that
+	 * In the JLS3 API, this method is a convenience method that
 	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 * 
@@ -301,10 +301,10 @@ public class VariableDeclarationStatement extends Statement {
 	public int getModifiers() {
 		// more efficient than checking getAST().API_LEVEL
 		if (this.modifiers == null) {
-			// 2.0 behavior - bona fide property
+			// JLS2 behavior - bona fide property
 			return this.modifierFlags;
 		} else {
-			// 3.0 behavior - convenience method
+			// JLS3 behavior - convenience method
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
 			int computedModifierFlags = Modifier.NONE;
@@ -319,7 +319,7 @@ public class VariableDeclarationStatement extends Statement {
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
+	 * Sets the modifiers explicitly specified on this declaration (JLS2 API only).
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable declarations.
@@ -327,10 +327,10 @@ public class VariableDeclarationStatement extends Statement {
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 * @see Modifier
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 	    supportedOnlyIn2();
 		preValueChange(MODIFIERS_PROPERTY);

@@ -19,12 +19,12 @@ import java.util.List;
  * This kind of node is used to convert a type declaration
  * node into a statement node by wrapping it.
  * </p>
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * TypeDeclarationStatement:
  *    TypeDeclaration
  * </pre>
- * For 3.0 (corresponding to JLS3), the kinds of type declarations
+ * For JLS3, the kinds of type declarations
  * grew to include enum and annotation type declarations:
  * <pre>
  * TypeDeclarationStatement:
@@ -38,15 +38,15 @@ import java.util.List;
 public class TypeDeclarationStatement extends Statement {
 	
 	/**
-	 * The "typeDeclaration" structural property of this node type (2.0 API only).
+	 * The "typeDeclaration" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #DECLARATION_PROPERTY} in the 3.0 API.
+	// TODO (jeem) - @deprecated Replaced by {@link #DECLARATION_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor TYPE_DECLARATION_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "typeDeclaration", TypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "declaration" structural property of this node type (added in 3.0 API).
+	 * The "declaration" structural property of this node type (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor DECLARATION_PROPERTY = 
@@ -190,7 +190,7 @@ public class TypeDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the abstract type declaration of this local type declaration
-	 * statement (2.0 API only).
+	 * statement (JLS2 API only).
 	 * 
 	 * @return the type declaration node
 	 * @since 3.0
@@ -211,7 +211,7 @@ public class TypeDeclarationStatement extends Statement {
 		
 	/**
 	 * Sets the abstract type declaration of this local type declaration
-	 * statement (2.0 API only).
+	 * statement (JLS2 API only).
 	 * 
 	 * @param decl the type declaration node
 	 * @exception IllegalArgumentException if:
@@ -236,13 +236,13 @@ public class TypeDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the type declaration of this local type declaration
-	 * statement (added in 3.0 API).
+	 * statement (added in JLS3 API).
 	 * 
 	 * @return the type declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getDeclaration</code>, which returns <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getDeclaration</code>, which returns <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public TypeDeclaration getTypeDeclaration() {
 	    supportedOnlyIn2();
 		return (TypeDeclaration) getDeclaration();
@@ -250,7 +250,7 @@ public class TypeDeclarationStatement extends Statement {
 		
 	/**
 	 * Sets the type declaration of this local type declaration
-	 * statement (added in 3.0 API).
+	 * statement (added in JLS3 API).
 	 * 
 	 * @param decl the type declaration node
 	 * @exception IllegalArgumentException if:
@@ -260,9 +260,9 @@ public class TypeDeclarationStatement extends Statement {
 	 * <li>a cycle in would be created</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>setDeclaration</code> which takes <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>setDeclaration</code> which takes <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public void setTypeDeclaration(TypeDeclaration decl) {
 	    supportedOnlyIn2();
 		// forward to non-deprecated replacement method

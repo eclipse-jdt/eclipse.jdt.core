@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Type node for a qualified type (added in 3.0 API).
+ * Type node for a qualified type (added in JLS3 API).
  * <pre>
  * QualifiedType:
  *    Type <b>.</b> SimpleName
@@ -37,7 +37,7 @@ import java.util.List;
  * The first form is preferred when "A" is known to be a type. However, a 
  * parser cannot always determine this. Clients should be prepared to handle
  * either rather than make assumptions. (Note also that the first form
- * became possible as of 3.0; only the second form existed in 2.0 and 2.1.)
+ * became possible as of JLS3; only the second form existed in JLS2 API.)
  * </p>
  * 
  * @since 3.0

@@ -68,6 +68,7 @@
  *								   JavadocMissing
  *								   JavadocInvalidTag
  *								   JavadocMessagePrefix
+ *								   EmptyControlFlowStatement
  *     IBM Corporation - added the following constants
  *								   IllegalUsageOfQualifiedTypeReference
  ****************************************************************************/
@@ -447,8 +448,10 @@ public interface IProblem {
 	int UnusedConstructorDeclaredThrownException = Internal + 186;	
 	/** @since 3.0 */
 	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;
-	/** @since 3.1 */
-	int IllegalUsageOfQualifiedTypeReference = Internal + Syntax + 188;
+	/** @since 3.0 */
+	int EmptyControlFlowStatement = Internal + TypeRelated + 188;	
+	/** @since 3.0 */
+	int UnnecessaryElse = Internal + 189;	
 
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;
@@ -460,6 +463,9 @@ public interface IProblem {
 	int InheritedMethodHidesEnclosingName = MethodRelated + 195;
 	int InheritedFieldHidesEnclosingName = FieldRelated + 196;
 	int InheritedTypeHidesEnclosingName = TypeRelated + 197;
+
+	/** @since 3.1 */
+	int IllegalUsageOfQualifiedTypeReference = Internal + Syntax + 198;
 
 	// miscellaneous
 	int ThisInStaticContext = Internal + 200;

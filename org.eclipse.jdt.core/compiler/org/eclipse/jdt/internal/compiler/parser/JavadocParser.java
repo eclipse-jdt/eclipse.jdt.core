@@ -265,12 +265,11 @@ public class JavadocParser extends AbstractCommentParser {
 		if (this.returnStatement == null) {
 			this.returnStatement = createReturnStatement();
 			return true;
-		} else {
-			if (this.sourceParser != null) this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
-					this.scanner.getCurrentTokenStartPosition(),
-					this.scanner.getCurrentTokenEndPosition());
-			return false;
 		}
+		if (this.sourceParser != null) this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
+				this.scanner.getCurrentTokenStartPosition(),
+				this.scanner.getCurrentTokenEndPosition());
+		return false;
 	}
 
 	/*

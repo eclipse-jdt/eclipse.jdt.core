@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.*;
 
-public class SuperTypeReferencePattern extends SearchPattern implements IIndexConstants {
+public class SuperTypeReferencePattern extends JavaSearchPattern implements IIndexConstants {
 
 public char[] superQualification;
 public char[] superSimpleName;
@@ -166,7 +166,7 @@ public void decodeIndexKey(char[] key) {
 public SearchPattern getBlankPattern() {
 	return new SuperTypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
-public char[][] getMatchCategories() {
+public char[][] getIndexCategories() {
 	return CATEGORIES;
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
@@ -199,7 +199,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			break;
 	}
 
-	return index.query(getMatchCategories(), key, matchRule); // match rule is irrelevant when the key is null
+	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);

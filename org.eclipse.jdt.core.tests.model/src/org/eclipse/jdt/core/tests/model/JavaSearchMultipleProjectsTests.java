@@ -33,6 +33,11 @@ public JavaSearchMultipleProjectsTests(String name) {
 	super(name);
 }
 public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(JavaSearchMultipleProjectsTests.class.getName());
+		suite.addTest(new JavaSearchMultipleProjectsTests("testReferenceInWorkingCopies"));
+		return suite;
+	}
 	return new Suite(JavaSearchMultipleProjectsTests.class);
 }
 protected void tearDown() throws Exception {
@@ -692,6 +697,102 @@ public void testPackageReference2() throws CoreException, IOException {
 	} finally {
 		deleteProject("JavaSearchMultipleProjects1");
 		deleteProject("JavaSearchMultipleProjects2");
+	}
+}
+/**
+ * Method reference with 2 working copies in 2 different project.
+ * (regression test for bug 57749 Search in working copies doesn't find all matches)
+ */
+public void testReferenceInWorkingCopies() throws CoreException {
+	ICompilationUnit workingCopy1 = null;
+	ICompilationUnit workingCopy2 = null;
+	try {
+		// setup project P1
+		IJavaProject p1 = createJavaProject("P1");
+		createFolder("/P1/p1");
+		createFile(
+			"/P1/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"  }\n" +
+			"}"
+		);
+		createFile(
+			"/P1/p1/Test.java",
+			"package p1;\n" +
+			"public class Test {\n" +
+			"}"
+		);
+		
+		// setup project P2
+		IJavaProject p2 = createJavaProject(
+			"P2", 
+			new String[] {""}, 
+			new String[] {"JCL_LIB"}, 
+			new String[] {"/P1"}, 
+			"");
+		createFolder("/P2/p2");
+		createFile(
+			"/P2/p2/Y.java",
+			"package p2;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		// need a second potential match to see the problem
+		createFile(
+			"/P2/p2/Z.java",
+			"public class Z {\n" +
+			"  void bar(p1.Test test) {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    bar(null);\n" + // potential match
+			"  }\n" +
+			"}"
+		);
+		
+		// create working copies
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		workingCopy1 = getCompilationUnit("/P1/p1/X.java").getWorkingCopy(owner, null/*no problem requestor*/, null/*no progress monitor*/);
+		workingCopy1.getBuffer().setContents(
+			"package p1;\n" +
+			"public class X {\n" +
+			"  void bar(Test test) {\n" +
+			"  }\n" +
+			"}"
+		);
+		workingCopy1.makeConsistent(null);
+		workingCopy2 = getCompilationUnit("/P2/p2/Y.java").getWorkingCopy(owner, null/*no problem requestor*/, null/*no progress monitor*/);
+		workingCopy2.getBuffer().setContents(
+			"package p2;\n" +
+			"import p1.X;\n" +
+			"public class Y {\n" +
+			"  void fred() {\n" +
+			"    new X().bar(null);\n" +
+			"  }\n" +
+			"}"
+		);
+		workingCopy2.makeConsistent(null);
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		IMethod method = workingCopy1.getType("X").getMethod("bar", new String[] {"QTest;"});
+		new SearchEngine(owner).search(
+			SearchPattern.createPattern(method, REFERENCES), 
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			scope,
+			resultCollector,
+			null
+		);
+		assertSearchResults(
+			"Unexpected package references",
+			"p2/Y.java void p2.Y.fred() [bar(null)]",
+			resultCollector);
+	} finally {
+		if (workingCopy1 != null) workingCopy1.discardWorkingCopy();
+		if (workingCopy2 != null) workingCopy1.discardWorkingCopy();
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /**

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.*;
 
 /**
  * Exception thrown when there is an internal error in the image builder.
@@ -22,6 +22,16 @@ protected CoreException coreException;
 
 public ImageBuilderInternalException(CoreException e) {
 	this.coreException = e;
+}
+
+public String getLocalizedMessage() {
+	IStatus status = this.coreException.getStatus();
+	if (status.isMultiStatus()) {
+		IStatus[] children = status.getChildren();
+		if (children != null && children.length > 0)
+		    return children[0].getMessage();
+	}
+    return this.coreException.getLocalizedMessage();
 }
 
 public CoreException getThrowable() {

@@ -176,9 +176,8 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 							Util.verbose("-> cannot reuse existing index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 						rebuildIndex(indexName, path);
 						return null;
-					} else {
-						index = null; // will fall thru to createIfMissing & create a empty index for the rebuild all job to populate
-					}
+					} 
+					index = null; // will fall thru to createIfMissing & create a empty index for the rebuild all job to populate
 				}
 			}
 			if (currentIndexState == SAVED_STATE) { // rebuild index if existing file is missing

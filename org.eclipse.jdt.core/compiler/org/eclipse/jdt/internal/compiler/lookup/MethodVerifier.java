@@ -137,7 +137,7 @@ private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMet
 	for (int i = newExceptions.length; --i >= 0;) {
 		ReferenceBinding newException = newExceptions[i];
 		int j = inheritedExceptions.length;
-		while (--j > -1 && !this.isSameClassOrSubclassOf(newException, inheritedExceptions[j]));
+		while (--j > -1 && !this.isSameClassOrSubclassOf(newException, inheritedExceptions[j])){/*empty*/}
 		if (j == -1)
 			if (!(newException.isCompatibleWith(this.runtimeException()) || newException.isCompatibleWith(this.errorException())))
 				this.problemReporter(newMethod).incompatibleExceptionInThrowsClause(this.type, newMethod, inheritedMethod, newException);
@@ -146,7 +146,7 @@ private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMet
 private void checkInheritedMethods(MethodBinding[] methods, int length) {
 	MethodBinding first = methods[0];
 	int index = length;
-	while (--index > 0 && areReturnTypeErasuresEqual(first, methods[index]));
+	while (--index > 0 && areReturnTypeErasuresEqual(first, methods[index])){/*empty*/}
 	if (index > 0) {  // All inherited methods do NOT have the same vmSignature
 		this.problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 		return;

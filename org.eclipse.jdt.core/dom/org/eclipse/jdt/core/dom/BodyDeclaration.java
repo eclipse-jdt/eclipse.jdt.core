@@ -20,7 +20,7 @@ import java.util.List;
  * including anonymous class declarations, enumeration declarations, and
  * enumeration constant declarations.
  * <p>
- * For 2.0 (corresponding to JLS2):
+ * For JLS2:
  * <pre>
  * BodyDeclaration:
  *		ClassDeclaration
@@ -30,7 +30,7 @@ import java.util.List;
  * 		FieldDeclaration
  * 		Initializer
  * </pre>
- * For 3.0 (corresponding to JLS3), a number of new node types were introduced:
+ * For JLS3, a number of new node types were introduced:
  * <pre>
  * BodyDeclaration:
  *		ClassDeclaration
@@ -71,7 +71,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	
 	/**
 	 * The extended modifiers (element type: <code>IExtendedModifier</code>). 
-	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * 
 	 * @since 3.0
@@ -174,7 +174,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
-	 * In the 3.0 API, this method is a convenience method that
+	 * In the JLS3 API, this method is a convenience method that
 	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 * 
@@ -184,10 +184,10 @@ public abstract class BodyDeclaration extends ASTNode {
 	public int getModifiers() {
 		// more efficient than checking getAST().API_LEVEL
 		if (this.modifiers == null) {
-			// 2.0 behavior - bona fide property
+			// JLS2 behavior - bona fide property
 			return this.modifierFlags;
 		} else {
-			// 3.0 behavior - convenience method
+			// JLS3 behavior - convenience method
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
 			int computedmodifierFlags = Modifier.NONE;
@@ -202,14 +202,14 @@ public abstract class BodyDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
+	 * Sets the modifiers explicitly specified on this declaration (JLS2 API only).
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST later than 2.0
+	 * an AST later than JLS2
 	 * @see Modifier
 	 */ 
-	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
+	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 		// more efficient than just calling supportedOnlyIn2() to check
 		if (this.modifiers != null) {
@@ -223,12 +223,12 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns the live ordered list of modifiers and annotations
-	 * of this declaration (added in 3.0 API).
+	 * of this declaration (added in JLS3 API).
 	 * 
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>IExtendedModifier</code>)
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * a 2.0 AST
+	 * a JLS2 AST
 	 * @since 3.0
 	 */ 
 	public List modifiers() {

@@ -280,8 +280,8 @@ public abstract class Scope
 	public ArrayBinding createArrayType(TypeBinding type, int dimension) {
 		if (type.isValidBinding() && !type.isParameterizedType())
 			return environment().createArrayType(type, dimension);
-		else // do not cache obvious invalid types
-			return new ArrayBinding(type, dimension, environment());
+		// do not cache obvious invalid types
+		return new ArrayBinding(type, dimension, environment());
 	}
 	
 	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] arguments, ReferenceBinding enclosingType) {
@@ -406,11 +406,10 @@ public abstract class Scope
 		if (memberType != null) {
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
 			if (enclosingSourceType == null
-				? memberType.canBeSeenBy(getCurrentPackage())
-				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
+					? memberType.canBeSeenBy(getCurrentPackage())
+					: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
 				return memberType;
-			else
-				return new ProblemReferenceBinding(typeName, memberType, NotVisible);
+			return new ProblemReferenceBinding(typeName, memberType, NotVisible);
 		}
 		return null;
 	}
@@ -474,8 +473,7 @@ public abstract class Scope
 		if (field != null) {
 			if (field.canBeSeenBy(currentType, invocationSite, this))
 				return field;
-			else
-				return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
+			return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
 		}
 		// collect all superinterfaces of receiverType until the field is found in a supertype
 		ReferenceBinding[][] interfacesToVisit = null;
@@ -577,11 +575,10 @@ public abstract class Scope
 		if (memberType != null) {
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
 			if (enclosingSourceType == null
-				? memberType.canBeSeenBy(currentPackage)
-				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
+					? memberType.canBeSeenBy(currentPackage)
+					: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
 				return memberType;
-			else
-				return new ProblemReferenceBinding(typeName, memberType, NotVisible);
+			return new ProblemReferenceBinding(typeName, memberType, NotVisible);
 		}
 
 		// collect all superinterfaces of receiverType until the memberType is found in a supertype
