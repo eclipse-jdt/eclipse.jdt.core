@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0463"));			
+		suite.addTest(new ASTConverterTest2("test0465"));			
 		return suite;
 	}
 	/**
@@ -1698,6 +1698,31 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No type binding", typeBinding);
 		assertFalse("A primitive type", typeBinding.isPrimitive());
 		assertTrue("Null type", typeBinding.isNullType());
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33831
+	 */
+	public void test0465() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0465", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
+		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertNotNull("No node", node);
+		assertTrue("not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertTrue("not a field access", expression.getNodeType() == ASTNode.FIELD_ACCESS); //$NON-NLS-1$
+		FieldAccess fieldAccess = (FieldAccess) expression;
+		Name name = fieldAccess.getName();
+		IBinding binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
+		IVariableBinding variableBinding = (IVariableBinding) binding;
+		assertEquals("Wrong name", "i", variableBinding.getName());
+		assertEquals("Wrong type", "int", variableBinding.getType().getName());
 	}	
 }
 
