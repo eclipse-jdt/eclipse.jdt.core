@@ -52,9 +52,9 @@ public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
 	 * @since 2.0 
 	 */
-	public void computeCorrections(IMarker marker, ICorrectionRequestor requestor) throws JavaModelException {
+	public void computeCorrections(IMarker marker, ICompilationUnit targetUnit, int positionOffset, ICorrectionRequestor requestor) throws JavaModelException {
 		
-		IJavaElement element = JavaCore.create(marker.getResource());
+		IJavaElement element = targetUnit == null ? JavaCore.create(marker.getResource()) : targetUnit;
 		
 		if(!(element instanceof ICompilationUnit))
 			return;
@@ -69,7 +69,7 @@ public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
 		if(id == -1 || args == null || start == -1 || end == -1)
 			return;
 		
-		computeCorrections(unit, id, start, end, args, requestor);
+		computeCorrections(unit, id, start + positionOffset, end + positionOffset, args, requestor);
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
 	 * @since 2.0
 	 */
-	public void computeCorrections(ICompilationUnit unit, int id, int start, int end, String[] arguments, ICorrectionRequestor requestor) throws JavaModelException{
+	private void computeCorrections(ICompilationUnit unit, int id, int start, int end, String[] arguments, ICorrectionRequestor requestor) throws JavaModelException{
 		if (requestor == null) {
 			throw new IllegalArgumentException(Util.bind("correction.nullRequestor")); //$NON-NLS-1$
 		}
