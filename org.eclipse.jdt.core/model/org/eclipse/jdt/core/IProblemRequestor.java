@@ -8,7 +8,6 @@ http://www.eclipse.org/legal/cpl-v05.html
 Contributors:
      IBM Corporation - initial API and implementation
 **********************************************************************/
-
 package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.core.compiler.IProblem;
