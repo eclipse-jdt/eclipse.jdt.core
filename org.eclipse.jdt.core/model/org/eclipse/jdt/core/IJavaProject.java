@@ -381,6 +381,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
 	 * </ul>
 	 * @see IClasspathEntry
+	 * @since 2.0
 	 */
 	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, IProgressMonitor monitor)
 		throws JavaModelException;

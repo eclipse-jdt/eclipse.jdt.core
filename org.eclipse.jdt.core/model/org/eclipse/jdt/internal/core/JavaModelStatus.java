@@ -310,6 +310,9 @@ public static IJavaModelStatus newMultiStatus(IJavaModelStatus[] children) {
  * purposes.
  */
 public String toString() {
+	if (this == VERIFIED_OK){
+		return "JavaModelStatus[OK]"; //$NON-NLS-1$
+	}
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Java Model Status ["); //$NON-NLS-1$
 	buffer.append(getMessage());

@@ -28,7 +28,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	
 	IPath newOutputLocation;
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
-	public static final IPath ReuseOutputLocation = new Path("reuse current");  //$NON-NLS-1$
+	public static final IPath ReuseOutputLocation = new Path("Reuse Existing Output Location");  //$NON-NLS-1$
 	
 	/**
 	 * When executed, this operation sets the classpath of the given project.
@@ -186,7 +186,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	
 		// see if this will cause any package fragments to be removed
 		ArrayList removed= determineAffectedPackageFragments(this.newOutputLocation);
-		iter = added.iterator();
+		iter = removed.iterator();
 		while (iter.hasNext()){
 			IPackageFragment frag= (IPackageFragment)iter.next();
 			((IPackageFragmentRoot)frag.getParent()).close();
@@ -462,5 +462,26 @@ public class SetClasspathOperation extends JavaModelOperation {
 		} catch(CoreException e){
 		}
 	}
-
+	public String toString(){
+		StringBuffer buffer = new StringBuffer(20);
+		buffer.append("SetClasspathOperation\n"); //$NON-NLS-1$
+		buffer.append(" - classpath : "); //$NON-NLS-1$
+		if (this.newRawPath == ReuseClasspath){
+			buffer.append("<Reuse Existing Classpath>"); //$NON-NLS-1$
+		} else {
+			buffer.append("{"); //$NON-NLS-1$
+			for (int i = 0; i < this.newRawPath.length; i++) {
+				if (i > 0) buffer.append(","); //$NON-NLS-1$
+				IClasspathEntry element = this.newRawPath[i];
+				buffer.append(" ").append(element.toString()); //$NON-NLS-1$
+			}
+		}
+		buffer.append("\n - output location : ");
+		if (this.newOutputLocation == ReuseOutputLocation){
+			buffer.append("<Reuse Existing Output Location>"); //$NON-NLS-1$
+		} else {
+			buffer.append(this.newOutputLocation.toString()); //$NON-NLS-1$
+		}
+		return buffer.toString();
+	}
 }
