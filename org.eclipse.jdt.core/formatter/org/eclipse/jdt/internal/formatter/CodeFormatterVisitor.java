@@ -3019,15 +3019,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					 */
 					 formatGuardClauseBlock((Block) thenStatement, scope);
 				} else {
-					if (thenStatement instanceof Block) {
-                        formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
-						thenStatement.traverse(this, scope);
-					} else {
-						this.scribe.printNewLine();
-						this.scribe.indent();
-						thenStatement.traverse(this, scope);
-						this.scribe.unIndent();
-					}
+                    formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
+					thenStatement.traverse(this, scope);
 					if (elseStatement != null && this.preferences.insert_new_line_in_control_statements) {
 						this.scribe.printNewLine();
 					}
@@ -3048,6 +3041,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						thenStatement.traverse(this, scope);
 						if (thenStatement instanceof Expression) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+							this.scribe.printTrailingComment();
 						}
 						ok = true;
 					} catch (AlignmentException e) {
