@@ -102,8 +102,16 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 	boolean isAnnotationMember = this.type.isAnnotationType();
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
+		if (isAnnotationMember) { // annotation cannot override any method
+			problemReporter().annotationCannotOverrideMethod(currentMethod, inheritedMethod);
+			return; // do not repoort against subsequent inherited methods
+		}
 		if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
 			problemReporter(currentMethod).staticAndInstanceConflict(currentMethod, inheritedMethod);
+			continue nextMethod;
+		}
+		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
+			problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 			continue nextMethod;
 		}
 
@@ -121,34 +129,25 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 		}
 
-		if (isAnnotationMember) {
-			// annotation cannot override any method
-			problemReporter().annotationCannotOverrideMethod(currentMethod, inheritedMethod);
-			return; // do not repoort against subsequent inherited methods
-		}		
-		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
-			problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-		} else {
-			if (currentMethod.thrownExceptions != NoExceptions)
-				checkExceptions(currentMethod, inheritedMethod);
-			if (inheritedMethod.isFinal())
-				problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
-			if (!isAsVisible(currentMethod, inheritedMethod))
-				problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-			if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-				if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
-					// check against the other inherited methods to see if they hide this inheritedMethod
-					ReferenceBinding declaringClass = inheritedMethod.declaringClass;
-					if (declaringClass.isInterface())
-						for (int j = length; --j >= 0;)
-							if (i != j && methods[j].declaringClass.implementsInterface(declaringClass, false))
-								continue nextMethod;
+		if (currentMethod.thrownExceptions != NoExceptions)
+			checkExceptions(currentMethod, inheritedMethod);
+		if (inheritedMethod.isFinal())
+			problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
+		if (!isAsVisible(currentMethod, inheritedMethod))
+			problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
+		if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
+			if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
+				// check against the other inherited methods to see if they hide this inheritedMethod
+				ReferenceBinding declaringClass = inheritedMethod.declaringClass;
+				if (declaringClass.isInterface())
+					for (int j = length; --j >= 0;)
+						if (i != j && methods[j].declaringClass.implementsInterface(declaringClass, false))
+							continue nextMethod;
 
-					problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
-				}
+				problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
 			}
-			checkForBridgeMethod(currentMethod, inheritedMethod, otherInheritedMethods);
 		}
+		checkForBridgeMethod(currentMethod, inheritedMethod, otherInheritedMethods);
 	}
 }
 void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] abstractMethods) {

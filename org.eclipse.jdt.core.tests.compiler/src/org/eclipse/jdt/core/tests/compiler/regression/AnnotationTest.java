@@ -2194,17 +2194,12 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	^^^^^^\n" + 
 			"Invalid type Object for the annotation attribute I.clone; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 3)\n" + 
-			"	Object clone();\n" + 
-			"	       ^^^^^^^\n" + 
-			"The method clone() of type I should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 3)\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
 			"	Object clone();\n" + 
 			"	       ^^^^^^^\n" + 
 			"The annotation type I cannot override the method Object.clone()\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 7)\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
 			"	@I(hashCode = 0) public void foo(){\n" + 
 			"	^^\n" + 
 			"The annotation @I must define the attribute clone\n" + 

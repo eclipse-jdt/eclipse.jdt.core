@@ -6582,12 +6582,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	         ^^^^^\n" + 
 			"Duplicate method foo() in type B\n" + 
 			"----------\n" + 
-			"4. WARNING in SubTypes.java (at line 9)\n" + 
-			"	public X foo() { return new X(); }\n" + 
-			"	         ^^^^^\n" + 
-			"The method foo() of type C should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"5. ERROR in SubTypes.java (at line 9)\n" + 
+			"4. ERROR in SubTypes.java (at line 9)\n" + 
 			"	public X foo() { return new X(); }\n" + 
 			"	         ^^^^^\n" + 
 			"The return type is incompatible with A.foo()\n" + 
@@ -10226,22 +10221,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 2)\n" + 
-			"	Class<? extends String> foo() { return null; }\n" + 
-			"	                        ^^^^^\n" + 
-			"The method foo() of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 2)\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
 			"	Class<? extends String> foo() { return null; }\n" + 
 			"	                        ^^^^^\n" + 
 			"The return type is incompatible with Y.foo()\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 3)\n" + 
-			"	Class<? extends String>[] foo2() { return null; }\n" + 
-			"	                          ^^^^^^\n" + 
-			"The method foo2() of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 3)\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
 			"	Class<? extends String>[] foo2() { return null; }\n" + 
 			"	                          ^^^^^^\n" + 
 			"The return type is incompatible with Y.foo2()\n" + 

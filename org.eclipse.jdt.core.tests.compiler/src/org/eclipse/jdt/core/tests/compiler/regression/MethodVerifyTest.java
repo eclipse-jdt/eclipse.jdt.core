@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.util.Map;
-
 import junit.framework.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -21,16 +19,6 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		super(name);
 	}
 
-	/*
-	 * Toggle compiler in mode -1.5
-	 */
-	protected Map getCompilerOptions() {
-		Map options = super.getCompilerOptions();
-		//TODO (kent) enable option and fix AccOverriding tagbit or test expectations accordingly
-		// following line should disappear in the end when test/behavior is fixed
-		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.IGNORE);
-		return options;
-	}	
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -345,8 +333,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class L<T> implements I { public T foo() {return null;} }\n" +
 
 				"class Y<T> extends X<A> { public T foo() { return super.foo(); } }\n" +
-				"class Z<T> extends X<T> { public T foo() { return super.foo(); } }\n" +
-				"class W<T> extends X { public T foo() { return super.foo(); } }\n",
+				"class Z<T> extends X<T> { @Override public T foo() { return super.foo(); } }\n" +
+				"class W<T> extends X { @Override public T foo() { return super.foo(); } }\n",
 			},
 			"----------\n" + 
 			"1. ERROR in ALL.java (at line 5)\n" + 
@@ -365,8 +353,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from A to T\n" + 
 			"----------\n" + 
 			"4. ERROR in ALL.java (at line 10)\n" + 
-			"	class W<T> extends X { public T foo() { return super.foo(); } }\n" + 
-			"	                                               ^^^^^^^^^^^\n" + 
+			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
+			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
 			"----------\n"
 			/*
@@ -408,9 +396,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"Y.java",
 				"class Y<T> extends X<A> { public T foo() { return super.foo(); } }\n",
 				"Z.java",
-				"class Z<T> extends X<T> { public T foo() { return super.foo(); } }\n",
+				"class Z<T> extends X<T> { @Override public T foo() { return super.foo(); } }\n",
 				"W.java",
-				"class W<T> extends X { public T foo() { return super.foo(); } }\n",
+				"class W<T> extends X { @Override public T foo() { return super.foo(); } }\n",
 			},
 			"----------\n" + 
 			"1. ERROR in J.java (at line 1)\n" + 
@@ -431,8 +419,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in W.java (at line 1)\n" + 
-			"	class W<T> extends X { public T foo() { return super.foo(); } }\n" + 
-			"	                                               ^^^^^^^^^^^\n" + 
+			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
+			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
 			"----------\n"
 			/*
@@ -477,9 +465,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"Y.java",
 				"class Y<T> extends X<A> { public T foo() { return super.foo(); } }\n",
 				"Z.java",
-				"class Z<T> extends X<T> { public T foo() { return super.foo(); } }\n",
+				"class Z<T> extends X<T> { @Override public T foo() { return super.foo(); } }\n",
 				"W.java",
-				"class W<T> extends X { public T foo() { return super.foo(); } }\n",
+				"class W<T> extends X { @Override public T foo() { return super.foo(); } }\n",
 			},
 			"----------\n" + 
 			"1. ERROR in J.java (at line 1)\n" + 
@@ -500,8 +488,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in W.java (at line 1)\n" + 
-			"	class W<T> extends X { public T foo() { return super.foo(); } }\n" + 
-			"	                                               ^^^^^^^^^^^\n" + 
+			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
+			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
 			"----------\n",
 			/*
@@ -630,7 +618,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"ALL.java",
 				"interface I { I foo(); }\n" +
 				"class A implements I { public A foo() { return null; } }\n" +
-				"class B extends A { public B foo() { return null; } }\n" +
+				"class B extends A { @Override public B foo() { return null; } }\n" +
 				"class C extends B { public A foo() { return null; } }\n" +
 				"class D extends B implements I {}\n",
 			},
@@ -765,12 +753,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"A.java",
 				"class A { public <T> void foo(T s) {} }\n" +
-				"class Y1 extends A { void foo(Object s) {} }\n"
+				"class Y1 extends A { @Override void foo(Object s) {} }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in A.java (at line 2)\r\n" + 
-			"	class Y1 extends A { void foo(Object s) {} }\r\n" + 
-			"	                          ^^^^^^^^^^^^^\n" + 
+			"1. ERROR in A.java (at line 2)\n" + 
+			"	class Y1 extends A { @Override void foo(Object s) {} }\n" + 
+			"	                                    ^^^^^^^^^^^^^\n" + 
 			"Cannot reduce the visibility of the inherited method from A\n" + 
 			"----------\n"
 			// foo(java.lang.Object) in Y1 cannot override <T>foo(T) in A; attempting to assign weaker access privileges; was public
@@ -779,12 +767,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"A.java",
 				"class A { public <T> void foo(T[] s) {} }\n" +
-				"class Y2 extends A { void foo(Object[] s) {} }\n"
+				"class Y2 extends A { @Override void foo(Object[] s) {} }\n"
 			},
 			"----------\n" + 
 			"1. ERROR in A.java (at line 2)\n" + 
-			"	class Y2 extends A { void foo(Object[] s) {} }\n" + 
-			"	                          ^^^^^^^^^^^^^^^\n" + 
+			"	class Y2 extends A { @Override void foo(Object[] s) {} }\n" + 
+			"	                                    ^^^^^^^^^^^^^^^\n" + 
 			"Cannot reduce the visibility of the inherited method from A\n" + 
 			"----------\n"
 			// foo(java.lang.Object[]) in Y2 cannot override <T>foo(T[]) in A; attempting to assign weaker access privileges; was public
@@ -793,12 +781,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"A.java",
 				"class A { public void foo(Class<Object> s) {} }\n" +
-				"class Y3 extends A { void foo(Class<Object> s) {} }\n"
+				"class Y3 extends A { @Override void foo(Class<Object> s) {} }\n"
 			},
 			"----------\n" + 
 			"1. ERROR in A.java (at line 2)\r\n" + 
-			"	class Y3 extends A { void foo(Class<Object> s) {} }\r\n" + 
-			"	                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	class Y3 extends A { @Override void foo(Class<Object> s) {} }\r\n" + 
+			"	                                    ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot reduce the visibility of the inherited method from A\n" + 
 			"----------\n"
 			// foo(java.lang.Class<java.lang.Object>) in Y3 cannot override foo(java.lang.Class<java.lang.Object>) in A; attempting to assign weaker access privileges; was public
@@ -1178,13 +1166,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n",
 				"B.java",
 				"class B extends A {\n" + 
-				"	void foo(java.util.Map<String, Class<?>> m) { } \n" + 
+				"	@Override void foo(java.util.Map<String, Class<?>> m) { } \n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in B.java (at line 2)\r\n" + 
-			"	void foo(java.util.Map<String, Class<?>> m) { } \r\n" + 
-			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	@Override void foo(java.util.Map<String, Class<?>> m) { } \r\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot reduce the visibility of the inherited method from A\n" + 
 			"----------\n"
 		);
@@ -1202,13 +1190,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"B.java",
 				"class B extends A {\n" + 
-				"	void foo(java.util.Map<String, Class<?>> m) { } \n" + 
+				"	@Override void foo(java.util.Map<String, Class<?>> m) { } \n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in B.java (at line 2)\r\n" + 
-			"	void foo(java.util.Map<String, Class<?>> m) { } \r\n" + 
-			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	@Override void foo(java.util.Map<String, Class<?>> m) { } \r\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot reduce the visibility of the inherited method from A\n" + 
 			"----------\n",
 			null,
@@ -1223,7 +1211,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"A.java",
 				"import java.util.*;\n" + 
 				"class A { List getList() { return null; } }\n" + 
-				"class B extends A { List<String> getList() { return null; } }\n"
+				"class B extends A { @Override List<String> getList() { return null; } }\n"
 			},
 			""
 		);
@@ -1232,12 +1220,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"A.java",
 				"import java.util.*;\n" + 
 				"class A { List<String> getList() { return null; } }\n" + 
-				"class B extends A { List getList() { return null; } }\n"
+				"class B extends A { @Override List getList() { return null; } }\n"
 			},
 			"----------\n" + 
 			"1. WARNING in A.java (at line 3)\n" + 
-			"	class B extends A { List getList() { return null; } }\n" + 
-			"	                    ^^^^\n" + 
+			"	class B extends A { @Override List getList() { return null; } }\n" + 
+			"	                              ^^^^\n" + 
 			"Type safety: The return type List for getList() from the type B needs unchecked conversion to conform to List<String> from the type A\n" + 
 			"----------\n"
 			// unchecked warning on B.getList()
@@ -1303,7 +1291,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	public <E extends Object> void m(E e) {}\n" + 
 				"}\n" + 
 				"class B extends A {\n" + 
-				"	public void m(Object e) {}\n" + 
+				"	@Override public void m(Object e) {}\n" + 
 				"}\n" + 
 				"class C extends B {\n" + 
 				"	public <E extends Object> void m(E e) {}\n" + 
@@ -1332,13 +1320,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	<T extends Number> T test() { return null; }\n" + 
 				"}\n" +
 				"class B extends A {\n" + 
-				"	Integer test() { return 1; }\n" + 
+				"	@Override Integer test() { return 1; }\n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. WARNING in X.java (at line 10)\n" + 
-			"	Integer test() { return 1; }\n" + 
-			"	^^^^^^^\n" + 
+			"	@Override Integer test() { return 1; }\n" + 
+			"	          ^^^^^^^\n" + 
 			"Type safety: The return type Integer for test() from the type B needs unchecked conversion to conform to T from the type A\n" + 
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
@@ -1355,13 +1343,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	<T extends Number> T[] test() { return null; }\n" + 
 				"}\n" +
 				"class B extends A {\n" + 
-				"	Integer[] test() { return new Integer[] {2}; }\n" + 
+				"	@Override Integer[] test() { return new Integer[] {2}; }\n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. WARNING in X.java (at line 10)\n" + 
-			"	Integer[] test() { return new Integer[] {2}; }\n" + 
-			"	^^^^^^^^^\n" + 
+			"	@Override Integer[] test() { return new Integer[] {2}; }\n" + 
+			"	          ^^^^^^^^^\n" + 
 			"Type safety: The return type Integer[] for test() from the type B needs unchecked conversion to conform to T[] from the type A\n" + 
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
@@ -1378,7 +1366,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	<T> T test(T t) { return null; }\n" + 
 				"}\n" +
 				"class B extends A {\n" + 
-				"	<T> T test(T t) { return t; }\n" + 
+				"	@Override <T> T test(T t) { return t; }\n" + 
 				"}\n"
 			},
 			"1"
@@ -1395,7 +1383,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	<U> T test(U u) { return null; }\n" + 
 				"}\n" +
 				"class B extends A<Integer> {\n" + 
-				"	<U> Integer test(U u) { return 1; }\n" + 
+				"	@Override <U> Integer test(U u) { return 1; }\n" + 
 				"}\n"
 			},
 			"1"
@@ -1497,13 +1485,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	A<T> test() { return this; }\n" + 
 				"}\n" +
 				"class C extends A<Integer> {\n" + 
-				"	A test() { return super.test(); }\n" + 
+				"	@Override A test() { return super.test(); }\n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. WARNING in X.java (at line 10)\n" + 
-			"	A test() { return super.test(); }\n" + 
-			"	^\n" + 
+			"	@Override A test() { return super.test(); }\n" + 
+			"	          ^\n" + 
 			"Type safety: The return type A for test() from the type C needs unchecked conversion to conform to A<T> from the type A<T>\n" + 
 			"----------\n"
 			// warning: test() in C overrides test() in A; return type requires unchecked conversion
@@ -1789,7 +1777,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"B.java",
 				"abstract class AA<E extends Comparable> { abstract void test(E element); }\n" +
-				"class A extends AA<Integer> { public void test(Integer i) {} }\n" +
+				"class A extends AA<Integer> { @Override public void test(Integer i) {} }\n" +
 				"public class B extends A { public void test(Comparable i) {} }\n"
 			},
 			"----------\n" + 
@@ -2183,12 +2171,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"A.java",
 				"class A { <T extends Number> T test() { return null; } }\n" +
-				"class B extends A { Integer test() { return 1; } }\n"
+				"class B extends A { @Override Integer test() { return 1; } }\n"
 			},
 			"----------\n" + 
 			"1. WARNING in A.java (at line 2)\n" + 
-			"	class B extends A { Integer test() { return 1; } }\n" + 
-			"	                    ^^^^^^^\n" + 
+			"	class B extends A { @Override Integer test() { return 1; } }\n" + 
+			"	                              ^^^^^^^\n" + 
 			"Type safety: The return type Integer for test() from the type B needs unchecked conversion to conform to T from the type A\n" + 
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
@@ -2198,12 +2186,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"A.java",
 				"import java.util.*;\n" + 
 				"class A { List<String> getList() { return null; } }\n" + 
-				"class B extends A { List getList() { return null; } }\n"
+				"class B extends A { @Override List getList() { return null; } }\n"
 			},
 			"----------\n" + 
 			"1. WARNING in A.java (at line 3)\n" + 
-			"	class B extends A { List getList() { return null; } }\n" + 
-			"	                    ^^^^\n" + 
+			"	class B extends A { @Override List getList() { return null; } }\n" + 
+			"	                              ^^^^\n" + 
 			"Type safety: The return type List for getList() from the type B needs unchecked conversion to conform to List<String> from the type A\n" + 
 			"----------\n"
 			// unchecked warning on B.getList()
@@ -2409,7 +2397,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface I<B> { void id(B x); }\n" +
 				"abstract class E<A extends Number, B> extends C<A> implements I<B> {}\n" +
 				"class M<A extends Number, B> extends E<A, B> { public void id(B b) {} }\n" +
-				"abstract class N<T extends Number> extends E<T, Number> { public void id(T n) {} }\n"
+				"abstract class N<T extends Number> extends E<T, Number> { @Override public void id(T n) {} }\n"
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\r\n" + 
@@ -2420,25 +2408,65 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in M<java.lang.Integer,java.lang.Integer> match
 		);
 	}
+
 	// ensure AccOverriding remains when attempting to override final method 
 	public void test044() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	\n" + 
-				"	final void foo() {}\n" + 
-				"}\n" + 
-				"class XS extends X {\n" + 
-				"	@Override\n" + 
-				"	void foo() {}\n" + 
-				"}\n"
+				"public class X { final void foo() {} }\n" + 
+				"class XS extends X { @Override void foo() {} }\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\r\n" + 
-			"	void foo() {}\r\n" + 
-			"	     ^^^^^\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class XS extends X { @Override void foo() {} }\n" + 
+			"	                                    ^^^^^\n" + 
 			"Cannot override the final method from X\n" + 
-			"----------\n");
+			"----------\n"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { public void foo() {} }\n" + 
+				"class XS extends X { @Override void foo() {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class XS extends X { @Override void foo() {} }\n" + 
+			"	                                    ^^^^^\n" + 
+			"Cannot reduce the visibility of the inherited method from X\n" + 
+			"----------\n"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { void foo() {} }\n" + 
+				"class XS extends X { @Override void foo() throws ClassNotFoundException {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class XS extends X { @Override void foo() throws ClassNotFoundException {} }\n" + 
+			"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Exception ClassNotFoundException is not compatible with throws clause in X.foo()\n" + 
+			"----------\n"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { void foo() {} }\n" + 
+				"class XS extends X { @Override int foo() {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class XS extends X { @Override int foo() {} }\n" + 
+			"	                                   ^^^^^\n" + 
+			"The return type is incompatible with X.foo()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	class XS extends X { @Override int foo() {} }\n" + 
+			"	                                   ^^^^^\n" + 
+			"The method foo() of type XS must override a superclass method\n" + 
+			"----------\n"
+		);
 	}	
 }
