@@ -2554,7 +2554,7 @@ public abstract class Scope
 				if (superType == null) continue nextSuperType;
 				if (otherRefType.erasure().isCompatibleWith(superType)) {
 					TypeBinding match = otherRefType.findSuperTypeErasingTo((ReferenceBinding)superType);
-						if (match.erasure() != match) {
+						if (match != null && match.erasure() != match) { // match can be null: interface.findSuperTypeErasingTo(Object)
 							ArrayList someInvocations = (ArrayList) allInvocations.get(superType);
 							if (someInvocations == null) someInvocations = new ArrayList(1);
 							someInvocations.add(match);
