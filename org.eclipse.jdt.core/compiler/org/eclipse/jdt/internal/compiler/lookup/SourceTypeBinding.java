@@ -59,6 +59,8 @@ public void addDefaultAbstractMethods() {
 	tagBits |= KnowsDefaultAbstractMethods;
 
 	if (isClass() && isAbstract()) {
+		if (fPackage.environment.options.complianceLevel >= CompilerOptions.JDK1_4) return; // no longer added in 1.4
+
 		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 		int lastPosition = 0;
 		interfacesToVisit[lastPosition] = superInterfaces();
