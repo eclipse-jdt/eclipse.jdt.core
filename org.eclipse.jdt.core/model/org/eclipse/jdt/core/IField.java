@@ -19,11 +19,69 @@ package org.eclipse.jdt.core;
 public interface IField extends IMember {
 /**
  * Returns the constant value associated with this field
- * or <code>null</code> if this field has none.
- * Returns either a subclass of <code>Number</code>, or a <code>String</code>,
- * depending on the type of the field.
- * For example, if the field is of type <code>short</code>, this returns
- * a <code>Short</code>.
+ * or <code>null</code> if this field has none. The field needs to be static and final to have
+ * a constant value.
+ * Returns an instance of the wrapper type corresponding to the the type of the field.
+ * <table border="1">
+ * <tr>
+ * <th>field type</th>
+ * <th>wrapper type</th>
+ * </tr>
+ * <tr>
+ * <td>int
+ * </td>
+ * <td>java.lang.Integer
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>byte
+ * </td>
+ * <td>java.lang.Byte
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>boolean
+ * </td>
+ * <td>java.lang.Boolean
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>char
+ * </td>
+ * <td>java.lang.Character
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>double
+ * </td>
+ * <td>java.lang.Double
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>float
+ * </td>
+ * <td>java.lang.Float
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>long
+ * </td>
+ * <td>java.lang.Long
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>short
+ * </td>
+ * <td>java.lang.Short
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>java.lang.String
+ * </td>
+ * <td>java.lang.String
+ * </td>
+ * </tr>
+ * </table>
  *
  * @return  the constant value associated with this field or <code>null</code> if this field has none.
  * @exception JavaModelException if this element does not exist or if an
