@@ -44,11 +44,11 @@ public class CorrectionEngine implements ProblemReasons {
 	/**
 	 * This field is not intended to be used by client.
 	 */
-	protected ICompilationUnit unit;
+	protected ICompilationUnit compilationUnit;
 	/**
 	 * This field is not intended to be used by client.
 	 */
-	protected ICorrectionRequestor requestor;
+	protected ICorrectionRequestor correctionRequestor;
 	/**
 	 * This field is not intended to be used by client.
 	 */
@@ -188,10 +188,10 @@ public class CorrectionEngine implements ProblemReasons {
 			throw new IllegalArgumentException(Util.bind("correction.nullRequestor")); //$NON-NLS-1$
 		}
 		
-		this.requestor = requestor;
+		this.correctionRequestor = requestor;
 		this.correctionStart = start;
 		this.correctionEnd = end;
-		this.unit = unit;
+		this.compilationUnit = unit;
 		
 		String argument = null;
 		try {
@@ -253,7 +253,7 @@ public class CorrectionEngine implements ProblemReasons {
 
 	private void correct(char[] argument) throws JavaModelException {
 		try {
-			String source = unit.getSource();
+			String source = compilationUnit.getSource();
 			Scanner scanner = new Scanner();
 			scanner.setSource(source.toCharArray());
 			
@@ -295,7 +295,7 @@ public class CorrectionEngine implements ProblemReasons {
 				}
 			}
 			
-			unit.codeComplete(
+			compilationUnit.codeComplete(
 				completionPosition,
 				completionRequestor
 			);
@@ -313,7 +313,7 @@ public class CorrectionEngine implements ProblemReasons {
 		public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {}
 		public void acceptClass(char[] packageName,char[] className,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & (CLASSES | INTERFACES)) != 0) {
-				requestor.acceptClass(
+				correctionRequestor.acceptClass(
 					packageName,
 					className,
 					CharOperation.subarray(completionName, prefixLength, completionName.length),
@@ -322,7 +322,7 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			} else if((filter & IMPORT) != 0) {
 				char[] fullName = CharOperation.concat(packageName, className, '.');
-				requestor.acceptClass(
+				correctionRequestor.acceptClass(
 					packageName,
 					className,
 					CharOperation.subarray(fullName, prefixLength, fullName.length),
@@ -334,7 +334,7 @@ public class CorrectionEngine implements ProblemReasons {
 		public void acceptError(IProblem error) {}
 		public void acceptField(char[] declaringTypePackageName,char[] declaringTypeName,char[] name,char[] typePackageName,char[] typeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & FIELD) != 0) {
-				requestor.acceptField(
+				correctionRequestor.acceptField(
 					declaringTypePackageName,
 					declaringTypeName,
 					name,
@@ -348,7 +348,7 @@ public class CorrectionEngine implements ProblemReasons {
 		}
 		public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & (CLASSES | INTERFACES)) != 0) {
-				requestor.acceptInterface(
+				correctionRequestor.acceptInterface(
 					packageName,
 					interfaceName,
 					CharOperation.subarray(completionName, prefixLength, completionName.length),
@@ -357,7 +357,7 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			} else if((filter & IMPORT) != 0) {
 				char[] fullName = CharOperation.concat(packageName, interfaceName, '.');
-				requestor.acceptInterface(
+				correctionRequestor.acceptInterface(
 					packageName,
 					interfaceName,
 					CharOperation.subarray(fullName, prefixLength, fullName.length),
@@ -370,7 +370,7 @@ public class CorrectionEngine implements ProblemReasons {
 		public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance) {}
 		public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & LOCAL) != 0) {
-				requestor.acceptLocalVariable(
+				correctionRequestor.acceptLocalVariable(
 					name,
 					typePackageName,
 					typeName,
@@ -381,7 +381,7 @@ public class CorrectionEngine implements ProblemReasons {
 		}
 		public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & METHOD) != 0) {
-				requestor.acceptMethod(
+				correctionRequestor.acceptMethod(
 					declaringTypePackageName,
 					declaringTypeName,
 					selector,
@@ -400,7 +400,7 @@ public class CorrectionEngine implements ProblemReasons {
 		public void acceptModifier(char[] modifierName,int completionStart,int completionEnd, int relevance) {}
 		public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd, int relevance) {
 			if((filter & (CLASSES | INTERFACES | IMPORT)) != 0) {
-				requestor.acceptPackage(
+				correctionRequestor.acceptPackage(
 					packageName,
 					CharOperation.subarray(packageName, prefixLength, packageName.length),
 					correctionStart,
