@@ -32,7 +32,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public LookupEnvironment lookupEnvironment;
 
 	// ONCE STABILIZED, THESE SHOULD RETURN TO A FINAL FIELD
-	public static final boolean DEBUG = false;
+	public static boolean DEBUG = false;
 	public int parseThreshold = -1;
 	// number of initial units parsed at once (-1: none)
 	/**

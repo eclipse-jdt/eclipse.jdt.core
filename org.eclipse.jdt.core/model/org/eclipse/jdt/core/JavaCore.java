@@ -76,6 +76,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String ATT_HANDLE_ID =
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
 
+	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
+	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
+	
+	
 	private static Hashtable Variables = new Hashtable(5);
 	private static Hashtable Options = getDefaultOptions();
 
@@ -1044,6 +1048,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see Plugin#startup
 	 */
 	public void startup() {
+		
+		if(JavaCore.getPlugin().isDebugging()){
+			String option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
+			if(option != null) IndexManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(COMPILER_DEBUG);
+			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+		}
+		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();

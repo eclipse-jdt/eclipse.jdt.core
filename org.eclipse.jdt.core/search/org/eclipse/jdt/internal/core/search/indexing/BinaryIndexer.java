@@ -26,8 +26,6 @@ public class BinaryIndexer extends AbstractIndexer {
 	private static final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
 
 	private boolean needReferences;
-
-	private static final boolean DEBUG = false;
 /**
  * BinaryIndexer constructor comment.
  */
