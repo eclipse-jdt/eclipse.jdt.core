@@ -580,8 +580,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			printModifiers(getIntAttribute(node, MethodDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, MethodDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, MethodDeclaration.TYPE_PARAMETERS_PROPERTY, String.valueOf(','), String.valueOf('<'), String.valueOf('>'));
 		}
-		
+				
 		if (!getBooleanAttribute(node, MethodDeclaration.CONSTRUCTOR_PROPERTY)) {
 			if (node.getAST().apiLevel() == AST.JLS2) {
 				getChildNode(node, MethodDeclaration.RETURN_TYPE_PROPERTY).accept(this);
