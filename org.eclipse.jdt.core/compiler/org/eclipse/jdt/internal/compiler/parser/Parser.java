@@ -2887,7 +2887,7 @@ protected void consumeEnumConstantHeader() {
 	  	  if(this.currentToken == TokenNameSEMICOLON) {
 		  	RecoveredType currentType = this.currentRecoveryType();
 			if(currentType != null) {
-				currentType.insiseEnumConstantPart = false;
+				currentType.insideEnumConstantPart = false;
 			}
 		  }
 	      if (!(this.currentElement instanceof RecoveredType)
@@ -7885,7 +7885,7 @@ public void goForGenericMethodDeclaration(){
 public void goForHeaders(){
 	//tells the scanner to go for headers only parsing
 	RecoveredType currentType = this.currentRecoveryType();
-	if(currentType != null && currentType.insiseEnumConstantPart) {
+	if(currentType != null && currentType.insideEnumConstantPart) {
 		this.firstToken = TokenNameNOT;
 	} else {
 		this.firstToken = TokenNameUNSIGNED_RIGHT_SHIFT;
@@ -8975,7 +8975,7 @@ public void recoveryTokenCheck() {
 			this.endPosition = this.scanner.startPosition - 1; 
 			RecoveredType currentType = this.currentRecoveryType();
 			if(currentType != null) {
-				currentType.insiseEnumConstantPart = false;
+				currentType.insideEnumConstantPart = false;
 			}
 			// fall through
 		default : {

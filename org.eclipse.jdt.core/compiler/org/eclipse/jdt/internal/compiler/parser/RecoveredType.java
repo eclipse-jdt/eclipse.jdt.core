@@ -40,13 +40,13 @@ public class RecoveredType extends RecoveredStatement implements TerminalTokens,
 	public boolean preserveContent = false;	// only used for anonymous types
 	public int bodyEnd;
 	
-	public boolean insiseEnumConstantPart = false;
+	public boolean insideEnumConstantPart = false;
 	
 public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, int bracketBalance){
 	super(typeDeclaration, parent, bracketBalance);
 	this.typeDeclaration = typeDeclaration;
 	this.foundOpeningBrace = !bodyStartsAtHeaderEnd();
-	this.insiseEnumConstantPart = typeDeclaration.getKind() == IGenericType.ENUM;
+	this.insideEnumConstantPart = typeDeclaration.getKind() == IGenericType.ENUM;
 	if(this.foundOpeningBrace) {
 		this.bracketBalance++;
 	}
@@ -76,7 +76,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	RecoveredMethod element = new RecoveredMethod(methodDeclaration, this, bracketBalanceValue, this.recoveringParser);
 	methods[methodCount++] = element;
 	
-	this.insiseEnumConstantPart = false;
+	this.insideEnumConstantPart = false;
 
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -148,7 +148,7 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		return this.parent.add(memberTypeDeclaration, bracketBalanceValue);
 	}
 	
-	this.insiseEnumConstantPart = false;
+	this.insideEnumConstantPart = false;
 	
 	if ((memberTypeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0){
 		if (this.methodCount > 0) {
