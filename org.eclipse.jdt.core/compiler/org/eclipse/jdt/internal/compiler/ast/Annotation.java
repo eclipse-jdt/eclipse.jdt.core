@@ -106,18 +106,21 @@ public abstract class Annotation extends Expression {
 					Expression expr = valueAttribute.value;
 					if (expr instanceof ArrayInitializer) {
 						ArrayInitializer initializer = (ArrayInitializer) expr;
-						for (int i = 0, length = initializer.expressions.length; i < length; i++) {
-							Expression initExpr = initializer.expressions[i];
-							if (initExpr instanceof NameReference) {
-								FieldBinding field = ((NameReference) initExpr).fieldBinding();
-								if (field != null && field.declaringClass.id == T_JavaLangAnnotationElementType) {
-									long element = getTargetElementType(field.name);
-									if ((tagBits & element) != 0) {
-										scope.problemReporter().duplicateTargetInTargetAnnotation(annotationType, (NameReference)initExpr);
-									} else {
-										tagBits |= element;
-									}
-								}							
+						final Expression[] expressions = initializer.expressions;
+						if (expressions != null) {
+							for (int i = 0, length = expressions.length; i < length; i++) {
+								Expression initExpr = expressions[i];
+								if (initExpr instanceof NameReference) {
+									FieldBinding field = ((NameReference) initExpr).fieldBinding();
+									if (field != null && field.declaringClass.id == T_JavaLangAnnotationElementType) {
+										long element = getTargetElementType(field.name);
+										if ((tagBits & element) != 0) {
+											scope.problemReporter().duplicateTargetInTargetAnnotation(annotationType, (NameReference)initExpr);
+										} else {
+											tagBits |= element;
+										}
+									}							
+								}
 							}
 						}
 					} else if (expr instanceof NameReference) {
