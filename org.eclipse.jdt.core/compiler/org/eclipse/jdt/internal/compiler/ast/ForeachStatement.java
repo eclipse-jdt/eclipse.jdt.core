@@ -19,9 +19,12 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class ForeachStatement extends Statement {
     
@@ -113,22 +116,21 @@ public class ForeachStatement extends Statement {
 
 		// we need the variable to iterate the collection even if the 
 		// element variable is not used
-		switch(this.kind) {
-			case ARRAY :
-				if (!(this.action == null
-						|| this.action.isEmptyBlock()
-						|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0))) {
+		if (!(this.action == null
+				|| this.action.isEmptyBlock()
+				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0))) {
+			switch(this.kind) {
+				case ARRAY :
 					this.collectionVariable.useFlag = LocalVariableBinding.USED;
 					this.indexVariable.useFlag = LocalVariableBinding.USED;
 					this.maxVariable.useFlag = LocalVariableBinding.USED;
-				}
-				break;
-			case RAW_ITERABLE :
-				// TODO to be completed
-				break;
-			case GENERIC_ITERABLE :
-				// TODO to be completed
-				break;
+					break;
+				case RAW_ITERABLE :
+				case GENERIC_ITERABLE :
+					this.collectionVariable.useFlag = LocalVariableBinding.USED;
+					this.indexVariable.useFlag = LocalVariableBinding.USED;
+					break;
+			}
 		}
 		//end of loop
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
@@ -164,7 +166,7 @@ public class ForeachStatement extends Statement {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		// TODO should optimize cases where no continuation is needed for(....) break;
+		// TODO (olivier) reverse the loop again
 		// generate the initializations
 		switch(this.kind) {
 			case ARRAY :
@@ -177,10 +179,13 @@ public class ForeachStatement extends Statement {
 				codeStream.store(this.maxVariable, false);
 				break;
 			case RAW_ITERABLE :
-				// TODO to be completed
-				break;
 			case GENERIC_ITERABLE :
-				// TODO to be completed
+				collection.generateCode(scope, codeStream, true);
+				codeStream.store(this.collectionVariable, false);
+				// TODO (olivier) use well known method
+				MethodBinding methodBinding = scope.getMethod(collection.resolvedType, "iterator".toCharArray(), TypeConstants.NoParameters, (InvocationSite) collection);
+				codeStream.invokevirtual(methodBinding);
+				codeStream.store(this.indexVariable, false);
 				break;
 		}
 		
@@ -205,17 +210,16 @@ public class ForeachStatement extends Statement {
 				codeStream.if_icmpge(this.breakLabel);
 				break;
 			case RAW_ITERABLE :
-				// TODO to be completed
-				break;
 			case GENERIC_ITERABLE :
-				// TODO to be completed
+				codeStream.load(this.indexVariable);
+				codeStream.invokeJavaUtilIteratorHasNext();
 				break;
 		}
 
 		// generate the loop action
-		switch(this.kind) {
-			case ARRAY :
-				if (this.elementVariable.binding.resolvedPosition != -1) {
+		if (this.elementVariable.binding.resolvedPosition != -1) {
+			switch(this.kind) {
+				case ARRAY :
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
 					codeStream.arrayAt(this.arrayElementTypeID);
@@ -223,20 +227,23 @@ public class ForeachStatement extends Statement {
 						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
 					}
 					codeStream.store(this.elementVariable.binding, false);
-					codeStream.addVisibleLocalVariable(this.elementVariable.binding);
-					if (this.postCollectionInitStateIndex != -1) {
-						codeStream.addDefinitelyAssignedVariables(
-							currentScope,
-							this.postCollectionInitStateIndex);
+					break;
+				case RAW_ITERABLE :
+				case GENERIC_ITERABLE :
+					codeStream.load(this.indexVariable);
+					codeStream.invokeJavaUtilIteratorNext();
+					if (this.elementVariable.binding.type.id != T_JavaLangObject) {
+						codeStream.checkcast(this.elementVariable.binding.type);
 					}
-				}
-				break;
-			case RAW_ITERABLE :
-				// TODO to be completed
-				break;
-			case GENERIC_ITERABLE :
-				// TODO to be completed
-				break;
+					codeStream.store(this.elementVariable.binding, false);
+					break;
+			}
+			codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+			if (this.postCollectionInitStateIndex != -1) {
+				codeStream.addDefinitelyAssignedVariables(
+					currentScope,
+					this.postCollectionInitStateIndex);
+			}
 		}
 		this.action.generateCode(scope, codeStream);
 			
@@ -249,10 +256,7 @@ public class ForeachStatement extends Statement {
 					codeStream.iinc(this.indexVariable.resolvedPosition, 1);
 					break;
 				case RAW_ITERABLE :
-					// TODO to be completed
-					break;
 				case GENERIC_ITERABLE :
-					// TODO to be completed
 					break;
 			}
 			codeStream.goto_(conditionLabel);
@@ -348,10 +352,10 @@ public class ForeachStatement extends Statement {
 						this.maxVariable.constant = NotAConstant; // not inlinable
 						break;
 					case RAW_ITERABLE :
-						// TODO to be completed
-						break;
 					case GENERIC_ITERABLE :
-						// TODO to be completed
+						this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), AccDefault, false);
+						scope.addLocalVariable(this.indexVariable);
+						this.indexVariable.constant = NotAConstant; // not inlinable
 						break;
 				}
 			}

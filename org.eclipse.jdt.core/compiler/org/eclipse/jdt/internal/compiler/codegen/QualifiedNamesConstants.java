@@ -31,6 +31,7 @@ public interface QualifiedNamesConstants {
 	char[] JavaLangErrorConstantPoolName = "java/lang/Error".toCharArray(); //$NON-NLS-1$
 	char[] JavaLangExceptionConstantPoolName = "java/lang/Exception".toCharArray(); //$NON-NLS-1$
 	char[] JavaLangReflectConstructor = "java/lang/reflect/Constructor".toCharArray();   //$NON-NLS-1$
+	char[] JavaUtilIteratorConstantPoolName = "java/util/Iterator".toCharArray(); //$NON-NLS-1$
 	char[] Append = new char[] {'a', 'p', 'p', 'e', 'n', 'd'};
 	char[] ToString = new char[] {'t', 'o', 'S', 't', 'r', 'i', 'n', 'g'};
 	char[] Init = new char[] {'<', 'i', 'n', 'i', 't', '>'};
@@ -90,4 +91,8 @@ public interface QualifiedNamesConstants {
 	char[] GetClassSignature = "()Ljava/lang/Class;".toCharArray(); //$NON-NLS-1$
 	char[] GetComponentType = "getComponentType".toCharArray(); //$NON-NLS-1$
 	char[] GetComponentTypeSignature = GetClassSignature;
+	char[] HasNext = "hasNext".toCharArray();//$NON-NLS-1$
+	char[] HasNextSignature = "()Z".toCharArray();//$NON-NLS-1$
+	char[] Next = "next".toCharArray();//$NON-NLS-1$
+	char[] NextSignature = "()Ljava/lang/Object;".toCharArray();//$NON-NLS-1$
 }

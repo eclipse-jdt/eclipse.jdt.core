@@ -80,15 +80,6 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE)) {
 				this.localVariableAttribute = new LocalVariableAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.localVariableAttribute;
-			} else if (equals(attributeName, IAttributeNamesConstants.STACK_MAP)) {
-				this.attributes[attributesIndex++] = 
-					new StackMapAttribute(
-						classFileBytes,
-						constantPool,
-						offset + readOffset,
-						this.codeLength > 0xFFFF,
-						this.maxLocals > 0xFFFF,
-						this.maxStack > 0xFFFF);
 			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE)) {
 				this.attributes[attributesIndex++] = new LocalVariableTypeAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else {

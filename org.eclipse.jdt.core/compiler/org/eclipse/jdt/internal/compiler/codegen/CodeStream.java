@@ -3257,7 +3257,30 @@ public void invokeJavaLangAssertionErrorDefaultConstructor() {
 	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorDefaultConstructor());
 	stackDepth --;
 }
-
+public void invokeJavaUtilIteratorHasNext() {
+	// invokeinterface java.util.Iterator.hasNext()Z
+	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: java.util.Iterator.hasNext()Z"); //$NON-NLS-1$
+	countLabels = 0;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_invokeinterface;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_invokeinterface);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorHasNext());
+}
+public void invokeJavaUtilIteratorNext() {
+	// invokeinterface java.util.Iterator.next()java.lang.Object
+	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: java.util.Iterator.next()java.lang.Object"); //$NON-NLS-1$
+	countLabels = 0;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_invokeinterface;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_invokeinterface);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorNext());
+}
 public void invokeStringBufferDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$

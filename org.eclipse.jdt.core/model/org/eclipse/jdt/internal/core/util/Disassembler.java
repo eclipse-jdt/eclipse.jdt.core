@@ -709,8 +709,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append("synthetic"); //$NON-NLS-1$
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
-		CharOperation.replace(fieldDescriptor, '/', '.');
-		buffer.append(Signature.toCharArray(fieldDescriptor));
+		buffer.append(getSignatureForField(fieldDescriptor));
 		buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		buffer.append(new String(fieldInfo.getName()));
 		IConstantValueAttribute constantValueAttribute = fieldInfo.getConstantValueAttribute();
@@ -1180,6 +1179,14 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		return null;
+	}
+
+	private char[] getSignatureForField(char[] fieldDescriptor) {
+		CharOperation.replace(fieldDescriptor, '/', '.');
+		CharOperation.replace(fieldDescriptor, '$', '+');
+		char[] fieldDescriptorSignature = Signature.toCharArray(fieldDescriptor);
+		CharOperation.replace(fieldDescriptorSignature, '+', '$');
+		return fieldDescriptorSignature;
 	}
 
 	private boolean isDeprecated(IClassFileReader classFileReader) {

@@ -45,11 +45,11 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	protected ObjectCache classCache;
 	protected FieldNameAndTypeCache nameAndTypeCacheForFields;
 	protected MethodNameAndTypeCache nameAndTypeCacheForMethods;
-	int[] wellKnownTypes = new int[21];
-	int[] wellKnownMethods = new int[36];
+	int[] wellKnownTypes = new int[22];
+	int[] wellKnownMethods = new int[38];
 	int[] wellKnownFields = new int[10];
 	int[] wellKnownFieldNameAndTypes = new int[2];
-	int[] wellKnownMethodNameAndTypes = new int[33];
+	int[] wellKnownMethodNameAndTypes = new int[35];
 	public byte[] poolContent;
 	public int currentIndex = 1;
 	public int currentOffset;
@@ -75,6 +75,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int JAVA_LANG_EXCEPTION_TYPE = 18;
 	final static int JAVA_LANG_REFLECT_CONSTRUCTOR_TYPE = 19;
 	final static int JAVA_LANG_ASSERTIONERROR_TYPE = 20;
+	final static int JAVA_UTIL_ITERATOR_TYPE = 21;
 	
 	// predefined constant index for well known fields  
 	final static int TYPE_BYTE_FIELD = 0;
@@ -124,6 +125,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int DESIREDASSERTIONSTATUS_CLASS_METHOD = 33;
 	final static int GETCLASS_OBJECT_METHOD = 34;
 	final static int GETCOMPONENTTYPE_CLASS_METHOD = 35;
+	final static int ITERATOR_HASNEXT_METHOD = 36;
+	final static int ITERATOR_NEXT_METHOD = 37;
 	
 	// predefined constant index for well known name and type for fields
 	final static int TYPE_JAVALANGCLASS_NAME_AND_TYPE = 0;
@@ -162,6 +165,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	final static int DESIREDASSERTIONSTATUS_METHOD_NAME_AND_TYPE = 30;
 	final static int GETCLASS_OBJECT_METHOD_NAME_AND_TYPE = 31;
 	final static int GETCOMPONENTTYPE_CLASS_METHOD_NAME_AND_TYPE = 32;
+	final static int HASNEXT_METHOD_NAME_AND_TYPE = 33;
+	final static int NEXT_METHOD_NAME_AND_TYPE = 34;
 	
 	public ClassFile classFile;
 
@@ -425,9 +430,20 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 			break;
 		case 'i' :
 			if ((methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_JavaLangString) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Intern))) {
-				// This method binding is toString()
+				// This method binding is intern()java.lang.String
 				return INTERN_METHOD_NAME_AND_TYPE;
-			}       
+			}
+			break;
+		case 'h' :
+			if ((methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_boolean) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.HasNext))) {
+				// This method binding is hasNext()Z
+				return HASNEXT_METHOD_NAME_AND_TYPE;
+			}
+		case 'n' :
+			if ((methodBinding.parameters.length == 0) && (methodBinding.returnType.id == T_JavaLangObject) && (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Next))) {
+				// This method binding is next()java.lang.Object
+				return NEXT_METHOD_NAME_AND_TYPE;
+			}
 	}
 	return -1;
 }
@@ -586,7 +602,17 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
 			if (methodBinding.parameters.length == 0
 				&& CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.GetClass)) {
 					return GETCLASS_OBJECT_METHOD;
-			}			
+			}
+			break;
+		case T_JavaUtilIterator :
+			if (methodBinding.parameters.length == 0) {
+				if (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.HasNext)) {
+					return ITERATOR_HASNEXT_METHOD;
+				}
+				if (CharOperation.equals(methodBinding.selector, QualifiedNamesConstants.Next)) {
+					return ITERATOR_NEXT_METHOD;
+				}
+			}
 	}
 	return -1;
 }
@@ -622,6 +648,7 @@ public int indexOfWellKnownTypes(TypeBinding typeBinding) {
 		case T_JavaLangException : return JAVA_LANG_EXCEPTION_TYPE;
 		case T_JavaLangReflectConstructor : return JAVA_LANG_REFLECT_CONSTRUCTOR_TYPE;
 		case T_JavaLangAssertionError : return JAVA_LANG_ASSERTIONERROR_TYPE;
+		case T_JavaUtilIterator : return JAVA_UTIL_ITERATOR_TYPE;
 	}
 	return -1;
 }
@@ -2177,6 +2204,28 @@ public int literalIndexForJavaLangString() {
  * @param TypeBinding aTypeBinding
  * @return <CODE>int</CODE>
  */
+public int literalIndexForJavaUtilIterator() {
+	int index;
+	if ((index = wellKnownTypes[JAVA_UTIL_ITERATOR_TYPE]) == 0) {
+		int nameIndex;
+		// The entry doesn't exit yet
+		nameIndex = literalIndex(QualifiedNamesConstants.JavaUtilIteratorConstantPoolName);
+		index = wellKnownTypes[JAVA_UTIL_ITERATOR_TYPE] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		writeU1(ClassTag);
+		// Then add the 8 bytes representing the long
+		writeU2(nameIndex);
+	}
+	return index;
+}
+/**
+ * This method returns the index into the constantPool corresponding to the type descriptor.
+ *
+ * @param TypeBinding aTypeBinding
+ * @return <CODE>int</CODE>
+ */
 public int literalIndexForJavaLangStringBuffer() {
 	int index;
 	if ((index = wellKnownTypes[JAVA_LANG_STRINGBUFFER_TYPE]) == 0) {
@@ -2540,6 +2589,76 @@ public int literalIndexForJavaLangStringIntern() {
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
+		// Then write the class index
+		writeU2(classIndex);
+		// The write the nameAndType index
+		writeU2(nameAndTypeIndex);
+	}
+	return index;
+}
+/**
+ * This method returns the index into the constantPool corresponding to the 
+ * method descriptor. It is an interface method reference constant
+ *
+ * @return <CODE>int</CODE>
+ */
+public int literalIndexForJavaUtilIteratorHasNext() {
+	int index;
+	int nameAndTypeIndex;
+	int classIndex;
+	// Looking into the method ref table
+	if ((index = wellKnownMethods[ITERATOR_HASNEXT_METHOD]) == 0) {
+		classIndex = literalIndexForJavaUtilIterator();
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[HASNEXT_METHOD_NAME_AND_TYPE]) == 0) {
+			int nameIndex = literalIndex(QualifiedNamesConstants.HasNext);
+			int typeIndex = literalIndex(QualifiedNamesConstants.HasNextSignature);
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[HASNEXT_METHOD_NAME_AND_TYPE] = currentIndex++;
+			writeU1(NameAndTypeTag);
+			writeU2(nameIndex);
+			writeU2(typeIndex);
+		}
+		index = wellKnownMethods[ITERATOR_HASNEXT_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		// Write the method ref constant into the constant pool
+		// First add the tag
+		writeU1(InterfaceMethodRefTag);
+		// Then write the class index
+		writeU2(classIndex);
+		// The write the nameAndType index
+		writeU2(nameAndTypeIndex);
+	}
+	return index;
+}
+/**
+ * This method returns the index into the constantPool corresponding to the 
+ * method descriptor. It is an interface method reference constant
+ *
+ * @return <CODE>int</CODE>
+ */
+public int literalIndexForJavaUtilIteratorNext() {
+	int index;
+	int nameAndTypeIndex;
+	int classIndex;
+	// Looking into the method ref table
+	if ((index = wellKnownMethods[ITERATOR_NEXT_METHOD]) == 0) {
+		classIndex = literalIndexForJavaUtilIterator();
+		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[NEXT_METHOD_NAME_AND_TYPE]) == 0) {
+			int nameIndex = literalIndex(QualifiedNamesConstants.Next);
+			int typeIndex = literalIndex(QualifiedNamesConstants.NextSignature);
+			nameAndTypeIndex = wellKnownMethodNameAndTypes[NEXT_METHOD_NAME_AND_TYPE] = currentIndex++;
+			writeU1(NameAndTypeTag);
+			writeU2(nameIndex);
+			writeU2(typeIndex);
+		}
+		index = wellKnownMethods[ITERATOR_HASNEXT_METHOD] = currentIndex++;
+		if (index > 0xFFFF){
+			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
+		}
+		// Write the method ref constant into the constant pool
+		// First add the tag
+		writeU1(InterfaceMethodRefTag);
 		// Then write the class index
 		writeU2(classIndex);
 		// The write the nameAndType index

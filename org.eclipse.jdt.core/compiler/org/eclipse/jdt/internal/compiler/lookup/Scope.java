@@ -1159,6 +1159,14 @@ public abstract class Scope
 		problemReporter().isClassPathCorrect(JAVA_LANG_ITERABLE, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
+	public final ReferenceBinding getJavaUtilIterator() {
+		compilationUnitScope().recordQualifiedReference(JAVA_UTIL_ITERATOR);
+		ReferenceBinding type = environment().getType(JAVA_UTIL_ITERATOR);
+		if (type != null) return type;
+	
+		problemReporter().isClassPathCorrect(JAVA_UTIL_ITERATOR, referenceCompilationUnit());
+		return null; // will not get here since the above error aborts the compilation
+	}
 	public final ReferenceBinding getJavaLangObject() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_OBJECT);
 		ReferenceBinding type = environment().getType(JAVA_LANG_OBJECT);

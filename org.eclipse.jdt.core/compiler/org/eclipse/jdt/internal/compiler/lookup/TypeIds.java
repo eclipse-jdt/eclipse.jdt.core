@@ -61,7 +61,8 @@ public interface TypeIds {
 	// 1.4 feature
 	final int T_JavaLangAssertionError = 35;
 	// 1.5 feature
-	final int T_JavaLangIterable = 36; // TODO (olivier) need constant pool support
+	final int T_JavaLangIterable = 36;
+	final int T_JavaUtilIterator = 37;
 	
 	final int NoId = Integer.MAX_VALUE;
 

@@ -11,27 +11,25 @@
 package org.eclipse.jdt.core.util;
 
 /**
- * Description of a stack map attribute as described in the JVM specifications.
+ * Description of a runtime visible annotations attribute as described in the JVM specifications.
  * 
  * This interface may be implemented by clients. 
  *  
  * @since 3.0
  */
-public interface IStackMapAttribute extends IClassFileAttribute {
-	/**
-	 * Answer back the number of stack map frame entries as specified in
-	 * the JVM specifications.
-	 * 
-	 * @return the number of stack map frame entries as specified in
-	 * the JVM specifications
-	 */
-	int getNumberOfStackMapFrames();
+public interface IRuntimeVisibleAnnotations extends IClassFileAttribute {
 
 	/**
-	 * Answer back the stack map frame entries or an empty collection if none.
+	 * Answer back the number of annotations as described in the JVM specifications.
 	 * 
-	 * @return the stack map frame entries or an empty array if none
+	 * @return the number of annotations
 	 */
-	IStackMapFrame[] getStackMapFrames();
-	
+	int getAnnotationsNumber();
+
+	/**
+	 * Answer back the annotations. Answers an empty collection if none.
+	 * 
+	 * @return the annotations. Answers an empty collection if none.
+	 */
+	IAnnotation[] getAnnotations();
 }

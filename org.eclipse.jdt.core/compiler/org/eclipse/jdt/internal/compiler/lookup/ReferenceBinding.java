@@ -297,7 +297,11 @@ public void computeId() {
 	if (CharOperation.equals(JAVA_LANG_ITERABLE, compoundName)) {
 		id = T_JavaLangIterable;
 		return;
-	}	    
+	}
+	if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName)) {
+		id = T_JavaUtilIterator;
+		return;
+	}
 }
 /* Answer the receiver's constant pool name.
 *
