@@ -3071,6 +3071,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		MethodDeclaration methodDeclaration,
 		ClassScope scope) {
 
+		if (methodDeclaration.ignoreFurtherInvestigation) {
+			this.scribe.printComment();
+			this.scribe.scanner.resetTo(methodDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition);
+			return false;
+		}
 		this.scribe.printModifiers();
 		this.scribe.space();
 		
