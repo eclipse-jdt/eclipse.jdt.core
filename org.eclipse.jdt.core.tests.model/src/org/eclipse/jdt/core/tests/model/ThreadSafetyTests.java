@@ -92,7 +92,6 @@ public void testDeadlock01() throws CoreException {
 				super.initialize(containerPath, project);
 				System.out.println(Thread.currentThread() + "initializer has finished");
 			}
-
 		});
 
 		// trigger some delta notification in different thread
