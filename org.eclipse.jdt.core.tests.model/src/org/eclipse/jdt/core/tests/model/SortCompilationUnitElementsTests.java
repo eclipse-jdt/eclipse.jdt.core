@@ -94,11 +94,11 @@ void debug(ICompilationUnit unit, String id) throws JavaModelException {
 }
 
 public static Test suite() {
-	if (true) {
+	if (false) {
 		return new Suite(SortCompilationUnitElementsTests.class);
 	}
 	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-	suite.addTest(new SortCompilationUnitElementsTests("test024")); //$NON-NLS-1$
+	suite.addTest(new SortCompilationUnitElementsTests("test025")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {
@@ -1645,6 +1645,58 @@ public void test024() throws CoreException {
 			"				B, C;\n" +
 			"			}\n" +
 			"		}\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81329
+public void test025() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"interface Jpf {\n" +
+			"	@interface Action {\n" +
+			"		ValidatableProperty[] validatableProperties();\n" +
+			"	}\n" +
+			"	@interface ValidatableProperty {\n" +
+			"		String propertyName();\n" +
+			"		ValidationLocaleRules[] localeRules();\n" +
+			"	}\n" +
+			"	@interface ValidateMinLength {\n" +
+			"		String chars();\n" +
+			"	}\n" +
+			"	@interface ValidationLocaleRules {\n" +
+			"		ValidateMinLength validateMinLength();\n" +
+			"	}\n" +
+			"public class X {\n" +
+			"	@Jpf.Action(validatableProperties = { @Jpf.ValidatableProperty(propertyName = \"fooField\", localeRules = { @Jpf.ValidationLocaleRules(validateMinLength = @Jpf.ValidateMinLength(chars = \"12\")) }) })\n" +
+			"	public String actionForValidationRuleTest() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = 
+			"interface Jpf {\n" +
+			"	@interface Action {\n" +
+			"		ValidatableProperty[] validatableProperties();\n" +
+			"	}\n" +
+			"	@interface ValidatableProperty {\n" +
+			"		ValidationLocaleRules[] localeRules();\n" +
+			"		String propertyName();\n" +
+			"	}\n" +
+			"	@interface ValidateMinLength {\n" +
+			"		String chars();\n" +
+			"	}\n" +
+			"	@interface ValidationLocaleRules {\n" +
+			"		ValidateMinLength validateMinLength();\n" +
+			"	}\n" +
+			"public class X {\n" +
+			"	@Jpf.Action(validatableProperties = { @Jpf.ValidatableProperty(propertyName = \"fooField\", localeRules = { @Jpf.ValidationLocaleRules(validateMinLength = @Jpf.ValidateMinLength(chars = \"12\")) }) })\n" +
+			"	public String actionForValidationRuleTest() {\n" +
+			"		return null;\n" +
 			"	}\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);

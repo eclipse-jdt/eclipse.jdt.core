@@ -122,74 +122,85 @@ public class SortElementsOperation extends JavaModelOperation {
 		domUnit.accept(new ASTVisitor() {
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
 				ListRewrite listRewrite = rewriter.getListRewrite(compilationUnit, org.eclipse.jdt.core.dom.CompilationUnit.TYPES_PROPERTY);
-				List myCopy = new ArrayList();
 				List types = compilationUnit.types();
 				final int length = types.size();
-				myCopy.addAll(types);
-				Collections.sort(myCopy, SortElementsOperation.this.comparator);
-				for (int i = 0; i < length; i++) {
-					listRewrite.replace((ASTNode) types.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+				if (length > 1) {
+					final List myCopy = new ArrayList();
+					myCopy.addAll(types);
+					Collections.sort(myCopy, SortElementsOperation.this.comparator);
+					for (int i = 0; i < length; i++) {
+						listRewrite.replace((ASTNode) types.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+					}
 				}
 				return true;
 			}
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
 				ListRewrite listRewrite = rewriter.getListRewrite(annotationTypeDeclaration, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List myCopy = new ArrayList();
 				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
 				final int length = bodyDeclarations.size();
-				myCopy.addAll(bodyDeclarations);
-				Collections.sort(myCopy, SortElementsOperation.this.comparator);
-				for (int i = 0; i < length; i++) {
-					listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+				if (length > 1) {
+					final List myCopy = new ArrayList();
+					myCopy.addAll(bodyDeclarations);
+					Collections.sort(myCopy, SortElementsOperation.this.comparator);
+					for (int i = 0; i < length; i++) {
+						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+					}
 				}
 				return true;
 			}
 
 			public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
 				ListRewrite listRewrite = rewriter.getListRewrite(anonymousClassDeclaration, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List myCopy = new ArrayList();
 				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 				final int length = bodyDeclarations.size();
-				myCopy.addAll(bodyDeclarations);
-				Collections.sort(myCopy, SortElementsOperation.this.comparator);
-				for (int i = 0; i < length; i++) {
-					listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+				if (length > 1) {
+					final List myCopy = new ArrayList();
+					myCopy.addAll(bodyDeclarations);
+					Collections.sort(myCopy, SortElementsOperation.this.comparator);
+					for (int i = 0; i < length; i++) {
+						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+					}
 				}
 				return true;
 			}
 			
 			public boolean visit(TypeDeclaration typeDeclaration) {
 				ListRewrite listRewrite = rewriter.getListRewrite(typeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List myCopy = new ArrayList();
 				List bodyDeclarations = typeDeclaration.bodyDeclarations();
 				final int length = bodyDeclarations.size();
-				myCopy.addAll(bodyDeclarations);
-				Collections.sort(myCopy, SortElementsOperation.this.comparator);
-				for (int i = 0; i < length; i++) {
-					listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+				if (length > 1) {
+					final List myCopy = new ArrayList();
+					myCopy.addAll(bodyDeclarations);
+					Collections.sort(myCopy, SortElementsOperation.this.comparator);
+					for (int i = 0; i < length; i++) {
+						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+					}
 				}
 				return true;
 			}
 
 			public boolean visit(EnumDeclaration enumDeclaration) {
 				ListRewrite listRewrite = rewriter.getListRewrite(enumDeclaration, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List myCopy = new ArrayList();
 				List bodyDeclarations = enumDeclaration.bodyDeclarations();
 				int length = bodyDeclarations.size();
-				myCopy.addAll(bodyDeclarations);
-				Collections.sort(myCopy, SortElementsOperation.this.comparator);
-				for (int i = 0; i < length; i++) {
-					listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
-				}
-				
+				if (length > 1) {
+					final List myCopy = new ArrayList();
+					myCopy.addAll(bodyDeclarations);
+					Collections.sort(myCopy, SortElementsOperation.this.comparator);
+					for (int i = 0; i < length; i++) {
+						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+					}
+				}				
 				listRewrite = rewriter.getListRewrite(enumDeclaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-				myCopy = new ArrayList();
 				List enumConstants = enumDeclaration.enumConstants();
 				length = enumConstants.size();
-				myCopy.addAll(enumConstants);
-				Collections.sort(myCopy, SortElementsOperation.this.comparator);
-				for (int i = 0; i < length; i++) {
-					listRewrite.replace((ASTNode) enumConstants.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+				if (length > 1) {
+					final List myCopy = new ArrayList();
+					myCopy.addAll(enumConstants);
+					Collections.sort(myCopy, SortElementsOperation.this.comparator);
+					for (int i = 0; i < length; i++) {
+						listRewrite.replace((ASTNode) enumConstants.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
+					}
 				}
 				return true;
 			}
