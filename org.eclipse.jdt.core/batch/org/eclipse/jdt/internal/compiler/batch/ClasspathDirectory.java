@@ -52,7 +52,7 @@ String[] directoryList(String qualifiedPackageName) {
 		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
 		int index = qualifiedPackageName.length();
 		int last = qualifiedPackageName.lastIndexOf(File.separatorChar);
-		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index))) {}
+		while (--index > last && !Character.isUpperCase(qualifiedPackageName.charAt(index)));
 		if (index > last) {
 			if (last == -1) {
 				if (!doesFileExist(qualifiedPackageName, ""))  //$NON-NLS-1$ 
@@ -102,7 +102,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		try {
 			ClassFileReader reader = ClassFileReader.read(path + qualifiedBinaryFileName);
 			if (reader != null) return new NameEnvironmentAnswer(reader);
-		} catch (Exception e) {} // treat as if file is missing
+		} catch (Exception e) { 
+			// treat as if file is missing
+		}
 	}
 	return null;
 }

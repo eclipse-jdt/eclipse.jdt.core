@@ -41,7 +41,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	try {
 		ClassFileReader reader = ClassFileReader.read(zipFile, qualifiedBinaryFileName);
 		if (reader != null) return new NameEnvironmentAnswer(reader);
-	} catch (Exception e) {} // treat as if class file is missing
+	} catch (Exception e) {
+		// treat as if class file is missing
+	}
 	return null;
 }
 public boolean isPackage(String qualifiedPackageName) {
