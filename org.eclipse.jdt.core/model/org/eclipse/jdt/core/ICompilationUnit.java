@@ -42,7 +42,9 @@ public static final int NO_AST = 0;
  * specified when this compilation unit handle was created.
  * <p>
  * When switching to working copy mode, problems are reported to given 
- * {@link IProblemRequestor}.
+ * {@link IProblemRequestor}. Note that once in working copy mode, the given
+ * {@link IProblemRequestor} is ignored. Only the original {@link IProblemRequestor}
+ * is used to report subsequent problems.
  * </p>
  * <p>
  * Once in working copy mode, changes to this compilation unit or its children are done in memory.
