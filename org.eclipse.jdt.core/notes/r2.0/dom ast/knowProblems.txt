@@ -1,9 +1,5 @@
 - setLeadingComment is a problem. The parser doesn't store the comment
-- Tag node has having an error.
 
 TODO:
 	
-All getId() need to be implemented
 getDeclaredModifiers
-
-Look at MessageSend.
