@@ -211,4 +211,10 @@ public final boolean isViewedAsDeprecated() {
 public final boolean isVolatile() {
 	return (modifiers & AccVolatile) != 0;
 }
+/**
+ * Returns the original field (as opposed to parameterized instances)
+ */
+public FieldBinding original() {
+	return this;
+}
 }

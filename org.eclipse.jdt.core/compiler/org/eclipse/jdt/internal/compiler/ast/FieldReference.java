@@ -349,11 +349,12 @@ public class FieldReference extends Reference implements InvocationSite {
 		//has already been compiled. It can only be from a class within
 		//compilation units to process. Thus the field is NOT from a BinaryTypeBinbing
 
-		SourceTypeBinding typeBinding = (SourceTypeBinding) binding.declaringClass;
-		TypeDeclaration typeDecl = typeBinding.scope.referenceContext;
-		FieldDeclaration fieldDecl = typeDecl.declarationOf(binding);
+		FieldBinding originalField = binding.original();
+		SourceTypeBinding sourceType = (SourceTypeBinding) originalField.declaringClass;
+		TypeDeclaration typeDecl = sourceType.scope.referenceContext;
+		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
 
-		fieldDecl.resolve(binding.isStatic() //side effect on binding 
+		fieldDecl.resolve(originalField.isStatic() //side effect on binding 
 				? typeDecl.staticInitializerScope
 				: typeDecl.initializerScope); 
 

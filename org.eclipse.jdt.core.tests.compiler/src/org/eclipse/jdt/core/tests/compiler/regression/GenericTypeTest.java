@@ -6151,4 +6151,31 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			true,
 			customOptions);
 	}
+	// 68998 variation
+	public void test224() { 
+		this.runNegativeTest(
+			new String[] {
+				"test/cheetah/NG.java",
+				"package test.cheetah;\n" +
+				"public class NG extends G {\n" +
+				"		public static void main(String[] args) {\n" + 
+				"			System.out.println(\"SUCCESS\");	\n" + 
+				"		}\n" + 
+				"    public boolean test() {\n" +
+				"        return o == null;\n" +
+				"    }\n" +
+				"}\n",
+				"test/cheetah/G.java",
+				"package test.cheetah;\n" +
+				"public class G<E> {\n" +
+				"    protected final Object o;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in test\\cheetah\\G.java (at line 2)\r\n" + 
+			"	public class G<E> {\r\n" + 
+			"	             ^\n" + 
+			"The blank final field o may not have been initialized\n" + 
+			"----------\n");
+	}	
 }
