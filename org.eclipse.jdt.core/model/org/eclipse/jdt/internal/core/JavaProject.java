@@ -239,9 +239,9 @@ public class JavaProject
 	protected void addToBuildSpec(String builderID) throws CoreException {
 
 		IProjectDescription description = this.project.getDescription();
-		ICommand javaCommand = getJavaCommand(description);
+		int javaCommandIndex = getJavaCommandIndex(description.getBuildSpec());
 
-		if (javaCommand == null) {
+		if (javaCommandIndex == -1) {
 
 			// Add a Java command to the build spec
 			ICommand command = description.newCommand();
@@ -1370,17 +1370,17 @@ public class JavaProject
 	}
 
 	/**
-	 * Find the specific Java command amongst the build spec of a given description
+	 * Find the specific Java command amongst the given build spec
+	 * and return its index or -1 if not found.
 	 */
-	private ICommand getJavaCommand(IProjectDescription description) {
+	private int getJavaCommandIndex(ICommand[] buildSpec) {
 
-		ICommand[] commands = description.getBuildSpec();
-		for (int i = 0; i < commands.length; ++i) {
-			if (commands[i].getBuilderName().equals(JavaCore.BUILDER_ID)) {
-				return commands[i];
+		for (int i = 0; i < buildSpec.length; ++i) {
+			if (buildSpec[i].getBuilderName().equals(JavaCore.BUILDER_ID)) {
+				return i;
 			}
 		}
-		return null;
+		return -1;
 	}
 
 	/**
@@ -2501,23 +2501,18 @@ public class JavaProject
 		ICommand newCommand)
 		throws CoreException {
 
-		ICommand[] oldCommands = description.getBuildSpec();
-		ICommand oldJavaCommand = getJavaCommand(description);
+		ICommand[] oldBuildSpec = description.getBuildSpec();
+		int oldJavaCommandIndex = getJavaCommandIndex(oldBuildSpec);
 		ICommand[] newCommands;
 
-		if (oldJavaCommand == null) {
+		if (oldJavaCommandIndex == -1) {
 			// Add a Java build spec before other builders (1FWJK7I)
-			newCommands = new ICommand[oldCommands.length + 1];
-			System.arraycopy(oldCommands, 0, newCommands, 1, oldCommands.length);
+			newCommands = new ICommand[oldBuildSpec.length + 1];
+			System.arraycopy(oldBuildSpec, 0, newCommands, 1, oldBuildSpec.length);
 			newCommands[0] = newCommand;
 		} else {
-			for (int i = 0, max = oldCommands.length; i < max; i++) {
-				if (oldCommands[i] == oldJavaCommand) {
-					oldCommands[i] = newCommand;
-					break;
-				}
-			}
-			newCommands = oldCommands;
+		    oldBuildSpec[oldJavaCommandIndex] = newCommand;
+			newCommands = oldBuildSpec;
 		}
 
 		// Commit the spec change into the project
