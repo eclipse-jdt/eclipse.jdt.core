@@ -320,12 +320,6 @@ public abstract class ASTVisitor {
 	public void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {
 		// do nothing by default
 	}
@@ -776,12 +770,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {

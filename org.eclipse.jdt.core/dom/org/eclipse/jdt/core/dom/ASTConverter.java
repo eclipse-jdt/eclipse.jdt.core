@@ -32,8 +32,6 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
@@ -659,14 +657,7 @@ class ASTConverter {
 			}			
 		}
 
-		org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParameters = null;
-		if (methodDeclaration instanceof ParameterizedConstructorDeclaration) {
-			ParameterizedConstructorDeclaration parameterizedConstructorDeclaration = (ParameterizedConstructorDeclaration) methodDeclaration;
-			typeParameters = parameterizedConstructorDeclaration.typeParameters;
-		} else if (methodDeclaration instanceof ParameterizedMethodDeclaration) {
-			ParameterizedMethodDeclaration parameterizedMethodDeclaration = (ParameterizedMethodDeclaration) methodDeclaration;
-			typeParameters = parameterizedMethodDeclaration.typeParameters;
-		}
+		org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParameters = methodDeclaration.typeParameters();
 		if (typeParameters != null) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2 :

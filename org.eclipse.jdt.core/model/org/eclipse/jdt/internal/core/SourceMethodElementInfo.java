@@ -88,6 +88,12 @@ protected String getSignature() {
 	}
 	return Signature.createMethodSignature(paramSignatures, Signature.createTypeSignature(this.returnType, false));
 }
+public char[][] getTypeParameterNames() {
+	return this.typeParameterNames;
+}
+public char[][][] getTypeParameterBounds() {
+	return this.typeParameterBounds;
+}
 public char[][] getTypeParameterSignatures() {
 	if (this.typeParameterSignatures == null) {
 		if (this.typeParameterNames != null) {

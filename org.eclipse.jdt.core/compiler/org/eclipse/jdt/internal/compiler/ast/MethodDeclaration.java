@@ -23,7 +23,8 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 public class MethodDeclaration extends AbstractMethodDeclaration {
 	
 	public TypeReference returnType;
-
+	public TypeParameter[] typeParameters;
+	
 	/**
 	 * MethodDeclaration constructor comment.
 	 */
@@ -143,6 +144,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				for (int i = 0; i < annotationsLength; i++)
 					this.annotations[i].traverse(visitor, scope);
 			}
+			if (this.typeParameters != null) {
+				int typeParametersLength = this.typeParameters.length;
+				for (int i = 0; i < typeParametersLength; i++) {
+					this.typeParameters[i].traverse(visitor, scope);
+				}
+			}			
 			if (returnType != null)
 				returnType.traverse(visitor, scope);
 			if (arguments != null) {
@@ -163,4 +170,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		visitor.endVisit(this, classScope);
 	}
+	public TypeParameter[] typeParameters() {
+	    return this.typeParameters;
+	}		
 }

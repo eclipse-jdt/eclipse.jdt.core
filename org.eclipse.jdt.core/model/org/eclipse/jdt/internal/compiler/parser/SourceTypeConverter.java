@@ -182,16 +182,30 @@ public class SourceTypeConverter implements CompilerModifiers {
 		int start = sourceMethod.getNameSourceStart();
 		int end = sourceMethod.getNameSourceEnd();
 
+		/* convert type parameters */
+		char[][] typeParameterNames = sourceMethod.getTypeParameterNames();
+		TypeParameter[] typeParams = null;
+		if (typeParameterNames != null) {
+			int parameterCount = typeParameterNames.length;
+			char[][][] typeParameterBounds = sourceMethod.getTypeParameterBounds();
+			typeParams = new TypeParameter[parameterCount];
+			for (int i = 0; i < parameterCount; i++) {
+				typeParams[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+			}
+		}
+		
 		if (sourceMethod.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
 			decl.isDefaultConstructor = false;
 			method = decl;
+			decl.typeParameters = typeParams;
 		} else {
 			MethodDeclaration decl = new MethodDeclaration(compilationResult);
 			/* convert return type */
 			decl.returnType =
 				createTypeReference(sourceMethod.getReturnTypeName(), start, end);
 			method = decl;
+			decl.typeParameters = typeParams;
 		}
 		method.selector = sourceMethod.getSelector();
 		method.modifiers = sourceMethod.getModifiers();
@@ -246,7 +260,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		type.declarationSourceEnd = sourceType.getDeclarationSourceEnd();
 		type.bodyEnd = type.declarationSourceEnd;
 
-		/* recreate type parameters */
+		/* convert type parameters */
 		char[][] typeParameterNames = sourceType.getTypeParameterNames();
 		if (typeParameterNames != null) {
 			int parameterCount = typeParameterNames.length;
@@ -447,7 +461,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 				case ',' :
 					break typeLoop;
 				case '.' :
-					if (nameFragmentStart == this.namePos) nameFragmentStart++; // member type name
+					if (nameFragmentStart < 0) nameFragmentStart = this.namePos+1; // member type name
 					identCount ++;
 					break;
 				case '<' :
@@ -531,7 +545,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 					System.arraycopy(fragmentTokens, 0, tokens, index, fragmentTokenLength);
 					index += fragmentTokenLength;
 				} else {
-					arguments[index] = (TypeReference[]) element;
+					arguments[index-1] = (TypeReference[]) element;
 				}
 			}
 			long[] positions = new long[identCount];

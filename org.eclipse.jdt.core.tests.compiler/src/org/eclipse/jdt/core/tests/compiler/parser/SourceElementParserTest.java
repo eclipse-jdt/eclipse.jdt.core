@@ -245,6 +245,8 @@ public void enterConstructor(
 				parameterTypes, 
 				parameterNames, 
 				exceptionTypes, 
+				typeParameterNames,
+				typeParameterBounds,
 				source)); 
 }
 /**
@@ -362,6 +364,8 @@ public void enterMethod(
 				parameterTypes, 
 				parameterNames, 
 				exceptionTypes, 
+				typeParameterNames,
+				typeParameterBounds,
 				source)); 
 }
 /**

@@ -2294,7 +2294,7 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 	}
 	
 	// ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
-	ParameterizedConstructorDeclaration cd = new ParameterizedConstructorDeclaration(this.compilationUnit.compilationResult);
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
@@ -3705,7 +3705,7 @@ protected void consumeMethodHeaderName() {
 }
 protected void consumeMethodHeaderNameWithTypeParameters() {
 	// MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
-	ParameterizedMethodDeclaration md = new ParameterizedMethodDeclaration(this.compilationUnit.compilationResult);
+	MethodDeclaration md = new MethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
 	md.selector = this.identifierStack[this.identifierPtr];
@@ -6989,14 +6989,8 @@ public boolean containsComment(int sourceStart, int sourceEnd) {
 	return false;
 }
 public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
-	MethodDeclaration m;
-	if(c instanceof ParameterizedConstructorDeclaration) {
-		ParameterizedMethodDeclaration pm = new ParameterizedMethodDeclaration(compilationResult);
-		pm.typeParameters = ((ParameterizedConstructorDeclaration)c).typeParameters;
-		m = pm;
-	} else {
-		m = new MethodDeclaration(compilationResult);
-	}
+	MethodDeclaration m = new MethodDeclaration(compilationResult);
+	m.typeParameters = c.typeParameters;
 	m.sourceStart = c.sourceStart;
 	m.sourceEnd = c.sourceEnd;
 	m.bodyStart = c.bodyStart;

@@ -306,6 +306,19 @@ public abstract class AbstractMethodDeclaration
 
 		printIndent(tab, output);
 		printModifiers(this.modifiers, output);
+		
+		TypeParameter[] typeParams = typeParameters();
+		if (typeParams != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeParams.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeParams[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeParams[max].print(0, output);
+			output.append('>');
+		}
+		
 		printReturnType(0, output).append(this.selector).append('(');
 		if (this.arguments != null) {
 			for (int i = 0; i < this.arguments.length; i++) {

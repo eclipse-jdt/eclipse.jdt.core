@@ -26,6 +26,9 @@ public class SourceMethod implements ISourceMethod, IConstants {
 	private char[][] exceptionTypeNames;
 	private char[] source;
 	private String explicitConstructorCall;
+	private char[][] typeParameterNames;
+	private char[][][] typeParameterBounds;
+	
 public SourceMethod(
 	int declarationStart,
 	int modifiers,
@@ -36,6 +39,8 @@ public SourceMethod(
 	char[][] argumentTypeNames,
 	char[][] argumentNames,
 	char[][] exceptionTypeNames,
+	char[][] typeParameterNames, 
+	char[][][] typeParameterBounds,
 	char[] source) {
 
 	this.declarationStart = declarationStart;
@@ -47,6 +52,8 @@ public SourceMethod(
 	this.argumentTypeNames = argumentTypeNames;
 	this.argumentNames = argumentNames;
 	this.exceptionTypeNames = exceptionTypeNames;
+	this.typeParameterNames = typeParameterNames;
+	this.typeParameterBounds = typeParameterBounds;
 	this.source = source;
 }
 public String displayModifiers() {
@@ -108,6 +115,12 @@ public char[] getReturnTypeName() {
 }
 public char[] getSelector() {
 	return selector;
+}
+public char[][][] getTypeParameterBounds() {
+	return typeParameterBounds;
+}
+public char[][] getTypeParameterNames() {
+	return typeParameterNames;	
 }
 public boolean isConstructor() {
 	return returnTypeName == null;

@@ -1123,6 +1123,54 @@ public void testMethodWithError12() throws CoreException {
 		deleteFolder("/Reconciler15/src/test");
 	}
 }
+/*
+ * Scenario of reconciling using a working copy owner (68730)
+ */
+public void testMethodWithError13() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(owner, null, null);
+		createFolder("/Reconciler15/src/test");
+		workingCopy1.getBuffer().setContents(
+			"package test;\n"+
+			"public class X <T extends String, U> {\n"+
+			"	<Y1> void bar(Y1[] y) {}\n"+
+			"	void bar2(Y<E3[]>[] ye[]) {}\n"+
+			"    void foo(java.util.Map<Object[],String>.MapEntry<p.K<T>[],? super q.r.V8> m){}\n"+
+			"    Class<? extends Object> getClass0() {}\n"+
+			"    <E extends String> void pair (X<? extends E, U> e, T t){}\n"+
+			"}\n"
+		);
+		workingCopy1.makeConsistent(null);
+		
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(owner, this.problemRequestor, null);
+		setWorkingCopyContents(
+			"package test;\n"+
+			"public class Y {\n"+
+			"	void foo(){\n"+
+			"		X someX = new X();\n"+
+			"		someX.bar(null);\n"+
+			"	}\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+		deleteFolder("/Reconciler15/src/test");
+	}
+}
 /**
  * Ensures that the reconciler handles member move correctly.
  */
