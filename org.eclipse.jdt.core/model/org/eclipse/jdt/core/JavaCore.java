@@ -1447,7 +1447,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning" }
 	 *     - default:           "error"
 	 * 
-	 * JAVACORE / Reporting Incompatible JDK Level
+	 * JAVACORE / Reporting Incompatible JDK Level for Required Binaries
 	 *    Indicate the severity of the problem reported when a project prerequisites another project 
 	 *    or library with an incompatible target JDK level (e.g. project targeting 1.1 vm, but compiled against 1.4 libraries).
 	 *     - option id:         "org.eclipse.jdt.core.incompatibleJDKLevel"

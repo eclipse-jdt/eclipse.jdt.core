@@ -41,6 +41,17 @@ Eclipse SDK 3.0 Build - ?th May 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added <code>JavaCore</code> optional problem to detect incompatible required binaries, so as to flag situations where
+some prerequisite binaries are required a JRE level higher than the project target platform; i.e. compiling against 1.4 libraries 
+when deploying for 1.1 platform is likely unwanted.
+<pre>
+* JAVACORE / Reporting Incompatible JDK Level
+*    Indicate the severity of the problem reported when a project prerequisites another project 
+*    or library with an incompatible target JDK level (e.g. project targeting 1.1 vm, but compiled against 1.4 libraries).
+*     - option id:         "org.eclipse.jdt.core.incompatibleJDKLevel"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
 <!--
 <li> Plugin version ID got incremented to 3.0.0. 
 </li>
