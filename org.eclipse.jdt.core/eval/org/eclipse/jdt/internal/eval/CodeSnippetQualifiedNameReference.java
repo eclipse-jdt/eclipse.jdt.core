@@ -390,6 +390,7 @@ public void generateReceiver(CodeStream codeStream) {
 public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
 
+	int length = tokens.length;
 	if ((bits & FIELD) != 0) {
 		if (!((FieldBinding) binding).isStatic()) { //must check for the static status....
 			if (indexOfFirstFieldBinding == 1) {
@@ -403,13 +404,13 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				return null;
 			}
 		}
-		if (isFieldUseDeprecated((FieldBinding) binding, scope))
+		// only last field is actually a write access if any
+		if (isFieldUseDeprecated((FieldBinding) binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
 			scope.problemReporter().deprecatedField((FieldBinding) binding, this);
 	}
 
 	TypeBinding type = ((VariableBinding) binding).type;
 	int index = indexOfFirstFieldBinding;
-	int length = tokens.length;
 	if (index == length) { //	restrictiveFlag == FIELD
 		constant = FieldReference.getConstantFor((FieldBinding) binding, this, false, scope);
 		return type;
@@ -451,7 +452,8 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			otherBindings[place] = field;
 		}
 		if (field.isValidBinding()) {
-			if (isFieldUseDeprecated(field, scope))
+			// only last field is actually a write access if any
+			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length))
 				scope.problemReporter().deprecatedField(field, this);
 			Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
 			// constant propagation can only be performed as long as the previous one is a constant too.

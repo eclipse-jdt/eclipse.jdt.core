@@ -113,9 +113,9 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	/* Answer true if the field use is considered deprecated.
 	* An access in the same compilation unit is allowed.
 	*/
-	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope) {
+	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, boolean isStrictlyAssigned) {
 
-		if (field.isPrivate() && !scope.isDefinedInField(field)) {
+		if (!isStrictlyAssigned && field.isPrivate() && !scope.isDefinedInField(field)) {
 			// ignore cases where field is used from within inside itself 
 			field.modifiers |= AccPrivateUsed;
 		}

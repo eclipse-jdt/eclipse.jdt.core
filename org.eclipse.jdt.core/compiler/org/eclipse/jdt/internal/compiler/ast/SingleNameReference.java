@@ -157,7 +157,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	}
 	constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
 
-	if (isFieldUseDeprecated(fieldBinding, scope))
+	if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 
 	MethodScope ms = scope.methodScope();

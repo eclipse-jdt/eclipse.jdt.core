@@ -494,7 +494,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			return null;
 		}
 
-		if (isFieldUseDeprecated(binding, scope))
+		if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
 			scope.problemReporter().deprecatedField(binding, this);
 
 		boolean isImplicitThisRcv = receiver.isImplicitThis();
