@@ -132,7 +132,7 @@ public class Alignment {
 
 
 	// location to align and break on.
-	public Alignment(String name, int mode, int tieBreakRule, Scribe scribe, int fragmentCount, int sourceRestart){
+	public Alignment(String name, int mode, int tieBreakRule, Scribe scribe, int fragmentCount, int sourceRestart, int continuationIndent){
 		
 		this.name = name;
 		this.location = new Location(scribe, sourceRestart);
@@ -154,8 +154,7 @@ public class Alignment {
 			this.breakIndentationLevel = this.location.outputIndentationLevel + indentSize;
 		} else {
 			// indent broken fragments by one continuation indentation deeper than current indentation
-			int continuationIndentation = this.scribe.formatter.preferences.continuation_indentation;
-			this.breakIndentationLevel = this.location.outputIndentationLevel + (this.scribe.useTab ? continuationIndentation : continuationIndentation*this.scribe.tabSize);
+			this.breakIndentationLevel = this.location.outputIndentationLevel + continuationIndent * (this.scribe.useTab ?  1 : this.scribe.tabSize);
 		}
 		// reduce indentation of broken fragment in case first fragment would be before the subsequent ones
 		if ((mode & M_NEXT_SHIFTED_SPLIT) != 0) {

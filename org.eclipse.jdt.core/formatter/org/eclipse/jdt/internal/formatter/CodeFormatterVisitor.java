@@ -520,13 +520,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Field initialization
 		 */
-		if (fieldDeclaration.initialization != null) {
+		final Expression initialization = fieldDeclaration.initialization;
+		if (initialization != null) {
 			this.scribe.alignFragment(memberAlignment, 1);
 			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
-			if (this.preferences.insert_space_after_assignment_operators) {
+			if (!(initialization instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operators) {
 				this.scribe.space();
 			}
-			fieldDeclaration.initialization.traverse(this, scope);
+			initialization.traverse(this, scope);
 		}
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -611,15 +612,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					/*
 					 * Field initialization
 					 */
-					if (fieldDeclaration.initialization != null) {
+					final Expression initialization = fieldDeclaration.initialization;
+					if (initialization != null) {
 						if (i == 0) {
 							this.scribe.alignFragment(fieldAlignment, 1);
 						}
 						this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
-						if (this.preferences.insert_space_after_assignment_operators) {
+						if (!(initialization instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operators) {
 							this.scribe.space();
 						}
-						fieldDeclaration.initialization.traverse(this, scope);
+						initialization.traverse(this, scope);
 					}
 					
 					if (i != length - 1) {
@@ -914,6 +916,106 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 	}
 
+	private void formatArrayInitializer(ArrayInitializer arrayInitializer, BlockScope scope, boolean insertSpaceBeforeOpeningBrace) {
+		final int numberOfParens = (arrayInitializer.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(arrayInitializer, numberOfParens);
+		}
+		
+		String array_initializer_brace_position = this.preferences.array_initializer_brace_position;
+		formatOpeningBrace(array_initializer_brace_position, insertSpaceBeforeOpeningBrace);
+
+		if (this.preferences.insert_new_line_after_opening_brace_in_array_initializer) {
+			this.scribe.printNewLine();
+			for (int i = this.preferences.array_initializer_continuation_indentation; i > 0; i--) {
+				this.scribe.indent();
+			}
+		}
+
+		final Expression[] expressions = arrayInitializer.expressions;
+		if (expressions != null) {
+			int expressionsLength = expressions.length;
+			if (expressionsLength > 1) {
+				Alignment arrayInitializerAlignment =this.scribe.createAlignment(
+						"array_initializer",//$NON-NLS-1$
+						this.preferences.array_initializer_expressions_alignment,
+						Alignment.R_OUTERMOST,
+						expressionsLength,
+						this.scribe.scanner.currentPosition,
+						this.preferences.insert_new_line_after_opening_brace_in_array_initializer ? 0 : this.preferences.array_initializer_continuation_indentation,
+						true);
+				this.scribe.enterAlignment(arrayInitializerAlignment);
+				boolean ok = false;
+				do {
+					try {
+						this.scribe.alignFragment(arrayInitializerAlignment, 0);
+						if (this.preferences.insert_space_before_first_initializer) {
+							this.scribe.space();
+						}
+						expressions[0].traverse(this, scope);
+						for (int i = 1; i < expressionsLength; i++) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+							this.scribe.alignFragment(arrayInitializerAlignment, i);
+							if (this.preferences.insert_space_after_comma_in_array_initializer) {
+								this.scribe.space();
+							}
+							expressions[i].traverse(this, scope);
+							if (i == expressionsLength - 1) {
+								if (isComma()) {
+									this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+								}
+							}
+						}
+						ok = true;
+					} catch (AlignmentException e) {
+						this.scribe.redoAlignment(e);
+					}
+				} while (!ok);
+				this.scribe.exitAlignment(arrayInitializerAlignment, true);
+			} else {
+				// we don't need to use an alignment
+				if (this.preferences.insert_space_before_first_initializer) {
+					this.scribe.space();
+				}
+				expressions[0].traverse(this, scope);
+				if (expressionsLength == 1) {
+					if (isComma()) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+					}
+				} else {
+					for (int i = 1; i < expressionsLength; i++) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+						if (this.preferences.insert_space_after_comma_in_array_initializer) {
+							this.scribe.space();
+						}
+						expressions[i].traverse(this, scope);
+						if (i == expressionsLength - 1) {
+							if (isComma()) {
+								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (this.preferences.insert_new_line_after_opening_brace_in_array_initializer) {
+			for (int i = this.preferences.array_initializer_continuation_indentation; i > 0; i--) {
+				this.scribe.unIndent();
+			}			
+		}
+		if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
+			this.scribe.printNewLine();
+		}
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
+		if (array_initializer_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+			this.scribe.unIndent();
+		}	
+	
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(arrayInitializer, numberOfParens);
+		}
+	}
+
 	private void formatCascadingMessageSends(CascadingMethodInvocationFragmentBuilder builder, BlockScope scope) {
 		int size = builder.size();
 		MessageSend[] fragments = builder.fragments();
@@ -1145,15 +1247,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			 }
 		}
 	
-		if (localDeclaration.initialization != null) {
+		final Expression initialization = localDeclaration.initialization;
+		if (initialization != null) {
 			/*
 			 * Print the method name
 			 */	
 			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
-			if (this.preferences.insert_space_after_assignment_operators) {
+			if (!(initialization instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operators) {
 				this.scribe.space();
-			}			 
-			localDeclaration.initialization.traverse(this, scope);
+			}
+			initialization.traverse(this, scope);
 		}
 
 		if (isPartOfMultipleLocalDeclaration()) {
@@ -1776,7 +1879,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			final ArrayInitializer initializer = arrayAllocationExpression.initializer;
 			if (initializer != null) {
-				initializer.traverse(this, scope);
+				formatArrayInitializer(initializer, scope, this.preferences.insert_space_before_opening_brace_in_array_initializer);
 			}
 
 			if (numberOfParens > 0) {
@@ -1789,91 +1892,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayInitializer, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
-	
-		final int numberOfParens = (arrayInitializer.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) {
-			manageOpeningParenthesizedExpression(arrayInitializer, numberOfParens);
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, this.preferences.insert_space_before_opening_brace_in_array_initializer);
-		
-		final Expression[] expressions = arrayInitializer.expressions;
-		if (expressions != null) {
-			int expressionsLength = expressions.length;
-			if (expressionsLength > 1) {
-				Alignment arrayInitializerAlignment =this.scribe.createAlignment(
-						"array_initializer",//$NON-NLS-1$
-						this.preferences.array_initializer_expressions_alignment,
-						Alignment.R_OUTERMOST,
-						expressionsLength,
-						this.scribe.scanner.currentPosition,
-						true);
-				this.scribe.enterAlignment(arrayInitializerAlignment);
-				boolean ok = false;
-				do {
-					try {
-						this.scribe.alignFragment(arrayInitializerAlignment, 0);
-						if (this.preferences.insert_space_before_first_initializer) {
-							this.scribe.space();
-						}
-						expressions[0].traverse(this, scope);
-						for (int i = 1; i < expressionsLength; i++) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
-							this.scribe.alignFragment(arrayInitializerAlignment, i);
-							if (this.preferences.insert_space_after_comma_in_array_initializer) {
-								this.scribe.space();
-							}
-							expressions[i].traverse(this, scope);
-							if (i == expressionsLength - 1) {
-								if (isComma()) {
-									this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
-								}
-							}
-						}
-						ok = true;
-					} catch (AlignmentException e) {
-						this.scribe.redoAlignment(e);
-					}
-				} while (!ok);
-				this.scribe.exitAlignment(arrayInitializerAlignment, true);
-			} else {
-				// we don't need to use an alignment
-				if (this.preferences.insert_space_before_first_initializer) {
-					this.scribe.space();
-				}
-				expressions[0].traverse(this, scope);
-				if (expressionsLength == 1) {
-					if (isComma()) {
-						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
-					}
-				} else {
-					for (int i = 1; i < expressionsLength; i++) {
-						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
-						if (this.preferences.insert_space_after_comma_in_array_initializer) {
-							this.scribe.space();
-						}
-						expressions[i].traverse(this, scope);
-						if (i == expressionsLength - 1) {
-							if (isComma()) {
-								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
-							}
-						}
-					}
-				}
-			}
-			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
-				this.scribe.printNewLine();
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_before_closing_brace_in_array_initializer, true); 
-		} else {
-			if (this.preferences.insert_new_line_before_closing_brace_in_array_initializer) {
-				this.scribe.printNewLine();
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE, this.preferences.insert_space_between_empty_array_initializer, true);
-		}
-	
-		if (numberOfParens > 0) {
-			manageClosingParenthesizedExpression(arrayInitializer, numberOfParens);
-		}
+		formatArrayInitializer(arrayInitializer, scope, this.preferences.insert_space_before_opening_brace_in_array_initializer || this.preferences.insert_space_after_assignment_operators);
 		return false;
 	}
 	
@@ -2046,7 +2065,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		assignment.lhs.traverse(this, scope);
 		this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operators);
-		if (this.preferences.insert_space_after_assignment_operators) {
+		if (!(assignment.expression instanceof ArrayInitializer) && this.preferences.insert_space_after_assignment_operators) {
 			this.scribe.space();
 		}
 		assignment.expression.traverse(this, scope);

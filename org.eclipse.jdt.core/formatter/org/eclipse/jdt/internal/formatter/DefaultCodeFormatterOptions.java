@@ -27,6 +27,8 @@ public class DefaultCodeFormatterOptions {
 	public static final int DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final String DEFAULT_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
 	public static final int DEFAULT_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
+	public static final String DEFAULT_ARRAY_INITIALIZER_BRACE_POSITION = DefaultCodeFormatterConstants.END_OF_LINE;
+	public static final int DEFAULT_ARRAY_INITIALIZER_CONTINUATION_INDENTATION = 2; // 2 indentations
 	public static final int DEFAULT_BINARY_EXPRESSION_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_BLANK_LINES_AFTER_IMPORTS = 0;
 	public static final int DEFAULT_BLANK_LINES_AFTER_PACKAGE = 0;
@@ -54,7 +56,7 @@ public class DefaultCodeFormatterOptions {
 	public static final boolean DEFAULT_INDENT_BREAKS_COMPARE_TO_CASES = true;
 	public static final boolean DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES = true;
 	public static final boolean DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH = true;
-	public static final int DEFAULT_INITIAL_INDENTATION_LEVEL = 0;
+	public static final boolean DEFAULT_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER = false;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER = false;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS = false;
 	public static final boolean DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION = true;
@@ -150,7 +152,6 @@ public class DefaultCodeFormatterOptions {
 	public static final boolean DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE = false;
 	public static final boolean DEFAULT_KEEP_SIMPLE_IF_ON_ONE_LINE = false; 
 	public static final boolean DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE = false;
-	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");	//$NON-NLS-1$
 	public static final int DEFAULT_MESSAGE_SEND_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
 	public static final int DEFAULT_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = Alignment.M_COMPACT_SPLIT;
@@ -186,6 +187,8 @@ public class DefaultCodeFormatterOptions {
 
 	public int allocation_expression_arguments_alignment;
 	public String anonymous_type_declaration_brace_position;
+	public String array_initializer_brace_position;
+	public int array_initializer_continuation_indentation;
 	public int array_initializer_expressions_alignment;
 	public int binary_expression_alignment;
 	public int blank_lines_after_imports;
@@ -210,6 +213,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean indent_switchstatements_compare_to_cases;
 	public boolean indent_switchstatements_compare_to_switch;
 	public int initial_indentation_level;
+	public boolean insert_new_line_after_opening_brace_in_array_initializer;
 	public boolean insert_new_line_before_closing_brace_in_array_initializer;
 	public boolean insert_new_line_in_control_statements;
 	public boolean insert_new_line_in_empty_anonymous_type_declaration;
@@ -305,7 +309,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean keep_else_statement_on_same_line;
 	public boolean keep_simple_if_on_one_line;
 	public boolean keep_then_statement_on_same_line;
-	public String line_delimiter;
+	public String line_separator;
 	public int message_send_arguments_alignment;
 	public int message_send_selector_alignment;
 	public int method_declaration_arguments_alignment;
@@ -344,6 +348,8 @@ public class DefaultCodeFormatterOptions {
 		Map options = new HashMap();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT, getAlignment(this.allocation_expression_arguments_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION, this.anonymous_type_declaration_brace_position);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_BRACE_POSITION, this.array_initializer_brace_position);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_CONTINUATION_INDENTATION, Integer.toString(this.array_initializer_continuation_indentation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT, getAlignment(this.array_initializer_expressions_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BINARY_EXPRESSION_ALIGNMENT, getAlignment(this.binary_expression_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS, Integer.toString(this.blank_lines_after_imports));
@@ -367,7 +373,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES, this.indent_breaks_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, this.indent_switchstatements_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, this.indent_switchstatements_compare_to_switch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INITIAL_INDENTATION_LEVEL, Integer.toString(this.initial_indentation_level));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_before_closing_brace_in_array_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS, this.insert_new_line_in_control_statements ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION, this.insert_new_line_in_empty_anonymous_type_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -463,7 +469,6 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_ELSE_STATEMENT_ON_SAME_LINE, this.keep_else_statement_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE, this.keep_simple_if_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE, this.keep_then_statement_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SEPARATOR, this.line_delimiter);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT, getAlignment(this.message_send_arguments_alignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_SELECTOR_ALIGNMENT, getAlignment(this.message_send_selector_alignment));
@@ -494,6 +499,14 @@ public class DefaultCodeFormatterOptions {
 		final Object anonymousTypeDeclarationBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION);
 		if (anonymousTypeDeclarationBracePositionOption != null) {
 			this.anonymous_type_declaration_brace_position = (String) anonymousTypeDeclarationBracePositionOption;
+		}
+		final Object arrayInitializerBracePositionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_BRACE_POSITION);
+		if (arrayInitializerBracePositionOption != null) {
+			this.array_initializer_brace_position = (String) arrayInitializerBracePositionOption;
+		}
+		final Object arrayInitializerContinuationIndentationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_CONTINUATION_INDENTATION);
+		if (arrayInitializerContinuationIndentationOption != null) {
+			this.array_initializer_continuation_indentation = Integer.parseInt((String) arrayInitializerContinuationIndentationOption);
 		}
 		final Object arrayInitializerExpressionsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT);
 		if (arrayInitializerExpressionsAlignmentOption != null) {
@@ -590,9 +603,9 @@ public class DefaultCodeFormatterOptions {
 		if (indentSwitchstatementsCompareToSwitchOption != null) {
 			this.indent_switchstatements_compare_to_switch = DefaultCodeFormatterConstants.TRUE.equals(indentSwitchstatementsCompareToSwitchOption);
 		}
-		final Object initialIndentationLevelOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INITIAL_INDENTATION_LEVEL);
-		if (initialIndentationLevelOption != null) {
-			this.initial_indentation_level = Integer.parseInt((String) initialIndentationLevelOption);
+		final Object insertNewLineAfterOpeningBraceInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER);
+		if (insertNewLineAfterOpeningBraceInArrayInitializerOption != null) {
+			this.insert_new_line_after_opening_brace_in_array_initializer = JavaCore.INSERT.equals(insertNewLineAfterOpeningBraceInArrayInitializerOption);
 		}
 		final Object insertNewLineBeforeClosingBraceInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER);
 		if (insertNewLineBeforeClosingBraceInArrayInitializerOption != null) {
@@ -974,10 +987,6 @@ public class DefaultCodeFormatterOptions {
 		if (keepThenStatementOnSameLineOption != null) {
 			this.keep_then_statement_on_same_line = DefaultCodeFormatterConstants.TRUE.equals(keepThenStatementOnSameLineOption);
 		}
-		final Object lineDelimiterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SEPARATOR);
-		if (lineDelimiterOption != null) {
-			this.line_delimiter = (String) lineDelimiterOption;
-		}
 		final Object messageSendArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT);
 		if (messageSendArgumentsAlignmentOption != null) {
 			this.message_send_arguments_alignment = Integer.parseInt((String) messageSendArgumentsAlignmentOption);
@@ -1060,6 +1069,8 @@ public class DefaultCodeFormatterOptions {
 	public void setDefaultSettings() {
 		this.allocation_expression_arguments_alignment = DEFAULT_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT;
 		this.anonymous_type_declaration_brace_position = DEFAULT_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION;
+		this.array_initializer_brace_position = DEFAULT_ARRAY_INITIALIZER_BRACE_POSITION;
+		this.array_initializer_continuation_indentation = DEFAULT_ARRAY_INITIALIZER_CONTINUATION_INDENTATION;
 		this.array_initializer_expressions_alignment = DEFAULT_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT;
 		this.binary_expression_alignment = DEFAULT_BINARY_EXPRESSION_ALIGNMENT;
 		this.blank_lines_after_imports = DEFAULT_BLANK_LINES_AFTER_IMPORTS;
@@ -1083,7 +1094,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_breaks_compare_to_cases = DEFAULT_INDENT_BREAKS_COMPARE_TO_CASES;
 		this.indent_switchstatements_compare_to_cases = DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES;
 		this.indent_switchstatements_compare_to_switch = DEFAULT_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH;
-		this.initial_indentation_level = DEFAULT_INITIAL_INDENTATION_LEVEL;
+		this.insert_new_line_after_opening_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER;
 		this.insert_new_line_before_closing_brace_in_array_initializer = DEFAULT_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER;
 		this.insert_new_line_in_control_statements = DEFAULT_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS;
 		this.insert_new_line_in_empty_anonymous_type_declaration = DEFAULT_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION;
@@ -1179,7 +1190,6 @@ public class DefaultCodeFormatterOptions {
 		this.keep_else_statement_on_same_line = DEFAULT_KEEP_ELSE_STATEMENT_ON_SAME_LINE;
 		this.keep_simple_if_on_one_line = DEFAULT_KEEP_SIMPLE_IF_ON_ONE_LINE;
 		this.keep_then_statement_on_same_line = DEFAULT_KEEP_THEN_STATEMENT_ON_SAME_LINE;
-		this.line_delimiter = DEFAULT_LINE_SEPARATOR;
 		this.message_send_arguments_alignment = DEFAULT_MESSAGE_SEND_ARGUMENTS_ALIGNMENT;
 		this.message_send_selector_alignment = DEFAULT_MESSAGE_SEND_SELECTOR_ALIGNMENT;
 		this.method_declaration_arguments_alignment = DEFAULT_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT;
@@ -1203,6 +1213,8 @@ public class DefaultCodeFormatterOptions {
 	public void setJavaConventionsSettings() {
 		this.allocation_expression_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.array_initializer_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.array_initializer_continuation_indentation = 2;
 		this.array_initializer_expressions_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.binary_expression_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.blank_lines_after_imports = 1;
@@ -1226,7 +1238,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_breaks_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = false;
-		this.initial_indentation_level = 0;
+		this.insert_new_line_after_opening_brace_in_array_initializer = false;
 		this.insert_new_line_before_closing_brace_in_array_initializer = false;
 		this.insert_new_line_in_control_statements = false;
 		this.insert_new_line_in_empty_anonymous_type_declaration = true;
@@ -1322,7 +1334,6 @@ public class DefaultCodeFormatterOptions {
 		this.keep_else_statement_on_same_line = false;
 		this.keep_simple_if_on_one_line = true;
 		this.keep_then_statement_on_same_line = true;
-		this.line_delimiter = System.getProperty("line.separator"); //$NON-NLS-1$
 		this.message_send_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.message_send_selector_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		this.method_declaration_arguments_alignment = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);

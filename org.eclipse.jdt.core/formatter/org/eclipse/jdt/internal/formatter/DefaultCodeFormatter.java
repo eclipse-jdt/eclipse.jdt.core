@@ -150,16 +150,12 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 	
 	private CodeFormatterVisitor newCodeFormatter;
+	private Map options;
 	
 	private DefaultCodeFormatterOptions preferences;
-	private Map options;
 	
 	public DefaultCodeFormatter() {
 		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings()), null);
-	}
-
-	public DefaultCodeFormatter(Map options) {
-		this(null, options);
 	}
 	
 	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences) {
@@ -182,6 +178,10 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				this.preferences.set(preferences.getMap());
 			}
 		}
+	}
+
+	public DefaultCodeFormatter(Map options) {
+		this(null, options);
 	}
 
 	/**
@@ -227,7 +227,9 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		CompilationUnitDeclaration compilationUnitDeclaration = parseCompilationUnit(source.toCharArray(), this.options);
 		
 		if (lineSeparator != null) {
-			this.preferences.line_delimiter = lineSeparator;
+			this.preferences.line_separator = lineSeparator;
+		} else {
+			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
@@ -256,7 +258,50 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 	}
 
-	protected TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	public String getDebugOutput() {
+		return this.newCodeFormatter.scribe.toString();
+	}
+
+	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, ASTNode[] bodyDeclarations, int offset, int length) {
+		if (lineSeparator != null) {
+			this.preferences.line_separator = lineSeparator;
+		} else {
+			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+		}
+		this.preferences.initial_indentation_level = indentationLevel;
+
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		
+		return this.newCodeFormatter.format(source, bodyDeclarations);
+	}
+
+	private TextEdit internalFormatExpression(String source, int indentationLevel, String lineSeparator, Expression expression, int offset, int length) {
+		if (lineSeparator != null) {
+			this.preferences.line_separator = lineSeparator;
+		} else {
+			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+		}
+		this.preferences.initial_indentation_level = indentationLevel;
+
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		
+		return this.newCodeFormatter.format(source, expression);
+	}
+	
+	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
+		if (lineSeparator != null) {
+			this.preferences.line_separator = lineSeparator;
+		} else {
+			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+		}
+		this.preferences.initial_indentation_level = indentationLevel;
+
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		
+		return  this.newCodeFormatter.format(source, constructorDeclaration);
+	}
+
+	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
 		Expression expression = parseExpression(source.toCharArray(), this.options);
 		
 		if (expression != null) {
@@ -276,42 +321,5 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 
 		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
-	}
-
-	public String getDebugOutput() {
-		return this.newCodeFormatter.scribe.toString();
-	}
-
-	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, ASTNode[] bodyDeclarations, int offset, int length) {
-		if (lineSeparator != null) {
-			this.preferences.line_delimiter = lineSeparator;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
-		
-		return this.newCodeFormatter.format(source, bodyDeclarations);
-	}
-
-	private TextEdit internalFormatExpression(String source, int indentationLevel, String lineSeparator, Expression expression, int offset, int length) {
-		if (lineSeparator != null) {
-			this.preferences.line_delimiter = lineSeparator;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
-		
-		return this.newCodeFormatter.format(source, expression);
-	}
-	
-	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
-		if (lineSeparator != null) {
-			this.preferences.line_delimiter = lineSeparator;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
-		
-		return  this.newCodeFormatter.format(source, constructorDeclaration);
 	}
 }

@@ -186,13 +186,17 @@ public class Scribe {
 	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, boolean adjust){
 		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
 	}
+
+	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust){
+		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, continuationIndent, adjust);
+	}
 	
 	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
-		return createAlignment(name, mode, tieBreakRule, count, sourceRestart, false);
+		return createAlignment(name, mode, tieBreakRule, count, sourceRestart, this.formatter.preferences.continuation_indentation, false);
 	}
 
-	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart, boolean adjust){
-		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart);
+	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart, int continuationIndent, boolean adjust){
+		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart, continuationIndent);
 		// adjust break indentation
 		if (adjust && this.memberAlignment != null) {
 			Alignment current = this.memberAlignment;
@@ -202,10 +206,10 @@ public class Scribe {
 			switch(current.chunkKind) {
 				case Alignment.CHUNK_METHOD :
 				case Alignment.CHUNK_TYPE :
-					alignment.breakIndentationLevel = this.indentationLevel + (this.useTab ? this.formatter.preferences.continuation_indentation : this.tabSize);
+					alignment.breakIndentationLevel = this.indentationLevel + continuationIndent * (this.useTab ? 1 : this.tabSize);
 					break;
 				case Alignment.CHUNK_FIELD :
-					alignment.breakIndentationLevel = current.originalIndentationLevel + (this.useTab ? this.formatter.preferences.continuation_indentation : this.tabSize);
+					alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * (this.useTab ? 1 : this.tabSize);
 					break;
 			}
 		}
@@ -1050,7 +1054,7 @@ public class Scribe {
 	}
 
 	public void setLineSeparatorAndIdentationLevel(DefaultCodeFormatterOptions preferences) {
-		this.lineSeparator = preferences.line_delimiter;
+		this.lineSeparator = preferences.line_separator;
 		if (this.useTab) {
 			this.indentationLevel = preferences.initial_indentation_level;
 		} else {
