@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.compiler.problem;
  *	(internal only)
  */
 public class ShouldNotImplement extends RuntimeException {
+	private static final long serialVersionUID = 2669970476264283736L; // backward compatible
 	public ShouldNotImplement(String message) {
 		super(message);
 	}

@@ -10,6 +10,7 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 public class ClassFormatException extends Exception {
+	
 	public static final int ErrBadMagic = 1;
 	public static final int ErrBadMinorVersion = 2;
 	public static final int ErrBadMajorVersion = 3;
@@ -39,6 +40,8 @@ public class ClassFormatException extends Exception {
 	public static final int ErrIncorrectInterfaceMethods = 26;
 	public static final int ErrInvalidMethodName = 27;
 	public static final int ErrInvalidMethodSignature = 28;
+
+	private static final long serialVersionUID = 6667458511042774540L; // backward compatible
 
 	private int errorCode;
 	private int bufferPosition;

@@ -16,7 +16,8 @@ package org.eclipse.jdt.internal.core.builder;
  */
 public class MissingClassFileException extends RuntimeException {
 
-protected String missingClassFile;
+	protected String missingClassFile;
+	private static final long serialVersionUID = 3060418973806972616L; // backward compatible
 
 public MissingClassFileException(String missingClassFile) {
 	this.missingClassFile = missingClassFile;

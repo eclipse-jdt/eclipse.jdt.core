@@ -91,6 +91,7 @@ public static boolean isTrue(boolean expression, String message) {
 }
 
 	public static class AssertionFailedException extends RuntimeException {
+		private static final long serialVersionUID = -3179320974982211564L; // backward compatible
 		public AssertionFailedException(String detail) {
 			super(detail);
 		}

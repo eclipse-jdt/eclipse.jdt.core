@@ -170,6 +170,7 @@ public class HandleFactory {
 	public IJavaElement createElement(final ASTNode toBeFound, CompilationUnitDeclaration parsedUnit, Openable openable) {
 		class EndVisit extends RuntimeException {
 			// marker to stop traversing ast
+			private static final long serialVersionUID = 7264372508108115988L; // backward compatible
 		}
 		class Visitor extends ASTVisitor {
 		    ASTNode[] nodeStack = new ASTNode[10];

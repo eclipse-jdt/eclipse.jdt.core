@@ -1296,6 +1296,7 @@ public class DeltaProcessor {
 		if (rootDelta != null) {
 			// use local exception to quickly escape from delta traversal
 			class FoundRelevantDeltaException extends RuntimeException {
+				private static final long serialVersionUID = 7137113252936111022L; // backward compatible
 				// only the class name is used (to differenciate from other RuntimeExceptions)
 			}
 			try {
