@@ -462,6 +462,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_TASK_CASE_SENSISITIVE = PLUGIN_ID + ".compiler.taskCaseSensitive"; //$NON-NLS-1$	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**
@@ -525,15 +531,27 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS = PLUGIN_ID + ".classpath.multipleOutputLocations"; //$NON-NLS-1$
 	/**
-	 * Default task tags
+	 * Default task tag
+	 * @deprecated - should use #DEFAULT_TASK_TAGS instead 
 	 * @since 2.1
 	 */
-	public static final String DEFAULT_TASK_TAG = "TODO,FIXME,XXX"; //$NON-NLS-1$
+	public static final String DEFAULT_TASK_TAG = "TODO"; //$NON-NLS-1$
 	/**
 	 * Default task priority
+	 * @deprecated - should use #DEFAULT_TASK_PRIORITIES instead 
 	 * @since 2.1
 	 */
 	public static final String DEFAULT_TASK_PRIORITY = "NORMAL"; //$NON-NLS-1$
+	/**
+	 * Default task tag
+	 * @since 3.0
+	 */
+	public static final String DEFAULT_TASK_TAGS = "TODO,FIXME,XXX"; //$NON-NLS-1$
+	/**
+	 * Default task priority
+	 * @since 3.0
+	 */
+	public static final String DEFAULT_TASK_PRIORITIES = "NORMAL,NORMAL,NORMAL"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1762,7 +1780,13 @@ public final class JavaCore extends Plugin {
 	 *    If the default is specified, the priority of each task marker is "NORMAL".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskPriorities"
 	 *     - possible values:   { "&lt;priority&gt;[,&lt;priority&gt;]*" } where &lt;priority&gt; is one of "HIGH", "NORMAL" or "LOW"
-	 *     - default:           ""
+	 *     - default:           "normal,normal,normal"
+	 * 
+	 * COMPILER / Determine whether task tags are case-sensitive
+	 *    When enabled, task tags are considered in a case-sensitive way.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.taskCaseSensitive"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
@@ -2305,8 +2329,8 @@ public final class JavaCore extends Plugin {
 		// override some compiler defaults
 		preferences.setDefault(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
 		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
-		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG);
-		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITY);
+		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAGS);
+		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITIES);
 		preferences.setDefault(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
 
 		// Builder settings

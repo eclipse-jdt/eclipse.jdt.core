@@ -76,6 +76,7 @@ public class Scanner implements TerminalTokens {
 	public int foundTaskCount = 0;
 	public char[][] taskTags = null;
 	public char[][] taskPriorities = null;
+	public boolean isTaskCaseSensitive = true;
 	
 	//diet parsing support - jump over some method body when requested
 	public boolean diet = false;
@@ -166,7 +167,7 @@ public class Scanner implements TerminalTokens {
 	public static final int BracketKinds = 3;
 
 public Scanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 }
 
 public Scanner(
@@ -175,7 +176,8 @@ public Scanner(
 	boolean checkNonExternalizedStringLiterals, 
 	long sourceLevel,
 	char[][] taskTags,
-	char[][] taskPriorities) {
+	char[][] taskPriorities,
+	boolean isTaskCaseSensitive) {
 
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
@@ -184,6 +186,7 @@ public Scanner(
 	this.assertMode = sourceLevel >= ClassFileConstants.JDK1_4;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
+	this.isTaskCaseSensitive = isTaskCaseSensitive;
 }
 
 public  final boolean atEnd() {
@@ -228,8 +231,12 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 			}
 
 			for (int t = 0; t < tagLength; t++) {
-				if (src[i + t] != tag[t])
-					continue nextTag;
+				char sc, tc;
+				if ((sc = src[i + t]) != (tc = tag[t])) { 																					// case sensitive check
+					if (this.isTaskCaseSensitive || (Character.toLowerCase(sc) != Character.toLowerCase(tc))) { 	// case insensitive check
+						continue nextTag;
+					}
+				}
 			}
 			// ensure tag is not followed with letter if tag finishes with a letter
 			if (i+tagLength < commentEnd && Character.isJavaIdentifierPart(src[i+tagLength-1])) {
