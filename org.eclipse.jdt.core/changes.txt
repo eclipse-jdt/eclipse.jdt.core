@@ -113,6 +113,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  5425      Exception on CodeAssist
   3194      DCR - JM - Buffer contents is duplicated (1G03HCP)  
   5430      Must resurrect 0.9 deprecated APIs   
   4923      IJavaProject.getPackageFragmentRoots returns roots from other projects
