@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.zip.ZipFile;
 
 public class PotentialMatch {
+	private static char[] EMPTY_FILE_NAME = new char[0];
 	private MatchLocator locator;
 	public IResource resource;
 	public Openable openable;
@@ -43,14 +44,13 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 	}
 }
 private void buildTypeBindings(final char[] source) {
-	// get main type name
-	String fileName = this.resource.getFullPath().lastSegment();
-	// remove extension ".java"
-	final char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); 
-
 	// get qualified name
 	char[] qualifiedName;
 	if (this.openable instanceof CompilationUnit) {
+		// get file name
+		String fileName = this.resource.getFullPath().lastSegment();
+		// get main type name
+		char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); 
 		CompilationUnit cu = (CompilationUnit)this.openable;
 		qualifiedName = cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
 	} else {
@@ -74,10 +74,10 @@ private void buildTypeBindings(final char[] source) {
 				return source;
 			}
 			public char[] getFileName() {
-				return PotentialMatch.this.resource.getName().toCharArray();
+				return EMPTY_FILE_NAME; // not used
 			}
 			public char[] getMainTypeName() {
-				return mainTypeName;
+				return null; // don't need to check if main type name == compilation unit name
 			}
 		};
 		

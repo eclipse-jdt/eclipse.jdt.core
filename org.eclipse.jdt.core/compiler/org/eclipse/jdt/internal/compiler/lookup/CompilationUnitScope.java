@@ -106,7 +106,9 @@ void buildTypeBindings() {
 		}
 
 		if ((typeDecl.modifiers & AccPublic) != 0) {
-			if (!CharOperation.equals(referenceContext.getMainTypeName(), typeDecl.name)) {
+			char[] mainTypeName;
+			if ((mainTypeName = referenceContext.getMainTypeName()) != null // mainTypeName == null means that implementor of ICompilationUnit decided to return null
+					&& !CharOperation.equals(mainTypeName, typeDecl.name)) {
 				problemReporter().publicClassMustMatchFileName(referenceContext, typeDecl);
 				continue nextType;
 			}
