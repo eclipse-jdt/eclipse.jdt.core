@@ -419,7 +419,7 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding localTargetMethod) {
 	if (!isClass()) return null; // only classes get bridge methods
 	if (inheritedMethodToBridge.returnType.erasure() == localTargetMethod.returnType.erasure()
-				&& inheritedMethodToBridge.areParameterErasuresEqual(localTargetMethod)) {
+		&& inheritedMethodToBridge.areParameterErasuresEqual(localTargetMethod)) {
 			return null; // do not need bridge method
 	}
 	if (synthetics == null) {
@@ -435,9 +435,9 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 			if (synthetic instanceof MethodBinding) {
 				MethodBinding method = (MethodBinding) synthetic;
 				if (CharOperation.equals(inheritedMethodToBridge.selector, method.selector)
-						&& inheritedMethodToBridge.returnType.erasure() == method.returnType.erasure()
-						&& inheritedMethodToBridge.areParameterErasuresEqual(method)) {
-					return null;
+					&& inheritedMethodToBridge.returnType.erasure() == method.returnType.erasure()
+					&& inheritedMethodToBridge.areParameterErasuresEqual(method)) {
+						return null;
 				}
 			}
 		}
