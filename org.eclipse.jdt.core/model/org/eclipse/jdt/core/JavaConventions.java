@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
@@ -49,6 +48,41 @@ public final class JavaConventions {
 	 * Not instantiable.
 	 */
 	private JavaConventions() {}
+
+	/*
+	 * Returns the index of the first argument paths which is strictly enclosing the path to check
+	 */
+	private static int indexOfEnclosingPath(IPath checkedPath, IPath[] paths, int pathCount) {
+
+		for (int i = 0; i < pathCount; i++){
+			if (paths[i].equals(checkedPath)) continue;
+			if (paths[i].isPrefixOf(checkedPath)) return i;
+		}
+		return -1;
+	}
+	
+	/*
+	 * Returns the index of the first argument paths which is equal to the path to check
+	 */
+	private static int indexOfMatchingPath(IPath checkedPath, IPath[] paths, int pathCount) {
+
+		for (int i = 0; i < pathCount; i++){
+			if (paths[i].equals(checkedPath)) return i;
+		}
+		return -1;
+	}
+
+	/*
+	 * Returns the index of the first argument paths which is strictly nested inside the path to check
+	 */
+	private static int indexOfNestedPath(IPath checkedPath, IPath[] paths, int pathCount) {
+
+		for (int i = 0; i < pathCount; i++){
+			if (checkedPath.equals(paths[i])) continue;
+			if (checkedPath.isPrefixOf(paths[i])) return i;
+		}
+		return -1;
+	}
 
 	/**
 	 * Returns whether the given package fragment root paths are considered
@@ -391,20 +425,26 @@ public final class JavaConventions {
 	}
 	
 	/**
-	 * Validate the given classpath and output location, using the following rules:
+	 * Validate a given classpath and output location for a project, using the following rules:
 	 * <ul>
-	 *   <li> No duplicate path amongst classpath entries.
-	 *   <li> Output location path is not null, it is absolute and located inside the project.
-	 *   <li> A project cannot depend on itself directly.
-	 *   <li> Source/library folders cannot be nested inside the binary output, and reciprocally.
-	 *   <li> Source/library folders cannot be nested in each other.
-	 *   <li> Output location must be nested inside project.
+	 *   <li> Classpath entries cannot collide with each other, i.e. all entry paths must be unique.
+	 *   <li> The project output location path cannot be null, must be absolute and located inside the project.
+	 *   <li> Specific output locations (specified on source entries) can be null, if not they must be located inside the project,
+	 *   <li> A project entry cannot refer to itself directly.
+     *   <li> Classpath entries or output locations cannot coincidate or be nested in each other, except for the following scenarii listed below:
+	 *      <ul><li> A source folder can coincidate with an output location, in which case this output can then contain library archives.
+	 *          <li> A source/library folder can be nested in any source folder as long as the nested folder is excluded from the enclosing one.
+	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself.
+	 *      </ul>
 	 * </ul>
 	 * 
 	 *  Note that the classpath entries are not validated automatically. Only bound variables or containers are considered 
 	 *  in the checking process (this allows to perform a consistency check on a classpath which has references to
 	 *  yet non existing projects, folders, ...).
-	 * 
+	 *  <p>
+	 *  This validation is intended to anticipate classpath issues prior to assigning it to a project. In particular, it will automatically
+	 *  be performed during the classpath setting operation (if validation fails, the classpath setting will not complete).
+	 *  <p>
 	 * @param javaProject the given java project
 	 * @param classpath a given classpath
 	 * @param outputLocation a given output location
@@ -413,84 +453,87 @@ public final class JavaConventions {
 	 *		object indicating what is wrong with the classpath or output location
 	 * @since 2.0
 	 */
-	public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClasspathEntry[] classpath, IPath outputLocation) {
+	public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClasspathEntry[] rawClasspath, IPath projectOutputLocation) {
 	
 		IProject project = javaProject.getProject();
 		IPath projectPath= project.getFullPath();
 	
 		/* validate output location */
-		if (outputLocation == null) {
+		if (projectOutputLocation == null) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NULL_PATH);
 		}
-		if (outputLocation.isAbsolute()) {
-			if (!projectPath.isPrefixOf(outputLocation)) {
-				return new JavaModelStatus(IJavaModelStatusConstants.PATH_OUTSIDE_PROJECT, javaProject, outputLocation.toString());
+		if (projectOutputLocation.isAbsolute()) {
+			if (!projectPath.isPrefixOf(projectOutputLocation)) {
+				return new JavaModelStatus(IJavaModelStatusConstants.PATH_OUTSIDE_PROJECT, javaProject, projectOutputLocation.toString());
 			}
 		} else {
-			return new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, outputLocation);
+			return new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, projectOutputLocation);
 		}
 	
-		boolean allowNestingInOutput = false;
 		boolean hasSource = false;
 		boolean hasLibFolder = false;
 	
+
 		// tolerate null path, it will be reset to default
-		int length = classpath == null ? 0 : classpath.length; 
-	
-		ArrayList resolvedEntries = new ArrayList();
+		if (rawClasspath == null) 
+			return JavaModelStatus.VERIFIED_OK;
+		
+		// retrieve resolved classpath
+		IClasspathEntry[] classpath; 
+		try {
+			classpath = ((JavaProject)javaProject).getResolvedClasspath(rawClasspath, true/*ignore pb*/, false/*no marker*/);
+		} catch(JavaModelException e){
+			return e.getJavaModelStatus();
+		}
+		int length = classpath.length; 
+
+		int outputCount = 1;
+		IPath[] outputLocations	= new IPath[length+1];
+		boolean[] allowNestingInOutputLocations = new boolean[length+1];
+		outputLocations[0] = projectOutputLocation;
+		
+		// retrieve and check output locations
 		for (int i = 0 ; i < length; i++) {
-			IClasspathEntry rawEntry = classpath[i];
-			switch(rawEntry.getEntryKind()){
-				
-				case IClasspathEntry.CPE_VARIABLE :
-					IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
-					if (resolvedEntry != null){
-						// check if any source entries coincidates with binary output - in which case nesting inside output is legal
-						if (resolvedEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
-						resolvedEntries.add(resolvedEntry);
-					}
-					break;
-	
-				case IClasspathEntry.CPE_CONTAINER :
-					try {
-						IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), javaProject);
-						if (container != null){
-							IClasspathEntry[] containerEntries = container.getClasspathEntries();
-							if (containerEntries != null){
-								for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-									//resolvedEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
-									resolvedEntry = containerEntries[j];
-									if (resolvedEntry != null){
-										// check if any source entries coincidates with binary output - in which case nesting inside output is legal
-										if (resolvedEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
-										resolvedEntries.add(resolvedEntry);
-									}
-								}
-							}
+			IClasspathEntry resolvedEntry = classpath[i];
+			switch(resolvedEntry.getEntryKind()){
+				case IClasspathEntry.CPE_SOURCE :
+					IPath customOutput; 
+					if ((customOutput = resolvedEntry.getOutputLocation()) != null) {
+						int index;
+						if ((index = indexOfMatchingPath(customOutput, outputLocations, outputCount)) != -1) {
+							continue; // already found
 						}
-					} catch(JavaModelException e){
-						return new JavaModelStatus(e);
+						if ((index = indexOfEnclosingPath(customOutput, outputLocations, outputCount)) != -1) {
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", customOutput.toString(), outputLocations[index].toString())); //$NON-NLS-1$
+						}
+						outputLocations[outputCount++] = resolvedEntry.getOutputLocation();
 					}
-					break;
-					
+			}	
+		}	
+		
+		for (int i = 0 ; i < length; i++) {
+			IClasspathEntry resolvedEntry = classpath[i];
+			int index;
+			switch(resolvedEntry.getEntryKind()){
+				
 				case IClasspathEntry.CPE_SOURCE :
 					hasSource = true;
-				case IClasspathEntry.CPE_LIBRARY:
-					if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(rawEntry.getPath().lastSegment())) {
-						hasLibFolder = true;
+					if ((index = indexOfMatchingPath(resolvedEntry.getPath(), outputLocations, outputCount)) != -1){
+						allowNestingInOutputLocations[index] = true;
 					}
-				default :
-					// check if any source entries coincidates with binary output - in which case nesting inside output is legal
-					if (rawEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
-					resolvedEntries.add(rawEntry);
+					break;
+
+				case IClasspathEntry.CPE_LIBRARY:
+					hasLibFolder |= !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedEntry.getPath().lastSegment());
+					if ((index = indexOfMatchingPath(resolvedEntry.getPath(), outputLocations, outputCount)) != -1){
+						allowNestingInOutputLocations[index] = true;
+					}
 					break;
 			}
 		}
-		if (!hasSource && !hasLibFolder) allowNestingInOutput = true; // if no source and no lib folder, then allowed
-		
-		length = resolvedEntries.size();
-		classpath = new IClasspathEntry[length];
-		resolvedEntries.toArray(classpath);
+		if (!hasSource && !hasLibFolder) { // if no source and no lib folder, then allowed
+			for (int i = 0; i < outputCount; i++) allowNestingInOutputLocations[i] = true;
+		}
 		
 		HashSet pathes = new HashSet(length);
 		
@@ -513,6 +556,7 @@ public final class JavaConventions {
 				if (kind == IClasspathEntry.CPE_PROJECT){
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, Util.bind("classpath.cannotReferToItself", entryPath.toString()));//$NON-NLS-1$
 				}
+				// tolerate nesting output in src if src==prj
 				continue;
 			}
 	
@@ -538,13 +582,16 @@ public final class JavaConventions {
 			}
 			
 			// prevent nesting output location inside entry
-			if (!entryPath.equals(outputLocation) && entryPath.isPrefixOf(outputLocation)) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", outputLocation.toString(), entryPath.toString())); //$NON-NLS-1$
+			int index;
+			if ((index = indexOfNestedPath(entryPath, outputLocations, outputCount)) != -1) {
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", outputLocations[index].toString(), entryPath.toString())); //$NON-NLS-1$
 			}
-	
+
 			// prevent nesting entry inside output location - when distinct from project or a source folder
-			if (!allowNestingInOutput && outputLocation.isPrefixOf(entryPath)) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$
+			if ((index = indexOfEnclosingPath(entryPath, outputLocations, outputCount)) != -1) {
+				if (!allowNestingInOutputLocations[index]){
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.toString(), outputLocations[index].toString())); //$NON-NLS-1$
+				}
 			}
 		}
 		return JavaModelStatus.VERIFIED_OK;	
