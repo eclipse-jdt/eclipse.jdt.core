@@ -201,10 +201,8 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 */
 	public boolean isMemberTypeDeclaration() {
 		ASTNode parent = getParent();
-		// TODO (jeem) - after 3.1 M4 remove mention of EnumConstantDeclaration
 		return (parent instanceof AbstractTypeDeclaration)
-			|| (parent instanceof AnonymousClassDeclaration)
-			|| (parent instanceof EnumConstantDeclaration);
+			|| (parent instanceof AnonymousClassDeclaration);
 	}
 
 	/**
