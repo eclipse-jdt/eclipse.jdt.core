@@ -374,7 +374,11 @@ public IBinaryMethod[] getMethods() {
  */
 public int getModifiers() {
 	if (this.innerInfo != null) {
-		return this.innerInfo.getModifiers();
+		if ((this.accessFlags & AccDeprecated) != 0) {
+			return this.innerInfo.getModifiers() | AccDeprecated;
+		} else {
+			return this.innerInfo.getModifiers();
+		}
 	}
 	return this.accessFlags;
 }
