@@ -111,14 +111,14 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
-  5362 Deeper than necessary JavaElementDelta when package added  
+    
 
   PRs Closed in this Release
   ================================================================================
 
 
 **********************************************************************************
-*** BUILD 20011109 (2.0 STREAM, v_210) *******************************************
+*** BUILD 20011112 (2.0 STREAM, v_210a) *******************************************
 **********************************************************************************
 
   What's new in this drop
@@ -130,6 +130,7 @@ STREAM: 2.0
   
   27 PRs Fixed in this Release
   ================================================================================
+  5362      Deeper than necessary JavaElementDelta when package added
   5525      ICodeCompletionRequestor isn't 1.0 compatible   
   5616      NPE when compiling invalid code defining a array of strings  
   5217      java search scope: missing enclosing project  
