@@ -10,9 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -463,7 +467,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
-	 * Ensures that computing binding for an AST tales the owner's working copies into account.
+	 * Ensures that using AST.parseCompilationUint(ICompilationUnit, boolean, WorkingCopyOwner) and 
+	 * computing the bindings takes the owner's working copies into account.
 	 * (regression test for bug 39533 Working copy with no corresponding file not considered by NameLookup)
 	 */
 	public void testParseCompilationUnit1() throws CoreException {
@@ -505,8 +510,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
-	 * Ensures that computing binding for an AST tales the owner's working copies into account.
-	 * (regression test for bug 39533 Working copy with no corresponding file not considered by NameLookup)
+	 * Ensures that using AST.parseCompilationUint(char[], String, IJavaProject, WorkingCopyOwner) and 
+	 * computing the bindings takes the owner's working copies into account.
 	 */
 	public void testParseCompilationUnit2() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -523,8 +528,8 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				("public class Z extends Y {\n" +
 				"}").toCharArray(),
 				 "Z.java",
-				 getJavaProject("P"),
-				 owner);
+				getJavaProject("P"),
+				owner);
 			List types = cu.types();
 			assertEquals("Unexpected number of types in AST", 1, types.size());
 			TypeDeclaration type = (TypeDeclaration)types.get(0);
@@ -537,6 +542,69 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
 			}
+		}
+	}
+	
+	/*
+	 * Ensures that using AST.parseCompilationUint(IClassFile, boolean, WorkingCopyOwner) and 
+	 * computing the bindings takes the owner's working copies into account.
+	 */
+	public void testParseCompilationUnit3() throws CoreException, IOException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
+			
+			// copy X.class in lib folder
+			String sourceWorkspacePath = getSourceWorkspacePath();
+			String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
+			copyDirectory(new File(new File(sourceWorkspacePath, "AttachSourceTests"), "lib"), new File(new File(targetWorkspacePath, "P1"), "lib"));
+			getProject("P1").refreshLocal(IResource.DEPTH_INFINITE, null);
+			
+			// create libsrc and attach source
+			createFolder("P1/libsrc/p");
+			createFile(
+				"P1/libsrc/p/X.java",
+				"package p;\n" +
+				"public class X extends Y {\n" +
+				"}"
+			);
+			IPackageFragmentRoot lib = getPackageFragmentRoot("P1/lib");
+			lib.attachSource(new Path("/P1/libsrc"), null, null);
+			
+			// create Y.java in src folder
+			createFolder("P1/src/p");
+			createFile("P1/src/p/Y.java", "");
+			
+			// create working copy on Y.java
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = getCompilationUnit("P1/src/p/Y.java").getWorkingCopy(owner, null, null);
+			workingCopy.getBuffer().setContents(
+				"package p;\n" +
+				"public class Y {\n" +
+				"}"
+			);
+			workingCopy.makeConsistent(null);
+
+			// parse and resolve class file
+			IClassFile classFile = getClassFile("P1/lib/p/X.class");
+			CompilationUnit cu = AST.parseCompilationUnit(
+				classFile,
+				true,
+				owner);
+			List types = cu.types();
+			assertEquals("Unexpected number of types in AST", 1, types.size());
+			TypeDeclaration type = (TypeDeclaration)types.get(0);
+			ITypeBinding typeBinding = type.resolveBinding();
+			ITypeBinding superType = typeBinding.getSuperclass();
+			assertEquals(
+				"Unexpected super type", 
+				"p.Y",
+				superType == null ? "<null>" : superType.getQualifiedName());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteProject("P1");
 		}
 	}
 	
