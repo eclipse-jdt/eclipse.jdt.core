@@ -101,6 +101,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				try {
 					root.close();
 				} catch (JavaModelException e) {
+					// ignore
 				}
 				// force detach source on jar package fragment roots (source will be lazily computed when needed)
 				((PackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
@@ -283,6 +284,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			try {
 				roots = project.getPackageFragmentRoots();
 			} catch (JavaModelException e) {
+				// ignore
 			}
 		} else {
 			Map allRemovedRoots ;
@@ -637,9 +639,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 						}
 					}
 				} catch (JavaModelException e) {
+					// ignore
 				}
 			}
 		} catch (JavaModelException e) {
+			// ignore
 		}
 		
 	}

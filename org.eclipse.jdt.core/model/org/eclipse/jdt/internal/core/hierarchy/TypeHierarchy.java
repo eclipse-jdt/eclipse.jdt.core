@@ -153,6 +153,7 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
  * Creates an empty TypeHierarchy
  */
 public TypeHierarchy() {
+	// Creates an empty TypeHierarchy
 }
 /**
  * Creates a TypeHierarchy on the given type.
@@ -767,6 +768,7 @@ private boolean includesTypeOrSupertype(IType type) {
 			}
 		}
 	} catch (JavaModelException e) {
+		// ignore
 	}
 	return false;
 }

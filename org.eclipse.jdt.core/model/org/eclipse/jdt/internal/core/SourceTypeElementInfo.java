@@ -96,6 +96,7 @@ public ISourceField[] getFields() {
 				ISourceField field = (ISourceField)((SourceField)child).getElementInfo();
 				fields[fieldIndex++] = field;
 			} catch (JavaModelException e) {
+				// ignore
 			}
 		}
 	}
@@ -159,6 +160,7 @@ public ISourceType[] getMemberTypes() {
 				ISourceType type = (ISourceType)((SourceType)child).getElementInfo();
 				memberTypes[typeIndex++] = type;
 			} catch (JavaModelException e) {
+				// ignore
 			}
 		}
 	}
@@ -181,6 +183,7 @@ public ISourceMethod[] getMethods() {
 				ISourceMethod method = (ISourceMethod)((SourceMethod)child).getElementInfo();
 				methods[methodIndex++] = method;
 			} catch (JavaModelException e) {
+				// ignore
 			}
 		}
 	}

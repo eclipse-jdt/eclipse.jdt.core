@@ -34,6 +34,7 @@ protected SourceRefElement(JavaElement parent, String name) {
  * This element is being closed.  Do any necessary cleanup.
  */
 protected void closing(Object info) throws JavaModelException {
+	// Do any necessary cleanup
 }
 /**
  * Returns a new element info for this element.

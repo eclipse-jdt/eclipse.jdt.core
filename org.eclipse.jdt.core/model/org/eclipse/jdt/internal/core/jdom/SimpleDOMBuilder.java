@@ -30,6 +30,7 @@ public class SimpleDOMBuilder extends AbstractDOMBuilder implements ISourceEleme
  * Does nothing.
  */
 public void acceptProblem(IProblem problem) {
+	// nothing to do
 }
 
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {

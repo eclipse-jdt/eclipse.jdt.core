@@ -62,6 +62,7 @@ String[] directoryList(String qualifiedPackageName) {
 			return dirList;
 		}
 	} catch(CoreException ignored) {
+		// ignore
 	}
 	directoryCache.put(qualifiedPackageName, missingPackageHolder);
 	return null;

@@ -54,7 +54,9 @@ public class DOMBuilder extends AbstractDOMBuilder implements IDocumentElementRe
 /**
  * Creates a new DOMBuilder
  */
-public DOMBuilder() {}
+public DOMBuilder() {
+	// Creates a new DOMBuilder
+}
 /**
  * @see IDocumentElementRequestor#acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, int nameStartPosition, boolean onDemand)
  */

@@ -202,7 +202,7 @@ public class TypeConverter {
 				type= CharOperation.concat(resolvedName[0][0].toCharArray(), resolvedName[0][1].toCharArray(), '.');
 			}
 		} catch (JavaModelException e) {
-			
+			// ignore
 		}
 		
 		/* count identifiers and dimensions */

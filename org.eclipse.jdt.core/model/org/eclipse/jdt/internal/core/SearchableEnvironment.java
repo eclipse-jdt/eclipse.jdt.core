@@ -186,10 +186,13 @@ public class SearchableEnvironment
 			IProgressMonitor progressMonitor = new IProgressMonitor() {
 				boolean isCanceled = false;
 				public void beginTask(String name, int totalWork) {
+					// implements interface method
 				}
 				public void done() {
+					// implements interface method
 				}
 				public void internalWorked(double work) {
+					// implements interface method
 				}
 				public boolean isCanceled() {
 					return isCanceled;
@@ -198,10 +201,13 @@ public class SearchableEnvironment
 					isCanceled = value;
 				}
 				public void setTaskName(String name) {
+					// implements interface method
 				}
 				public void subTask(String name) {
+					// implements interface method
 				}
 				public void worked(int work) {
+					// implements interface method
 				}
 			};
 			ITypeNameRequestor nameRequestor = new ITypeNameRequestor() {
@@ -322,5 +328,6 @@ public class SearchableEnvironment
 	}
 	
 	public void cleanup() {
+		// nothing to do
 	}
 }

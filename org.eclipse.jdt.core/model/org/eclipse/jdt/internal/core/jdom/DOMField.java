@@ -59,6 +59,7 @@ class DOMField extends DOMMember implements IDOMField {
  * Constructs an empty field node.
  */
 DOMField() {
+	// Constructs an empty field node
 }
 /**
  * Creates a new detailed FIELD document fragment on the given range of the document.
@@ -149,7 +150,9 @@ DOMField(char[] document, int[] sourceRange, String name, int[] nameRange, int f
  *
  * @see DOMMember#appendMemberBodyContents(CharArrayBuffer)
  */
-protected void appendMemberBodyContents(CharArrayBuffer buffer) {}
+protected void appendMemberBodyContents(CharArrayBuffer buffer) {
+	// nothing to do
+}
 /**
  * @see DOMMember#appendMemberDeclarationContents(CharArrayBuffer)
  */

@@ -366,6 +366,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 				}
 			}
 		} catch(JavaModelException e){
+			// ignore
 		}
 		
 		// iterate over all projects
@@ -399,9 +400,11 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 					}
 				}
 			} catch(JavaModelException e){
+				// ignore
 			}
 		}
 	} catch(JavaModelException e){
+		// ignore
 	}
 
 	return null;
@@ -604,6 +607,7 @@ public void setSourceAttachmentProperty(String property) {
 	try {
 		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(this.getSourceAttachmentPropertyName(), property);
 	} catch (CoreException ce) {
+		// ignore
 	}
 }
 

@@ -35,6 +35,7 @@ public class SimpleIndexInput extends IndexInput {
 	 * @see IndexInput#clearCache()
 	 */
 	public void clearCache() {
+		// implements abstract method
 	}
 	/**
 	 * @see IndexInput#close()

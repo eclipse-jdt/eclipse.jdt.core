@@ -219,6 +219,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 				injectAllTypesForPackageFragmentRoot(root, types);
 			}
 		} catch (JavaModelException e) {
+			// ignore
 		}
 	}
 	
@@ -244,6 +245,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 				}
 			}
 		} catch (JavaModelException e) {
+			// ignore
 		}
 	}
 	
@@ -278,6 +280,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 				types.add(cf.getType());
 			}
 		} catch (JavaModelException e) {
+			// ignore
 		}
 	}
 	
@@ -297,6 +300,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 				}
 			}
 		} catch (JavaModelException e) {
+			// ignore
 		}
 	}
 }

@@ -1481,6 +1481,7 @@ public final void jumpOverMethodBody() {
 							try {
 								scanEscapeCharacter();
 							} catch (InvalidInputException ex) {
+								// ignore
 							}
 						} else {
 							try { // consume next character
@@ -1494,6 +1495,7 @@ public final void jumpOverMethodBody() {
 									}
 								}
 							} catch (InvalidInputException ex) {
+								// ignore
 							}
 						}
 						getNextChar('\'');
@@ -1512,6 +1514,7 @@ public final void jumpOverMethodBody() {
 								}
 							}
 						} catch (InvalidInputException ex) {
+								// ignore
 						}
 						while (currentCharacter != '"') {
 							if (currentCharacter == '\r'){
@@ -1525,6 +1528,7 @@ public final void jumpOverMethodBody() {
 								try {
 									scanEscapeCharacter();
 								} catch (InvalidInputException ex) {
+									// ignore
 								}
 							}
 							try { // consume next character
@@ -1538,6 +1542,7 @@ public final void jumpOverMethodBody() {
 									}
 								}
 							} catch (InvalidInputException ex) {
+								// ignore
 							}
 						}
 					} catch (IndexOutOfBoundsException e) {
@@ -1612,7 +1617,8 @@ public final void jumpOverMethodBody() {
 										}
 									}
 							} catch (IndexOutOfBoundsException e) {
-							} //an eof will them be generated
+								//an eof will them be generated
+							} 
 							break;
 						}
 						if (test > 0) { //traditional and annotation comment
@@ -1631,6 +1637,7 @@ public final void jumpOverMethodBody() {
 									}
 								}
 							} catch (InvalidInputException ex) {
+								// ignore
 							}
 							if (currentCharacter == '*') {
 								star = true;
@@ -1720,6 +1727,7 @@ public final void jumpOverMethodBody() {
 						try {
 							scanNumber(false);
 						} catch (InvalidInputException ex) {
+							// ignore
 						}
 						break;
 					}
@@ -1727,7 +1735,9 @@ public final void jumpOverMethodBody() {
 		}
 		//-----------------end switch while try--------------------
 	} catch (IndexOutOfBoundsException e) {
+		// ignore
 	} catch (InvalidInputException e) {
+		// ignore
 	}
 	return;
 }

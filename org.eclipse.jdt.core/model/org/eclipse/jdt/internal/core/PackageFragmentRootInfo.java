@@ -119,6 +119,7 @@ private Object[] computeNonJavaResources(IJavaProject project, IResource underly
 					handle.fullExclusionPatternChars());
 		}
 	} catch (JavaModelException e) {
+		// ignore
 	}
 	return nonJavaResources;
 }

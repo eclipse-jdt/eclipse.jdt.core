@@ -64,7 +64,7 @@ abstract class DOMMember extends DOMNode implements IDOMMember {
  * Constructs an empty member node.
  */
 DOMMember() {
-
+	// Constructs an empty member node
 }
 /**
  * Creates a new member document fragment on the given range of the document.

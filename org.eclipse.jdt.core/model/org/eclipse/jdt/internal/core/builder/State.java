@@ -45,6 +45,7 @@ static final byte EXTERNAL_JAR = 3;
 static final byte INTERNAL_JAR = 4;
 
 State() {
+	// constructor with no argument
 }
 
 protected State(JavaBuilder javaBuilder) {

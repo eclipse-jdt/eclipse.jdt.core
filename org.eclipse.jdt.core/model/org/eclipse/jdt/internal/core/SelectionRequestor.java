@@ -103,7 +103,9 @@ public void acceptClass(char[] packageName, char[] className, boolean needQualif
 /**
  * Do nothing.
  */
-public void acceptError(IProblem error) {}
+public void acceptError(IProblem error) {
+	// do nothing
+}
 /**
  * Resolve the field.
  */

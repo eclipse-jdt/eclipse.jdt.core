@@ -115,7 +115,7 @@ class DOMMethod extends DOMMember implements IDOMMethod {
  * Constructs an empty method node.
  */
 DOMMethod() {
-
+	// Constructs an empty method node
 }
 /**
  * Creates a new detailed METHOD document fragment on the given range of the document.

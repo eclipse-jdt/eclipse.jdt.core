@@ -127,7 +127,7 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * Constructs an empty type node.
  */
 DOMType() {
-
+	// Constructs an empty type node
 }
 /**
  * Creates a new detailed TYPE document fragment on the given range of the document.

@@ -175,7 +175,9 @@ public void setHeader(String comment) {
 /**
  * @see IDOMCompilationUnit#setName(String)
  */
-public void setName(String name) {}
+public void setName(String name) {
+	// nothing to do
+}
 /**
  * @see DOMNode#shareContents(DOMNode)
  */

@@ -43,6 +43,7 @@ public abstract class Block {
 	 * Flushes the block
 	 */
 	public void flush() {
+		// ignore
 	}
 	/**
 	 * Loads the block with the given number in memory, reading it from a RandomAccessFile.

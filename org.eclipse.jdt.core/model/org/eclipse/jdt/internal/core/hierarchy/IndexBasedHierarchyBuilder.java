@@ -335,6 +335,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 			}
 			this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
 		} catch (JavaModelException e) {
+			// ignore
 		}
 		
 		// Compute hierarchy of focus type if not already done (case of a type with potential subtypes that are not real subtypes)
@@ -346,6 +347,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 				this.addInfosFromType(focusType, infos);
 				this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
 			} catch (JavaModelException e) {
+				// ignore
 			}
 		}
 		

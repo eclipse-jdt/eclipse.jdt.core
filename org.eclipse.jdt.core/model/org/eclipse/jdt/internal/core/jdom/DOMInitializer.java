@@ -42,7 +42,7 @@ class DOMInitializer extends DOMMember implements IDOMInitializer {
  * Constructs an empty initializer node.
  */
 DOMInitializer() {
-
+	// Constructs an empty initializer node
 }
 /**
  * Creates a new detailed INITIALIZER document fragment on the given range of the document.
@@ -112,7 +112,9 @@ protected void appendMemberBodyContents(CharArrayBuffer buffer) {
 /**
  * @see DOMMember#appendMemberDeclarationContents(CharArrayBuffer)
  */
-protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {}
+protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {
+	// nothing to do
+}
 /**
  * @see DOMNode#appendSimpleContents(CharArrayBuffer)
  */
@@ -209,7 +211,9 @@ public void setBody(String body) {
 /**
  * @see IDOMInitializer#setName(String)
  */
-public void setName(String name) {}
+public void setName(String name) {
+	// initializers have no name
+}
 /**
  * @see DOMNode#shareContents(DOMNode)
  */

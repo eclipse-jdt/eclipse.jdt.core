@@ -74,5 +74,6 @@ public abstract class IndexBlock extends Block {
 	public abstract boolean nextEntry(WordEntry entry);
 
 	public void reset() {
+		// do nothing
 	}
 }

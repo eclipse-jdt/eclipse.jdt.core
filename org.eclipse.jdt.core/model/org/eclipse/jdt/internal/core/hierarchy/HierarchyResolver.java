@@ -139,6 +139,7 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 	try {
 		this.remember(binaryType, typeBinding);
 	} catch (AbortCompilation e) {
+		// ignore
 	}
 }
 /**

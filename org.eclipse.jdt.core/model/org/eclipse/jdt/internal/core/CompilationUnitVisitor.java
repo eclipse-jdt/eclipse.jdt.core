@@ -129,6 +129,7 @@ public class CompilationUnitVisitor extends Compiler {
 	protected static ICompilerRequestor getRequestor() {
 		return new ICompilerRequestor() {
 			public void acceptResult(CompilationResult compilationResult) {
+				// nothing to do
 			}
 		};
 	}

@@ -56,7 +56,7 @@ public SearchableEnvironmentRequestor(ISearchRequestor requestor, ICompilationUn
  * @see IJavaElementRequestor
  */
 public void acceptInitializer(IInitializer initializer) {
-
+	// implements interface method
 }
 /**
  * @see IJavaElementRequestor
@@ -77,7 +77,8 @@ public void acceptType(IType type) {
 		} else {
 			fRequestor.acceptInterface(type.getPackageFragment().getElementName().toCharArray(), type.getElementName().toCharArray(), type.getFlags());
 		}
-	} catch (JavaModelException npe) {
+	} catch (JavaModelException jme) {
+		// ignore
 	}
 }
 }

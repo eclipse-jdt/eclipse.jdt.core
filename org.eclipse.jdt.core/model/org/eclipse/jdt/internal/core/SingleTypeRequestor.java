@@ -29,11 +29,13 @@ import org.eclipse.jdt.core.IType;
  * @see IJavaElementRequestor
  */
 public void acceptField(IField field) {
+	// implements interface method
 }
 /**
  * @see IJavaElementRequestor
  */
 public void acceptInitializer(IInitializer initializer) {
+	// implements interface method
 }
 /**
  * @see IJavaElementRequestor
@@ -45,11 +47,13 @@ public void acceptMemberType(IType type) {
  * @see IJavaElementRequestor
  */
 public void acceptMethod(IMethod method) {
+	// implements interface method
 }
 /**
  * @see IJavaElementRequestor
  */
 public void acceptPackageFragment(IPackageFragment packageFragment) {
+	// implements interface method
 }
 /**
  * @see IJavaElementRequestor
