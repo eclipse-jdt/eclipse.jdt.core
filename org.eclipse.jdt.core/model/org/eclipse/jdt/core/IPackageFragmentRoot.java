@@ -175,11 +175,6 @@ public interface IPackageFragmentRoot
 	 */
 	void copy(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
 	/**
-	 * @deprecated Use copy(IPath, int, int, IClasspathEntry, IProgressMonitor) instead
-	 */
-	void copy(IPath destination, int updateResourceFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
-		
-	/**
 	 * Creates and returns a package fragment in this root with the 
 	 * given dot-separated package name.  An empty string specifies the default package. 
 	 * This has the side effect of creating all package
@@ -253,12 +248,6 @@ public interface IPackageFragmentRoot
 	 * @since 2.1
 	 */
 	void delete(int updateResourceFlags, int updateModelFlags, IProgressMonitor monitor) throws JavaModelException;
-	/**
-	 * @deprecated Use delete(int, int, IProgressMonitor) instead
-	 */
-	void delete(int updateResourceFlags, boolean updateClasspath, IProgressMonitor monitor) throws JavaModelException;
-
-		
 	/**
 	 * Returns this package fragment root's kind encoded as an integer.
 	 * A package fragment root can contain <code>.java</code> source files,
@@ -433,8 +422,4 @@ public interface IPackageFragmentRoot
 	 * @since 2.1
 	 */
 	void move(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
-	/**
-	 * @deprecated Use move(IPath, int, int, IClasspathEntry, IProgressMonitor) instead
-	 */
-	void move(IPath destination, int updateResourceFlags, boolean updateClasspath, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
 }
