@@ -345,7 +345,7 @@ public class BlockScope extends Scope {
 		return null;
 	}
 	/* API
-     * flag is a mask of the following values VARIABLE (= FIELD or LOCAL), TYPE.
+	 * flag is a mask of the following values VARIABLE (= FIELD or LOCAL), TYPE.
 	 * Only bindings corresponding to the mask will be answered.
 	 *
 	 *	if the VARIABLE mask is set then
@@ -575,7 +575,7 @@ public class BlockScope extends Scope {
 	/*
 	 * This retrieves the argument that maps to an enclosing instance of the suitable type,
 	 * 	if not found then answers nil -- do not create one
-     *	
+	 *	
 	 *		#implicitThis		  	 			: the implicit this will be ok
 	 *		#((arg) this$n)						: available as a constructor arg
 	 * 		#((arg) this$n ... this$p) 			: available as as a constructor arg + a sequence of fields
@@ -727,7 +727,7 @@ public class BlockScope extends Scope {
 	}
 
 	/* API
-     *	
+	 *	
 	 *	Answer the method binding that corresponds to selector, argumentTypes.
 	 *	Start the lookup at the enclosing type of the receiver.
 	 *	InvocationSite implements 
