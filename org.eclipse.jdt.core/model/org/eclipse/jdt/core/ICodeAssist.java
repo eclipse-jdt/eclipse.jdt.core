@@ -46,7 +46,7 @@ public interface ICodeAssist {
 	 * is the number of selected characters.
 	 * 
 	 * @param offset the given offset position
-	 * @param requestor the given completion requestor
+	 * @param length the number of selected characters
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
