@@ -120,6 +120,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GKB28A: ITPJCORE:WIN2000 - Compiler accepts incorrect code
   1FL4T1Q: LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump
   1GK2B6D: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value before the second operand of the boolean operator &&
   1GK2AOF: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
