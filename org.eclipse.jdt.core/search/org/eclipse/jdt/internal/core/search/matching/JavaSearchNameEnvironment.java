@@ -137,10 +137,6 @@ public NameEnvironmentAnswer findType(char[][] compoundName) {
 	return null;
 }
 
-
-
-
-
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')));
 }
