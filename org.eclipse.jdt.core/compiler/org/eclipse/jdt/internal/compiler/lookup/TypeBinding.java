@@ -330,6 +330,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherArgument) {
 	}
 	if (otherArgument.isWildcard()) {
 		WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
+		if (otherWildcard.otherBounds != null) return false; // not a true wildcard (intersection type)
 		switch(otherWildcard.kind) {
 			case Wildcard.EXTENDS:
 				return upperBound != null && upperBound.isCompatibleWith(otherWildcard.bound);
