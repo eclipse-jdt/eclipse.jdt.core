@@ -28,8 +28,11 @@ public class CancelableNameEnvironment extends SearchableEnvironment {
 	}
 
 	private void checkCanceled() {
-		if (this.monitor != null && this.monitor.isCanceled()) 
+		if (this.monitor != null && this.monitor.isCanceled()) {
+			if (NameLookup.VERBOSE)
+				System.out.println(Thread.currentThread() + " CANCELLING LOOKUP "); //$NON-NLS-1$
 			throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
+		}
 	}
 
 	public void findPackages(char[] prefix, ISearchRequestor requestor) {
