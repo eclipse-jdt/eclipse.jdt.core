@@ -18,7 +18,7 @@ public void find(File f, String pattern, boolean verbose) {
 	System.arraycopy(resultFiles, 0, (resultFiles = new String[counter]), 0, counter);
 	if (verbose) {
 		System.out.println();
-		System.out.println(Main.bind("scanning.end"/*nonNLS*/,f.getAbsolutePath()));
+		System.out.println(Main.bind("scanning.done"/*nonNLS*/,f.getAbsolutePath()));
 	}
 }
 public void find0(File f, String pattern, boolean verbose) {
