@@ -62,15 +62,15 @@ private void deletePackageFragment(IPackageFragment frag)
 		deleteResources(actualNonJavaResources, fForce);
 		
 		// delete remaining files in this package (.class file in the case where Proj=src=bin)
-		IResource[] remaingFiles;
+		IResource[] remainingFiles;
 		try {
-			remaingFiles = ((IFolder) res).members();
+			remainingFiles = ((IFolder) res).members();
 		} catch (CoreException ce) {
 			throw new JavaModelException(ce);
 		}
 		boolean isEmpty = true;
-		for (int i = 0, length = remaingFiles.length; i < length; i++) {
-			IResource file = remaingFiles[i];
+		for (int i = 0, length = remainingFiles.length; i < length; i++) {
+			IResource file = remainingFiles[i];
 			if (file instanceof IFile) {
 				this.deleteResource(file, true);
 			} else {
