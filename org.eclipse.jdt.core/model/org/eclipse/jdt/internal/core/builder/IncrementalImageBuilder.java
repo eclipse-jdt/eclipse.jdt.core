@@ -246,8 +246,8 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
 		IResourceDelta sourceDelta = delta.findMember(sourceFolders[i].getProjectRelativePath());
 		if (sourceDelta != null) {
-			if (sourceDelta.getKind() == IResourceDelta.ADDED || sourceDelta.getKind() == IResourceDelta.REMOVED)
-				return false; // added/removed source folder should not make it here, but handle anyways
+			if (sourceDelta.getKind() == IResourceDelta.REMOVED)
+				return false; // removed source folder should not make it here, but handle anyways (ADDED is supported)
 			int segmentCount = sourceFolders[i].getLocation().segmentCount();
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
 			for (int c = 0, clength = children.length; c < clength; c++)
