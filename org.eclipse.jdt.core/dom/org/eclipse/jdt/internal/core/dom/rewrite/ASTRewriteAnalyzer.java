@@ -2844,6 +2844,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= rewriteRequiredNode(node, MethodRefParameter.TYPE_PROPERTY);
+		if (node.getAST().apiLevel() >= AST.JLS3) {
+			if (isChanged(node, MethodRefParameter.VARARGS_PROPERTY)) {
+				if (getNewValue(node, MethodRefParameter.VARARGS_PROPERTY).equals(Boolean.TRUE)) {
+					doTextInsert(pos, "...", getEditGroup(node, MethodRefParameter.VARARGS_PROPERTY)); //$NON-NLS-1$
+				} else {
+					try {
+						int ellipsisEnd= getScanner().getNextEndOffset(pos, true);
+						doTextRemove(pos, ellipsisEnd - pos, getEditGroup(node, MethodRefParameter.VARARGS_PROPERTY)); //$NON-NLS-1$
+					} catch (CoreException e) {
+						handleException(e);
+					}
+				}
+			}
+		}
 		rewriteNode(node, MethodRefParameter.NAME_PROPERTY, pos, ASTRewriteFormatter.SPACE); //$NON-NLS-1$
 		return false;
 	}

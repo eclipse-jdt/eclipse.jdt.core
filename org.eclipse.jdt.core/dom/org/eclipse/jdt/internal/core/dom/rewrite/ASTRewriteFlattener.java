@@ -1078,6 +1078,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(MethodRefParameter node) {
 		getChildNode(node, MethodRefParameter.TYPE_PROPERTY).accept(this);
+		if (node.getAST().apiLevel() >= AST.JLS3) {
+			if (getBooleanAttribute(node, MethodRefParameter.VARARGS_PROPERTY)) {
+				this.result.append("..."); //$NON-NLS-1$
+			}
+		}
 		ASTNode name= getChildNode(node, MethodRefParameter.NAME_PROPERTY);
 		if (name != null) {
 			this.result.append(' ');
