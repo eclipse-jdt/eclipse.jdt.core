@@ -51,6 +51,10 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>New API <code>org.eclipse.jdt.core.dom.EnumDeclaration#enumConstants()</code>. The enum constants are now in a separate list
+from the body declarations. The  <code>org.eclipse.jdt.core.dom.EnumDeclaration#getEnumConstants()</code> method has been deprecated and
+will be removed after M3. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76190">76190</a> for further details.
+</li>
 <li>New requestor API <code>CompletionRequestor</code> is implemented inside code assist enigne</code>.
 </li>
 <li>Added missing API to <code>IType</code> for new completion requestor support:
@@ -148,7 +152,9 @@ Search supports this new syntax and is able to find referenced type, field and/o
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76244">76244</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76190">76190</a>
+DCR AST: EnumDeclaration: Separate field and body statement lists
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76244">76244</a>
 [1.5] No error on invalid static import declaration
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76181">76181</a>
 Formatter fails on EnumDeclaration
