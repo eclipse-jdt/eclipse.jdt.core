@@ -83,6 +83,10 @@ public class ScannerHelper {
 	private static final int PART_INDEX = 1;
 
 	private static long[][][] Tables = new long[2][][];
+	public static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
+	public static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
+	public static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
+	public static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
 
 	static {
 		Tables[START_INDEX] = new long[2][];
@@ -162,7 +166,8 @@ public class ScannerHelper {
 		}
 	}
 
-	public static boolean isJavaIdentifierPart(int codePoint) {
+	public static boolean isJavaIdentifierPart(char high, char low) {
+		int codePoint = toCodePoint(high, low);
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
 				return Character.isJavaIdentifierPart((char) codePoint);
@@ -176,7 +181,8 @@ public class ScannerHelper {
 		return false;
 	}
 	
-	public static boolean isJavaIdentifierStart(int codePoint) {
+	public static boolean isJavaIdentifierStart(char high, char low) {
+		int codePoint = toCodePoint(high, low);
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
 				return Character.isJavaIdentifierStart((char) codePoint);
@@ -186,5 +192,9 @@ public class ScannerHelper {
 				return isBitSet(Tables[START_INDEX][1], codePoint & 0xFFFF);
 		}
 		return false;
+	}
+	
+	private static int toCodePoint(char high, char low) {	
+		return (high - HIGH_SURROGATE_MIN_VALUE) * 0x400 + (low - LOW_SURROGATE_MIN_VALUE) + 0x10000;
 	}
 }

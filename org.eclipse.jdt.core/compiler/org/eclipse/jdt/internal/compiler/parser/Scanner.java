@@ -26,11 +26,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  * which constant values reflect the latest parser generation state.
  */
 public class Scanner implements TerminalTokens {
-	private static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
-	private static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
-	private static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
-	private static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
-	
 	/* APIs ares
 	 - getNextToken() which return the current type of the token
 	   (this value is not memorized by the scanner)
@@ -1483,19 +1478,19 @@ protected boolean isDigit(char c) throws InvalidInputException {
  * </ol>
  */
 private boolean isJavaIdentifierPart(char c) throws InvalidInputException {
-	if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
+	if (c >= ScannerHelper.HIGH_SURROGATE_MIN_VALUE && c <= ScannerHelper.HIGH_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
 		// Unicode 4 detection
 		char low = (char) getNextChar();
-		if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+		if (low < ScannerHelper.LOW_SURROGATE_MIN_VALUE || low > ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
 			// illegal low surrogate
 			throw new InvalidInputException(INVALID_LOW_SURROGATE);
 		}
-		return ScannerHelper.isJavaIdentifierPart(toCodePoint(c, low));
+		return ScannerHelper.isJavaIdentifierPart(c, low);
 	}
-	if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
+	if (c >= ScannerHelper.LOW_SURROGATE_MIN_VALUE && c <= ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
@@ -1521,19 +1516,19 @@ private boolean isJavaIdentifierPart(char c) throws InvalidInputException {
  * </ol>
  */
 private boolean isJavaIdentifierStart(char c) throws InvalidInputException {
-	if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
+	if (c >= ScannerHelper.HIGH_SURROGATE_MIN_VALUE && c <= ScannerHelper.HIGH_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
 		// Unicode 4 detection
 		char low = (char) getNextChar();
-		if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+		if (low < ScannerHelper.LOW_SURROGATE_MIN_VALUE || low > ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
 			// illegal low surrogate
 			throw new InvalidInputException(INVALID_LOW_SURROGATE);
 		}
-		return ScannerHelper.isJavaIdentifierStart(toCodePoint(c, low));
+		return ScannerHelper.isJavaIdentifierStart(c, low);
 	}
-	if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
+	if (c >= ScannerHelper.LOW_SURROGATE_MIN_VALUE && c <= ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
@@ -3199,9 +3194,6 @@ public final void setSource(CompilationResult compilationResult) {
 		this.lineEnds = lineSeparatorPositions;
 		this.linePtr = lineSeparatorPositions.length - 1;
 	}
-}
-private int toCodePoint(char high, char low) {
-	return (high - HIGH_SURROGATE_MIN_VALUE) * 0x400 + (low - LOW_SURROGATE_MIN_VALUE) + 0x10000;
 }
 public String toString() {
 	if (this.startPosition == this.source.length)
