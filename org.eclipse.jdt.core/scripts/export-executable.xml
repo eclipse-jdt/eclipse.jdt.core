@@ -2,7 +2,6 @@
 <!-- Export executable version of batch compiler, using GCJ -->
 <!--
         gcc-target    - the gcc target name to use (for example, i686-pc-mingw32)
-        linkflags     - extra flags to pass to gcj during the link phase, if any
         binaryname    - the name to give to the final binary
 -->
 
