@@ -71,7 +71,7 @@ public String readableName() {
  * @private Debugging purposes
  */
 protected void toString(int tab, StringBuffer buffer) {
-	Object info = fgJavaModelManager.peekAtInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info == null || !(info instanceof JavaElementInfo)) return;
 	IJavaElement[] children = ((JavaElementInfo)info).getChildren();
 	for (int i = 0; i < children.length; i++) {

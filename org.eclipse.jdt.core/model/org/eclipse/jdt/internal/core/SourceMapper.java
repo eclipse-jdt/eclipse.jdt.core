@@ -70,11 +70,6 @@ public class SourceMapper
 	protected String fRootPath;
 
 	/**
-	 * The Java Model this source mapper is working for.
-	 */
-	protected JavaModel fJavaModel;
-
-	/**
 	 * Used for efficiency
 	 */
 	protected static String[] fgEmptyStringArray = new String[0];
@@ -158,13 +153,12 @@ public class SourceMapper
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
 	 */
-	public SourceMapper(IPath zipPath, String rootPath, JavaModel model) {
+	public SourceMapper(IPath zipPath, String rootPath) {
 		this.fZipPath = zipPath;
 		this.fRootPath = rootPath.replace('\\', '/');
 		if (this.fRootPath.endsWith("/" )) { //$NON-NLS-1$
 			this.fRootPath = this.fRootPath.substring(0, this.fRootPath.lastIndexOf('/'));
 		}
-		this.fJavaModel = model;
 		this.fSourceRanges = new HashMap();
 		this.fParameterNames = new HashMap();
 		this.importsTable = new HashMap();
@@ -729,7 +723,7 @@ public class SourceMapper
 	 * Returns the <code>ZipFile</code> that source is located in.
 	 */
 	public ZipFile getZip() throws CoreException {
-		return fJavaModel.fgJavaModelManager.getZipFile(fZipPath);
+		return JavaModelManager.getJavaModelManager().getZipFile(fZipPath);
 	}
 	
 	/**

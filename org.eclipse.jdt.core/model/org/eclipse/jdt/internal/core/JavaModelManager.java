@@ -454,7 +454,6 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Constructs a new JavaModelManager
 	 */
 	private JavaModelManager() {
-		JavaElement.fgJavaModelManager = this; 	
 	}
 
 	/**
@@ -812,14 +811,14 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Returns the handle to the active Java Model.
 	 */
-	public JavaModel getJavaModel() {
+	public final JavaModel getJavaModel() {
 		return javaModel;
 	}
 
 	/**
 	 * Returns the singleton JavaModelManager
 	 */
-	public static synchronized JavaModelManager getJavaModelManager() {
+	public final static JavaModelManager getJavaModelManager() {
 		return Manager;
 	}
 

@@ -79,11 +79,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected String fName;
 
-	/**
-	 * Direct access to the Java Model Manager
-	 */
-	protected static JavaModelManager fgJavaModelManager;
-	
 	protected static final Object NO_INFO = new Object();
 	
 /**
@@ -108,7 +103,7 @@ protected JavaElement(int type, IJavaElement parent, String name) throws Illegal
  * @see IOpenable
  */
 public void close() throws JavaModelException {
-	Object info = fgJavaModelManager.peekAtInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info != null) {
 		if (JavaModelManager.VERBOSE && this instanceof JavaModel) {
 			System.out.println("CLOSING Java Model");  //$NON-NLS-1$
@@ -123,10 +118,10 @@ public void close() throws JavaModelException {
 			}
 		}
 		closing(info);
-		fgJavaModelManager.removeInfo(this);
+		JavaModelManager.getJavaModelManager().removeInfo(this);
 		if (JavaModelManager.VERBOSE){
-			System.out.println("-> Package cache size = " + fgJavaModelManager.cache.pkgSize()); //$NON-NLS-1$
-			System.out.println("-> Openable cache filling ratio = " + fgJavaModelManager.cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
+			System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 }
@@ -306,14 +301,14 @@ public ICompilationUnit getCompilationUnit() {
  * @exception JavaModelException if the element is not present or not accessible
  */
 public JavaElementInfo getElementInfo() throws JavaModelException {
-	if (fgJavaModelManager == null){
+	if (JavaModelManager.getJavaModelManager() == null){
 		System.out.println();
 	}
-	synchronized(fgJavaModelManager){
-		Object info = fgJavaModelManager.getInfo(this);
+	synchronized(JavaModelManager.getJavaModelManager()){
+		Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 		if (info == null) {
 			openHierarchy();
-			info= fgJavaModelManager.getInfo(this);
+			info= JavaModelManager.getJavaModelManager().getInfo(this);
 			if (info == null) {
 				throw newNotPresentException();
 			}
@@ -363,7 +358,7 @@ public IJavaModel getJavaModel() {
  * Returns the JavaModelManager
  */
 public JavaModelManager getJavaModelManager() {
-	return fgJavaModelManager;
+	return JavaModelManager.getJavaModelManager();
 }
 /**
  * @see IJavaElement
@@ -408,11 +403,11 @@ public IJavaElement getParent() {
  * @exception JavaModelException if the element is not present or not accessible
  */
 public Object getRawInfo() throws JavaModelException {
-	synchronized(fgJavaModelManager){
-		Object info = fgJavaModelManager.getInfo(this);
+	synchronized(JavaModelManager.getJavaModelManager()){
+		Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 		if (info == null) {
 			openHierarchy();
-			info= fgJavaModelManager.getInfo(this);
+			info= JavaModelManager.getJavaModelManager().getInfo(this);
 			if (info == null) {
 				throw newNotPresentException();
 			}
@@ -529,7 +524,7 @@ protected void openHierarchy() throws JavaModelException {
 	} else {
 		Openable openableParent = (Openable)getOpenableParent();
 		if (openableParent != null) {
-			JavaElementInfo openableParentInfo = (JavaElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
+			JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
 			if (openableParentInfo == null) {
 				openableParent.openWhenClosed(null);
 			} else {
@@ -558,7 +553,7 @@ public String readableName() {
  * but does not close this element.
  */
 protected void removeInfo() {
-	Object info = fgJavaModelManager.peekAtInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info != null) {
 		if (this instanceof IParent) {
 			IJavaElement[] children = ((JavaElementInfo)info).getChildren();
@@ -567,7 +562,7 @@ protected void removeInfo() {
 				child.removeInfo();
 			}
 		}
-		fgJavaModelManager.removeInfo(this);
+		JavaModelManager.getJavaModelManager().removeInfo(this);
 	}
 }
 /**
@@ -578,7 +573,7 @@ public abstract IJavaElement rootedAt(IJavaProject project);
  * Runs a Java Model Operation
  */
 protected void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
-	fgJavaModelManager.runOperation(operation, monitor);
+	JavaModelManager.getJavaModelManager().runOperation(operation, monitor);
 }
 /**
  * Sets the occurrence count of the handle.
@@ -654,7 +649,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
  *  Debugging purposes
  */
 public Object toStringInfo(int tab, StringBuffer buffer) {
-	Object info = fgJavaModelManager.peekAtInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	this.toStringInfo(tab, buffer, info);
 	return info;
 }

@@ -55,7 +55,7 @@ protected BinaryType(IJavaElement parent, String name) {
  */
 public void close() throws JavaModelException {
 	
-	Object info = fgJavaModelManager.peekAtInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info != null) {
 		ClassFileInfo cfi = getClassFileInfo();
 		if (cfi.hasReadBinaryChildren()) {
@@ -73,10 +73,10 @@ public void close() throws JavaModelException {
 			}
 		}
 		closing(info);
-		fgJavaModelManager.removeInfo(this);
+		JavaModelManager.getJavaModelManager().removeInfo(this);
 		if (JavaModelManager.VERBOSE){
-			System.out.println("-> Package cache size = " + fgJavaModelManager.cache.pkgSize()); //$NON-NLS-1$
-			System.out.println("-> Openable cache filling ratio = " + fgJavaModelManager.cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
+			System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 }
@@ -90,8 +90,8 @@ protected void closing(Object info) throws JavaModelException {
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
 	if (JavaModelManager.VERBOSE){
-		System.out.println("-> Package cache size = " + fgJavaModelManager.cache.pkgSize()); //$NON-NLS-1$
-		System.out.println("-> Openable cache filling ratio = " + fgJavaModelManager.cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
+		System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 /**
@@ -474,7 +474,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
  * but does not close this element.
  */
 protected void removeInfo() {
-	Object info = fgJavaModelManager.peekAtInfo(this);
+	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info != null) {
 		try {
 			IJavaElement[] children = getChildren();
@@ -484,7 +484,7 @@ protected void removeInfo() {
 			}
 		} catch (JavaModelException e) {
 		}
-		fgJavaModelManager.removeInfo(this);
+		JavaModelManager.getJavaModelManager().removeInfo(this);
 		try {
 			ClassFileInfo cfi = getClassFileInfo();
 			cfi.removeBinaryChildren();

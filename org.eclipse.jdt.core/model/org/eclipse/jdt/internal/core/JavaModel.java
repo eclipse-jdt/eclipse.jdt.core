@@ -130,7 +130,7 @@ protected boolean generateInfos(
 	Map newElements,
 	IResource underlyingResource)	throws JavaModelException {
 
-	fgJavaModelManager.putInfo(fgJavaModelManager.getJavaModel(), info);
+	JavaModelManager.getJavaModelManager().putInfo(this, info);
 	// determine my children
 	try {
 		IProject[] projects = this.getWorkspace().getRoot().getProjects();

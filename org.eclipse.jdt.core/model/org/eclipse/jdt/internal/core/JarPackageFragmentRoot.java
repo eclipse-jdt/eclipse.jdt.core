@@ -156,7 +156,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, zipPath));
 					}
 				}
-				mapper= new SourceMapper(zipPath, rootPath.toOSString(), (JavaModel) getJavaModel());
+				mapper= new SourceMapper(zipPath, rootPath.toOSString());
 			}
 			setSourceMapper(mapper);
 			if (zipPath == null) {
@@ -314,7 +314,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 				packFrag.computeNonJavaResources(resNames, fragInfo, jar.getName());
 			}
 			packFrag.computeChildren(fragInfo);
-			fgJavaModelManager.putInfo(packFrag, fragInfo);
+			JavaModelManager.getJavaModelManager().putInfo(packFrag, fragInfo);
 			vChildren.add(packFrag);
 		}
 	} catch (CoreException e) {
@@ -427,7 +427,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	 * @exception CoreException if an error occurs accessing the jar
 	 */
 	public ZipFile getJar() throws CoreException {
-		return fgJavaModelManager.getZipFile(getPath());
+		return JavaModelManager.getJavaModelManager().getZipFile(getPath());
 	}
 	/**
 	 * @see IJavaElement

@@ -100,11 +100,11 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 
 	HashMap newElements = new HashMap(11);
 	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getUnderlyingResource()));
-	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
+	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
 		Object value = newElements.get(key);
-		fgJavaModelManager.putInfo(key, value);
+		JavaModelManager.getJavaModelManager().putInfo(key, value);
 	}
 	// problem detection 
 	if (monitor != null && monitor.isCanceled()) return;
@@ -119,7 +119,7 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
 	// to be flushed. Might lead to performance issues.
 	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
-	fgJavaModelManager.putInfo(this, info);	
+	JavaModelManager.getJavaModelManager().putInfo(this, info);	
 }
 
 /**
@@ -353,7 +353,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		throw newNotPresentException();
 	} else {
 		// put the info now, because getting the contents requires it
-		fgJavaModelManager.putInfo(this, info);
+		JavaModelManager.getJavaModelManager().putInfo(this, info);
 		CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
 		// generate structure
@@ -676,7 +676,7 @@ public boolean isBasedOn(IResource resource) {
  * @see IOpenable#isConsistent()
  */
 public boolean isConsistent() throws JavaModelException {
-	return fgJavaModelManager.getElementsOutOfSynchWithBuffers().get(this) == null;
+	return JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().get(this) == null;
 }
 /**
  * @see Openable#isSourceElement()

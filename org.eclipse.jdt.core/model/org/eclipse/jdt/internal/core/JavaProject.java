@@ -755,7 +755,7 @@ public class JavaProject
 		try {
 			if (((IProject) getUnderlyingResource()).isOpen()) {
 				// put the info now, because setting the classpath requires it
-				fgJavaModelManager.putInfo(this, info);
+				JavaModelManager.getJavaModelManager().putInfo(this, info);
 
 				// read classpath property (contains actual classpath and output location settings)
 				IPath outputLocation = null;
@@ -805,7 +805,7 @@ public class JavaProject
 		} catch (JavaModelException e) {
 		} finally {
 			if (!validInfo)
-				fgJavaModelManager.removeInfo(this);
+				JavaModelManager.getJavaModelManager().removeInfo(this);
 		}
 		return validInfo;
 	}

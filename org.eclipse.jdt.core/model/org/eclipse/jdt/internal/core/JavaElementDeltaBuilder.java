@@ -383,7 +383,7 @@ private void recordElementInfo(IJavaElement element, JavaModel model, int depth)
 	if (depth >= this.maxDepth) {
 		return;
 	}
-	JavaElementInfo info = (JavaElementInfo)model.fgJavaModelManager.getInfo(element);
+	JavaElementInfo info = (JavaElementInfo)JavaModelManager.getJavaModelManager().getInfo(element);
 	if (info == null) // no longer in the java model.
 		return;
 	this.putElementInfo(element, info);

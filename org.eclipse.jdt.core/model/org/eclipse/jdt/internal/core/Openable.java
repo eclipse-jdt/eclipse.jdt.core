@@ -62,10 +62,10 @@ protected Openable(int type, IJavaElement parent, String name) {
 	 */
 	public void bufferChanged(BufferChangedEvent event) {
 		if (event.getBuffer().isClosed()) {
-			fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
+			JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 			getBufferManager().removeBuffer(event.getBuffer());
 		} else {
-			fgJavaModelManager.getElementsOutOfSynchWithBuffers().put(this, this);
+			JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().put(this, this);
 		}
 	}	
 /**
@@ -81,17 +81,17 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 	removeInfo();
 	HashMap newElements = new HashMap(11);
 	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getUnderlyingResource()));
-	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
+	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
 		Object value = newElements.get(key);
-		fgJavaModelManager.putInfo(key, value);
+		JavaModelManager.getJavaModelManager().putInfo(key, value);
 	}
 		
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
 	// to be flushed. Might lead to performance issues.
 	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
-	fgJavaModelManager.putInfo(this, info);	
+	JavaModelManager.getJavaModelManager().putInfo(this, info);	
 }
 /**
  * Close the buffer associated with this element, if any.
@@ -327,8 +327,8 @@ public boolean isConsistent() throws JavaModelException {
  * @see IOpenable
  */
 public boolean isOpen() {
-	synchronized(fgJavaModelManager){
-		return fgJavaModelManager.getInfo(this) != null;
+	synchronized(JavaModelManager.getJavaModelManager()){
+		return JavaModelManager.getJavaModelManager().getInfo(this) != null;
 	}
 }
 /**
@@ -407,15 +407,15 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 		opening(info);
 		
 		if (JavaModelManager.VERBOSE) {
-			System.out.println("-> Package cache size = " + fgJavaModelManager.cache.pkgSize()); //$NON-NLS-1$
-			System.out.println("-> Openable cache filling ratio = " + fgJavaModelManager.cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
+			System.out.println("-> Openable cache filling ratio = " + JavaModelManager.getJavaModelManager().cache.openableFillingRatio() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
 		// if any problems occuring openning the element, ensure that it's info
 		// does not remain in the cache	(some elements, pre-cache their info
 		// as they are being opened).
 	} catch (JavaModelException e) {
-		fgJavaModelManager.removeInfo(this);
+		JavaModelManager.getJavaModelManager().removeInfo(this);
 		throw e;
 	}
 }
