@@ -599,4 +599,94 @@ public class MultiProjectTests extends Tests {
 
 		JavaCore.setOptions(options);
 	}
+	
+	public void testCycle5() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		
+		JavaCore.setOptions(newOptions);
+		
+		//----------------------------
+		//         Project1
+		//----------------------------
+		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
+		env.addExternalJar(p1, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
+		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
+		
+		IPath c1 = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"import p2.*;\n"+ //$NON-NLS-1$
+			"import p22.*;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"  Y y;\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		//----------------------------
+		//         Project2
+		//----------------------------
+		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
+		env.addExternalJar(p2, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
+		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
+		
+		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"import p1.*;\n"+ //$NON-NLS-1$
+			"import p11.*;\n"+ //$NON-NLS-1$
+			"public class Y {\n"+ //$NON-NLS-1$
+			"  X x;\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+
+		// for Project1
+		env.addRequiredProject(p1, p2);
+		// for Project2
+		env.addRequiredProject(p2, p1);
+
+		env.setBuildOrder(new String[]{"P1", "P2"});
+		fullBuild();
+		
+		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p1.X", "p2.Y"});
+		expectingOnlySpecificProblemsFor(p1,new Problem[]{
+			new Problem("p1", "The import p22 cannot be resolved", c1),
+			new Problem("p1", "A cycle was detected in the project's classpath.", p1)
+		});
+		expectingOnlySpecificProblemsFor(p2,new Problem[]{
+			new Problem("p2", "The import p11 cannot be resolved", c2),
+			new Problem("p2", "A cycle was detected in the project's classpath.", p2)
+		});
+		
+		env.addClass(root1, "p11", "XX", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p11;\n"+ //$NON-NLS-1$
+			"public class XX {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root2, "p22", "YY", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p22;\n"+ //$NON-NLS-1$
+			"public class YY {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		incrementalBuild();
+		
+		expectingCompilingOrder(new String[]{"p11.XX", "p22.YY", "p2.Y", "p1.X"});
+		expectingOnlySpecificProblemsFor(p1,new Problem[]{
+			new Problem("p1", "The import p22 is never used", c1),
+			new Problem("p1", "A cycle was detected in the project's classpath.", p1)
+		});
+		expectingOnlySpecificProblemsFor(p2,new Problem[]{
+			new Problem("p2", "The import p11 is never used", c2),
+			new Problem("p2", "A cycle was detected in the project's classpath.", p2)
+		});
+		
+		JavaCore.setOptions(options);
+	}
 }
