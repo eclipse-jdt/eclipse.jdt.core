@@ -40,7 +40,7 @@ PackageReferencePattern(int matchRule) {
 }
 public void decodeIndexKey(char[] key) {
 	// Package reference keys are encoded as 'name' (where 'name' is the last segment of the package name)
-	this.pkgName = key; // decode into the pkg name, see matchesDecodedKey()
+	this.pkgName = key;
 }
 public SearchPattern getBlankPattern() {
 	return new PackageReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
