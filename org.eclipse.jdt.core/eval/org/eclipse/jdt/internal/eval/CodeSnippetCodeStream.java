@@ -72,12 +72,12 @@ protected void checkcast(int baseId) {
 	}
 }
 public void generateEmulatedAccessForMethod(Scope scope, MethodBinding methodBinding) {
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
+	CodeSnippetCodeStream localCodeStream = this;
 	localCodeStream.generateEmulationForMethod(scope, methodBinding);
 	localCodeStream.invokeJavaLangReflectMethodInvoke();
 }
 public void generateEmulatedReadAccessForField(FieldBinding fieldBinding) {
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
+	CodeSnippetCodeStream localCodeStream = this;
 	localCodeStream.generateEmulationForField(fieldBinding);
 	// swap  the field with the receiver
 	this.swap();
@@ -87,12 +87,12 @@ public void generateEmulatedReadAccessForField(FieldBinding fieldBinding) {
 	}
 }
 public void generateEmulatedWriteAccessForField(FieldBinding fieldBinding) {
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
+	CodeSnippetCodeStream localCodeStream = this;
 	localCodeStream.invokeJavaLangReflectFieldSetter(fieldBinding.type.id);
 }
 public void generateEmulationForConstructor(Scope scope, MethodBinding methodBinding) {
 	// leave a java.lang.reflect.Field object on the stack
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
+	CodeSnippetCodeStream localCodeStream = this;
 	this.ldc(String.valueOf(methodBinding.declaringClass.constantPoolName()).replace('/', '.'));
 	this.invokeClassForName();
 	int paramLength = methodBinding.parameters.length;
@@ -136,7 +136,7 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 }
 public void generateEmulationForField(FieldBinding fieldBinding) {
 	// leave a java.lang.reflect.Field object on the stack
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
+	CodeSnippetCodeStream localCodeStream = this;
 	this.ldc(String.valueOf(fieldBinding.declaringClass.constantPoolName()).replace('/', '.'));
 	this.invokeClassForName();
 	this.ldc(String.valueOf(fieldBinding.name));
@@ -147,7 +147,7 @@ public void generateEmulationForField(FieldBinding fieldBinding) {
 }
 public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding) {
 	// leave a java.lang.reflect.Field object on the stack
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
+	CodeSnippetCodeStream localCodeStream = this;
 	this.ldc(String.valueOf(methodBinding.declaringClass.constantPoolName()).replace('/', '.'));
 	this.invokeClassForName();
 	this.ldc(String.valueOf(methodBinding.selector));

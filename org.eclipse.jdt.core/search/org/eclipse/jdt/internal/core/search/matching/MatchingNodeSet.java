@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfLong;
 import org.eclipse.jdt.internal.core.Util;
 
@@ -376,7 +375,7 @@ private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDec
 					(IJavaElement)this.locator.createInitializerHandle(type, field, (IType)parent)) :
 				parent;
 		try {
-			field.traverse(localDeclarationVisitor, (MethodScope)null);
+			field.traverse(localDeclarationVisitor, null);
 		} catch (WrappedCoreException e) {
 			throw e.coreException;
 		}

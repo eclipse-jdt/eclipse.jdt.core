@@ -651,10 +651,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							buffer.append(constantPoolEntry.getIntegerValue() == 1 ? "true" : "false");//$NON-NLS-1$//$NON-NLS-2$
 							break;
 						case 'B' :
-							buffer.append((byte) constantPoolEntry.getIntegerValue());
+							buffer.append(constantPoolEntry.getIntegerValue());
 							break;
 						case 'S' :
-							buffer.append((short) constantPoolEntry.getIntegerValue());
+							buffer.append(constantPoolEntry.getIntegerValue());
 							break;
 						case 'I' :
 							buffer.append(constantPoolEntry.getIntegerValue());

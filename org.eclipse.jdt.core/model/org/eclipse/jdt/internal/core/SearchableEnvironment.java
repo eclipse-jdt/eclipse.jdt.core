@@ -47,7 +47,7 @@ public class SearchableEnvironment
 	 */
 	public SearchableEnvironment(IJavaProject project) throws JavaModelException {
 		this.project = project;
-		this.nameLookup = (NameLookup) ((JavaProject) project).getNameLookup();
+		this.nameLookup = ((JavaProject) project).getNameLookup();
 
 		// Create search scope with visible entry on the project's classpath
 		this.searchScope = SearchEngine.createJavaSearchScope(this.project.getAllPackageFragmentRoots());

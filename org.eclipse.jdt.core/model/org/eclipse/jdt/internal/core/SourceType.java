@@ -540,7 +540,7 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 	NameLookup lookup = null;
 	try {
 		// set the units to look inside
-		lookup = ((JavaProject)project).getNameLookup();
+		lookup = project.getNameLookup();
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		ICompilationUnit[] workingCopies = manager.getWorkingCopies(owner, true/*add primary WCs*/);
 		lookup.setUnitsToLookInside(workingCopies);

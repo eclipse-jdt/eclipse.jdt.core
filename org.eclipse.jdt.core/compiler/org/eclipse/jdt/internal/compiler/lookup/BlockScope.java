@@ -755,12 +755,12 @@ public class BlockScope extends Scope {
 		Object[] path = new Object[2]; // probably at least 2 of them
 		ReferenceBinding currentType = sourceType.enclosingType();
 		if (insideConstructor) {
-			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding) currentType, onlyExactMatch);
+			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument(currentType, onlyExactMatch);
 		} else {
 			if (currentMethodScope.isConstructorCall){
 				return NoEnclosingInstanceInConstructorCall;
 			}
-			path[0] = sourceType.getSyntheticField((SourceTypeBinding) currentType, onlyExactMatch);
+			path[0] = sourceType.getSyntheticField(currentType, onlyExactMatch);
 		}
 		if (path[0] != null) { // keep accumulating
 			
@@ -782,7 +782,7 @@ public class BlockScope extends Scope {
 					}
 				}
 				
-				syntheticField = ((NestedTypeBinding) currentType).getSyntheticField((SourceTypeBinding) currentEnclosingType, onlyExactMatch);
+				syntheticField = ((NestedTypeBinding) currentType).getSyntheticField(currentEnclosingType, onlyExactMatch);
 				if (syntheticField == null) break;
 
 				// append inside the path

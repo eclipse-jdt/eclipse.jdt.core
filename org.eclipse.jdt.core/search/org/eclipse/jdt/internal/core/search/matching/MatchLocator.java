@@ -229,7 +229,7 @@ public class MatchLocator implements ITypeRequestor {
 	public  ClassFileReader classFileReader(IType type) {
 		IClassFile classFile = type.getClassFile(); 
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		if (((IOpenable)classFile).isOpen()) {
+		if (classFile.isOpen()) {
 			return (ClassFileReader)manager.getInfo(type);
 		} else {
 			IPackageFragment pkg = type.getPackageFragment();

@@ -939,7 +939,7 @@ public class SourceMapper
 	 * null if no parameter names are known for the method.
 	 */
 	public char[][] getMethodParameterNames(IMethod method) {
-		if (((IMember) method).isBinary()) {
+		if (method.isBinary()) {
 			IJavaElement[] el = getUnqualifiedMethodHandle(method, false);
 			if(el[1] != null && fParameterNames.get(el[0]) == null) {
 				method = (IMethod) getUnqualifiedMethodHandle(method, true)[0];

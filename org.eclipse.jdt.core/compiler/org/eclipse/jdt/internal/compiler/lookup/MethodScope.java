@@ -462,7 +462,7 @@ public class MethodScope extends BlockScope {
 	*/
 	public TypeDeclaration referenceType() {
 
-		return (TypeDeclaration) ((ClassScope) parent).referenceContext;
+		return ((ClassScope) parent).referenceContext;
 	}
 
 	String basicToString(int tab) {

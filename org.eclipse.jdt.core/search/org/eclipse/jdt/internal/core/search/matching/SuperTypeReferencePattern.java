@@ -103,7 +103,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	}
 	
 	decodedClassOrInterface = word[slash+1];
-	decodedModifiers = (int)word[slash+2];
+	decodedModifiers = word[slash+2]; // implicit cast to int type
 }
 /**
  * Query a given index for matching entries. 
