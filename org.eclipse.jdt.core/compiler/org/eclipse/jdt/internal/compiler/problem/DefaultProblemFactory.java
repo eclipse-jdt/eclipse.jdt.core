@@ -102,7 +102,6 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 		CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 	message = new String(messageWithNoDoubleQuotes);
 
-/*
 	// dequalify problem arguments, using following heuristic:
 	// - if no segment is uppercased, then keep it all
 	// - if one segment is uppercased, then only preserve the trailing portion, starting from this segment
@@ -126,7 +125,7 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 			}
 		}
 	}
-*/	
+
 	int length = message.length();
 	int start = -1, end = length;
 	while (true) {
