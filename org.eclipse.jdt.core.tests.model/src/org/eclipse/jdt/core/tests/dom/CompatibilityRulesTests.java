@@ -14,9 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -25,38 +23,8 @@ import junit.framework.Test;
 
 public class CompatibilityRulesTests extends AbstractASTTests {
 	
-	ICompilationUnit[] workingCopies;
-
 	public CompatibilityRulesTests(String name) {
 		super(name);
-	}
-
-	protected IMethodBinding[] createMethodBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
-		return createMethodBindings(pathAndSources, bindingKeys, getJavaProject("P"));
-	}
-
-	protected IMethodBinding[] createMethodBindings(String[] pathAndSources, String[] bindingKeys, IJavaProject project) throws JavaModelException {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
-		this.workingCopies = createWorkingCopies(pathAndSources, owner);
-		IBinding[] bindings = resolveBindings(bindingKeys, project, owner);
-		int length = bindings.length;
-		IMethodBinding[] result = new IMethodBinding[length];
-		System.arraycopy(bindings, 0, result, 0, length);
-		return result;
-	}
-
-	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
-		return createTypeBindings(pathAndSources, bindingKeys, getJavaProject("P"));
-	}
-	
-	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys, IJavaProject project) throws JavaModelException {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
-		this.workingCopies = createWorkingCopies(pathAndSources, owner);
-		IBinding[] bindings = resolveBindings(bindingKeys, project, owner);
-		int length = bindings.length;
-		ITypeBinding[] result = new ITypeBinding[length];
-		System.arraycopy(bindings, 0, result, 0, length);
-		return result;
 	}
 
 	public static Test suite() {
@@ -71,11 +39,6 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-	}
-	
-	protected void tearDown() throws Exception {
-		discardWorkingCopies(this.workingCopies);
-		this.workingCopies = null;
 	}
 	
 	public void tearDownSuite() throws Exception {

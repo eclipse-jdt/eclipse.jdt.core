@@ -32,10 +32,6 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
-/*
- * A wrapper class arround a binding key (see Binding#computeUniqueKey()).
- * This decodes a binding key, and resolves the corresponding compiler binding.
- */
 public class BindingKeyResolver extends BindingKeyParser {
 	Compiler compiler;
 	Binding compilerBinding;
@@ -299,7 +295,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.environment == null) return null;
 		ReferenceBinding binding = this.environment.getType(name);
 		if (!(binding instanceof SourceTypeBinding)) return null;
-		return ((SourceTypeBinding) binding).scope.compilationUnitScope().referenceContext;
+		SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) binding;
+		if (sourceTypeBinding.scope == null) 
+			return null;
+		return sourceTypeBinding.scope.compilationUnitScope().referenceContext;
 	}
 	 
 	/*

@@ -54,9 +54,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	List allTags = new ArrayList();
 	// Current compilation unit
 	protected ICompilationUnit sourceUnit;
-	// Working copies
-	protected ICompilationUnit[] workingCopies;
-	protected boolean keepWorkingCopies = false;
 	// Test package binding
 	protected boolean resolveBinding = true;
 	protected boolean packageBinding = true;
@@ -197,11 +194,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertTrue(title, size==0 || problems.length() > 0);
 //		}
 		super.tearDown();
-		
-		// Working copies mgt
-		if (!keepWorkingCopies && workingCopies != null) {
-			discardWorkingCopies(workingCopies);
-		}
 		
 		// Restore saved ast level
 		astLevel = savedLevel;

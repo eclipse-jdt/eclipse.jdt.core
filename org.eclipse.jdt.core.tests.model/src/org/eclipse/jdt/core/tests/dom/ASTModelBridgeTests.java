@@ -139,52 +139,45 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(getJavaProject("P"));
-		ICompilationUnit[] workingCopies = new ICompilationUnit[3];
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
-		try {
-			workingCopies[0] = getWorkingCopy(
-				"/P/src/X.java", 
-				"public class X {\n" +
-				"  public void foo(int i, String s) {\n" +
-				"  }\n" +
-				"}",
-				owner, false);
-			workingCopies[1] = getWorkingCopy(
-				"/P/src/Y.java", 
-				"public class Y extends X {\n" +
-				"  void bar() {\n" +
-				"    new Y() {};\n" +
-				"  }\n" +
-				"}",
-				owner, false);
-			workingCopies[2] = getWorkingCopy(
-				"/P/src/I.java", 
-				"public interface I {\n" +
-				"  int BAR;\n" +
-				"}",
-				owner, false);
-			IType typeX = workingCopies[0].getType("X");
-			IJavaElement[] elements = new IJavaElement[] {
-				typeX, 
-				getClassFile("P", getExternalJCLPathString(), "java.lang", "Object.class").getType(),
-				typeX.getMethod("foo", new String[] {"I", "QString;"}),
-				workingCopies[2].getType("I").getField("BAR"),
-				workingCopies[1].getType("Y").getMethod("bar", new String[0]).getType("", 1)
-			};
-			IBinding[] bindings = parser.createBindings(elements, null);
-			assertBindingsEqual(
-				"LX;\n" + 
-				"Ljava/lang/Object;\n" + 
-				"LX;.foo(ILjava/lang/String;)V\n" + 
-				"LI;.BAR\n" + 
-				"LY$1;",
-				bindings);
-		} finally {
-			for (int i = 0, length = workingCopies.length; i < length; i++) {
-				if (workingCopies[i] != null)
-					workingCopies[i].discardWorkingCopy();
-			}
-		}
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java", 
+			"public class X {\n" +
+			"  public void foo(int i, String s) {\n" +
+			"  }\n" +
+			"}",
+			owner, false);
+		this.workingCopies[1] = getWorkingCopy(
+			"/P/src/Y.java", 
+			"public class Y extends X {\n" +
+			"  void bar() {\n" +
+			"    new Y() {};\n" +
+			"  }\n" +
+			"}",
+			owner, false);
+		this.workingCopies[2] = getWorkingCopy(
+			"/P/src/I.java", 
+			"public interface I {\n" +
+			"  int BAR;\n" +
+			"}",
+			owner, false);
+		IType typeX = this.workingCopies[0].getType("X");
+		IJavaElement[] elements = new IJavaElement[] {
+			typeX, 
+			getClassFile("P", getExternalJCLPathString(), "java.lang", "Object.class").getType(),
+			typeX.getMethod("foo", new String[] {"I", "QString;"}),
+			this.workingCopies[2].getType("I").getField("BAR"),
+			this.workingCopies[1].getType("Y").getMethod("bar", new String[0]).getType("", 1)
+		};
+		IBinding[] bindings = parser.createBindings(elements, null);
+		assertBindingsEqual(
+			"LX;\n" + 
+			"Ljava/lang/Object;\n" + 
+			"LX;.foo(ILjava/lang/String;)V\n" + 
+			"LI;.BAR\n" + 
+			"LY$1;",
+			bindings);
 	}
 	
 	/*

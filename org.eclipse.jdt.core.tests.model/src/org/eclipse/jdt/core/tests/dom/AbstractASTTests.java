@@ -28,10 +28,14 @@ import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractASTTests extends ModifyingResourceTests {
+
+	ICompilationUnit[] workingCopies;
 
 	public AbstractASTTests(String name) {
 		super(name);
@@ -219,6 +223,34 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		return markerInfos;
 	}
 
+	protected IMethodBinding[] createMethodBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
+		return createMethodBindings(pathAndSources, bindingKeys, getJavaProject("P"));
+	}
+
+	protected IMethodBinding[] createMethodBindings(String[] pathAndSources, String[] bindingKeys, IJavaProject project) throws JavaModelException {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		this.workingCopies = createWorkingCopies(pathAndSources, owner);
+		IBinding[] bindings = resolveBindings(bindingKeys, project, owner);
+		int length = bindings.length;
+		IMethodBinding[] result = new IMethodBinding[length];
+		System.arraycopy(bindings, 0, result, 0, length);
+		return result;
+	}
+
+	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
+		return createTypeBindings(pathAndSources, bindingKeys, getJavaProject("P"));
+	}
+	
+	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys, IJavaProject project) throws JavaModelException {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		this.workingCopies = createWorkingCopies(pathAndSources, owner);
+		IBinding[] bindings = resolveBindings(bindingKeys, project, owner);
+		int length = bindings.length;
+		ITypeBinding[] result = new ITypeBinding[length];
+		System.arraycopy(bindings, 0, result, 0, length);
+		return result;
+	}
+
 	protected ICompilationUnit[] createWorkingCopies(String[] pathAndSources, WorkingCopyOwner owner) throws JavaModelException {
 		MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
 		return createWorkingCopies(markerInfos, owner);
@@ -226,15 +258,15 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	
 	protected ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos, WorkingCopyOwner owner) throws JavaModelException {
 		int length = markerInfos.length;
-		ICompilationUnit[] workingCopies = new ICompilationUnit[length];
+		ICompilationUnit[] copies = new ICompilationUnit[length];
 		for (int i = 0; i < length; i++) {
 			MarkerInfo markerInfo = markerInfos[i];
 			ICompilationUnit workingCopy = getCompilationUnit(markerInfo.path).getWorkingCopy(owner, null, null);
 			workingCopy.getBuffer().setContents(markerInfo.source);
 			workingCopy.makeConsistent(null);
-			workingCopies[i] = workingCopy;
+			copies[i] = workingCopy;
 		}
-		return workingCopies;
+		return copies;
 	}
 	
 	protected ASTNode findNode(CompilationUnit unit, final MarkerInfo markerInfo) {
@@ -272,6 +304,11 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		BindingRequestor requestor = new BindingRequestor();
 		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, project, owner);
 		return requestor.getBindings(bindingKeys);
+	}
+	
+	protected void tearDown() throws Exception {
+		discardWorkingCopies(this.workingCopies);
+		this.workingCopies = null;
 	}
 	
 }
