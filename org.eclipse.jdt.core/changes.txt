@@ -110,10 +110,12 @@ STREAM: 2.0
   ================================================================================
   * Project references are maintained by the JavaCore, in parallel with build path.
   * Resurrected deprecated APIs from 0.9 which were discarded previously.
+  * ICodeCompletion reverted to 1.0 version, and got deprecated. Use ICompletionRequestor instead.
   * Cross-project incremental recompilation in presence of structural changes in produced binaries.
   
   PRs Fixed in this Release
   ================================================================================
+  5525      ICodeCompletionRequestor isn't 1.0 compatible   
   5616      NPE when compiling invalid code defining a array of strings  
   5217      java search scope: missing enclosing project  
   5527      Unexpected inaccurate matches for #close() declarations  
