@@ -120,7 +120,7 @@ public void testDefaultCU() throws CoreException {
  * Ensures that a default compilation unit is created for a type if
  * it does not yet exist.
  */
-public void testEmptyCU() throws JavaModelException {
+public void testEmptyCU() {
 	IPackageFragment pkg = getPackage("/P/p");
 	// should fail if we try again
 	try {
@@ -158,7 +158,7 @@ public void testForce() throws JavaModelException, IOException {
  * Ensures that a compilation unit cannot be created with an invalid name
  * in a package.
  */
-public void testInvalidName() throws JavaModelException {
+public void testInvalidName() {
 	IPackageFragment pkg = getPackage("/P/p");
 	try {
 		pkg.createCompilationUnit("HelloWorld.j", null,  false, null);
@@ -177,7 +177,7 @@ public void testInvalidName() throws JavaModelException {
  * Ensures that a compilation unit cannot be created with <code>null</code> source
  * in a package.
  */
-public void testNullContents() throws JavaModelException {
+public void testNullContents() {
 	IPackageFragment pkg = getPackage("/P/p");
 	try {
 		pkg.createCompilationUnit("HelloWorld.java", null, false, null);

@@ -384,7 +384,7 @@ public void testHasChildren() throws JavaModelException {
 /**
  * Ensures that a compilation unit's resource has not changed.
  */
-public void testHasResourceChanged() throws JavaModelException {
+public void testHasResourceChanged() {
 	assertTrue(
 		"A compilation unit's resource should not have changed", 
 		!this.cu.hasResourceChanged());
