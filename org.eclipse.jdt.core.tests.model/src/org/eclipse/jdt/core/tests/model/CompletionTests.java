@@ -53,16 +53,15 @@ public static Test suite() {
 		suite.addTest(new CompletionTests("testCompletionBasicPotentialMethodDeclaration1"));
 	} else {
 		// basic test
-// TODO (david) reenable when those tests pass after being built on Linux
-//		suite.addTest(new CompletionTests("testCompletionBasicPackage1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicType1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicField1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicMethod1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicLocalVariable1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicVariableDeclaration1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicMethodDeclaration1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicAnonymousDeclaration1"));
-//		suite.addTest(new CompletionTests("testCompletionBasicPotentialMethodDeclaration1"));
+		suite.addTest(new CompletionTests("testCompletionBasicPackage1")); 
+		suite.addTest(new CompletionTests("testCompletionBasicType1"));
+		suite.addTest(new CompletionTests("testCompletionBasicField1"));
+		suite.addTest(new CompletionTests("testCompletionBasicMethod1"));
+		suite.addTest(new CompletionTests("testCompletionBasicLocalVariable1"));
+		suite.addTest(new CompletionTests("testCompletionBasicVariableDeclaration1"));
+		suite.addTest(new CompletionTests("testCompletionBasicMethodDeclaration1"));
+		suite.addTest(new CompletionTests("testCompletionBasicAnonymousDeclaration1"));
+		suite.addTest(new CompletionTests("testCompletionBasicPotentialMethodDeclaration1"));
 		
 		// completion tests
 		suite.addTest(new CompletionTests("testCompletionCaseInsensitive"));
@@ -8672,7 +8671,6 @@ public void testCompletionSameClass() throws JavaModelException {
 			"element:CompletionSameClass    completion:CompletionSameClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
-/*
 public void testCompletionBasicPackage1() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicPackage1.java");
@@ -8683,7 +8681,7 @@ public void testCompletionBasicPackage1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, [41, 49], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_QUALIFIED) + "}",
+			"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_QUALIFIED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicType1() throws JavaModelException {
@@ -8696,7 +8694,7 @@ public void testCompletionBasicType1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, [54, 59], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+			"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicField1() throws JavaModelException {
@@ -8709,7 +8707,7 @@ public void testCompletionBasicField1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"zzvarzz[FIELD_REF]{zzvarzz, LCompletionBasicField1;, I, zzvarzz, [77, 82], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+			"zzvarzz[FIELD_REF]{zzvarzz, LCompletionBasicField1;, I, zzvarzz, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicMethod1() throws JavaModelException {
@@ -8722,7 +8720,7 @@ public void testCompletionBasicMethod1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"zzfoo[METHOD_REF]{zzfoo(), LCompletionBasicMethod1;, ()V, zzfoo, [58, 62], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+			"zzfoo[METHOD_REF]{zzfoo(), LCompletionBasicMethod1;, ()V, zzfoo, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicLocalVariable1() throws JavaModelException {
@@ -8735,7 +8733,7 @@ public void testCompletionBasicLocalVariable1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"zzvarzz[LOCAL_VARIABLE_REF]{zzvarzz, null, I, zzvarzz, [79, 84], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
+			"zzvarzz[LOCAL_VARIABLE_REF]{zzvarzz, null, I, zzvarzz, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicKeyword1() throws JavaModelException {
@@ -8748,7 +8746,7 @@ public void testCompletionBasicKeyword1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"while[KEYWORD]{while, null, null, while, [57, 61], " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+			"while[KEYWORD]{while, null, null, while, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicVariableDeclaration1() throws JavaModelException {
@@ -8761,7 +8759,7 @@ public void testCompletionBasicVariableDeclaration1() throws JavaModelException 
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, [67, 70], " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, " + (R_DEFAULT + R_INTERESTING + R_CASE) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
@@ -8774,8 +8772,8 @@ public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"equals[POTENTIAL_METHOD_DECLARATION]{equals, LCompletionBasicMethodDeclaration1;, ()V, equals, [51, 57], " + (R_DEFAULT + R_INTERESTING) + "}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, [51, 57], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME) + "}",
+			"equals[POTENTIAL_METHOD_DECLARATION]{equals, LCompletionBasicMethodDeclaration1;, ()V, equals, " + (R_DEFAULT + R_INTERESTING) + "}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException {
@@ -8788,8 +8786,8 @@ public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"Object[ANONYMOUS_CLASS_DECLARATION]{), Ljava.lang.Object;, ()V, null, [81, 81], " + (R_DEFAULT + R_INTERESTING) + "}\n" +
-			"Object[METHOD_REF]{), Ljava.lang.Object;, ()V, Object, [81, 81], " + (R_DEFAULT + R_INTERESTING) + "}",
+			"Object[ANONYMOUS_CLASS_DECLARATION]{), Ljava.lang.Object;, ()V, null, " + (R_DEFAULT + R_INTERESTING) + "}\n" +
+			"Object[METHOD_REF]{), Ljava.lang.Object;, ()V, Object, " + (R_DEFAULT + R_INTERESTING) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicPotentialMethodDeclaration1() throws JavaModelException {
@@ -8802,7 +8800,7 @@ public void testCompletionBasicPotentialMethodDeclaration1() throws JavaModelExc
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"zzpot[POTENTIAL_METHOD_DECLARATION]{zzpot, LCompletionBasicPotentialMethodDeclaration1;, ()V, zzpot, [60, 65], " + (R_DEFAULT + R_INTERESTING) + "}",
+			"zzpot[POTENTIAL_METHOD_DECLARATION]{zzpot, LCompletionBasicPotentialMethodDeclaration1;, ()V, zzpot, " + (R_DEFAULT + R_INTERESTING) + "}",
 			requestor.getResults());
-}*/
+}
 }

@@ -99,11 +99,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		buffer.append(proposal.getSignature() == null ? NULL_LITERAL : proposal.getSignature());
 		buffer.append(", ");
 		buffer.append(proposal.getName() == null ? NULL_LITERAL : proposal.getName());
-		buffer.append(", [");
-		buffer.append(proposal.getReplaceStart());
+//		buffer.append(", [");
+//		buffer.append(proposal.getReplaceStart());
+//		buffer.append(", ");
+//		buffer.append(proposal.getReplaceEnd());
+//		buffer.append("]");
 		buffer.append(", ");
-		buffer.append(proposal.getReplaceEnd());
-		buffer.append("], ");
 		buffer.append(proposal.getRelevance());
 		buffer.append('}');
 	}
