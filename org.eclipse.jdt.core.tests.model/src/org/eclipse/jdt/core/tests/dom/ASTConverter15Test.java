@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
@@ -79,7 +80,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0060"));
+		suite.addTest(new ASTConverter15Test("test0063"));
 		return suite;
 	}
 		
@@ -1668,6 +1669,40 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
+	 */
+	public void test0063() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0063", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Wrong node", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertEquals("Wrong qualified name", "test0063.X<T extends java.lang.Object>", typeBinding.getQualifiedName());
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Wrong node", ASTNode.RETURN_STATEMENT, node.getNodeType());
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		typeBinding = expression.resolveTypeBinding();
+		assertTrue("Not parameterized", typeBinding.isParameterizedType());
+		assertEquals("Wrong qualified name", "test0063.X<java.lang.String>", typeBinding.getQualifiedName());		
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = declaration.getType();
+		typeBinding = type.resolveBinding();
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0063.X>", typeBinding.getQualifiedName());				
 	}
 }
 
