@@ -2123,7 +2123,8 @@ public class JavaProject
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					String projectName = entry.getPath().lastSegment();
 					JavaProject project = (JavaProject)JavaCore.create(workspaceRoot.getProject(projectName));
-					project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+					if (!cycleParticipants.contains(this) || !cycleParticipants.contains(project)) // skip if both are already part of cycle
+						project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
 				}
 			}
 		} catch(JavaModelException e){
