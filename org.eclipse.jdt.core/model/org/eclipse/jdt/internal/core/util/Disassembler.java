@@ -116,23 +116,23 @@ public class Disassembler implements IClassFileDisassembler {
 		}
 		decodeModifiersForType(buffer, classFileReader.getAccessFlags());
 		if (classFileReader.isClass()) {
-			buffer.append(Util.bind("classfileformat.class")); //$NON-NLS-1$
+			buffer.append("class"); //$NON-NLS-1$
 		} else {
-			buffer.append(Util.bind("classfileformat.interface")); //$NON-NLS-1$
+			buffer.append("interface"); //$NON-NLS-1$
 		}
 		CharOperation.replace(className, '/', '.');
 		buffer.append(className);
 		
 		char[] superclassName = classFileReader.getSuperclassName();
 		if (superclassName != null) {
-			buffer.append(Util.bind("classfileformat.extends")); //$NON-NLS-1$
+			buffer.append("extends"); //$NON-NLS-1$
 			CharOperation.replace(superclassName, '/', '.');
 			buffer.append(superclassName);
 		}
 		char[][] superclassInterfaces = classFileReader.getInterfaceNames();
 		int length = superclassInterfaces.length;
 		if (length != 0) {
-			buffer.append(Util.bind("classfileformat.implements")); //$NON-NLS-1$
+			buffer.append("implements"); //$NON-NLS-1$
 			for (int i = 0; i < length - 1; i++) {
 				char[] superinterface = superclassInterfaces[i];
 				CharOperation.replace(superinterface, '/', '.');
@@ -404,7 +404,7 @@ public class Disassembler implements IClassFileDisassembler {
 		}
 		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
 		if (exceptionAttribute != null) {
-			buffer.append(Util.bind("classfileformat.throws")); //$NON-NLS-1$
+			buffer.append("throws"); //$NON-NLS-1$
 			char[][] exceptionNames = exceptionAttribute.getExceptionNames();
 			int length = exceptionNames.length;
 			for (int i = 0; i < length - 1; i++) {
@@ -586,7 +586,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_abstract")); //$NON-NLS-1$
+			buffer.append("abstract"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_FINAL) != 0) {
 			if (!firstModifier) {
@@ -595,7 +595,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_final")); //$NON-NLS-1$
+			buffer.append("final"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PUBLIC) != 0) {
 			if (!firstModifier) {
@@ -604,7 +604,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_public")); //$NON-NLS-1$
+			buffer.append("public"); //$NON-NLS-1$
 		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -620,7 +620,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_public")); //$NON-NLS-1$
+			buffer.append("public"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PRIVATE) != 0) {
 			if (!firstModifier) {
@@ -629,7 +629,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_private")); //$NON-NLS-1$
+			buffer.append("private"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PROTECTED) != 0) {
 			if (!firstModifier) {
@@ -638,7 +638,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_protected")); //$NON-NLS-1$
+			buffer.append("protected"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_STATIC) != 0) {
 			if (!firstModifier) {
@@ -647,7 +647,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_static")); //$NON-NLS-1$
+			buffer.append("static"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_FINAL) != 0) {
 			if (!firstModifier) {
@@ -656,7 +656,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_final")); //$NON-NLS-1$
+			buffer.append("final"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_ABSTRACT) != 0) {
 			if (!firstModifier) {
@@ -665,7 +665,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_abstract")); //$NON-NLS-1$
+			buffer.append("abstract"); //$NON-NLS-1$
 		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -681,7 +681,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_abstract")); //$NON-NLS-1$
+			buffer.append("abstract"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_FINAL) != 0) {
 			if (!firstModifier) {
@@ -690,7 +690,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_final")); //$NON-NLS-1$
+			buffer.append("final"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_NATIVE) != 0) {
 			if (!firstModifier) {
@@ -699,7 +699,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_native")); //$NON-NLS-1$
+			buffer.append("native"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PRIVATE) != 0) {
 			if (!firstModifier) {
@@ -708,7 +708,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_private")); //$NON-NLS-1$
+			buffer.append("private"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PROTECTED) != 0) {
 			if (!firstModifier) {
@@ -717,7 +717,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_protected")); //$NON-NLS-1$
+			buffer.append("protected"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PUBLIC) != 0) {
 			if (!firstModifier) {
@@ -726,7 +726,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_public")); //$NON-NLS-1$
+			buffer.append("public"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_STATIC) != 0) {
 			if (!firstModifier) {
@@ -735,7 +735,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_static")); //$NON-NLS-1$
+			buffer.append("static"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_STRICT) != 0) {
 			if (!firstModifier) {
@@ -744,7 +744,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_strict")); //$NON-NLS-1$
+			buffer.append("strictfp"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_SYNCHRONIZED) != 0) {
 			if (!firstModifier) {
@@ -753,7 +753,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_synchronized")); //$NON-NLS-1$
+			buffer.append("synchronized"); //$NON-NLS-1$
 		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
@@ -769,7 +769,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_final")); //$NON-NLS-1$
+			buffer.append("final"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PRIVATE) != 0) {
 			if (!firstModifier) {
@@ -778,7 +778,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_private")); //$NON-NLS-1$
+			buffer.append("private"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PROTECTED) != 0) {
 			if (!firstModifier) {
@@ -787,7 +787,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_protected")); //$NON-NLS-1$
+			buffer.append("protected"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_PUBLIC) != 0) {
 			if (!firstModifier) {
@@ -796,7 +796,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_public")); //$NON-NLS-1$
+			buffer.append("public"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_STATIC) != 0) {
 			if (!firstModifier) {
@@ -805,7 +805,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_static")); //$NON-NLS-1$
+			buffer.append("static"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_TRANSIENT) != 0) {
 			if (!firstModifier) {
@@ -814,7 +814,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_transient")); //$NON-NLS-1$
+			buffer.append("transient"); //$NON-NLS-1$
 		}
 		if ((accessFlags & IModifierConstants.ACC_VOLATILE) != 0) {
 			if (!firstModifier) {
@@ -823,7 +823,7 @@ public class Disassembler implements IClassFileDisassembler {
 			if (firstModifier) {
 				firstModifier = false;
 			}
-			buffer.append(Util.bind("classfileformat.acc_volatile")); //$NON-NLS-1$
+			buffer.append("volatile"); //$NON-NLS-1$
 		}
 		if (!firstModifier) {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$

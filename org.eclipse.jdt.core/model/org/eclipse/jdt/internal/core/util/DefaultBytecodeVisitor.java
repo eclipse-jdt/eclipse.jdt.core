@@ -2322,15 +2322,15 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			.append(pc)
 			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LOOKUPSWITCH])
-			.append(Util.bind("classfileformat.default")) //$NON-NLS-1$
+			.append("default:") //$NON-NLS-1$
 			.append(defaultoffset + pc);
 		writeNewLine();
 		for (int i = 0; i < npairs; i++) {
 			writeExtraTabs(1);
 			buffer
-				.append(Util.bind("classfileformat.case")) //$NON-NLS-1$
+				.append("case") //$NON-NLS-1$
 				.append(offset_pairs[i][0])
-				.append(Util.bind("disassembler.colon")) //$NON-NLS-1$
+				.append(":") //$NON-NLS-1$
 				.append(offset_pairs[i][1] + pc);
 			writeNewLine();
 		}
@@ -2746,15 +2746,15 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			.append(pc)
 			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.TABLESWITCH])
-			.append(Util.bind("classfileformat.default")) //$NON-NLS-1$
+			.append("default:") //$NON-NLS-1$
 			.append(defaultoffset + pc);
 		writeNewLine();
 		for (int i = low; i < high + 1; i++) {
 			writeExtraTabs(1);
 			buffer
-				.append(Util.bind("classfileformat.case")) //$NON-NLS-1$
+				.append("case") //$NON-NLS-1$
 				.append(i)
-				.append(Util.bind("disassembler.colon")) //$NON-NLS-1$
+				.append(":") //$NON-NLS-1$
 				.append(jump_offsets[i - low] + pc);
 			writeNewLine();
 		}
@@ -2864,28 +2864,28 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private void appendGetArrayType(int atype) {
 		switch(atype) {
 			case T_BOOLEAN :
-				this.buffer.append(Util.bind("classfileformat.newarrayboolean")); //$NON-NLS-1$
+				this.buffer.append("boolean"); //$NON-NLS-1$
 				break;
 			case T_CHAR :
-				this.buffer.append(Util.bind("classfileformat.newarraychar")); //$NON-NLS-1$
+				this.buffer.append("char"); //$NON-NLS-1$
 				break;
 			case T_FLOAT :
-				this.buffer.append(Util.bind("classfileformat.newarrayfloat")); //$NON-NLS-1$
+				this.buffer.append("float"); //$NON-NLS-1$
 				break;
 			case T_DOUBLE :
-				this.buffer.append(Util.bind("classfileformat.newarraydouble")); //$NON-NLS-1$
+				this.buffer.append("double"); //$NON-NLS-1$
 				break;
 			case T_BYTE :
-				this.buffer.append(Util.bind("classfileformat.newarraybyte")); //$NON-NLS-1$
+				this.buffer.append("byte"); //$NON-NLS-1$
 				break;
 			case T_SHORT :
-				this.buffer.append(Util.bind("classfileformat.newarrayshort")); //$NON-NLS-1$
+				this.buffer.append("short"); //$NON-NLS-1$
 				break;
 			case T_INT :
-				this.buffer.append(Util.bind("classfileformat.newarrayint")); //$NON-NLS-1$
+				this.buffer.append("int"); //$NON-NLS-1$
 				break;
 			case T_LONG :
-				this.buffer.append(Util.bind("classfileformat.newarraylong")); //$NON-NLS-1$
+				this.buffer.append("long"); //$NON-NLS-1$
 		}
 	}
 
@@ -2908,37 +2908,37 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 
 	private void appendOutputForConstantDouble(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
-			.append(Util.bind("disassembler.constantdouble")) //$NON-NLS-1$
+			.append("<Double ") //$NON-NLS-1$
 			.append(constantPoolEntry.getDoubleValue())
-			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
+			.append(">"); //$NON-NLS-1$
 	}
 
 	private void appendOutputForConstantLong(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
-			.append(Util.bind("disassembler.constantlong")) //$NON-NLS-1$
+			.append("<Long ") //$NON-NLS-1$
 			.append(constantPoolEntry.getLongValue())
-			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
+			.append(">"); //$NON-NLS-1$
 	}
 
 	private void appendOutputForConstantString(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
-			.append(Util.bind("disassembler.constantstring")) //$NON-NLS-1$
+			.append("<String ") //$NON-NLS-1$
 			.append(constantPoolEntry.getStringValue())
-			.append(Util.bind("disassembler.closeconstantstring")); //$NON-NLS-1$
+			.append("\">"); //$NON-NLS-1$
 	}
 
 	private void appendOutputforConstantInteger(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
-			.append(Util.bind("disassembler.constantinteger")) //$NON-NLS-1$
+			.append("<Integer ") //$NON-NLS-1$
 			.append(constantPoolEntry.getIntegerValue())
-			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
+			.append(">"); //$NON-NLS-1$
 	}
 
 	private void appendOutputforConstantFloat(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
-			.append(Util.bind("disassembler.constantfloat")) //$NON-NLS-1$
+			.append("<Float ") //$NON-NLS-1$
 			.append(constantPoolEntry.getFloatValue())
-			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
+			.append(">"); //$NON-NLS-1$
 	}
 
 	private void writeNewLine() {
