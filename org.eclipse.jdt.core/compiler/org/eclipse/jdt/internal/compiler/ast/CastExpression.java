@@ -232,6 +232,10 @@ public class CastExpression extends Expression {
 		for (int i = 0; i < length; i++) {
 			Expression argument = arguments[i];
 			if (argument instanceof CastExpression) {
+ 				// narrowing conversion on base type may change value, thus necessary
+				if ((argument.bits & UnnecessaryCastMask) == 0 && argument.resolvedType.isBaseType()) {
+					continue;
+				}		
 				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
 				// obvious identity cast
 				if (castedExpressionType == argumentTypes[i]) { 

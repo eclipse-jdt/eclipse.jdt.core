@@ -312,7 +312,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 									new String[] {
 										String.valueOf(lineCount),
 										String.valueOf(time),
-										String.valueOf((((int) ((lineCount * 10000.0) / time)) / 10.0))}));
+										String.valueOf(((int)(lineCount * 10000.0 / time)) / 10.0)}));
 						} else {
 							out.println(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
 						}
