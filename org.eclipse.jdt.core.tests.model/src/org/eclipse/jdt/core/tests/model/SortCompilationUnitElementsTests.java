@@ -18,6 +18,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
 import org.eclipse.jdt.core.util.CompilationUnitSorter.DefaultJavaElementComparator;
@@ -44,29 +45,23 @@ private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreE
 }
 
 private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
-	debug(unit, "BEFORE"); //$NON-NLS-1$
+	char[] initialSource = unit.getSource().toCharArray();
+	int[] positions = null;
 	if (testPositions) {
-		char[] initialSource = unit.getSource().toCharArray();
-		int[] positions = new int[initialSource.length];
+		positions = new int[initialSource.length];
 		for (int i = 0; i < initialSource.length; i++) {
 			positions[i] = i;
 		}
-		CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, new int[][] { positions }, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
-		String sortedSource = unit.getBuffer().getContents();
-		assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
+	}
+	IJavaElement element = unit.getWorkingCopy();
+	CompilationUnitSorter.sort(new IJavaElement[] { element }, new int[][] { positions }, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
+	String sortedSource = ((ICompilationUnit) element).getBuffer().getContents();
+	assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
+	if (testPositions) {
 		for (int i = 0, max = positions.length; i < max; i++) {
 			assertEquals("wrong mapped positions at " + i + " <-> " + positions[i], initialSource[i], expectedResult.charAt(positions[i])); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-	} else {
-		CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
-		String sortedSource = unit.getBuffer().getContents();
-		if (expectedResult == null || expectedResult.length() == 0) {
-			System.out.println(sortedSource);
-		} else {
-			assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
-		}
 	}
-	debug(unit, "AFTER"); //$NON-NLS-1$
 }
 
 private void debug(ICompilationUnit unit, String id) throws JavaModelException {
@@ -534,10 +529,7 @@ public void test009() throws CoreException {
 			"}\n" + //$NON-NLS-1$
 			"// end of compilation unit\n"; //$NON-NLS-1$
 		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java"); //$NON-NLS-1$
-/*		int[] positions = new int[] { 529 };
-		int[] expectedPositions = new int[] { 288 };
-		sortUnit(unit, positions, expectedResult, expectedPositions);*/
-		sortUnit(unit, expectedResult, false);		
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedResult, false);		
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}

@@ -16,7 +16,6 @@ import java.util.Locale;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -65,29 +64,18 @@ public class SortElementsOperation extends JavaModelOperation {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
 			for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
-				ICompilationUnit unit = ((JavaElement) fElementsToProcess[i]).getCompilationUnit();
-				if (unit == null) {
-					return;
-				}
-				IBuffer buffer = unit.getBuffer();
+				WorkingCopy copy = (WorkingCopy) fElementsToProcess[i];
+				ICompilationUnit unit = (ICompilationUnit) copy.getOriginalElement();
+				IBuffer buffer = copy.getBuffer();
 				if (buffer  == null) { 
 					return;
 				}
 				char[] bufferContents = buffer.getCharacters();
-				processElement(unit, positions == null ? null : positions[i], bufferContents);
-				if (this.hasChanged) {
-					unit.save(null, false);
-					boolean isWorkingCopy = unit.isWorkingCopy();
-					worked(1);
-					 // if unit is working copy, then save will have already fired the delta
-					if (!isWorkingCopy
-						&& !Util.isExcluded(unit)
-						&& unit.getParent().exists()) {
-							JavaElementDelta delta = newJavaElementDelta();
-							delta.changed(unit, IJavaElementDelta.F_CHILDREN);
-							addDelta(delta);
-					}
+				String result = processElement(unit, positions == null ? null : positions[i], bufferContents);
+				if (!CharOperation.equals(result.toCharArray(), bufferContents)) {
+					copy.getBuffer().setContents(result);
 				}
+				worked(1);
 			}
 		} finally {
 			done();
@@ -99,30 +87,35 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @param unit
 	 * @param bufferContents
 	 */
-	private void processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) throws JavaModelException {
-		subTask("Sort " + unit.getElementName()); //$NON-NLS-1$
+	private String processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) throws JavaModelException {
 		this.hasChanged = false;
 		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, comparator);
 		SourceElementParser parser = new SourceElementParser(builder,
 			ProblemFactory.getProblemFactory(Locale.getDefault()), new CompilerOptions(JavaCore.getOptions()), true);
 		
-		IPackageFragment packageFragment = (IPackageFragment)unit.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-		char[][] expectedPackageName = null;
-		if (packageFragment != null){
-			expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+		if (unit.exists()) {
+			IPackageFragment packageFragment = (IPackageFragment)unit.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+			char[][] expectedPackageName = null;
+			if (packageFragment != null){
+				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+			}
+			parser.parseCompilationUnit(
+				new BasicCompilationUnit(
+					source,
+					expectedPackageName,
+					unit.getElementName(),
+					null),
+				false);
+		} else {
+			parser.parseCompilationUnit(
+				new BasicCompilationUnit(
+					source,
+					null,
+					"",//$NON-NLS-1$
+					null),
+				false);
 		}
-		parser.parseCompilationUnit(
-			new BasicCompilationUnit(
-				source,
-				expectedPackageName,
-				unit.getElementName(),
-				unit.getJavaProject().getOption(JavaCore.CORE_ENCODING, true)),
-			false);
-		String result = builder.getSource();
-		this.hasChanged = !CharOperation.equals(result.toCharArray(), source);
-		if (this.hasChanged) {
-			unit.getBuffer().setContents(result);
-		}
+		return builder.getSource();
 	}
 
 	/**
@@ -140,14 +133,11 @@ public class SortElementsOperation extends JavaModelOperation {
 		if (fElementsToProcess.length <= 0) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (this.positions != null && this.fElementsToProcess.length != this.positions.length) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
-		}
 		for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
 			if (fElementsToProcess[i] == null) {
 				return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 			}
-			if (!(fElementsToProcess[i] instanceof IWorkingCopy)) {
+			if (!(fElementsToProcess[i] instanceof IWorkingCopy) || !((IWorkingCopy) fElementsToProcess[i]).isWorkingCopy()) {
 				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, fElementsToProcess[i]);
 			}
 		}

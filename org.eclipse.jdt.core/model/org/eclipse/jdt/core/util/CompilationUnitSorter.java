@@ -389,7 +389,7 @@ public class CompilationUnitSorter {
 	 * access modifier (public, protected, private, default)</li>
 	 * </p>
 	 *
-	 * @param compilationUnit the compilation unit
+	 * @param javaElement the given working copy
 	 * @param positions an array of increasing positions to map. These are
 	 * character-based source positions inside the original source, for which
 	 * corresponding positions in the modified source will be computed (so as to
@@ -414,8 +414,8 @@ public class CompilationUnitSorter {
 	 * @see #DefaultJavaElementComparator
 	 * @since 2.1
 	 */
-	public static void sort(IJavaElement workingCopy, int[] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
-		sort(new IJavaElement[] { workingCopy }, new int[][] {positions}, comparator, monitor);
+	public static void sort(IJavaElement javaElement, int[] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
+		sort(new IJavaElement[] { javaElement }, new int[][] {positions}, comparator, monitor);
 	}
 
 	/**
@@ -424,7 +424,7 @@ public class CompilationUnitSorter {
 	 * update the positions of markers within compilation units.
 	 * The sizes of positions and compilationUnits array have to be the same.
 	 * 
-	 * @param compilationUnits compilation units to process
+	 * @param javaElements the given working copies to process
 	 * @param positions positions to map
 	 * @param comparator the comparator to use for the sorting
 	 * @param monitor the given progress monitor
@@ -435,14 +435,14 @@ public class CompilationUnitSorter {
 	 * 
 	 * @since 2.1
 	 */
-	public static void sort(IJavaElement[] workingCopies, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
-		if (comparator == null || workingCopies == null) {
+	public static void sort(IJavaElement[] javaElements, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
+		if (comparator == null || javaElements == null) {
 			throw new IllegalArgumentException();
 		}
-		if (positions != null && positions.length != workingCopies.length) {
+		if (positions != null && positions.length != javaElements.length) {
 			throw new IllegalArgumentException();
 		}
-		SortElementsOperation operation = new SortElementsOperation(workingCopies , positions, comparator);
+		SortElementsOperation operation = new SortElementsOperation(javaElements , positions, comparator);
 		try {
 			JavaCore.run(operation, monitor);
 		} catch(CoreException e) {
