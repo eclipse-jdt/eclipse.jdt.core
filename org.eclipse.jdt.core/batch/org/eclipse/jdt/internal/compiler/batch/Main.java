@@ -100,6 +100,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String PROBLEM_TAG = "problem"; //$NON-NLS-1$
 		private static final String PROBLEMS = "problems"; //$NON-NLS-1$
 		private static final String SOURCE = "source"; //$NON-NLS-1$
+		private static final String SOURCE_END = "sourceEnd"; //$NON-NLS-1$
+		private static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
 		private static final String SOURCES = "sources"; //$NON-NLS-1$
 		private static final String STATS = "stats"; //$NON-NLS-1$
 		private static final String TASK = "task"; //$NON-NLS-1$
@@ -242,6 +244,46 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.tab--;
 		}
 		
+		private void extractContext(IProblem problem, char[] unitSource) {
+			//sanity .....
+			int startPosition = problem.getSourceStart();
+			int endPosition = problem.getSourceEnd();
+			if ((startPosition > endPosition)
+				|| ((startPosition < 0) && (endPosition < 0))) {
+				this.parameters.put(VALUE, Util.bind("problem.noSourceInformation")); //$NON-NLS-1$
+				this.parameters.put(SOURCE_START, "-1"); //$NON-NLS-1$
+				this.parameters.put(SOURCE_END, "-1"); //$NON-NLS-1$
+				return;
+			}
+
+			char c;
+			//the next code tries to underline the token.....
+			//it assumes (for a good display) that token source does not
+			//contain any \r \n. This is false on statements ! 
+			//(the code still works but the display is not optimal !)
+
+			// expand to line limits
+			int length = unitSource.length, begin, end;
+			for (begin = startPosition >= length ? length - 1 : startPosition; begin > 0; begin--) {
+				if ((c = unitSource[begin - 1]) == '\n' || c == '\r') break;
+			}
+			for (end = endPosition >= length ? length - 1 : endPosition ; end+1 < length; end++) {
+				if ((c = unitSource[end + 1]) == '\r' || c == '\n') break;
+			}
+
+			// trim left and right spaces/tabs
+			while ((c = unitSource[begin]) == ' ' || c == '\t') begin++;
+			while ((c = unitSource[end]) == ' ' || c == '\t') end--;
+			
+			// copy source
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(unitSource, begin, end - begin + 1);
+			
+			this.parameters.put(VALUE, String.valueOf(buffer)); //$NON-NLS-1$
+			this.parameters.put(SOURCE_START, Integer.toString(startPosition - begin)); //$NON-NLS-1$
+			this.parameters.put(SOURCE_END, Integer.toString(endPosition - begin)); //$NON-NLS-1$
+		}
+
 		private String getFieldName(int id) {
 			return (String) FIELD_TABLE.get(new Integer(id));
 		}
@@ -682,34 +724,27 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private void logXmlProblem(IProblem problem, char[] unitSource) {
 			final int sourceStart = problem.getSourceStart();
 			final int sourceEnd = problem.getSourceEnd();
-			parameters.clear();
-			parameters.put(PROBLEM_ID, getFieldName(problem.getID()));
-			parameters.put(PROBLEM_SEVERITY, problem.isError() ? ERROR : WARNING);
-			parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
-			parameters.put(PROBLEM_SOURCE_START, new Integer(sourceStart));
-			parameters.put(PROBLEM_SOURCE_END, new Integer(sourceEnd));
+			this.parameters.clear();
+			this.parameters.put(PROBLEM_ID, getFieldName(problem.getID()));
+			this.parameters.put(PROBLEM_SEVERITY, problem.isError() ? ERROR : WARNING);
+			this.parameters.put(PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
+			this.parameters.put(PROBLEM_SOURCE_START, new Integer(sourceStart));
+			this.parameters.put(PROBLEM_SOURCE_END, new Integer(sourceEnd));
 			this.printTag(PROBLEM_TAG, parameters, true, false);
-			parameters.clear();
-			parameters.put(VALUE, problem.getMessage());
+			this.parameters.clear();
+			this.parameters.put(VALUE, problem.getMessage());
 			this.printTag(PROBLEM_MESSAGE, parameters, true, true);
-			parameters.clear();
-			StringBuffer buffer = new StringBuffer();
-			if ((sourceStart > sourceEnd)
-				|| ((sourceStart < 0) && (sourceEnd < 0))) {
-				buffer.append(Util.bind("problem.noSourceInformation")); //$NON-NLS-1$
-			} else {
-				buffer.append(unitSource, sourceStart, sourceEnd - sourceStart + 1);
-			}
-			parameters.put(VALUE, String.valueOf(buffer));
-			this.printTag(PROBLEM_SOURCE, parameters, true, true);
+			this.parameters.clear();
+			extractContext(problem, unitSource);
+			this.printTag(PROBLEM_SOURCE, this.parameters, true, true);
 			String[] arguments = problem.getArguments();
 			final int length = arguments.length;
 			if (length != 0) {
 				this.printTag(PROBLEM_ARGUMENTS, null, true, false);
-				parameters.clear();
+				this.parameters.clear();
 				for (int i = 0; i < length; i++) {
-					parameters.put(PROBLEM_ARGUMENT_VALUE, arguments[i]);
-					this.printTag(PROBLEM_ARGUMENT, parameters, true, true);
+					this.parameters.put(PROBLEM_ARGUMENT_VALUE, arguments[i]);
+					this.printTag(PROBLEM_ARGUMENT, this.parameters, true, true);
 				}
 				this.endTag(PROBLEM_ARGUMENTS);
 			}

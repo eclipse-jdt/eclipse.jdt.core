@@ -43,7 +43,10 @@
 				  id        CDATA #REQUIRED
 >
 <!ATTLIST message value CDATA #REQUIRED>
-<!ATTLIST problem_source  value CDATA #REQUIRED>
+<!ATTLIST problem_source value       CDATA #REQUIRED
+                         sourceStart CDATA #REQUIRED
+                         sourceEnd   CDATA #REQUIRED
+>
 <!ATTLIST task charEnd   CDATA #REQUIRED
 			  charStart CDATA #REQUIRED
 			  line      CDATA #REQUIRED
