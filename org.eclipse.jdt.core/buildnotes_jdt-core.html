@@ -39,19 +39,20 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0.1 Build - 14th July 2004
+Eclipse SDK 3.0.1 Build - ?th July 2004
 <br>Project org.eclipse.jdt.core v_451_R30x
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_451_R30x">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
-<li></li>
+<li> Declared private serialVersionUID fields where missing, reflecting 2.1 backward compatible IDs
+for any serializable class which could be surfaced through APIs.</li>
+<li>*TODO* all resource change listeners/builder to react to new encoding change notification </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69152">69152</a>
 [NPE] An internal error occurred during: "Override indicator installation job".
-
 
 <a name="v_450"></a>
 <p><hr><h1>
@@ -64,7 +65,6 @@ Eclipse SDK 3.0.1 Build - 14th July 2004
 What's new in this drop</h2>
 <ul>
 <li> Plugin version ID got incremented to 3.0.1.</li>
-<li>*TODO* all resource change listeners/builder to react to new encoding change notification </li>
 <li>Fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69028">69028</a>
      requires the index version to be incremented. Indexes will be automatically regenerated upon
      subsequent search queries (accounting for indexing notification in search progress dialogs).
