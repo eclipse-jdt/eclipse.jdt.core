@@ -304,7 +304,7 @@ private void buildMoreCompletionContext(Expression expression) {
 							AllocationExpression allocationExpr = new AllocationExpression();
 							allocationExpr.arguments = arguments;
 							pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-							pushOnAstLengthStack(0);
+							pushOnGenericsLengthStack(0);
 							allocationExpr.type = getTypeReference(0);
 							assistNodeParent = allocationExpr;
 						} else {
@@ -312,7 +312,7 @@ private void buildMoreCompletionContext(Expression expression) {
 							allocationExpr.enclosingInstance = this.expressionStack[qualifierExprPtr];
 							allocationExpr.arguments = arguments;
 							pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-							pushOnAstLengthStack(0);
+							pushOnGenericsLengthStack(0);
 							
 							allocationExpr.type = getTypeReference(0);
 							assistNodeParent = allocationExpr;
@@ -398,7 +398,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_ARRAY_CREATION) {
 					ArrayAllocationExpression allocationExpression = new ArrayAllocationExpression();
-					pushOnAstLengthStack(0);
+					pushOnGenericsLengthStack(0);
 					pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 					allocationExpression.type = getTypeReference(0);
 					int length = expressionLengthStack[expressionLengthPtr];
@@ -563,7 +563,7 @@ private boolean checkClassInstanceCreation() {
 			// qualified allocation expression
 			QualifiedAllocationExpression allocExpr = new QualifiedAllocationExpression();
 			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-			pushOnAstLengthStack(0);
+			pushOnGenericsLengthStack(0);
 			type = getTypeReference(0);
 			allocExpr.type = type;
 			allocExpr.enclosingInstance = this.expressionStack[this.qualifier];
@@ -627,7 +627,7 @@ private boolean checkClassLiteralAccess() {
 			// get the type reference
 			int dims = this.intStack[this.intPtr--];
 			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-			pushOnAstLengthStack(0);
+			pushOnGenericsLengthStack(0);
 
 			TypeReference typeRef = getTypeReference(dims);
 			
@@ -840,7 +840,7 @@ private boolean checkInvocation() {
 				// creates an allocation expression 
 				CompletionOnQualifiedAllocationExpression allocExpr = new CompletionOnQualifiedAllocationExpression();
 				allocExpr.arguments = arguments;
-				pushOnAstLengthStack(0);
+				pushOnGenericsLengthStack(0);
 				pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 				allocExpr.type = super.getTypeReference(0); // we don't want a completion node here, so call super
 				if (invocType == QUALIFIED_ALLOCATION) {
@@ -1070,7 +1070,7 @@ protected void consumeCastExpressionWithNameArray() {
 	int end = intStack[intPtr--];
 	
 	// handle type arguments
-	pushOnAstLengthStack(0);
+	pushOnGenericsLengthStack(0);
 	int dim = intStack[intPtr--];
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 	
@@ -1268,7 +1268,7 @@ protected void consumeEnterVariable() {
 				intPtr--;
 				int dims = intStack[intPtr--];
 				pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
-				pushOnAstLengthStack(0);
+				pushOnGenericsLengthStack(0);
 				TypeReference type = getTypeReference(dims);
 				intPtr--;
 				
