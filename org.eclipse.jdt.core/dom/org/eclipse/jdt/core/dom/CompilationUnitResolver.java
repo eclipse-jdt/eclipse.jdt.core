@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
@@ -190,6 +191,30 @@ class CompilationUnitResolver extends Compiler {
 		// TODO Auto-generated method stub
 		this.parser = createDomParser(this.problemReporter);
 	}
+	/*
+	 * Compiler crash recovery in case of unexpected runtime exceptions
+	 */
+	protected void handleInternalException(
+			Throwable internalException,
+			CompilationUnitDeclaration unit,
+			CompilationResult result) {
+		super.handleInternalException(internalException, unit, result);
+		if (unit != null) {
+			removeUnresolvedBindings(unit);
+		}
+	}
+	
+	/*
+	 * Compiler recovery in case of internal AbortCompilation event
+	 */
+	protected void handleInternalException(
+			AbortCompilation abortException,
+			CompilationUnitDeclaration unit) {
+		super.handleInternalException(abortException, unit);
+		if (unit != null) {
+			removeUnresolvedBindings(unit);
+		}
+	}	
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement)
 		throws JavaModelException {
@@ -316,7 +341,6 @@ class CompilationUnitResolver extends Compiler {
 		
 		return compilationUnitDeclaration;
 	}
-
 	public static CompilationUnitDeclaration resolve(
 		char[] source,
 		String unitName,
@@ -432,6 +456,44 @@ class CompilationUnitResolver extends Compiler {
 			}
 		}
 	}
+	/*
+	 * When unit result is about to be accepted, removed back pointers
+	 * to unresolved bindings
+	 */
+	public void removeUnresolvedBindings(CompilationUnitDeclaration compilationUnitDeclaration) {
+		final org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
+		if (types != null) {
+			for (int i = 0, max = types.length; i < max; i++) {
+				removeUnresolvedBindings(types[i]);
+			}
+		}
+	}
+	private void removeUnresolvedBindings(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration type) {
+		final MemberTypeDeclaration[] memberTypes = type.memberTypes;
+		if (memberTypes != null) {
+			for (int i = 0, max = memberTypes.length; i < max; i++){
+				removeUnresolvedBindings(memberTypes[i]);
+			}
+		}
+		if (type.binding != null && (type.binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+			type.binding = null;
+			final org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = type.fields;
+			if (fields != null) {
+				for (int i = 0, max = fields.length; i < max; i++){
+					fields[i].binding = null;
+				}
+			}
+		}
+
+		final AbstractMethodDeclaration[] methods = type.methods;
+		if (methods != null) {
+			for (int i = 0, max = methods.length; i < max; i++){
+				if (methods[i].binding !=  null && (methods[i].binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+					methods[i].binding = null;
+				}
+			}
+		}
+	}
 
 	/**
 	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
@@ -508,5 +570,86 @@ class CompilationUnitResolver extends Compiler {
 			// environment.
 			// this.reset();
 		}
-	}	
+	}
+	/**
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+				
+		return resolve(
+			null,
+			sourceUnit,
+			verifyMethods,
+			analyzeCode,
+			generateCode);
+	}
+
+	/**
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
+	 */
+	public CompilationUnitDeclaration resolve(
+			CompilationUnitDeclaration unit, 
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+				
+		try {
+			if (unit == null) {
+				// build and record parsed units
+				parseThreshold = 0; // will request a full parse
+				beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { sourceUnit });
+				// process all units (some more could be injected in the loop by the lookup environment)
+				unit = unitsToProcess[0];
+			} else {
+				// initial type binding creation
+				lookupEnvironment.buildTypeBindings(unit);
+
+				// binding resolution
+				lookupEnvironment.completeTypeBindings();
+			}
+			getMethodBodies(unit, 0);
+			if (unit.scope != null) {
+				// fault in fields & methods
+				unit.scope.faultInTypes();
+				if (unit.scope != null && verifyMethods) {
+					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
+ 					// verify inherited methods
+					unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
+				}
+				// type checking
+				unit.resolve();		
+
+				// flow analysis
+				if (analyzeCode) unit.analyseCode();
+		
+				// code generation
+				if (generateCode) unit.generateCode();
+			}
+			if (unitsToProcess != null) unitsToProcess[0] = null; // release reference to processed unit declaration
+			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+			return unit;
+		} catch (AbortCompilation e) {
+			this.handleInternalException(e, unit);
+			return unit == null ? unitsToProcess[0] : unit;
+		} catch (Error e) {
+			this.handleInternalException(e, unit, null);
+			throw e; // rethrow
+		} catch (RuntimeException e) {
+			this.handleInternalException(e, unit, null);
+			throw e; // rethrow
+		} finally {
+			// No reset is performed there anymore since,
+			// within the CodeAssist (or related tools),
+			// the compiler may be called *after* a call
+			// to this resolve(...) method. And such a call
+			// needs to have a compiler with a non-empty
+			// environment.
+			// this.reset();
+		}
+	}
 }

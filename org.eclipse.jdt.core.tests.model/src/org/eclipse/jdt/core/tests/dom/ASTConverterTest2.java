@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0488"));
+		suite.addTest(new ASTConverterTest2("test0489"));
 		return suite;
 	}
 	/**
@@ -2519,5 +2519,20 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		statements = block.statements();
 		assertEquals("Wrong size", 0, statements.size());
 	}	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40804
+	 */
+	public void test0489() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0489", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		assertNull("Got a type binding", typeDeclaration.resolveBinding()); 
+	}
 }
 
