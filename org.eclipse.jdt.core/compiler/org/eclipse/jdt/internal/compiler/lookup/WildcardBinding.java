@@ -178,20 +178,6 @@ public class WildcardBinding extends ReferenceBinding {
         return false;
     }
 
-   /**
-	 * Returns true if the type is an unbound wildcard or equivalent to it <? extends Object>
-	 */
-	public boolean isEquivalentToUnboundWildcard() {
-	    switch (this.kind) {
-	    	case Wildcard.UNBOUND :
-	    		return true;
-	    	case Wildcard.EXTENDS :
-	    		return (this.bound == environment.getType(JAVA_LANG_OBJECT));
-	    	default :
-	    		return false;
-	    }
-	}
-	
     /**
 	 * Returns true if the type is a wildcard
 	 */
