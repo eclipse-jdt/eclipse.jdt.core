@@ -2455,7 +2455,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84055
-	public void _test086() {
+	public void test086() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2471,16 +2471,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n"
 			},
-        "----------\n" + 
-        "1. WARNING in X.java (at line 3)\n" + 
-        "   Short s = (short) _byte; // cast is necessary\n" + 
-        "             ^^^^^^^^^^^^^\n" + 
-        "The expression of type short is boxed into Short\n" + 
-        "----------\n" + 
-        "2. ERROR in X.java (at line 4)\n" + 
-        "   Short s2 = _byte; // ko\n" + 
-        "         ^^\n" + 
-        "Type mismatch: cannot convert from byte to Short\n" + 
-        "----------\n");
+ 		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	Short s = (short) _byte; // cast is necessary\n" + 
+		"	          ^^^^^^^^^^^^^\n" + 
+		"The expression of type short is boxed into Short\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Short s2 = _byte; // ko\n" + 
+		"	      ^^\n" + 
+		"Type mismatch: cannot convert from byte to Short\n" + 
+		"----------\n"
+        );
 	}			
 }
