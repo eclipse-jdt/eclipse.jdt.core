@@ -406,7 +406,7 @@ public final void arrayInitializer(int length) {
 	pushOnExpressionStack(ai);
 	//positionning
 	ai.sourceEnd = endStatementPosition;
-	int searchPosition = length == 0 ? endPosition : ai.expressions[0].sourceStart;
+	int searchPosition = length == 0 ? endPosition + 1 : ai.expressions[0].sourceStart;
 	try {
 		//does not work with comments(that contain '{') nor '{' describes as a unicode....		
 		while (scanner.source[--searchPosition] != '{') {
