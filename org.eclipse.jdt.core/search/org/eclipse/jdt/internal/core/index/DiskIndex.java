@@ -333,7 +333,7 @@ private void initializeFrom(DiskIndex diskIndex, File newIndexFile) throws IOExc
 		throw new IOException("Failed to create temp index " + this.fileName); //$NON-NLS-1$
 	}
 
-	int size = diskIndex.categoryOffsets == null ? 7 : diskIndex.categoryOffsets.elementSize;
+	int size = diskIndex.categoryOffsets == null ? 8 : diskIndex.categoryOffsets.elementSize;
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	this.categoryTables = new HashtableOfObject(size);
 }
@@ -350,6 +350,7 @@ private void mergeCategories(DiskIndex onDisk, int[] positions, DataOutputStream
 	for (int i = 0, l = categoryNames.length; i < l; i++)
 		if (categoryNames[i] != null)
 			mergeCategory(categoryNames[i], onDisk, positions, stream);
+	this.categoryTables = null;
 }
 private void mergeCategory(char[] categoryName, DiskIndex onDisk, int[] positions, DataOutputStream stream) throws IOException {
 	HashtableOfObject wordsToDocs = (HashtableOfObject) this.categoryTables.get(categoryName);
@@ -708,6 +709,7 @@ private void writeCategories(DataOutputStream stream) throws IOException {
 	for (int i = 0, l = categoryNames.length; i < l; i++)
 		if (categoryNames[i] != null)
 			writeCategoryTable(categoryNames[i], (HashtableOfObject) tables[i], stream);
+	this.categoryTables = null;
 }
 private void writeCategoryTable(char[] categoryName, HashtableOfObject wordsToDocs, DataOutputStream stream) throws IOException {
 	// append the file with the document number arrays & remember the offsets
