@@ -58,6 +58,34 @@
 <extension-point name="%classpathVariableInitializersName" id="classpathVariableInitializer"/>
   
 <!-- =================================================================================== -->
+<!-- Extension Point: Resolver of Classpath Container                                    -->
+<!--                                                                                     -->
+<!-- <!ELEMENT containerResolver>                                                        -->
+<!--   <!ATTLIST containerResolver                                                       -->
+<!--    containerPrefix   CDATA #REQUIRED                                                -->
+<!--    class             CDATA #REQUIRED                                                -->
+<!--   >                                                                                 -->
+<!-- where:                                                                              -->
+<!--    - containerPrefix - the prefix of container names for which this resolver will   -->
+<!--              be activated.                                                          -->
+<!--    - class - the class that implements this container resolver.                     --> 
+<!--              The class must implement a public subclass of                          -->
+<!--              org.eclipse.jdt.core.ClasspathContainerResolver with a public          -->
+<!--              0-argument constructor.                                                -->
+<!--                                                                                     -->
+<!-- Example of an ClasspathContainerResolver for a classpath container named "JDK/1.2": -->
+<!-- <extension                                                                          -->
+<!--      point="org.eclipse.jdt.core.containerResolver">                                -->
+<!--    <containerResolver                                                               -->
+<!--         containerPrefix="JDK"                                                       -->
+<!--         class="com.example.MyResolver"/>                                            -->
+<!-- </extension>                                                                        -->
+<!--                                                                                     -->
+<!-- =================================================================================== -->
+
+<extension-point name="%containerResolversName" id="containerResolver"/>
+
+<!-- =================================================================================== -->
 <!-- Extension Point: Formatter of Source Code                                           -->
 <!--                                                                                     -->
 <!-- <!ELEMENT codeFormatter>                                                            -->
@@ -147,7 +175,7 @@
 </extension>
     
 <!-- =================================================================================== -->
-<!-- Extension: Javac Ant Adapter                                                             -->
+<!-- Extension: Javac Ant Adapter                                                        -->
 <!-- =================================================================================== -->
 
 <extension point="org.eclipse.ant.core.antObjects">

@@ -6,7 +6,7 @@ package org.eclipse.jdt.core;
  */
 import org.eclipse.core.runtime.IPath;
 
-/**
+/** TOFIX
  * An entry on a Java project classpath identifying one or more package fragment
  * roots. A classpath entry has a content kind (either source, 
  * <code>K_SOURCE</code>, or binary, <code>K_BINARY</code>) which is inherited
@@ -67,6 +67,7 @@ import org.eclipse.core.runtime.IPath;
  * @see JavaCore#newProjectEntry
  * @see JavaCore#newSourceEntry
  * @see JavaCore#newVariableEntry
+ * @see JavaCore#newContainerEntry
  */
 public interface IClasspathEntry {
 
@@ -97,6 +98,12 @@ public interface IClasspathEntry {
 	public static final int CPE_VARIABLE = 4;
 
 	/**
+	 * Entry kind constant describing a classpath entry representing
+	 * a name classpath container.
+	 */
+	public static final int CPE_CONTAINER = 5;
+
+	/**
 	 * Returns the kind of files found in the package fragments identified by this
 	 * classpath entry.
 	 *
@@ -104,6 +111,7 @@ public interface IClasspathEntry {
 	 *   source code, and <code>IPackageFragmentRoot.K_BINARY</code> for binary
 	 *   class files.
 	 *   There is no specified value for an entry denoting a variable (<code>CPE_VARIABLE</code>)
+	 *   or a classpath container (<code>CPE_CONTAINER</code>).
 	 */
 	int getContentKind();
 
@@ -120,6 +128,9 @@ public interface IClasspathEntry {
 	 *
 	 * <li><code>CPE_VARIABLE</code> - this entry describes a project or library
 	 *  	indirectly via a classpath variable in the first segment of the path
+	 * *
+	 * <li><code>CPE_CONTAINER</code> - this entry describes set of entries
+	 *  	referenced indirectly via a classpath container
 	 * </ul>
 	 */
 	int getEntryKind();

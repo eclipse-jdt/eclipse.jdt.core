@@ -79,7 +79,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Name of the extension point for contributing classpath variable initializers
 	 */
-	protected static final String CPVAR_INIT_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
+	protected static final String CPVARIABLE_INITIALIZER_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$
+
+	/**
+	 * Name of the extension point for contributing classpath container resolvers
+	 */
+	protected static final String CPCONTAINER_RESOLVER_EXTPOINT_ID = "classpathContainerResolver" ; //$NON-NLS-1$
 
 	/**
 	 * Name of the extension point for contributing a source code formatter
@@ -390,7 +395,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Plugin jdtCorePlugin = JavaCore.getPlugin();
 		if (jdtCorePlugin == null) return null;
 
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPVAR_INIT_EXTPOINT_ID);
+		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
@@ -627,6 +632,59 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		return element != null
 			&& markerDelta != null
 			&& element.getHandleIdentifier().equals(markerDelta.getAttribute(ATT_HANDLE_ID));
+	}
+
+	/** TOFIX
+	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
+	 * for the given path. The first segment of the the path is the name of a classpath variable.
+	 * The trailing segments of the path will be appended to resolved variable path.
+	 * <p>
+	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
+	 * depending on what the classpath variable is referring.
+	 * </p>
+	 * <p>
+	 * e.g. Here are some examples of variable path usage<ul>
+	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "c:/jars/jdtcore.jar". The resoved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
+	 *		bound to "/Project_JDTCORE". The resoved classpath entry is denoting the project "/Project_JDTCORE"</li>
+	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
+	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * Note that this operation does not attempt to validate classpath variables
+	 * or access the resources at the given paths.
+	 * </p>
+	 *
+	 * @param variablePath the path of the binary archive; first segment is the
+	 *   name of a classpath variable
+	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
+	 *    or <code>null</code> if none; if present, the first segment is the
+	 *    name of a classpath variable (not necessarily the same variable
+	 *    as the one that begins <code>variablePath</code>)
+	 * @param sourceAttachmentRootPath the location of the root within the source archive
+	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new variable classpath entry
+	 * @since 2.0
+	 */
+	public static IClasspathEntry newContainerEntry(
+		IPath containerID,
+		boolean isExported) {
+			
+		Assert.isTrue(
+			containerID != null && containerID.segmentCount() >= 1,
+			Util.bind("classpath.illegalContainerPath" )); //$NON-NLS-1$
+			
+		return new ClasspathEntry(
+			IPackageFragmentRoot.K_SOURCE,
+			IClasspathEntry.CPE_CONTAINER,
+			containerID,
+			null,
+			null,
+			isExported);
 	}
 
 	/**
