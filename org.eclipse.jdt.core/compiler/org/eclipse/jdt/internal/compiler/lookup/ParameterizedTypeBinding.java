@@ -294,11 +294,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.compoundName = someType.compoundName;
 		this.fPackage = someType.fPackage;
 		this.fileName = someType.fileName;
-		// expect the fields & methods to be initialized correctly later
-		this.superclass = null; // recomputed when needed
-		this.superInterfaces = null;
-		this.fields = null;
-		this.methods = null;		
+		// should not be set yet
+		// this.superclass = null;
+		// this.superInterfaces = null;
+		// this.fields = null;
+		// this.methods = null;		
 		this.modifiers = someType.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
 		if (someArguments != null) {
 			this.arguments = someArguments;
@@ -403,10 +403,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 		if (refTypeVariables == NoTypeVariables) { // check generic
 			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, this.arguments);
-			return type; // TODO (philippe) what do you expect this to be? is it not == resolvedType?
+			return this; // cannot reach here as AbortCompilation is thrown
 		} else if (argLength != refTypeVariables.length) { // check arity
 			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
-			return type;
+			return this; // cannot reach here as AbortCompilation is thrown
 		}			
 		// check argument type compatibility
 		for (int i = 0; i < argLength; i++) {

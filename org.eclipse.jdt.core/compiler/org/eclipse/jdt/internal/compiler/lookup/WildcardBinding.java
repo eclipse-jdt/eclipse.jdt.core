@@ -86,8 +86,9 @@ public class WildcardBinding extends ReferenceBinding {
 		this.bound = someBound;
 		if (someBound != null) {
 			this.fPackage = someBound.getPackage();
-			this.superclass = null; // recomputed when needed
-			this.superInterfaces = null;
+			// should not be set yet
+			// this.superclass = null;
+			// this.superInterfaces = null;
 		}
 	}
 	

@@ -175,7 +175,7 @@ public char[] signature() {
 public abstract char[] sourceName();
 
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
-	// TODO add comment
+	// subclasses must override if they wrap another type binding
 }
 /**
  * Match a well-known type id to its binding
