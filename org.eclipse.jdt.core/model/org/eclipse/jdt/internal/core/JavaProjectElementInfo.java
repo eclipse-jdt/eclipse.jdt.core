@@ -84,7 +84,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		Object[] nonJavaResources = new IResource[5];
 		int nonJavaResourcesCounter = 0;
 		try {
-			IResource[] members = ((IContainer) project.getUnderlyingResource()).members();
+			IResource[] members = ((IContainer) project.getResource()).members();
 			for (int i = 0, max = members.length; i < max; i++) {
 				IResource res = members[i];
 				switch (res.getType()) {

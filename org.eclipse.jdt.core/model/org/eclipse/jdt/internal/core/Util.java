@@ -495,7 +495,7 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 	try {
 		stream = new BufferedInputStream(file.getContents(true));
 	} catch (CoreException e) {
-		throw new JavaModelException(e);
+		throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 	}
 	try {
 		String encoding = JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);

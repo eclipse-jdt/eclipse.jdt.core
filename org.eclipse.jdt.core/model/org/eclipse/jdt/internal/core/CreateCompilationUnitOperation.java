@@ -78,7 +78,7 @@ protected void executeOperation() throws JavaModelException {
 		JavaElementDelta delta = newJavaElementDelta();
 		ICompilationUnit unit = getCompilationUnit();
 		IPackageFragment pkg = (IPackageFragment) getParentElement();
-		IContainer folder = (IContainer) pkg.getUnderlyingResource();
+		IContainer folder = (IContainer) pkg.getResource();
 		worked(1);
 		IFile compilationUnitFile = folder.getFile(new Path(fName));
 		if (compilationUnitFile.exists()) {

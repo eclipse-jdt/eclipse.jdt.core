@@ -167,11 +167,7 @@ public class SearchableEnvironment
 						NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 					return;
 				}
-				excludePath =
-					((IJavaElement) this.unitToSkip)
-						.getUnderlyingResource()
-						.getFullPath()
-						.toString();
+				excludePath = ((IJavaElement) this.unitToSkip).getPath().toString();
 			} else {
 				excludePath = null;
 			}
@@ -234,7 +230,7 @@ public class SearchableEnvironment
 			};
 			try {
 				new SearchEngine().searchAllTypeNames(
-					this.project.getUnderlyingResource().getWorkspace(),
+					this.project.getProject().getWorkspace(),
 					qualification,
 					simpleName,
 					PREFIX_MATCH,

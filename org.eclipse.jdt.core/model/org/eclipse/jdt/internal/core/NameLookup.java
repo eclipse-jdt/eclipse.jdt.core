@@ -273,7 +273,7 @@ public class NameLookup {
 						IClasspathEntry entry = project.getClasspathEntryFor(path);
 						if (entry != null) {
 							IPackageFragmentRoot root =
-								project.getPackageFragmentRoot(project.getUnderlyingResource());
+								project.getPackageFragmentRoot(project.getResource());
 							IPackageFragment[] pkgs = (IPackageFragment[]) fPackageFragments.get(IPackageFragment.DEFAULT_PACKAGE_NAME);
 							if (pkgs == null) {
 								return null;

@@ -158,8 +158,8 @@ public class MatchLocator implements ITypeRequestor {
 public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
 	final IFile file = 
 		compilationUnit.isWorkingCopy() ?
-			(IFile)compilationUnit.getOriginalElement().getUnderlyingResource() :
-			(IFile)compilationUnit.getUnderlyingResource();
+			(IFile)compilationUnit.getOriginalElement().getResource() :
+			(IFile)compilationUnit.getResource();
 	CompilationUnitDeclaration unit = null;
 	
 	// get main type name
@@ -329,7 +329,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 			IPackageFragmentRoot root = (IPackageFragmentRoot)pkg.getParent();
 			try {
 				if (root.isArchive()) {
-					IPath zipPath = root.isExternal() ? root.getPath() : root.getUnderlyingResource().getLocation();
+					IPath zipPath = root.isExternal() ? root.getPath() : root.getResource().getLocation();
 					ZipFile zipFile = null;
 					try {
 						if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -350,10 +350,8 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 						}
 					}
 				} else {
-					return ClassFileReader.read(type.getUnderlyingResource().getLocation().toOSString());
+					return ClassFileReader.read(type.getPath().toOSString());
 				}
-			} catch (JavaModelException e) {
-				return null;
 			} catch (ClassFormatException e) {
 				return null;
 			} catch (IOException e) {
@@ -538,9 +536,9 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 				try {
 					javaProject = (JavaProject) openable.getJavaProject();
 					if (workingCopy != null) {
-						resource = workingCopy.getOriginalElement().getUnderlyingResource();
+						resource = workingCopy.getOriginalElement().getResource();
 					} else {
-						resource = openable.getUnderlyingResource();
+						resource = openable.getResource();
 					}
 					if (resource == null) { // case of a file in an external jar
 						resource = javaProject.getProject();
@@ -648,7 +646,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 							IPackageFragment pkg = (IPackageFragment)pkgs[k];
 							if (pkg.getChildren().length > 0 
 									&& pkgPattern.matchesName(pkgPattern.pkgName, pkg.getElementName().toCharArray())) {
-								IResource resource = pkg.getUnderlyingResource();
+								IResource resource = pkg.getResource();
 								if (resource == null) { // case of a file in an external jar
 									resource = javaProject.getProject();
 								}

@@ -834,7 +834,7 @@ public class JavaProject
 
 		boolean validInfo = false;
 		try {
-			if (((IProject) getUnderlyingResource()).isOpen()) {
+			if (getProject().isOpen()) {
 				// put the info now, because setting the classpath requires it
 				JavaModelManager.getJavaModelManager().putInfo(this, info);
 
@@ -1576,7 +1576,7 @@ public class JavaProject
 	 * @see IJavaElement
 	 */
 	public IResource getUnderlyingResource() throws JavaModelException {
-
+		if (!exists()) throw newNotPresentException();
 		return getProject();
 	}
 

@@ -68,6 +68,7 @@ public ICompilationUnit getCompilationUnit() {
  * @see IJavaElement
  */
 public IResource getCorrespondingResource() throws JavaModelException {
+	if (!exists()) throw newNotPresentException();
 	return null;
 }
 /**
@@ -124,6 +125,7 @@ public ISourceRange getSourceRange() throws JavaModelException {
  * @see IJavaElement
  */
 public IResource getUnderlyingResource() throws JavaModelException {
+	if (!exists()) throw newNotPresentException();
 	return getParent().getUnderlyingResource();
 }
 /**

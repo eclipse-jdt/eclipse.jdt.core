@@ -69,7 +69,7 @@ protected void executeOperation() throws JavaModelException {
 	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
 	String[] names = Signature.getSimpleNames(fName);
 	beginTask(Util.bind("operation.createPackageFragmentProgress"), names.length); //$NON-NLS-1$
-	IContainer parentFolder = (IContainer) root.getUnderlyingResource();
+	IContainer parentFolder = (IContainer) root.getResource();
 	String sideEffectPackageName = ""; //$NON-NLS-1$
 	ArrayList resultElements = new ArrayList(names.length);
 	int i;
@@ -123,20 +123,16 @@ public IJavaModelStatus verify() {
 		return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, root);
 	}
 	String[] names = Signature.getSimpleNames(fName);
-	try {
-		IContainer parentFolder = (IContainer) root.getUnderlyingResource();
-		int i;
-		for (i = 0; i < names.length; i++) {
-			IResource subFolder = parentFolder.findMember(names[i]);
-			if (subFolder != null) {
-				if (subFolder.getType() != IResource.FOLDER) {
-					return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
-				}
-				parentFolder = (IContainer) subFolder;
+	IContainer parentFolder = (IContainer) root.getResource();
+	int i;
+	for (i = 0; i < names.length; i++) {
+		IResource subFolder = parentFolder.findMember(names[i]);
+		if (subFolder != null) {
+			if (subFolder.getType() != IResource.FOLDER) {
+				return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
 			}
+			parentFolder = (IContainer) subFolder;
 		}
-	} catch (JavaModelException npe) {
-		return npe.getJavaModelStatus();
 	}
 	return JavaModelStatus.VERIFIED_OK;
 }

@@ -40,7 +40,7 @@ protected DeleteResourceElementsOperation(IJavaElement[] elementsToProcess, bool
  */
 private void deletePackageFragment(IPackageFragment frag)
 	throws JavaModelException {
-	IResource res = frag.getCorrespondingResource();
+	IResource res = frag.getResource();
 	if (res != null && res.getType() == IResource.FOLDER) {
 		// collect the children to remove
 		IJavaElement[] childrenOfInterest = frag.getChildren();
@@ -101,7 +101,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	switch (element.getElementType()) {
 		case IJavaElement.CLASS_FILE :
 		case IJavaElement.COMPILATION_UNIT :
-			deleteResource(element.getCorrespondingResource(), fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY);
+			deleteResource(element.getResource(), fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT :
 			deletePackageFragment((IPackageFragment) element);

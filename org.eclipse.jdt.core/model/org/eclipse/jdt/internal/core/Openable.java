@@ -68,7 +68,7 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 	// remove existing (old) infos
 	removeInfo();
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getUnderlyingResource()));
+	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getResource()));
 	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
@@ -386,7 +386,7 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 
 		// 2) create the new element info and open a buffer if needed
 		OpenableElementInfo info = createElementInfo();
-		IResource resource = getCorrespondingResource();
+		IResource resource = getResource();
 		if (resource != null && isSourceElement()) {
 			this.openBuffer(pm);
 		} 

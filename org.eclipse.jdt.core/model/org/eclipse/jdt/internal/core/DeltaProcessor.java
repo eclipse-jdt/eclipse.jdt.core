@@ -1147,11 +1147,7 @@ private JavaModelException newInvalidElementType() {
 			if (this.currentElement instanceof IPackageFragmentRoot) {
 				currentElementPath = ((IPackageFragmentRoot)this.currentElement).getPath();
 			} else {
-				IResource currentElementResource = null;
-				try {
-					currentElementResource = this.currentElement.getUnderlyingResource();
-				} catch (JavaModelException e) {
-				}
+				IResource currentElementResource = this.currentElement.getResource();
 				if (currentElementResource != null) {
 					currentElementPath = currentElementResource.getFullPath();
 				}

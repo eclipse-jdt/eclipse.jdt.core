@@ -162,12 +162,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, cu);
 		}
 		ICompilationUnit original= (ICompilationUnit)cu.getOriginalElement();
-		IResource resource= null;
-		try {
-			resource = original.getUnderlyingResource();
-		} catch (JavaModelException e) {
-			return e.getJavaModelStatus();
-		}
+		IResource resource = original.getResource();
 		if (!cu.isBasedOn(resource) && !fForce) {
 			return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 		}

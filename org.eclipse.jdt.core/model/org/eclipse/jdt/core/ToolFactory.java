@@ -161,7 +161,7 @@ public class ToolFactory {
 					}
 					return createDefaultClassFileReader(archiveName, entryName, decodingFlag);
 				} else {
-					return createDefaultClassFileReader(classfile.getCorrespondingResource().getLocation().toOSString(), decodingFlag);
+					return createDefaultClassFileReader(classfile.getPath().toOSString(), decodingFlag);
 				}
 			} catch(CoreException e){
 			}

@@ -99,7 +99,7 @@ public class HierarchyScope extends AbstractSearchScope {
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		for (int i = 0; i < this.types.length; i++) {
 			IType type = this.types[i];
-			IResource resource = type.getUnderlyingResource();
+			IResource resource = type.getResource();
 			if (resource != null && resources.get(resource) == null) {
 				resources.put(resource, resource);
 				add(resource);

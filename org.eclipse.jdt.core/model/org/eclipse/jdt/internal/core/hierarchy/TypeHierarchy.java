@@ -877,7 +877,7 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 				IClasspathEntry[] classpath = ((JavaProject)this.javaProject()).getExpandedClasspath(true);
 				for (int i = 0; i < classpath.length; i++) {
 					if (classpath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT 
-							&& classpath[i].getPath().equals(element.getUnderlyingResource().getFullPath())) {
+							&& classpath[i].getPath().equals(element.getPath())) {
 						return true;
 					}
 				}

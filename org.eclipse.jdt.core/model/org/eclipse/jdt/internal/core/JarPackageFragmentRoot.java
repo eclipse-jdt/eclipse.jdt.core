@@ -554,6 +554,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	 */
 	public IResource getUnderlyingResource() throws JavaModelException {
 		if (fResource == null) {
+			if (!exists()) throw newNotPresentException();
 			return null;
 		} else {
 			return super.getUnderlyingResource();

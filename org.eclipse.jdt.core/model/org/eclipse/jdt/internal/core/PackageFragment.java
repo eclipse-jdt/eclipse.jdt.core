@@ -210,7 +210,7 @@ public Object[] getNonJavaResources() throws JavaModelException {
 		// We don't want to show non java resources of the default package (see PR #1G58NB8)
 		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
 	} else {
-		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getUnderlyingResource());
+		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getResource());
 	}
 }
 /**
@@ -307,6 +307,10 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 	}
 	getJavaModel().move(elements, containers, siblings, renamings, force, monitor);
 }
+protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	if (!this.resourceExists()) throw newNotPresentException();
+	super.openWhenClosed(pm);
+}
 /**
  * Recomputes the children of this element, based on the current state
  * of the workbench.
@@ -314,7 +318,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 public void refreshChildren() {
 	try {
 		OpenableElementInfo info= (OpenableElementInfo)getElementInfo();
-		computeChildren(info, getUnderlyingResource());
+		computeChildren(info, getResource());
 	} catch (JavaModelException e) {
 		// do nothing.
 	}

@@ -417,6 +417,11 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	}
 	return null;
 }
+protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	IResource resource = this.getResource();
+	if (resource != null && !resource.isAccessible()) throw newNotPresentException();
+	super.openWhenClosed(pm);
+}
 /*
  * @see JavaElement#rootedAt(IJavaProject)
  */

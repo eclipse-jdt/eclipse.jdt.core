@@ -499,7 +499,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 }
 protected void updateTimeStamp(CompilationUnit original) throws JavaModelException {
 	long timeStamp =
-		((IFile) original.getUnderlyingResource()).getModificationStamp();
+		((IFile) original.getResource()).getModificationStamp();
 	if (timeStamp == IResource.NULL_STAMP) {
 		throw new JavaModelException(
 			new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));

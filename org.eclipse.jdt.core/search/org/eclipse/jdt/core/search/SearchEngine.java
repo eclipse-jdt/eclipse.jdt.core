@@ -258,18 +258,18 @@ public static IJavaSearchScope createWorkspaceScope() {
 /**
  * Returns the underlying resource of the given element.
  */
-private IResource getResource(IJavaElement element) throws JavaModelException {
+private IResource getResource(IJavaElement element) {
 	if (element instanceof IMember) {
 		ICompilationUnit cu = ((IMember)element).getCompilationUnit();
 		if (cu != null) {
 			if (cu.isWorkingCopy()) {
-				return cu.getOriginalElement().getUnderlyingResource();
+				return cu.getOriginalElement().getResource();
 			} else {
-				return cu.getUnderlyingResource();
+				return cu.getResource();
 			}
 		} 
 	} 
-	return element.getUnderlyingResource();
+	return element.getResource();
 }
 /**
  * Returns the list of working copies used to do the search on the given java element.

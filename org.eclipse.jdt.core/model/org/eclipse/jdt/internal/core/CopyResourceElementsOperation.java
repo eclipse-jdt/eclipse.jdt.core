@@ -99,7 +99,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 		for (int i = 0; i < children.length; i++) {
 			IJavaElement child = children[i];
 			if (child.getElementType() == childOfInterest) {
-				correctKindChildren.add(child.getUnderlyingResource());
+				correctKindChildren.add(child.getResource());
 			}
 		}
 		// Gather non-java resources
@@ -129,7 +129,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 	 * Creates any destination package fragment(s) which do not exists yet.
 	 */
 	private void createNeededPackageFragments(IPackageFragmentRoot root, String newFragName, boolean moveFolder) throws JavaModelException {
-		IContainer parentFolder = (IContainer) root.getUnderlyingResource();
+		IContainer parentFolder = (IContainer) root.getResource();
 		JavaElementDelta projectDelta = getDeltaFor(root.getJavaProject());
 		String[] names = Signature.getSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
@@ -209,8 +209,8 @@ public class CopyResourceElementsOperation extends MultiOperation {
 		String newContent = updatedContent(source, dest, newCUName); // null if unchanged
 	
 		// copy resource
-		IFile sourceResource = (IFile)(source.isWorkingCopy() ? source.getOriginalElement() : source).getCorrespondingResource();
-		IContainer destFolder = (IContainer)dest.getCorrespondingResource(); // can be an IFolder or an IProject
+		IFile sourceResource = (IFile)(source.isWorkingCopy() ? source.getOriginalElement() : source).getResource();
+		IContainer destFolder = (IContainer)dest.getResource(); // can be an IFolder or an IProject
 		IFile destFile = destFolder.getFile(new Path(destName));
 		if (!destFile.equals(sourceResource)) {
 			try {
@@ -374,7 +374,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 				// process the leaf resources
 				if (resources.length > 0) {
 					if (isRename()) {
-						if (! destPath.equals(source.getUnderlyingResource().getFullPath())) {
+						if (! destPath.equals(source.getPath())) {
 							moveResources(resources, destPath);
 						}
 					} else if (isMove()) {

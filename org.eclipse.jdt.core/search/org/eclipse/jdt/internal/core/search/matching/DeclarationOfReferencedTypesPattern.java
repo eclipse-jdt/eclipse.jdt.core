@@ -114,7 +114,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocator locator) throws CoreException {
 	IType type = locator.lookupType(typeBinding);
 	if (type == null) return; // case of a secondary type
-	IResource resource = type.getUnderlyingResource();
+	IResource resource = type.getResource();
 	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
 	if (isBinary) {

@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -256,18 +255,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	Openable focusCU = (Openable)focusType.getCompilationUnit();
 	String focusPath = null;
 	if (focusCU != null) {
-		try {
-			IResource underlyingResource;
-			if (focusCU instanceof WorkingCopy) {
-				underlyingResource = ((WorkingCopy)focusCU).getOriginalElement().getUnderlyingResource();
-			} else {
-				underlyingResource = focusCU.getUnderlyingResource();
-			}
-			focusPath = underlyingResource.getFullPath().toString();
-		} catch (JavaModelException e) {
-			// type does not exist
-			return;
-		}
+		focusPath = focusCU.getPath().toString();
 		if (length > 0) {
 			System.arraycopy(allPotentialSubTypes, 0, allPotentialSubTypes = new String[length+1], 0, length);
 			allPotentialSubTypes[length] = focusPath;	

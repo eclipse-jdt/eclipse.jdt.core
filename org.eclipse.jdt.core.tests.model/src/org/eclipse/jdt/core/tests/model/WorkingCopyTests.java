@@ -781,9 +781,6 @@ public void testNonExistingCU() throws JavaModelException {
 		// getResource()
 		assertEquals("Unexpected resource", null, ((IJavaElement)copy).getResource());
 		
-		// isBasedOn()
-		assertTrue("Working copy should not be based on original resource", !copy.isBasedOn(cu.getResource()));
-		
 		// isConsistent()
 		assertTrue("Working copy should be consistent", ((IOpenable)copy).isConsistent());
 		
@@ -815,6 +812,10 @@ public void testNonExistingCU() throws JavaModelException {
 		// commit()
 		copy.commit(false, null);
 		assertTrue("Original cu should exist", cu.exists());
+
+		// isBasedOn()
+		assertTrue("Working copy should not be based on original resource", !copy.isBasedOn(cu.getResource()));
+		
 	} finally {
 		if (copy != null) {
 			copy.destroy();

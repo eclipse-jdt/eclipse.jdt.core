@@ -111,7 +111,7 @@ public void add(IJavaElement element) throws JavaModelException {
 			if (root.isArchive()) {
 				this.add(root.getPath().append(new Path(element.getElementName().replace('.', '/'))), false);
 			} else {
-				IResource resource = element.getUnderlyingResource();
+				IResource resource = element.getResource();
 				if (resource != null && resource.isAccessible()) {
 					this.add(resource.getFullPath(), false);
 				}

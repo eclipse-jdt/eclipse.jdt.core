@@ -93,7 +93,7 @@ private void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator) 
 	IField field = type.getField(new String(name));
 	if (this.knownFields.contains(field)) return;
 	this.knownFields.add(field);
-	IResource resource = type.getUnderlyingResource();
+	IResource resource = type.getResource();
 	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
 	if (isBinary) {

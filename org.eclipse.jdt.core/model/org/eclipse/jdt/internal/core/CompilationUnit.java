@@ -81,7 +81,7 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 	removeInfo();
 
 	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getUnderlyingResource()));
+	info.setIsStructureKnown(generateInfos(info, monitor, newElements, getResource()));
 	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
 		IJavaElement key = (IJavaElement) iter.next();
@@ -330,17 +330,8 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		parser.parseCompilationUnit(this, false);
 		if (isWorkingCopy()) {
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
-			try {
-				unitInfo.fTimestamp = ((IFile) original.getUnderlyingResource()).getModificationStamp();
-				if(unitInfo.fTimestamp == IResource.NULL_STAMP){
-					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
-				}
-			} catch (JavaModelException e) {
-				// if original element does not exit, ignore
-				if (!e.getJavaModelStatus().isDoesNotExist()) {
-					throw e;
-				}
-			}
+			// might be IResource.NULL_STAMP if original does not exist
+			unitInfo.fTimestamp = ((IFile) original.getResource()).getModificationStamp();
 		}
 		return unitInfo.isStructureKnown();
 	}

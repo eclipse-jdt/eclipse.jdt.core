@@ -201,7 +201,7 @@ public int getKind() throws JavaModelException {
  * Returns an array of non-java resources contained in the receiver.
  */
 public Object[] getNonJavaResources() throws JavaModelException {
-	return ((PackageFragmentRootInfo) getElementInfo()).getNonJavaResources(getJavaProject(), getUnderlyingResource());
+	return ((PackageFragmentRootInfo) getElementInfo()).getNonJavaResources(getJavaProject(), getResource());
 }
 /**
  * @see IPackageFragmentRoot
@@ -296,12 +296,8 @@ public IPath getSourceAttachmentRootPath() throws JavaModelException {
  * @see IJavaElement
  */
 public IResource getUnderlyingResource() throws JavaModelException {
-	if (fResource.exists()) {
-		return fResource;
-	} else {
-		throw newNotPresentException();
-	}
-	
+	if (!exists()) throw newNotPresentException();
+	return fResource;
 }
 public int hashCode() {
 	return fResource.hashCode();

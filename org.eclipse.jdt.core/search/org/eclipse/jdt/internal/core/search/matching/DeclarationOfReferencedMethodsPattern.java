@@ -80,7 +80,7 @@ private void reportDeclaration(MethodBinding methodBinding, MatchLocator locator
 	IMethod method = type.getMethod(new String(selector), parameterTypes);
 	if (this.knownMethods.contains(method)) return;
 	this.knownMethods.add(method);
-	IResource resource = type.getUnderlyingResource();
+	IResource resource = type.getResource();
 	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
 	if (isBinary) {
