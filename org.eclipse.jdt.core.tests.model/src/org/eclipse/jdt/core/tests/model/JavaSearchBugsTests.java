@@ -50,7 +50,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug80264";
+//		TESTS_PREFIX =  "testBug70827";
 //		TESTS_NAMES = new String[] { "testBug70827" };
 //		TESTS_NUMBERS = new int[] { 83693 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -149,6 +149,54 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(method, REFERENCES);
 		assertSearchResults(
 			""
+		);
+	}
+	public void testBug70827_NotFixed() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b70827/not/fixed/ConditionalFlowInfo.java",
+			"package b70827.not.fixed;\n" + 
+			"public class ConditionalFlowInfo extends FlowInfo {\n" + 
+			"	public FlowInfo info;\n" + 
+			"	ConditionalFlowInfo(FlowInfo info){\n" + 
+			"		this.info = info;\n" + 
+			"	}\n" + 
+			"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
+			"		info.markAsDefinitelyNull(field);\n" + 
+			"	}\n" + 
+			"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
+			"		info.markAsDefinitelyNull(local);\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b70827/not/fixed/FlowInfo.java",
+			"package b70827.not.fixed;\n" + 
+			"\n" + 
+			"class FieldBinding {\n" + 
+			"	int id;\n" + 
+			"}\n" + 
+			"class LocalVariableBinding extends FieldBinding {}\n" + 
+			"\n" + 
+			"public abstract class FlowInfo {\n" + 
+			"	abstract public void markAsDefinitelyNull(LocalVariableBinding local);\n" + 
+			"	abstract public void markAsDefinitelyNull(FieldBinding field);\n" + 
+			"}\n"
+			);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b70827/not/fixed/UnconditionalFlowInfo.java",
+			"package b70827.not.fixed;\n" + 
+			"public class UnconditionalFlowInfo extends FlowInfo {\n" + 
+			"	final private void markAsDefinitelyNull(int position) {}\n" + 
+			"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
+			"		markAsDefinitelyNull(field.id);\n" + 
+			"	}\n" + 
+			"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
+			"		markAsDefinitelyNull(local.id + 1);\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IType type = workingCopies[2].getType("UnconditionalFlowInfo");
+		search(type.getMethods()[2], REFERENCES);
+		assertSearchResults(
+			"src/b70827/not/fixed/ConditionalFlowInfo.java void b70827.not.fixed.ConditionalFlowInfo.markAsDefinitelyNull(LocalVariableBinding) [markAsDefinitelyNull(local)] EXACT_MATCH"
 		);
 	}
 
