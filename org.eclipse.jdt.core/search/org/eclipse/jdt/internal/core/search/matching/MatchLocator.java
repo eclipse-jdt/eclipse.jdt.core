@@ -346,32 +346,32 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 	int argCount = arguments == null ? 0 : arguments.length;
 	if (type.isBinary()) {
 		// don't cache the methods of the binary type
+		// fall thru if its a constructor with a synthetic argument... find it the slower way
 		ClassFileReader reader = classFileReader(type);
-		if (reader == null) return null;
-
-		IBinaryMethod[] methods = reader.getMethods();
-		if (methods != null) {
-			nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
-				IBinaryMethod binaryMethod = methods[i];
-				char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
-				if (CharOperation.equals(selector, method.selector)) {
-					char[][] parameterTypes = Signature.getParameterTypes(binaryMethod.getMethodDescriptor());
-					if (argCount != parameterTypes.length) continue nextMethod;
-					for (int j = 0; j < argCount; j++) {
-						TypeReference typeRef = arguments[j].type;
-						char[] typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
-						for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
-							typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
-						char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
-						if (!CharOperation.endsWith(Signature.toCharArray(parameterTypeName), typeName))
-							continue nextMethod;
-						parameterTypes[j] = parameterTypeName;
+		if (reader != null) {
+			IBinaryMethod[] methods = reader.getMethods();
+			if (methods != null) {
+				nextMethod : for (int i = 0, methodsLength = methods.length; i < methodsLength; i++) {
+					IBinaryMethod binaryMethod = methods[i];
+					char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
+					if (CharOperation.equals(selector, method.selector)) {
+						char[][] parameterTypes = Signature.getParameterTypes(binaryMethod.getMethodDescriptor());
+						if (argCount != parameterTypes.length) continue nextMethod;
+						for (int j = 0; j < argCount; j++) {
+							TypeReference typeRef = arguments[j].type;
+							char[] typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+							for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
+								typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+							char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
+							if (!CharOperation.endsWith(Signature.toCharArray(parameterTypeName), typeName))
+								continue nextMethod;
+							parameterTypes[j] = parameterTypeName;
+						}
+						return type.getMethod(new String(selector), CharOperation.toStrings(parameterTypes));
 					}
-					return type.getMethod(new String(selector), CharOperation.toStrings(parameterTypes));
 				}
 			}
 		}
-		return null;
 	}
 
 	String[] parameterTypeSignatures = new String[argCount];
@@ -382,7 +382,9 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 			typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 		parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 	}
-	return type.getMethod(new String(method.selector), parameterTypeSignatures);
+	IMethod handle = type.getMethod(new String(method.selector), parameterTypeSignatures);
+	if (type.isBinary() && !handle.exists()) return null; // element doesn't exist in the .class file
+	return handle;
 }
 /**
  * Creates an IField from the given field declaration and type. 
@@ -900,7 +902,7 @@ protected void reduceParseTree(CompilationUnitDeclaration unit) {
 		purgeMethodStatements(types[i], true);
 }
 protected void report(int sourceStart, int sourceEnd, IJavaElement element, int accuracy) throws CoreException {
-	if (this.scope.encloses(element)) {
+	if (element != null && this.scope.encloses(element)) {
 		if (SearchEngine.VERBOSE) {
 			IResource res = this.currentPossibleMatch.resource;
 			System.out.println("Reporting match"); //$NON-NLS-1$
@@ -921,6 +923,9 @@ protected void report(IResource resource, int sourceStart, int sourceEnd, IJavaE
 	this.collector.accept(resource, sourceStart, sourceEnd + 1, element, accuracy);
 	if (SearchEngine.VERBOSE)
 		this.resultCollectorTime += System.currentTimeMillis()-start;
+}
+protected void report(long start, long end, IJavaElement element, int accuracy) throws CoreException {
+	report((int) (start >> 32), (int) (end & 0xFFFFF), element, accuracy); // extract the start and end from the encoded long positions
 }
 /**
  * Finds the accurate positions of the sequence of tokens given by qualifiedName
@@ -984,6 +989,34 @@ protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] 
 		}
 	} while (token != TerminalTokens.TokenNameEOF);
 
+}/**
+ * Finds the accurate positions of the sequence of tokens given by qualifiedName
+ * in the source and reports a reference to this this qualified name
+ * to the search requestor.
+ */
+protected void reportAccurateReference(int sourceStart, int sourceEnd, char[] name, IJavaElement element, int accuracy) throws CoreException {
+	if (accuracy == -1) return;
+
+	// compute source positions of the qualified reference 
+	Scanner scanner = this.parser.scanner;
+	scanner.setSource(this.currentPossibleMatch.getContents());
+	scanner.resetTo(sourceStart, sourceEnd);
+
+	int token = -1;
+	int currentPosition;
+	do {
+		currentPosition = scanner.currentPosition;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			// ignore
+		}
+		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
+			report(currentPosition, scanner.currentPosition - 1, element, accuracy);
+			return;
+		}
+	} while (token != TerminalTokens.TokenNameEOF);
+	report(sourceStart, sourceEnd, element, accuracy);
 }
 /**
  * Finds the accurate positions of each valid token in the source and

@@ -51,15 +51,8 @@ boolean checkParameters(char[] methodDescriptor, char[][] parameterSimpleNames, 
 }
 boolean checkTypeName(char[] simpleName, char[] qualification, char[] fullyQualifiedTypeName, boolean isCaseSensitive) {
 	// NOTE: if case insensitive then simpleName & qualification are assumed to be lowercase
-	char[] wildcardPattern;
-	if (simpleName == null) {
-		if (qualification == null) return true;
-		wildcardPattern = CharOperation.concat(qualification, ONE_STAR, '.');
-	} else {
-		wildcardPattern = qualification == null
-			? CharOperation.concat(ONE_STAR, simpleName)
-			: CharOperation.concat(qualification, simpleName, '.');
-	}
+	char[] wildcardPattern = PatternLocator.qualifiedPattern(simpleName, qualification);
+	if (wildcardPattern == null) return true;
 	return CharOperation.match(wildcardPattern, fullyQualifiedTypeName, isCaseSensitive);
 }
 /**

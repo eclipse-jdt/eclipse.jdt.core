@@ -164,7 +164,12 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				reportDeclaration((FieldBinding)((SingleNameReference) reference).binding, locator, declPattern.knownFields);
 			}
 		}
-	} else if (this.pattern.findReferences && reference instanceof QualifiedNameReference) {
+	} else if (reference instanceof FieldReference) {
+		long position = ((FieldReference) reference).nameSourcePosition;
+		locator.report(position, position, element, accuracy);
+	} else if (reference instanceof SingleNameReference) {
+		locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
+	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		int length = qNameRef.tokens.length;
 		int[] accuracies = new int[length];
@@ -215,19 +220,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				accuracies[i] = -1;
 			}
 		}
-		locator.reportAccurateReference(
-			reference.sourceStart, 
-			reference.sourceEnd, 
-			qNameRef.tokens, 
-			element, 
-			accuracies);
-	} else {
-		locator.reportAccurateReference(
-			reference.sourceStart, 
-			reference.sourceEnd, 
-			new char[][] {this.pattern.name}, 
-			element, 
-			accuracy);
+		locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, qNameRef.tokens, element, accuracies);
 	}
 }
 protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator, SimpleSet knownFields) throws CoreException {

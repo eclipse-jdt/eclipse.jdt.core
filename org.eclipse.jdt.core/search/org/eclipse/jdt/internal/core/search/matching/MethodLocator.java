@@ -193,9 +193,12 @@ public int resolveLevel(Binding binding) {
 	if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
 
 	// declaring type
+	char[] qualifiedPattern = qualifiedPattern(this.pattern.declaringSimpleName, this.pattern.declaringQualification);
+	if (qualifiedPattern == null) return methodLevel; // since any declaring class will do
+
 	int declaringLevel = !method.isStatic() && !method.isPrivate()
-		? resolveLevelAsSubtype(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.declaringClass)
-		: resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.declaringClass);
+		? resolveLevelAsSubtype(qualifiedPattern, method.declaringClass)
+		: resolveLevelForType(qualifiedPattern, method.declaringClass);
 	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match
 }
 protected int resolveLevel(MessageSend messageSend) {
@@ -206,9 +209,12 @@ protected int resolveLevel(MessageSend messageSend) {
 	if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
 
 	// receiver type
+	char[] qualifiedPattern = qualifiedPattern(this.pattern.declaringSimpleName, this.pattern.declaringQualification);
+	if (qualifiedPattern == null) return methodLevel; // since any declaring class will do
+
 	int declaringLevel;
 	if (isVirtualInvoke(method, messageSend) && !(messageSend.receiverType instanceof ArrayBinding)) {
-		declaringLevel = resolveLevelAsSubtype(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.declaringClass);
+		declaringLevel = resolveLevelAsSubtype(qualifiedPattern, method.declaringClass);
 		if (declaringLevel == IMPOSSIBLE_MATCH) {
 			if (method.declaringClass == null || this.pattern.allSuperDeclaringTypeNames == null) {
 				declaringLevel = INACCURATE_MATCH;
@@ -220,26 +226,26 @@ protected int resolveLevel(MessageSend messageSend) {
 			}
 		}
 	} else {
-		declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.declaringClass);
+		declaringLevel = resolveLevelForType(qualifiedPattern, method.declaringClass);
 	}
 	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match
 }
 /**
  * Returns whether the given reference type binding matches or is a subtype of a type
- * that matches the given simple name pattern and qualification pattern.
+ * that matches the given qualified pattern.
  * Returns ACCURATE_MATCH if it does.
  * Returns INACCURATE_MATCH if resolve fails
  * Returns IMPOSSIBLE_MATCH if it doesn't.
  */
-protected int resolveLevelAsSubtype(char[] simpleNamePattern, char[] qualificationPattern, ReferenceBinding type) {
+protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding type) {
 	if (type == null) return INACCURATE_MATCH;
 
-	int level = resolveLevelForType(simpleNamePattern, qualificationPattern, type);
+	int level = resolveLevelForType(qualifiedPattern, type);
 	if (level != IMPOSSIBLE_MATCH) return level;
 
 	// matches superclass
 	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
-		level = resolveLevelAsSubtype(simpleNamePattern, qualificationPattern, type.superclass());
+		level = resolveLevelAsSubtype(qualifiedPattern, type.superclass());
 		if (level != IMPOSSIBLE_MATCH) return level;
 	}
 
@@ -247,7 +253,7 @@ protected int resolveLevelAsSubtype(char[] simpleNamePattern, char[] qualificati
 	ReferenceBinding[] interfaces = type.superInterfaces();
 	if (interfaces == null) return INACCURATE_MATCH;
 	for (int i = 0; i < interfaces.length; i++) {
-		level = resolveLevelAsSubtype(simpleNamePattern, qualificationPattern, interfaces[i]);
+		level = resolveLevelAsSubtype(qualifiedPattern, interfaces[i]);
 		if (level != IMPOSSIBLE_MATCH) return level;
 	}
 	return IMPOSSIBLE_MATCH;
