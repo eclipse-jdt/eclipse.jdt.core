@@ -107,6 +107,9 @@ public static Test suite() {
 	// Exclusion patterns tests
 	suite.addTest(ExclusionPatternsTests.suite());
 	
+	// Signature tests
+	suite.addTest(SignatureTests.suite());
+
 	return suite;
 }
 

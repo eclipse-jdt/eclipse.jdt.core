@@ -431,7 +431,7 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
  */
 public static char[] createCharArrayTypeSignature(char[] typeName, boolean isResolved) {
 
-	if (typeName == null) throw new IllegalArgumentException(new String(typeName));
+	if (typeName == null) throw new IllegalArgumentException("null"); //$NON-NLS-1$
 	int length = typeName.length;
 	if (length == 0) throw new IllegalArgumentException(new String(typeName));
 
@@ -596,7 +596,7 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
  * @return the encoded type signature
  */
 public static String createTypeSignature(String typeName, boolean isResolved) {
-	return createTypeSignature(typeName.toCharArray(), isResolved);
+	return createTypeSignature(typeName == null ? null : typeName.toCharArray(), isResolved);
 }
 /**
  * Returns the array count (array nesting depth) of the given type signature.
