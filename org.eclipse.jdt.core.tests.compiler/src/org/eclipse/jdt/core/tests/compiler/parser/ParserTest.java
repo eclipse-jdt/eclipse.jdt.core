@@ -408,7 +408,7 @@ public void test018() {
 	);
 }
 /*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=21187
  */
 public void test019() {
 	this.runNegativeTest(
@@ -431,6 +431,45 @@ public void test019() {
 		"	foo[0] = \n" + 
 		"	       ^\n" + 
 		"Syntax error, insert \";\" to complete Statement\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=38895
+ */
+public void test020() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	}\n" + 
+			"	public static int newLibraryEntry() {\n" + 
+			
+			"		if (sourceAttachmentPath != null) {\n" + 
+			"			if (sourceAttachmentPath.isEmpty()) { && !\n" + 
+			"sourceAttachmentPath.isAbsolute()) {\n" + 
+			"			foo();\n" + 
+			"		}\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	}\n" + 
+			"	public void foo() {\n" + 
+			"	}\n" + 
+			"	public void bar() {\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (sourceAttachmentPath.isEmpty()) { && !\n" + 
+		"	                                      ^^\n" + 
+		"Syntax error on token \"&&\", invalid (\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	sourceAttachmentPath.isAbsolute()) {\n" + 
+		"	                                   ^\n" + 
+		"Syntax error on token \"{\", invalid AssignmentOperator\n" + 
 		"----------\n"
 	);
 }
