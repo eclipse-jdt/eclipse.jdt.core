@@ -1,5 +1,6 @@
 package testUTF8;
 /**
+ * Some sentences using characters over 127:
  * <B>Farsi / Persian</B>: .من می توانم بدون احساس درد شيشه بخورم 
  * <B>Russian:</B> В чащах юга жил-был цитру? Да, но фальшивый кземплр! 
  * <B>Hungarian:</B> rvíztűrő tükörfúrógép. 
