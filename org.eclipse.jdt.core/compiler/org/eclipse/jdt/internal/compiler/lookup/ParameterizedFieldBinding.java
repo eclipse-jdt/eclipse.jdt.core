@@ -30,6 +30,7 @@ public class ParameterizedFieldBinding extends FieldBinding {
 	            parameterizedDeclaringClass, 
 	            null);
 	    this.originalField = originalField;
+	    this.id = originalField.id;
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.VariableBinding#constant()

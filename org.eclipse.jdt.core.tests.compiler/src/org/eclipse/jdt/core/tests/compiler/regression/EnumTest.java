@@ -1795,5 +1795,25 @@ public class EnumTest extends AbstractComparableTest {
 			"	     ^^^\n" + 
 			"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" + 
 			"----------\n");
-	}				
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=81945
+	 */
+	public void test063() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"  enum Option { ALPHA, BRAVO  };\n" + 
+				"  void method1(Option item) {\n" + 
+				"    switch (item) {\n" + 
+				"    case ALPHA:      break;\n" + 
+				"    case BRAVO:      break;\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"");
+	}			
 }
