@@ -2127,7 +2127,7 @@ private void initializeForBlockStatements() {
 	}
 }
 public void initializeScanner(){
-	this.scanner = new CompletionScanner(this.assertMode);
+	this.scanner = new CompletionScanner(this.sourceLevel);
 }
 /**
  * Returns whether the completion is just after an array type

@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.ICodeFormatter;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.impl.FormatterOptions;
@@ -144,12 +145,12 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 	 */
 	public CodeFormatter(Map settings) {
 		// initialize primary and secondary scanners
-		scanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); // regular scanner for forming lines
+		scanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); // regular scanner for forming lines
 		// to record positions of the beginning of lines.
 		scanner.recordLineSeparator = true;
 
 		// secondary scanner to split long lines formed by primary scanning
-		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
+		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/);
 
 		this.options = new FormatterOptions(settings);
 	}

@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ISearchPattern;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -76,7 +77,7 @@ public SearchPattern(int matchMode, boolean isCaseSensitive) {
  */
 private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/);
 	scanner.setSource(patternString.toCharArray());
 	final int InsideName = 1;
 	final int InsideParameter = 2;
@@ -246,7 +247,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
  */
 private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
@@ -437,7 +438,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
  */
 private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	final int InsideSelector = 1;
 	final int InsideParameter = 2;
@@ -1038,7 +1039,7 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
  */
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	String type = null;
 	int token;

@@ -163,25 +163,8 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public static final int BracketKinds = 3;
 
 public PublicScanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null/*taskTag*/, null/*taskPriorities*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/);
 }
-public PublicScanner(
-	boolean tokenizeComments, 
-	boolean tokenizeWhiteSpace, 
-	boolean checkNonExternalizedStringLiterals, 
-	boolean assertMode,
-	char[][] taskTags,
-	char[][] taskPriorities) {
-		
-	initialize(
-		tokenizeComments,
-		tokenizeWhiteSpace,
-		checkNonExternalizedStringLiterals,
-		assertMode,
-		taskTags,
-		taskPriorities);
-}
-
 public PublicScanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 

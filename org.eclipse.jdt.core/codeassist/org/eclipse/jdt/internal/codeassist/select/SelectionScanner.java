@@ -29,8 +29,8 @@ public class SelectionScanner extends Scanner {
  *
  */
  
-public SelectionScanner(boolean assertMode) {
-	super(false /*comment*/, false /*whitespace*/, false /*nls*/, assertMode /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
+public SelectionScanner(long sourceLevel) {
+	super(false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, null /*taskTags*/, null/*taskPriorities*/);
 }
 
 public char[] getCurrentIdentifierSource() {

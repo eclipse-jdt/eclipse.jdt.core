@@ -167,23 +167,7 @@ public class Scanner implements TerminalTokens {
 	public static final int BracketKinds = 3;
 
 public Scanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null/*taskTag*/, null/*taskPriorities*/);
-}
-public Scanner(
-	boolean tokenizeComments, 
-	boolean tokenizeWhiteSpace, 
-	boolean checkNonExternalizedStringLiterals, 
-	boolean assertMode,
-	char[][] taskTags,
-	char[][] taskPriorities) {
-		
-	initialize(
-		tokenizeComments,
-		tokenizeWhiteSpace,
-		checkNonExternalizedStringLiterals,
-		assertMode,
-		taskTags,
-		taskPriorities);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/);
 }
 
 public Scanner(

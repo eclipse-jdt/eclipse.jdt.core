@@ -38,12 +38,12 @@ public class CompletionScanner extends Scanner {
 	public int completedIdentifierEnd = -1;
 
 	public static final char[] EmptyCompletionIdentifier = {};
-public CompletionScanner(boolean assertMode) {
+public CompletionScanner(long sourceLevel) {
 	super(
 		false /*comment*/, 
 		false /*whitespace*/, 
 		false /*nls*/, 
-		assertMode /*assert*/, 
+		sourceLevel, 
 		null /*taskTags*/, 
 		null/*taskPriorities*/);
 }

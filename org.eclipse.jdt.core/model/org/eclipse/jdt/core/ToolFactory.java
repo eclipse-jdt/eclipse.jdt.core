@@ -261,7 +261,7 @@ public class ToolFactory {
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator){
 
-		PublicScanner scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode /*assert*/, null/*taskTags*/, null/*taskPriorities*/);
+		PublicScanner scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}

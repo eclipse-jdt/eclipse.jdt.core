@@ -48,8 +48,8 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int lastIgnoredToken, nextIgnoredToken;
 	protected int lastErrorEndPosition;
 		
-	// 1.4 feature
-	protected boolean assertMode = false;
+	// assert is 1.4 feature only
+	protected long sourceLevel;
 	
 	//internal data for the automat 
 	protected final static int StackIncrement = 255;
@@ -377,7 +377,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals, l
 		
 	this.problemReporter = problemReporter;
 	this.optimizeStringLiterals = optimizeStringLiterals;
-	this.assertMode = sourceLevel >= CompilerOptions.JDK1_4;
+	this.sourceLevel = sourceLevel;
 	this.initializeScanner();
 	astLengthStack = new int[50];
 	expressionLengthStack = new int[30];
@@ -6602,7 +6602,7 @@ public void initializeScanner(){
 		false /*comment*/, 
 		false /*whitespace*/, 
 		options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
-		this.assertMode /*assert*/, 
+		this.sourceLevel /*sourceLevel*/, 
 		options.taskTags/*taskTags*/,
 		options.taskPriorites/*taskPriorities*/);
 }

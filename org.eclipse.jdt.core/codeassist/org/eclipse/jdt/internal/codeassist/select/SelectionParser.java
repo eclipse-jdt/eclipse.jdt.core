@@ -622,7 +622,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	return reference;
 }
 public void initializeScanner(){
-	this.scanner = new SelectionScanner(this.assertMode);
+	this.scanner = new SelectionScanner(this.sourceLevel);
 }
 protected MessageSend newMessageSend() {
 	// '(' ArgumentListopt ')'
