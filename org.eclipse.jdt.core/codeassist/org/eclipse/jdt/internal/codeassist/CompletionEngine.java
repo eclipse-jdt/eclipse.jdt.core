@@ -2991,12 +2991,17 @@ public final class CompletionEngine
 			currentScope = currentScope.parent;
 		}
 
+		staticsOnly = false;
 		currentScope = scope;
 
 		done2 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (currentScope.kind) {
-
+				case Scope.METHOD_SCOPE :
+					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
+					MethodScope methodScope = (MethodScope) currentScope;
+					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+					break;
 				case Scope.CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) currentScope;
 					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
