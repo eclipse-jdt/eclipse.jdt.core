@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 public class ReconcilerTests extends ModifyingResourceTests {
 	
+	protected ICompilationUnit cu;
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
 	
@@ -33,7 +34,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 				problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
 				problems.append(" in " + new String(problem.getOriginatingFileName()));
 				try {
-					problems.append(((DefaultProblem)problem).errorReportSource((org.eclipse.jdt.internal.compiler.env.ICompilationUnit)workingCopy));
+					problems.append(((DefaultProblem)problem).errorReportSource((org.eclipse.jdt.internal.compiler.env.ICompilationUnit)(workingCopy == null ? cu : workingCopy)));
 					problems.append("\n");
 					problems.append(problem.getMessage());
 					problems.append("\n");
@@ -75,7 +76,7 @@ protected void assertProblems(String message, String expected) {
  */
 public void setUp() throws Exception {
 	super.setUp();
-	ICompilationUnit cu = getCompilationUnit("Reconciler", "src", "p1", "X.java");
+	this.cu = getCompilationUnit("Reconciler", "src", "p1", "X.java");
 	this.problemRequestor =  new ProblemRequestor();
 	this.workingCopy = (ICompilationUnit)cu.getWorkingCopy(null, null, this.problemRequestor);
 	this.problemRequestor.initialize();
@@ -643,6 +644,78 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
 		this.deleteFile("/Reconciler/src/tests/Source.java");
 		this.deleteFile("/Reconciler/src/tests/AbstractSource.java");
 		this.deleteFolder("/Reconciler/src/tests");
+	}
+}
+/*
+ * Test that the creation of a working copy detects errors
+ * (regression test for bug 33757 Problem not detected when opening a working copy)
+ */
+public void testMethodWithError6() throws JavaModelException, CoreException {
+	this.workingCopy.destroy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	try {
+		this.createFile(
+			"/Reconciler/src/p1/Y.java", 
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  public.void foo() {\n" +
+			"  }\n" +
+			"}"
+		);
+		this.cu = getCompilationUnit("Reconciler", "src", "p1", "Y.java");
+		this.problemRequestor =  new ProblemRequestor();
+		this.problemRequestor.initialize();
+		this.workingCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, null, this.problemRequestor);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\n" + 
+			"	public.void foo() {\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \".\", \"boolean\", \"void\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"float\", \"double\", \"Identifier\", \"interface\", \"class\" expected\n" + 
+			"----------\n"
+		);
+	} finally {
+		this.deleteFile("/Reconciler/src/p1/Y.java");
+	}
+}
+/*
+ * Test that the opening of a working copy detects errors
+ * (regression test for bug 33757 Problem not detected when opening a working copy)
+ */
+public void testMethodWithError7() throws JavaModelException, CoreException {
+	this.workingCopy.destroy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	try {
+		this.createFile(
+			"/Reconciler/src/p1/Y.java", 
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  public.void foo() {\n" +
+			"  }\n" +
+			"}"
+		);
+		this.cu = getCompilationUnit("Reconciler", "src", "p1", "Y.java");
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, null, this.problemRequestor);
+
+		// Close working copy
+		this.workingCopy.close();
+		
+		// Reopen should detect syntax error
+		this.problemRequestor.initialize();
+		this.workingCopy.open(null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\n" + 
+			"	public.void foo() {\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \".\", \"boolean\", \"void\", \"byte\", \"short\", \"int\", \"long\", \"char\", \"float\", \"double\", \"Identifier\", \"interface\", \"class\" expected\n" + 
+			"----------\n"
+		);
+	} finally {
+		this.deleteFile("/Reconciler/src/p1/Y.java");
 	}
 }
 /**

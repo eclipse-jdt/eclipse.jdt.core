@@ -336,7 +336,7 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	if (!isConsistent()) { // TODO: this code isn't synchronized with regular opening of a working copy
+	if (!isConsistent()) { // TODO: this code isn't synchronized with regular opening of a working copy (should use getElementInfo)
 		super.makeConsistent(monitor);
 
 		if (monitor != null && monitor.isCanceled()) return;
@@ -355,11 +355,18 @@ public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
  * @exception JavaModelException attempting to open a read only element for something other than navigation
  * 	or if this is a working copy being opened after it has been destroyed.
  */
-public void open(IProgressMonitor pm) throws JavaModelException {
+public void open(IProgressMonitor monitor) throws JavaModelException {
 	if (this.useCount == 0) { // was destroyed
 		throw newNotPresentException();
 	} else {
-		super.open(pm);
+		super.open(monitor);
+		
+		if (monitor != null && monitor.isCanceled()) return;
+		if (this.problemRequestor != null && this.problemRequestor.isActive()){
+			this.problemRequestor.beginReporting();
+			CompilationUnitProblemFinder.process(this, this.problemRequestor, monitor); 
+			this.problemRequestor.endReporting();
+		}		
 	}
 }
 /**

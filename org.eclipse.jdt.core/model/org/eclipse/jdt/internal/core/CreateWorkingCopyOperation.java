@@ -41,8 +41,8 @@ public class CreateWorkingCopyOperation extends JavaModelOperation {
 
 		WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)cu.getParent(), cu.getElementName(), this.factory, this.problemRequestor);
 		// open the working copy now to ensure contents are that of the current state of this element
-		workingCopy.open(fMonitor);
-
+		workingCopy.open(this.fMonitor);
+		
 		if (this.perFactoryWorkingCopies != null) {
 			this.perFactoryWorkingCopies.put(cu, workingCopy);
 			if (CompilationUnit.SHARED_WC_VERBOSE) {
