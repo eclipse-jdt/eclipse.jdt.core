@@ -740,7 +740,7 @@ protected TypeReference getTypeReference(int dim) {
 	if (length != numberOfIdentifiers || this.genericsLengthStack[this.genericsLengthPtr] != 0) {
 		identifierLengthPtr--;
 		// generic type
-		reference = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
+		reference = getAssistTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
 	} else {
 		/* retrieve identifiers subset and whole positions, the assist node positions
 			should include the entire replaced source. */
@@ -779,10 +779,24 @@ protected TypeReference getTypeReference(int dim) {
 	}
 	return reference;
 }
-protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
+protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
 	/* no need to take action if not inside completed identifiers */
-	if ((indexOfAssistIdentifier()) < 0 || (identifierLength == 1 && numberOfIdentifiers == 1)) {
-		return super.getTypeReferenceForGenericType(dim, identifierLength, numberOfIdentifiers);
+	if (/*(indexOfAssistIdentifier()) < 0 ||*/ (identifierLength == 1 && numberOfIdentifiers == 1)) {
+		this.genericsLengthPtr--;
+		this.genericsPtr--;
+		long[] positions = new long[identifierLength];
+		System.arraycopy(
+			identifierPositionStack, 
+			identifierPtr, 
+			positions, 
+			0, 
+			identifierLength); 
+		TypeReference reference = this.createSingleAssistTypeReference(
+										assistIdentifier(), 
+										positions[0]);
+		this.assistNode = reference;
+		this.lastCheckPoint = reference.sourceEnd + 1;
+		return reference;
 	}
 	
 	TypeReference[][] typeArguments = new TypeReference[numberOfIdentifiers][];

@@ -6882,6 +6882,90 @@ public void test0160(){
 			expectedReplacedSource,
 			"full ast");
 }
+public void test0161(){
+	String str =
+		"public class X  <T extends Z<Y>> {\n" +
+		"}";
+
+
+	String completeBehind = "Z";
+	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:Z>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Z";
+	String expectedReplacedSource = "Z";
+	String expectedUnitDisplayString =
+		"public class X<T extends <CompleteOnType:Z>> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0162(){
+	String str =
+		"public class X  <T extends X.Z<Y>> {\n" +
+		"}";
+
+
+	String completeBehind = "Z";
+	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:X.Z>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Z";
+	String expectedReplacedSource = "X.Z";
+	String expectedUnitDisplayString =
+		"public class X<T extends <CompleteOnType:X.Z>> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0163(){
+	String str =
+		"public class X  <T extends X<W>.Z<Y>> {\n" +
+		"}";
+
+
+	String completeBehind = "Z";
+	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:X<W>.Z>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Z";
+	String expectedReplacedSource = "X<W>.Z";
+	String expectedUnitDisplayString =
+		"public class X<T extends <CompleteOnType:X<W>.Z>> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 public void _testXXX2(){
 	String str =
 		"public class X extends Y. {\n" +

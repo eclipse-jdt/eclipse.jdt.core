@@ -1045,7 +1045,7 @@ private boolean checkParemeterizedType() {
 			this.genericsIdentifiersLengthPtr--;
 			this.identifierLengthPtr--;
 			// generic type
-			this.assistNode = getTypeReferenceForGenericType(0, length, numberOfIdentifiers);
+			this.assistNode = getAssistTypeReferenceForGenericType(0, length, numberOfIdentifiers);
 			this.lastCheckPoint = this.assistNode.sourceEnd + 1;
 			this.isOrphanCompletionNode = true;
 			return true;
@@ -1056,7 +1056,7 @@ private boolean checkParemeterizedType() {
 			this.genericsIdentifiersLengthPtr--;
 			this.identifierLengthPtr--;
 			// generic type
-			this.assistNode = getTypeReferenceForGenericType(0, length, numberOfIdentifiers);
+			this.assistNode = getAssistTypeReferenceForGenericType(0, length, numberOfIdentifiers);
 			this.lastCheckPoint = this.assistNode.sourceEnd + 1;
 			this.isOrphanCompletionNode = true;
 			return true;

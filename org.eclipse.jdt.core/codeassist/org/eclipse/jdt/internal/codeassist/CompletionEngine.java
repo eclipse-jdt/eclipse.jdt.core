@@ -745,6 +745,23 @@ public final class CompletionEngine
 																if(astNode instanceof CompletionOnKeyword) {
 																	CompletionOnKeyword keyword = (CompletionOnKeyword)astNode;
 																	findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
+																} else if(astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
+																	CompletionOnParameterizedQualifiedTypeReference ref = (CompletionOnParameterizedQualifiedTypeReference) astNode;
+																	
+																	insideQualifiedReference = true;
+							
+																	assistNodeIsClass = ref.isClass();
+																	assistNodeIsException = ref.isException();
+																	assistNodeIsInterface = ref.isInterface();
+																	
+																	completionToken = ref.completionIdentifier;
+																	long completionPosition = ref.sourcePositions[ref.tokens.length];
+																	setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+																	findMemberTypes(
+																		completionToken,
+																		(ReferenceBinding) qualifiedBinding,
+																		scope,
+																		scope.enclosingSourceType());
 																}
 															}
 														}

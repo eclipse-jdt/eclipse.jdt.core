@@ -26,6 +26,9 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
 public class CompletionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference {
@@ -62,11 +65,21 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 	}
 	
 	public boolean isInterface(){
-		return this.kind == CLASS;
+		return this.kind == INTERFACE;
 	}
 	
 	public boolean isException(){
-		return this.kind == CLASS;
+		return this.kind == EXCEPTION;
+	}
+	
+	public TypeBinding resolveType(BlockScope scope) {
+		super.resolveType(scope);
+		throw new CompletionNodeFound(this, this.resolvedType, scope);
+	}
+	
+	public TypeBinding resolveType(ClassScope scope) {
+		super.resolveType(scope);
+		throw new CompletionNodeFound(this, this.resolvedType, scope);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
