@@ -23,7 +23,7 @@ class PackageBinding implements IPackageBinding {
 	private static final char PACKAGE_NAME_SEPARATOR = '.';
 	
 	private org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding;
-	private BindingResolver resolver;
+	private BindingResolver resolver; // TODO: (olivier) is this used?
 	private String name;
 	private String[] components;
 		

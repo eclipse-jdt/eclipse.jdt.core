@@ -709,7 +709,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		/**
 		 * The property name.
 		 */
-		private String propertyName;
+		private String propertyName; // TODO: (olivier) is this used?
 		
 		/**
 		 * Indicates whether this property is compulsory, in that every node
@@ -720,7 +720,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		/**
 		 * The type of node allowed as a child.
 		 */
-		private Class nodeType;
+		private Class nodeType; // TODO: (olivier) is this used?
 
 		/**
 		 * Creates a new property with the given name.
