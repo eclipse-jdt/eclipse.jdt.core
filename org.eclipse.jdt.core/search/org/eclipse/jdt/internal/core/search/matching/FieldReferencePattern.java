@@ -128,13 +128,19 @@ protected void matchCheck(AstNode node, MatchSet set) {
 			set.removePossibleMatch(lhs);
 			set.removeTrustedMatch(lhs);
 		}	
+	} else if (node instanceof FieldDeclaration) {
+		super.matchCheck(node, set);
 	}
 }
 /**
  * @see SearchPattern#matchContainer()
  */
 protected int matchContainer() {
-	return METHOD | FIELD;
+	int matchContainer = METHOD | FIELD;
+	if (this.writeAccess && !this.readAccess) {
+		matchContainer |= CLASS;
+	}
+	return matchContainer;
 }
 /**
  * @see SearchPattern#matchIndexEntry
@@ -296,7 +302,9 @@ public int matchLevel(AstNode node, boolean resolve) {
 		return this.matchLevel((FieldReference)node, resolve);
 	} else if (node instanceof NameReference) {
 		return this.matchLevel((NameReference)node, resolve);
-	}
+	} else if (node instanceof FieldDeclaration) {
+		return this.matchLevel((FieldDeclaration)node, resolve);
+	} 
 	return IMPOSSIBLE_MATCH;
 }
 
@@ -312,6 +320,29 @@ private int matchLevel(FieldReference fieldRef, boolean resolve) {
 	if (resolve) {
 		// receiver type and field type
 		return this.matchLevel(fieldRef.binding);
+	} else {
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+	}
+}
+/**
+ * Returns whether this field reference pattern matches the given field declaration in
+ * write access.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(FieldDeclaration fieldDecl, boolean resolve) {
+	// nedd to be a write only access	
+	if (!this.writeAccess || this.readAccess) return IMPOSSIBLE_MATCH;
+	
+	// need have an initialization
+	if (fieldDecl.initialization == null) return IMPOSSIBLE_MATCH;
+	
+	// field name
+	if (!this.matchesName(this.name, fieldDecl.name))
+		return IMPOSSIBLE_MATCH;
+
+	if (resolve) {
+		// receiver type and field type
+		return this.matchLevel(fieldDecl.binding);
 	} else {
 		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
