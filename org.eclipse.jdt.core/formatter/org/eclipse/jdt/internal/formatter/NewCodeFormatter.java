@@ -40,6 +40,17 @@ import org.eclipse.jdt.internal.formatter.align.AlignmentException;
  */
 // TODO add line splitting for all remaining expression and statements
 // TODO find a way to handle complex boolean expression
+// TODO Add the ICodeFormatter extension point once the UI has fixed their code
+/*
+   <extension
+         id="org.eclipse.jdt.core.newformatter.codeformatter"
+         name="org.eclipse.jdt.core.newformatter.codeformatter"
+         point="org.eclipse.jdt.core.codeFormatter">
+      <codeFormatter
+            class="org.eclipse.jdt.internal.formatter.NewCodeFormatter">
+      </codeFormatter>
+   </extension>
+*/
 public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implements ICodeFormatter {
 
 	public static class MultiFieldDeclaration extends FieldDeclaration {
