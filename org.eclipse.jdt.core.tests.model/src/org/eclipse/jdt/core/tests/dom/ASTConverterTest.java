@@ -8953,6 +8953,25 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNull(binding);
 	}
 	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21757
+	 */
+	public void test0357() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0357", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration statement", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		SimpleName name = typeDeclaration.getName();
+		checkSourceRange(name, "A", source);
+	}
+	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
