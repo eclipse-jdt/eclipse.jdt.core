@@ -80,9 +80,6 @@ protected Map getCompilerOptions() {
 		defaultOptions.put(
 			CompilerOptions.OPTION_PreserveUnusedLocal, 
 			CompilerOptions.PRESERVE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_TargetPlatform, 
-			CompilerOptions.VERSION_1_1);
 		return defaultOptions;
 }
 protected String[] getDefaultClassPaths() {

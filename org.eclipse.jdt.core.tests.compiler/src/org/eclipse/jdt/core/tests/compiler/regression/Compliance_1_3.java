@@ -35,6 +35,7 @@ public Compliance_1_3(String name) {
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 	return options;
 }
