@@ -979,7 +979,7 @@ public class JavaProject
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
 				IWorkspaceRoot wRoot = workspace.getRoot();
 				// request marker refresh on project opening (so as to diagnose unbound variables on startup)
-				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, !workspace.isTreeLocked()  /*refresh CP markers*/);
+				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, false /*37274:!workspace.isTreeLocked()*/  /*refresh CP markers*/);
 
 				// compute the pkg fragment roots (resolved CP should already be cached from marker refresh)
 				updatePackageFragmentRoots();				
