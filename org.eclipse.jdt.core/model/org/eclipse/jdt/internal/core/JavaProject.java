@@ -768,13 +768,17 @@ public class JavaProject
 						classpath = readPaths(sharedClasspath);
 					}
 				} catch(JavaModelException e) {
-					Util.log(e, 
-						"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-						+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+					if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
+							Util.log(e, 
+								"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+								+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+					}
 				} catch(IOException e){
-					Util.log(e, 
-						"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-						+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+					if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
+						Util.log(e, 
+							"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+							+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
+					}
 				}
 
 				// extract out the output location
