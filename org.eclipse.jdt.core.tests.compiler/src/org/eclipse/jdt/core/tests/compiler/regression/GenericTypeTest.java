@@ -10723,4 +10723,42 @@ class C extends B implements IDoubles {
 			"Type safety: The cast from X<T> to X<String> will not check conformance of type arguments at runtime\n" + 
 			"----------\n");	
 	}		
+	
+	public void test406() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public abstract class X<K1,V1> implements M<K1,V1> {\n" + 
+				"	abstract M<K1,V1> other();\n" + 
+				"	public S<E<K1,V1>> entrySet() {\n" + 
+				"		return other().entrySet();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface M<K2,V2> {\n" + 
+				"	 interface E<K3,V3> { }\n" + 
+				"	 S<E<K2, V2>> entrySet();\n" + 
+				"}\n" + 
+				"interface S<T> {}",
+			},
+			"");	
+	}		
+	
+	public void test407() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public abstract class X<K1,V1> implements M<K1,V1> {\n" + 
+				"	abstract M<K1,V1> other();\n" + 
+				"	public S<M.E<K1,V1>> entrySet() {\n" + // qualified M.E...
+				"		return other().entrySet();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface M<K2,V2> {\n" + 
+				"	 interface E<K3,V3> { }\n" + 
+				"	 S<E<K2, V2>> entrySet();\n" + 
+				"}\n" + 
+				"interface S<T> {}",
+			},
+			"");	
+	}			
 }
