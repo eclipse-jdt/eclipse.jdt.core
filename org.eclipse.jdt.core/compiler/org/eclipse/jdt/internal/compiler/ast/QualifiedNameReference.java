@@ -767,13 +767,20 @@ public class QualifiedNameReference extends NameReference {
 						}
 						bits &= ~RestrictiveFlagMASK; // clear bits
 						bits |= FIELD;
+						
+						// check for deprecated receiver type
+						// deprecation check for receiver type if not first token
+						if (indexOfFirstFieldBinding > 1) {
+							if (isTypeUseDeprecated(this.actualReceiverType, scope))
+								scope.problemReporter().deprecatedType(this.actualReceiverType, this);
+						}
+						
 						return this.resolvedType = getOtherFieldBindings(scope);
 					}
 					// thus it was a type
 					bits &= ~RestrictiveFlagMASK; // clear bits
 					bits |= TYPE;
 				case TYPE : //=============only type ==============
-					//deprecated test
 					if (isTypeUseDeprecated((TypeBinding) binding, scope))
 						scope.problemReporter().deprecatedType((TypeBinding) binding, this);
 					return this.resolvedType = (TypeBinding) binding;
