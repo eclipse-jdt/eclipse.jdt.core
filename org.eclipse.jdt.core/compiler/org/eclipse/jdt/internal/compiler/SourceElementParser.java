@@ -348,6 +348,9 @@ public TypeReference getTypeReference(int dim) {
 				intPtr--; // no need to use this position as it is an array
 				ref.sourceEnd = endPosition;
 			}
+			if (reportReferenceInfo){
+					requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+			}
 			return ref;
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
