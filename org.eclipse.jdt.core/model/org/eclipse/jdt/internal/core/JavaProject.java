@@ -426,7 +426,13 @@ public class JavaProject
 	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry[] resolvedClasspath, boolean retrieveExportedRoots) throws JavaModelException {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
-		computePackageFragmentRoots(resolvedClasspath, accumulatedRoots, new HashSet(5), true, true, retrieveExportedRoots);
+		computePackageFragmentRoots(
+			resolvedClasspath, 
+			accumulatedRoots, 
+			new HashSet(5), // rootIDs
+			true, // inside original project
+			true, // check existency
+			retrieveExportedRoots);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
 		return rootArray;
@@ -437,7 +443,11 @@ public class JavaProject
 	 * Only works with resolved entry	 */
 	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry resolvedEntry) {
 		try {
-			return computePackageFragmentRoots(new IClasspathEntry[]{ resolvedEntry }, false);
+			return 
+				computePackageFragmentRoots(
+					new IClasspathEntry[]{ resolvedEntry }, 
+					false // don't retrieve exported roots
+				);
 		} catch (JavaModelException e) {
 			return new IPackageFragmentRoot[] {};
 		}
@@ -797,7 +807,15 @@ public class JavaProject
 			IClasspathEntry[] classpath = this.getRawClasspath();
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				if (classpath[i].equals(entry)) { // entry may need to be resolved
-					return computePackageFragmentRoots(getResolvedClasspath(new IClasspathEntry[] {entry}, true, false), false);
+					return 
+						computePackageFragmentRoots(
+							getResolvedClasspath(
+								new IClasspathEntry[] {entry}, 
+								true, // ignore unresolved entry
+								false // don't generate marker on error
+							), 
+							false // don't retrieve exported roots
+						);
 				}
 			}
 		} catch (JavaModelException e) {
