@@ -13,7 +13,10 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -104,6 +107,24 @@ public char[] indexEntryPrefix() {
 		this.segments[this.currentSegment],
 		matchMode,
 		isCaseSensitive);
+}
+
+// check that referenced type is actually defined in this package fragment
+public boolean isDeclaringPackageFragment(IPackageFragment packageFragment, ReferenceBinding typeBinding) {
+	char[] fileName = typeBinding.getFileName();
+	if (fileName != null) {
+		// retrieve the actual file name from the full path (sources are generally only containing it already)
+		CharOperation.replace(fileName, '/', '\\');
+		fileName = CharOperation.lastSegment(fileName, '\\');
+		if (typeBinding.isBinaryBinding()) {
+			IClassFile classfile = packageFragment.getClassFile(new String(fileName));
+			return classfile.exists();
+		} else {
+			ICompilationUnit unit = packageFragment.getCompilationUnit(new String(fileName));
+			return unit.exists();
+		}
+	}
+	return true; // by default, do not eliminate 
 }
 /**
  * @see SearchPattern#matchContainer()
@@ -350,6 +371,10 @@ private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 					if (pkgBinding == null) {
 						return INACCURATE_MATCH;
 					} else if (this.matches(pkgBinding.compoundName)) {
+						if (this.focus instanceof IPackageFragment) {
+							// check that type is located inside this instance of a package fragment
+							if (!isDeclaringPackageFragment((IPackageFragment)this.focus, (ReferenceBinding)typeBinding)) return IMPOSSIBLE_MATCH;
+						}						
 						return ACCURATE_MATCH;
 					} else {
 						return IMPOSSIBLE_MATCH;
@@ -404,7 +429,8 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		if (binding instanceof ImportBinding) {
 			locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, importRef.tokens, element, accuracy);
 		} else if (binding instanceof ReferenceBinding) {
-			PackageBinding pkgBinding = ((ReferenceBinding)binding).fPackage;
+			ReferenceBinding typeBinding = (ReferenceBinding) binding;
+			PackageBinding pkgBinding = typeBinding.fPackage;
 			if (pkgBinding != null) {
 				locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, pkgBinding.compoundName, element, accuracy);
 			} else {
@@ -437,6 +463,10 @@ public int matchLevel(Binding binding) {
 			} else if (typeBinding instanceof ReferenceBinding) {
 				PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
 				if (this.matches(pkgBinding.compoundName)) {
+					if (this.focus instanceof IPackageFragment) {
+						// check that type is located inside this instance of a package fragment
+						if (!isDeclaringPackageFragment((IPackageFragment)this.focus, (ReferenceBinding)typeBinding)) return IMPOSSIBLE_MATCH;
+					}					
 					return ACCURATE_MATCH;
 				} else {
 					return IMPOSSIBLE_MATCH;
