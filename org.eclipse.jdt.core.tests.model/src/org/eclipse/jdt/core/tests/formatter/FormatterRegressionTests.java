@@ -275,24 +275,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
 		runTest(codeFormatter, packageName, compilationUnitName, kind, indentationLevel, checkNull, offset, length, null);
 	}
-	private void runTest(DefaultCodeFormatter codeFormatter, String sourceIn, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
-		try {
-			assertNotNull(sourceIn);
-			ICompilationUnit outputUnit = getCompilationUnit("Formatter" , "", packageName, getOut(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
-			assertNotNull(outputUnit);
-			String result;
-			if (length == -1) {
-				result = runFormatter(codeFormatter, sourceIn, kind, indentationLevel, offset, sourceIn.length(), lineSeparator);
-			} else {
-				result = runFormatter(codeFormatter, sourceIn, kind, indentationLevel, offset, length, lineSeparator);
-			}
-			assertLineEquals(result, sourceIn, outputUnit.getSource(), checkNull);
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-			assertTrue(false);
-		}
-	}
-	
 	
 	private void runTest(String input, String output, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		String result;

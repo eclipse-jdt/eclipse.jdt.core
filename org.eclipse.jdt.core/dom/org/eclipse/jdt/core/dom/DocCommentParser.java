@@ -68,8 +68,18 @@ class DocCommentParser extends AbstractCommentParser {
 		// Parse
 		parseComment(start, start+length-1);
 		this.docComment.setSourceRange(start, length);
-		this.docComment.setComment(new String(this.source, start, length)); // backward compatibility
+		setComment(start, length);  // backward compatibility
 		return this.docComment;
+	}
+
+	/**
+	 * Sets the comment starting at the given position and with the given length.
+	 * <p>
+	 * Note the only purpose of this method is to hide deprecated warnings.
+	 * @deprecated mark deprecated to hide deprecated usage
+	 */
+	private void setComment(int start, int length) {
+		this.docComment.setComment(new String(this.source, start, length));
 	}
 
 	public String toString() {
