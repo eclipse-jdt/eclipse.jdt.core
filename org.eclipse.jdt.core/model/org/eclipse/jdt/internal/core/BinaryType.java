@@ -501,7 +501,7 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 			int start = index;
 			index = Util.scanClassTypeSignature(genericSignature, start) + 1;
 			char[] interfaceSig = CharOperation.subarray(genericSignature, start, index);
-			interfaces.add(new String(interfaceSig));
+			interfaces.add(new String(ClassFile.translatedName(interfaceSig)));
 		}
 		int size = interfaces.size();
 		String[] result = new String[size];

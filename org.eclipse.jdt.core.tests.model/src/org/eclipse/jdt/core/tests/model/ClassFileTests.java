@@ -116,7 +116,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("V.class").getType();
 		assertStringsEqual(
 			"Unexpected signatures", 
-			"Lgeneric/I<Ljava/lang/String;>;\n",
+			"Lgeneric.I<Ljava.lang.String;>;\n",
 			type.getSuperInterfaceTypeSignatures());
 	}
 
