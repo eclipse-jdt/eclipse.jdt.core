@@ -106,6 +106,7 @@ public static Test suite() {
 	suite.addTest(new ReconcilerTests("testAddPartialMethod1"));
 	suite.addTest(new ReconcilerTests("testAddPartialMethod1and2"));
 	suite.addTest(new ReconcilerTests("testChangeMethodVisibility"));
+	suite.addTest(new ReconcilerTests("testConstantReference"));
 	suite.addTest(new ReconcilerTests("testDeleteMethod1"));
 	suite.addTest(new ReconcilerTests("testDeleteTwoMethods"));
 	suite.addTest(new ReconcilerTests("testGrowImports"));
@@ -117,6 +118,7 @@ public static Test suite() {
 	suite.addTest(new ReconcilerTests("testNoChanges2"));
 	suite.addTest(new ReconcilerTests("testRenameMethod1"));
 	suite.addTest(new ReconcilerTests("testRenameWithSyntaxError"));
+	suite.addTest(new ReconcilerTests("testUnhandledException"));
 	return suite;
 }
 /**
@@ -303,6 +305,38 @@ public void testChangeMethodVisibility() throws JavaModelException {
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo[*]: {MODIFIERS CHANGED}"
 	);
+}
+/**
+ * Ensures that a reference to a constant with type mismatch doesn't show an error.
+ * (regression test for bug 17104 Compiler does not complain but "Quick Fix" ??? complains) */
+public void testConstantReference() throws CoreException {
+	try {
+		this.createFile(
+			"/Reconciler/src/p1/OS.java",
+			"package p1;\n" +
+			"public class OS {\n" +
+			"	public static final int CONST = 23 * 1024;\n" +
+			"}");
+		this.workingCopy.getBuffer().setContents(
+			"package p1;\n" +
+			"public class X {\n" +
+			"	public short c;\n" +
+			"	public static void main(String[] arguments) {\n" +
+			"		short c = 1;\n" +
+			"		switch (c) {\n" +
+			"			case OS.CONST: return;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}");
+		this.workingCopy.reconcile();
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		this.deleteFile("/Reconciler/src/p1/OS.java");
+	}
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current
@@ -615,7 +649,7 @@ public void testRenameMethod1() throws JavaModelException {
  * unit, and fires the Java element delta for the structural changes
  * of the addition of a portion of a new method.
  */
-public void testRenameWithSyntaxError() throws JavaModelException, CoreException {
+public void testRenameWithSyntaxError() throws JavaModelException {
 	this.workingCopy.getBuffer().setContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -642,6 +676,29 @@ public void testRenameWithSyntaxError() throws JavaModelException, CoreException
 		"	public void bar( {\n" + 
 		"	               ^\n" + 
 		"Unmatched bracket\n" + 
+		"----------\n"
+	);
+}
+/**
+ * Ensure that an unhandled exception is detected.
+ */
+public void testUnhandledException() throws JavaModelException {
+	this.workingCopy.getBuffer().setContents(
+		"package p1;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"    throw new Exception();\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile();
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	throw new Exception();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type Exception\n" + 
 		"----------\n"
 	);
 }
