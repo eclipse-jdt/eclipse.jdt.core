@@ -616,7 +616,17 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.MethodDeclaration method = (org.eclipse.jdt.internal.compiler.ast.MethodDeclaration) methodDeclaration;
 			TypeReference typeReference = method.returnType;
 			if (typeReference != null) {
-				methodDecl.setReturnType(convertType(typeReference));
+				Type returnType = convertType(typeReference);
+				// get the positions of the right parenthesis
+				int rightParenthesisPosition = retrieveEndOfRightParenthesisPosition(end, method.bodyEnd);
+				int extraDimensions = retrieveExtraDimension(rightParenthesisPosition, method.bodyEnd);
+				if (extraDimensions != 0) {
+					start = returnType.getStartPosition();
+					int dimensionsEnd = retrieveEndOfDimensionsPosition(rightParenthesisPosition, method.bodyEnd);
+					returnType.setSourceRange(start, method.sourceEnd - start + 1);
+					methodDecl.setExtraDimensions(extraDimensions);
+				}
+				methodDecl.setReturnType(returnType);
 			}
 		}
 		int declarationSourceStart = methodDeclaration.declarationSourceStart;
@@ -955,10 +965,13 @@ class ASTConverter {
 		
 		variableDecl.setModifiers(argument.modifiers);
 		SimpleName name = this.ast.newSimpleName(argument.name());
-		name.setSourceRange(argument.sourceStart, argument.sourceEnd - argument.sourceStart + 1);
+		int start = argument.sourceStart;
+		int nameEnd = argument.sourceEnd;
+		name.setSourceRange(start, nameEnd - start + 1);
 		variableDecl.setName(name);
 		Type type = convertType(argument.type);
 		variableDecl.setType(type);
+		variableDecl.setExtraDimensions(retrieveExtraDimension(nameEnd + 1, argument.type.sourceEnd));
 		int typeEnd = type.getStartPosition() + type.getLength() - 1;
 		int rightEnd = Math.max(typeEnd, argument.declarationSourceEnd);
 		variableDecl.setSourceRange(argument.declarationSourceStart, rightEnd - argument.declarationSourceStart + 1);
@@ -2341,6 +2354,7 @@ class ASTConverter {
 					case Scanner.TokenNameRBRACKET://166 
 						dimensions++;
 						break;
+					case Scanner.TokenNameLBRACE ://90						
 					case Scanner.TokenNameCOMMA ://90
 					case Scanner.TokenNameEQUAL ://167
 					case Scanner.TokenNameSEMICOLON ://64
@@ -2434,6 +2448,25 @@ class ASTConverter {
 				switch(token) {
 					case Scanner.TokenNameRBRACKET:
 						return scanner.currentPosition - 1;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+
+	/**
+	 * This method is used to retrieve the position after the right parenthesis.
+	 * @return int the position found
+	 */
+	private int retrieveEndOfRightParenthesisPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameRPAREN:
+						return scanner.currentPosition;
 				}
 			}
 		} catch(InvalidInputException e) {

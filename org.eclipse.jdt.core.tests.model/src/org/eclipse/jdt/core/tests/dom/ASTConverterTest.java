@@ -210,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0386"));
+//		suite.addTest(new ASTConverterTest("test0397"));
 		return suite;
 	}
 		
@@ -516,7 +516,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * int i; ==> SingleVariableDeclaration
+	 * int i; ==> VariableDeclarationFragment
 	 */
 	public void test0013() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0013", "Test.java");
@@ -534,7 +534,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * int i = 0; ==> SingleVariableDeclaration
+	 * int i = 0; ==> VariableDeclarationFragment
 	 */
 	public void test0014() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0014", "Test.java");
@@ -2175,7 +2175,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	}
 	
 	/**
-	 * Argument ==> VariableDeclarationStatement
+	 * Argument ==> SingleVariableDeclaration
 	 */
 	public void test0091() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0091", "Test.java");
@@ -2193,7 +2193,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * Argument ==> VariableDeclarationStatement
+	 * Argument ==> SingleVariableDeclaration
 	 */
 	public void test0092() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0092", "Test.java");
@@ -2208,6 +2208,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		variableDeclaration.setName(this.ast.newSimpleName("s")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", variableDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "final String s", source); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 0, node.getExtraDimensions());
 	}
 
 	/**
@@ -5620,6 +5621,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertTrue("The fiels is not malformed", !isMalformed(node));
 		assertEquals("No problem found", 1, unit.getMessages().length);
+		assertEquals("No problem found", 1, unit.getProblems().length);
 	}
 
 	/**
@@ -5633,6 +5635,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("The fiels is not malformed", !isMalformed(node));
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("No problem found", 1, unit.getMessages().length);
+		assertEquals("No problem found", 1, unit.getProblems().length);
 		assertTrue("FieldDeclaration", node instanceof FieldDeclaration);
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
@@ -5653,6 +5656,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("The fiels is not malformed", !isMalformed(node));
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("problems found", 0, unit.getMessages().length);
+		assertEquals("problems found", 0, unit.getProblems().length);
 		assertTrue("FieldDeclaration", node instanceof FieldDeclaration);
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		List fragments = fieldDeclaration.fragments();
@@ -6315,6 +6319,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("Wrong size", 1, compilationUnit.getMessages().length);
+		assertEquals("Wrong size", 1, compilationUnit.getProblems().length);
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertTrue("Not a return statement", node instanceof ReturnStatement);
 		ReturnStatement returnStatement = (ReturnStatement) node;
@@ -7042,6 +7047,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("no errors", 1, unit.getMessages().length);
+		assertEquals("no errors", 1, unit.getProblems().length);
 	}
 
 	/**
@@ -7153,6 +7159,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("Wrong size", 2, compilationUnit.getMessages().length);
+		assertEquals("Wrong size", 2, compilationUnit.getProblems().length);
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
 		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -7688,6 +7695,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not a compilation unit", result instanceof CompilationUnit);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("Wrong size", 2, compilationUnit.getMessages().length);
+		assertEquals("Wrong size", 2, compilationUnit.getProblems().length);
 	}
 
 	/**
@@ -7740,6 +7748,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("No error", 1, unit.getMessages().length);
+		assertEquals("No error", 1, unit.getProblems().length);
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertTrue("Not a variable declaration statement", node instanceof VariableDeclarationStatement);
 		assertTrue("Not malformed", isMalformed(node));
@@ -8078,6 +8087,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 2, compilationUnit.getMessages().length);
+		assertEquals("wrong size", 2, compilationUnit.getProblems().length);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -8241,6 +8251,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getProblems().length);
 		assertNotNull("not null", node);
 		assertTrue("not a type declaration", node instanceof TypeDeclaration);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -8272,6 +8283,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		assertEquals("errors found", 0, compilationUnit.getProblems().length);
 		assertNotNull("not null", node);
 		assertTrue("not a type declaration", node instanceof TypeDeclaration);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -9741,6 +9753,114 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNotNull("No type binding", typeBinding);
 		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
 	}	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
+	 */
+	public void test0393() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0393", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		checkSourceRange(type, "String foo()[]", source);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "java.lang.String[]", typeBinding.getQualifiedName());
+		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions());
+	}	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
+	 */
+	public void test0394() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0394", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		checkSourceRange(type, "String", source);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "java.lang.String", typeBinding.getQualifiedName());
+		assertEquals("Wrong dimension", 0, methodDeclaration.getExtraDimensions());
+	}	
+
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
+	 */
+	public void test0395() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0395", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType();
+		checkSourceRange(type, "String[] foo()[]", source);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertEquals("Wrong qualified name", "java.lang.String[][]", typeBinding.getQualifiedName());
+		assertEquals("Wrong dimension", 1, methodDeclaration.getExtraDimensions());
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
+	 */
+	public void test0396() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0396", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration method = (MethodDeclaration) node;
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
+		assertNotNull("Expression should not be null", singleVariableDeclaration); //$NON-NLS-1$
+		checkSourceRange(singleVariableDeclaration, "final String s[]", source); //$NON-NLS-1$
+		Type type = singleVariableDeclaration.getType();
+		checkSourceRange(type, "String s[]", source); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 1, singleVariableDeclaration.getExtraDimensions());
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23284
+	 */
+	public void test0397() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0397", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration method = (MethodDeclaration) node;
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
+		assertNotNull("Expression should not be null", singleVariableDeclaration); //$NON-NLS-1$
+		checkSourceRange(singleVariableDeclaration, "final String[] \\u0073\\u005B][]", source); //$NON-NLS-1$
+		Type type = singleVariableDeclaration.getType();
+		checkSourceRange(type, "String[] \\u0073\\u005B][]", source); //$NON-NLS-1$
+		assertEquals("Wrong dimension", 2, singleVariableDeclaration.getExtraDimensions());
+	}
 
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
