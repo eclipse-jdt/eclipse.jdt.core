@@ -960,7 +960,52 @@ public void testMethodWithError09() throws CoreException {
 		}
 	}
 }
+/*
+ * Scenario of reconciling using a working copy owner
+ */
+public void _testMethodWithError10() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		workingCopy1 = getCompilationUnit("/Reconciler/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
+		workingCopy1.getBuffer().setContents(
+			"package test.cheetah;\n"+
+			"import java.util.List;\n"+
+			"import java.util.Stack;\n"+
+			"public class NestedGenerics {\n"+
+			"    Stack< List<Object>> stack = new Stack< List<Object> >();\n"+
+			"}\n"
+		);
+		workingCopy1.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		
+		this.cu = getCompilationUnit("Reconciler", "src", "test.cheetah", "NestedGenericsTest.java");
+		this.problemRequestor =  new ProblemRequestor();
+		String contents = 
+			"package test.cheetah;\n"+
+			"import java.util.Stack;\n"+
+			"public class NestedGenericsTest {\n"+
+			"    void test() {  \n"+
+			"        Stack s = new NestedGenerics().stack;  \n"+
+			"    }\n"+
+			"}\n";
+		this.workingCopy = this.cu.getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy.getBuffer().setContents(contents);
+		this.problemRequestor.initialize(contents.toCharArray());
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n" // shouldn't report problem against p.X
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+	}
+}
 /**
  * Ensures that the reconciler handles member move correctly.
  */
