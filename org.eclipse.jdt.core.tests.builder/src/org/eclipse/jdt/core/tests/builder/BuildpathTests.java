@@ -222,7 +222,7 @@ public class BuildpathTests extends Tests {
 		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest1});
 		expectingOnlySpecificProblemsFor(projectPath,
 			new Problem[] {
-				new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try rebuilding this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files.", classTest1) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
@@ -260,7 +260,7 @@ public class BuildpathTests extends Tests {
 		fullBuild();
 		expectingSpecificProblemFor(
 			projectPath,
-			new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try rebuilding this project.", projectPath)); //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project.", projectPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Problem[] prob1 = env.getProblemsFor(classTest1);
 		Problem[] prob2 = env.getProblemsFor(classTest2);
