@@ -11,18 +11,18 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle returned by the selection engine representing a source method.
- * The uniqueKey contains the genericSignature of the selected method.
+ * Handle representing a source type that is parameterized.
+ * The uniqueKey contains the genericTypeSignature of the parameterized type.
  */
-public class SelectedSourceMethod extends SourceMethod {
+public class ParameterizedSourceType extends SourceType {
 	
 	public String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public SelectedSourceMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
-		super(parent, name, parameterTypes);
+	public ParameterizedSourceType(JavaElement parent, String name, String uniqueKey) {
+		super(parent, name);
 		this.uniqueKey = uniqueKey;
 	}
 

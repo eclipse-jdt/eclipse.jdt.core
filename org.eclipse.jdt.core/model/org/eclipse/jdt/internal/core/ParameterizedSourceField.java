@@ -11,22 +11,19 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle returned by the selection engine representing a source type.
- * The uniqueKey contains the genericTypeSignature of the selected type.
- * The boolean partialSection represents whether the type was selected without its type arguments.
+ * Handle representing a source field that is parameterized.
+ * The uniqueKey contains the genericSignature of the parameterized field.
  */
-public class SelectedSourceType extends SourceType {
+public class ParameterizedSourceField extends SourceField {
 	
 	public String uniqueKey;
-	public boolean partialSelection;
 	
 	/*
 	 * See class comments.
 	 */
-	public SelectedSourceType(JavaElement parent, String name, String uniqueKey, boolean partialSelection) {
+	public ParameterizedSourceField(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
 		this.uniqueKey = uniqueKey;
-		this.partialSelection = partialSelection;
 	}
 
 }

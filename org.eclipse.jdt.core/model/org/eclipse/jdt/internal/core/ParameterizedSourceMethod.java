@@ -11,18 +11,18 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle returned by the selection engine representing a binary field.
- * The uniqueKey contains the genericSignature of the selected field.
+ * Handle representing a source method that is parameterized.
+ * The uniqueKey contains the genericSignature of the parameterized method.
  */
-public class SelectedBinaryField extends BinaryField {
+public class ParameterizedSourceMethod extends SourceMethod {
 	
 	public String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public SelectedBinaryField(JavaElement parent, String name, String uniqueKey) {
-		super(parent, name);
+	public ParameterizedSourceMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
+		super(parent, name, parameterTypes);
 		this.uniqueKey = uniqueKey;
 	}
 

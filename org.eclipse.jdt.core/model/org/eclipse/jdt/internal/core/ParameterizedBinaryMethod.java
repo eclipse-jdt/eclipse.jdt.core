@@ -11,17 +11,17 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle returned by the selection engine representing a binary method.
- * The uniqueKey contains the genericSignature of the selected method.
+ * Handle representing a binary method that is parameterized.
+ * The uniqueKey contains the genericSignature of the parameterized method.
  */
-public class SelectedBinaryMethod extends BinaryMethod {
+public class ParameterizedBinaryMethod extends BinaryMethod {
 	
 	public String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public SelectedBinaryMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
+	public ParameterizedBinaryMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
 		super(parent, name, parameterTypes);
 		this.uniqueKey = uniqueKey;
 	}

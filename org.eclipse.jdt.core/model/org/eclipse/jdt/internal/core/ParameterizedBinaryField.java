@@ -11,22 +11,19 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle returned by the selection engine representing a binary type.
- * The uniqueKey contains the genericTypeSignature of the selected type.
- * The boolean partialSection represents whether the type was selected without its type arguments.
+ * Handle representing a binary field that is parameterized.
+ * The uniqueKey contains the genericSignature of the parameterized field.
  */
-public class SelectedBinaryType extends BinaryType {
+public class ParameterizedBinaryField extends BinaryField {
 	
 	public String uniqueKey;
-	public boolean partialSelection;
 	
 	/*
 	 * See class comments.
 	 */
-	public SelectedBinaryType(JavaElement parent, String name, String uniqueKey, boolean partialSelection) {
+	public ParameterizedBinaryField(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
 		this.uniqueKey = uniqueKey;
-		this.partialSelection = partialSelection;
 	}
 
 }
