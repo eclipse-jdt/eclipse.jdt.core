@@ -119,36 +119,36 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
 	 */
-	public static final long MethodWithConstructorName = ASTNode.Bit9;
-	public static final long OverriddenPackageDefaultMethod = ASTNode.Bit10;
-	public static final long UsingDeprecatedAPI = ASTNode.Bit11;
-	public static final long MaskedCatchBlock = ASTNode.Bit12;
-	public static final long UnusedLocalVariable = ASTNode.Bit13;
-	public static final long UnusedArgument = ASTNode.Bit14;
-	public static final long NoImplicitStringConversion = ASTNode.Bit15;
-	public static final long AccessEmulation = ASTNode.Bit16;
-	public static final long NonExternalizedString = ASTNode.Bit17;
-	public static final long AssertUsedAsAnIdentifier = ASTNode.Bit18;
-	public static final long UnusedImport = ASTNode.Bit19;
-	public static final long NonStaticAccessToStatic = ASTNode.Bit20;
-	public static final long Task = ASTNode.Bit21;
-	public static final long NoEffectAssignment = ASTNode.Bit22;
-	public static final long IncompatibleNonInheritedInterfaceMethod = ASTNode.Bit23;
-	public static final long UnusedPrivateMember = ASTNode.Bit24;
-	public static final long LocalVariableHiding = ASTNode.Bit25;
-	public static final long FieldHiding = ASTNode.Bit26;
-	public static final long AccidentalBooleanAssign = ASTNode.Bit27; 
-	public static final long EmptyStatement = ASTNode.Bit28;
+	public static final long MethodWithConstructorName = ASTNode.Bit1;
+	public static final long OverriddenPackageDefaultMethod = ASTNode.Bit2;
+	public static final long UsingDeprecatedAPI = ASTNode.Bit3;
+	public static final long MaskedCatchBlock = ASTNode.Bit4;
+	public static final long UnusedLocalVariable = ASTNode.Bit5;
+	public static final long UnusedArgument = ASTNode.Bit6;
+	public static final long NoImplicitStringConversion = ASTNode.Bit7;
+	public static final long AccessEmulation = ASTNode.Bit8;
+	public static final long NonExternalizedString = ASTNode.Bit9;
+	public static final long AssertUsedAsAnIdentifier = ASTNode.Bit10;
+	public static final long UnusedImport = ASTNode.Bit11;
+	public static final long NonStaticAccessToStatic = ASTNode.Bit12;
+	public static final long Task = ASTNode.Bit13;
+	public static final long NoEffectAssignment = ASTNode.Bit14;
+	public static final long IncompatibleNonInheritedInterfaceMethod = ASTNode.Bit15;
+	public static final long UnusedPrivateMember = ASTNode.Bit16;
+	public static final long LocalVariableHiding = ASTNode.Bit17;
+	public static final long FieldHiding = ASTNode.Bit18;
+	public static final long AccidentalBooleanAssign = ASTNode.Bit19;
+	public static final long EmptyStatement = ASTNode.Bit20;
+	public static final long MissingJavadocComments  = ASTNode.Bit21;
+	public static final long MissingJavadocTags = ASTNode.Bit22;
+	public static final long UnqualifiedFieldAccess = ASTNode.Bit23;
+	public static final long UnusedDeclaredThrownException = ASTNode.Bit24;
+	public static final long FinallyBlockNotCompleting = ASTNode.Bit25;
+	public static final long InvalidJavadoc = ASTNode.Bit26;
+	public static final long UnnecessaryTypeCheck = ASTNode.Bit27;
+	public static final long UndocumentedEmptyBlock = ASTNode.Bit28;
 	public static final long IndirectStaticAccess = ASTNode.Bit29;
-	public static final long UndocumentedEmptyBlock = ASTNode.Bit30;
-	public static final long UnnecessaryTypeCheck = ASTNode.Bit31;
-	public static final long InvalidJavadoc = ASTNode.Bit32L;
-	public static final long FinallyBlockNotCompleting = ASTNode.Bit33L;
-	public static final long UnusedDeclaredThrownException = ASTNode.Bit34L;
-	public static final long UnqualifiedFieldAccess = ASTNode.Bit35L;
-	public static final long MissingJavadocTags = ASTNode.Bit36L;
-	public static final long MissingJavadocComments  = ASTNode.Bit37L;
-	public static final long UnnecessaryElse  = ASTNode.Bit38L;
+	public static final long UnnecessaryElse  = ASTNode.Bit30;
 
 	// Default severity level for handlers
 	public long errorThreshold = 0;
