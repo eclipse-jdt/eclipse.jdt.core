@@ -407,6 +407,11 @@ public class ASTMatcher {
 	 * other object is a node of the same type. Subclasses may override
 	 * this method as needed.
 	 * </p>
+	 * <p>Note: {@link LineComment} and {@link BlockComment} nodes are
+	 * not considered part of main structure of the AST. This method will
+	 * only be called if a client goes out of their way to visit this
+	 * kind of node explicitly.
+	 * </p>
 	 * 
 	 * @param node the node
 	 * @param other the other object, or <code>null</code>
@@ -1154,6 +1159,11 @@ public class ASTMatcher {
 	 * The default implementation provided by this class tests whether the
 	 * other object is a node of the same type. Subclasses may override
 	 * this method as needed.
+	 * </p>
+	 * <p>Note: {@link LineComment} and {@link BlockComment} nodes are
+	 * not considered part of main structure of the AST. This method will
+	 * only be called if a client goes out of their way to visit this
+	 * kind of node explicitly.
 	 * </p>
 	 * 
 	 * @param node the node

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,10 +92,11 @@ package org.eclipse.jdt.core.dom;
  * a second time; in this case, the visits will be nested. In some cases,
  * this can lead to a stack overflow or out of memory condition.</li>
  * </ul>
- * <p>Note that {@link #visit(LineComment) ASTVisitor.visit(LineComment)} and
- * {@link #visit(BlockComment) ASTVisitor.visit(BlockComment)} are never traversed. 
- * The user needs to use the {@link org.eclipse.jdt.core.dom.CompilationUnit#getCommentList() CompilationUnit.getCommentList()}
- * to traverse all the comments in the compilation unit.
+ * <p>Note that {@link LineComment} and {@link BlockComment} nodes are
+ * not normally visited in an AST because they are not considered
+ * part of main structure of the AST. Use 
+ * {@link CompilationUnit#getCommentList()} to find these additional
+ * comments nodes.
  * </p>
  * 
  * @see org.eclipse.jdt.core.dom.ASTNode#accept(ASTVisitor)
@@ -331,7 +332,11 @@ public abstract class ASTVisitor {
 	 * The default implementation does nothing and return true.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * <p>Note: this method is old API and is never called.</p>
+	 * <p>Note: {@link LineComment} and {@link BlockComment} nodes are
+	 * not considered part of main structure of the AST. This method will
+	 * only be called if a client goes out of their way to visit this
+	 * kind of node explicitly.
+	 * </p>
 	 * 
 	 * @param node the node to visit
 	 * @return <code>true</code> if the children of this node should be
@@ -775,7 +780,11 @@ public abstract class ASTVisitor {
 	 * The default implementation does nothing and return true.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * <p>Note: this method is old API and is never called.</p>
+	 * <p>Note: {@link LineComment} and {@link BlockComment} nodes are
+	 * not considered part of main structure of the AST. This method will
+	 * only be called if a client goes out of their way to visit this
+	 * kind of node explicitly.
+	 * </p>
 	 * 
 	 * @param node the node to visit
 	 * @return <code>true</code> if the children of this node should be
@@ -1662,7 +1671,12 @@ public abstract class ASTVisitor {
 	 * <p>
 	 * The default implementation does nothing. Subclasses may reimplement.
 	 * </p>
-	 * <p>Note: this method is old API and is never called.</p>
+	 * <p>Note: {@link LineComment} and {@link BlockComment} nodes are
+	 * not considered part of main structure of the AST. This method will
+	 * only be called if a client goes out of their way to visit this
+	 * kind of node explicitly.
+	 * </p>
+	 * 
 	 * @param node the node to visit
 	 * @since 3.0
 	 */
@@ -1990,7 +2004,11 @@ public abstract class ASTVisitor {
 	 * <p>
 	 * The default implementation does nothing. Subclasses may reimplement.
 	 * </p>
-	 * <p>Note: this method is old API and is never called.</p>
+	 * <p>Note: {@link LineComment} and {@link BlockComment} nodes are
+	 * not considered part of main structure of the AST. This method will
+	 * only be called if a client goes out of their way to visit this
+	 * kind of node explicitly.
+	 * </p>
 	 * 
 	 * @param node the node to visit
 	 * @since 3.0
