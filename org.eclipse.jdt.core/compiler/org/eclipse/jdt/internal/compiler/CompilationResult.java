@@ -41,7 +41,9 @@ import java.util.*;
 public class CompilationResult {
 	
 	public IProblem problems[];
+	public IProblem tasks[];
 	public int problemCount;
+	public int taskCount;
 	public ICompilationUnit compilationUnit;
 	private Map problemsMap;
 	private Map firstErrorsMap;
@@ -183,6 +185,26 @@ public class CompilationResult {
 		}
 		return problems;
 	}
+
+	/**
+	 * Answer the tasks (TODO, ...) encountered during compilation.
+	 *
+	 * This is not a compiler internal API - it has side-effects !
+	 * It is intended to be used only once all problems have been detected,
+	 * and makes sure the problems slot as the exact size of the number of
+	 * problems.
+	 */
+	public IProblem[] getTasks() {
+		
+		// Re-adjust the size of the tasks if necessary.
+		if (this.tasks != null) {
+	
+			if (this.taskCount != this.tasks.length) {
+				System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount]), 0, this.taskCount);
+			}
+		}
+		return this.tasks;
+	}
 	
 	public boolean hasErrors() {
 
@@ -284,12 +306,16 @@ public class CompilationResult {
 
 	public void record(IProblem newProblem, ReferenceContext referenceContext) {
 
+		if (newProblem.getID() == IProblem.Task) {
+			recordTask(newProblem);
+			return;
+		}
 		if (problemCount == 0) {
 			problems = new IProblem[5];
 		} else {
 			if (problemCount == problems.length)
 				System.arraycopy(problems, 0, (problems = new IProblem[problemCount * 2]), 0, problemCount);
-		};
+		}
 		problems[problemCount++] = newProblem;
 		if (referenceContext != null){
 			if (problemsMap == null) problemsMap = new Hashtable(5);
@@ -299,6 +325,15 @@ public class CompilationResult {
 		}
 	}
 
+	private void recordTask(IProblem newProblem) {
+		if (this.taskCount == 0) {
+			this.tasks = new IProblem[5];
+		} else if (this.taskCount == this.tasks.length) {
+				System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount * 2]), 0, this.taskCount);
+		}
+		this.tasks[this.taskCount++] = newProblem;
+	}
+	
 	private static void swap(IProblem arr[], int i, int j) {
 
 		IProblem tmp;
