@@ -333,9 +333,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				System.exit(-1);
 			}
 			return false;
-		} catch (ThreadDeath e) { // do not stop this one
-			throw e;
-		} catch (Throwable e) { // internal compiler error
+		} catch (RuntimeException e) { // internal compiler failure
 			if (this.systemExitWhenFinished) {
 				this.out.flush();
 				this.err.flush();
