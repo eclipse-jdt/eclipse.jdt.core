@@ -2486,6 +2486,9 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
 	
+	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
+	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;
+	
 	int extraDims = this.intStack[this.intPtr--];
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
@@ -2505,8 +2508,6 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	
 	type = getTypeReference(this.intStack[this.intPtr--] + extraDims); // type dimension
 
-	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
-	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--])!= 0) {

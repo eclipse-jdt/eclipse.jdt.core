@@ -2346,4 +2346,43 @@ public void test52() {
 		expectedReplacedSource,
 		testName);
 }
+public void test53() {
+
+	String str =
+		"public class X {                \n" +
+		"  void foo(String[] stringArray) {\n" +
+		"    for(String string2 : stringArray);\n" +
+		"  }\n" +
+		"}								 \n";
+		
+	String selection = "string2";
+	
+	String expectedCompletionNodeToString = "<SelectionOnLocalName:String string2>;";
+	
+	String completionIdentifier = "string2";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(String[] stringArray) {\n" + 
+		"    for (<SelectionOnLocalName:String string2>; : stringArray) \n" + 
+		"      ;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "string2";
+	String testName = "<select>";
+
+	int selectionStart = str.indexOf(selection);
+	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }
