@@ -41,7 +41,9 @@ import org.eclipse.jdt.internal.core.Util;
  * @since 2.0
  */
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
-	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; String logFileName; //$NON-NLS-1$
+	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; //$NON-NLS-1$
+	String logFileName;
+	
 	/**
 	 * Performs a compile using the JDT batch compiler 
 	 */
@@ -237,7 +239,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 */
 			cmd.createArgument().setValue("-log"); //$NON-NLS-1$
 			logFileName = destDir.getAbsolutePath() + ".log"; //$NON-NLS-1$
-			cmd.createArgument().setValue(logFileName); //$NON-NLS-1$
+			cmd.createArgument().setValue(logFileName);
 		}
 
 		/*
