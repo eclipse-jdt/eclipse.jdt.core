@@ -3,7 +3,7 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="IBM">
-   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (Windows NT 5.0; U) [Netscape]">
    <title>JDT/Core Release Notes</title>
 </head>
 <body>
@@ -11,63 +11,72 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK Build ??? - ???th November 2001
+Eclipse SDK Build 20011127 - 27th November 2001
 <br>Project org.eclipse.jdt.core ???
 <h2>
 What's new in this drop</h2>
+
 <ul>
-<li> Better highlighting of multi-line message sending
-<li> Code assist only qualifies implicit members when necessary
+<li>
+Better highlighting of multi-line message sending</li>
+
+<li>
+Code assist only qualifies implicit members when necessary</li>
+
+<li>
+New API for setting both classpath and output location at the same time
+(allowing to avoid classpath validation failures in case there is no way
+to change both independantly):&nbsp;&nbsp;<br>
+<tt>IJavaProject.setRawClasspath(IClasspathEntry[] newClasspath, IPath
+newOutputLocation, IProgressMonitor monitor)</tt></li>
 </ul>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6094">6094</a>
-   Search - does not find references to JavaProject.setProject(...)  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6094">6094</a> Search
+- does not find references to JavaProject.setProject(...)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3320">3320</a>"
-   Search - Match through super type not found if in different project (1GGAOFT)
+Search - Match through super type not found if in different project (1GGAOFT)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6158">6158</a>"
-   Search - Prefix and postfix expression not found as write reference  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4974">4974</a>:  
-   Set classpath / output location should be one operation  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6176">6176</a>:  
-   Eclipse tools index out of bounds  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6160">6160</a>:  
-   Index out of bounds in update references  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6151">6151</a>:  
-   ArrayIndexOutOfBoundsException in ObjectSet  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5943">5943</a>:  
-   internal error in setting buildpath (name collsion)  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>: 
-    CodeFormatter mapped positions broken for multi-line comments
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5907 ">5907</a>:
-    Indexer errors when disk full  
+Search - Prefix and postfix expression not found as write reference
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4974">4974</a>:
+Set classpath / output location should be one operation
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6176">6176</a>:
+Eclipse tools index out of bounds
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6160">6160</a>:
+Index out of bounds in update references
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6151">6151</a>:
+ArrayIndexOutOfBoundsException in ObjectSet
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5943">5943</a>:
+internal error in setting buildpath (name collsion)
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>:
+CodeFormatter mapped positions broken for multi-line comments
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5907">5907</a>:
+Indexer errors when disk full
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5884">5884</a>:
-	Code assist should only fully qualify if needed
+Code assist should only fully qualify if needed
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5514">5514</a>:
-	Select a declaration does not work in unsaved working copies
+Select a declaration does not work in unsaved working copies
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5414">5414</a>:
-	ArrayIndexOutOfBoundsException in Signature
+ArrayIndexOutOfBoundsException in Signature
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5384">5384</a>:
-	search engine: behavior different than expected 
+search engine: behavior different than expected
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6104">6104</a>:
-	Unoptimal debugger highlight for multi-line message expression 
-
+Unoptimal debugger highlight for multi-line message expression
 <h3>
 Problem Reports Closed</h3>
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6127">6127</a>:
-   Reference by local class not found when searching for interface refs  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6127">6127</a>: Reference
+by local class not found when searching for interface refs
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=4990">4990</a>:
-   Error starting Eclipse  
+Error starting Eclipse
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3471">3471</a>:
-   Leading '/' in src page of Java wizard is misleading (1G842TH) 
+Leading '/' in src page of Java wizard is misleading (1G842TH)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3619">3619</a>:
-   inconsistent search for method declarations (1GCZZS1)  
+inconsistent search for method declarations (1GCZZS1)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5557">5557</a>:
-   Incorrect hierarchy shown (not rooted at Object) 
+Incorrect hierarchy shown (not rooted at Object)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6100">6100</a>:
-   Bug in ObjectSet.Enumeration.nextElement  
-   
+Bug in ObjectSet.Enumeration.nextElement
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -75,50 +84,54 @@ Eclipse SDK Build 20011120 - 20th November 2001
 <br>Project org.eclipse.jdt.core v_213
 <h2>
 What's new in this drop</h2>
+
 <ul>
-<li> CodeAssist no longer find synthetic completions.
-<li> Reduced startup time of Java perspective
-<li> CodeAssist option added to force full qualification of implicit field/method references
-(see JavaCore option: "org.eclipse.jdt.core.codeComplete.forceImplicitQualification"). 
+<li>
+CodeAssist no longer find synthetic completions.</li>
+
+<li>
+Reduced startup time of Java perspective</li>
+
+<li>
+CodeAssist option added to force full qualification of implicit field/method
+references (see JavaCore option: "org.eclipse.jdt.core.codeComplete.forceImplicitQualification").</li>
 </ul>
 
 <h3>
 Problem Reports Fixed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5982">5982</a>:
-  content assist displays accessors  
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5982">5982</a>: content
+assist displays accessors
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5955">5955</a>:
-	NPE in LookupEnvironment 
+NPE in LookupEnvironment
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5923">5923</a>:
-   Search for "length" field refs finds [].length
+Search for "length" field refs finds [].length
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5916">5916</a>:
-   Search - too many matches for refs to NameLookup.findPackageFragmentRoot  
+Search - too many matches for refs to NameLookup.findPackageFragmentRoot
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5957">5957</a>:
-   Internal error in RecoveredMethod.add
+Internal error in RecoveredMethod.add
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5972">5972</a>:
-   Incremental builder (new) recompiling dependents of Parser for no apparent reason
+Incremental builder (new) recompiling dependents of Parser for no apparent
+reason
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5940">5940</a>:
-   Instance initializer in anon inner class generates errors  
+Instance initializer in anon inner class generates errors
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5913">5913</a>:
-	Performance - creating tons of classfile elements at startup    
+Performance - creating tons of classfile elements at startup
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5862">5862</a>:
-    search : too many matches on search with OrPattern  
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6070">6070</a>: 
-    New Builder: Builder order problem 
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5852">5852</a>: 
-    Project references not updated according to buildpath 
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>: 
-    CodeFormatter mapped positions broken for multi-line comments
+search : too many matches on search with OrPattern
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=6070">6070</a>:
+New Builder: Builder order problem
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5852">5852</a>:
+Project references not updated according to buildpath
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5471">5471</a>:
+CodeFormatter mapped positions broken for multi-line comments
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5563">5563</a>:
-    Write reference on declaration not reported
+Write reference on declaration not reported
 <h3>
 Problem Reports Closed</h3>
-
-<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3257">3257</a>:
-	IMethod.getParameterNames for ClassFiles should use names from source (1GDGN3G) 
+<a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3257">3257</a>: IMethod.getParameterNames
+for ClassFiles should use names from source (1GDGN3G)
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=3245">3245</a>:
-    sub folders with dot not visible in packages view (1GCOH17)  
-
+sub folders with dot not visible in packages view (1GCOH17)
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -130,17 +143,15 @@ What's new in this drop</h2>
 <h3>
 Problem Reports Fixed</h3>
 <a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5821">5821</a>: Refactor
-    Rename renames local variable instead of member in case of name clash
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5003>5003</a>: 
-    Review JavaBuilder cancelation handling 
-<br><a href=" http://dev.eclipse.org/bugs/show_bug.cgi?id="5790">5790</a>:
-    IJavaProject.hasBuildState() fails with new builder
+Rename renames local variable instead of member in case of name clash
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5003>5003</a>:     Review JavaBuilder cancelation handling <br><a href=" http://dev.eclipse.org/bugs/show_bug.cgi?id="5790">5790</a>:
+IJavaProject.hasBuildState() fails with new builder
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5794">5794</a>:
-    Polymorphic search doesn't work in dependent projects
+Polymorphic search doesn't work in dependent projects
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5781">5781</a>:
-    NPE using new image builder
+NPE using new image builder
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5834">5834</a>:
-    Incremental build recompiled unrelated project
+Incremental build recompiled unrelated project
 <h3>
 Problem Reports Closed</h3>
 <a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5215">5215</a>: search:
