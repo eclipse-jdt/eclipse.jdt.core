@@ -23,18 +23,6 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 public class CharacterLiteral extends Expression {
 
 	/**
-	 * String of characters that have a special escape equivalent.
-	 * Paralleled by QUOTED_SPECIALS.
-	 */
-	private static final String SPECIALS = "\b\t\n\f\r\"\'\\";//$NON-NLS-1$
-
-	/**
-	 * String of single-letter escape equivalents.
-	 * Parallel to SPECIALS.
-	 */
-	private static final String QUOTED_SPECIALS = "btnfr\"\'\\";//$NON-NLS-1$
-
-	/**
 	 * The literal string, including quotes and escapes; defaults to the 
 	 * literal for the character 'X'.
 	 */
@@ -160,7 +148,7 @@ public class CharacterLiteral extends Expression {
 			throw new IllegalArgumentException();
 		}
 		if (c == '\\') {
-			if (len == 3) {
+			if (len == 4) {
 				char nextChar = s.charAt(2);
 				switch(nextChar) {
 					case 'b' :
@@ -244,12 +232,57 @@ public class CharacterLiteral extends Expression {
 		StringBuffer b = new StringBuffer(3);
 		
 		b.append('\''); // opening delimiter
-		int p = SPECIALS.indexOf(value);
-		if (p >= 0) {
-			b.append('\\');
-			b.append(QUOTED_SPECIALS.charAt(p));
-		} else {
-			b.append(value);
+		switch(value) {
+			case '\b' :
+				b.append("\\b"); //$NON-NLS-1$
+				break;
+			case '\t' :
+				b.append("\\t"); //$NON-NLS-1$
+				break;
+			case '\n' :
+				b.append("\\n"); //$NON-NLS-1$
+				break;
+			case '\f' :
+				b.append("\\f"); //$NON-NLS-1$
+				break;
+			case '\r' :
+				b.append("\\r"); //$NON-NLS-1$
+				break;
+			case '\"':
+				b.append("\\\""); //$NON-NLS-1$
+				break;
+			case '\'':
+				b.append("\\\'"); //$NON-NLS-1$
+				break;
+			case '\\':
+				b.append("\\\\"); //$NON-NLS-1$
+				break;
+			case '\0' :
+				b.append("\\0"); //$NON-NLS-1$
+				break;
+			case '\1' :
+				b.append("\\1"); //$NON-NLS-1$
+				break;
+			case '\2' :
+				b.append("\\2"); //$NON-NLS-1$
+				break;
+			case '\3' :
+				b.append("\\3"); //$NON-NLS-1$
+				break;
+			case '\4' :
+				b.append("\\4"); //$NON-NLS-1$
+				break;
+			case '\5' :
+				b.append("\\5"); //$NON-NLS-1$
+				break;
+			case '\6' :
+				b.append("\\6"); //$NON-NLS-1$
+				break;
+			case '\7' :
+				b.append("\\7"); //$NON-NLS-1$
+				break;			
+			default:
+				b.append(value);
 		}
 		b.append('\''); // closing delimiter
 		setEscapedValue(b.toString());
