@@ -920,6 +920,10 @@ public interface IProblem {
 	int GenericTypeCannotExtendThrowable = TypeRelated + 557;
 	/** @since 3.1 */
 	int IllegalClassLiteralForTypeVariable = TypeRelated + 558;
+	/** @since 3.1 */
+	int ReturnTypeUncheckedConversion = MethodRelated + 559;
+	/** @since 3.1 */
+	int MethodNameClash = MethodRelated + 560;
 
 	/**
 	 * Foreach

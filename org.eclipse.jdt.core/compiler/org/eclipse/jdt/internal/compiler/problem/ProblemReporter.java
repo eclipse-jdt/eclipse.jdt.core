@@ -516,7 +516,10 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
 			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
-		
+
+		case IProblem.ReturnTypeUncheckedConversion:
+			return Warning;
+
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
 
@@ -2856,6 +2859,27 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 			local.sourceEnd);
 	}
 }
+public void methodNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	StringBuffer methodSignature = new StringBuffer();
+	methodSignature
+		.append(inheritedMethod.declaringClass.readableName())
+		.append('.')
+		.append(inheritedMethod.readableName());
+
+	StringBuffer shortSignature = new StringBuffer();
+	shortSignature
+		.append(inheritedMethod.declaringClass.shortReadableName())
+		.append('.')
+		.append(inheritedMethod.shortReadableName());
+
+	int id = IProblem.MethodNameClash;
+	this.handle(
+		id,
+		new String[] {methodSignature.toString()},
+		new String[] {shortSignature.toString()},
+		currentMethod.sourceStart(),
+		currentMethod.sourceEnd());
+}
 public void methodNeedBody(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodRequiresBody,
@@ -3378,6 +3402,27 @@ public void returnTypeCannotBeVoidArray(SourceTypeBinding type, MethodDeclaratio
 		arguments,
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
+}
+public void returnTypeUncheckedConversion(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	StringBuffer methodSignature = new StringBuffer();
+	methodSignature
+		.append(inheritedMethod.declaringClass.readableName())
+		.append('.')
+		.append(inheritedMethod.readableName());
+
+	StringBuffer shortSignature = new StringBuffer();
+	shortSignature
+		.append(inheritedMethod.declaringClass.shortReadableName())
+		.append('.')
+		.append(inheritedMethod.shortReadableName());
+
+	int id = IProblem.ReturnTypeUncheckedConversion;
+	this.handle(
+		id,
+		new String[] {methodSignature.toString()},
+		new String[] {shortSignature.toString()},
+		currentMethod.sourceStart(),
+		currentMethod.sourceEnd());
 }
 public void scannerError(Parser parser, String errorTokenName) {
 	Scanner scanner = parser.scanner;
