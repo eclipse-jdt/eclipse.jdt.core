@@ -1147,16 +1147,14 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * Returns whether a given delta contains some information relevant to the JavaModel,
 	 * in particular it will not consider SYNC or MARKER only deltas.
 	 */
-	public boolean isAffectedBy(IResourceDelta delta){
-		
-		if (delta != null) {
-			class FoundRelevantDeltaException extends CoreException {
-				FoundRelevantDeltaException() {
-					super(null);
-				}
-			}
+	public boolean isAffectedBy(IResourceDelta rootDelta){
+		//if (rootDelta == null) System.out.println("NULL DELTA");
+		//long start = System.currentTimeMillis();
+		if (rootDelta != null) {
+			// use local exception to quickly escape from delta traversal
+			class FoundRelevantDeltaException extends RuntimeException {}
 			try {
-				delta.accept(new IResourceDeltaVisitor() {
+				rootDelta.accept(new IResourceDeltaVisitor() {
 					public boolean visit(IResourceDelta delta) throws CoreException {
 						switch (delta.getKind()){
 							case IResourceDelta.ADDED :
@@ -1164,7 +1162,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 								throw new FoundRelevantDeltaException();
 							case IResourceDelta.CHANGED :
 								// if any flag is set but SYNC or MARKER, this delta should be considered
-								if ((delta.getFlags() & ~(IResourceDelta.SYNC | IResourceDelta.MARKERS)) != 0) {
+								if (delta.getAffectedChildren().length == 0 // only check leaf delta nodes
+										&& (delta.getFlags() & ~(IResourceDelta.SYNC | IResourceDelta.MARKERS)) != 0) {
 									throw new FoundRelevantDeltaException();
 								}
 						}
@@ -1172,10 +1171,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 				});
 			} catch(FoundRelevantDeltaException e) {
+				//System.out.println("RELEVANT DELTA detected in: "+ (System.currentTimeMillis() - start));
 				return true;
 			} catch(CoreException e) { // ignore delta if not able to traverse
 			}
 		}
+		//System.out.println("IGNORE SYNC DELTA took: "+ (System.currentTimeMillis() - start));
 		return false;
 	}
 	
