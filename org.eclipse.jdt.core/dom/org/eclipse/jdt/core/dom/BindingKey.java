@@ -201,9 +201,9 @@ class BindingKey {
 		CompilationUnitDeclaration parsedUnit = getCompilationUnitDeclaration(resolver.lookupEnvironment);
 		if (parsedUnit != null) {
 			char[] fileName = parsedUnit.compilationResult.getFileName();
-			if (resolver.requestedKeys.containsKey(fileName) || resolver.requestedSources.containsKey(fileName))
-				throw new RuntimeException("Key is part of a file that is being requested already"); //$NON-NLS-1$
-			resolver.process(parsedUnit, resolver.totalUnits+1);
+			// don't resolve a second time the same unit (this would create the same bindingd twice)
+			if (!resolver.requestedKeys.containsKey(fileName) && !resolver.requestedSources.containsKey(fileName))
+				resolver.process(parsedUnit, resolver.totalUnits+1);
 		}
 		return getCompilerBinding(parsedUnit, resolver);
 	 }

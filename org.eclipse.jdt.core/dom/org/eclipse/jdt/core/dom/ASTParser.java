@@ -580,15 +580,6 @@ public class ASTParser {
 	}
 	
 	/**
-	 * @deprecated This method has been replaced by {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.
-	 * @since 3.1
-	 */
-	// TODO (jerome) - remove method after 3.1 M3
-	public void createASTs(ASTRequestor requestor, IProgressMonitor monitor) {
-		createASTs(requestor.getSources(), new String[] {}, requestor, monitor);
-	}
-	
-	/**
      * Creates ASTs for a set of compilation units.
      * When bindings are being resolved, processing a
      * batch of compilation units is more efficient because much
@@ -620,26 +611,16 @@ public class ASTParser {
      * declared within the compilation units. The keys and corresponding bindings are
      * passed to <code>ASTRequestor.acceptBinding</code>.
      * </p>
-	 * <p>
-	 * [TODO (jerome) issue: Verify that the preceding para about the bindings is accurate.]
-	 * </p>
      * <p>
      * A successful call to this method returns all settings to their
      * default values so the object is ready to be reused.
      * </p>
+	 * <p>
+	 * Note this API assumes that the kind of this parser is <code>K_COMPILATION_UNIT</code>,
+	 * that the source range is <code>(0. -1)</code> and that the focal position is not set.
+	 * </p>
      * <p>
 	 * Note that this API is under development and subject to change without notice.
-	 * </p>
-	 * <p>
-	 * [TODO (jerome) issue: It might be simpler to say that createASTs always
-	 * resolves bindings. There is no benefit to use when not resolving bindings.
-	 * This would simplify the spec.]
-	 * </p>
-	 * <p>
-	 * [TODO (jerome) issue: Does this work with all kinds of ASTParsers, and all
-	 * combinations of ASTParser options? I suspect not. I think
-	 * it really only makes sense for setKind(K_COMPILATION_UNIT),
-	 * setSourceRange(0,-1), and no setFocalPosition.]
 	 * </p>
      * 
      * @param compilationUnits the compilation units to create ASTs for

@@ -38,16 +38,23 @@ public abstract class ASTRequestor {
 	 * Accepts an AST corresponding to the compilation unit.
 	 * That is, <code>ast</code> is an AST for <code>source</code>.
 	 * <p>
-	 * [TODO (jerome) issue: It would be more consistent if the input (source) was first,
-	 * and the unknown (ast) was second.]
+	 * The default implementation of this method does nothing.
+	 * Clients should override if additional asts are of interest.
 	 * </p>
 	 * 
-	 * @param ast the requested abtract syntax tree
 	 * @param source the compilation unit the ast is coming from
+	 * @param ast the requested abtract syntax tree
 	 */
+	public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+		acceptAST(ast, source);
+	}
+	
+	/**
+	 * @deprecated use acceptAST(ICompilationUnit, CompilationUnit) instead
+	 */
+	// TODO (jerome) remove when no more clients
 	public void acceptAST(CompilationUnit ast, ICompilationUnit source) {
-		// TODO (jerome) method will be abstract when clients don't use acceptAST(ASTNode) any longer
-		acceptAST(ast);
+		// do nothing
 	}
 	
 	/**
@@ -58,38 +65,31 @@ public abstract class ASTRequestor {
 	 * The default implementation of this method does nothing.
 	 * Clients should override if additional bindings are of interest.
 	 * </p>
-	 * <p>
-	 * [TODO (jerome) issue: It would be more consistent if the input (key) was first,
-	 * and the unknown (binding) was second.]
-	 * </p>
 	 * 
-	 * @param binding the requested binding, or <code>null</code> if none
 	 * @param bindingKey the key of the requested binding
+	 * @param binding the requested binding, or <code>null</code> if none
 	 */
+	public void acceptBinding(String bindingKey, IBinding binding) {
+		acceptBinding(binding, bindingKey);
+	}
+
+	/**
+	 * @deprecated use acceptBinding(String, IBinding) instead
+	 */
+	// TODO (jerome) remove when no more clients
 	public void acceptBinding(IBinding binding, String bindingKey) {
 		// do nothing
 	}
 	
 	/**
-	 * @deprecated
-	 */
-	public void acceptAST(ASTNode node) {
-		// TODO (jerome) remove method when no more clients
-	}
-	
-	/**
 	 * Resolves bindings for the given binding keys.
-	 * The given binding keys must represent declarations of elements. 
-	 * The source of one these elements cannot be included in the sources that are being requested
-	 * or in the source of the bindings that are being requested.
+	 * The given binding keys must have been obtained using {@link IBinding#getKey()}.
 	 * <p>
-	 * [TODO (jerome) issue: The spec needs to be clarified. 
-	 * My expectation was that the requestor could ask for any bindings they wanted.]
+	 * If a binding key cannot be resolved, <code>null</code> is put in the resulting array.
 	 * </p>
-	 * <p>
-	 * [TODO (jerome) issue: Need to spec what happens if the binding key cannot
-	 * be resolved. Do you just get a null in the result?  Given what the way 
-	 * the requestor works, maybe we could just call acceptBinding instead.]
+	 * The resulting binding is undefined for a binding key representing a local element if the corresponding
+	 * ast or another binding key in the same compilation unit was also requested by
+	 * {@link ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.
 	 * </p>
 	 * 
 	 * @param bindingKeys the keys of bindings to create
@@ -97,15 +97,10 @@ public abstract class ASTRequestor {
 	 * @see ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)
 	 */
 	public IBinding[] createBindings(String[] bindingKeys) {
-		return this.compilationUnitResolver.createBindings(bindingKeys);
+		int length = bindingKeys.length;
+		IBinding[] result = new IBinding[length];
+		for (int i = 0; i < length; i++)
+			result[i] = this.compilationUnitResolver.createBinding(bindingKeys[i]);
+		return result;
 	}
-	
-	/**
-	 * @deprecated
-	 */
-	// TODO (jerome) remove method when no more clients
-	public ICompilationUnit[] getSources() {
-		return new ICompilationUnit[] {};
-	}
-
 }

@@ -181,14 +181,6 @@ class CompilationUnitResolver extends Compiler {
 		lookupEnvironment.completeTypeBindings();
 	}
 	
-	IBinding[] createBindings(String[] bindinKeys) {
-		int length = bindinKeys.length;
-		IBinding[] result = new IBinding[length];
-		for (int i = 0; i < length; i++)
-			result[i] = createBinding(bindinKeys[i]);
-		return result;
-	}
-	
 	IBinding createBinding(String key) {
 		if (this.bindingTables == null)
 			throw new RuntimeException("Cannot be called outside ASTParser#createASTs(...)"); //$NON-NLS-1$
@@ -314,7 +306,7 @@ class CompilationUnitResolver extends Compiler {
 			
 			
 			// accept AST
-			astRequestor.acceptAST((CompilationUnit) node, compilationUnits[i]);
+			astRequestor.acceptAST(compilationUnits[i], (CompilationUnit) node);
 		}
 	}
 	
@@ -536,7 +528,7 @@ class CompilationUnitResolver extends Compiler {
 						ast.setOriginalModificationCount(ast.modificationCount());
 						
 						// pass it to requestor
-						astRequestor.acceptAST(compilationUnit, source);
+						astRequestor.acceptAST(source, compilationUnit);
 					} 
 					
 					BindingKey bindingKey = (BindingKey) this.requestedKeys.removeKey(unit.compilationResult.getFileName());
@@ -548,7 +540,7 @@ class CompilationUnitResolver extends Compiler {
 							
 							// pass it to requestor
 							if (binding != null)
-								astRequestor.acceptBinding(binding, bindingKey.getKey());
+								astRequestor.acceptBinding(bindingKey.getKey(), binding);
 						}
 					}
 				} finally {
@@ -570,7 +562,7 @@ class CompilationUnitResolver extends Compiler {
 				
 				// pass it to requestor
 				if (binding != null)
-					astRequestor.acceptBinding(binding, ((BindingKey) this.requestedKeys.valueTable[j]).getKey());
+					astRequestor.acceptBinding(((BindingKey) this.requestedKeys.valueTable[j]).getKey(), binding);
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);

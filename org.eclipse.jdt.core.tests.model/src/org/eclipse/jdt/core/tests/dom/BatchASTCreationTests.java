@@ -31,10 +31,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	
 	public class TestASTRequestor extends ASTRequestor {
 		public ArrayList asts = new ArrayList();
-		public void acceptAST(CompilationUnit ast, ICompilationUnit source) {
+		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 			this.asts.add(ast);
 		}
-		public void acceptBinding(IBinding binding, String bindingKey) {
+		public void acceptBinding(String bindingKey, IBinding binding) {
 		}
 	}
 	
@@ -77,8 +77,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				String bindingKey;
 				int index = -1;
 				String foundKey;
-				public void acceptAST(CompilationUnit cu, ICompilationUnit source) {
-					super.acceptAST(cu, source);
+				public void acceptAST(ICompilationUnit source, CompilationUnit cu) {
+					super.acceptAST(source, cu);
 					ASTNode node = findNode(cu, markerInfos[++this.index]);
 					if (node != null) {
 						IBinding binding = null;
@@ -94,8 +94,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 						this.bindingKey = binding == null ? null : binding.getKey();
 					}
 				}
-				public void acceptBinding(IBinding binding, String key) {
-					super.acceptBinding(binding, key);
+				public void acceptBinding(String key, IBinding binding) {
+					super.acceptBinding(key, binding);
 					this.foundKey = binding.getKey();
 				}
 			};
@@ -126,8 +126,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			workingCopies = createWorkingCopies(pathAndSources);
 			class Requestor extends TestASTRequestor {
 				String createdBindingKey;
-				public void acceptAST(CompilationUnit cu, ICompilationUnit source) {
-					super.acceptAST(cu, source);
+				public void acceptAST(ICompilationUnit source, CompilationUnit cu) {
+					super.acceptAST(source, cu);
 					IBinding[] bindings = createBindings(new String[] {expectedKey});
 					if (bindings != null && bindings.length > 0 && bindings[0] != null)
 						this.createdBindingKey = bindings[0].getKey();
