@@ -162,7 +162,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public boolean exists() {
 		
 		try {
-			getRawInfo();
+			getElementInfo();
 			return true;
 		} catch (JavaModelException e) {
 		}
@@ -249,7 +249,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IParent 
 	 */
 	public IJavaElement[] getChildren() throws JavaModelException {
-		return getElementInfo().getChildren();
+		return ((JavaElementInfo)getElementInfo()).getChildren();
 	}
 	/**
 	 * Returns a collection of (immediate) children of this node of the
@@ -285,10 +285,19 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Returns the info for this handle.  
 	 * If this element is not already open, it and all of its parents are opened.
 	 * Does not return null.
-	 *
+	 * NOTE: BinaryType infos are NJOT rooted under JavaElementInfo.
 	 * @exception JavaModelException if the element is not present or not accessible
 	 */
-	public JavaElementInfo getElementInfo() throws JavaModelException {
+	public Object getElementInfo() throws JavaModelException {
+
+		// workaround to ensure parent project resolved classpath is available to avoid triggering initializers
+		// while the JavaModelManager lock is acquired (can cause deadlocks in clients)
+		IJavaProject project = getJavaProject();
+		if (project != null && !project.isOpen()) {
+			// TODO: need to revisit, since deadlock could still occur if perProjectInfo is removed concurrent before entering the lock
+			project.getResolvedClasspath(true); // trigger all possible container/variable initialization outside the model lock
+		}
+
 		JavaModelManager manager;
 		synchronized(manager = JavaModelManager.getJavaModelManager()){
 			Object info = manager.getInfo(this);
@@ -299,7 +308,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 					throw newNotPresentException();
 				}
 			}
-			return (JavaElementInfo)info;
+			return info;
 		}
 	}
 	/**
@@ -338,19 +347,22 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IJavaElement
 	 */
 	public IJavaModel getJavaModel() {
-		return getParent().getJavaModel();
+		IJavaElement current = this;
+		do {
+			if (current instanceof IJavaModel) return (IJavaModel) current;
+		} while ((current = current.getParent()) != null);
+		return null;
 	}
-	/**
-	 * Returns the JavaModelManager
-	 */
-	public JavaModelManager getJavaModelManager() {
-		return JavaModelManager.getJavaModelManager();
-	}
+
 	/**
 	 * @see IJavaElement
 	 */
 	public IJavaProject getJavaProject() {
-		return getParent().getJavaProject();
+		IJavaElement current = this;
+		do {
+			if (current instanceof IJavaProject) return (IJavaProject) current;
+		} while ((current = current.getParent()) != null);
+		return null;
 	}
 	/**
 	 * Returns the occurrence count of the handle.
@@ -381,26 +393,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return fParent;
 	}
 	
-	/**
-	 * Returns the info for this handle.  
-	 * If this element is not already open, it and all of its parents are opened.
-	 * Does not return null.
-	 *
-	 * @exception JavaModelException if the element is not present or not accessible
-	 */
-	public Object getRawInfo() throws JavaModelException {
-		synchronized(JavaModelManager.getJavaModelManager()){
-			Object info = JavaModelManager.getJavaModelManager().getInfo(this);
-			if (info == null) {
-				openHierarchy();
-				info= JavaModelManager.getJavaModelManager().getInfo(this);
-				if (info == null) {
-					throw newNotPresentException();
-				}
-			} 
-			return info;
-		}
-	}
 	/**
 	 * Returns the element that is located at the given source position
 	 * in this element.  This is a helper method for <code>ICompilationUnit#getElementAt</code>,
@@ -473,7 +465,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IJavaElement
 	 */
 	public boolean isStructureKnown() throws JavaModelException {
-		return getElementInfo().isStructureKnown();
+		return ((JavaElementInfo)getElementInfo()).isStructureKnown();
 	}
 	/**
 	 * Creates and returns and not present exception for this element.
