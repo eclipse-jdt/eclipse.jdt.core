@@ -309,6 +309,29 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				runJavac(testFiles, expectedProblemLog);
 		}
 	}
+	// TODO (philippe) same as test001, but every type is now a SourceTypeBinding
+	public void _test001_source() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class S {}\n" +
+				"class I implements C<I> {}\n" + // TODO (philippe) NPE with "class I implements C {}\n"
+				"interface C<Tc> {}\n" +
+				"public class X<Tx1 extends S, Tx2 extends C>  extends XS<Tx2> {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        I w = new X<S,I>().get(new I());\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class XS <Txs> {\n" + 
+				"    Txs get(Txs t) {\n" + 
+				"        return t;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
 
 	public void test001() {
 		this.runConformTest(
