@@ -73,7 +73,7 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] {"testInvalidExternalClassFolder"};
+//	TESTS_NAMES = new String[] {"testMissingClasspath"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -2164,7 +2164,7 @@ public void testMissingClasspath() throws CoreException {
 		deleteFile(new File(project.getLocation().toOSString(), ".classpath"));
 		waitForAutoBuild();
 		project.open(null);
-		
+		waitForAutoBuild();
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
