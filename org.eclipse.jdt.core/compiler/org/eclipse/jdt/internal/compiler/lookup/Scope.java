@@ -949,6 +949,8 @@ public abstract class Scope
 					// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 					if (matchingMethod != null) {
 						if (currentMethod.areParametersEqual(matchingMethod)) {
+							if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
+								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 							currentLength--;
 							currentMethods[i] = null; // discard this match
 							continue nextMethod;
@@ -1486,6 +1488,7 @@ public abstract class Scope
 						return foundField;
 					}
 					problemField = foundField;
+					foundField = null;
 				}
 
 				if (environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
@@ -1506,7 +1509,8 @@ public abstract class Scope
 											invocationSite.setActualReceiverType(declaringClass);											
 											return importBinding.resolvedImport;
 										}
-										problemField = new ProblemFieldBinding(declaringClass, name, ReceiverTypeNotVisible);
+										if (problemField == null)
+											problemField = new ProblemFieldBinding(declaringClass, name, ReceiverTypeNotVisible);
 									}
 								}
 							}
@@ -1521,7 +1525,8 @@ public abstract class Scope
 									FieldBinding temp = findField((ReferenceBinding) resolvedImport, name, invocationSite, needResolve);
 									if (temp != null) {
 										if (!temp.isValidBinding()) {
-											problemField = temp;
+											if (problemField == null)
+												problemField = temp;
 										} else if (temp.isStatic()) {
 											ImportReference importReference = importBinding.reference;
 											if (importReference != null) importReference.used = true;
@@ -2819,7 +2824,7 @@ public abstract class Scope
 			case 0: return NoTypes;
 			case 1: return types;
 		}
-	
+
 		// record all supertypes of type
 		// intersect with all supertypes of otherType
 		TypeBinding firstType = types[indexOfFirst];
@@ -3050,17 +3055,49 @@ public abstract class Scope
 				MethodBinding method = visible[i];
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j || compatibilityLevels[j] != level) continue;
+					MethodBinding method2 = visible[j];
 					// tiebreak generic methods using variant where type params are substituted by their erasures
-					if (!visible[j].tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters)) {
-						if (method.isVarargs() && visible[j].isVarargs()) {
+					if (!method2.tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters)) {
+						if (method.isVarargs() && method2.isVarargs()) {
 							int paramLength = method.parameters.length;
-							if (paramLength == visible[j].parameters.length && paramLength == argumentTypes.length + 1) {
-								TypeBinding elementsType = ((ArrayBinding) visible[j].parameters[paramLength - 1]).elementsType();
+							if (paramLength == method2.parameters.length && paramLength == argumentTypes.length + 1) {
+								TypeBinding elementsType = ((ArrayBinding) method2.parameters[paramLength - 1]).elementsType();
 								if (method.parameters[paramLength - 1].isCompatibleWith(elementsType))
 									continue; // special case to choose between 2 varargs methods when the last arg is missing
 							}
 						}
 						continue nextVisible;
+					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
+						if (method.areParametersEqual(method2)) {
+							// its possible with 2 abstract methods that one does not inherit from the other
+							// need to find their methods from the receiver type
+							MethodBinding original = method.original();
+							MethodBinding original2 = method2.original();
+							if (original.areParameterErasuresEqual(original2)) continue;
+							ReferenceBinding receiverType = (ReferenceBinding) ((MessageSend) invocationSite).actualReceiverType;
+							if (receiverType != method.declaringClass) {
+								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeErasingTo(original.declaringClass);
+								MethodBinding[] superMethods = superType.getMethods(original.selector);
+								for (int m = 0, l = superMethods.length; m < l; m++) {
+									if (superMethods[m].original() == original) {
+										original = superMethods[m];
+										break;
+									}
+								}
+							}
+							if (receiverType != method2.declaringClass) {
+								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeErasingTo(original2.declaringClass);
+								MethodBinding[] superMethods = superType.getMethods(original2.selector);
+								for (int m = 0, l = superMethods.length; m < l; m++) {
+									if (superMethods[m].original() == original2) {
+										original2 = superMethods[m];
+										break;
+									}
+								}
+							}
+							if (!original.areParametersEqual(original2))
+								continue nextVisible; // cannot be substituted from 2 different type variables
+						}
 					}
 				}
 				compilationUnitScope().recordTypeReferences(method.thrownExceptions);

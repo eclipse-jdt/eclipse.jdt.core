@@ -2311,6 +2311,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// warning: foo() in X implements <T>foo() in I; return type requires unchecked conversion
 		);
 	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930
 	public void _test042() {
 		this.runConformTest(
@@ -2329,5 +2330,82 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-	}		
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	public void test043() { // ambiguous message sends because of substitution from 2 different type variables
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { void test(E<Integer,Integer> e) { e.id(new Integer(1)); } }\n" +
+				"abstract class C<A> { public abstract void id(A x); }\n" +
+				"interface I<B> { void id(B x); }\n" +
+				"abstract class E<A, B> extends C<A> implements I<B> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\r\n" + 
+			"	abstract class E<A, B> extends C<A> implements I<B> {}\r\n" + 
+			"	               ^\n" + 
+			"Name clash: The method id(A) of type C<A> has the same erasure as id(B) of type I<B> but does not override it\n" + 
+			"----------\n"
+			// javac won't report it until C.id() is made concrete or implemented in E
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { void test(E<Integer,Integer> e) { e.id(new Integer(2)); } }\n" +
+				"abstract class C<A extends Number> { public abstract void id(A x); }\n" +
+				"interface I<B> { void id(B x); }\n" +
+				"abstract class E<A extends Number, B> extends C<A> implements I<B> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	public class X { void test(E<Integer,Integer> e) { e.id(new Integer(2)); } }\r\n" + 
+			"	                                                     ^^\n" + 
+			"The method id(Integer) is ambiguous for the type E<Integer,Integer>\n" + 
+			"----------\n"
+			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in I<java.lang.Integer> match
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { void test(E<Integer,Integer> e) { e.id(new Integer(111)); } }\n" +
+				"abstract class C<A extends Number> { public void id(A x) {} }\n" +
+				"interface I<B> { void id(B x); }\n" +
+				"class E<A extends Number, B> extends C<A> implements I<B> { public void id(B b) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	public class X { void test(E<Integer,Integer> e) { e.id(new Integer(111)); } }\r\n" + 
+			"	                                                     ^^\n" + 
+			"The method id(Integer) is ambiguous for the type E<Integer,Integer>\n" + 
+			"----------\n"
+			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in E<java.lang.Integer,java.lang.Integer> match
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void test(E<Integer,Integer> e) { e.id(new Integer(111)); }\n" +
+				"	void test(M<Integer,Integer> m) {\n" +
+				"		m.id(new Integer(111));\n" +
+				"		((E<Integer, Integer>) m).id(new Integer(111));\n" +
+				"	}\n" +
+				"	void test(N<Integer> n) { n.id(new Integer(111)); }\n" +
+				"}\n" +
+				"abstract class C<A extends Number> { public void id(A x) {} }\n" +
+				"interface I<B> { void id(B x); }\n" +
+				"abstract class E<A extends Number, B> extends C<A> implements I<B> {}\n" +
+				"class M<A extends Number, B> extends E<A, B> { public void id(B b) {} }\n" +
+				"abstract class N<T extends Number> extends E<T, Number> { public void id(T n) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\r\n" + 
+			"	m.id(new Integer(111));\r\n" + 
+			"	  ^^\n" + 
+			"The method id(Integer) is ambiguous for the type M<Integer,Integer>\n" + 
+			"----------\n"
+			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in M<java.lang.Integer,java.lang.Integer> match
+		);
+	}
 }

@@ -938,6 +938,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+
 	public void test025() {
 		this.runConformTest(
 			new String[] {
@@ -956,5 +957,16 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			"4.05.0"
 		);
-	}	
+	}
+
+	public void test026() { // ensure inherited problem fields do not stop package resolution
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y { static void test() { java.lang.String.valueOf(0); } }\n" + 
+				"class Y { private String java; }\n"
+			},
+			""
+		);
+	}
 }
