@@ -15,6 +15,8 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -25,6 +27,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.JavaEnvUtils;
 import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * Ant 1.5 compiler adapter for the Eclipse Java compiler. This adapter permits the
@@ -42,6 +45,7 @@ import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
 public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	private static String compilerClass = "org.eclipse.jdt.internal.compiler.batch.Main"; //$NON-NLS-1$
 	String logFileName;
+	Map customDefaultOptions;
 	
 	/**
 	 * Performs a compile using the JDT batch compiler
@@ -54,8 +58,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 
 		try {
 			Class c = Class.forName(compilerClass);
-			Constructor batchCompilerConstructor = c.getConstructor(new Class[] { PrintWriter.class, PrintWriter.class, Boolean.TYPE});
-			Object batchCompilerInstance = batchCompilerConstructor.newInstance(new Object[] {new PrintWriter(System.out), new PrintWriter(System.err), Boolean.valueOf(true)});
+			Constructor batchCompilerConstructor = c.getConstructor(new Class[] { PrintWriter.class, PrintWriter.class, Boolean.TYPE, Map.class});
+			Object batchCompilerInstance = batchCompilerConstructor.newInstance(new Object[] {new PrintWriter(System.out), new PrintWriter(System.err), Boolean.valueOf(true), this.customDefaultOptions});
 			Method compile = c.getMethod("compile", new Class[] {String[].class}); //$NON-NLS-1$
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			final boolean resultValue = ((Boolean) result).booleanValue();
@@ -73,6 +77,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	
 	protected Commandline setupJavacCommand() throws BuildException {
 		Commandline cmd = new Commandline();
+		this.customDefaultOptions = new HashMap();
 		
 		/*
 		 * This option is used to never exit at the end of the ant task. 
@@ -180,15 +185,32 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         	}
 			if (debugLevel != null) {
 				if (debugLevel.length() == 0) {
-					cmd.createArgument().setValue("-g:none"); //$NON-NLS-1$
+					this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+					this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+					this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.DO_NOT_GENERATE);
 				} else {
-					cmd.createArgument().setValue("-g:" + debugLevel); //$NON-NLS-1$
+					this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+					this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+					this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.DO_NOT_GENERATE);
+					if (debugLevel.indexOf("vars") != -1) {//$NON-NLS-1$
+						this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
+					}
+					if (debugLevel.indexOf("lines") != -1) {//$NON-NLS-1$
+						this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.GENERATE);
+					}
+					if (debugLevel.indexOf("source") != -1) {//$NON-NLS-1$
+						this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.GENERATE);
+					}
 				}
 			} else {
-				cmd.createArgument().setValue("-g"); //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
+				this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.GENERATE);
+				this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.GENERATE);
             }
         } else {
-            cmd.createArgument().setValue("-g:none"); //$NON-NLS-1$
+			this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.DO_NOT_GENERATE);
         }
         
        // retrieve the method getCurrentCompilerArgs() using reflect
@@ -211,48 +233,78 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			}
     	}
     	
-	   	if (compilerArgs == null) {
-			/*
-			 * Handle the nowarn option. If none, then we generate all warnings.
-			 */
-			if (this.attributes.getNowarn()) {
-				if (this.deprecation) {
-					cmd.createArgument().setValue("-warn:allDeprecation"); //$NON-NLS-1$
-				} else {
-					cmd.createArgument().setValue("-nowarn"); //$NON-NLS-1$
-				}
-			} else if (this.deprecation) {
-				cmd.createArgument().setValue("-warn:allDeprecation,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
-			} else {
-				cmd.createArgument().setValue("-warn:constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
+        // disable all warnings by default
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PUBLIC);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.DISABLED);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PUBLIC);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTagsOverriding, CompilerOptions.DISABLED);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsVisibility, CompilerOptions.PUBLIC);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.DISABLED);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED); 
+
+		/*
+		 * Handle the nowarn option. If none, then we generate all warnings.
+		 */
+		if (this.attributes.getNowarn()) {
+			if (this.deprecation) {
+				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING); 
+				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED); 
+				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.ENABLED); 
 			}
-    	} else {
-			/*
-			 * Handle the nowarn option. If none, then we generate all warnings.
-			 */
-			if (this.attributes.getNowarn()) {
-				if (this.deprecation) {
-					cmd.createArgument().setValue("-warn:allDeprecation"); //$NON-NLS-1$
-				} else {
-					cmd.createArgument().setValue("-nowarn"); //$NON-NLS-1$
-				}
-			} else {
-				if (this.deprecation) {
-					cmd.createArgument().setValue("-warn:+allDeprecation"); //$NON-NLS-1$
-				} else {
-					cmd.createArgument().setValue("-warn:-allDeprecation,deprecation"); //$NON-NLS-1$
-				}
-				if (compilerArgs.length == 0) {
-					cmd.createArgument().setValue("-warn:+constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
-				}
-			}
-	        /*
-			 * Add extra argument on the command line
-			 */
-			if (compilerArgs.length != 0) {
-		        cmd.addArguments(compilerArgs);
-			}
-	   	}
+			// no warnings
+		} else if (this.deprecation) {
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING); 
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED); 
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.ENABLED); 
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.WARNING);
+		} else {
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.WARNING);
+		}
 
 	   	/*
 		 * destDir option.
@@ -266,8 +318,19 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * target option.
 		 */		
 		if (this.target != null) {
-			cmd.createArgument().setValue("-target"); //$NON-NLS-1$
-			cmd.createArgument().setValue(this.target);
+			if (this.target.equals("1.1")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+			} else if (this.target.equals("1.2")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+			} else if (this.target.equals("1.3")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
+			} else if (this.target.equals("1.4")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+			} else if (this.target.equals("1.5")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			} else {
+	            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownTarget", this.target), Project.MSG_WARN); //$NON-NLS-1$
+			}
 		}
 
 		/*
@@ -295,25 +358,32 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 */
 		String source = this.attributes.getSource();
         if (source != null) {
-            cmd.createArgument().setValue("-source"); //$NON-NLS-1$
-            cmd.createArgument().setValue(source);
+        	if (source.equals("1.3")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+			} else if (source.equals("1.4")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+			} else if (source.equals("1.5")) { //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			} else {
+	            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownSource", source), Project.MSG_WARN); //$NON-NLS-1$
+			}
         }
         
 		if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_0)
-			|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_1)
-			|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_2)
-			|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_3)) {
-			cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
+				|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_1)
+				|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_2)
+				|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_3)) {
+			this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
 		} else if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)) {
 			if (this.target != null && this.target.equals("1.1")) {			   //$NON-NLS-1$	
-				cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
 			} else {
-				cmd.createArgument().setValue("-1.4"); //$NON-NLS-1$
+				this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 			}
 		} else if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_5)) {
-			cmd.createArgument().setValue("-1.5"); //$NON-NLS-1$
+			this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 		} else {
-            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownVrsion"), Project.MSG_WARN); //$NON-NLS-1$
+            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownVmVersion", JavaEnvUtils.getJavaVersion()), Project.MSG_WARN); //$NON-NLS-1$
 		}
 		
 		/*
@@ -324,6 +394,14 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
             cmd.createArgument().setValue(this.encoding);
         }
 
+		if (compilerArgs != null) {
+	        /*
+			 * Add extra argument on the command line
+			 */
+			if (compilerArgs.length != 0) {
+		        cmd.addArguments(compilerArgs);
+			}
+	   	}
      	/*
 		 * Eclipse compiler doesn't have a -sourcepath option. This is
 		 * handled through the javac task that collects all source files in
