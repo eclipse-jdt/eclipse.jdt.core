@@ -317,26 +317,30 @@ public static Test suite() {
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
-//static {
+static {
 //	TESTS_PREFIX =  "testVarargs";
-//	TESTS_NAMES = new String[] { "testFieldReferenceBug78082" };
+//	TESTS_NAMES = new String[] { "Bug77093_String" };
 //	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
 //	TESTS_RANGE = new int[] { 16, -1 };
-//	}
+	}
 IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
 }
 IJavaSearchScope getJavaSearchScope15() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch15")});
 }
+IJavaSearchScope getJavaSearchScope15(String packageName, boolean addSubpackages) throws JavaModelException {
+	if (packageName == null) return getJavaSearchScope15();
+	return getJavaSearchPackageScope("JavaSearch15", packageName, addSubpackages);
+}
 IJavaSearchScope getJavaSearchScopeBugs() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 }
-IJavaSearchScope getJavaSearchPackageScope(String packageName) throws JavaModelException {
-	return getJavaSearchPackageScope(packageName, false);
+IJavaSearchScope getJavaSearchScopeBugs(String packageName, boolean addSubpackages) throws JavaModelException {
+	if (packageName == null) return getJavaSearchScopeBugs();
+	return getJavaSearchPackageScope("JavaSearchBugs", packageName, addSubpackages);
 }
-IJavaSearchScope getJavaSearchPackageScope(String packageName, boolean addSubpackages) throws JavaModelException {
-	String projectName = "JavaSearch15";
+IJavaSearchScope getJavaSearchPackageScope(String projectName, String packageName, boolean addSubpackages) throws JavaModelException {
 	IPackageFragment fragment = getPackageFragment(projectName, "src", packageName);
 	if (fragment == null) return null;
 	IJavaElement[] searchPackages = null;
@@ -382,6 +386,19 @@ protected void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement
 }
 protected void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
 	new SearchEngine().searchDeclarationsOfSentMessages(enclosingElement, requestor, null);
+}
+protected void assertSearchResults(String message, String expected, Object collector) {
+	String actual = collector.toString();
+	if (!expected.equals(actual)) {
+		System.out.println(getName()+" expected result is:");
+		System.out.print(displayString(actual, 2));
+		System.out.println(",");
+	}
+	assertEquals(
+		message,
+		expected,
+		actual
+	);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -441,6 +458,17 @@ public void testConstructorDeclaration02() throws CoreException { // was testCon
 	assertSearchResults(
 		"MyJar.jar p1.A(java.lang.String) [No source]", 
 		this.resultCollector);
+}
+/**
+ * Regression test for bug 77093: [search] No references found to method with member type argument
+ */
+public void testConstructorDeclarationBug77093() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b77093/X.java").getType("X");
+	IMethod method = type.getMethod("X", new String[] {"[[QZ;"});
+	search(method, DECLARATIONS, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b77093/X.java b77093.X(Z[][]) [X]",
+		resultCollector);
 }
 /**
  * Simple constructor reference test.
@@ -607,6 +635,17 @@ public void testConstructorReference10() throws CoreException { // was testConst
 		"src/c11/A.java c11.A2() [A2] SYNTHETIC\n" + 
 		"src/c11/A.java c11.A3() [super()]",
 		this.resultCollector);
+}
+/**
+ * Regression test for bug 77093: [search] No references found to method with member type argument
+ */
+public void testConstructorReferenceBug77093() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b77093/X.java").getType("X");
+	IMethod method = type.getMethod("X", new String[] {"[[QZ;"});
+	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b77093/X.java b77093.X() [this(new Z[10][])]",
+		resultCollector);
 }
 /**
  * CoreException thrown during accept.
@@ -974,6 +1013,17 @@ public void testFieldDeclaration04() throws CoreException { // was testFieldDecl
 	assertSearchResults(
 		"src/c5/Test.java c5.Test.class_path [class_path]", 
 		this.resultCollector);
+}
+/**
+ * Regression test for bug 77093: [search] No references found to method with member type argument
+ */
+public void testFieldDeclarationBug77093() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b77093/X.java").getType("X");
+	IField field = type.getField("z_arrays");
+	search(field, DECLARATIONS, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b77093/X.java b77093.X.z_arrays [z_arrays]",
+		resultCollector);
 }
 /**
  * Field reference test.
@@ -1435,6 +1485,19 @@ public void testFieldReferenceBug78082() throws CoreException {
 		this.resultCollector);
 }
 /**
+ * Regression test for bug 77093: [search] No references found to method with member type argument
+ */
+public void testFieldReferenceBug77093() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b77093/X.java").getType("X");
+	IField field = type.getField("z_arrays");
+	search(field, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b77093/X.java b77093.X(Z[][]) [z_arrays]\n" + 
+		"src/b77093/X.java void b77093.X.bar() [z_arrays]\n" + 
+		"src/b77093/X.java void b77093.X.bar() [z_arrays]",
+		resultCollector);
+}
+/**
  * Interface implementors test.
  */
 public void testInterfaceImplementors1() throws CoreException { // was testInterfaceImplementors
@@ -1768,6 +1831,17 @@ public void testMethodDeclaration10() throws CoreException { // was testMethodDe
 		this.resultCollector);
 }
 /**
+ * Regression test for bug 77093: [search] No references found to method with member type argument
+ */
+public void testMethodDeclarationBug77093() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b77093/X.java").getType("X");
+	IMethod method = type.getMethod("foo", new String[] {"[QZ;"});
+	search(method, DECLARATIONS, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b77093/X.java void b77093.X.foo(Z[]) [foo]",
+		resultCollector);
+}
+/**
  * Method reference test.
  * (regression test for bug 5068 search: missing method reference)
  */
@@ -2076,6 +2150,17 @@ public void testMethodReferenceBug72866() throws CoreException {
 	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
 	assertSearchResults(
 		"src/b72866/X.java void b72866.X.foo(V) [bar(this)]",
+		resultCollector);
+}
+/**
+ * Regression test for bug 77093: [search] No references found to method with member type argument
+ */
+public void testMethodReferenceBug77093() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b77093/X.java").getType("X");
+	IMethod method = type.getMethod("foo", new String[] {"[QZ;"});
+	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b77093/X.java void b77093.X.bar() [foo(z_arrays[i])]",
 		resultCollector);
 }
 /**
@@ -2993,7 +3078,7 @@ public void testTypeReference06() throws CoreException {
 	search(
 		type, 
 		REFERENCES, 
-		getJavaSearchPackageScope("p1", true), 
+		getJavaSearchScope15("p1", true), 
 		this.resultCollector);
 	assertSearchResults(
 		"src/p1/Y.java Object p1.Y.foo() [X]",

@@ -111,12 +111,12 @@ protected char[] getQualifiedPattern(char[] simpleNamePattern, char[] qualificat
  * also concatene enclosing type name when type is a only a member type.
  */
 protected char[] getQualifiedSourceName(TypeBinding binding) {
-	if (binding instanceof ReferenceBinding) {
-		ReferenceBinding type = (ReferenceBinding) binding;
+	TypeBinding type = binding instanceof ArrayBinding ? ((ArrayBinding)binding).leafComponentType : binding;
+	if (type instanceof ReferenceBinding) {
 		if (type.isLocalType()) {
-			return CharOperation.concat(qualifiedSourceName(type.enclosingType()), new char[] {'.', '1', '.'}, type.sourceName());
+			return CharOperation.concat(qualifiedSourceName(type.enclosingType()), new char[] {'.', '1', '.'}, binding.sourceName());
 		} else if (type.isMemberType()) {
-			return CharOperation.concat(qualifiedSourceName(type.enclosingType()), type.sourceName(), '.');
+			return CharOperation.concat(qualifiedSourceName(type.enclosingType()), binding.sourceName(), '.');
 		}
 	}
 	return binding != null ? binding.qualifiedSourceName() : null;
@@ -325,12 +325,30 @@ public int resolveLevel(Binding binding) {
 /**
  * Returns whether the given type binding matches the given simple name pattern 
  * and qualification pattern.
+ * Note that from since 3.1, this method resolve to accurate member or local types
+ * even if they are not fully qualified (ie. X.Member instead of p.X.Member).
  * Returns ACCURATE_MATCH if it does.
  * Returns INACCURATE_MATCH if resolve failed.
  * Returns IMPOSSIBLE_MATCH if it doesn't.
  */
-protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
-	return resolveLevelForType(qualifiedPattern(simpleNamePattern, qualificationPattern), type);
+protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding binding) {
+//	return resolveLevelForType(qualifiedPattern(simpleNamePattern, qualificationPattern), type);
+	char[] qualifiedPattern = getQualifiedPattern(simpleNamePattern, qualificationPattern);
+	int level = resolveLevelForType(qualifiedPattern, binding);
+	if (level == ACCURATE_MATCH || binding == null) return level;
+	boolean match = false;
+	TypeBinding type = binding instanceof ArrayBinding ? ((ArrayBinding)binding).leafComponentType : binding;
+	if (type.isMemberType() || type.isLocalType()) {
+		if (qualificationPattern != null) {
+			match = CharOperation.equals(qualifiedPattern, getQualifiedSourceName(binding), this.isCaseSensitive);
+		} else {
+			match = CharOperation.equals(qualifiedPattern, binding.sourceName(), this.isCaseSensitive); // need to keep binding to get source name
+		}
+	} else if (qualificationPattern == null) {
+		match = CharOperation.equals(qualifiedPattern, getQualifiedSourceName(binding), this.isCaseSensitive);
+	}
+	return match ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
+
 }
 
 /**

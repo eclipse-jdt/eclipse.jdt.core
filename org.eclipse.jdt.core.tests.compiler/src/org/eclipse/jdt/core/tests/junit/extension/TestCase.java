@@ -119,7 +119,8 @@ public static List buildTestsList(Class evaluationTestClass) {
 					// tests names subset
 					if (TESTS_NAMES != null) {
 						for (int i = 0, imax= TESTS_NAMES.length; i<imax; i++) {
-							if (TESTS_NAMES[i].equals(methName) || TESTS_NAMES[i].equals(methName.substring(numStart))) {
+//							if (TESTS_NAMES[i].equals(methName) || TESTS_NAMES[i].equals(methName.substring(numStart))) {
+							if (methName.indexOf(TESTS_NAMES[i]) >= 0) {
 								testNames.add(methName);
 								tests.add(constructor.newInstance(params));
 								continue nextMethod;

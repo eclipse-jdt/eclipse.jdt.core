@@ -55,7 +55,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 		
 		search(type,
 			REFERENCES,
-			getJavaSearchPackageScope("bug73336"), 
+			getJavaSearchScope15("bug73336", false),
 			resultCollector);
 		assertSearchResults(
 			"src/bug73336/AA.java bug73336.AA [A] EXACT_MATCH\n" + 
@@ -71,7 +71,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 		
 		search(type,
 			REFERENCES,
-			getJavaSearchPackageScope("bug73336b"), 
+			getJavaSearchScope15("bug73336b", false), 
 			resultCollector);
 		assertSearchResults(
 			"src/bug73336b/B.java bug73336b.B [A] EXACT_MATCH\n" + 
@@ -89,7 +89,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 		
 		search(type,
 			REFERENCES,
-			getJavaSearchPackageScope("bug73336c"), 
+			getJavaSearchScope15("bug73336c", false), 
 			resultCollector);
 		assertSearchResults(
 				"src/bug73336c/B.java bug73336c.B [A] EXACT_MATCH\n" + 
@@ -130,7 +130,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a generic type
 	public void testElementPatternSingleParam01() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/s/def/Generic.java").getType("Generic");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/s/ref/R1.java [g1.t.s.def.Generic] EXACT_MATCH\n" + 
@@ -177,7 +177,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a member type declared in a generic type
 	public void testElementPatternSingleParam02() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/s/def/Generic.java").getType("Generic").getType("Member");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -197,7 +197,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a generic member type declared in a generic type
 	public void testElementPatternSingleParam03() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/s/def/Generic.java").getType("Generic").getType("MemberGeneric");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -217,7 +217,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a generic member type declared in a non-generic type
 	public void testElementPatternSingleParam04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/s/def/NonGeneric.java").getType("NonGeneric").getType("GenericMember");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [NonGeneric.GenericMember] EXACT_MATCH\n" + 
@@ -238,7 +238,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a generic type
 	public void testElementPatternMultipleParam01() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/m/def/Generic.java").getType("Generic");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java [g1.t.m.def.Generic] EXACT_MATCH\n" + 
@@ -285,7 +285,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a member type declared in a generic type
 	public void testElementPatternMultipleParam02() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/m/def/Generic.java").getType("Generic").getType("Member");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -305,7 +305,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a generic member type declared in a generic type
 	public void testElementPatternMultipleParam03() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/m/def/Generic.java").getType("Generic").getType("MemberGeneric");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -325,7 +325,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Search reference to a generic member type declared in a non-generic type
 	public void testElementPatternMultipleParam04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g1/t/m/def/NonGeneric.java").getType("NonGeneric").getType("GenericMember");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [NonGeneric.GenericMember] EXACT_MATCH\n" + 
@@ -385,7 +385,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testElementPatternNestedParam02() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GS.java").getType("GS").getType("Member");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R2.java g3.t.ref.R2.sgsm_wld [GS<GM<?, ?, ?>.Member>.Member] EXACT_MATCH\n" + 
@@ -422,7 +422,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testElementPatternNestedParam03() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GS.java").getType("GS").getType("Generic");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_wld [GS<GM<?, ?, ?>.Generic<?, ?, ?>>.Generic] EXACT_MATCH\n" + 
@@ -460,7 +460,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// TODO (search-frederic) try to have a better match selection
 	public void testElementPatternNestedParam04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GS.java").getType("NGS").getType("Generic");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_wld [NGS.Generic] EXACT_MATCH\n" + 
@@ -524,7 +524,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testElementPatternNestedParam06() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GM.java").getType("GM").getType("Member");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R2.java g3.t.ref.R2.sgsm_wld [GM<?, ?, ?>.Member] EXACT_MATCH\n" + 
@@ -549,7 +549,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testElementPatternNestedParam07() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GM.java").getType("GM").getType("Generic");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_wld [GM<?, ?, ?>.Generic] EXACT_MATCH\n" + 
@@ -575,7 +575,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// TODO (search-frederic) try to have a better match selection
 	public void testElementPatternNestedParam08() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g3/t/def/GM.java").getType("NGM").getType("Generic");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_wld [NGM.Generic] EXACT_MATCH\n" + 
@@ -601,7 +601,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 
 	// Search reference to a generic type
 	public void testStringPatternSimpleName01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t.s.ref");
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", false /* only this package */);
 		search("Generic", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/s/ref/R1.java [Generic] EXACT_MATCH\n" + 
@@ -646,7 +646,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testStringPatternSimpleName02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t.m.ref");
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
 		search("Generic", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java [Generic] EXACT_MATCH\n" + 
@@ -692,7 +692,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type declared in a generic type
 	public void testStringPatternSimpleName03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Member] EXACT_MATCH\n" + 
@@ -723,7 +723,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type declared in a generic type
 	public void testStringPatternSimpleName04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -754,7 +754,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type declared in a non-generic type
 	public void testStringPatternSimpleName05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -785,7 +785,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic type
 	public void testStringPatternAnyStrings01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t.s.ref");
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", false /* only this package */);
 		search("*Generic", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/s/ref/R1.java [Generic] EXACT_MATCH\n" + 
@@ -843,7 +843,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testStringPatternAnyStrings02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t.m.ref");
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
 		search("*Generic", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java [Generic] EXACT_MATCH\n" + 
@@ -902,7 +902,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type declared in a generic type
 	public void testStringPatternAnyStrings03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t.s.ref");
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.s.ref", false /* only this package */);
 		search("*Member*", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -944,7 +944,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testStringPatternAnyStrings04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t.m.ref");
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t.m.ref", false /* only this package */);
 		search("*Member*", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -988,7 +988,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 
 	// Search reference to a generic type
 	public void testSingleParameterizedStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1031,7 +1031,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testSingleParameterizedStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -1050,7 +1050,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testSingleParameterizedStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -1068,7 +1068,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testSingleParameterizedStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -1087,7 +1087,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testSingleParameterizedStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1106,7 +1106,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testSingleParameterizedStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1127,7 +1127,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleParameterizedStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception>.MemberGeneric<Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1141,7 +1141,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 
 	// Search reference to a generic type
 	public void testSingleWildcardExtendsStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1178,7 +1178,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testSingleWildcardExtendsStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -1195,7 +1195,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testSingleWildcardExtendsStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<? extends Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -1211,7 +1211,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testSingleWildcardExtendsStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<? extends Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -1228,7 +1228,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testSingleWildcardExtendsStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1245,7 +1245,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (sezrch-frederic) try to have a better match selection
 	public void testSingleWildcardExtendsStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? extends Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1264,7 +1264,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleWildcardExtendsStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception>.MemberGeneric<? extends Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1279,7 +1279,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic type
 	public void testSingleWildcardSuperStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1316,7 +1316,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testSingleWildcardSuperStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -1333,7 +1333,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testSingleWildcardSuperStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<? super Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -1349,7 +1349,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testSingleWildcardSuperStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<? super Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -1366,7 +1366,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testSingleWildcardSuperStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1383,7 +1383,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testSingleWildcardSuperStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? super Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1402,7 +1402,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleWildcardSuperStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception>.MemberGeneric<? super Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1417,7 +1417,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic type
 	public void testSingleWildcardUnboundStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1466,7 +1466,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testSingleWildcardUnboundStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -1487,7 +1487,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testSingleWildcardUnboundStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -1507,7 +1507,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testSingleWildcardUnboundStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -1528,7 +1528,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testSingleWildcardUnboundStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1549,7 +1549,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testSingleWildcardUnboundStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1572,7 +1572,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testSingleWildcardUnboundStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?>.MemberGeneric<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1594,7 +1594,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 
 	// Search reference to a generic type
 	public void testMultipleParameterizedStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1637,7 +1637,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testMultipleParameterizedStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception, Exception, RuntimeException>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -1656,7 +1656,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testMultipleParameterizedStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<Exception, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -1674,7 +1674,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testMultipleParameterizedStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<Exception, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -1693,7 +1693,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleParameterizedStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception, Exception, RuntimeException>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1712,7 +1712,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleParameterizedStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<Exception, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1733,7 +1733,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleParameterizedStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<Exception, Exception, RuntimeException>.MemberGeneric<Exception, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1752,7 +1752,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic type
 	public void testMultipleWildcardExtendsStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception, ? extends Exception, ? extends RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1789,7 +1789,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testMultipleWildcardExtendsStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception, ? extends Exception, ? extends RuntimeException>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -1806,7 +1806,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testMultipleWildcardExtendsStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<? extends Exception, ? extends Exception, ? extends RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -1822,7 +1822,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testMultipleWildcardExtendsStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<? extends Exception, ? extends Exception, ? extends RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -1839,7 +1839,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleWildcardExtendsStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception, ? extends Exception, ? extends RuntimeException>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1856,7 +1856,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleWildcardExtendsStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? extends Exception, ? extends Exception, ? extends RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1875,7 +1875,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleWildcardExtendsStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? extends Exception, ? extends Exception, ? extends RuntimeException>.MemberGeneric<? extends Exception, ? extends Exception, ? extends RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1890,7 +1890,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic type
 	public void testMultipleWildcardSuperStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception, ? super Exception, ? super RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -1927,7 +1927,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testMultipleWildcardSuperStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception, ? super Exception, ? super RuntimeException>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -1944,7 +1944,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testMultipleWildcardSuperStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<? super Exception, ? super Exception, ? super RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -1960,7 +1960,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testMultipleWildcardSuperStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<? super Exception, ? super Exception, ? super RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -1977,7 +1977,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleWildcardSuperStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception, ? super Exception, ? super RuntimeException>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -1994,7 +1994,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleWildcardSuperStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<? super Exception, ? super Exception, ? super RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -2013,7 +2013,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleWildcardSuperStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<? super Exception, ? super Exception, ? super RuntimeException>.MemberGeneric<? super Exception, ? super Exception, ? super RuntimeException>.", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -2028,7 +2028,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic type
 	public void testMultipleWildcardUnboundStringPattern01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?, ?, ? >", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R1.java g1.t.m.ref.R1.gen [Generic] EXACT_MATCH\n" + 
@@ -2077,7 +2077,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a member type
 	public void testMultipleWildcardUnboundStringPattern02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?, ?, ?>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Generic.Member] EXACT_MATCH\n" + 
@@ -2098,7 +2098,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// Search reference to a generic member type
 	public void testMultipleWildcardUnboundStringPattern03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("GenericMember<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen [GenericMember] EXACT_MATCH\n" + 
@@ -2118,7 +2118,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testMultipleWildcardUnboundStringPattern04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("MemberGeneric<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [MemberGeneric] EXACT_MATCH\n" + 
@@ -2139,7 +2139,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleWildcardUnboundStringPattern05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?, ?, ?>.MemberGeneric", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -2160,7 +2160,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testMultipleWildcardUnboundStringPattern06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic.MemberGeneric<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -2183,7 +2183,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// We cannot find these kind of references as we compute 2 type arguments
 	// although there's only one per class in the member type hierarchy...
 	public void _testMultipleWildcardUnboundStringPattern07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g1.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search("Generic<?, ?, ?>.MemberGeneric<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.gen [Generic.MemberGeneric] EXACT_MATCH\n" + 
@@ -2205,7 +2205,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 
 	// Search reference with nested parameterized types
 	public void testStringPatternNestedParam01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("GS<Exception>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_wld [GS<?>] EXACT_MATCH\n" + 
@@ -2259,7 +2259,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testStringPatternNestedParam02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("GS<? extends Exception>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R2.java g3.t.ref.R2.sgms_wld [GS<?>.Member] EXACT_MATCH\n" + 
@@ -2280,7 +2280,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) Match count is OK but selection is not correct in this peculiar case...
 	public void testStringPatternNestedParam03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("GS.Generic<? super RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_wld [Generic<?, ?, ?>] EXACT_MATCH\n" + 
@@ -2315,7 +2315,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testStringPatternNestedParam04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("NGS.Generic<?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_wld [Generic<NGM.Generic<?, ?, ?>>] EXACT_MATCH\n" + 
@@ -2351,7 +2351,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testStringPatternNestedParam05() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("GM<Object, Exception, RuntimeException>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_wld [GM<?, ?, ?>] EXACT_MATCH\n" + 
@@ -2387,7 +2387,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testStringPatternNestedParam06() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("GM<java.lang.Object, ? extends java.lang.Exception, ? super java.lang.RuntimeException>.Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R2.java g3.t.ref.R2.sgsm_wld [GM<?, ?, ?>.Member] EXACT_MATCH\n" + 
@@ -2403,7 +2403,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			resultCollector);
 	}
 	public void testStringPatternNestedParam07() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("GM.Member<?, ?, ?>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R2.java g3.t.ref.R2.sgsm_wld [GM<?, ?, ?>.Member] EXACT_MATCH\n" + 
@@ -2428,7 +2428,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	// TODO (search-frederic) try to have a better match selection
 	public void testStringPatternNestedParam08() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g3.t", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g3.t", true /* add all subpackages */);
 		search("NGM.Generic<? extends java.lang.Object, ? extends java.lang.Object, ? extends java.lang.Object>", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g3/t/ref/R4.java g3.t.ref.R4.sgsm_wld [Generic<?, ?, ?>] EXACT_MATCH\n" + 

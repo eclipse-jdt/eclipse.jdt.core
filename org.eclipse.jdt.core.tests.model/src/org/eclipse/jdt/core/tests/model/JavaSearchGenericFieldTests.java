@@ -29,16 +29,12 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
-	static {
-		// Prefix for names of tests to run
+//	static {
 //		TESTS_PREFIX =  "testGenericFieldReference";
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_NAMES = new String[] { "testGenericFieldReferenceAC04" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 8 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		TESTS_RANGE = new int[] { -1, -1 };
-	}
+//	}
 
 	protected void setUp () throws Exception {
 		super.setUp();
@@ -67,7 +63,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of generic type
 	public void testElementPatternSingleTypeArgument01() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/def/Generic.java").getType("Generic").getField("t");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/s/def/R1.java g2.f.s.def.R1.{} [t] EXACT_MATCH\n" + 
@@ -83,7 +79,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of field of member type declared in a generic type
 	public void testElementPatternSingleTypeArgument02() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/def/Generic.java").getType("Generic").getType("Member").getField("m");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/s/def/R2.java g2.f.s.def.R2.{} [m] EXACT_MATCH\n" + 
@@ -99,7 +95,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of field of generic member type declared in a generic type
 	public void testElementPatternSingleTypeArgument03() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/def/Generic.java").getType("Generic").getType("MemberGeneric").getField("v");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/s/def/R3.java g2.f.s.def.R3.{} [v] EXACT_MATCH\n" + 
@@ -119,7 +115,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of generic member type declared in a non-generic type
 	public void testElementPatternSingleTypeArgument04() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/def/NonGeneric.java").getType("NonGeneric").getType("GenericMember").getField("t");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/s/def/R4.java g2.f.s.def.R4.{} [t] EXACT_MATCH\n" + 
@@ -135,7 +131,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of generic type
 	public void testElementPatternMultipleTypeArgument01() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/def/Generic.java").getType("Generic").getField("t1");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/m/def/R1.java g2.f.m.def.R1.{} [t1] EXACT_MATCH\n" + 
@@ -151,7 +147,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of member type declared in a generic type
 	public void testElementPatternMultipleTypeArgument02() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/def/Generic.java").getType("Generic").getType("Member").getField("m");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/m/def/R2.java g2.f.m.def.R2.{} [m] EXACT_MATCH\n" + 
@@ -167,7 +163,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of generic member type declared in a generic type
 	public void testElementPatternMultipleTypeArgument03() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/def/Generic.java").getType("Generic").getType("MemberGeneric").getField("u2");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/m/def/R3.java g2.f.m.def.R3.{} [u2] EXACT_MATCH\n" + 
@@ -187,7 +183,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	// Search reference to a field of generic member type declared in a non-generic type
 	public void testElementPatternMultipleTypeArgument04() throws CoreException {
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/def/NonGeneric.java").getType("NonGeneric").getType("GenericMember").getField("t3");
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		search(field, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g2/f/m/def/R4.java g2.f.m.def.R4.{} [t3] EXACT_MATCH\n" + 
@@ -202,7 +198,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a single parameterized field
 	public void testElementPatternSingleParameterizedType01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R1.java").getType("R1").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R1.java").getType("R1").getField("gen_obj");
@@ -244,7 +240,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a member type field of single parameterized type
 	public void testElementPatternSingleParameterizedType02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R2.java").getType("R2").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R2.java").getType("R2").getField("gen_obj");
@@ -286,7 +282,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a single parameterized member type field of a single parameterized type
 	public void testElementPatternSingleParameterizedType03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R3.java").getType("R3").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R3.java").getType("R3").getField("gen_obj");
@@ -328,7 +324,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a single parameterized member type field
 	public void testElementPatternSingleParameterizedType04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R4.java").getType("R4").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R4.java").getType("R4").getField("gen_obj");
@@ -370,7 +366,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a multiple parameterized field
 	public void testElementPatternMultipleParameterizedType01() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R1.java").getType("R1").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R1.java").getType("R1").getField("gen_obj");
@@ -412,7 +408,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a member type field of multiple parameterized type
 	public void testElementPatternMultipleParameterizedType02() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R2.java").getType("R2").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R2.java").getType("R2").getField("gen_obj");
@@ -454,7 +450,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a multiple parameterized member type field of a multiple parameterized type
 	public void testElementPatternMultipleParameterizedType03() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R3.java").getType("R3").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R3.java").getType("R3").getField("gen_obj");
@@ -496,7 +492,7 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 	}
 	// Search reference to a multiple parameterized member type field
 	public void testElementPatternMultipleParameterizedType04() throws CoreException {
-		IJavaSearchScope scope = getJavaSearchPackageScope("g2.f", true /* add all subpackages */);
+		IJavaSearchScope scope = getJavaSearchScope15("g2.f", true /* add all subpackages */);
 		IField field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R4.java").getType("R4").getField("gen");
 		search(field, REFERENCES, scope, resultCollector);
 		field = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R4.java").getType("R4").getField("gen_obj");
