@@ -350,8 +350,8 @@ protected void consumeLocalVariableDeclarationStatement() {
 	// force to restart in recovery mode if the declaration contains the selection
 	if (!this.diet) {
 		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];
-		if ((this.selectionStart >= localDeclaration.declarationSourceStart) 
-				&&  (this.selectionEnd <= localDeclaration.declarationSourceEnd)) {
+		if ((this.selectionStart >= localDeclaration.sourceStart) 
+				&&  (this.selectionEnd <= localDeclaration.sourceEnd)) {
 			this.restartRecovery	= true;	
 			this.lastIgnoredToken = -1;	
 		}

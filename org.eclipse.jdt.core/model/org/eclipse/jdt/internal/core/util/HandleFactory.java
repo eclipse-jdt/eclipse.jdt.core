@@ -173,20 +173,19 @@ public class HandleFactory {
 			}
 			
 			public boolean visit(Argument node, BlockScope scope) {
-				LocalVariable localVariable = 
-					new LocalVariable(
-						(JavaElement)currentElement, 
-						new String(node.name), 
-						node.declarationSourceStart,
-						node.declarationSourceEnd,
-						node.sourceStart,
-						node.sourceEnd);
-				currentElement = localVariable; // no need to update occurence count as the variable is defined by its positions
-				if (node == toBeFound) throw new EndVisit();
+				if (node == toBeFound) {
+					currentElement = 
+						new LocalVariable(
+							(JavaElement)currentElement, 
+							new String(node.name), 
+							node.declarationSourceStart,
+							node.declarationSourceEnd,
+							node.sourceStart,
+							node.sourceEnd);
+					// NB: no need to update occurence count as the variable is defined by its positions
+					throw new EndVisit();
+				}
 				return true;
-			}
-			public void endVisit(Argument argument, BlockScope scope) {
-				currentElement = currentElement.getParent();
 			}
 
 			public boolean visit(ConstructorDeclaration node, ClassScope scope) {
@@ -220,20 +219,19 @@ public class HandleFactory {
 			}
 
 			public boolean visit(LocalDeclaration node, BlockScope scope) {
-				LocalVariable localVariable = 
-					new LocalVariable(
-						(JavaElement)currentElement, 
-						new String(node.name), 
-						node.declarationSourceStart,
-						node.declarationSourceEnd,
-						node.sourceStart,
-						node.sourceEnd);
-				currentElement = localVariable; // no need to update occurence count as the variable is defined by its positions
-				if (node == toBeFound) throw new EndVisit();
+				if (node == toBeFound) {
+					currentElement = 
+						new LocalVariable(
+							(JavaElement)currentElement, 
+							new String(node.name), 
+							node.declarationSourceStart,
+							node.declarationSourceEnd,
+							node.sourceStart,
+							node.sourceEnd);
+					// NB: no need to update occurence count as the variable is defined by its positions
+					throw new EndVisit();
+				}
 				return true;
-			}
-			public void endVisit(LocalDeclaration localDeclaration, BlockScope scope) {
-				currentElement = currentElement.getParent();
 			}
 
 			public boolean visit(LocalTypeDeclaration node, BlockScope scope) {

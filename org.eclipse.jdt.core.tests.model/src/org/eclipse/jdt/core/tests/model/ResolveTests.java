@@ -728,6 +728,18 @@ public void testMethodDeclaration() throws JavaModelException {
 	);
 }
 /**
+ * Resolve method declaration in anonymous
+ * (regression test for bug 45655 exception while editing java file)
+ */
+public void testMethodDeclarationinanonymous() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveMethodDeclarationInAnonymous.java");
+	IJavaElement[] elements = codeSelect(cu, "bar()", "bar");
+	assertElementsEqual(
+		"Unexpected elements",
+		"bar() [in <anonymous #1> [in foo() [in ResolveMethodDeclarationInAnonymous [in ResolveMethodDeclarationInAnonymous.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}/**
  * Resolve the method
  */
 public void testMethodWithIncorrectParameter() throws JavaModelException {
