@@ -118,7 +118,10 @@ void buildTypeBindings() {
 		}
 
 		ClassScope child = new ClassScope(this, typeDecl);
-		topLevelTypes[count++] = child.buildType(null, fPackage);
+		SourceTypeBinding type = child.buildType(null, fPackage);
+		if(type != null) {
+			topLevelTypes[count++] = type;
+		}
 	}
 
 	// shrink topLevelTypes... only happens if an error was reported
