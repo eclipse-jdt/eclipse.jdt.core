@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.internal.core.Assert;
 
 import junit.framework.*;
 
