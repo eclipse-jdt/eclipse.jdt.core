@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.IPath;
@@ -51,10 +50,20 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public static Class testClass() {
 		return GenericTypeSignatureTest.class;
 	}
-	IPath dirPath;
+	
+	IPath dirPath = new Path(OUTPUT_DIR);
 	
 	public GenericTypeSignatureTest(String name) {
 		super(name);
+	}
+
+	/**
+	 * @throws TargetException
+	 */
+	protected void cleanUp() throws TargetException {
+		// Clean up written file(s)
+		IPath testDir =  new Path(OUTPUT_DIR);
+		cleanupDirectory(testDir.toFile());
 	}
 
 	/*######################################
@@ -95,30 +104,16 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
 		return options;
 	}
-
-	/*#########################################
-	 * Override basic runConform and run Negative methods to compile test files
-	 * with Sun compiler (if specified) and compare its results with ours.
-	 ##########################################*/
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runConformTest(java.lang.String[], java.lang.String)
-	 */
-	protected void runConformTest(String[] testFiles,
-			String expectedSuccessOutputString, String[] classLib,
-			boolean shouldFlushOutputDirectory, String[] vmArguments,
-			Map customOptions) {
-		try {
-			super.runConformTest(testFiles, expectedSuccessOutputString,
-					classLib, shouldFlushOutputDirectory, vmArguments,
-					customOptions);
-		} catch (AssertionFailedError e) {
-			throw e;
-		} finally {
-			if (runJavac)
-				runJavac(testFiles, null);
+	
+	protected String[] getFileNames(String[] testFiles) {
+		int length = testFiles.length;
+		int max = length / 2;
+		String[] fileNames = new String[max];
+		for (int i=0; i < max; i++) {
+			fileNames[i] = testFiles[i*2];
 		}
+		return fileNames;
 	}
-
 	/*
 	 * Run Sun compilation using javac.
 	 * Use JRE directory to retrieve javac bin directory and current classpath for
@@ -126,15 +121,15 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	 * Launch compilation in a thread and verify that it does not take more than 5s
 	 * to perform it. Otherwise abort the process and log in console.
 	 */
-	protected void runJavac(String[] testFiles, final String expectedProblemLog) {
+	protected void runJavac(final String testName, String[] testFiles) {
 		try {
 			// Write files in dir
-			final IPath dirFilePath = writeFiles(testFiles);
+			writeFiles(testFiles);
 			
+			final String[] fileNames = getFileNames(testFiles);
 			// Create thread to run process
 			Thread waitThread = new Thread() {
 				public void run() {
-					String testName = shortTestName();
 					Process process = null;
 					try {
 						// Compute classpath
@@ -142,7 +137,11 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 						StringBuffer cp = new StringBuffer();
 						int length = classpath.length;
 						for (int i = 0; i < length; i++) {
-							cp.append(classpath[i]);
+							if (classpath[i].indexOf(" ") != -1) {
+								cp.append("\"" + classpath[i] + "\"");
+							} else {
+								cp.append(classpath[i]);
+							}
 							if (i<(length-1)) cp.append(";");
 						}
 						// Compute command line
@@ -151,27 +150,14 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 						StringBuffer cmdLine = new StringBuffer(javacPath.toString());
 						cmdLine.append(" -classpath ");
 						cmdLine.append(cp);
-						cmdLine.append(" -source 1.5 -deprecation -Xlint "); // enable recommended warnings
-						if (GenericTypeSignatureTest.this.dirPath.equals(dirFilePath)) {
-							cmdLine.append("*.java");
-						} else {
-							IPath subDirPath = dirFilePath.append("*.java").removeFirstSegments(GenericTypeSignatureTest.this.dirPath.segmentCount());
-							String subDirName = subDirPath.toString().substring(subDirPath.getDevice().length());
-							cmdLine.append(subDirName);
+						cmdLine.append(" -source 1.5 -deprecation -g -Xlint "); // enable recommended warnings
+						for (int i = 0, length2 = fileNames.length; i < length2; i++) {
+							cmdLine.append(fileNames[i] + " ");
 						}
-//						System.out.println(testName+": "+cmdLine.toString());
+						// System.out.println(testName+": "+cmdLine.toString());
 						// Launch process
 						process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeSignatureTest.this.dirPath.toFile());
 						process.waitFor();
-						// Compare compilation results
-						int exitValue = process.exitValue();
-						if (expectedProblemLog == null && exitValue != 0) {
-							System.out.println(testName+": javac has found error(s) although we're expecting conform result!");
-						}
-						else if (expectedProblemLog != null && exitValue == 0) {
-							System.out.println(testName+": javac has found no error although we're expecting negative result:");
-							System.out.println(expectedProblemLog);
-						}
 					} catch (IOException ioe) {
 						System.out.println(testName+": Not possible to launch Sun javac compilation!");
 					} catch (InterruptedException e1) {
@@ -192,50 +178,14 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			if (waitThread.isAlive()) {
 				waitThread.interrupt();
 			}
-
-			// Clean up written file(s)
-			IPath testDir =  new Path(Util.getOutputDirectory()).append(shortTestName());
-			cleanupDirectory(testDir.toFile());
 		} catch (Exception e) {
 			// fails silently...
 			e.printStackTrace();
 		}
 	}
-	/* (non-Javadoc)
-	 * Override to compile test files with Sun compiler if specified and compare its results with ours.
-	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runNegativeTest(java.lang.String[], java.lang.String)
-	 */
-	protected void runNegativeTest(String[] testFiles,
-			String expectedProblemLog, String[] classLib,
-			boolean shouldFlushOutputDirectory, Map customOptions,
-			boolean generateOutput) {
-		try {
-			super.runNegativeTest(testFiles, expectedProblemLog, classLib,
-					shouldFlushOutputDirectory, customOptions, generateOutput);
-		} catch (AssertionFailedError e) {
-			throw e;
-		} finally {
-			if (runJavac)
-				runJavac(testFiles, expectedProblemLog);
-		}
-	}
-
-	/*
-	 * Get short test name (without compliance info)
-	 */
-	String shortTestName() {
-		String fname = getName();
-		int idx = fname.indexOf(" - ");
-		if (idx < 0) {
-			return fname;
-		} else {
-			return fname.substring(idx+3);
-		}
-	}
 
 	public void test001() {
-		this.runConformTest(
-			new String[] {
+		final String[] testsSource = new String[] {
 				"X.java",
 				"public class X <T> extends p.A<T> {\n" + 
 				"    protected T t;\n" + 
@@ -256,7 +206,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				"        this.p = p;\n" + 
 				"    }\n" + 
 				"}"
-			},
+			};
+		this.runConformTest(
+			testsSource,
 			"SUCCESS");
 
 		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
@@ -327,11 +279,90 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 		assertNotNull(tEntry);
 		assertEquals("Wrong signature", "TT;", new String(tEntry.getSignature()));
+		
+		if (!runJavac) return;
+		
+		// Compare with javac
+		try {
+			cleanUp();
+		} catch(TargetException e) {
+			// nothing to do
+		}
+		
+		runJavac("test001", testsSource);
+		
+		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+		methodInfos = classFileReader.getMethodInfos();
+		length = methodInfos.length;
+		assertEquals("Wrong size", 2, length);
+		mainMethod = null;
+		for (int i = 0; i < length; i++) {
+			IMethodInfo methodInfo = methodInfos[i];
+			if ("main".equals(new String(methodInfo.getName()))) {
+				mainMethod = methodInfo;
+				break;
+			}
+		}
+		assertNotNull(mainMethod);
+		codeAttribute = mainMethod.getCodeAttribute();
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
+		assertNotNull(classFileAttribute);
+		localVariableTypeTableAttribute = (ILocalVariableTypeTableAttribute) classFileAttribute;
+		entries = localVariableTypeTableAttribute.getLocalVariableTypeTable();
+		xsEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("xs".equals(new String(entry.getName()))) {
+				xsEntry = entry;
+				break;
+			}
+		}
+		assertNotNull(xsEntry);
+		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(xsEntry.getSignature()));
+
+		constructorMethod = null;
+		for (int i = 0; i < length; i++) {
+			IMethodInfo methodInfo = methodInfos[i];
+			if ("<init>".equals(new String(methodInfo.getName()))) {
+				constructorMethod = methodInfo;
+				break;
+			}
+		}
+		assertNotNull(constructorMethod);
+		codeAttribute = constructorMethod.getCodeAttribute();
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
+		assertNotNull(classFileAttribute);
+		localVariableTypeTableAttribute = (ILocalVariableTypeTableAttribute) classFileAttribute;
+		entries = localVariableTypeTableAttribute.getLocalVariableTypeTable();
+		thisEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("this".equals(new String(entry.getName()))) {
+				thisEntry = entry;
+				break;
+			}
+		}
+		assertNotNull(thisEntry);
+		assertEquals("Wrong signature", "LX<TT;>;", new String(thisEntry.getSignature()));
+		tEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("t".equals(new String(entry.getName()))) {
+				tEntry = entry;
+				break;
+			}
+		}
+		assertNotNull(tEntry);
+		assertEquals("Wrong signature", "TT;", new String(tEntry.getSignature()));
 	}
 	
 	public void test002() {
-		this.runConformTest(
-			new String[] {
+		final String[] testsSource = new String[] {
 				"X.java",
 				"class X extends p.A<String> {\n" + 
 				"    X() {\n" + 
@@ -344,7 +375,8 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				"    protected A(P p) {\n" + 
 				"    }\n" + 
 				"}"
-			});
+			};
+		this.runConformTest(testsSource);
 		
 		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
 		assertNotNull(classFileReader);
@@ -389,16 +421,69 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 		assertNotNull(tEntry);
 		assertEquals("Wrong signature", "TP;", new String(tEntry.getSignature()));
+
+		if (!runJavac) return;
+
+		// Compare with javac
+		try {
+			cleanUp();
+		} catch(TargetException e) {
+			// nothing to do
+		}
+		
+		runJavac("test002", testsSource);
+		
+		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "Lp/A<Ljava/lang/String;>;", new String(signatureAttribute.getSignature()));
+
+		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "p/A.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<P:Ljava/lang/Object;>Ljava/lang/Object;", new String(signatureAttribute.getSignature()));
+
+		methodInfos = classFileReader.getMethodInfos();
+		length = methodInfos.length;
+		assertEquals("Wrong size", 1, length);
+		constructorMethod = methodInfos[0];
+		codeAttribute = constructorMethod.getCodeAttribute();
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
+		assertNotNull(classFileAttribute);
+		localVariableTypeTableAttribute = (ILocalVariableTypeTableAttribute) classFileAttribute;
+		entries = localVariableTypeTableAttribute.getLocalVariableTypeTable();
+		thisEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("this".equals(new String(entry.getName()))) {
+				thisEntry = entry;
+				break;
+			}
+		}
+		assertNotNull(thisEntry);
+		assertEquals("Wrong signature", "Lp/A<TP;>;", new String(thisEntry.getSignature()));
+		tEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("p".equals(new String(entry.getName()))) {
+				tEntry = entry;
+				break;
+			}
+		}
+		assertNotNull(tEntry);
+		assertEquals("Wrong signature", "TP;", new String(tEntry.getSignature()));
 	}	
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
 	 */
-	private IPath writeFiles(String[] testFiles) {
+	private void writeFiles(String[] testFiles) {
 		// Compute and create specific dir
-		IPath outDir = new Path(Util.getOutputDirectory());
-		this.dirPath =  outDir.append(shortTestName());
-		IPath dirFilePath = this.dirPath;
+		IPath dirFilePath = (IPath) this.dirPath.clone();
 		File dir = dirFilePath.toFile();
 		if (!dir.exists()) {
 			dir.mkdirs();
@@ -418,6 +503,5 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 			Util.writeToFile(contents, filePath.toString());
 		}
-		return dirFilePath;
 	}
 }
