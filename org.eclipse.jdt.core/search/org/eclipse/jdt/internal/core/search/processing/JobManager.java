@@ -134,11 +134,11 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			JobManager.verbose("DISCARD   DONE with background job family - " + jobFamily); //$NON-NLS-1$
 	}
-	public void enable() {
+	public synchronized void enable() {
 		enabled = true;
 		if (VERBOSE)
 			JobManager.verbose("ENABLING  background indexing"); //$NON-NLS-1$
-		this.notifyAll(); // wake up the background thread if it is waiting			
+		this.notifyAll(); // wake up the background thread if it is waiting (context must be synchronized)			
 	}
 	public boolean isEnabled() {
 		return enabled;
