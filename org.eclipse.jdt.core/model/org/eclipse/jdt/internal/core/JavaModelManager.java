@@ -9,30 +9,27 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
-import java.io.*;
-import java.util.*;
-import java.util.zip.ZipFile;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.*;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
+import org.eclipse.jdt.internal.core.search.indexing.*;
+
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipFile;
+import javax.xml.parsers.*;
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 /**
  * The <code>JavaModelManager</code> manages instances of <code>IJavaModel</code>.
@@ -44,6 +41,11 @@ import org.xml.sax.SAXException;
  */
 public class JavaModelManager implements ISaveParticipant { 	
 
+	/**
+	 * Unique handle onto the JavaModel
+	 */
+	private final JavaModel javaModel = new JavaModel();
+	
 	/**
 	 * Classpath variables pool
 	 */
@@ -102,244 +104,6 @@ public class JavaModelManager implements ISaveParticipant {
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 
 	public final static IWorkingCopy[] NoWorkingCopy = new IWorkingCopy[0];
-	
-	/**
-	 * The singleton manager
-	 */
-	private final static JavaModelManager Manager= new JavaModelManager();
-
-	/**
-	 * Infos cache.
-	 */
-	protected JavaModelCache cache = new JavaModelCache();
-
-	/**
-	 * Set of elements which are out of sync with their buffers.
-	 */
-	protected Map elementsOutOfSynchWithBuffers = new HashMap(11);
-	
-	/**
-	 * Turns delta firing on/off. By default it is on.
-	 */
-	private boolean isFiring= true;
-
-	/**
-	 * Unique handle onto the JavaModel
-	 */
-	private final JavaModel javaModel = new JavaModel();
-	
-	/**
-	 * Queue of deltas created explicily by the Java Model that
-	 * have yet to be fired.
-	 */
-	ArrayList javaModelDeltas= new ArrayList();
-	/**
-	 * Collection of listeners for Java element deltas
-	 */
-	private IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
-	private int[] elementChangedListenerMasks = new int[5];
-	private int elementChangedListenerCount = 0;
-	public int currentChangeEventType = ElementChangedEvent.PRE_AUTO_BUILD;
-	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
-
-	/**
-	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
-	 */
-	public final DeltaProcessor deltaProcessor = new DeltaProcessor(this);
-	/**
-	 * Used to update the JavaModel for <code>IJavaElementDelta</code>s.
-	 */
-	private final ModelUpdater modelUpdater =new ModelUpdater();
-	/**
-	 * Workaround for bug 15168 circular errors not reported  
-	 * This is a cache of the projects before any project addition/deletion has started.
-	 */
-	public IJavaProject[] javaProjectsCache;
-
-	/**
-	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
-	 */
-	private static final String WKS_PROP_FILENAME= "workspace.properties"; //$NON-NLS-1$
-
-	/**
-	 * Name of the handle id attribute in a Java marker
-	 */
-	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"; //$NON-NLS-1$
-
-	/**
-	 * Table from IProject to PerProjectInfo.
-	 */
-	protected Map perProjectInfo = new HashMap(5);
-	
-	/**
-	 * A map from ICompilationUnit to IWorkingCopy
-	 * of the shared working copies.
-	 */
-	public Map sharedWorkingCopies = new HashMap();
-	
-	/**
-	 * A weak set of the known scopes.
-	 */
-	protected WeakHashMap scopes = new WeakHashMap();
-
-	public static boolean VERBOSE = false;
-	public static boolean CP_RESOLVE_VERBOSE = false;
-	public static boolean ZIP_ACCESS_VERBOSE = false;
-	
-	/**
-	 * A cache of opened zip files per thread.
-	 * (map from Thread to map of IPath to java.io.ZipFile)
-	 */
-	private HashMap zipFiles = new HashMap();
-	
-	static class PerProjectInfo {
-		IProject project;
-		Object savedState;
-		boolean triedRead;
-		IClasspathEntry[] classpath;
-		IClasspathEntry[] lastResolvedClasspath;
-		PerProjectInfo(IProject project) {
-			this.triedRead = false;
-			this.savedState = null;
-			this.project = project;
-		}
-	};
-	
-	/**
-	 * Update the classpath variable cache
-	 */
-	public static class PluginPreferencesListener implements Preferences.IPropertyChangeListener {
-		/**
-		 * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(PropertyChangeEvent)
-		 */
-		public void propertyChange(Preferences.PropertyChangeEvent event) {
-
-			String propertyName = event.getProperty();
-			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
-
-				// update path cache
-				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
-				String newValue = (String)event.getNewValue();
-				if (newValue == null || newValue.equals(CP_VARIABLE_IGNORE)) {
-					Variables.remove(varName);
-				} else {
-					Variables.put(varName, new Path(newValue));
-				}
-			}
-		}
-	}
-
-	/**
-	 * Line separator to use throughout the JavaModel for any source edit operation
-	 */
-	//	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
-	/**
-	 * Constructs a new JavaModelManager
-	 */
-	private JavaModelManager() {
-	}
-
-	/**
-	 * @deprecated - discard once debug has converted to not using it
-	 */
-	public void addElementChangedListener(IElementChangedListener listener) {
-		this.addElementChangedListener(listener, ElementChangedEvent.POST_CHANGE | ElementChangedEvent.POST_RECONCILE);
-	}
-	/**
-	 * addElementChangedListener method comment.
-	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
-	 * any of the other (i.e. it deregisters itself).
-	 */
-	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
-		for (int i = 0; i < this.elementChangedListenerCount; i++){
-			if (this.elementChangedListeners[i].equals(listener)){
-				
-				// only clone the masks, since we could be in the middle of notifications and one listener decide to change
-				// any event mask of another listeners (yet not notified).
-				int cloneLength = this.elementChangedListenerMasks.length;
-				System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[cloneLength], 0, cloneLength);
-				this.elementChangedListenerMasks[i] = eventMask; // could be different
-				return;
-			}
-		}
-		// may need to grow, no need to clone, since iterators will have cached original arrays and max boundary and we only add to the end.
-		int length;
-		if ((length = this.elementChangedListeners.length) == this.elementChangedListenerCount){
-			System.arraycopy(this.elementChangedListeners, 0, this.elementChangedListeners = new IElementChangedListener[length*2], 0, length);
-			System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[length*2], 0, length);
-		}
-		this.elementChangedListeners[this.elementChangedListenerCount] = listener;
-		this.elementChangedListenerMasks[this.elementChangedListenerCount] = eventMask;
-		this.elementChangedListenerCount++;
-	}
-
-	/**
-	 * Starts caching ZipFiles.
-	 * Ignores if there are already clients.
-	 */
-	public synchronized void cacheZipFiles() {
-		Thread currentThread = Thread.currentThread();
-		if (this.zipFiles.get(currentThread) != null) return;
-		this.zipFiles.put(currentThread, new HashMap());
-	}
-	public synchronized void closeZipFile(ZipFile zipFile) {
-		if (zipFile == null) return;
-		if (this.zipFiles.get(Thread.currentThread()) != null) {
-			return; // zip file will be closed by call to flushZipFiles
-		}
-		try {
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.closeZipFile(ZipFile)] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
-			}
-			zipFile.close();
-		} catch (IOException e) {
-		}
-	}
-	
-
-
-	/**
-	 * Configure the plugin with respect to option settings defined in ".options" file
-	 */
-	public void configurePluginDebugOptions(){
-		if(JavaCore.getPlugin().isDebugging()){
-			String option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
-			if(option != null) IndexManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-			
-			option = Platform.getDebugOption(COMPILER_DEBUG);
-			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
-			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(SHARED_WC_DEBUG);
-			if(option != null) CompilationUnit.SHARED_WC_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(CP_RESOLVE_DEBUG);
-			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
-			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(DELTA_DEBUG);
-			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(HIERARCHY_DEBUG);
-			if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(BUILDER_DEBUG);
-			if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-			
-			option = Platform.getDebugOption(COMPLETION_DEBUG);
-			if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-			
-			option = Platform.getDebugOption(SELECTION_DEBUG);
-			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-
-			option = Platform.getDebugOption(SEARCH_DEBUG);
-			if(option != null) SearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
-		}
-	}
 	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
@@ -583,6 +347,245 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return null;
 	}
+	
+	/**
+	 * The singleton manager
+	 */
+	private final static JavaModelManager Manager= new JavaModelManager();
+
+	/**
+	 * Infos cache.
+	 */
+	protected JavaModelCache cache = new JavaModelCache();
+
+	/**
+	 * Set of elements which are out of sync with their buffers.
+	 */
+	protected Map elementsOutOfSynchWithBuffers = new HashMap(11);
+	
+	/**
+	 * Turns delta firing on/off. By default it is on.
+	 */
+	private boolean isFiring= true;
+
+	/**
+	 * Queue of deltas created explicily by the Java Model that
+	 * have yet to be fired.
+	 */
+	private ArrayList javaModelDeltas= new ArrayList();
+
+	/**
+	 * Collection of listeners for Java element deltas
+	 */
+	private IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
+	private int[] elementChangedListenerMasks = new int[5];
+	private int elementChangedListenerCount = 0;
+	public int currentChangeEventType = ElementChangedEvent.PRE_AUTO_BUILD;
+	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
+
+
+
+	/**
+	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
+	 */
+	public final DeltaProcessor deltaProcessor = new DeltaProcessor(this);
+	/**
+	 * Used to update the JavaModel for <code>IJavaElementDelta</code>s.
+	 */
+	private final ModelUpdater modelUpdater =new ModelUpdater();
+	/**
+	 * Workaround for bug 15168 circular errors not reported  
+	 * This is a cache of the projects before any project addition/deletion has started.
+	 */
+	public IJavaProject[] javaProjectsCache;
+
+
+	/**
+	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
+	 */
+	private static final String WKS_PROP_FILENAME= "workspace.properties"; //$NON-NLS-1$
+
+	/**
+	 * Name of the handle id attribute in a Java marker
+	 */
+	private static final String ATT_HANDLE_ID= "org.eclipse.jdt.internal.core.JavaModelManager.handleId"; //$NON-NLS-1$
+
+	/**
+	 * Table from IProject to PerProjectInfo.
+	 */
+	protected Map perProjectInfo = new HashMap(5);
+	
+	/**
+	 * A map from ICompilationUnit to IWorkingCopy
+	 * of the shared working copies.
+	 */
+	public Map sharedWorkingCopies = new HashMap();
+	
+	/**
+	 * A weak set of the known scopes.
+	 */
+	protected WeakHashMap scopes = new WeakHashMap();
+
+	static class PerProjectInfo {
+		IProject project;
+		Object savedState;
+		boolean triedRead;
+		IClasspathEntry[] classpath;
+		IClasspathEntry[] lastResolvedClasspath;
+		PerProjectInfo(IProject project) {
+			this.triedRead = false;
+			this.savedState = null;
+			this.project = project;
+		}
+	};
+	public static boolean VERBOSE = false;
+	public static boolean CP_RESOLVE_VERBOSE = false;
+	public static boolean ZIP_ACCESS_VERBOSE = false;
+	
+	/**
+	 * A cache of opened zip files per thread.
+	 * (map from Thread to map of IPath to java.io.ZipFile)
+	 */
+	private HashMap zipFiles = new HashMap();
+	
+	
+	/**
+	 * Update the classpath variable cache
+	 */
+	public static class PluginPreferencesListener implements Preferences.IPropertyChangeListener {
+		/**
+		 * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(PropertyChangeEvent)
+		 */
+		public void propertyChange(Preferences.PropertyChangeEvent event) {
+
+			String propertyName = event.getProperty();
+			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
+
+				// update path cache
+				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
+				String newValue = (String)event.getNewValue();
+				if (newValue == null || newValue.equals(CP_VARIABLE_IGNORE)) {
+					Variables.remove(varName);
+				} else {
+					Variables.put(varName, new Path(newValue));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Line separator to use throughout the JavaModel for any source edit operation
+	 */
+	//	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	/**
+	 * Constructs a new JavaModelManager
+	 */
+	private JavaModelManager() {
+	}
+
+	/**
+	 * @deprecated - discard once debug has converted to not using it
+	 */
+	public void addElementChangedListener(IElementChangedListener listener) {
+		this.addElementChangedListener(listener, ElementChangedEvent.POST_CHANGE | ElementChangedEvent.POST_RECONCILE);
+	}
+	/**
+	 * addElementChangedListener method comment.
+	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
+	 * any of the other (i.e. it deregisters itself).
+	 */
+	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
+		for (int i = 0; i < this.elementChangedListenerCount; i++){
+			if (this.elementChangedListeners[i].equals(listener)){
+				
+				// only clone the masks, since we could be in the middle of notifications and one listener decide to change
+				// any event mask of another listeners (yet not notified).
+				int cloneLength = this.elementChangedListenerMasks.length;
+				System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[cloneLength], 0, cloneLength);
+				this.elementChangedListenerMasks[i] = eventMask; // could be different
+				return;
+			}
+		}
+		// may need to grow, no need to clone, since iterators will have cached original arrays and max boundary and we only add to the end.
+		int length;
+		if ((length = this.elementChangedListeners.length) == this.elementChangedListenerCount){
+			System.arraycopy(this.elementChangedListeners, 0, this.elementChangedListeners = new IElementChangedListener[length*2], 0, length);
+			System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[length*2], 0, length);
+		}
+		this.elementChangedListeners[this.elementChangedListenerCount] = listener;
+		this.elementChangedListenerMasks[this.elementChangedListenerCount] = eventMask;
+		this.elementChangedListenerCount++;
+	}
+
+	/**
+	 * Starts caching ZipFiles.
+	 * Ignores if there are already clients.
+	 */
+	public synchronized void cacheZipFiles() {
+		Thread currentThread = Thread.currentThread();
+		if (this.zipFiles.get(currentThread) != null) return;
+		this.zipFiles.put(currentThread, new HashMap());
+	}
+	public synchronized void closeZipFile(ZipFile zipFile) {
+		if (zipFile == null) return;
+		if (this.zipFiles.get(Thread.currentThread()) != null) {
+			return; // zip file will be closed by call to flushZipFiles
+		}
+		try {
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.closeZipFile(ZipFile)] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
+			}
+			zipFile.close();
+		} catch (IOException e) {
+		}
+	}
+	
+
+
+	/**
+	 * Configure the plugin with respect to option settings defined in ".options" file
+	 */
+	public void configurePluginDebugOptions(){
+			if(JavaCore.getPlugin().isDebugging()){
+				String option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
+				if(option != null) IndexManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+				
+				option = Platform.getDebugOption(COMPILER_DEBUG);
+				if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(JAVAMODEL_DEBUG);
+				if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(SHARED_WC_DEBUG);
+				if(option != null) CompilationUnit.SHARED_WC_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(CP_RESOLVE_DEBUG);
+				if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
+				if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(DELTA_DEBUG);
+				if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(HIERARCHY_DEBUG);
+				if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(BUILDER_DEBUG);
+				if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+				
+				option = Platform.getDebugOption(COMPLETION_DEBUG);
+				if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+				
+				option = Platform.getDebugOption(SELECTION_DEBUG);
+				if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+	
+				option = Platform.getDebugOption(SEARCH_DEBUG);
+				if(option != null) SearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			}
+	}
+	
+
 	
 	/**
 	 * @see ISaveParticipant
@@ -886,10 +889,12 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/*
-	 * Returns the per-project info for the given project. Create the info if the info doesn't exist.	 */
+	 * Returns the per-project info for the given project. Create the info if the info doesn't exist.
+	 */
 	private PerProjectInfo getPerProjectInfo(IProject project) {
 		return getPerProjectInfo(project, true /* create info */);
 	}
+	
 	/*
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
@@ -901,10 +906,12 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return info;
 	}
+	
 	/*
 	 * Returns  the per-project info for the given project.
 	 * If the info if the info doesn't exist, check for the project existence and create the info.
-	 * @throws JavaModelException if the project doesn't exist.	 */
+	 * @throws JavaModelException if the project doesn't exist.
+	 */
 	PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
 		JavaModelManager.PerProjectInfo info = getPerProjectInfo(project, false /* don't create info */);
 		if (info == null) {
@@ -974,6 +981,8 @@ public class JavaModelManager implements ISaveParticipant {
 			throw new CoreException(new Status(Status.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
 		}
 	}
+
+
 
 	/**
 	 * Returns true if the firing is enabled
@@ -1138,7 +1147,10 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/**
-	 * Registers the given delta with this manager.
+	 * Registers the given delta with this manager. This API is to be
+	 * used to registerd deltas that are created explicitly by the Java
+	 * Model. Deltas created as translations of <code>IResourceDeltas</code>
+	 * are to be registered with <code>#registerResourceDelta</code>.
 	 */
 	protected void registerJavaModelDelta(IJavaElementDelta delta) {
 		this.javaModelDeltas.add(delta);
@@ -1197,11 +1209,54 @@ public class JavaModelManager implements ISaveParticipant {
 			perProjectInfo.remove(project);
 		}
 	}
+
+
 	
 	/**
 	 * @see ISaveParticipant
 	 */
 	public void rollback(ISaveContext context){
+	}
+
+	/**
+	 * Runs a Java Model Operation
+	 */
+	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
+		
+		int previousDeltaCount = this.javaModelDeltas.size();
+		try {
+			if (operation.isReadOnly()) {
+				operation.run(monitor);
+			} else {
+				// use IWorkspace.run(...) to ensure that a build will be done in autobuild mode
+				this.getJavaModel().getWorkspace().run(operation, monitor);
+			}
+		} catch (CoreException ce) {
+			if (ce instanceof JavaModelException) {
+				throw (JavaModelException)ce;
+			} else {
+				if (ce.getStatus().getCode() == IResourceStatus.OPERATION_FAILED) {
+					Throwable e= ce.getStatus().getException();
+					if (e instanceof JavaModelException) {
+						throw (JavaModelException) e;
+					}
+				}
+				throw new JavaModelException(ce);
+			}
+		} finally {
+			// update JavaModel using deltas that were recorded during this operation
+			for (int i = previousDeltaCount, size = this.javaModelDeltas.size(); i < size; i++) {
+				updateJavaModel((IJavaElementDelta)this.javaModelDeltas.get(i));
+			}
+			
+			// fire only iff:
+			// - the operation did produce some delta(s)
+			// - but the operation has not modified any resource
+			if ((this.javaModelDeltas.size() > previousDeltaCount) 
+					&& !operation.hasModifiedResource()) {
+				fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
+			} // else deltas are fired while processing the resource delta
+		}
 	}
 
 	private void saveBuildState() throws CoreException {
@@ -1268,7 +1323,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * @see ISaveParticipant
 	 */
 	public void saving(ISaveContext context) throws CoreException {
-			int k = context.getKind();
+	
+		int k = context.getKind();
 		if (k == ISaveContext.FULL_SAVE){
 			this.saveBuildState();	// build state
 		} else if (k == ISaveContext.PROJECT_SAVE){
@@ -1283,7 +1339,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * on the projects classpath settings.
 	 */
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
-		// optional behaviour
+
+		// optional behaviour
 		// possible value of index 0 is Compute
 		if (!JavaCore.COMPUTE.equals(JavaCore.getOption(JavaCore.CORE_JAVA_BUILD_ORDER))) return;
 		
@@ -1292,7 +1349,8 @@ public class JavaModelManager implements ISaveParticipant {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceDescription description = workspace.getDescription();
 		String[] wksBuildOrder = description.getBuildOrder();
-		String[] newOrder;
+
+		String[] newOrder;
 		if (wksBuildOrder == null){
 			newOrder = javaBuildOrder;
 		} else {
