@@ -96,14 +96,36 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// perform type inference based on argument types and expected type
 			
 			// collect substitutes by pattern matching parameters and arguments
-			int argLength = arguments.length;
 			TypeBinding[] parameters = originalMethod.parameters;
 			int varLength = typeVariables.length;
 			HashMap collectedSubstitutes = new HashMap(varLength);
 			for (int i = 0; i < varLength; i++)
 				collectedSubstitutes.put(typeVariables[i], new TypeBinding[1]);
-			for (int i = 0; i < argLength; i++)
-				parameters[i].collectSubstitutes(arguments[i], collectedSubstitutes);
+			
+			// collect argument type mapping, handling varargs
+			if (originalMethod.isVarargs()) {
+				int paramLength = parameters.length;
+				int minArgLength = paramLength - 1;
+				int argLength = arguments.length;
+				// process mandatory arguments
+				for (int i = 0; i < minArgLength; i++)
+					parameters[i].collectSubstitutes(arguments[i], collectedSubstitutes);
+				// process optional arguments
+				if (minArgLength < argLength) {
+					TypeBinding varargType = parameters[minArgLength]; // last arg type - as is ?
+					if (paramLength != argLength // argument is passed as is ?
+							||  (arguments[minArgLength] != NullBinding
+									&& (arguments[minArgLength].dimensions() != varargType.dimensions()))) { 
+						varargType = ((ArrayBinding)varargType).elementsType(); // eliminate one array dimension
+					}
+					for (int i = minArgLength; i < argLength; i++)
+						varargType.collectSubstitutes(arguments[i], collectedSubstitutes);
+				}
+			} else {
+				int paramLength = parameters.length;
+				for (int i = 0; i < paramLength; i++)
+					parameters[i].collectSubstitutes(arguments[i], collectedSubstitutes);
+			}
 			substitutes = new TypeBinding[varLength];
 			boolean needReturnTypeInference = false;
 			for (int i = 0; i < varLength; i++) {

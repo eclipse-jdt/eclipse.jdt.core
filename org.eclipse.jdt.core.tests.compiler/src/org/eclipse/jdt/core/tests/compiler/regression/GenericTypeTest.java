@@ -10164,4 +10164,148 @@ class C extends B implements IDoubles {
 				"----------\n"
 		);
 	}
+
+	// 77422 - generic varargs method
+	public void test387() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X<T>\n" + 
+				"{\n" + 
+				"\n" + 
+				"	public boolean test1()\n" + 
+				"	{\n" + 
+				"			test2(\"test\", null, 0);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <F> List<F> test2(final List<F> list, final String... strings)\n" + 
+				"	{\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	test2(\"test\", null, 0);\n" + 
+			"	^^^^^\n" + 
+			"The method test2(List<F>, String...) in the type X<T> is not applicable for the arguments (String, null, int)\n" + 
+			"----------\n");
+	}
+
+	// 77422 - variation
+	public void test388() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X<T>\n" + 
+				"{\n" + 
+				"\n" + 
+				"	public boolean test1()\n" + 
+				"	{\n" + 
+				"			test2(null, null, \"test\");\n" + 
+				"			return false;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <F> List<F> test2(final List<F> list, final String... strings)\n" + 
+				"	{\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}
+
+	// 77422 - variation
+	public void test389() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public boolean test1()	{\n" + 
+				"		String s = foo(\"hello\");\n" + 
+				"		return s != null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <F> F foo(F f, F... others) {\n" + 
+				"		return f;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}	
+	
+	// 77422 - variation
+	public void test390() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public boolean test1()	{\n" + 
+				"		String s = foo(null, \"hello\");\n" + 
+				"		return s != null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <F> F foo(F f, F... others) {\n" + 
+				"		return f;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}		
+	
+	// 77422 - variation
+	public void test391() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public boolean test1()	{\n" + 
+				"		String[] s = foo(null, new String[]{ \"hello\" });\n" + 
+				"		return s != null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <F> F foo(F f, F... others) {\n" + 
+				"		return f;\n" + 
+				"	}\n" + 
+				"}\n"	
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	String[] s = foo(null, new String[]{ \"hello\" });\n" + 
+			"	         ^\n" + 
+			"Type mismatch: cannot convert from String to String[]\n" + 
+			"----------\n"
+		);
+	}		
+	
+	// 77422 - variation
+	public void test392() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public boolean test1()	{\n" + 
+				"		foo(null, \"hello\");\n" + // no inference on expected type
+				"		return true;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <F> F foo(F f, F... others) {\n" + 
+				"		return f;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}		
 }
