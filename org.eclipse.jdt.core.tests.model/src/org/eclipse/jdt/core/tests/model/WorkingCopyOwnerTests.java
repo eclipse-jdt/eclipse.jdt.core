@@ -42,6 +42,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	public static Test suite() {
+		if (false) {
+			Suite suite = new Suite(WorkingCopyOwnerTests.class.getName());
+			suite.addTest(new WorkingCopyOwnerTests("testSearch3"));
+			return suite;
+		}
 		return new Suite(WorkingCopyOwnerTests.class);
 	}
 
@@ -881,6 +886,54 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
 			}
+		}
+	}
+
+	/*
+	 * Ensures that searching takes the primary owner's working copies into account only if the working copy
+	 * is not saved.
+	 */
+	public void testSearch3() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFile("/P/Y.java", "");
+			workingCopy = getCompilationUnit("P/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+			
+			// create type Y in working copy
+			workingCopy.getBuffer().setContents("public class Y {}");
+			workingCopy.makeConsistent(null);
+
+			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+			new SearchEngine().search(
+				getWorkspace(), 
+				"Y", 
+				IJavaSearchConstants.TYPE,
+				IJavaSearchConstants.DECLARATIONS, 
+				SearchEngine.createWorkspaceScope(), 
+				resultCollector);
+			assertEquals(
+				"Y.java Y [Y]",
+				resultCollector.toString());
+			
+			//	commit new type
+			workingCopy.commitWorkingCopy(false, null);
+			resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+			new SearchEngine().search(
+				getWorkspace(), 
+				"Y", 
+				IJavaSearchConstants.TYPE,
+				IJavaSearchConstants.DECLARATIONS, 
+				SearchEngine.createWorkspaceScope(), 
+				resultCollector);
+			assertEquals(
+				"Y.java Y [Y]",
+				resultCollector.toString());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("/P/Y.java");
 		}
 	}
 

@@ -49,11 +49,17 @@ import java.util.*;
  */
 public class SearchEngine {
 
-/**
+/*
  * A list of working copies that take precedence over their original 
  * compilation units.
  */
-private ICompilationUnit[] workingCopies = null;
+private ICompilationUnit[] workingCopies;
+
+/*
+ * A working copy owner whose working copies will take precedent over 
+ * their original compilation units.
+ */
+private WorkingCopyOwner workingCopyOwner;
 
 /**
  * For tracing purpose.
@@ -64,7 +70,7 @@ public static boolean VERBOSE = false;
  * Creates a new search engine.
  */
 public SearchEngine() {
-	this.workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false/*don't add primary WCs a second time*/);
+	// will use working copies of PRIMARY owner
 }
 /**
  * Creates a new search engine with a list of working copies that will take precedence over 
@@ -86,44 +92,11 @@ public SearchEngine(IWorkingCopy[] workingCopies) {
  * The working copies owned by this owner will take precedence over 
  * the primary compilation units in the subsequent search operations.
  * 
- * @param workingCopies the working copies that take precedence over their original compilation units
+ * @param workingCopyOwner the owner of the working copies that take precedence over their original compilation units
  * @since 3.0
  */
 public SearchEngine(WorkingCopyOwner workingCopyOwner) {
-	this.workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
-}
-/*
- * Removes from the given list of working copies the ones that cannot see the given focus.
- */
-private ICompilationUnit[] filterWorkingCopies(ICompilationUnit[] copies, IJavaElement focus, boolean isPolymorphicSearch) {
-	if (focus == null || copies == null) return copies;
-	while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
-		focus = focus.getParent();
-	}
-	int length = copies.length;
-	ICompilationUnit[] result = null;
-	int index = -1;
-	for (int i=0; i<length; i++) {
-		ICompilationUnit workingCopy = copies[i];
-		IPath projectOrJar = IndexSelector.getProjectOrJar(workingCopy).getPath();
-		if (!IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
-			if (result == null) {
-				result = new ICompilationUnit[length-1];
-				System.arraycopy(copies, 0, result, 0, i);
-				index = i;
-			}
-		} else if (result != null) {
-			result[index++] = workingCopy;
-		}
-	}
-	if (result != null) {
-		if (result.length != index) {
-			System.arraycopy(result, 0, result = new ICompilationUnit[index], 0, index);
-		}
-		return result;
-	} else {
-		return copies;
-	}
+	this.workingCopyOwner = workingCopyOwner;
 }
 /**
  * Returns a java search scope limited to the hierarchy of the given type.
@@ -342,6 +315,46 @@ private IResource getResource(IJavaElement element) {
 	} 
 	return element.getResource();
 }
+/*
+ * Returns the list of working copies used by this search engine.
+ * Returns null if none.
+ */
+private ICompilationUnit[] getWorkingCopies() {
+	ICompilationUnit[] copies;
+	if (this.workingCopies != null) {
+		copies = this.workingCopies;
+	} else if (this.workingCopyOwner != null) {
+		copies = JavaModelManager.getJavaModelManager().getWorkingCopies(this.workingCopyOwner, true/*add primary WCs*/);
+	} else {
+		copies = JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false/*don't add primary WCs a second time*/);
+	}
+	if (copies == null) return null;
+	
+	// filter out primary working copies that are saved
+	ICompilationUnit[] result = null;
+	int length = copies.length;
+	int index = 0;
+	for (int i = 0; i < length; i++) {
+		CompilationUnit copy = (CompilationUnit)copies[i];
+		try {
+			if (copy.owner != DefaultWorkingCopyOwner.PRIMARY
+					|| copy.hasUnsavedChanges()
+					|| !copy.isBasedOn(copy.getResource())) {
+				if (result == null) {
+					result = new ICompilationUnit[length];
+				}
+				result[index++] = copy;
+			}
+		}  catch (JavaModelException e) {
+			// copy doesn't exist: ignore
+		}
+	}
+	if (index != length && result != null) {
+		System.arraycopy(result, 0, result = new ICompilationUnit[index], 0, index);
+	}
+	return result;
+	
+}
 /**
  * Returns the list of working copies used to do the search on the given java element.
  */
@@ -349,10 +362,11 @@ private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
 	if (element instanceof IMember) {
 		ICompilationUnit cu = ((IMember)element).getCompilationUnit();
 		if (cu != null && cu.isWorkingCopy()) {
-			int length = this.workingCopies == null ? 0 : this.workingCopies.length;
+			ICompilationUnit[] copies = getWorkingCopies();
+			int length = copies == null ? 0 : copies.length;
 			if (length > 0) {
 				ICompilationUnit[] newWorkingCopies = new ICompilationUnit[length+1];
-				System.arraycopy(this.workingCopies, 0, newWorkingCopies, 0, length);
+				System.arraycopy(copies, 0, newWorkingCopies, 0, length);
 				newWorkingCopies[length] = cu;
 				return newWorkingCopies;
 			} else {
@@ -360,7 +374,7 @@ private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
 			}
 		}
 	}
-	return this.workingCopies;
+	return getWorkingCopies();
 }
 /**
  * Searches for the Java element determined by the given signature. The signature
@@ -501,7 +515,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		matchLocator.locateMatches(
 			pathCollector.getPaths(), 
 			workspace,
-			filterWorkingCopies(this.workingCopies, pattern.focus, pattern.isPolymorphicSearch())
+			workingCopiesThatCanSeeFocus(pattern.focus, pattern.isPolymorphicSearch())
 		);
 		
 
@@ -599,9 +613,10 @@ public void searchAllTypeNames(
 		isCaseSensitive);
 	
 	final HashSet workingCopyPaths = new HashSet();
-	if (this.workingCopies != null) {
-		for (int i = 0, length = this.workingCopies.length; i < length; i++) {
-			ICompilationUnit workingCopy = this.workingCopies[i];
+	ICompilationUnit[] copies = getWorkingCopies();
+	if (copies != null) {
+		for (int i = 0, length = copies.length; i < length; i++) {
+			ICompilationUnit workingCopy = copies[i];
 			workingCopyPaths.add(workingCopy.getPath().toString());
 		}
 	}
@@ -632,9 +647,9 @@ public void searchAllTypeNames(
 			progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));	
 			
 		// add type names from working copies
-		if (this.workingCopies != null) {
-			for (int i = 0, length = this.workingCopies.length; i < length; i++) {
-				ICompilationUnit workingCopy = this.workingCopies[i];
+		if (copies != null) {
+			for (int i = 0, length = copies.length; i < length; i++) {
+				ICompilationUnit workingCopy = copies[i];
 				IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
 				String path = workingCopy.getPath().toString();
 				char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
@@ -838,6 +853,40 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 			this.getWorkingCopies(enclosingElement));
 	} else {
 		search(workspace, pattern, scope, resultCollector);
+	}
+}
+/*
+ * Returns the working copies that cannot see the given focus.
+ */
+private ICompilationUnit[] workingCopiesThatCanSeeFocus(IJavaElement focus, boolean isPolymorphicSearch) {
+	ICompilationUnit[] copies = getWorkingCopies();
+	if (focus == null || copies == null) return copies;
+	while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
+		focus = focus.getParent();
+	}
+	int length = copies.length;
+	ICompilationUnit[] result = null;
+	int index = -1;
+	for (int i=0; i<length; i++) {
+		ICompilationUnit workingCopy = copies[i];
+		IPath projectOrJar = IndexSelector.getProjectOrJar(workingCopy).getPath();
+		if (!IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
+			if (result == null) {
+				result = new ICompilationUnit[length-1];
+				System.arraycopy(copies, 0, result, 0, i);
+				index = i;
+			}
+		} else if (result != null) {
+			result[index++] = workingCopy;
+		}
+	}
+	if (result != null) {
+		if (result.length != index) {
+			System.arraycopy(result, 0, result = new ICompilationUnit[index], 0, index);
+		}
+		return result;
+	} else {
+		return copies;
 	}
 }
 
