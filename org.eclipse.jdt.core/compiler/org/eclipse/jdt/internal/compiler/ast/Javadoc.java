@@ -256,7 +256,7 @@ public class Javadoc extends ASTNode {
 		AbstractMethodDeclaration md = methScope.referenceMethod();
 		int throwsTagsNbre = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
 
-		// If no referenced method (field initializer for example) then report a problem for each param tag
+		// If no referenced method (field initializer for example) then report a problem for each throws tag
 		if (md == null) {
 			for (int i = 0; i < throwsTagsNbre; i++) {
 				TypeReference typeRef = this.thrownExceptions[i];
@@ -330,12 +330,23 @@ public class Javadoc extends ASTNode {
 				}
 			}
 
-			// Verify that additional @throws tags are unchecked exception
+			// Verify additional @throws tags
 			for (int i = 0; i < maxRef; i++) {
 				TypeReference typeRef = typeReferences[i];
 				if (typeRef != null) {
-					if (!typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangRuntimeException())
-							&& !typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangError())) {
+					boolean compatible = false;
+					// thrown exceptions subclasses are accepted
+					for (int j = 0; j<thrownExceptionSize && !compatible; j++) {
+						TypeBinding exceptionBinding = md.thrownExceptions[j].resolvedType;
+						if (exceptionBinding != null) {
+							compatible = typeRef.resolvedType.isCompatibleWith(exceptionBinding);
+						}
+					}
+			
+					//  If not compatible only complain on unchecked exception
+					if (!compatible &&
+						 !typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangRuntimeException()) &&
+						 !typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangError())) {
 						methScope.problemReporter().javadocInvalidThrowsClassName(typeRef, md.binding.modifiers);
 					}
 				}

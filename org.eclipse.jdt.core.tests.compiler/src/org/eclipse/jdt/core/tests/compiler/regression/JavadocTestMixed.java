@@ -1509,4 +1509,27 @@ public class JavadocTestMixed extends JavadocTest {
 			}
 		);
 	}
+
+	/**
+	 * Test fix for bug 48711.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48711">48711</a>
+	 */
+	public void testBug48711() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @throws IOException\n" + 
+				"	 * @throws EOFException\n" + 
+				"	 * @throws FileNotFoundException\n" + 
+				"	 */\n" + 
+				"	public void foo() throws IOException {}\n" + 
+				"}\n"
+			}
+		);
+	}
 }

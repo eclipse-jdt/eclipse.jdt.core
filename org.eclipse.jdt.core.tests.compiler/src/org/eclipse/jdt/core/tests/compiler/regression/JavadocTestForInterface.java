@@ -19,11 +19,11 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForInterface extends JavadocTest {
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			TestSuite ts;
 			//some of the tests depend on the order of this suite.
 			ts = new TestSuite();
-			for (int i = 7; i <= 9; i++) {
+			for (int i = 74; i <= 74; i++) {
 				String meth = "test";
 				if (i < 10) {
 					meth += "0";

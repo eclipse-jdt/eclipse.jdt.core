@@ -44,6 +44,14 @@
  *                                 COMPILER_PB_UNNECESSARY_CAST
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_INVALID_JAVADOC
+ *                                 COMPILER_PB_INVALID_JAVADOC_TAGS
+ *                                 COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY
+ *                                 COMPILER_PB_MISSING_JAVADOC_TAGS
+ *                                 COMPILER_PB_MISSING_JAVADOC_TAGS_VISIBILITY
+ *                                 COMPILER_PB_MISSING_JAVADOC_TAGS_OVERRIDING
+ *                                 COMPILER_PB_MISSING_JAVADOC_COMMENTS
+ *                                 COMPILER_PB_MISSING_JAVADOC_COMMENTS_VISIBILITY
+ *                                 COMPILER_PB_MISSING_JAVADOC_COMMENTS_OVERRIDING
  *                                 COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD
  *******************************************************************************/
 package org.eclipse.jdt.core;
@@ -2064,12 +2072,12 @@ public final class JavaCore extends Plugin {
 				}
 				// bug 45112 backward compatibility.
 				// TODO (frederic) remove after 3.0 M6
-				else if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
+				else if (CompilerOptions.OPTION_ReportInvalidAnnotation.equals(propertyName)) {
 					options.put(COMPILER_PB_INVALID_JAVADOC, value);
 				}
-				else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
+				else if (CompilerOptions.OPTION_ReportMissingAnnotation.equals(propertyName)) {
 					if (ENABLED.equals(value)) {
-						value = preferences.getString(COMPILER_PB_INVALID_JAVADOC);
+						value = preferences.getString(CompilerOptions.OPTION_ReportInvalidAnnotation);
 					} else {
 						value = IGNORE;
 					}
@@ -2078,7 +2086,7 @@ public final class JavaCore extends Plugin {
 				// end bug 45112
 				// bug 46854 backward compatibility
 				// TODO (frederic) remove after 3.0 M7
-				else if (OLD_COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+				else if (CompilerOptions.OPTION_ReportMissingJavadoc.equals(propertyName)) {
 					if (ENABLED.equals(value)) {
 						value = preferences.getString(COMPILER_PB_INVALID_JAVADOC);
 					} else {
@@ -3403,15 +3411,15 @@ public final class JavaCore extends Plugin {
 		for (int i = 0; i < propertyNames.length; i++){
 			String propertyName = propertyNames[i];
 			// bug 45112
-			if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
+			if (CompilerOptions.OPTION_ReportInvalidAnnotation.equals(propertyName)) {
 				preferences.setToDefault(OLD_COMPILER_PB_INVALID_ANNOTATION);
 			}
-			else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
+			else if (CompilerOptions.OPTION_ReportMissingAnnotation.equals(propertyName)) {
 				preferences.setToDefault(OLD_COMPILER_PB_MISSING_ANNOTATION);
 			}
 			// end bug 45112
 			// bug 46854
-			else if (OLD_COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
+			else if (CompilerOptions.OPTION_ReportMissingJavadoc.equals(propertyName)) {
 				preferences.setToDefault(OLD_COMPILER_PB_MISSING_JAVADOC);
 			}
 			// end bug 46854
