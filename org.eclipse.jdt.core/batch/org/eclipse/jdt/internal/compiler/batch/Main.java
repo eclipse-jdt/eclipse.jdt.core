@@ -1361,12 +1361,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		// compliance must be 1.5 if source is 1.5
 		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_5)
-				&& !this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_5)){
-				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_5) {
+			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
 		} else 
 			// compliance must be 1.4 if source is 1.4
 			if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
-				&& !this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
+					&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4) { 
 				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 		}
 		// set default target according to compliance & sourcelevel.
