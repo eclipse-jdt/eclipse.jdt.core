@@ -366,7 +366,7 @@ public class NameLookup implements SuffixConstants {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
 		} else if (typeName.length() > 0 && Character.isLowerCase(typeName.charAt(0))) {
 			// see if this is a known package and not a type
-			if (findPackageFragments(packageName + "." + typeName, false) != null) return null;
+			if (findPackageFragments(packageName + "." + typeName, false) != null) return null; //$NON-NLS-1$
 		}
 		JavaElementRequestor elementRequestor = new JavaElementRequestor();
 		seekPackageFragments(packageName, false, elementRequestor);
