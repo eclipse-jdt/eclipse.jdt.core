@@ -1775,6 +1775,12 @@ public class JavaProject
 				// resolved path is cached on its info
 				IClasspathEntry[] infoPath = perProjectInfo.resolvedClasspath;
 				if (infoPath != null && (returnResolutionInProgress || infoPath != RESOLUTION_IN_PROGRESS)) {
+					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+						if (infoPath == RESOLUTION_IN_PROGRESS) {
+						    Util.verbose("CPResolution: Reentering Raw Classpath Resolution for project: "+ this.getElementName() + "\n  will use empty classpath instead");  //$NON-NLS-1$ //$NON-NLS-2$
+						    new Exception("TRACE OF REENTERING CALL").printStackTrace(System.out);  //$NON-NLS-1$
+						}
+					}						
 					return infoPath;
 				}
 			}
