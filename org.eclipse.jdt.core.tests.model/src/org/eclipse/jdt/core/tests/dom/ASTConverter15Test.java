@@ -81,7 +81,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
@@ -943,6 +943,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IVariableBinding binding = enumConstantDeclaration.resolveVariable();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong name", "PENNY", binding.getName());
+		ASTNode node2 = compilationUnit.findDeclaringNode(binding);
+		assertTrue("Different node", node2 == enumConstantDeclaration);
 		
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration.getName(), "NICKEL", source);

@@ -1106,7 +1106,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (variableBinding == null) {
 				return null;
 			}
-			this.bindingsToAstNodes.put(variableBinding, node);
+			this.bindingsToAstNodes.put(variableBinding, enumConstant);
 			String key = variableBinding.getKey();
 			if (key != null) {
 				this.bindingTables.bindingKeysToBindings.put(key, variableBinding);				
