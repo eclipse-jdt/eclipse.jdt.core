@@ -46,11 +46,11 @@ public class JavadocArgumentExpression extends Expression {
 				if (typeRef != null) {
 					this.resolvedType = typeRef.getTypeBinding(scope);
 					if (!this.resolvedType.isValidBinding()) {
-						scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getModifiers());
+						scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getDeclarationModifiers());
 						return null;
 					}
 					if (isTypeUseDeprecated(this.resolvedType, scope)) {
-						scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getModifiers());
+						scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getDeclarationModifiers());
 						return null;
 					}
 					return this.resolvedType;

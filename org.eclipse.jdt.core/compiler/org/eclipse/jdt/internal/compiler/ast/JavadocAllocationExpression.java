@@ -76,12 +76,12 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocationType;
 				}
-				scope.problemReporter().javadocInvalidConstructor(this, this.binding, scope.getModifiers());
+				scope.problemReporter().javadocInvalidConstructor(this, this.binding, scope.getDeclarationModifiers());
 			}
 			return this.resolvedType;
 		}
 		if (isMethodUseDeprecated(this.binding, scope)) {
-			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getModifiers());
+			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
 		}
 
 		return allocationType;

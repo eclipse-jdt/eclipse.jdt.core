@@ -39,12 +39,12 @@ public class JavadocFieldReference extends FieldReference {
 
 		this.binding = scope.getField(this.receiverType, this.token, this);
 		if (!this.binding.isValidBinding()) {
-			scope.problemReporter().javadocInvalidField(this, this.receiverType, scope.getModifiers());
+			scope.problemReporter().javadocInvalidField(this, this.receiverType, scope.getDeclarationModifiers());
 			return null;
 		}
 
 		if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssignedMASK) != 0)) {
-			scope.problemReporter().javadocDeprecatedField(this.binding, this, scope.getModifiers());
+			scope.problemReporter().javadocDeprecatedField(this.binding, this, scope.getDeclarationModifiers());
 		}
 		return this.resolvedType = this.binding.type;
 	}

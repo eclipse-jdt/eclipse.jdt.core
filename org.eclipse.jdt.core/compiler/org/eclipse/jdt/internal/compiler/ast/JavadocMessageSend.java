@@ -75,7 +75,7 @@ public class JavadocMessageSend extends MessageSend {
 
 		// base type cannot receive any message
 		if (this.receiverType.isBaseType()) {
-			scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getModifiers());
+			scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getDeclarationModifiers());
 			return null;
 		}
 		this.codegenBinding = this.binding = scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
@@ -84,11 +84,11 @@ public class JavadocMessageSend extends MessageSend {
 				if (this.receiverType instanceof ReferenceBinding) {
 					this.binding.declaringClass = (ReferenceBinding) this.receiverType;
 				} else { 
-					scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getModifiers());
+					scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getDeclarationModifiers());
 					return null;
 				}
 			}
-			scope.problemReporter().javadocInvalidMethod(this, this.binding, scope.getModifiers());
+			scope.problemReporter().javadocInvalidMethod(this, this.binding, scope.getDeclarationModifiers());
 			// record the closest match, for clients who may still need hint about possible method match
 			if (this.binding instanceof ProblemMethodBinding){
 				MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
@@ -97,7 +97,7 @@ public class JavadocMessageSend extends MessageSend {
 			return this.resolvedType = this.binding == null ? null : this.binding.returnType;
 		}
 		if (isMethodUseDeprecated(this.binding, scope)) {
-			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getModifiers());
+			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
 		}
 
 		return this.resolvedType = this.binding.returnType;
