@@ -307,7 +307,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 						locations.add(sourceLocation);
 						String typeName = typePath.setDevice(null).toString();
 						typeNames.add(typeName);
-						if (!newState.isDuplicateLocation(typeName, sourceLocation)) {
+						if (!newState.isDuplicateLocation(typeName, sourceLocation)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)
 								System.out.println("Add dependents of added source file " + typePath); //$NON-NLS-1$
 							addDependentsOf(typePath, true);
@@ -317,7 +317,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 						char[][] definedTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
 						if (definedTypeNames == null) { // defined a single type matching typePath
 							removeClassFile(typePath);
-						} else if (definedTypeNames.length > 0) { // ignore it if it failed to successfully define a type
+						} else if (definedTypeNames.length > 0) { // skip it if it failed to successfully define a type
 							IPath packagePath = typePath.removeLastSegments(1);
 							for (int i = 0, length = definedTypeNames.length; i < length; i++)
 								removeClassFile(packagePath.append(new String(definedTypeNames[i])));
@@ -380,18 +380,16 @@ protected void finishedWith(String sourceLocation, CompilationResult result, cha
 	char[][] previousTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
 	if (previousTypeNames == null)
 		previousTypeNames = new char[][] {mainTypeName};
-	if (previousTypeNames.length > 0) {
-		IPath packagePath = null;
-		next : for (int i = 0, x = previousTypeNames.length; i < x; i++) {
-			char[] previous = previousTypeNames[i];
-			for (int j = 0, y = definedTypeNames.size(); j < y; j++)
-				if (CharOperation.equals(previous, (char[]) definedTypeNames.get(j)))
-					continue next;
-	
-			if (packagePath == null)
-				packagePath = new Path(extractTypeNameFrom(sourceLocation)).removeLastSegments(1);
-			removeClassFile(packagePath.append(new String(previous)));
-		}
+	IPath packagePath = null;
+	next : for (int i = 0, x = previousTypeNames.length; i < x; i++) {
+		char[] previous = previousTypeNames[i];
+		for (int j = 0, y = definedTypeNames.size(); j < y; j++)
+			if (CharOperation.equals(previous, (char[]) definedTypeNames.get(j)))
+				continue next;
+
+		if (packagePath == null)
+			packagePath = new Path(extractTypeNameFrom(sourceLocation)).removeLastSegments(1);
+		removeClassFile(packagePath.append(new String(previous)));
 	}
 	super.finishedWith(sourceLocation, result, mainTypeName, definedTypeNames, duplicateTypeNames);
 }
