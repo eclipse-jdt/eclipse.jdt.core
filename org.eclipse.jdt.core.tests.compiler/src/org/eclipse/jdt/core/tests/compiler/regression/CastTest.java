@@ -630,17 +630,12 @@ public void test018() {
 			"}\n" +
 			"public class X extends Y {\n" + 
 			"	Y[] bar() {\n" +
-			"		return (Y[]) Y.foo(new double[] {});\n" + 
+			"		return (Y[]) Y.foo(new double[] {});\n" + // no cast warning until method is applicable
 			"	}\n" +
 			"}\n"
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 8)\n" + 
-		"	return (Y[]) Y.foo(new double[] {});\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type Y[] for expression of type Y[]\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
 		"	return (Y[]) Y.foo(new double[] {});\n" + 
 		"	               ^^^\n" + 
 		"The method foo(int[]) in the type Y is not applicable for the arguments (double[])\n" + 
