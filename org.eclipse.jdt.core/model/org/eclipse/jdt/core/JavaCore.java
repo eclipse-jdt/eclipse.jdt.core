@@ -776,8 +776,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
 	 * </p>
 	 * <p>
-	 * A particular source entry is implicitly exported to other dependent projects. All sources/binaries inside 
-	 * a project are contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
+	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
+	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
 	 * </p>
 	 * 
 	 * @param path the absolute path of a source folder
@@ -793,7 +793,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			path,
 			null,
 			null,
-			true);
+			false);
 	}
 
 	/**
