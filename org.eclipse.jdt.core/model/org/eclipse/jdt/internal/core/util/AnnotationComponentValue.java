@@ -42,6 +42,10 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 			byte[] classFileBytes,
 			IConstantPool constantPool,
 			int offset) throws ClassFormatException {
+		this.classFileInfoIndex = -1;
+		this.constantValueIndex = -1;
+		this.enumConstantTypeNameIndex = -1;
+		this.enumConstantNameIndex = -1;
 		final int t = u1At(classFileBytes, 0, offset);
 		this.tag = t;
 		this.readOffset = 1;

@@ -87,16 +87,18 @@ public interface IAnnotationComponentValue {
 	int ARRAY_TAG = '[';
 	
 	/**
-	 * Answer back the annotation component values as described in the JVM specifications.
-	 * This is initialized only if the tag item is '['.
+	 * Returns the annotation component values as described in the JVM specifications
+	 * if the tag item is '['.
+	 * Returns null otherwise.
 	 * 
 	 * @return the annotation component values
 	 */
 	IAnnotationComponentValue[] getAnnotationComponentValues();
 	
 	/**
-	 * Answer back the annotation value as described in the JVM specifications.
-	 * This is initialized only if the tag item is '&#064;'.
+	 * Returns the annotation value as described in the JVM specifications
+	 * if the tag item is '&#064;'.
+	 * Returns null otherwise.
 	 * 
 	 * @return the attribute value
 	 * @since 3.1
@@ -104,43 +106,46 @@ public interface IAnnotationComponentValue {
 	IAnnotation getAnnotationValue();
 
 	/**
-	 * Answer back the class info as described in the JVM specifications.
-	 * This is initialized only if the tag item is 'c'.
+	 * Returns the class info as described in the JVM specifications
+	 * if the tag item is 'c'.
+	 * Returns null otherwise.
 	 * 
 	 * @return the class info
 	 */
 	IConstantPoolEntry getClassInfo();
 
 	/**
-	 * Answer back the class info index as described in the JVM specifications.
-	 * This is initialized only if the tag item is 'c'.
+	 * Returns the class info index as described in the JVM specifications
+	 * if the tag item is 'c'.
+	 * Returns null otherwise.
 	 * 
 	 * @return the class info index
 	 */
 	int getClassInfoIndex();
 
 	/**
-	 * Answer back the constant value as described in the JVM specifications.
-	 * This is initialized only if the tag item is one of 'B', 'C', 'D', 'F',
-	 * 'I', 'J', 'S', 'Z', or 's'.
+	 * Returns the constant value as described in the JVM specifications
+	 * if the tag item is one of 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z', or 's'.
+	 * Returns null otherwise.
 	 * 
 	 * @return the constant value
 	 */
 	IConstantPoolEntry getConstantValue();
 
 	/**
-	 * Answer back the constant value index as described in the JVM specifications.
-	 * This is initialized only if the tag item is one of 'B', 'C', 'D', 'F',
-	 * 'I', 'J', 'S', 'Z', or 's'.
-	 * 
+	 * Returns the constant value index as described in the JVM specifications
+	 * if the tag item is one of 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z', or 's'.
+	 * The value is unspecified otherwise.
+	 *
 	 * @return the constant value index
 	 */
 	int getConstantValueIndex();
 
 	/**
-	 * Answer back the simple name of the enum constant represented
-	 * by this annotation component value as described in the JVM specifications.
-	 * This is initialized only if the tag item is 'e'.
+	 * Returns the simple name of the enum constant represented
+	 * by this annotation component value as described in the JVM specifications
+	 * if the tag item is 'e'.
+	 * Returns null otherwise.
 	 * 
 	 * @return the enum constant
 	 * @since 3.1
@@ -148,8 +153,9 @@ public interface IAnnotationComponentValue {
 	char[] getEnumConstantName();	
 	
 	/**
-	 * Answer back the utf8 constant index as described in the JVM specifications.
-	 * This is initialized only if the tag item is 'e'.
+	 * Returns the utf8 constant index as described in the JVM specifications
+	 * if the tag item is 'e'.
+	 * The value is unspecified otherwise.
 	 * 
 	 * @return the enum constant index
 	 * @since 3.1
@@ -157,9 +163,10 @@ public interface IAnnotationComponentValue {
 	int getEnumConstantNameIndex();
 
 	/**
-	 * Answer back the binary name of the type of the enum constant represented
-	 * by this annotation component value as described in the JVM specifications.
-	 * This is initialized only if the tag item is 'e'.
+	 * Returns the binary name of the type of the enum constant represented
+	 * by this annotation component value as described in the JVM specifications
+	 * if the tag item is 'e'.
+	 * Returns null otherwise.
 	 * 
 	 * @return the enum constant
 	 * @since 3.1
@@ -167,8 +174,9 @@ public interface IAnnotationComponentValue {
 	char[] getEnumConstantTypeName();	
 	
 	/**
-	 * Answer back the utf8 constant index as described in the JVM specifications.
-	 * This is initialized only if the tag item is 'e'.
+	 * Returns the utf8 constant index as described in the JVM specifications
+	 * if the tag item is 'e'.
+	 * The value is unspecified otherwise.
 	 * 
 	 * @return the enum constant index
 	 * @since 3.1
@@ -176,15 +184,16 @@ public interface IAnnotationComponentValue {
 	int getEnumConstantTypeNameIndex();
 
 	/**
-	 * Answer back the tag as described in the JVM specifications.
+	 * Returns the tag as described in the JVM specifications.
 	 * 
 	 * @return the tag
 	 */
 	int getTag();
 	
 	/**
-	 * Answer back the number of values as described in the JVM specifications.
-	 * This is initialized only if the tag item is '['.
+	 * Returns the number of values as described in the JVM specifications
+	 * if the tag item is '['.
+	 * The value is unspecified otherwise.
 	 * 
 	 * @return the number of values
 	 */

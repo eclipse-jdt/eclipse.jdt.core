@@ -40,6 +40,28 @@ public class ConstantPoolEntry implements IConstantPoolEntry {
 	private int utf8Length;
 	private char[] classInfoName;
 	
+	public ConstantPoolEntry() {
+		this.classInfoNameIndex = -1;
+		this.classIndex = -1;
+		this.nameAndTypeIndex = -1;
+		this.stringIndex = -1;
+		this.stringValue = null;
+		this.integerValue = -1;
+		this.floatValue = -0.0f;
+		this.doubleValue = -0-0;
+		this.longValue = -1;
+		this.nameAndTypeDescriptorIndex = -1;
+		this.nameAndTypeNameIndex = -1;
+		this.className = null;
+		this.fieldName = null;
+		this.methodName = null;
+		this.fieldDescriptor = null;
+		this.methodDescriptor = null;
+		this.utf8Value = null;
+		this.utf8Length = -1;
+		this.classInfoName = null;		
+	}
+	
 	/**
 	 * @see IConstantPoolEntry#getKind()
 	 */
