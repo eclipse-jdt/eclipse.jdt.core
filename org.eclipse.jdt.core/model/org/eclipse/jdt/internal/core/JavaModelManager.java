@@ -689,7 +689,7 @@ public class JavaModelManager implements ISaveParticipant {
 			if (info == null) return -1;
 			
 			if (--info.useCount == 0) {
-				IJavaElement originalElement = workingCopy.getOriginalElement();
+				IJavaElement originalElement = workingCopy.getPrimary();
 
 				// remove per working copy info
 				pathToPerWorkingCopyInfos.remove(path);

@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.CompilationUnit;
@@ -138,7 +137,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 			}
 			if (this.nameLookup != null && unitToLookInside != null) {
 				try {
-					nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside}); // NB: this uses a PerThreadObject, so it is thread safe
+					nameLookup.setUnitsToLookInside(new ICompilationUnit[] {unitToLookInside}); // NB: this uses a PerThreadObject, so it is thread safe
 					this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
 				} finally {
 					nameLookup.setUnitsToLookInside(null);

@@ -209,7 +209,7 @@ public class ModelUpdater {
 				break;
 			case IJavaElement.COMPILATION_UNIT :
 				// filter out working copies (we don't want to add/remove them to/from the package fragment
-				if (((IWorkingCopy)element).isWorkingCopy()) {
+				if (((ICompilationUnit)element).isWorkingCopy()) {
 					return;
 				}
 			case IJavaElement.CLASS_FILE :

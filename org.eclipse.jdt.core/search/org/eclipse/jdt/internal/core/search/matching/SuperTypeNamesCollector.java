@@ -142,10 +142,7 @@ public SuperTypeNamesCollector(
  * Don't build methods and fields.
  */
 private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUnit) throws JavaModelException {
-	final IFile file = 
-		compilationUnit.isWorkingCopy() ?
-			(IFile)compilationUnit.getOriginalElement().getResource() :
-			(IFile)compilationUnit.getResource();
+	final IFile file = (IFile)compilationUnit.getResource();
 	
 	// get main type name
 	final String fileName = file.getFullPath().lastSegment();

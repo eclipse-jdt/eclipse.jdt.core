@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -796,7 +795,7 @@ public class NameLookup implements SuffixConstants {
  * precedence over their compilation units.
  * <code>null</code> means that no special compilation units should be used.
  */
-public void setUnitsToLookInside(IWorkingCopy[] unitsToLookInside) {
+public void setUnitsToLookInside(ICompilationUnit[] unitsToLookInside) {
 	
 	if (unitsToLookInside == null) {
 		this.unitsToLookInside.setCurrent(null); 
@@ -804,13 +803,9 @@ public void setUnitsToLookInside(IWorkingCopy[] unitsToLookInside) {
 		HashMap workingCopies = new HashMap();
 		this.unitsToLookInside.setCurrent(workingCopies);
 		for (int i = 0, length = unitsToLookInside.length; i < length; i++) {
-			IWorkingCopy unitToLookInside = unitsToLookInside[i];
-			ICompilationUnit original = (ICompilationUnit)unitToLookInside.getOriginalElement();
-			if (original != null) {
-				workingCopies.put(original, unitToLookInside);
-			} else {
-				workingCopies.put(unitToLookInside, unitToLookInside);
-			}
+			ICompilationUnit unitToLookInside = unitsToLookInside[i];
+			ICompilationUnit original = unitToLookInside.getPrimary();
+			workingCopies.put(original, unitToLookInside);
 		}
 	}
 }

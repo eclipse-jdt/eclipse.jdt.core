@@ -397,15 +397,17 @@ public IType findPrimaryType() {
 		return null;
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#getOriginal(IJavaElement)
+	 * @deprecated
 	 */
 	public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 		return null;
 	}
 
-	/*
+	/**
 	 * @see IWorkingCopy#getOriginalElement()
+	 * @deprecated
 	 */
 	public IJavaElement getOriginalElement() {
 		return getPrimaryElement();
@@ -469,6 +471,7 @@ public IType findPrimaryType() {
 
 	/**
 	 * @see org.eclipse.jdt.core.IWorkingCopy#reconcile()
+	 * @deprecated
 	 */
 	public IMarker[] reconcile() throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));

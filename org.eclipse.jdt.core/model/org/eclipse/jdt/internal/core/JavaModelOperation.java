@@ -169,7 +169,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * Registers the given reconcile delta with the Java Model Manager.
 	 */
-	protected void addReconcileDelta(IWorkingCopy workingCopy, IJavaElementDelta delta) {
+	protected void addReconcileDelta(ICompilationUnit workingCopy, IJavaElementDelta delta) {
 		HashMap reconcileDeltas = JavaModelManager.getJavaModelManager().deltaProcessor.reconcileDeltas;
 		JavaElementDelta previousDelta = (JavaElementDelta)reconcileDeltas.get(workingCopy);
 		if (previousDelta != null) {
@@ -185,7 +185,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * Deregister the reconcile delta for the given working copy
 	 */
-	protected void removeReconcileDelta(IWorkingCopy workingCopy) {
+	protected void removeReconcileDelta(ICompilationUnit workingCopy) {
 		JavaModelManager.getJavaModelManager().deltaProcessor.reconcileDeltas.remove(workingCopy);		
 	}
 	/**

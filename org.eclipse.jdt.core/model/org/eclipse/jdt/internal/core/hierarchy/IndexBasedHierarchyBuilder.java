@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -172,7 +171,7 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 		manager.flushZipFiles();
 	}
 }
-private void buildForProject(JavaProject project, ArrayList infos, ArrayList units, IWorkingCopy[] workingCopies, IProgressMonitor monitor) throws JavaModelException {
+private void buildForProject(JavaProject project, ArrayList infos, ArrayList units, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, IProgressMonitor monitor) throws JavaModelException {
 	// copy vectors into arrays
 	IGenericType[] genericTypes;
 	int infosSize = infos.size();
@@ -199,13 +198,13 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
 		if (inProjectOfFocusType) {
 			org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
-			IWorkingCopy[] unitsToLookInside;
+			org.eclipse.jdt.core.ICompilationUnit[] unitsToLookInside;
 			if (unitToLookInside != null) {
 				int wcLength = workingCopies == null ? 0 : workingCopies.length;
 				if (wcLength == 0) {
-					unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
+					unitsToLookInside = new org.eclipse.jdt.core.ICompilationUnit[] {unitToLookInside};
 				} else {
-					unitsToLookInside = new IWorkingCopy[wcLength+1];
+					unitsToLookInside = new org.eclipse.jdt.core.ICompilationUnit[wcLength+1];
 					unitsToLookInside[0] = unitToLookInside;
 					System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
 				}
@@ -243,12 +242,12 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 	// substitute compilation units with working copies
 	HashMap wcPaths = new HashMap(); // a map from path to working copies
 	int wcLength;
-	IWorkingCopy[] workingCopies = this.hierarchy.workingCopies;
+	org.eclipse.jdt.core.ICompilationUnit[] workingCopies = this.hierarchy.workingCopies;
 	if (workingCopies != null && (wcLength = workingCopies.length) > 0) {
 		String[] newPaths = new String[wcLength];
 		for (int i = 0; i < wcLength; i++) {
-			IWorkingCopy workingCopy = workingCopies[i];
-			String path = workingCopy.getOriginalElement().getPath().toString();
+			org.eclipse.jdt.core.ICompilationUnit workingCopy = workingCopies[i];
+			String path = workingCopy.getPath().toString();
 			wcPaths.put(path, workingCopy);
 			newPaths[i] = path;
 		}
@@ -300,7 +299,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 				if (i > 0 && resourcePath.equals(allPotentialSubTypes[i-1])) continue;
 				
 				Openable handle;
-				IWorkingCopy workingCopy = (IWorkingCopy)wcPaths.get(resourcePath);
+				org.eclipse.jdt.core.ICompilationUnit workingCopy = (org.eclipse.jdt.core.ICompilationUnit)wcPaths.get(resourcePath);
 				if (workingCopy != null) {
 					handle = (Openable)workingCopy;
 				} else {

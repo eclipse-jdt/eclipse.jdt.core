@@ -220,7 +220,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		String newContent = updatedContent(source, dest, newCUName); // null if unchanged
 	
 		// copy resource
-		IFile sourceResource = (IFile)(source.isWorkingCopy() ? source.getOriginalElement() : source).getResource();
+		IFile sourceResource = (IFile)source.getResource();
 		IContainer destFolder = (IContainer)dest.getResource(); // can be an IFolder or an IProject
 		IFile destFile = destFolder.getFile(new Path(destName));
 		if (!destFile.equals(sourceResource)) {

@@ -59,7 +59,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 		try {
 			beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
 			CompilationUnit copy = (CompilationUnit)getCompilationUnit();
-			ICompilationUnit original = (ICompilationUnit) copy.getOriginalElement();
+			ICompilationUnit original = copy.getPrimary();
 		
 			
 			// creates the delta builder (this remembers the content of the cu)	
@@ -133,8 +133,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 		if (!cu.isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, cu);
 		}
-		ICompilationUnit original= (ICompilationUnit)cu.getOriginalElement();
-		IResource resource = original.getResource();
+		IResource resource = cu.getResource();
 		if (!cu.isBasedOn(resource) && !fForce) {
 			return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 		}

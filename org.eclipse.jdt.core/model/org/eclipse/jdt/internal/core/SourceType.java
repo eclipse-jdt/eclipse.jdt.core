@@ -407,13 +407,21 @@ public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws Jav
 }
 /**
  * @see IType#newSupertypeHierarchy(IWorkingCopy[], IProgressMonitor)
+ * @deprecated
  */
 public ITypeHierarchy newSupertypeHierarchy(
 	IWorkingCopy[] workingCopies,
 	IProgressMonitor monitor)
 	throws JavaModelException {
 
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
+	ICompilationUnit[] copies;
+	if (workingCopies == null) {
+		copies = null;
+	} else {
+		int length = workingCopies.length;
+		System.arraycopy(workingCopies, 0, copies = new ICompilationUnit[length], 0, length);
+	}
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, copies, SearchEngine.createWorkspaceScope(), false);
 	runOperation(op, monitor);
 	return op.getResult();
 }
@@ -471,17 +479,27 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
  * @see IType
  */
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	return this.newTypeHierarchy((IWorkingCopy[])null, monitor);
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, null, SearchEngine.createWorkspaceScope(), true);
+	runOperation(op, monitor);
+	return op.getResult();
 }
 /**
  * @see IType#newTypeHierarchy(IWorkingCopy[], IProgressMonitor)
+ * @deprecated
  */
 public ITypeHierarchy newTypeHierarchy(
 	IWorkingCopy[] workingCopies,
 	IProgressMonitor monitor)
 	throws JavaModelException {
 		
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
+	ICompilationUnit[] copies;
+	if (workingCopies == null) {
+		copies = null;
+	} else {
+		int length = workingCopies.length;
+		System.arraycopy(workingCopies, 0, copies = new ICompilationUnit[length], 0, length);
+	}
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, copies, SearchEngine.createWorkspaceScope(), true);
 	runOperation(op, monitor);
 	return op.getResult();
 }

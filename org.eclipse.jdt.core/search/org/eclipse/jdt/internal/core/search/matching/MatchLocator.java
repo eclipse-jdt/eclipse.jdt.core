@@ -817,7 +817,7 @@ public class MatchLocator implements ITypeRequestor {
 				if (i > 0 && pathString.equals(filePaths[i-1])) continue;
 				
 				Openable openable;
-				IWorkingCopy workingCopy = (IWorkingCopy)wcPaths.get(pathString);
+				org.eclipse.jdt.core.ICompilationUnit workingCopy = (org.eclipse.jdt.core.ICompilationUnit)wcPaths.get(pathString);
 				if (workingCopy != null) {
 					openable = (Openable)workingCopy;
 				} else {
@@ -832,7 +832,7 @@ public class MatchLocator implements ITypeRequestor {
 				try {
 					javaProject = (JavaProject) openable.getJavaProject();
 					if (workingCopy != null) {
-						resource = workingCopy.getOriginalElement().getResource();
+						resource = workingCopy.getResource();
 					} else {
 						resource = openable.getResource();
 					}

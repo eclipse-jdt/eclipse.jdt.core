@@ -301,7 +301,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 				// be flexible: look at original element (see bug 14106 Declarations in Hierarchy does not find declarations in hierarchy)
 				IType original;
 				if (!type.isBinary() 
-						&& (original = (IType)type.getCompilationUnit().getOriginal(type)) != null) {
+						&& (original = (IType)type.getPrimaryElement()) != null) {
 					return this.hierarchy.contains(original);
 				}
 			}

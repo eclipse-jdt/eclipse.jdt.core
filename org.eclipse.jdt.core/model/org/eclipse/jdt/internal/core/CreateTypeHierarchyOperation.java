@@ -54,7 +54,7 @@ public CreateTypeHierarchyOperation(IRegion region, IJavaProject project, ICompi
  * Constructs an operation to create a type hierarchy for the
  * given type and working copies.
  */
-public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
+public CreateTypeHierarchyOperation(IType element, ICompilationUnit[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
 	super(element);
 	ICompilationUnit[] copies;
 	if (workingCopies != null) {
@@ -70,7 +70,7 @@ public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies,
  * Constructs an operation to create a type hierarchy for the
  * given type and working copies.
  */
-public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
+public CreateTypeHierarchyOperation(IType element, ICompilationUnit[] workingCopies, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
 	super(element);
 	ICompilationUnit[] copies;
 	if (workingCopies != null) {

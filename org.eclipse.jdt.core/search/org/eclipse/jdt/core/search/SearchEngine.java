@@ -335,11 +335,7 @@ private IResource getResource(IJavaElement element) {
 	if (element instanceof IMember) {
 		ICompilationUnit cu = ((IMember)element).getCompilationUnit();
 		if (cu != null) {
-			if (cu.isWorkingCopy()) {
-				return cu.getOriginalElement().getResource();
-			} else {
-				return cu.getResource();
-			}
+			return cu.getResource();
 		} 
 	} 
 	return element.getResource();

@@ -63,7 +63,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
 			CompilationUnit copy = (CompilationUnit) fElementsToProcess[0];
-			ICompilationUnit unit = (ICompilationUnit) copy.getOriginalElement();
+			ICompilationUnit unit = copy.getPrimary();
 			IBuffer buffer = copy.getBuffer();
 			if (buffer  == null) { 
 				return;

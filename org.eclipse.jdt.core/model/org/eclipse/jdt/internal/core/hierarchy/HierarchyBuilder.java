@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -110,14 +109,14 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		//    a sub or super type of the focus type.
 		org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
 		if (nameLookup != null) {
-			IWorkingCopy[] workingCopies = this.hierarchy.workingCopies;
-			IWorkingCopy[] unitsToLookInside;
+			org.eclipse.jdt.core.ICompilationUnit[] workingCopies = this.hierarchy.workingCopies;
+			org.eclipse.jdt.core.ICompilationUnit[] unitsToLookInside;
 			if (unitToLookInside != null) {
 				int wcLength = workingCopies == null ? 0 : workingCopies.length;
 				if (wcLength == 0) {
-					unitsToLookInside = new IWorkingCopy[] {unitToLookInside};
+					unitsToLookInside = new org.eclipse.jdt.core.ICompilationUnit[] {unitToLookInside};
 				} else {
-					unitsToLookInside = new IWorkingCopy[wcLength+1];
+					unitsToLookInside = new org.eclipse.jdt.core.ICompilationUnit[wcLength+1];
 					unitsToLookInside[0] = unitToLookInside;
 					System.arraycopy(workingCopies, 0, unitsToLookInside, 1, wcLength);
 				}

@@ -285,23 +285,6 @@ IImportDeclaration[] getImports() throws JavaModelException;
  */
 ICompilationUnit getPrimary();
 /**
- * Returns the original element the specified working copy element was created from.
- * The owner of the returned element's compilation unit is the primary owner.
- * This is a handle only method, the returned element may or may not exist.
- * <p>
- * Note that the returned element's compilation unit can be in working copy mode.
- * </p>
- * <p>
- * Return the given element if the given element's compilation unit is not in working copy mode.
- * </p>
- * Returns <code>null</code> if the given element has no compilation unit ancestor.
- * 
- * @param workingCopyElement the given working copy element 
- * @return the original element the specified working copy element was created from.
- * @since 3.0
- */
-IJavaElement getOriginal(IJavaElement workingCopyElement);
-/**
  * Returns the working copy owner of this working copy.
  * Returns null if it is not a working copy or if it has no owner.
  * 

@@ -637,8 +637,9 @@ public char[] getMainTypeName(){
 	name= name.substring(0, name.length() - 5);
 	return name.toCharArray();
 }
-/*
+/**
  * @see IWorkingCopy#getOriginal(IJavaElement)
+ * @deprecated
  */
 public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 	// backward compatibility
@@ -650,8 +651,9 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 	
 	return workingCopyElement.getPrimaryElement();
 }
-/*
+/**
  * @see IWorkingCopy#getOriginalElement()
+ * @deprecated
  */
 public IJavaElement getOriginalElement() {
 	// backward compatibility
@@ -999,8 +1001,9 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
 		}
 	}
 }
-/*
+/**
  * @see ICompilationUnit#reconcile()
+ * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
 	reconcile(false, null);
