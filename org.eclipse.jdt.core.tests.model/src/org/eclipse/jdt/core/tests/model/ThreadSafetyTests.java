@@ -68,14 +68,6 @@ public void testDeadlock01() throws CoreException {
 
 	System.out.println("Test deadlock scenario");
 	try {
-		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", ""}){
-			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
-				System.out.println(Thread.currentThread() + "initializer has started: attempting to acquire workspace lock");
-				super.initialize(containerPath, project);
-				System.out.println(Thread.currentThread() + "initializer has finished");
-			}
-
-		});
 		final IJavaProject project = this.createJavaProject(
 				"P", 
 				new String[] {}, 
@@ -93,6 +85,16 @@ public void testDeadlock01() throws CoreException {
 		final Semaphore permissionToModifyResource = new Semaphore(0); // first acquisition to wait
 		final Semaphore hasCompleted = new Semaphore(0); 
 		
+		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", ""}){
+			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+				permissionToModifyResource.release();
+				System.out.println(Thread.currentThread() + "initializer has started: attempting to acquire workspace lock");
+				super.initialize(containerPath, project);
+				System.out.println(Thread.currentThread() + "initializer has finished");
+			}
+
+		});
+
 		// trigger some delta notification in different thread
 		Thread performJavaOperationInsideWorkspaceLock = new Thread(new Runnable(){
 				public void run() {
@@ -123,7 +125,6 @@ public void testDeadlock01() throws CoreException {
 							System.out.println(Thread.currentThread() + " about to take Java model lock");
 							// needs the JavaModel lock to populate the project
 							project.getChildren(); // trigger classpath initializer activation (requires workspace lock)
-							permissionToModifyResource.release();
 							System.out.println(Thread.currentThread() + " done populating the model");
 						//}
 					} catch (JavaModelException e) {
