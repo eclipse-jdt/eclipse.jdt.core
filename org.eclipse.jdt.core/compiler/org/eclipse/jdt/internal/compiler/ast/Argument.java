@@ -94,6 +94,10 @@ public class Argument extends LocalDeclaration {
 			scope.problemReporter().invalidParameterizedExceptionType(exceptionType, this);
 			return null;
 		}
+		if (exceptionType.isTypeVariable()) {
+			scope.problemReporter().invalidTypeVariableAsException(exceptionType, this);
+			return null;
+		}		
 		TypeBinding throwable = scope.getJavaLangThrowable();
 		if (!exceptionType.isCompatibleWith(throwable)) {
 			scope.problemReporter().typeMismatchError(exceptionType, throwable, this);

@@ -1859,6 +1859,15 @@ public void invalidParameterizedExceptionType(TypeBinding exceptionType, ASTNode
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void invalidTypeVariableAsException(TypeBinding exceptionType, ASTNode location) {
+	this.handle(
+		IProblem.InvalidTypeVariableExceptionType,
+		new String[] {new String(exceptionType.readableName())},
+		new String[] {new String(exceptionType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
+
 public void invalidExpressionAsStatement(Expression expression){
 	this.handle(
 		IProblem.InvalidExpressionAsStatement,

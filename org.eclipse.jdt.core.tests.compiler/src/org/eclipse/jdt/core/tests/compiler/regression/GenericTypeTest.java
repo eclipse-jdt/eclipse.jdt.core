@@ -653,7 +653,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Unhandled exception type T\n" + 
 			"----------\n");
 	}
-	
 	public void test015() {
 		this.runConformTest(
 			new String[] {
@@ -670,7 +669,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"            void print() {\n" + 
 				"                try {\n" + 
 				"	                System.out.println(foo());\n" + 
-				"                } catch (T t) {\n" + 
+				"                } catch (Exception t) {\n" + 
 				"                }\n" + 
 				"            }\n" + 
 				"        }.print();\n" + 
@@ -680,7 +679,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"SUCCESS");
-	}
+	}	
 	
 	public void test016() {
 		this.runConformTest(
@@ -693,7 +692,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    void bar(E e) {\n" + 
 				"        try {\n" + 
 				"            foo(e);\n" + 
-				"        } catch(E ex) {\n" + 
+				"        } catch(Exception ex) {\n" + 
 				"	        System.out.println(\"SUCCESS\");\n" + 
 				"        }\n" + 
 				"    }\n" + 
@@ -716,7 +715,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    void bar(E e) {\n" + 
 				"        try {\n" + 
 				"            foo(e);\n" + 
-				"        } catch(E ex) {\n" + 
+				"        } catch(Exception ex) {\n" + 
 				"	        System.out.println(\"SUCCESS\");\n" + 
 				"        }\n" + 
 				"    }\n" + 
@@ -941,7 +940,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"            void print() {\n" + 
 				"                try {\n" + 
 				"	                System.out.println(foo());\n" + 
-				"                } catch (T t) {\n" + 
+				"                } catch (Exception t) {\n" + 
 				"                }\n" + 
 				"            }\n" + 
 				"        }.print();\n" + 
@@ -964,7 +963,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    X(E e) {\n" + 
 				"        try {\n" + 
 				"            foo(e);\n" + 
-				"        } catch(E ex) {\n" + 
+				"        } catch(Exception ex) {\n" + 
 				"	        System.out.println(\"SUCCESS\");\n" + 
 				"        }\n" + 
 				"    }\n" + 
@@ -987,7 +986,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    X(E e) {\n" + 
 				"        try {\n" + 
 				"            foo(e);\n" + 
-				"        } catch(E ex) {\n" + 
+				"        } catch(Exception ex) {\n" + 
 				"	        System.out.println(\"SUCCESS\");\n" + 
 				"        }\n" + 
 				"    }\n" + 
@@ -6188,4 +6187,38 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The blank final field o may not have been initialized\n" + 
 			"----------\n");
 	}	
+	// 69353 - prevent using type parameter in catch block
+	public void test225() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends Exception> {\n" + 
+				"    String foo() throws T {\n" + 
+				"        return \"SUCCESS\";\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new X<EX>().baz(new EX());\n" + 
+				"    }\n" + 
+				"    void baz(final T t) {\n" + 
+				"        new Object() {\n" + 
+				"            void print() {\n" + 
+				"                try {\n" + 
+				"	                System.out.println(foo());\n" + 
+				"                } catch (T t) {\n" + 
+				"                }\n" + 
+				"            }\n" + 
+				"        }.print();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class EX extends Exception {\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\r\n" + 
+			"	} catch (T t) {\r\n" + 
+			"	           ^\n" + 
+			"Cannot use the type parameter T in a catch block\n" + 
+			"----------\n");
+	}
+	
 }
