@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 import java.util.*;
 
@@ -98,6 +99,7 @@ protected void cleanOutputFolders() throws CoreException {
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	if (deleteAll) {
 		ArrayList visited = new ArrayList(sourceLocations.length);
+		SimpleLookupTable duplicates = new SimpleLookupTable();
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
 			notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
 			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
@@ -110,7 +112,7 @@ protected void cleanOutputFolders() throws CoreException {
 						members[j].delete(IResource.FORCE, null);
 				}
 				notifier.checkCancel();
-				copyExtraResourcesBack(sourceLocation, deleteAll);
+				copyExtraResourcesBack(sourceLocation, duplicates);
 			} else {
 				boolean isOutputFolder = sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder);
 				final char[][] exclusionPatterns =
@@ -150,7 +152,7 @@ protected void cleanOutputFolders() throws CoreException {
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
 			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 			if (sourceLocation.hasIndependentOutputFolder)
-				copyExtraResourcesBack(sourceLocation, deleteAll);
+				copyExtraResourcesBack(sourceLocation, null);
 			else if (!sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder))
 				copyPackages(sourceLocation); // output folder is different from source folder
 			notifier.checkCancel();
@@ -158,7 +160,7 @@ protected void cleanOutputFolders() throws CoreException {
 	}
 }
 
-protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, final boolean deletedAll) throws CoreException {
+protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, final SimpleLookupTable duplicates) throws CoreException {
 	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
 	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
@@ -167,6 +169,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
 	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
+	final boolean deletedAll = duplicates != null;
 	sourceLocation.sourceFolder.accept(
 		new IResourceProxyVisitor() {
 			public boolean visit(IResourceProxy proxy) throws CoreException {
@@ -184,13 +187,17 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						IResource copiedResource = outputFolder.getFile(partialPath);
 						if (copiedResource.exists()) {
 							if (deletedAll) {
-								createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
+								IPath p = (IPath) duplicates.get(copiedResource.getFullPath());
+								String id = p.removeFirstSegments(1).toString();
+								createErrorFor(resource, Util.bind("build.duplicateResource", id)); //$NON-NLS-1$ //$NON-NLS-2$
 								return false;
 							}
 							copiedResource.delete(IResource.FORCE, null); // last one wins
 						}
 						resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
 						copiedResource.setDerived(true);
+						if (deletedAll)
+							duplicates.put(copiedResource.getFullPath(), resource.getFullPath());
 						return false;
 					case IResource.FOLDER :
 						resource = proxy.requestResource();
