@@ -580,53 +580,71 @@ public class ASTParser {
 	}
 	
 	/**
-	 * @deprecated
+	 * @deprecated This method has been replaced by {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.
+	 * @since 3.1
 	 */
+	// TODO (jerome) - remove method after 3.1 M3
 	public void createASTs(ASTRequestor requestor, IProgressMonitor monitor) {
 		createASTs(requestor.getSources(), new String[] {}, requestor, monitor);
 	}
 	
 	/**
-     * Creates a batch of abstract syntax trees using this AST
-     * parser. The compilation units must all be from the same
-     * project. When bindings are being resolved, processing a
+     * Creates ASTs for a set of compilation units.
+     * When bindings are being resolved, processing a
      * batch of compilation units is more efficient because much
      * of the work involved in resolving bindings can be shared.
      * <p>
-     * Each of the given compilation units is parsed, and the 
-     * resulting AST handed back to the requestor.
+     * When bindings are being resolved, all compilation units must
+     * come from the same Java project, which must be set beforehand
+     * with <code>setProject</code>.
+     * The compilation units are processed one at a time in no
+     * specified order. For each of the compilation units in turn,
+	 * <ul>
+	 * <li><code>ASTParser.createAST</code> is called to parse it
+	 * and create a corresponding AST. The calls to
+	 * <code>ASTParser.createAST</code> all employ the same settings.</li>
+	 * <li><code>ASTRequestor.acceptAST</code> is called passing
+	 * the compilation unit and the corresponding AST to 
+	 * <code>requestor</code>.
+	 * </li>
+	 * </ul> 
+     * Note only ASTs from the given compilation units are reported
+     * to the requestor. If additional compilation units are required to
+     * resolve the original ones, the corresponding ASTs are <b>not</b>
+     * reported to the requestor.
      * </p>
      * <p>
-     * Note only ASTs from the given compilation units are reported
-     * back. If bindings are resolved and more compilation units are
-     * required to resolve the original ones, then the corresponding
-     * ASTs are not reported back.
-     * </p><p>
+     * The <code>bindingKeys</code> parameter specifies bindings keys
+     * ({@link IBinding#getKey()}) that are to be looked up for the compilation
+     * units are being processed. These binding keys must be for constructs
+     * declared within the compilation units. The keys and corresponding bindings are
+     * passed to <code>ASTRequestor.acceptBinding</code>.
+     * </p>
+	 * <p>
+	 * [TODO (jerome) issue: Verify that the preceding para about the bindings is accurate.]
+	 * </p>
+     * <p>
      * A successful call to this method returns all settings to their
      * default values so the object is ready to be reused.
-     * </p><p>
+     * </p>
+     * <p>
 	 * Note that this API is under development and subject to change without notice.
 	 * </p>
 	 * <p>
-	 * [TODO (jerome) explain binding keys, none returned if not resolving bindings]
-	 * </p>
-	 * <p>
-	 * [TODO (jerome) issue: Consider passing IJavaProject as the first parameter to this
-	 * method. This would make it easier to explain to clients that all
-	 * compilation units returned by the requestor must be from that
-	 * same project.]
+	 * [TODO (jerome) issue: It might be simpler to say that createASTs always
+	 * resolves bindings. There is no benefit to use when not resolving bindings.
+	 * This would simplify the spec.]
 	 * </p>
 	 * <p>
 	 * [TODO (jerome) issue: Does this work with all kinds of ASTParsers, and all
 	 * combinations of ASTParser options? I suspect not. I think
 	 * it really only makes sense for setKind(K_COMPILATION_UNIT),
-	 * setResolveBindings(true), setSourceRange(0,-1), and no
-	 * setFocalPosition.]
+	 * setSourceRange(0,-1), and no setFocalPosition.]
 	 * </p>
      * 
      * @param compilationUnits the compilation units to create ASTs for
      * @param bindingKeys the binding keys to create bindings for
-     * @param requestor the AST requestor that collects abtract syntax trees
+     * @param requestor the AST requestor that collects abtract syntax trees and bindings
 	 * @param monitor the progress monitor used to report progress and request cancelation,
 	 *   or <code>null</code> if none
 	 * @exception IllegalStateException if the settings provided
