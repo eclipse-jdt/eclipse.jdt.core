@@ -5965,10 +5965,11 @@ public CompilationUnitDeclaration parse(
 		goForCompilationUnit();
 
 		/* scanners initialization */
-		scanner.setSource(sourceUnit.getContents());
+		char[] contents = sourceUnit.getContents();
+		scanner.setSource(contents);
 		if (end != -1) scanner.resetTo(start, end);
 		if (this.annotationParser.checkAnnotation) {
-			this.annotationParser.scanner.setSource(sourceUnit.getContents());
+			this.annotationParser.scanner.setSource(contents);
 			if (end != -1) this.annotationParser.scanner.resetTo(start, end);
 		}
 		/* unit creation */
