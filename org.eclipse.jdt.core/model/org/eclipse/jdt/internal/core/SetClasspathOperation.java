@@ -116,12 +116,26 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] list,
 		IClasspathEntry entry) {
 
-		for (int i = 0; i < list.length; i++) {
+		String[] exclusionPatterns = entry.getExclusionPatterns();
+		nextEntry: for (int i = 0; i < list.length; i++) {
 			IClasspathEntry other = list[i];
 			if (other.getContentKind() == entry.getContentKind()
 				&& other.getEntryKind() == entry.getEntryKind()
 				&& other.isExported() == entry.isExported()
 				&& other.getPath().equals(entry.getPath())) {
+					String[] otherExcludes = other.getExclusionPatterns();
+					if (exclusionPatterns == null) {
+						if (otherExcludes != null)
+							continue;
+					} else {
+						int excludeLength = exclusionPatterns.length;
+						if (otherExcludes == null || otherExcludes.length != excludeLength)
+							continue;
+						for (int j = 0; j < excludeLength; j++) {
+							if (!exclusionPatterns[j].equals(otherExcludes[j]))
+								continue nextEntry;
+						}
+					}
 					return i;
 			}
 		}
@@ -464,7 +478,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		// if read-only .classpath, then the classpath setting will never been performed completely
 		if (project.saveClasspath(classpathForSave, outputLocationForSave)) {
-			this.setAttribute("hasModifiedResource", "true");
+			this.setAttribute("hasModifiedResource", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	

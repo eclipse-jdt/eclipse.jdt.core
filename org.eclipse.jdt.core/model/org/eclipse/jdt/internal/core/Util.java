@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -1064,6 +1065,21 @@ public static String bind(String id, String binding1, String binding2) {
 			if (c != SUFFIX_class[i] && c != SUFFIX_CLASS[i]) return false;
 		}
 		return true;		
+	}
+	/*
+	 * Returns whether the given resource matches one of the exclusion patterns.
+	 * 
+	 * @see IClasspathEntry#getExclusionPatterns	 */
+	public final static boolean isExcluded(IResource resource, char[][] exclusionPatterns) {
+		if (exclusionPatterns == null) return false;
+		for (int i = 0, length = exclusionPatterns.length; i < length; i++) {
+			char[] exclusionPattern = exclusionPatterns[i];
+			char[] path = resource.getFullPath().toString().toCharArray();
+			if (CharOperation.pathMatch(exclusionPattern, path, true, '/')) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

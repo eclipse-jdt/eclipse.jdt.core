@@ -67,10 +67,12 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 		extType = "class"; //$NON-NLS-1$
 	}
 	try {
+		char[][] exclusionPatterns = ((PackageFragmentRoot)getPackageFragmentRoot()).getExclusionPatterns();
 		IResource[] members = ((IContainer) resource).members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource child = members[i];
-			if (child.getType() != IResource.FOLDER) {
+			if (child.getType() != IResource.FOLDER
+					&& !Util.isExcluded(child, exclusionPatterns)) {
 				String extension = child.getProjectRelativePath().getFileExtension();
 				if (extension != null) {
 					if (extension.equalsIgnoreCase(extType)) {

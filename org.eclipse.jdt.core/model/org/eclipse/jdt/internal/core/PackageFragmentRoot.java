@@ -72,7 +72,8 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 		// is actually the package fragment root)
 		if (fResource.getType() == IResource.FOLDER || fResource.getType() == IResource.PROJECT) {
 			ArrayList vChildren = new ArrayList(5);
-			computeFolderChildren((IContainer) fResource, "", vChildren); //$NON-NLS-1$
+			char[][] exclusionPatterns = getExclusionPatterns();
+			computeFolderChildren((IContainer) fResource, "", vChildren, exclusionPatterns); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.toArray(children);
 			info.setChildren(children);
@@ -85,12 +86,12 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 	return true;
 }
 /**
- * Starting at this folder, create package fragments and add the fragments to the collection
- * of children.
+ * Starting at this folder, create package fragments and add the fragments that are not exclused
+ * to the collection of children.
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-protected void computeFolderChildren(IContainer folder, String prefix, ArrayList vChildren) throws JavaModelException {
+protected void computeFolderChildren(IContainer folder, String prefix, ArrayList vChildren, char[][] exclusionPatterns) throws JavaModelException {
 	IPackageFragment pkg = getPackageFragment(prefix);
 	vChildren.add(pkg);
 	try {
@@ -100,7 +101,8 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 			IResource member = members[i];
 			String memberName = member.getName();
 			if (member.getType() == IResource.FOLDER 
-				&& Util.isValidFolderNameForPackage(memberName)) {
+				&& Util.isValidFolderNameForPackage(memberName)
+				&& !Util.isExcluded(member, exclusionPatterns)) {
 					
 				String newPrefix;
 				if (prefix.length() == 0) {
@@ -110,7 +112,7 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 				}
 				// eliminate binary output only if nested inside direct subfolders
 				if (!member.getFullPath().equals(outputLocationPath)) {
-					computeFolderChildren((IFolder) member, newPrefix, vChildren);
+					computeFolderChildren((IFolder) member, newPrefix, vChildren, exclusionPatterns);
 				}
 			}
 		}
@@ -176,7 +178,15 @@ public boolean exists() {
 	return super.exists() 
 				&& isOnClasspath();
 }
-		
+/*
+ * Returns the exclusion patterns from the classpath entry associated with this root. */
+char[][] getExclusionPatterns() {
+	try {
+		return ((ClasspathEntry)getRawClasspathEntry()).charBasedExclusionPatterns();
+	} catch (JavaModelException e) {
+		return null;
+	}
+}		
 /**
  * @see Openable
  */
