@@ -71,7 +71,7 @@ private static void compareTypeHierarchy(String focus, TypeHierarchy stored, Typ
 	
 	Object[] missingTypes1 = stored.missingTypes.toArray();
 	Object[] missingTypes2 = loaded.missingTypes.toArray();
-	compare("["+focus+"] all missing types are not the same", rootInterfaces1, rootInterfaces2);
+	compare("["+focus+"] all missing types are not the same", missingTypes1, missingTypes2);
 	
 	for (int i = 0; i < allTypes1.length; i++) {
 		IType aType = allTypes1[i];
