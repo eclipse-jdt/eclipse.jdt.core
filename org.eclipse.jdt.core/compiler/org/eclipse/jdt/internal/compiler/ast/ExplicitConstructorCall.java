@@ -21,7 +21,9 @@ public class ExplicitConstructorCall
 		
 	public Expression[] arguments;
 	public Expression qualification;
-	public MethodBinding binding;
+	public MethodBinding binding;							// exact binding resulting from lookup
+	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
+	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 
 	public int accessMode;
 
@@ -31,8 +33,6 @@ public class ExplicitConstructorCall
 
 	public VariableBinding[][] implicitArguments;
 	boolean discardEnclosingInstance;
-
-	MethodBinding syntheticAccessor;
 
 	public ExplicitConstructorCall(int accessMode) {
 		this.accessMode = accessMode;
@@ -102,7 +102,7 @@ public class ExplicitConstructorCall
 			codeStream.aload_0();
 
 			// handling innerclass constructor invocation
-			ReferenceBinding targetType = binding.declaringClass;
+			ReferenceBinding targetType = this.codegenBinding.declaringClass;
 			// handling innerclass instance allocation - enclosing instance arguments
 			if (targetType.isNestedType()) {
 				codeStream.generateSyntheticEnclosingInstanceValues(
@@ -127,14 +127,14 @@ public class ExplicitConstructorCall
 			if (syntheticAccessor != null) {
 				// synthetic accessor got some extra arguments appended to its signature, which need values
 				for (int i = 0,
-					max = syntheticAccessor.parameters.length - binding.parameters.length;
+					max = syntheticAccessor.parameters.length - this.codegenBinding.parameters.length;
 					i < max;
 					i++) {
 					codeStream.aconst_null();
 				}
 				codeStream.invokespecial(syntheticAccessor);
 			} else {
-				codeStream.invokespecial(binding);
+				codeStream.invokespecial(this.codegenBinding);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
@@ -185,13 +185,18 @@ public class ExplicitConstructorCall
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return;
+		// if constructor from parameterized type got found, use the original constructor at codegen time
+		if (this.binding instanceof ParameterizedMethodBinding) {
+		    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
+		    this.codegenBinding = parameterizedMethod.originalMethod;
+		} else {
+		    this.codegenBinding = this.binding;
+		}
+		
 		// perform some emulation work in case there is some and we are inside a local type only
 		if (binding.isPrivate() && (accessMode != This)) {
 
-			if (currentScope
-				.environment()
-				.options
-				.isPrivateConstructorAccessChangingVisibility) {
+			if (currentScope.environment().options.isPrivateConstructorAccessChangingVisibility) {
 				binding.tagForClearingPrivateModifier();
 				// constructor will not be dumped as private, no emulation required thus
 			} else {

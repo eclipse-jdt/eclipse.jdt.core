@@ -165,12 +165,12 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (!flowInfo.isReachable()) return;
 
 	if (this.binding instanceof ParameterizedMethodBinding) {
-	    ParameterizedMethodBinding substitutedMethod = (ParameterizedMethodBinding) this.binding;
-	    this.codegenBinding = substitutedMethod.originalMethod;
+	    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
+	    this.codegenBinding = parameterizedMethod.originalMethod;
 	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
-	        if (variableReturnType.firstBound != substitutedMethod.returnType) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = substitutedMethod.returnType;
+	        if (variableReturnType.firstBound != parameterizedMethod.returnType) { // no need for extra cast if same as first bound anyway
+			    this.genericCast = parameterizedMethod.returnType;
 	        }
 	    }
 	} else {

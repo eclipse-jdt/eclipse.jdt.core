@@ -87,7 +87,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		ReferenceBinding allocatedType = binding.declaringClass;
+		ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
 		codeStream.new_(allocatedType);
 		if (valueRequired) {
 			codeStream.dup();
@@ -119,11 +119,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		
 		// invoke constructor
 		if (syntheticAccessor == null) {
-			codeStream.invokespecial(binding);
+			codeStream.invokespecial(this.codegenBinding);
 		} else {
 			// synthetic accessor got some extra arguments appended to its signature, which need values
 			for (int i = 0,
-				max = syntheticAccessor.parameters.length - binding.parameters.length;
+				max = syntheticAccessor.parameters.length - this.codegenBinding.parameters.length;
 				i < max;
 				i++) {
 				codeStream.aconst_null();

@@ -21,9 +21,9 @@ public class AllocationExpression
 		
 	public TypeReference type;
 	public Expression[] arguments;
-	public MethodBinding binding;
-
-	MethodBinding syntheticAccessor;
+	public MethodBinding binding;							// exact binding resulting from lookup
+	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
+	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
@@ -88,7 +88,7 @@ public class AllocationExpression
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		ReferenceBinding allocatedType = binding.declaringClass;
+		ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
 
 		codeStream.new_(allocatedType);
 		if (valueRequired) {
@@ -120,11 +120,11 @@ public class AllocationExpression
 		}
 		// invoke constructor
 		if (syntheticAccessor == null) {
-			codeStream.invokespecial(binding);
+			codeStream.invokespecial(this.codegenBinding);
 		} else {
 			// synthetic accessor got some extra arguments appended to its signature, which need values
 			for (int i = 0,
-				max = syntheticAccessor.parameters.length - binding.parameters.length;
+				max = syntheticAccessor.parameters.length - this.codegenBinding.parameters.length;
 				i < max;
 				i++) {
 				codeStream.aconst_null();
@@ -174,6 +174,14 @@ public class AllocationExpression
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return;
+
+		// if constructor from parameterized type got found, use the original constructor at codegen time
+		if (this.binding instanceof ParameterizedMethodBinding) {
+		    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
+		    this.codegenBinding = parameterizedMethod.originalMethod;
+		} else {
+		    this.codegenBinding = this.binding;
+		}
 		if (binding.isPrivate()
 			&& (currentScope.enclosingSourceType() != binding.declaringClass)) {
 

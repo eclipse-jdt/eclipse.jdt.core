@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -38,9 +39,9 @@ public void generateCode(
 	boolean valueRequired) {
 
 	int pc = codeStream.position;
-	ReferenceBinding allocatedType = this.binding.declaringClass;
+	ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
 
-	if (this.binding.canBeSeenBy(allocatedType, this, currentScope)) {
+	if (this.codegenBinding.canBeSeenBy(allocatedType, this, currentScope)) {
 		codeStream.new_(allocatedType);
 		if (valueRequired) {
 			codeStream.dup();
@@ -70,10 +71,10 @@ public void generateCode(
 				this);
 		}
 		// invoke constructor
-		codeStream.invokespecial(this.binding);
+		codeStream.invokespecial(this.codegenBinding);
 	} else {
 		// private emulation using reflect
-		((CodeSnippetCodeStream) codeStream).generateEmulationForConstructor(currentScope, this.binding);
+		((CodeSnippetCodeStream) codeStream).generateEmulationForConstructor(currentScope, this.codegenBinding);
 		// generate arguments
 		if (this.arguments != null) {
 			int argsLength = this.arguments.length;
@@ -83,9 +84,9 @@ public void generateCode(
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
 				this.arguments[i].generateCode(currentScope, codeStream, true);
-				TypeBinding parameterBinding = this.binding.parameters[i];
+				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
 				if (parameterBinding.isBaseType() && parameterBinding != NullBinding) {
-					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.binding.parameters[i]);
+					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.codegenBinding.parameters[i]);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {
@@ -112,7 +113,15 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	// not supported yet
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-	// do nothing
+		if (!flowInfo.isReachable()) return;
+
+		// if constructor from parameterized type got found, use the original constructor at codegen time
+		if (this.binding instanceof ParameterizedMethodBinding) {
+		    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
+		    this.codegenBinding = parameterizedMethod.originalMethod;
+		} else {
+		    this.codegenBinding = this.binding;
+		}
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.

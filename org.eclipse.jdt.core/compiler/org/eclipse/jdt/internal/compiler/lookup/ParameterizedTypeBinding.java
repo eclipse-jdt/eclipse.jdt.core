@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
@@ -133,7 +134,23 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactConstructor(TypeBinding[])
 	 */
 	public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
-		return this.type.getExactConstructor(argumentTypes);
+   	    // TODO (kent) need to be optimized to avoid resolving all methods
+	    methods();	
+		int argCount = argumentTypes.length;
+	
+		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
+			nextMethod : for (int m = methods.length; --m >= 0;) {
+				MethodBinding method = methods[m];
+				if (method.selector == ConstructorDeclaration.ConstantPoolName && method.parameters.length == argCount) {
+					TypeBinding[] toMatch = method.parameters;
+					for (int p = 0; p < argCount; p++)
+						if (toMatch[p] != argumentTypes[p])
+							continue nextMethod;
+					return method;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -277,14 +294,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	
 	    MethodBinding[] originalMethods = this.type.methods();
 	    int length = originalMethods.length;
-	    MethodBinding[] substitutedMethods = new MethodBinding[length];
+	    MethodBinding[] parameterizedMethods = new MethodBinding[length];
 	    for (int i = 0; i < length; i++) {
 	        MethodBinding originalMethod = originalMethods[i];
 	        // substitute all methods, so as to get updated declaring class at least
-            substitutedMethods[i] = new ParameterizedMethodBinding(this, originalMethod);
+            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethod);
 	    }
 		modifiers ^= AccUnresolved;
-	    return this.methods = substitutedMethods;
+	    return this.methods = parameterizedMethods;
 	}
 
 	/**

@@ -22,9 +22,9 @@ public class MessageSend extends Expression implements InvocationSite {
 	public Expression receiver ;
 	public char[] selector ;
 	public Expression[] arguments ;
-	public MethodBinding binding;					// exact binding resulting from lookup
-	protected MethodBinding codegenBinding;				// actual binding used for code generation (if no synthetic accessor)
-	MethodBinding syntheticAccessor;				// synthetic accessor for inner-emulation
+	public MethodBinding binding;							// exact binding resulting from lookup
+	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
+	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
 
 	public long nameSourcePosition ; //(start<<32)+end
 
@@ -127,13 +127,13 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 	// if method from parameterized type got found, use the original method at codegen time
 	if (this.binding instanceof ParameterizedMethodBinding) {
-	    ParameterizedMethodBinding substitutedMethod = (ParameterizedMethodBinding) this.binding;
-	    this.codegenBinding = substitutedMethod.originalMethod;
+	    ParameterizedMethodBinding parameterizedMethod = (ParameterizedMethodBinding) this.binding;
+	    this.codegenBinding = parameterizedMethod.originalMethod;
 	    // extra cast needed if method return type was type variable
 	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
-	        if (variableReturnType.firstBound != substitutedMethod.returnType) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = substitutedMethod.returnType;
+	        if (variableReturnType.firstBound != parameterizedMethod.returnType) { // no need for extra cast if same as first bound anyway
+			    this.genericCast = parameterizedMethod.returnType;
 	        }
 	    }
 	} else {
