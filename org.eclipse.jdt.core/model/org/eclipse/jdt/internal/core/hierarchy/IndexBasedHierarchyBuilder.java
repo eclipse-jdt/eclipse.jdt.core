@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -95,12 +94,6 @@ public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scop
 	this.cuToHandle = new HashMap(5);
 	this.binariesFromIndexMatches = new HashMap(10);
 	this.scope = scope;
-	this.handleToWorkingCopy = new HashMap(1);
-	IType focusType = hierarchy.getType();
-	org.eclipse.jdt.core.ICompilationUnit handle;
-	if (focusType != null && (handle = focusType.getCompilationUnit()) != null && handle.isWorkingCopy()) {
-		this.handleToWorkingCopy.put(handle.getOriginalElement(), handle); 
-	}
 }
 /**
  * Add the type info from the given hierarchy binary type to the given list of infos.
@@ -225,6 +218,37 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
  * Configure this type hierarchy based on the given potential subtypes.
  */
 private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
+	IType focusType = this.getType();
+		
+	int length = allPotentialSubTypes.length;
+
+	// inject the compilation unit of the focus type (so that types in
+	// this cu have special visibility permission (this is also usefull
+	// when the cu is a working copy)
+	Openable focusCU = (Openable)focusType.getCompilationUnit();
+	String focusPath = null;
+	if (focusCU != null) {
+		try {
+			IResource underlyingResource;
+			if (focusCU instanceof WorkingCopy) {
+				underlyingResource = ((WorkingCopy)focusCU).getOriginalElement().getUnderlyingResource();
+			} else {
+				underlyingResource = focusCU.getUnderlyingResource();
+			}
+			focusPath = underlyingResource.getFullPath().toString();
+		} catch (JavaModelException e) {
+			// type does not exist
+			return;
+		}
+		if (length > 0) {
+			System.arraycopy(allPotentialSubTypes, 0, allPotentialSubTypes = new String[length+1], 0, length);
+			allPotentialSubTypes[length] = focusPath;	
+		} else {
+			allPotentialSubTypes = new String[] {focusPath};
+		}
+		length++;
+	}
+	
 	// sort by projects
 	/*
 	 * NOTE: To workaround pb with hierarchy resolver that requests top  
@@ -237,23 +261,22 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	ArrayList infos = new ArrayList();
 	ArrayList units = new ArrayList();
 
-	IType focusType = this.getType();
-
 	// create element infos for subtypes
 	IWorkspace workspace = focusType.getJavaProject().getProject().getWorkspace();
 	HandleFactory factory = new HandleFactory(workspace);
 	IJavaProject currentProject = null;
-	for (int i = 0, length = allPotentialSubTypes.length; i < length; i++) {
+	for (int i = 0; i < length; i++) {
 		try {
 			String resourcePath = allPotentialSubTypes[i];
-			Openable handle = factory.createOpenable(resourcePath);
-			if (handle == null) continue; // match is outside classpath
 			
-			// working copies take precedence over compilation units
-			Object workingCopy = this.handleToWorkingCopy.get(handle);
-			if (workingCopy != null) {
-				handle = (Openable)workingCopy;
-			}
+			// skip duplicate paths (e.g. if focus path was injected when it was already a potential subtype)
+			if (i > 0 && resourcePath.equals(allPotentialSubTypes[i-1])) continue;
+			
+			Openable handle = 
+				resourcePath.equals(focusPath) ? 
+					focusCU :
+					factory.createOpenable(resourcePath);
+			if (handle == null) continue; // match is outside classpath
 			
 			IJavaProject project = handle.getJavaProject();
 			if (currentProject == null) {
@@ -261,6 +284,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 				infos = new ArrayList(5);
 				units = new ArrayList(5);
 			} else if (!currentProject.equals(project)) {
+				// build current project
 				this.buildForProject((JavaProject)currentProject, infos, units);
 				currentProject = project;
 				infos = new ArrayList(5);
@@ -307,6 +331,8 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 			continue;
 		}
 	}
+	
+	// build last project
 	try {
 		if (currentProject == null) {
 			// case of no potential subtypes
