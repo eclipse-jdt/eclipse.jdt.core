@@ -128,7 +128,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	}
 	IProject[] requiredProjects = getRequiredProjects();
 	if (DEBUG)
-		System.out.println("Build complete..."); //$NON-NLS-1$
+		System.out.println("Finished build of " + currentProject.getName()); //$NON-NLS-1$
 	return requiredProjects;
 }
 
