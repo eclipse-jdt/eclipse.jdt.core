@@ -1154,6 +1154,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			 }
 		}
 
+		if (this.log != null) {
+			try {
+				this.err = new PrintWriter(new FileOutputStream(this.log, false));
+			} catch (IOException e) {
+				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
+			}
+		} else {
+			this.showProgress = false;
+		}
+
 		if (this.classpaths == null) {
 			this.classpaths = new String[0];
 		}
@@ -1226,16 +1236,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				&& !didSpecifyTarget) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 			}
-		}
-
-		if (this.log != null) {
-			try {
-				this.err = new PrintWriter(new FileOutputStream(this.log, false));
-			} catch (IOException e) {
-				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
-			}
-		} else {
-			this.showProgress = false;
 		}
 
 		if (this.repetitions == 0) {
