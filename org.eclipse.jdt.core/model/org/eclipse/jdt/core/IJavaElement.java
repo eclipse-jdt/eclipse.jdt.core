@@ -120,6 +120,10 @@ public interface IJavaElement extends IAdaptable {
 	 * parent also exists (provided it has one). All Java elements that exist
 	 * can be navigated to from the root of the Java model along a chain of
 	 * existing Java elements.
+	 * TODO: The above is not true for working copies: A working copy on a .java
+	 * file that is not on the classpath exists but its parent (a package fragment) does
+	 * not exist. Also a working copy (even on the classpath) cannot be navigated to
+	 * from the root of the Java model.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this element exists in the Java model, and
