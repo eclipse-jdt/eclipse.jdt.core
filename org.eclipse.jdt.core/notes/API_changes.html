@@ -364,7 +364,13 @@ IJavaElement getPrimaryElement();
 </li>
 <li>2003/06/27 (->M2)To finish closing the gap between compilation units and working copies 
 (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888 </a>), exiting APIs were augmented with
-a <code>WorkingCopyOwner</code> parameter, that defines the working copies to consider in the operation. The following new APIs were added:
+a <code>WorkingCopyOwner</code> parameter, which defines the set of working copies to privilege during this operation. 
+When specifying an owner parameter, all working copies belonging to this owner will implicitly take precedence over primary ones
+(without requiring the owner to remember all its working copies, as in 2.1 era). Note that when no owned working copy is found, a primary
+unit will be considered instead, and since primary units have a built-in working copy (see <code>ICompilationUnit.becomeWorkingCopy(...)</code>),
+the primary unit may already be in working copy mode (very likely since an editor got opened on it). This means that an owner will already 
+transparently see unsaved editor contents for all units for which it has no better working copy to contribute.
+The following new APIs were added:
 	<ul>
 	<li><code>AST.parseCompilationUnit(char[] source, String unitName, IJavaProject project, WorkingCopyOwner owner)</code></li>
 	<li><code>AST.parseCompilationUnit(IClassFile classFile, boolean resolveBindings, WorkingCopyOwner owner)</code></li>
