@@ -211,9 +211,10 @@ public class MethodInvocation extends Expression {
 	 * </ul>
 	 */ 
 	public void setExpression(Expression expression) {
-		preReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.optionalExpression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
-		postReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -245,9 +246,10 @@ public class MethodInvocation extends Expression {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.methodName, name, NAME_PROPERTY);
+		ASTNode oldChild = this.methodName;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.methodName = name;
-		postReplaceChild(this.methodName, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/**

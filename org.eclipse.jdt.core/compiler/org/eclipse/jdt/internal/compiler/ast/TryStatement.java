@@ -202,10 +202,10 @@ public class TryStatement extends SubRoutineStatement {
 		} else {
 			if (this.isSubRoutineEscaping) {
 				finallyMode = FINALLY_DOES_NOT_COMPLETE;
-			} else if (scope.environment().options.useJsrBytecode) {
-				finallyMode = FINALLY_SUBROUTINE;
-			} else {
+			} else if (scope.environment().options.inlineJsrBytecode) {
 				finallyMode = FINALLY_MUST_BE_INLINED;
+			} else {
+				finallyMode = FINALLY_SUBROUTINE;
 			}
 		}
 		boolean requiresNaturalExit = false;
@@ -418,12 +418,12 @@ public class TryStatement extends SubRoutineStatement {
 		if (this.isSubRoutineEscaping) {
 				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
-			if (currentScope.environment().options.useJsrBytecode) { 
-				// classic subroutine invocation, distinguish case of non-returning subroutine
-				codeStream.jsr(this.subRoutineStartLabel);
-			} else {
+			if (currentScope.environment().options.inlineJsrBytecode) { 
 				// cannot use jsr bytecode, then simply inline the subroutine
 				this.finallyBlock.generateCode(currentScope, codeStream);
+			} else {
+				// classic subroutine invocation, distinguish case of non-returning subroutine
+				codeStream.jsr(this.subRoutineStartLabel);
 			}
 		}
 	}
@@ -477,7 +477,7 @@ public class TryStatement extends SubRoutineStatement {
 				MethodScope methodScope = scope.methodScope();
 	
 				// the type does not matter as long as it is not a base type
-				if (upperScope.environment().options.useJsrBytecode) {
+				if (!upperScope.environment().options.inlineJsrBytecode) {
 					this.returnAddressVariable =
 						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);

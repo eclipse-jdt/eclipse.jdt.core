@@ -225,9 +225,10 @@ public class TryStatement extends Statement {
 		if (body == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.body, body, BODY_PROPERTY);
+		ASTNode oldChild = this.body;
+		preReplaceChild(oldChild, body, BODY_PROPERTY);
 		this.body = body;
-		postReplaceChild(this.body, body, BODY_PROPERTY);
+		postReplaceChild(oldChild, body, BODY_PROPERTY);
 	}
 
 	/**
@@ -264,9 +265,10 @@ public class TryStatement extends Statement {
 	 * </ul>
 	 */ 
 	public void setFinally(Block block) {
-		preReplaceChild(this.optionalFinallyBody, block, FINALLY_PROPERTY);
+		ASTNode oldChild = this.optionalFinallyBody;
+		preReplaceChild(oldChild, block, FINALLY_PROPERTY);
 		this.optionalFinallyBody = block;
-		postReplaceChild(this.optionalFinallyBody, block, FINALLY_PROPERTY);
+		postReplaceChild(oldChild, block, FINALLY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

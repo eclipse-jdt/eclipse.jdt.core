@@ -270,9 +270,10 @@ public class ImportDeclaration extends ASTNode {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.importName, name, NAME_PROPERTY);
+		ASTNode oldChild = this.importName;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.importName = name;
-		postReplaceChild(this.importName, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 		
 	/**

@@ -223,9 +223,10 @@ public class FieldAccess extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.expression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
-		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -256,9 +257,10 @@ public class FieldAccess extends Expression {
 		if (fieldName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.fieldName, fieldName, NAME_PROPERTY);
+		ASTNode oldChild = this.fieldName;
+		preReplaceChild(oldChild, fieldName, NAME_PROPERTY);
 		this.fieldName = fieldName;
-		postReplaceChild(this.fieldName, fieldName, NAME_PROPERTY);
+		postReplaceChild(oldChild, fieldName, NAME_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

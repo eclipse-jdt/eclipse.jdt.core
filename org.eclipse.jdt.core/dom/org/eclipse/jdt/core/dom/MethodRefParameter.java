@@ -191,9 +191,10 @@ public class MethodRefParameter extends ASTNode {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.type, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
 		this.type = type;
-		postReplaceChild(this.type, type, TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**
@@ -217,9 +218,10 @@ public class MethodRefParameter extends ASTNode {
 	 * </ul>
 	 */ 
 	public void setName(SimpleName name) {
-		preReplaceChild(this.optionalParameterName, name, NAME_PROPERTY);
+		ASTNode oldChild = this.optionalParameterName;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.optionalParameterName = name;
-		postReplaceChild(this.optionalParameterName, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

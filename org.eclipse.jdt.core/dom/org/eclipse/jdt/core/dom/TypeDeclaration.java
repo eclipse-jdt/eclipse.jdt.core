@@ -606,9 +606,10 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 */ 
 	public void setSuperclass(Name superclassName) {
 	    supportedOnlyIn2();
-		preReplaceChild(this.optionalSuperclassName, superclassName, SUPERCLASS_PROPERTY);
+		ASTNode oldChild = this.optionalSuperclassName;
+		preReplaceChild(oldChild, superclassName, SUPERCLASS_PROPERTY);
 		this.optionalSuperclassName = superclassName;
-		postReplaceChild(this.optionalSuperclassName, superclassName, SUPERCLASS_PROPERTY);
+		postReplaceChild(oldChild, superclassName, SUPERCLASS_PROPERTY);
 	}
 
 	/**
@@ -632,9 +633,10 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 */ 
 	public void setSuperclassType(Type superclassType) {
 	    unsupportedIn2();
-		preReplaceChild(this.optionalSuperclassType, superclassType, SUPERCLASS_TYPE_PROPERTY);
+		ASTNode oldChild = this.optionalSuperclassType;
+		preReplaceChild(oldChild, superclassType, SUPERCLASS_TYPE_PROPERTY);
 		this.optionalSuperclassType = superclassType;
-		postReplaceChild(this.optionalSuperclassType, superclassType, SUPERCLASS_TYPE_PROPERTY);
+		postReplaceChild(oldChild, superclassType, SUPERCLASS_TYPE_PROPERTY);
  	}
 
 	/**

@@ -169,9 +169,10 @@ public class ThrowStatement extends Statement {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.expression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
-		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

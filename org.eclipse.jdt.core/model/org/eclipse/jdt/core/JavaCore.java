@@ -152,6 +152,11 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 */
+	public static final String COMPILER_CODEGEN_INLINE_JSR_BYTECODE = PLUGIN_ID + ".compiler.codegen.inlineJsrBytecode"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_DOC_COMMENT_SUPPORT = PLUGIN_ID + ".compiler.doc.comment.support"; //$NON-NLS-1$
@@ -1401,6 +1406,15 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4" }
 	 *     - default:           "1.2"
 	 *
+	 * COMPILER / Inline JSR Bytecode Instruction
+	 *    When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding
+	 *   subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
+	 *   get bigger, but will load faster on virtual machines since the verification process is then much simpler. 
+	 *  This mode is anticipating support for the Java Specification Request 202.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 * 
 	 * COMPILER / Javadoc Comment Support
 	 *    When this support is disabled, the compiler will ignore all javadoc problems options settings
 	 *    and will not report any javadoc problem. It will also not find any reference in javadoc comment and

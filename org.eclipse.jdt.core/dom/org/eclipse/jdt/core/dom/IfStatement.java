@@ -219,9 +219,10 @@ public class IfStatement extends Statement {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.expression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
-		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -261,9 +262,10 @@ public class IfStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.thenStatement, statement, THEN_STATEMENT_PROPERTY);
+		ASTNode oldChild = this.thenStatement;
+		preReplaceChild(oldChild, statement, THEN_STATEMENT_PROPERTY);
 		this.thenStatement = statement;
-		postReplaceChild(this.thenStatement, statement, THEN_STATEMENT_PROPERTY);
+		postReplaceChild(oldChild, statement, THEN_STATEMENT_PROPERTY);
 	}
 
 	/**
@@ -306,9 +308,10 @@ public class IfStatement extends Statement {
 	 * </ul>
 	 */ 
 	public void setElseStatement(Statement statement) {
-		preReplaceChild(this.optionalElseStatement, statement, ELSE_STATEMENT_PROPERTY);
+		ASTNode oldChild = this.optionalElseStatement;
+		preReplaceChild(oldChild, statement, ELSE_STATEMENT_PROPERTY);
 		this.optionalElseStatement = statement;
-		postReplaceChild(this.optionalElseStatement, statement, ELSE_STATEMENT_PROPERTY);
+		postReplaceChild(oldChild, statement, ELSE_STATEMENT_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

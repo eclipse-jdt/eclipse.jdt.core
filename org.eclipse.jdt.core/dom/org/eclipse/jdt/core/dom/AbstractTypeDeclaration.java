@@ -136,9 +136,10 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 			throw new IllegalArgumentException();
 		}
 		ChildPropertyDescriptor p = internalNameProperty();
-		preReplaceChild(this.typeName, typeName, p);
+		ASTNode oldChild = this.typeName;
+		preReplaceChild(oldChild, typeName, p);
 		this.typeName = typeName;
-		postReplaceChild(this.typeName, typeName, p);
+		postReplaceChild(oldChild, typeName, p);
 	}
 
 	/**

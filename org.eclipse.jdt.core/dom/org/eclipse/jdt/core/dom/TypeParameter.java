@@ -204,9 +204,10 @@ public class TypeParameter extends ASTNode {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.typeVariableName, typeName, NAME_PROPERTY);
+		ASTNode oldChild = this.typeVariableName;
+		preReplaceChild(oldChild, typeName, NAME_PROPERTY);
 		this.typeVariableName = typeName;
-		postReplaceChild(this.typeVariableName, typeName, NAME_PROPERTY);
+		postReplaceChild(oldChild, typeName, NAME_PROPERTY);
 	}
 
 	/**

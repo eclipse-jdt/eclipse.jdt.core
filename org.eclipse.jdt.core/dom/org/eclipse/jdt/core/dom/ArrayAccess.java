@@ -195,9 +195,10 @@ public class ArrayAccess extends Expression {
 		}
 		// an ArrayAccess may occur inside an Expression
 		// must check cycles
-		preReplaceChild(this.arrayExpression, expression, ARRAY_PROPERTY);
+		ASTNode oldChild = this.arrayExpression;
+		preReplaceChild(oldChild, expression, ARRAY_PROPERTY);
 		this.arrayExpression = expression;
-		postReplaceChild(this.arrayExpression, expression, ARRAY_PROPERTY);
+		postReplaceChild(oldChild, expression, ARRAY_PROPERTY);
 	}
 	
 	/**
@@ -231,9 +232,10 @@ public class ArrayAccess extends Expression {
 		}
 		// an ArrayAccess may occur inside an Expression
 		// must check cycles
-		preReplaceChild(this.indexExpression, expression, INDEX_PROPERTY);
+		ASTNode oldChild = this.indexExpression;
+		preReplaceChild(oldChild, expression, INDEX_PROPERTY);
 		this.indexExpression = expression;
-		postReplaceChild(this.indexExpression, expression, INDEX_PROPERTY);
+		postReplaceChild(oldChild, expression, INDEX_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

@@ -291,9 +291,10 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 		if (constantName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.constantName, constantName, NAME_PROPERTY);
+		ASTNode oldChild = this.constantName;
+		preReplaceChild(oldChild, constantName, NAME_PROPERTY);
 		this.constantName = constantName;
-		postReplaceChild(this.constantName, constantName, NAME_PROPERTY);
+		postReplaceChild(oldChild, constantName, NAME_PROPERTY);
 	}
 
 	/**

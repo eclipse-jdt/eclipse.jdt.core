@@ -591,9 +591,10 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (methodName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.methodName, methodName, NAME_PROPERTY);
+		ASTNode oldChild = this.methodName;
+		preReplaceChild(oldChild, methodName, NAME_PROPERTY);
 		this.methodName = methodName;
-		postReplaceChild(this.methodName, methodName, NAME_PROPERTY);
+		postReplaceChild(oldChild, methodName, NAME_PROPERTY);
 	}
 
 	/**
@@ -701,9 +702,10 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.returnType, type, RETURN_TYPE_PROPERTY);
+		ASTNode oldChild = this.returnType;
+		preReplaceChild(oldChild, type, RETURN_TYPE_PROPERTY);
 		this.returnType = type;
-		postReplaceChild(this.returnType, type, RETURN_TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, RETURN_TYPE_PROPERTY);
 	}
 
 	/**
@@ -760,9 +762,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	public void setReturnType2(Type type) {
 	    unsupportedIn2();
 		this.returnType2Initialized = true;
-		preReplaceChild(this.returnType, type, RETURN_TYPE2_PROPERTY);
+		ASTNode oldChild = this.returnType;
+		preReplaceChild(oldChild, type, RETURN_TYPE2_PROPERTY);
 		this.returnType = type;
-		postReplaceChild(this.returnType, type, RETURN_TYPE2_PROPERTY);
+		postReplaceChild(oldChild, type, RETURN_TYPE2_PROPERTY);
 	}
 
 	/**
@@ -845,9 +848,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */ 
 	public void setBody(Block body) {
 		// a MethodDeclaration may occur in a Block - must check cycles
-		preReplaceChild(this.optionalBody, body, BODY_PROPERTY);
+		ASTNode oldChild = this.optionalBody;
+		preReplaceChild(oldChild, body, BODY_PROPERTY);
 		this.optionalBody = body;
-		postReplaceChild(this.optionalBody, body, BODY_PROPERTY);
+		postReplaceChild(oldChild, body, BODY_PROPERTY);
 	}
 
 	/**

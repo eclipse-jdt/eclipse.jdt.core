@@ -304,9 +304,10 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 		if (memberName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.memberName, memberName, NAME_PROPERTY);
+		ASTNode oldChild = this.memberName;
+		preReplaceChild(oldChild, memberName, NAME_PROPERTY);
 		this.memberName = memberName;
-		postReplaceChild(this.memberName, memberName, NAME_PROPERTY);
+		postReplaceChild(oldChild, memberName, NAME_PROPERTY);
 	}
 
 	/**
@@ -339,9 +340,10 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.memberType, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.memberType;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
 		this.memberType = type;
-		postReplaceChild(this.memberType, type, TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**
@@ -368,9 +370,10 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */ 
 	public void setDefault(Expression defaultValue) {
 		// a AnnotationTypeMemberDeclaration may occur inside an Expression - must check cycles
-		preReplaceChild(this.optionalDefaultValue, defaultValue, DEFAULT_PROPERTY);
+		ASTNode oldChild = this.optionalDefaultValue;
+		preReplaceChild(oldChild, defaultValue, DEFAULT_PROPERTY);
 		this.optionalDefaultValue = defaultValue;
-		postReplaceChild(this.optionalDefaultValue, defaultValue, DEFAULT_PROPERTY);
+		postReplaceChild(oldChild, defaultValue, DEFAULT_PROPERTY);
 	}
 	
 	/**

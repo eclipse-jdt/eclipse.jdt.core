@@ -297,9 +297,10 @@ public class PostfixExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.operand, expression, OPERAND_PROPERTY);
+		ASTNode oldChild = this.operand;
+		preReplaceChild(oldChild, expression, OPERAND_PROPERTY);
 		this.operand = expression;
-		postReplaceChild(this.operand, expression, OPERAND_PROPERTY);
+		postReplaceChild(oldChild, expression, OPERAND_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

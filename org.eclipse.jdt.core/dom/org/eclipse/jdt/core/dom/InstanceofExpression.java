@@ -189,9 +189,10 @@ public class InstanceofExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
+		ASTNode oldChild = this.leftOperand;
+		preReplaceChild(oldChild, expression, LEFT_OPERAND_PROPERTY);
 		this.leftOperand = expression;
-		postReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
+		postReplaceChild(oldChild, expression, LEFT_OPERAND_PROPERTY);
 	}
 
 	/**
@@ -223,9 +224,10 @@ public class InstanceofExpression extends Expression {
 		if (referenceType == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.rightOperand, referenceType, RIGHT_OPERAND_PROPERTY);
+		ASTNode oldChild = this.rightOperand;
+		preReplaceChild(oldChild, referenceType, RIGHT_OPERAND_PROPERTY);
 		this.rightOperand = referenceType;
-		postReplaceChild(this.rightOperand, referenceType, RIGHT_OPERAND_PROPERTY);
+		postReplaceChild(oldChild, referenceType, RIGHT_OPERAND_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

@@ -314,9 +314,10 @@ public class CompilationUnit extends ASTNode {
 	 * </ul>
 	 */ 
 	public void setPackage(PackageDeclaration pkgDecl) {
-		preReplaceChild(this.optionalPackageDeclaration, pkgDecl, PACKAGE_PROPERTY);
+		ASTNode oldChild = this.optionalPackageDeclaration;
+		preReplaceChild(oldChild, pkgDecl, PACKAGE_PROPERTY);
 		this.optionalPackageDeclaration = pkgDecl;
-		postReplaceChild(this.optionalPackageDeclaration, pkgDecl, PACKAGE_PROPERTY);
+		postReplaceChild(oldChild, pkgDecl, PACKAGE_PROPERTY);
 	}
 
 	/**

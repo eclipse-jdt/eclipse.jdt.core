@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
@@ -104,7 +103,6 @@ public abstract class AbstractCommentParser {
 			this.index = javadocStart;
 			readChar(); // starting '/'
 			int previousPosition = this.index;
-			int endTextPosition = this.index;
 			readChar(); // first '*'
 			char nextCharacter= readChar(); // second '*'
 			
@@ -165,12 +163,12 @@ public abstract class AbstractCommentParser {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
-								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(this.inlineTagStart, endTextPosition);
+								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedTag(this.inlineTagStart, this.inlineTagStart);
 								validComment = false;
 							} else {
 								if (previousChar == '{') {
-									if (this.textStart != -1 && this.textStart < endTextPosition) {
-										pushText(this.textStart, endTextPosition);
+									if (this.textStart != -1 && this.textStart < this.inlineTagStart) {
+										pushText(this.textStart, this.inlineTagStart);
 									}
 									this.inlineTagStarted = true;
 								}
@@ -201,11 +199,20 @@ public abstract class AbstractCommentParser {
 												valid = parseParam();
 											} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
 												valid = parseThrows(false);
-											} else if (CharOperation.equals(tag, TAG_SEE) ||
-													CharOperation.equals(tag, TAG_LINK)) {
+											} else if (CharOperation.equals(tag, TAG_SEE)) {
 												valid = parseSee(false);
+											} else if (CharOperation.equals(tag, TAG_LINK)) {
+												if (this.inlineTagStarted) {
+													valid = parseSee(false);
+												} else {
+													valid = parseTag();
+												}
 											} else if (CharOperation.equals(tag, TAG_LINKPLAIN)) {
-												valid = parseSee(true);
+												if (this.inlineTagStarted) {
+													valid = parseSee(true);
+												} else {
+													valid = parseTag();
+												}
 											} else {
 												valid = parseTag();
 											}
@@ -306,7 +313,6 @@ public abstract class AbstractCommentParser {
 								this.textStart = previousPosition;
 							}
 							this.lineStarted = true;
-							endTextPosition = previousPosition;
 						}
 						break;
 					case '{' :
@@ -323,10 +329,8 @@ public abstract class AbstractCommentParser {
 						break;
 					case '*' :
 						// do nothing for '*' character
-						endTextPosition = previousPosition;
 						break;
 					default :
-						endTextPosition = previousPosition;
 						if (!CharOperation.isWhitespace(nextCharacter)) {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
@@ -856,7 +860,7 @@ public abstract class AbstractCommentParser {
 		} catch (IndexOutOfBoundsException e) {
 			int oldStackLength = this.astStack.length;
 			Object[] oldStack = this.astStack;
-			this.astStack = new ASTNode[oldStackLength + AstStackIncrement];
+			this.astStack = new Object[oldStackLength + AstStackIncrement];
 			System.arraycopy(oldStack, 0, this.astStack, 0, oldStackLength);
 			this.astPtr = oldStackLength;
 			this.astStack[this.astPtr] = node;

@@ -196,9 +196,10 @@ public class AssertStatement extends Statement {
 			throw new IllegalArgumentException();
 		}
 		// an AssertStatement may occur inside an Expression - must check cycles
-		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.expression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
-		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -226,9 +227,10 @@ public class AssertStatement extends Statement {
 	 */ 
 	public void setMessage(Expression expression) {
 		// an AsertStatement may occur inside an Expression - must check cycles
-		preReplaceChild(this.optionalMessageExpression, expression, MESSAGE_PROPERTY);
+		ASTNode oldChild = this.optionalMessageExpression;
+		preReplaceChild(oldChild, expression, MESSAGE_PROPERTY);
 		this.optionalMessageExpression = expression;
-		postReplaceChild(this.optionalMessageExpression, expression, MESSAGE_PROPERTY);
+		postReplaceChild(oldChild, expression, MESSAGE_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

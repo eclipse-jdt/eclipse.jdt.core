@@ -190,9 +190,10 @@ public class SuperFieldAccess extends Expression {
 	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
-		preReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
+		ASTNode oldChild = this.optionalQualifier;
+		preReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 		this.optionalQualifier = name;
-		postReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
+		postReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 	}
 
 	/**
@@ -241,9 +242,10 @@ public class SuperFieldAccess extends Expression {
 		if (fieldName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.fieldName, fieldName, NAME_PROPERTY);
+		ASTNode oldChild = this.fieldName;
+		preReplaceChild(oldChild, fieldName, NAME_PROPERTY);
 		this.fieldName = fieldName;
-		postReplaceChild(this.fieldName, fieldName, NAME_PROPERTY);
+		postReplaceChild(oldChild, fieldName, NAME_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

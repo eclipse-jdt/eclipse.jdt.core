@@ -261,9 +261,10 @@ public class ForStatement extends Statement {
 	 * </ul>
 	 */ 
 	public void setExpression(Expression expression) {
-		preReplaceChild(this.optionalConditionExpression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.optionalConditionExpression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.optionalConditionExpression = expression;
-		postReplaceChild(this.optionalConditionExpression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -318,9 +319,10 @@ public class ForStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.body, statement, BODY_PROPERTY);
+		ASTNode oldChild = this.body;
+		preReplaceChild(oldChild, statement, BODY_PROPERTY);
 		this.body = statement;
-		postReplaceChild(this.body, statement, BODY_PROPERTY);
+		postReplaceChild(oldChild, statement, BODY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

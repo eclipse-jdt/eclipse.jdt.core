@@ -285,9 +285,10 @@ public class PackageDeclaration extends ASTNode {
 		if (this.annotations == null) {
 			unsupportedIn2();
 		}
-		preReplaceChild(this.optionalDocComment, docComment, JAVADOC_PROPERTY);
+		ASTNode oldChild = this.optionalDocComment;
+		preReplaceChild(oldChild, docComment, JAVADOC_PROPERTY);
 		this.optionalDocComment = docComment;
-		postReplaceChild(this.optionalDocComment, docComment, JAVADOC_PROPERTY);
+		postReplaceChild(oldChild, docComment, JAVADOC_PROPERTY);
 	}
 
 	/**
@@ -318,9 +319,10 @@ public class PackageDeclaration extends ASTNode {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.packageName, name, NAME_PROPERTY);
+		ASTNode oldChild = this.packageName;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.packageName = name;
-		postReplaceChild(this.packageName, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 	
 	/**

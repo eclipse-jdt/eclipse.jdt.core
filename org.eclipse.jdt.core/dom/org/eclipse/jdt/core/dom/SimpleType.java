@@ -170,9 +170,10 @@ public class SimpleType extends Type {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.typeName, typeName, NAME_PROPERTY);
+		ASTNode oldChild = this.typeName;
+		preReplaceChild(oldChild, typeName, NAME_PROPERTY);
 		this.typeName = typeName;
-		postReplaceChild(this.typeName, typeName, NAME_PROPERTY);
+		postReplaceChild(oldChild, typeName, NAME_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

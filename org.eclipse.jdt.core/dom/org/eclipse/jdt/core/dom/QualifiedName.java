@@ -199,9 +199,10 @@ public class QualifiedName extends Name {
 		if (qualifier == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.qualifier, qualifier, QUALIFIER_PROPERTY);
+		ASTNode oldChild = this.qualifier;
+		preReplaceChild(oldChild, qualifier, QUALIFIER_PROPERTY);
 		this.qualifier = qualifier;
-		postReplaceChild(this.qualifier, qualifier, QUALIFIER_PROPERTY);
+		postReplaceChild(oldChild, qualifier, QUALIFIER_PROPERTY);
 	}
 	
 	/**
@@ -232,9 +233,10 @@ public class QualifiedName extends Name {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.name, name, NAME_PROPERTY);
+		ASTNode oldChild = this.name;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.name = name;
-		postReplaceChild(this.name, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

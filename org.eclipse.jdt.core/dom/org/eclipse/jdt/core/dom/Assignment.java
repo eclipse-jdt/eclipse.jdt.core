@@ -365,9 +365,10 @@ public class Assignment extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// an Assignment may occur inside a Expression - must check cycles
-		preReplaceChild(this.leftHandSide, expression, LEFT_HAND_SIDE_PROPERTY);
+		ASTNode oldChild = this.leftHandSide;
+		preReplaceChild(oldChild, expression, LEFT_HAND_SIDE_PROPERTY);
 		this.leftHandSide = expression;
-		postReplaceChild(this.leftHandSide, expression, LEFT_HAND_SIDE_PROPERTY);
+		postReplaceChild(oldChild, expression, LEFT_HAND_SIDE_PROPERTY);
 	}
 
 	/**
@@ -400,9 +401,10 @@ public class Assignment extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// an Assignment may occur inside a Expression - must check cycles
-		preReplaceChild(this.rightHandSide, expression, RIGHT_HAND_SIDE_PROPERTY);
+		ASTNode oldChild = this.rightHandSide;
+		preReplaceChild(oldChild, expression, RIGHT_HAND_SIDE_PROPERTY);
 		this.rightHandSide = expression;
-		postReplaceChild(this.rightHandSide, expression, RIGHT_HAND_SIDE_PROPERTY);
+		postReplaceChild(oldChild, expression, RIGHT_HAND_SIDE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

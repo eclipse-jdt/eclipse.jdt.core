@@ -194,9 +194,10 @@ public class LabeledStatement extends Statement {
 		if (label == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.labelName, label, LABEL_PROPERTY);
+		ASTNode oldChild = this.labelName;
+		preReplaceChild(oldChild, label, LABEL_PROPERTY);
 		this.labelName = label;
-		postReplaceChild(this.labelName, label, LABEL_PROPERTY);
+		postReplaceChild(oldChild, label, LABEL_PROPERTY);
 	}
 	
 	/**
@@ -236,9 +237,10 @@ public class LabeledStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.body, statement, BODY_PROPERTY);
+		ASTNode oldChild = this.body;
+		preReplaceChild(oldChild, statement, BODY_PROPERTY);
 		this.body = statement;
-		postReplaceChild(this.body, statement, BODY_PROPERTY);
+		postReplaceChild(oldChild, statement, BODY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

@@ -278,9 +278,10 @@ public class Initializer extends BodyDeclaration {
 		if (body == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.body, body, BODY_PROPERTY);
+		ASTNode oldChild = this.body;
+		preReplaceChild(oldChild, body, BODY_PROPERTY);
 		this.body = body;
-		postReplaceChild(this.body, body, BODY_PROPERTY);
+		postReplaceChild(oldChild, body, BODY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

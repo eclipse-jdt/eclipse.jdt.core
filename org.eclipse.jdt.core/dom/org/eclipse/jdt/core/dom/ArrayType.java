@@ -171,9 +171,10 @@ public class ArrayType extends Type {
 		if (componentType == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.componentType, componentType, COMPONENT_TYPE_PROPERTY);
+		ASTNode oldChild = this.componentType;
+		preReplaceChild(oldChild, componentType, COMPONENT_TYPE_PROPERTY);
 		this.componentType = componentType;
-		postReplaceChild(this.componentType, componentType, COMPONENT_TYPE_PROPERTY);
+		postReplaceChild(oldChild, componentType, COMPONENT_TYPE_PROPERTY);
 	}
 
 	/**

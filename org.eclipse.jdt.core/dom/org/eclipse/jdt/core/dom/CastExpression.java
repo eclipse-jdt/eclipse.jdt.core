@@ -190,9 +190,10 @@ public class CastExpression extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.type, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
 		this.type = type;
-		postReplaceChild(this.type, type, TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 	
 	/**
@@ -224,9 +225,10 @@ public class CastExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.expression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
-		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

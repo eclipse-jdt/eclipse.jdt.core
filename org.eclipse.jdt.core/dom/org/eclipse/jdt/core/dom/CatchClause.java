@@ -193,9 +193,10 @@ public class CatchClause extends ASTNode {
 		if (exception == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.exceptionDecl, exception, EXCEPTION_PROPERTY);
+		ASTNode oldChild = this.exceptionDecl;
+		preReplaceChild(oldChild, exception, EXCEPTION_PROPERTY);
 		this.exceptionDecl= exception;
-		postReplaceChild(this.exceptionDecl, exception, EXCEPTION_PROPERTY);
+		postReplaceChild(oldChild, exception, EXCEPTION_PROPERTY);
 	}
 	
 	/**
@@ -227,9 +228,10 @@ public class CatchClause extends ASTNode {
 		if (body == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.body, body, BODY_PROPERTY);
+		ASTNode oldChild = this.body;
+		preReplaceChild(oldChild, body, BODY_PROPERTY);
 		this.body = body;
-		postReplaceChild(this.body, body, BODY_PROPERTY);
+		postReplaceChild(oldChild, body, BODY_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
