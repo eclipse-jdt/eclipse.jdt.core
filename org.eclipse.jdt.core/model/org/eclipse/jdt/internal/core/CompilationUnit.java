@@ -649,10 +649,12 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			JavaElement container = (JavaElement)getImportContainer();
 			return container.getHandleFromMemento(token, memento, workingCopyOwner);
 		case JEM_PACKAGEDECLARATION:
+			if (!memento.hasMoreTokens()) return this;
 			String pkgName = memento.nextToken();
 			JavaElement pkgDecl = (JavaElement)getPackageDeclaration(pkgName);
 			return pkgDecl.getHandleFromMemento(memento, workingCopyOwner);
 		case JEM_TYPE:
+			if (!memento.hasMoreTokens()) return this;
 			String typeName = memento.nextToken();
 			JavaElement type = (JavaElement)getType(typeName);
 			return type.getHandleFromMemento(memento, workingCopyOwner);

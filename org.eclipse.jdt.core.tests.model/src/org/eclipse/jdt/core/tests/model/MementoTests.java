@@ -314,6 +314,14 @@ public void testImportDeclarationMemento() {
 		"=P/src<p{X.java#java.util.*",
 		importDecl);
 }
+/*
+ * Ensures that a Java element is returned for an invalid memento.
+ * (regression test for bug 81762 [model] AIOOB in breakpoints view)
+ */
+public void testInvalidMemento() {
+	IJavaElement element = JavaCore.create("=P/src<p{");
+	assertElementEquals("Unexpected element", "p [in src [in P]]", element);
+}
 /**
  * Tests that an initializer can be persisted and restored using its memento.
  */

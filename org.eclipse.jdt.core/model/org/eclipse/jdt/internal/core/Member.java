@@ -185,19 +185,31 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				return type.getHandleFromMemento(token, memento, workingCopyOwner);
 			}
 		case JEM_LOCALVARIABLE:
+			if (!memento.hasMoreTokens()) return this;
 			String varName = memento.nextToken();
+			if (!memento.hasMoreTokens()) return this;
 			memento.nextToken(); // JEM_COUNT
+			if (!memento.hasMoreTokens()) return this;
 			int declarationStart = Integer.parseInt(memento.nextToken());
+			if (!memento.hasMoreTokens()) return this;
 			memento.nextToken(); // JEM_COUNT
+			if (!memento.hasMoreTokens()) return this;
 			int declarationEnd = Integer.parseInt(memento.nextToken());
+			if (!memento.hasMoreTokens()) return this;
 			memento.nextToken(); // JEM_COUNT
+			if (!memento.hasMoreTokens()) return this;
 			int nameStart = Integer.parseInt(memento.nextToken());
+			if (!memento.hasMoreTokens()) return this;
 			memento.nextToken(); // JEM_COUNT
+			if (!memento.hasMoreTokens()) return this;
 			int nameEnd = Integer.parseInt(memento.nextToken());
+			if (!memento.hasMoreTokens()) return this;
 			memento.nextToken(); // JEM_COUNT
+			if (!memento.hasMoreTokens()) return this;
 			String typeSignature = memento.nextToken();
 			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature);
 		case JEM_TYPE_PARAMETER:
+			if (!memento.hasMoreTokens()) return this;
 			String typeParameterName = memento.nextToken();
 			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
 			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);

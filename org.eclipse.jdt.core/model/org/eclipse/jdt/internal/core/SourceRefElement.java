@@ -136,6 +136,7 @@ protected void getHandleMemento(StringBuffer buff) {
  * The given working copy owner is used only for compilation unit handles.
  */
 public IJavaElement getHandleUpdatingCountFromMemento(MementoTokenizer memento, WorkingCopyOwner owner) {
+	if (!memento.hasMoreTokens()) return this;
 	this.occurrenceCount = Integer.parseInt(memento.nextToken());
 	if (!memento.hasMoreTokens()) return this;
 	String token = memento.nextToken();

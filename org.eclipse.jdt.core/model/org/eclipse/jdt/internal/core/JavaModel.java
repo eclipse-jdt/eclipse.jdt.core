@@ -168,6 +168,7 @@ public static void flushExternalFileCache() {
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
 		case JEM_JAVAPROJECT:
+			if (!memento.hasMoreTokens()) return this;
 			String projectName = memento.nextToken();
 			JavaElement project = (JavaElement)getJavaProject(projectName);
 			return project.getHandleFromMemento(memento, owner);

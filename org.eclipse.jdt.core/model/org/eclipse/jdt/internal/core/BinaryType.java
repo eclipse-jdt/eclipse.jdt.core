@@ -300,14 +300,17 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 		case JEM_COUNT:
 			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
 		case JEM_FIELD:
+			if (!memento.hasMoreTokens()) return this;
 			String fieldName = memento.nextToken();
 			JavaElement field = (JavaElement)getField(fieldName);
 			return field.getHandleFromMemento(memento, workingCopyOwner);
 		case JEM_INITIALIZER:
+			if (!memento.hasMoreTokens()) return this;
 			String count = memento.nextToken();
 			JavaElement initializer = (JavaElement)getInitializer(Integer.parseInt(count));
 			return initializer.getHandleFromMemento(memento, workingCopyOwner);
 		case JEM_METHOD:
+			if (!memento.hasMoreTokens()) return this;
 			String selector = memento.nextToken();
 			ArrayList params = new ArrayList();
 			nextParam: while (memento.hasMoreTokens()) {
@@ -317,10 +320,12 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 					case JEM_TYPE_PARAMETER:
 						break nextParam;
 					case JEM_METHOD:
+						if (!memento.hasMoreTokens()) return this;
 						String param = memento.nextToken();
 						StringBuffer buffer = new StringBuffer();
 						while (param.length() == 1 && Signature.C_ARRAY == param.charAt(0)) { // backward compatible with 3.0 mementos
 							buffer.append(Signature.C_ARRAY);
+							if (!memento.hasMoreTokens()) return this;
 							param = memento.nextToken();
 						}
 						params.add(buffer.toString() + param);
@@ -366,6 +371,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				return type.getHandleFromMemento(token, memento, workingCopyOwner);
 			}
 		case JEM_TYPE_PARAMETER:
+			if (!memento.hasMoreTokens()) return this;
 			String typeParameterName = memento.nextToken();
 			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
 			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);

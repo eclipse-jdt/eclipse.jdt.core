@@ -242,10 +242,12 @@ public int getElementType() {
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
 		case JEM_CLASSFILE:
+			if (!memento.hasMoreTokens()) return this;
 			String classFileName = memento.nextToken();
 			JavaElement classFile = (JavaElement)getClassFile(classFileName);
 			return classFile.getHandleFromMemento(memento, owner);
 		case JEM_COMPILATIONUNIT:
+			if (!memento.hasMoreTokens()) return this;
 			String cuName = memento.nextToken();
 			JavaElement cu = new CompilationUnit(this, cuName, owner);
 			return cu.getHandleFromMemento(memento, owner);
