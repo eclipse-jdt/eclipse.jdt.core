@@ -182,8 +182,8 @@ public boolean exists() {
  * Returns the exclusion patterns from the classpath entry associated with this root. */
 char[][] getExclusionPatterns() {
 	try {
-		return ((ClasspathEntry)getRawClasspathEntry()).charBasedExclusionPatterns();
-	} catch (JavaModelException e) {
+		return ((ClasspathEntry)getRawClasspathEntry()).fulExclusionPatternChars();
+	} catch (JavaModelException e) { 
 		return null;
 	}
 }		

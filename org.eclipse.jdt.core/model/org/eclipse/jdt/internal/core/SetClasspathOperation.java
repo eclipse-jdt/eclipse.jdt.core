@@ -116,14 +116,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] list,
 		IClasspathEntry entry) {
 
-		String[] exclusionPatterns = entry.getExclusionPatterns();
+		IPath[] exclusionPatterns = entry.getExclusionPatterns();
 		nextEntry: for (int i = 0; i < list.length; i++) {
 			IClasspathEntry other = list[i];
 			if (other.getContentKind() == entry.getContentKind()
 				&& other.getEntryKind() == entry.getEntryKind()
 				&& other.isExported() == entry.isExported()
 				&& other.getPath().equals(entry.getPath())) {
-					String[] otherExcludes = other.getExclusionPatterns();
+					IPath[] otherExcludes = other.getExclusionPatterns();
 					if (exclusionPatterns == null) {
 						if (otherExcludes != null)
 							continue;

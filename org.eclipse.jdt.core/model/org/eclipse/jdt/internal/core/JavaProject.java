@@ -203,7 +203,7 @@ public class JavaProject
 			element.setAttribute("exported", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
-		String[] exclusionPatterns;
+		IPath[] exclusionPatterns;
 		if ((exclusionPatterns = entry.getExclusionPatterns()) != null) {
 			StringBuffer excludeRule = new StringBuffer(10);
 			for (int i = 0, max = exclusionPatterns.length; i < max; i++){
@@ -1898,14 +1898,14 @@ public class JavaProject
 
 					// exclusion patterns (optional)
 					String exclusion = cpeElement.getAttribute("excluding"); //$NON-NLS-1$ 
-					String[] exclusionPatterns = null;
+					IPath[] exclusionPatterns = null;
 					if (!exclusion.equals("")) {
 						char[][] patterns = CharOperation.splitOn('|', exclusion.toCharArray());
 						int patternCount;
 						if ((patternCount  = patterns.length) > 0) {
-							exclusionPatterns = new String[patternCount];
+							exclusionPatterns = new IPath[patternCount];
 							for (int j = 0; j < patterns.length; j++){
-								exclusionPatterns[j] = new String(patterns[j]);
+								exclusionPatterns[j] = new Path(new String(patterns[j]));
 							}
 						}
 					}

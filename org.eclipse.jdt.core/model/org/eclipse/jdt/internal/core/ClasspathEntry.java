@@ -59,7 +59,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * Patterns allowing to exclude portions of the resource tree denoted by this entry path.	 */
 	
 	public IPath[] exclusionPatterns;
-	public char[][] fullCharExclusionPatterns;
+	private char[][] fullCharExclusionPatterns;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 	
 	/**
