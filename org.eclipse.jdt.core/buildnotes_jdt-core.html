@@ -11,12 +11,14 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK Build 20020530 - 30th May 2002 
-<br>Project org.eclipse.jdt.core v_252
+Eclipse SDK Build 200205? - ?th May 2002 
+<br>Project org.eclipse.jdt.core v_253
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>new</li>
+<li>Changing 2.0 API for refreshing external JARs so as to pass in a collection of *elements* to restrain the scope
+of the update (see <code>IJavaModel#refreshExternalJARs(IJavaElement[],IProgressMonitor)</code>. Elements 
+can either be package fragment roots, projects or Java model.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

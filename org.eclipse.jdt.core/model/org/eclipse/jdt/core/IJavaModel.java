@@ -183,14 +183,17 @@ void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] sib
 void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
 
 /**
- * Triggers an update of the JavaModel with respect to the referenced external JARs.
+ * Triggers an update of the JavaModel with respect to the referenced external archives.
  * This operation will issue a JavaModel delta describing the discovered changes, in term
  * of Java element package fragment roots added, removed or changed.
- * Note that a collection of projects can be passed in so as to limit the scope of the
- * refresh. If passing in <code>null</code>, all the projects will be refreshed.
- * 
- * @param projects - a collection of projects for which external JAR references 
- * 	are to be refreshed (will consider all projects if set to <code>null</code>)
+ * Note that a collection of elements can be passed so as to narrow the set of archives
+ * to refresh. The elements can be:
+ * <ul>
+ * <li> package fragment roots corresponding to external archives
+ * <li> Java projects, which referenced external archives will be refreshed
+ * <li> Java model, all referenced external archives will be refreshed.
+ * </ul>
+ * @param elementsScope - a collection of elements defining the scope of the refresh
  * @param monitor - a progress monitor used to report progress
  * @exception JavaModelException in one of the corresponding situation:
  * <ul>
@@ -200,7 +203,7 @@ void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
  * @see IJavaElementDelta
  * @since 2.0
  */
-void refreshExternalJARs(IJavaProject[] projects, IProgressMonitor monitor) throws JavaModelException;
+void refreshExternalArchives(IJavaElement[] elementsScope, IProgressMonitor monitor) throws JavaModelException;
 
 /**
  * Renames the given elements as specified.

@@ -417,14 +417,17 @@ public void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
  * @see IJavaModel#refreshExternalJARs(IProgressMonitor)
  */
 public void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException {
-	refreshExternalJARs(null, monitor);
+	refreshExternalArchives(null, monitor);
 }
 
 /**
- * @see IJavaModel#refreshExternalJARs(IJavaProject[], IProgressMonitor)
+ * @see IJavaModel#refreshExternalArchives(IJavaElement[], IProgressMonitor)
  */
-public void refreshExternalJARs(IJavaProject[] projects, IProgressMonitor monitor) throws JavaModelException {
-	getJavaModelManager().deltaProcessor.checkExternalJarChanges(projects, monitor);
+public void refreshExternalArchives(IJavaElement[] elementsScope, IProgressMonitor monitor) throws JavaModelException {
+	if (elementsScope == null){
+		elementsScope = new IJavaElement[] { this };
+	}
+	getJavaModelManager().deltaProcessor.checkExternalArchiveChanges(elementsScope, monitor);
 }
 
 /**

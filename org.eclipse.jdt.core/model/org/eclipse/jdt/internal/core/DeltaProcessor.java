@@ -343,20 +343,48 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 	}
 	
 	/**
-	 * Check all external JARs (referenced by given projects) status and issue a corresponding root delta.
+	 * Check all external archive (referenced by given roots, projects or model) status and issue a corresponding root delta.
 	 * Also triggers index updates
 	 */
-	public void checkExternalJarChanges(IJavaProject[] projects, IProgressMonitor monitor) throws JavaModelException {
+	public void checkExternalArchiveChanges(IJavaElement[] refreshedElements, IProgressMonitor monitor) throws JavaModelException {
 		try {
-			HashMap externalJARsStatus = new HashMap();
-			
+			HashMap externalArchivesStatus = new HashMap();
 			JavaModel model = manager.getJavaModel();			
+			
+			// find JARs to refresh
+			HashSet archivePathsToRefresh = new HashSet();
+			for (int i = 0, elementsLength = refreshedElements.length; i < elementsLength; i++){
+				IJavaElement element = refreshedElements[i];
+				switch(element.getElementType()){
+					case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+						archivePathsToRefresh.add(element.getPath());
+						break;
+					case IJavaElement.JAVA_PROJECT :
+						IClasspathEntry[] classpath = ((IJavaProject) element).getResolvedClasspath(true);
+						for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
+							if (classpath[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+								archivePathsToRefresh.add(classpath[j].getPath());
+							}
+						}
+						break;
+					case IJavaElement.JAVA_MODEL :
+						IJavaProject[] projects = manager.getJavaModel().getOldJavaProjectsList();
+						for (int j = 0, projectsLength = projects.length; j < projectsLength; j++){
+							classpath = ((IJavaProject) projects[j]).getResolvedClasspath(true);
+							for (int k = 0, cpLength = classpath.length; k < cpLength; k++){
+								if (classpath[k].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+									archivePathsToRefresh.add(classpath[k].getPath());
+								}
+							}
+						}
+						break;
+				}
+			}
+			// perform refresh
 			fCurrentDelta = new JavaElementDelta(model);
 			boolean hasDelta = false;
 
-			if (projects == null){
-				projects = manager.getJavaModel().getOldJavaProjectsList();
-			}			
+			IJavaProject[] projects = manager.getJavaModel().getOldJavaProjectsList();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				
 				if (monitor != null && monitor.isCanceled()) return; 
@@ -367,7 +395,10 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					if (entries[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 						
 						IPath entryPath = entries[j].getPath();
-						String status = (String)externalJARsStatus.get(entryPath); 
+						
+						if (!archivePathsToRefresh.contains(entryPath)) continue; // not supposed to be refreshed
+						
+						String status = (String)externalArchivesStatus.get(entryPath); 
 						if (status == null){
 							
 							// compute shared status
@@ -376,7 +407,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 							if (targetLibrary == null){ // missing JAR
 								if (this.externalTimeStamps.containsKey(entryPath)){
 									this.externalTimeStamps.remove(entryPath);
-									externalJARsStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
+									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
 									// the jar was physically removed: remove the index
 									indexManager.removeIndex(entryPath);
 								}
@@ -391,37 +422,37 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 								if (oldTimestamp != null){
 
 									if (newTimeStamp == 0){ // file doesn't exist
-										externalJARsStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
+										externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
 										this.externalTimeStamps.remove(entryPath);
 										// remove the index
 										indexManager.removeIndex(entryPath);
 
 									} else if (oldTimestamp.longValue() != newTimeStamp){
-										externalJARsStatus.put(entryPath, EXTERNAL_JAR_CHANGED);
+										externalArchivesStatus.put(entryPath, EXTERNAL_JAR_CHANGED);
 										this.externalTimeStamps.put(entryPath, new Long(newTimeStamp));
 										// first remove the index so that it is forced to be re-indexed
 										indexManager.removeIndex(entryPath);
 										// then index the jar
 										indexManager.indexLibrary(entryPath, project.getProject());
 									} else {
-										externalJARsStatus.put(entryPath, EXTERNAL_JAR_UNCHANGED);
+										externalArchivesStatus.put(entryPath, EXTERNAL_JAR_UNCHANGED);
 									}
 								} else {
 									if (newTimeStamp == 0){ // jar still doesn't exist
-										externalJARsStatus.put(entryPath, EXTERNAL_JAR_UNCHANGED);
+										externalArchivesStatus.put(entryPath, EXTERNAL_JAR_UNCHANGED);
 									} else {
-										externalJARsStatus.put(entryPath, EXTERNAL_JAR_ADDED);
+										externalArchivesStatus.put(entryPath, EXTERNAL_JAR_ADDED);
 										this.externalTimeStamps.put(entryPath, new Long(newTimeStamp));
 										// index the new jar
 										indexManager.indexLibrary(entryPath, project.getProject());
 									}
 								}
 							} else { // internal JAR
-								externalJARsStatus.put(entryPath, INTERNAL_JAR_IGNORE);
+								externalArchivesStatus.put(entryPath, INTERNAL_JAR_IGNORE);
 							}
 						}
 						// according to computed status, generate a delta
-						status = (String)externalJARsStatus.get(entryPath); 
+						status = (String)externalArchivesStatus.get(entryPath); 
 						if (status != null){
 							PackageFragmentRoot root = (PackageFragmentRoot)project.getPackageFragmentRoot(entryPath.toString());
 							if (status == EXTERNAL_JAR_ADDED){
