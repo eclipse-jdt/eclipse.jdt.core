@@ -1041,12 +1041,7 @@ public abstract class Scope
 						break;
 					case CLASS_SCOPE :
 						SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
-						if (CharOperation.equals(sourceType.sourceName, name)) {
-							if (foundType != null && foundType != sourceType)
-								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
-							return sourceType;
-						}
-
+						// 6.5.5.1 - simple name favors member type over top-level type in same unit
 						ReferenceBinding memberType = findMemberType(name, sourceType);
 						if (memberType != null) { // skip it if we did not find anything
 							if (memberType.problemId() == Ambiguous) {
@@ -1073,6 +1068,11 @@ public abstract class Scope
 							if (foundType == null || (foundType.problemId() == NotVisible && memberType.problemId() != NotVisible))
 								// only remember the memberType if its the first one found or the previous one was not visible & memberType is...
 								foundType = memberType;
+						}
+						if (CharOperation.equals(sourceType.sourceName, name)) {
+							if (foundType != null && foundType != sourceType)
+								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
+							return sourceType;
 						}
 						break;
 					case COMPILATION_UNIT_SCOPE :
