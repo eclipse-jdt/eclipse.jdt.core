@@ -54,8 +54,8 @@ public abstract class SearchRequestor {
 
 	/**
 	 * Notification sent after having completed the search action.
-	 * Typically, this would tell a search requestor collector that no more results  should be expected in this
-	 * iteration.
+	 * Typically, this would tell a search requestor collector that no more
+	 * results will be forthcomping in this search.
 	 * <p>
 	 * The default implementation of this method does nothing. Subclasses
 	 * may override.
@@ -66,7 +66,7 @@ public abstract class SearchRequestor {
 	}
 
 	/**
-	 * Intermediate notification sent when a given participant is starting to
+	 * Intermediate notification sent when the given participant starts to
 	 * contribute.
 	 * <p>
 	 * The default implementation of this method does nothing. Subclasses
@@ -80,7 +80,7 @@ public abstract class SearchRequestor {
 	}
 
 	/**
-	 * Intermediate notification sent when a given participant is finished
+	 * Intermediate notification sent when the given participant is finished
 	 * contributing.
 	 * <p>
 	 * The default implementation of this method does nothing. Subclasses
