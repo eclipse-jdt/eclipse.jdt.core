@@ -339,20 +339,20 @@ public String toString() {
 		AstNode node = (AstNode)enum.nextElement();
 		Object value = this.potentialMatchingNodes.get(node);
 		if (value instanceof Integer) {
-			result.append("\t");
+			result.append("\t"/*nonNLS*/);
 			int accuracy = ((Integer)value).intValue();
 			switch (accuracy) {
 				case SearchPattern.IMPOSSIBLE_MATCH:
-					result.append("IMPOSSIBLE_MATCH: ");
+					result.append("IMPOSSIBLE_MATCH: "/*nonNLS*/);
 					break;
 				case SearchPattern.POSSIBLE_MATCH:
-					result.append("POSSIBLE_MATCH: ");
+					result.append("POSSIBLE_MATCH: "/*nonNLS*/);
 					break;
 				case SearchPattern.INACCURATE_MATCH:
-					result.append("INACCURATE_MATCH: ");
+					result.append("INACCURATE_MATCH: "/*nonNLS*/);
 					break;
 				case SearchPattern.ACCURATE_MATCH:
-					result.append("ACCURATE_MATCH: ");
+					result.append("ACCURATE_MATCH: "/*nonNLS*/);
 					break;
 			}
 		}

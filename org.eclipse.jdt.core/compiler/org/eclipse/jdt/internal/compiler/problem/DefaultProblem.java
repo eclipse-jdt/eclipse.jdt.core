@@ -111,7 +111,7 @@ public String errorReportSource(ICompilationUnit compilationUnit) {
 	//resize underneathto remove 'null' chars
 	System.arraycopy(underneath, 0, underneath = new char[pos], 0, pos);
 
-	return " " + Util.bind("problem.atLine"/*nonNLS*/,String.valueOf(line)) +
+	return " "/*nonNLS*/ + Util.bind("problem.atLine"/*nonNLS*/,String.valueOf(line)) +
 	"\n\t"/*nonNLS*/ + new String(extract) + "\n\t"/*nonNLS*/ + new String(underneath);
 }
 /**
