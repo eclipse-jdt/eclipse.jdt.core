@@ -77,7 +77,8 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	if (currentProject == null || !currentProject.exists()) return new IProject[0];
 
 	if (DEBUG)
-		System.out.println("\nStarting build of " + currentProject.getName()); //$NON-NLS-1$
+		System.out.println("\nStarting build of " + currentProject.getName() //$NON-NLS-1$
+			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
 	this.notifier = new BuildNotifier(monitor, currentProject);
 	notifier.begin();
 	boolean ok = false;
@@ -135,7 +136,8 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	}
 	IProject[] requiredProjects = getRequiredProjects();
 	if (DEBUG)
-		System.out.println("Finished build of " + currentProject.getName()); //$NON-NLS-1$
+		System.out.println("Finished build of " + currentProject.getName() //$NON-NLS-1$
+			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
 	return requiredProjects;
 }
 
