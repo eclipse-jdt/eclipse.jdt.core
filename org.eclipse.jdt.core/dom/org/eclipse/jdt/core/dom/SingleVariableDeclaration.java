@@ -66,11 +66,18 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		new ChildPropertyDescriptor(SingleVariableDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "variableArity" structural property of this node type (added in 3.0 API).
+	 * The "varargs" structural property of this node type (added in 3.0 API).
 	 * @since 3.0
 	 */
-	public static final SimplePropertyDescriptor VARIABLE_ARITY_PROPERTY = 
-		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "variableArity", boolean.class, MANDATORY); //$NON-NLS-1$
+	public static final SimplePropertyDescriptor VARARGS_PROPERTY = 
+		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "varargs", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * @since 3.0
+	 * @deprecated Renamed VARARGS_PROPERTY
+	 * TODO (jeem) - Remove before M9
+	 */
+	public static final SimplePropertyDescriptor VARIABLE_ARITY_PROPERTY = VARARGS_PROPERTY;
 	
 	/**
 	 * The "extraDimensions" structural property of this node type.
@@ -114,7 +121,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		createPropertyList(SingleVariableDeclaration.class);
 		addProperty(MODIFIERS2_PROPERTY);
 		addProperty(TYPE_PROPERTY);
-		addProperty(VARIABLE_ARITY_PROPERTY);
+		addProperty(VARARGS_PROPERTY);
 		addProperty(NAME_PROPERTY);
 		addProperty(EXTRA_DIMENSIONS_PROPERTY);
 		addProperty(INITIALIZER_PROPERTY);
@@ -241,11 +248,11 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
-		if (property == VARIABLE_ARITY_PROPERTY) {
+		if (property == VARARGS_PROPERTY) {
 			if (get) {
-				return isVariableArity();
+				return isVarargs();
 			} else {
-				setVariableArity(value);
+				setVarargs(value);
 				return false;
 			}
 		}
@@ -313,7 +320,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			result.setModifiers(getModifiers());
 		} else {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
-			result.setVariableArity(isVariableArity());
+			result.setVarargs(isVarargs());
 		}
 		result.setType((Type) getType().clone(target));
 		result.setExtraDimensions(getExtraDimensions());
@@ -506,7 +513,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
-	public boolean isVariableArity() {
+	public boolean isVarargs() {
 		// more efficient than just calling unsupportedIn2() to check
 		if (this.modifiers == null) {
 			unsupportedIn2();
@@ -528,14 +535,32 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 *    parameter declaration, and <code>false</code> otherwise
 	 * @since 3.0
 	 */ 
-	public void setVariableArity(boolean variableArity) {
+	public void setVarargs(boolean variableArity) {
 		// more efficient than just calling unsupportedIn2() to check
 		if (this.modifiers == null) {
 			unsupportedIn2();
 		}
-		preValueChange(VARIABLE_ARITY_PROPERTY);
+		preValueChange(VARARGS_PROPERTY);
 		this.variableArity = variableArity;
-		postValueChange(VARIABLE_ARITY_PROPERTY);
+		postValueChange(VARARGS_PROPERTY);
+	}
+
+	/**
+	 * @since 3.0
+	 * @deprecated Renamed isVarargs
+	 * TODO (jeem) - Remove before M9
+	 */ 
+	public boolean isVariableArity() {
+		return isVarargs();
+	}
+	
+	/**
+	 * @since 3.0
+	 * @deprecated Renamed setVarargs
+	 * TODO (jeem) - Remove before M9
+	 */ 
+	public void setVariableArity(boolean variableArity) {
+		setVarargs(variableArity);
 	}
 
 	/* (omit javadoc for this method)

@@ -2914,7 +2914,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(x.getModifiers() == Modifier.NONE);
 		} else {
 			assertTrue(x.modifiers().size() == 0);
-			assertTrue(x.isVariableArity() == false);
+			assertTrue(x.isVarargs() == false);
 		}
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == true);
@@ -2953,14 +2953,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
 			previousCount = ast.modificationCount();
-			x.setVariableArity(true);
+			x.setVarargs(true);
 			assertTrue(ast.modificationCount() > previousCount);
-			assertTrue(x.isVariableArity() == true);
+			assertTrue(x.isVarargs() == true);
 	
 			previousCount = ast.modificationCount();
-			x.setVariableArity(false);
+			x.setVarargs(false);
 			assertTrue(ast.modificationCount() > previousCount);
-			assertTrue(x.isVariableArity() == false);
+			assertTrue(x.isVarargs() == false);
 		}
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
@@ -3360,16 +3360,16 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
 			// check isVariableArity convenience method
 			x.parameters().clear();
-			assertTrue(!x.isVariableArity()); // 0 params
+			assertTrue(!x.isVarargs()); // 0 params
 			x.parameters().add(ast.newSingleVariableDeclaration());
-			assertTrue(!x.isVariableArity()); // 1 params
+			assertTrue(!x.isVarargs()); // 1 params
 			SingleVariableDeclaration v = ast.newSingleVariableDeclaration();
 			x.parameters().add(v);
-			assertTrue(!x.isVariableArity()); // 2 param fixed arity
-			v.setVariableArity(true);
-			assertTrue(x.isVariableArity()); // 2 param fixed arity
+			assertTrue(!x.isVarargs()); // 2 param fixed arity
+			v.setVarargs(true);
+			assertTrue(x.isVarargs()); // 2 param fixed arity
 			x.parameters().add(ast.newSingleVariableDeclaration());
-			assertTrue(!x.isVariableArity()); // only last param counts
+			assertTrue(!x.isVarargs()); // only last param counts
 		}
 	}	
 	

@@ -1064,7 +1064,7 @@ class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getType().accept(this);
 		if (node.getAST().apiLevel() >= AST.LEVEL_3_0) {
-			if (node.isVariableArity()) {
+			if (node.isVarargs()) {
 				this.buffer.append("...");//$NON-NLS-1$
 			}
 		}
