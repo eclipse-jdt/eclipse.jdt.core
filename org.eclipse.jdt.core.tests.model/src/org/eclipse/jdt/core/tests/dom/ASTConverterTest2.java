@@ -29,14 +29,14 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
 
-		Class c = ASTConverterTest2.class;
+/*		Class c = ASTConverterTest2.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
-		}
-//		suite.addTest(new ASTConverterTest2("test0414"));
+		}*/
+		suite.addTest(new ASTConverterTest2("test0416"));
 		return suite;
 	}
 	/**
@@ -496,6 +496,39 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		SwitchCase defaultCase = (SwitchCase) statement;
 		assertTrue("not a default case", defaultCase.isDefault());
 		assertEquals("wrong toString()", "default : ", defaultCase.toString());
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24324
+	 */
+	public void test0416() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0416", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 1, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT); //$NON-NLS-1$
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", fragments.size(), 1);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression init = fragment.getInitializer();
+		assertTrue("not a qualified name", init.getNodeType() == ASTNode.QUALIFIED_NAME); //$NON-NLS-1$
+		QualifiedName qualifiedName = (QualifiedName) init;
+		SimpleName simpleName = qualifiedName.getName();
+		assertEquals("Wrong name", "CONST", simpleName.getIdentifier());
+		IBinding binding = simpleName.resolveBinding();
+		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
+		IVariableBinding variableBinding = (IVariableBinding) binding;
+		assertEquals("Wrong modifier", variableBinding.getModifiers(), Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL);
+		ASTNode declaringNode = unit.findDeclaringNode(variableBinding);
+		assertNotNull("No declaring node", declaringNode);
+		assertTrue("not a variable declaration fragment", declaringNode.getNodeType() == ASTNode.VARIABLE_DECLARATION_FRAGMENT);
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) declaringNode;
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) variableDeclarationFragment.getParent();
+		assertEquals("Wrong modifier", fieldDeclaration.getModifiers(), Modifier.NONE);
 	}
 	
 }
