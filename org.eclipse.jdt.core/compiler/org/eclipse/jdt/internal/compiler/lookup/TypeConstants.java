@@ -18,7 +18,8 @@ public interface TypeConstants {
 	final char[] CharArray_JAVA_LANG_OBJECT = new char[] {'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'O', 'b', 'j', 'e', 'c', 't'};
 	final char[] LENGTH = new char[] {'l', 'e', 'n', 'g', 't', 'h'};
 	final char[] CLONE = new char[] {'c', 'l', 'o', 'n', 'e'};
-
+	final char[] OBJECT = new char[] {'O', 'b', 'j', 'e', 'c', 't' };
+	
 	// Constant compound names
 	final char[][] JAVA_LANG = new char[][] {JAVA, LANG};
 	final char[][] JAVA_IO = new char[][] {JAVA, IO};
@@ -29,7 +30,7 @@ public interface TypeConstants {
 	final char[][] JAVA_LANG_EXCEPTION = new char[][] {JAVA, LANG, {'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n'}};
 	final char[][] JAVA_LANG_ERROR = new char[][] {JAVA, LANG, {'E', 'r', 'r', 'o', 'r'}};
 	final char[][] JAVA_LANG_NOCLASSDEFERROR = new char[][] {JAVA, LANG, {'N', 'o', 'C', 'l', 'a', 's', 's', 'D', 'e', 'f', 'E', 'r', 'r', 'o', 'r'}};
-	final char[][] JAVA_LANG_OBJECT = new char[][] {JAVA, LANG, {'O', 'b', 'j', 'e', 'c', 't'}};
+	final char[][] JAVA_LANG_OBJECT = new char[][] {JAVA, LANG, OBJECT};
 	final char[][] JAVA_LANG_STRING = new char[][] {JAVA, LANG, {'S', 't', 'r', 'i', 'n', 'g'}};
 	final char[][] JAVA_LANG_STRINGBUFFER = new char[][] {JAVA, LANG, {'S', 't', 'r', 'i', 'n', 'g', 'B', 'u', 'f', 'f', 'e', 'r'}};
 	final char[][] JAVA_LANG_SYSTEM = new char[][] {JAVA, LANG, {'S', 'y', 's', 't', 'e', 'm'}};

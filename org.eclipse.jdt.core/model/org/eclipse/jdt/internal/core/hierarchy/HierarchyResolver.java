@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -61,6 +62,7 @@ public class HierarchyResolver implements ITypeRequestor {
 	private ReferenceBinding[] typeBindings;
 	private ReferenceBinding focusType;
 	private CompilerOptions options;
+	private boolean hasMissingSuperClass;
 	
 /**
  * A wrapper around the simple name of a type that is missing.
@@ -215,10 +217,14 @@ private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBind
 			} else {
 				return null;
 			}
-			if (superclassName != null) { // if original is not java.lang.Object
+			
+			if (superclassName != null) { // check whether subclass of Object due to broken hierarchy (as opposed to explicitly extending it)
 				int lastSeparator = CharOperation.lastIndexOf(separator, superclassName);
 				char[] simpleName = lastSeparator == -1 ? superclassName : CharOperation.subarray(superclassName, lastSeparator+1, superclassName.length);
-				return new MissingType(new String(simpleName));
+				if (!CharOperation.equals(simpleName, TypeConstants.OBJECT)) {
+					this.hasMissingSuperClass = true;
+					return new MissingType(new String(simpleName));
+				}
 			}
 		}
 		for (int t = typeIndex; t >= 0; t--) {
@@ -348,9 +354,17 @@ private void rememberWithMemberTypes(ISourceType suppliedType, ReferenceBinding 
 	}
 }
 private void reportHierarchy() {
+	int objectIndex = -1;
 	for (int current = typeIndex; current >= 0; current--) {
-		IGenericType suppliedType = typeModels[current];
 		ReferenceBinding typeBinding = typeBindings[current];
+
+		// java.lang.Object treated at the end
+		if (typeBinding.id == TypeIds.T_JavaLangObject) {
+			objectIndex = current;
+			continue;
+		}
+
+		IGenericType suppliedType = typeModels[current];
 
 		if (!subOrSuperOfFocus(typeBinding)) {
 			continue; // ignore types outside of hierarchy
@@ -365,6 +379,10 @@ private void reportHierarchy() {
 		IGenericType[] superinterfaces = this.findSuperInterfaces(suppliedType, typeBinding);
 		
 		requestor.connect(suppliedType, superclass, superinterfaces);
+	}
+	// add java.lang.Object only if the super class is not missing
+	if (!this.hasMissingSuperClass && objectIndex > -1) {
+		requestor.connect(typeModels[objectIndex], null, null);
 	}
 }
 private void reset(){
@@ -559,7 +577,7 @@ private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBin
 	if (typeBinding == null || subType == null) return false;
 	if (subType == typeBinding) return true;
 	ReferenceBinding superclass = subType.superclass();
-	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;
+//	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;
 	if (this.subTypeOfType(superclass, typeBinding)) return true;
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
 	if (superInterfaces != null) {

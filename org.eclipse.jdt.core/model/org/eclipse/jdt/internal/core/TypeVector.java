@@ -18,6 +18,9 @@ public final class TypeVector {
 	public int size;
 	int maxSize;
 	IType[] elements;
+	
+	public final static IType[] NoElements = new IType[0];
+	
 public TypeVector() {
 	maxSize = INITIAL_SIZE;
 	size = 0;
@@ -66,6 +69,10 @@ public IType elementAt(int index) {
 	return elements[index];
 }
 public IType[] elements() {
+	
+	// do not resize to 0 if empty since may add more elements later
+	if (this.size == 0) return NoElements;
+	
 	if (this.size < this.maxSize) {
 		maxSize = size;
 		System.arraycopy(this.elements, 0, (this.elements = new IType[maxSize]), 0, size);
