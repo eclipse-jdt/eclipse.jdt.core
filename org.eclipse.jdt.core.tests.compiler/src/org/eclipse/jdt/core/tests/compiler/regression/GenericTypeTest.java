@@ -10743,36 +10743,7 @@ class C extends B implements IDoubles {
 			"");	
 	}		
 	
-	// 78008
 	public void test407() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" + 
-				"public class X {\n" + 
-				"\n" + 
-				"    public Integer[] getTypes() {\n" + 
-				"        List<Integer> list = new ArrayList<Integer>();\n" + 
-				"        return list == null \n" + 
-				"            ? new Integer[0] \n" + 
-				"            : list.toArray(new Integer[list.size()]);\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        Class clazz = null;\n" + 
-				"        try {\n" + 
-				"            clazz = Class.forName(\"X\");\n" + 
-				"			 System.out.println(\"SUCCESS\");\n" +
-				"        } catch (Throwable e) {\n" + 
-				"            e.printStackTrace();\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"}",
-			},
-			"SUCCESS");	
-	}			
-	
-	public void test408() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -10790,4 +10761,60 @@ class C extends B implements IDoubles {
 			},
 			"");	
 	}			
+
+	// 78008
+	public void test408() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    public Integer[] getTypes() {\n" + 
+				"        List<Integer> list = new ArrayList<Integer>();\n" + 
+				"        return list == null \n" + 
+				"            ? new Integer[0] \n" + 
+				"            : list.toArray(new Integer[list.size()]);\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Class clazz = null;\n" + 
+				"        try {\n" + 
+				"            clazz = Class.forName(\"X\");\n" + 
+				"    	     System.out.println(\"SUCCESS\");\n" + 
+				"        } catch (Throwable e) {\n" + 
+				"            e.printStackTrace();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}",
+			},
+			"SUCCESS");	
+	}	
+	
+	// 78008
+	public void test409() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    public Number getTypes() {\n" + 
+				"        List<Integer> list = new ArrayList<Integer>();\n" + 
+				"        return list == null \n" + 
+				"            ? Float.valueOf(0)\n" + 
+				"            : list.get(0);\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Class clazz = null;\n" + 
+				"        try {\n" + 
+				"            clazz = Class.forName(\"X\");\n" + 
+				"    	     System.out.println(\"SUCCESS\");\n" + 
+				"        } catch (Throwable e) {\n" + 
+				"            e.printStackTrace();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}",
+			},
+			"SUCCESS");	
+	}			
+
+	
 }
