@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0447"));			
+		suite.addTest(new ASTConverterTest2("test0450"));			
 		return suite;
 	}
 	/**
@@ -1290,6 +1290,87 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Block block = methodDeclaration.getBody();
 		assertNotNull("No method body", block);
 		assertEquals("wrong size", 1, block.statements().size()); 
+	}	
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26452
+	 */
+	public void test0450() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0450", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", node.getNodeType(), ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("not a class", typeBinding.isClass());
+		assertTrue("not a toplevel type", typeBinding.isTopLevel());
+		assertTrue("a local type", !typeBinding.isLocal());
+		assertTrue("an anonymous type", !typeBinding.isAnonymous());
+		assertTrue("a member type", !typeBinding.isMember());
+		assertTrue("a nested type", !typeBinding.isNested());
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
+		Expression expression = ((ExpressionStatement) node).getExpression();
+		assertEquals("Not a class instance creation", expression.getNodeType(), ASTNode.CLASS_INSTANCE_CREATION);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("not a class", typeBinding.isClass());
+		assertTrue("a toplevel type", !typeBinding.isTopLevel());
+		assertTrue("not a local type", typeBinding.isLocal());
+		assertTrue("not an anonymous type", typeBinding.isAnonymous());
+		assertTrue("a member type", !typeBinding.isMember());
+		assertTrue("not a nested type", typeBinding.isNested());
+		
+		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 2, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertTrue("not a type declaration", bodyDeclaration.getNodeType() == ASTNode.TYPE_DECLARATION);
+		typeDeclaration = (TypeDeclaration) bodyDeclaration;
+		
+		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(1);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertNotNull("No body", block);
+		List statements = block.statements();
+		assertEquals("wrong size", 2, statements.size());
+		Statement statement = (Statement) statements.get(1);
+		assertEquals("Not a variable declaration statement", statement.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement;
+		Type type = variableDeclarationStatement.getType();
+		assertNotNull("No type", type);
+		
+		ITypeBinding typeBinding2 = type.resolveBinding();
+		typeBinding = typeDeclaration.resolveBinding();
+		assertTrue("not equals", typeBinding == typeBinding2);
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("not a class", typeBinding.isClass());
+		assertTrue("a toplevel type", !typeBinding.isTopLevel());
+		assertTrue("an anonymous type", !typeBinding.isAnonymous());
+		assertTrue("not a member type", typeBinding.isMember());
+		assertTrue("not a nested type", typeBinding.isNested());		
+		assertTrue("a local type", !typeBinding.isLocal());
+		
+		bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("wrong size", 1, bodyDeclarations.size());
+		bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertTrue("not a type declaration", bodyDeclaration.getNodeType() == ASTNode.TYPE_DECLARATION);
+		typeDeclaration = (TypeDeclaration) bodyDeclaration;
+		typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("not a class", typeBinding.isClass());
+		assertTrue("a toplevel type", !typeBinding.isTopLevel());
+		assertTrue("an anonymous type", !typeBinding.isAnonymous());
+		assertTrue("not a member type", typeBinding.isMember());
+		assertTrue("not a nested type", typeBinding.isNested());		
+		assertTrue("a local type", !typeBinding.isLocal());
+		
+		System.out.println(statements.get(0).getClass());
 	}	
 }
 
