@@ -53,11 +53,22 @@ import org.eclipse.text.edits.TextEdit;
  * the original source characters.
  * </p>
  * <p>
- * Note that there is no built-in way to serialize a modified AST to a source
- * code string. Naive serialization of a newly-constructed AST to a string is
- * a straightforward application of an AST visitor. However, preserving comments
- * and formatting from the originating source code string is a challenging
- * problem (support for this is planned for a future release).
+ * Compilation units created by <code>ASTParser</code> from a
+ * source document can be serialized after arbitrary modifications
+ * with minimal loss of original formatting. Here is an example:
+ * <pre>
+ * Document doc = new Document("import java.util.List;\nclass X {}\n");
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);
+ * parser.setSource(doc.get().toCharArray());
+ * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+ * cu.recordModifications();
+ * AST ast = cu.getAST();
+ * ImportDeclaration id = ast.newImportDeclaration();
+ * id.setName(ast.newName(new String[] {"java", "util", "Set"});
+ * cu.imports().add(id); // add import declaration at end
+ * TextEdit edits = cu.rewrite(document, options);
+ * UndoEdit undo = edits.apply(document);
+ * </pre>
  * </p>
  * <p>
  * Clients may create instances of this class, which is not intended to be
@@ -3184,14 +3195,20 @@ public final class AST {
 	}
 	
 	/**
-	 * Enable the record of AST modifications. Recording can not be disabled.
-	 * @param root top level node of the recording.
-	 * @throws RewriteException if AST is already modified
-	 * @throws RewriteException if record is already enabled
-	 * @throws RewriteException if <code>root</code> is unmodifiable
-	 * @throws RewriteException if <code>root</code> is not owned by this AST
-	 * 
-	 * @see org.eclipse.jdt.core.dom.rewrite.NewASTRewrite
+	 * Enables the recording of changes to the given compilation
+	 * unit and its descendents. The compilation unit must have
+	 * been created by <code>ASTParser</code> and still be in
+	 * its original state. Once recording is on,
+	 * arbitrary changes to the subtree rooted at the compilation
+	 * unit are recorded internally. Once the modification has
+	 * been completed, call <code>rewrite</code> to get an object
+	 * representing the corresponding edits to the original 
+	 * source code string.
+	 *
+	 * @throws RewriteException if the compilation unit is marked
+	 * as unmodifiable, or if the compilation unit has already 
+	 * been tampered with, or if recording has already been enabled,
+	 * or if <code>root</code> is not owned by this AST
 	 * @see CompilationUnit#recordModifications()
 	 * @since 3.0
 	 */
@@ -3211,11 +3228,20 @@ public final class AST {
 	}
 	
 	/**
-	 * Create edits
-	 * @param document original document
-	 * @return edits
-	 * @throws RewriteException if modifications record is not enabled.
+	 * Converts all modifications recorded into an object
+	 * representing the corresponding text edits to the
+	 * given document containing the original source
+	 * code for the compilation unit that gave rise to
+	 * this AST.
 	 * 
+	 * @param document original document containing source code
+	 * for the compilation unit
+	 * @param options TODO missing spec for options
+	 * @return text edit object describing the changes to the
+	 * document corresponding to the recorded AST modifications
+	 * @throws RewriteException if <code>recordModifications</code>
+	 * was not called to enable recording
+	 * @see CompilationUnit#rewrite(IDocument, Map)
 	 * @since 3.0
 	 */
 	TextEdit rewrite(IDocument document, Map options) throws RewriteException {
