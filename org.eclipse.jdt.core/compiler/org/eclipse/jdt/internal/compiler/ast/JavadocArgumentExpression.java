@@ -45,6 +45,7 @@ public class JavadocArgumentExpression extends Expression {
 				TypeReference typeRef = this.argument.type;
 				if (typeRef != null) {
 					this.resolvedType = typeRef.getTypeBinding(scope);
+					typeRef.resolvedType = this.resolvedType;
 					if (!this.resolvedType.isValidBinding()) {
 						scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getDeclarationModifiers());
 						return null;

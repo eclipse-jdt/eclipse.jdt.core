@@ -277,6 +277,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) node;
 			return getMethodBinding(messageSend.binding);
+		} else if (node instanceof AllocationExpression) {
+			AllocationExpression allocation = (AllocationExpression) node;
+			return getMethodBinding(allocation.binding);
 		}
 		return null;
 	}

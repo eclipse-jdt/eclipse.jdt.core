@@ -133,7 +133,7 @@ public class JavadocParser extends AbstractCommentParser {
 		try {
 			TypeReference argTypeRef = (TypeReference) typeRef;
 			if (dim > 0) {
-				long pos = ((long) argTypeRef.sourceStart) << 32 + argTypeRef.sourceEnd;
+				long pos = (((long) argTypeRef.sourceStart) << 32) + argTypeRef.sourceEnd;
 				if (typeRef instanceof JavadocSingleTypeReference) {
 					JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
 					argTypeRef = new JavadocArraySingleTypeReference(singleRef.token, dim, pos);

@@ -388,6 +388,30 @@ public class Javadoc extends ASTNode {
 				org.eclipse.jdt.internal.compiler.ast.Expression expression = this.references[i];
 				if (expression.sourceStart==start) {
 					return expression;
+				} else if (expression instanceof JavadocAllocationExpression) {
+					JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) this.references[i];
+					// if binding is valid then look at arguments
+					if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
+						if (allocationExpr.arguments != null) {
+							for (int j=0; j<allocationExpr.arguments.length; j++) {
+								if (allocationExpr.arguments[j].sourceStart == start) {
+									return allocationExpr.arguments[j];
+								}
+							}
+						}
+					}
+				} else if (expression instanceof JavadocMessageSend) {
+					JavadocMessageSend messageSend = (JavadocMessageSend) this.references[i];
+					// if binding is valid then look at arguments
+					if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
+						if (messageSend.arguments != null) {
+							for (int j=0; j<messageSend.arguments.length; j++) {
+								if (messageSend.arguments[j].sourceStart == start) {
+									return messageSend.arguments[j];
+								}
+							}
+						}
+					}
 				}
 			}
 		}
