@@ -80,16 +80,17 @@ public class WildcardBinding extends ReferenceBinding {
 	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
 	 */
 	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
-	    switch(this.kind) {
-	        case Wildcard.UNBOUND :
-	            return;
-	        case Wildcard.EXTENDS :
-	            this.bound.collectSubstitutes(otherType, substitutes);
-	            return;
-	        default: // SUPER
-	            this.bound.collectSubstitutes(otherType, substitutes);
-	            return;
-	    }
+
+		if (this.bound == null)
+			return;
+		if (otherType.isWildcard()) {
+			WildcardBinding otherWildcard = (WildcardBinding) otherType;
+			if (otherWildcard.bound != null) {
+				this.bound.collectSubstitutes(otherWildcard.bound, substitutes);
+			}
+		} else {
+            this.bound.collectSubstitutes(otherType, substitutes);
+		}	    
 	}
 	
 	/**

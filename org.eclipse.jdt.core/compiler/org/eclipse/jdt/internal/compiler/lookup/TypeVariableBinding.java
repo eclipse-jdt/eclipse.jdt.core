@@ -98,8 +98,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    if (variableSubstitutes != null) {
 	        int length = variableSubstitutes.length;
 	        for (int i = 0; i < length; i++) {
-	            if (variableSubstitutes[i] == otherType) return; // already there
-	            if (variableSubstitutes[i] == null) {
+	        	TypeBinding substitute = variableSubstitutes[i];
+	            if (substitute == otherType) return; // already there
+	            if (substitute == null) {
 	                variableSubstitutes[i] = otherType;
 	                return;
 	            }

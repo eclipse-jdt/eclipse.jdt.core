@@ -27,6 +27,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     private LookupEnvironment environment;
     public boolean inferredReturnType;
     public boolean wasInferred; // only set to true for instances resulting from method invocation inferrence
+    public boolean isRaw; // set to true for method behaving as raw for substitution purpose
     
     /**
      * Create method of parameterized type, substituting original parameters with type arguments.
@@ -39,15 +40,17 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		this.declaringClass = originalMethod.declaringClass;
 	    this.typeVariables = NoTypeVariables;
 	    this.typeArguments = typeArguments;
+	    this.isRaw = false;
 	    this.originalMethod = originalMethod;
 	    this.parameters = Scope.substitute(this, originalMethod.parameters);
 	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
 	    this.returnType = this.substitute(originalMethod.returnType);
 	    this.wasInferred = true;// resulting from method invocation inferrence
 	}
+	
 	/**
 	 * Create raw generic method for raw type (double substitution from type vars with raw type arguments, and erasure of method variables)
-	 * Only invoked for non-static generic methods of raw type (could remove support for statics from below)
+	 * Only invoked for non-static generic methods of raw type
 	 */
 	public ParameterizedGenericMethodBinding(MethodBinding originalMethod, RawTypeBinding rawType, LookupEnvironment environment) {
 
@@ -57,21 +60,22 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		for (int i = 0; i < length; i++) {
 			rawArguments[i] = originalVariables[i].erasure();
 		}		
+	    this.isRaw = true;
 	    this.environment = environment;
 		this.modifiers = originalMethod.modifiers;
 		this.selector = originalMethod.selector;
-		this.declaringClass = rawType;
+		this.declaringClass = rawType == null ? originalMethod.declaringClass : rawType;
 	    this.typeVariables = NoTypeVariables;
 	    this.typeArguments = rawArguments;
 	    this.originalMethod = originalMethod;
-		boolean isStatic = originalMethod.isStatic();
-	    this.parameters = Scope.substitute(this, isStatic 
+		boolean ignoreRawTypeSubstitution = rawType == null || originalMethod.isStatic();
+	    this.parameters = Scope.substitute(this, ignoreRawTypeSubstitution
 	    									? originalMethod.parameters // no substitution if original was static
 	    									: Scope.substitute(rawType, originalMethod.parameters));
-	    this.thrownExceptions = Scope.substitute(this, 	isStatic 
+	    this.thrownExceptions = Scope.substitute(this, 	ignoreRawTypeSubstitution 
 	    									? originalMethod.thrownExceptions // no substitution if original was static
 	    									: Scope.substitute(rawType, originalMethod.thrownExceptions));
-	    this.returnType = this.substitute(isStatic 
+	    this.returnType = this.substitute(ignoreRawTypeSubstitution 
 	    									? originalMethod.returnType // no substitution if original was static
 	    									: rawType.substitute(originalMethod.returnType));
 	    this.wasInferred = false; // not resulting from method invocation inferrence
@@ -126,36 +130,45 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				for (int i = 0; i < paramLength; i++)
 					parameters[i].collectSubstitutes(arguments[i], collectedSubstitutes);
 			}
-			substitutes = new TypeBinding[varLength];
 			boolean needReturnTypeInference = false;
-			for (int i = 0; i < varLength; i++) {
-				TypeBinding[] variableSubstitutes = (TypeBinding[]) collectedSubstitutes.get(typeVariables[i]);
-				TypeBinding mostSpecificSubstitute = scope.lowerUpperBound(variableSubstitutes);
-				//TypeBinding mostSpecificSubstitute = scope.mostSpecificCommonType(variableSubstitutes);
-				if (mostSpecificSubstitute == null)
-					return null; // incompatible
-				if (mostSpecificSubstitute == VoidBinding) {
-					needReturnTypeInference = true;
-				    mostSpecificSubstitute = typeVariables[i];
+			if (collectedSubstitutes.isEmpty()) {
+				// raw generic method inferred
+				methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, (RawTypeBinding)null, scope.environment());
+			} else {
+				substitutes = new TypeBinding[varLength];
+				for (int i = 0; i < varLength; i++) {
+					TypeBinding[] variableSubstitutes = (TypeBinding[]) collectedSubstitutes.get(typeVariables[i]);
+					TypeBinding mostSpecificSubstitute = scope.lowerUpperBound(variableSubstitutes);
+					if (mostSpecificSubstitute == null)
+						return null; // incompatible
+					if (mostSpecificSubstitute == VoidBinding) {
+						needReturnTypeInference = true;
+					    mostSpecificSubstitute = typeVariables[i];
+					}				
+					substitutes[i] = mostSpecificSubstitute;
 				}
-				substitutes[i] = mostSpecificSubstitute;
+				// apply inferred variable substitutions
+				methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, substitutes, scope.environment());
 			}
-			// apply inferred variable substitutions
-			methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, substitutes, scope.environment());
 	
 			if (needReturnTypeInference && invocationSite instanceof MessageSend) {
 				MessageSend message = (MessageSend) invocationSite;
 				TypeBinding expectedType = message.expectedType;
-				if (expectedType != null)
-					methodSubstitute.inferFromExpectedType(message.expectedType, scope);
+				methodSubstitute.inferFromExpectedType(
+						// 15.12.2.8 - if no expected type, then assume Object
+						expectedType == null ? scope.getJavaLangObject() : expectedType, 
+						scope);
 			}
 		}
 		// check bounds
-		for (int i = 0, length = typeVariables.length; i < length; i++) {
-		    TypeVariableBinding typeVariable = typeVariables[i];
-		    if (!typeVariable.boundCheck(methodSubstitute, substitutes[i]))
-		        // incompatible due to bound check
-		        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitutes[i], typeVariables[i] }, ParameterBoundMismatch);
+		if (!methodSubstitute.isRaw) {
+			for (int i = 0, length = typeVariables.length; i < length; i++) {
+			    TypeVariableBinding typeVariable = typeVariables[i];
+			    TypeBinding substitute = substitutes[i];
+			    if (!typeVariable.boundCheck(methodSubstitute, substitute))
+			        // incompatible due to bound check
+			        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitutes[i], typeVariables[i] }, ParameterBoundMismatch);
+			}
 		}
 
 		return methodSubstitute;
@@ -184,32 +197,43 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	public void inferFromExpectedType(TypeBinding expectedType, Scope scope) {
 	    if (this.returnType == expectedType) 
 	        return;
-        if ((this.returnType.tagBits & TagBits.HasTypeVariable) == 0) 
-            return;
-        Map substitutes = new HashMap(1);
-        int length = this.typeArguments.length;
-        TypeVariableBinding[] originalVariables = this.original().typeVariables;
-        boolean hasUnboundParameters = false;
-        for (int i = 0; i < length; i++) {
-            if (this.typeArguments[i] == originalVariables[i]) {
-                hasUnboundParameters = true;
+	    if ((this.returnType.tagBits & TagBits.HasTypeVariable) == 0) 
+	        return;
+	    Map substitutes = new HashMap(1);
+	    int length = this.typeArguments.length;
+	    TypeVariableBinding[] originalVariables = this.original().typeVariables;
+	    boolean hasUnboundParameters = false;
+	    for (int i = 0; i < length; i++) {
+	        if (this.typeArguments[i] == originalVariables[i]) {
+	            hasUnboundParameters = true;
 	        	substitutes.put(originalVariables[i], new TypeBinding[1]);
-            } else {
+	        } else {
 	        	substitutes.put(originalVariables[i], new TypeBinding[] { this.typeArguments[i] });
-            }
-        }
-        if (!hasUnboundParameters)
-            return;
-        returnType.collectSubstitutes(expectedType, substitutes);
-		for (int i = 0; i < length; i++) {
-			TypeBinding[] variableSubstitutes = (TypeBinding[]) substitutes.get(originalVariables[i]);
-			TypeBinding mostSpecificSubstitute = scope.lowerUpperBound(variableSubstitutes);
-			if (mostSpecificSubstitute == null) {
-			    return; // TODO (philippe) should report no way to infer type
-			}
-			if (mostSpecificSubstitute != VoidBinding) 
+	        }
+	    }
+	    if (!hasUnboundParameters)
+	        return;
+	    returnType.collectSubstitutes(expectedType, substitutes);
+	    if (substitutes.isEmpty()) {
+	    	// raw generic method inferred
+	    	this.isRaw = true;
+	    	for (int i = 0; i < length; i++) {
+	    		this.typeArguments[i] = originalVariables[i].erasure();
+	    	}
+	    } else {
+			for (int i = 0; i < length; i++) {
+				TypeBinding[] variableSubstitutes = (TypeBinding[]) substitutes.get(originalVariables[i]);
+				TypeBinding mostSpecificSubstitute = scope.lowerUpperBound(variableSubstitutes);
+				if (mostSpecificSubstitute == null) {
+				    return; // TODO (philippe) should report no way to infer type
+				}
+				if (mostSpecificSubstitute == VoidBinding) {
+					// 15.12.2.8 - any remaining variable is assumed to be Object
+					mostSpecificSubstitute = scope.getJavaLangObject();
+				}				
 				this.typeArguments[i] = mostSpecificSubstitute;
-		}
+			}
+	    }
 		TypeBinding oldReturnType = this.returnType;
 		this.returnType = this.substitute(this.returnType);
 		this.inferredReturnType = this.returnType != oldReturnType;
@@ -244,6 +268,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				ReferenceBinding substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
+				}
+				if (this.isRaw) {
+					return this.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);					
 				}
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
 				TypeBinding[] substitutedArguments = originalArguments;
@@ -293,6 +320,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
 				}
+				if (this.isRaw) {
+					return this.environment.createRawType(originalGenericType, substitutedEnclosing);					
+				}				
 				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
 				length = originalVariables.length;
 				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);

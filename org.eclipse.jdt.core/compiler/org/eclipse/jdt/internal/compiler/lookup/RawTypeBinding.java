@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Denote a raw type, i.e. a generic type referenced without any type arguments.
@@ -164,6 +165,17 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 				}				
 	            return this.environment.createRawType((ReferenceBinding)originalType, substitutedEnclosing);
 	            
+			case Binding.WILDCARD_TYPE:
+		        WildcardBinding wildcard = (WildcardBinding) originalType;
+		        if (wildcard.kind != Wildcard.UNBOUND) {
+			        TypeBinding originalBound = wildcard.bound;
+			        TypeBinding substitutedBound = substitute(originalBound);
+			        if (substitutedBound != originalBound) {
+		        		return this.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, wildcard.kind);
+			        }
+		        }
+		        break;
+		        
 			case Binding.ARRAY_TYPE:
 				TypeBinding originalLeafComponentType = originalType.leafComponentType();
 				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type

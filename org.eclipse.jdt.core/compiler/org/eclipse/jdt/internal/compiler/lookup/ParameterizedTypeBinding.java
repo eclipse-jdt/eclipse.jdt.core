@@ -76,9 +76,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        if (equivalent.isParameterizedType() && otherEquivalent.isParameterizedType()) {
 	        	ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) equivalent;
 	        	ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherEquivalent;
-	            for (int i = 0, length = this.arguments.length; i < length; i++) {
+	            for (int i = 0, length = parameterizedType.arguments.length; i < length; i++) {
 	                parameterizedType.arguments[i].collectSubstitutes(otherParameterizedType.arguments[i], substitutes);
 	            }
+	        } else if (equivalent.isParameterizedType() && otherEquivalent.isRawType()) {
+	        	substitutes.clear(); // clear all variables to indicate raw generic method in the end
 	        }
 	    }
 	}
@@ -167,7 +169,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	/**
-	 * Ltype<param1 ... paremN>;
+	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;
 	 */
 	public char[] genericTypeSignature() {

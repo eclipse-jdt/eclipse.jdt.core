@@ -352,15 +352,45 @@ public abstract class Scope
 	}
 
 	public TypeBinding convertToRawType(TypeBinding type) {
-		if (type.isArrayType()) {
-		    TypeBinding leafComponentType = type.leafComponentType();
-		    if (leafComponentType.isGenericType())
-		        return createArrayType(environment().createRawType((ReferenceBinding) leafComponentType, leafComponentType.enclosingType()), type.dimensions());
-		} else if (type.isGenericType()) {
-	        return environment().createRawType((ReferenceBinding) type, type.enclosingType());
+		int dimension = type.dimensions();
+		TypeBinding originalType = type.leafComponentType();
+		if (originalType instanceof ReferenceBinding) {
+			ReferenceBinding convertedType = (ReferenceBinding) originalType;
+			ReferenceBinding originalEnclosing = originalType.enclosingType();
+			ReferenceBinding convertedEnclosing = originalEnclosing;
+			if (originalEnclosing != null && convertedType.isStatic()) {
+				if (originalEnclosing.isGenericType()) {
+					convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
+				}
+			}
+			if (originalType.isGenericType()) {
+				convertedType = environment().createRawType(convertedType, convertedEnclosing);
+			} else if (originalEnclosing != convertedEnclosing) {
+				convertedType = createParameterizedType(convertedType, null, convertedEnclosing);
+			}
+			if (originalType != convertedType) {
+				return dimension > 0 ? (TypeBinding)createArrayType(convertedType, dimension) : convertedType;
+			}
 		}
 		return type;
 	}
+//		TypeBinding leafType = type.leafComponentType();
+//		int dimension = type.dimensions();
+//		ReferenceBinding originalEnclosing = leafType.enclosingType();
+//		ReferenceBinding convertedEnclosing = originalEnclosing;
+//		if (originalEnclosing != null && ((ReferenceBinding)leafType).isStatic()) {
+//			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
+//		}
+//		if (leafType.isGenericType()) {
+//			type = environment().createRawType((ReferenceBinding) leafType, convertedEnclosing);
+//			if (dimension > 0) 
+//				type = createArrayType(type, dimension);
+//		} else if (originalEnclosing != convertedEnclosing) {
+//			type = createParameterizedType((ReferenceBinding)leafType, null, convertedEnclosing);
+//			if (dimension > 0) 
+//				type = createArrayType(type, dimension);
+//		}
+//	    return type;
 
 	public ArrayBinding createArrayType(TypeBinding type, int dimension) {
 		if (type.isValidBinding())
@@ -2603,6 +2633,10 @@ public abstract class Scope
 	// 15.12.2
 	public TypeBinding lowerUpperBound(TypeBinding[] types) {
 		
+		if (types.length == 1) {
+			TypeBinding type = types[0];
+			return type == null ? VoidBinding : type;
+		}
 		ArrayList invocations = new ArrayList(1);
 		TypeBinding mec = minimalErasedCandidate(types, invocations);
 		return leastContainingInvocation(mec, invocations);
@@ -2791,106 +2825,6 @@ public abstract class Scope
 		return problemMethod;
 	}
 	
-	/**
-	 * Returns the most specific type compatible with all given types.
-	 * (i.e. most specific common super type)
-	 * If no types is given, will return VoidBinding. If not compatible 
-	 * reference type is found, returns null.
-	 * @deprecated - use lowerUpperBound(TypeBinding[]) instead
-	 */
-	public TypeBinding mostSpecificCommonType(TypeBinding[] types) {
-		int length = types.length;
-		int indexOfFirst = -1, actualLength = 0;
-		for (int i = 0; i < length; i++) {
-			TypeBinding type = types[i];
-			if (type == null) continue;
-			if (type.isBaseType()) return null;
-			if (indexOfFirst < 0) indexOfFirst = i;
-			actualLength ++;
-		}
-		switch (actualLength) {
-			case 0: return VoidBinding;
-			case 1: return types[indexOfFirst];
-		}
-
-		// record all supertypes of type
-		// intersect with all supertypes of otherType
-		TypeBinding firstType = types[indexOfFirst];
-		TypeBinding[] superTypes;
-		int superLength;
-		if (firstType.isBaseType()) {
-			return null; 
-		} else if (firstType.isArrayType()) {
-			superLength = 4;
-			superTypes = new TypeBinding[] {
-					firstType, 
-					getJavaIoSerializable(),
-					getJavaLangCloneable(),
-					getJavaLangObject(),
-			};
-		} else {
-			ArrayList typesToVisit = new ArrayList(5);
-			typesToVisit.add(firstType);
-			ReferenceBinding currentType = (ReferenceBinding)firstType;
-			for (int i = 0, max = 1; i < max; i++) {
-				currentType = (ReferenceBinding) typesToVisit.get(i);
-				ReferenceBinding itsSuperclass = currentType.superclass();
-				if (itsSuperclass != null && !typesToVisit.contains(itsSuperclass)) {
-					typesToVisit.add(itsSuperclass);
-					max++;
-				}
-				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-				for (int j = 0, count = itsInterfaces.length; j < count; j++)
-					if (!typesToVisit.contains(itsInterfaces[j])) {
-						typesToVisit.add(itsInterfaces[j]);
-						max++;
-					}
-			}
-			superLength = typesToVisit.size();
-			superTypes = new TypeBinding[superLength];
-			typesToVisit.toArray(superTypes);
-		}
-		int remaining = superLength;
-		nextOtherType: for (int i = indexOfFirst+1; i < length; i++) {
-			TypeBinding otherType = types[i];
-			if (otherType == null)
-				continue nextOtherType;
-			else if (otherType.isArrayType()) {
-				nextSuperType: for (int j = 0; j < superLength; j++) {
-					TypeBinding superType = superTypes[j];
-					if (superType == null || superType == otherType) continue nextSuperType;
-					switch (superType.id) {
-						case T_JavaIoSerializable :
-						case T_JavaLangCloneable :
-						case T_JavaLangObject :
-							continue nextSuperType;
-					}
-					superTypes[j] = null;
-					if (--remaining == 0) return null;
-					
-				}
-				continue nextOtherType;
-			}
-			ReferenceBinding otherRefType = (ReferenceBinding) otherType;
-			nextSuperType: for (int j = 0; j < superLength; j++) {
-				TypeBinding superType = superTypes[j];
-				if (superType == null) continue nextSuperType;
-				if (otherRefType.isCompatibleWith(superType)) {
-					break nextSuperType;
-				} else {
-					superTypes[j] = null;
-					if (--remaining == 0) return null;
-				}
-			}				
-		}
-		// per construction, first non-null supertype is most specific common supertype
-		for (int i = 0; i < superLength; i++) {
-			TypeBinding superType = superTypes[i];
-			if (superType != null) return superType;
-		}
-		return null;
-	}
-
 	// Internal use only
 	/* All methods in visible are acceptable matches for the method in question...
 	* Since the receiver type is an interface, we ignore the possibility that 2 inherited

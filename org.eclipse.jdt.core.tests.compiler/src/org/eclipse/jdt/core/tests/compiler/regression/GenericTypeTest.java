@@ -4257,7 +4257,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
 			"	                                      ^^^\n" + 
-			"The method bar() is undefined for the type V\n" + 
+			"The method bar() is undefined for the type Object\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	return a.get();\n" + 
@@ -4291,7 +4291,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	String s = foo(new AX<String>(\"aaa\")).bar();\n" + 
 			"	                                      ^^^\n" + 
-			"The method bar() is undefined for the type V\n" + 
+			"The method bar() is undefined for the type Object\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	return a.get();\n" + 
@@ -4423,8 +4423,8 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	AX<String, Thread> a = bar();\n" + 
-			"	                   ^\n" + 
-			"Type mismatch: cannot convert from AX<AX<T,T>,Thread> to AX<String,Thread>\n" + 
+			"	                   ^\n" + // TODO (philippe) should instead flag impossible to compute proper substitutes
+			"Type mismatch: cannot convert from AX<AX<Object,Object>,Thread> to AX<String,Thread>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
@@ -10894,5 +10894,178 @@ class C extends B implements IDoubles {
 				"}",
 			},
 			"should warn about unchecked array conversion for T[]");	
+	}
+	
+	public void test413() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	static class TLM {\n" + 
+				"	}\n" + 
+				"    TLM getMap(TL t) {\n" + 
+				"        return t.tls;\n" + 
+				"    }\n" + 
+				"    static TLM createInheritedMap(TLM parentMap) {\n" + 
+				"        return new TLM();\n" + 
+				"    }  \n" + 
+				"}\n" + 
+				"\n" + 
+				"class TL {\n" + 
+				"   X.TLM tls = null;\n" + 
+				"}",
+			},
+			"");	
+	}
+	
+	public void test414() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(L l, C<? super X> c) {\n" + 
+				"		bar(l, c);\n" + 
+				"	}\n" + 
+				"	<T> void bar(L<T> l, C<? super T> c) { \n" + 
+				"	}	\n" + 
+				"}\n" + 
+				"class C<E> {}\n" + 
+				"class L<E> {}",
+			},
+			"");	
+	}
+	
+	public void test415() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public S<M.E<Object,Object>> foo(HM hm) {\n" + 
+				"		return C.bar(hm).foo();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class C {\n" + 
+				"    public static <K,V> M<K,V> bar(M<? extends K,? extends V> m) {\n" + 
+				"		return null;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class S<E> {\n" + 
+				"}\n" + 
+				"abstract class HM<U,V> implements M<U,V>{\n" + 
+				"}\n" + 
+				"interface M<A,B> {\n" + 
+				"	static class E<S,T> {}\n" + 
+				"	S<E<A,B>> foo();	\n" + 
+				"}",
+			},
+			"");	
+	}	
+	
+	public void test416() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public S<M.E<Object,String>> foo(HM hm) {\n" + 
+				"    	M<Object, String> m = C.bar(hm);\n" + 
+				"    	if (false) return m.foo();\n" + 
+				"		return C.bar(hm).foo();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class C {\n" + 
+				"    public static <K,V> M<K,V> bar(M<? extends K,? extends V> m) {\n" + 
+				"		return null;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class S<E> {\n" + 
+				"}\n" + 
+				"abstract class HM<U,V> implements M<U,V>{\n" + 
+				"}\n" + 
+				"interface M<A,B> {\n" + 
+				"	static class E<S,T> {}\n" + 
+				"	S<E<A,B>> foo();	\n" + 
+				"}",
+			},
+			"");	
+	}
+	
+	public void test417() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<E> {\n" + 
+				"	\n" + 
+				"	<T> X<T> foo(X<T> xt) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	X<E> identity() {\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"	void bar(X x) {\n" + 
+				"		X<String> xs = foo(x).identity();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");	
 	}			
+	
+	public void test418() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<E> {\n" + 
+				"	\n" + 
+				"	<T> X<T> foo(X<T> xt, X<T> xt2) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	X<E> identity() {\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"	void bar(X x, X<String> xs) {\n" + 
+				"		X<String> xs2 = foo(x, xs).identity();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");	
+	}			
+	
+	public void test419() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<E> {\n" + 
+				"	\n" + 
+				"	<T,U> X<T> foo(X<T> xt, X<U> xt2) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	X<E> identity() {\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"	void bar(X x, X<String> xs) {\n" + 
+				"		X<String> xs2 = foo(x, xs).identity();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");	
+	}		
+	
+	public void test420() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<E> {\n" + 
+				"	\n" + 
+				"	<T,U> X<U> foo(X<T> xt, X<U> xt2) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	X<E> identity() {\n" + 
+				"		return this;\n" + 
+				"	}\n" + 
+				"	void bar(X x, X<String> xs) {\n" + 
+				"		X<String> xs2 = foo(x, xs).identity();\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");	
+	}		
 }
