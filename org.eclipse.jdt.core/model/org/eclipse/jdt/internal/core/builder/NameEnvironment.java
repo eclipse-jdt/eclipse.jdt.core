@@ -95,7 +95,18 @@ public static ClasspathLocation[] computeLocations(
 		IClasspathEntry entry = classpathEntries[i];
 		IPath path = entry.getPath();
 		Object target = JavaModel.getTarget(workspaceRoot, path, true);
-		if (target == null) continue nextEntry;
+		if (target == null){
+			// still remember a dependency onto the container project (20158)
+			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				if (path.segmentCount() > 1) {
+					IResource rsc = workspaceRoot.findMember(path.segment(0));
+					if (rsc instanceof IProject) {
+						binaryResources.put((IProject)rsc, new IResource[0]);
+					}
+				}
+			}
+			continue nextEntry;
+		}
 
 		if (target instanceof IResource) {
 			IResource resource = (IResource) target;
@@ -130,9 +141,13 @@ public static ClasspathLocation[] computeLocations(
 					if (binaryResources != null) { // normal builder mode
 						IResource[] existingResources = (IResource[]) binaryResources.get(prereqProject);
 						if (existingResources == null)
-							binaryResources.put(prereqProject, new IResource[] {prereqOutputFolder});
-						else
+							existingResources = new IResource[] {prereqOutputFolder};
+						else {
+							int size = existingResources.length;
+							System.arraycopy(existingResources, 0, existingResources = new IResource[size + 1], 1, size);
 							existingResources[0] = prereqOutputFolder; // project's output folder is always first
+						}
+						binaryResources.put(prereqProject, existingResources);
 					}
 					classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(prereqOutputFolder.getLocation().toString());
 					continue nextEntry;
