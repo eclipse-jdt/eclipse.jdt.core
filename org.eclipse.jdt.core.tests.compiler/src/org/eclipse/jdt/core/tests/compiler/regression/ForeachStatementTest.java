@@ -46,11 +46,51 @@ public void test001() {
 			"        }\n" + 
 			"        System.out.println();\n" + 
 			"    }\n" + 
-			"}\n"
+			"}\n",
 		},
 		"SUCCESS");
 }
-
+public void test002() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        \n" + 
+			"        for (int value : new int[] {value}) {\n" + 
+			"            System.out.println(value);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	for (int value : new int[] {value}) {\n" + 
+		"	                            ^^^^^\n" + 
+		"The local variable value may not have been initialized\n" + 
+		"----------\n");
+}
+public void test003() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        \n" + 
+			"        for (int value : value) {\n" + 
+			"            System.out.println(value);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	for (int value : value) {\n" + 
+		"	                 ^^^^^\n" + 
+		"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+		"----------\n");
+}
+			
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
