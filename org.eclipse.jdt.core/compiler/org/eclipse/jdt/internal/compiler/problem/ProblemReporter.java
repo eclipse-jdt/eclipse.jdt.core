@@ -3293,7 +3293,7 @@ public void javadocMalformedSeeReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocMalformedSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissing(int sourceStart, int sourceEnd, int modifiers){
-	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
+	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
 	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore)
 					&& (!overriding || this.options.reportMissingJavadocCommentsOverriding);
 	if (report) {
@@ -3313,7 +3313,7 @@ public void javadocMissingParamName(int sourceStart, int sourceEnd, int modifier
 		this.handle(IProblem.JavadocMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingParamTag(char[] name, int sourceStart, int sourceEnd, int modifiers) {
-	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
+	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
 	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
 					&& (!overriding || this.options.reportMissingJavadocTagsOverriding);
 	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
@@ -3326,7 +3326,7 @@ public void javadocMissingReference(int sourceStart, int sourceEnd, int modifier
 		this.handle(IProblem.JavadocMissingReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifiers){
-	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
+	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
 	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
 					&& (!overriding || this.options.reportMissingJavadocTagsOverriding);
 	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
@@ -3338,7 +3338,7 @@ public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd, int mo
 		this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
-	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
+	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
 	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
 					&& (!overriding || this.options.reportMissingJavadocTagsOverriding);
 	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
