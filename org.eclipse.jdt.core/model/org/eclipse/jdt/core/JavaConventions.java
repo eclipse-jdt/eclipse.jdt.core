@@ -250,7 +250,7 @@ public final class JavaConventions {
 
 	/**
 	 * Validate the given Java identifier.
-	 * The identifier must have the same spelling as a Java keyword,
+	 * The identifier must not have the same spelling as a Java keyword,
 	 * boolean literal (<code>"true"</code>, <code>"false"</code>), or null literal (<code>"null"</code>).
 	 * See section 3.8 of the <em>Java Language Specification, Second Edition</em> (JLS2).
 	 * A valid identifier can act as a simple type name, method name or field name.
