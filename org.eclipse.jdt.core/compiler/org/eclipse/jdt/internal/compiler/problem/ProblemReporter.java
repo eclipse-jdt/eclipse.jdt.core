@@ -2357,11 +2357,6 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, int under
 	//the two catch block under and upper are in an incorrect order.
 	//under should be define BEFORE upper in the source
 
-	//notice that the compiler could arrange automatically the
-	//correct order - and the only error would be on cycle ....
-	//on this one again , java is compiler-driven instead of being
-	//user-driven .....
-
 	TypeReference typeRef = statement.catchArguments[under].type;
 	this.handle(
 		IProblem.UnreachableCatch,
