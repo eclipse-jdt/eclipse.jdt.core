@@ -37,7 +37,7 @@ public class AnnotationParser {
 	
 		char[] source = this.scanner.source;
 		boolean foundDeprecated = false;
-		if (this.sourceParser.checkAnnotation) {
+		if (false/*this.sourceParser.checkAnnotation*/) {
 			this.annotation = new Annotation(annotationStart, annotationEnd);
 		} else {
 			this.annotation = null;
