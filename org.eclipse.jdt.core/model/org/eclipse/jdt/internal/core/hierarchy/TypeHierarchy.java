@@ -1164,9 +1164,25 @@ private boolean isInterface(IType type) throws JavaModelException {
 public IJavaProject javaProject() {
 	return this.type.getJavaProject();
 }
-/**
- * 
- */
+private static byte[] readUntil(InputStream input, byte separator) throws JavaModelException, IOException{
+	return readUntil(input, separator, 0);
+}
+private static byte[] readUntil(InputStream input, byte separator, int offset) throws IOException, JavaModelException{
+	int length = 0;
+	byte[] bytes = new byte[SIZE];
+	byte b;
+	while((b = (byte)input.read()) != separator && b != -1) {
+		if(bytes.length == length) {
+			System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);;
+		}
+		bytes[length++]=(byte)b;
+	}
+	if(b == -1) {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+	}
+	System.arraycopy(bytes, 0, bytes = new byte[length + offset], offset, length);
+	return bytes;
+}
 public static ITypeHierarchy load(IType type, InputStream input) throws JavaModelException {
 	try {
 		TypeHierarchy typeHierarchy = new TypeHierarchy();
@@ -1187,19 +1203,10 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 		
 		byte b;
 		byte[] bytes;
-		int length;
 		
 		// read project
-		length = 0;
-		bytes = new byte[SIZE];
-		while((b = (byte)input.read()) != SEPARATOR1) {
-			if(bytes.length == length) {
-				System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);;
-			}
-			bytes[length++]=(byte)b;
-		}
-		System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
-		if(length > 0) {
+		bytes = readUntil(input, SEPARATOR1);
+		if(bytes.length > 0) {
 			typeHierarchy.project = (IJavaProject)JavaCore.create(new String(bytes));
 			typeHierarchy.scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {typeHierarchy.project});
 		} else {
@@ -1208,40 +1215,28 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 		}
 		
 		// read missing type
-		length = 0;
-		bytes = new byte[SIZE];
-		do {
-			b = (byte)input.read();
-			
-			if(bytes.length == length) {
-				System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);;
+		{
+			bytes = readUntil(input, SEPARATOR1);
+			byte[] missing;
+			int j = 0;
+			int length = bytes.length;
+			for (int i = 0; i < length; i++) {
+				b = bytes[i];
+				if(b == SEPARATOR2) {
+					missing = new byte[i - j];
+					System.arraycopy(bytes, j, missing, 0, i - j);
+					typeHierarchy.missingTypes.add(new String(missing));
+					j = i + 1;
+				}
 			}
-	
-			if(b == SEPARATOR1 || b == SEPARATOR2) {
-				System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);;
-				typeHierarchy.missingTypes.add(new String(bytes));
-				length = 0;
-			} else {
-				bytes[length++] = b;
-			}
-		} while(b != SEPARATOR1);
-
-		
+			System.arraycopy(bytes, j, missing = new byte[length - j], 0, length - j);
+			typeHierarchy.missingTypes.add(new String(missing));
+		}
 
 		// read types
-		while((b = (byte)input.read()) != SEPARATOR1) {
-			bytes = new byte[SIZE];
-			length = 1;
-			bytes[0]=(byte)b;
-			
-			// read type memento
-			while((b = (byte)input.read()) != SEPARATOR4){
-				if(bytes.length == length) {
-					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
-				}
-				bytes[length++]=(byte)b;
-			}
-			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+		while((b = (byte)input.read()) != SEPARATOR1 && b != -1) {
+			bytes = readUntil(input, SEPARATOR4, 1);
+			bytes[0] = b;
 			IType element = (IType)JavaCore.create(new String(bytes));
 			
 			if(types.length == typeCount) {
@@ -1250,16 +1245,7 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 			types[typeCount++] = element;
 			
 			// read flags
-			bytes = new byte[SIZE];
-			length = 0;
-			while((b = (byte)input.read()) != SEPARATOR4){
-				if(bytes.length == length) {
-					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
-				}
-				bytes[length++]=(byte)b;
-			}
-			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
-			
+			bytes = readUntil(input, SEPARATOR4);
 			Integer flags = bytesToFlags(bytes);
 			if(flags != null) {
 				typeHierarchy.cacheFlags(element, flags.intValue());
@@ -1267,7 +1253,6 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 			
 			// read info
 			byte info = (byte)input.read();
-			
 			
 			if((info & INTERFACE) != 0) {
 				typeHierarchy.addInterface(element);
@@ -1284,31 +1269,13 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 		}
 		
 		// read super class
-		while((b = (byte)input.read()) != SEPARATOR1) {
-			bytes = new byte[SIZE];
-			length = 1;
-			bytes[0]=(byte)b;
-			
-			// read type
-			while((b = (byte)input.read()) != SEPARATOR3){
-				if(bytes.length == length) {
-					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
-				}
-				bytes[length++]=(byte)b;
-			}
-			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+		while((b = (byte)input.read()) != SEPARATOR1 && b != -1) {
+			bytes = readUntil(input, SEPARATOR3, 1);
+			bytes[0] = b;
 			int subClass = new Integer(new String(bytes)).intValue();
 			
 			// read super type
-			bytes = new byte[SIZE];
-			length = 0;
-			while((b = (byte)input.read()) != SEPARATOR1){
-				if(bytes.length == length) {
-					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
-				}
-				bytes[length++]=(byte)b;
-			}
-			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			bytes = readUntil(input, SEPARATOR1);
 			int superClass = new Integer(new String(bytes)).intValue();
 			
 			typeHierarchy.cacheSuperclass(
@@ -1317,31 +1284,13 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 		}
 		
 		// read super interface
-		while((b = (byte)input.read()) != SEPARATOR1) {
-			bytes = new byte[SIZE];
-			length = 1;
-			bytes[0]=(byte)b;
-			
-			// read type
-			while((b = (byte)input.read()) != SEPARATOR3){
-				if(bytes.length == length) {
-					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
-				}
-				bytes[length++]=(byte)b;
-			}
-			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+		while((b = (byte)input.read()) != SEPARATOR1 && b != -1) {
+			bytes = readUntil(input, SEPARATOR3, 1);
+			bytes[0] = b;
 			int subClass = new Integer(new String(bytes)).intValue();
 			
 			// read super interface
-			bytes = new byte[SIZE];
-			length = 0;
-			while((b = (byte)input.read()) != SEPARATOR1){
-				if(bytes.length == length) {
-					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
-				}
-				bytes[length++]=(byte)b;
-			}
-			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			bytes = readUntil(input, SEPARATOR1);
 			IType[] superInterfaces = new IType[(bytes.length / 2) + 1];
 			int interfaceCount = 0;
 			
@@ -1364,9 +1313,12 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 				types[subClass],
 				superInterfaces);
 		}
+		if(b == -1) {
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+		}
 		return typeHierarchy;
 	} catch(IOException e){
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 	}
 }
 /**
@@ -1589,7 +1541,7 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		}
 		output.write(SEPARATOR1);
 	} catch(IOException e) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 	}
 }
 /**
