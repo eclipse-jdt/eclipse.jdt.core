@@ -4352,17 +4352,17 @@ public class ASTTest extends TestCase {
 	
 	public void testClone() {
 		ASTNode x = oneOfEach(ast);
-		assertTrue(x.subtreeMatch(new ASTMatcher(), x));		
+		assertTrue(x.subtreeMatch(new CheckPositionsMatcher(), x));
 		
 		// same AST clone
 		ASTNode y = ASTNode.copySubtree(ast, x);
-		assertTrue(x.subtreeMatch(new ASTMatcher(), y));
-		assertTrue(y.subtreeMatch(new ASTMatcher(), x));
+		assertTrue(x.subtreeMatch(new CheckPositionsMatcher(), y));
+		assertTrue(y.subtreeMatch(new CheckPositionsMatcher(), x));
 		
 		// different AST clone
 		ASTNode z = ASTNode.copySubtree(new AST(), x);
-		assertTrue(x.subtreeMatch(new ASTMatcher(), z));
-		assertTrue(z.subtreeMatch(new ASTMatcher(), x));
+		assertTrue(x.subtreeMatch(new CheckPositionsMatcher(), z));
+		assertTrue(z.subtreeMatch(new CheckPositionsMatcher(), x));
 	}
 
 	public void testNullResolve() {
