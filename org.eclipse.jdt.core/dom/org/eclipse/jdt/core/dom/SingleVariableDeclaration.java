@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001 International Business Machines Corp. and others.
+ * Copyright (c) 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -71,6 +71,16 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	private Type type = null;
 
 	/**
+	 * The number of array dimensions that appear after the variable, rather
+	 * than after the type itself; meaningless (and should be ignored) if the
+	 * type is not an array type or if it exceeds the number of dimensions in
+	 * the array type; defaults to 0.
+	 * 
+	 * @since 2.1
+	 */
+	private int displacedArrayDimensions = 0;
+
+	/**
 	 * The initializer expression, or <code>null</code> if none;
 	 * defaults to none.
 	 */
@@ -80,7 +90,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Creates a new AST node for a variable declaration owned by the given 
 	 * AST. By default, the variable declaration has: no modifiers, an 
 	 * unspecified (but legal) type, an unspecified (but legal) variable name, 
-	 * no initializer.
+	 * 0 dimensions after the variable; no initializer.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
@@ -105,6 +115,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setModifiers(getModifiers());
 		result.setType((Type) getType().clone(target));
+		result.setExtraDimensions(getExtraDimensions());
 		result.setName((SimpleName) getName().clone(target));
 		result.setInitializer(
 			(Expression) ASTNode.copySubtree(target, getInitializer()));
@@ -221,6 +232,57 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		this.type = type;
 	}
 
+	/**
+	 * Returns the number of array dimensions that appear after the variable
+	 * instead of after the type.
+	 * <p>
+	 * For example, <code>int[][][] i</code> has no array dimensions after the
+	 * variable; <code>int[] i[][]</code> has 2 array dimensions after the
+	 * variable. In both cases, the type is an array type with 3 dimensions.
+	 * </p>
+	 * <p>
+	 * The value is meaningless (and should be ignored) if the type is not an
+	 * array type or if it exceeds the number of dimensions in the array type.
+	 * The safe default value is 0; this represents the preferred syntax of the
+	 * construct where all dimensions appear as part of the type.
+	 * </p>
+	 * 
+	 * @return the number of array dimensions included after the 
+	 * variable instead of after the type
+	 * @since 2.1
+	 */ 
+	public int getExtraDimensions() {
+		return displacedArrayDimensions;
+	}
+
+	/**
+	 * Sets the number of array dimensions that appear after the variable
+	 * instead of after the type.
+	 * <p>
+	 * For example, <code>int[][][] i</code> has no array dimensions after the
+	 * variable; <code>int[] i[][]</code> has 2 array dimensions after the
+	 * variable. In both cases, the type is an array type with 3 dimensions.
+	 * </p>
+	 * <p>
+	 * The value is meaningless (and should be ignored) if the type is not an
+	 * array type or if it exceeds the number of dimensions in the array type.
+	 * The safe default value is 0; this represents the preferred syntax of the
+	 * construct where all dimensions appear as part of the type.
+	 * </p>
+	 * 
+	 * @param dimensions the number of array dimensions after the variable
+	 * @exception IllegalArgumentException if the number of dimensions is
+	 *    negative
+	 * @since 2.1
+	 */ 
+	public void setExtraDimensions(int dimensions) {
+		if (dimensions < 0) {
+			throw new IllegalArgumentException();
+		}
+		modifying();
+		this.displacedArrayDimensions = dimensions;
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on VariableDeclaration.
 	 */ 
@@ -243,7 +305,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	int memSize() {
 		// treat Operator as free
-		return BASE_NODE_SIZE + 4 * 4;
+		return BASE_NODE_SIZE + 5 * 4;
 	}
 	
 	/* (omit javadoc for this method)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001 International Business Machines Corp. and others.
+ * Copyright (c) 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -674,7 +674,8 @@ public final class AST {
 	 * Creates an unparented method declaration node owned by this AST.
 	 * By default, the declaration is for a method of an unspecified, but 
 	 * legal, name; no modifiers; no Javadoc comment; no parameters; return
-	 * type void; no thrown exceptions; and no body (as opposed to an empty
+	 * type void; no array dimensions after the parameters; no thrown 
+	 * exceptions; and no body (as opposed to an empty
 	 * body).
 	 * <p>
 	 * To create a constructor, use this method and then call
@@ -693,7 +694,8 @@ public final class AST {
 	/**
 	 * Creates an unparented single variable declaration node owned by this AST.
 	 * By default, the declaration is for a variable with an unspecified, but 
-	 * legal, name and type; no modifiers; and no initializer.
+	 * legal, name and type; no modifiers; no array dimensions after the
+	 * variable; and no initializer.
 	 * 
 	 * @return a new unparented single variable declaration node
 	 */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001 International Business Machines Corp. and others.
+ * Copyright (c) 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v0.5 
  * which accompanies this distribution, and is available at
@@ -99,6 +99,16 @@ public class MethodDeclaration extends BodyDeclaration {
 	private Type returnType = null;
 	
 	/**
+	 * The number of array dimensions that appear after the parameter, rather
+	 * than after the return type itself; meaningless (and should be ignored)
+	 * if the type is not an array type or if it exceeds the number of 
+	 * dimensions in the array type; defaults to 0.
+	 * 
+	 * @since 2.1
+	 */
+	private int displacedArrayDimensions = 0;
+
+	/**
 	 * The list of thrown exception names (element type: <code>Name</code>).
 	 * Defaults to an empty list.
 	 */
@@ -115,8 +125,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Creates a new AST node for a method declaration owned 
 	 * by the given AST. By default, the declaration is for a method of an
 	 * unspecified, but legal, name; no modifiers; no javadoc; no parameters; 
-	 * void return type; no thrown exceptions; and no body (as opposed to an
-	 * empty body).
+	 * void return type; no array dimensions after the parameters; no thrown
+	 * exceptions; and no body (as opposed to an empty body).
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -147,6 +157,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setConstructor(isConstructor());
 		result.setReturnType(
 			(Type) ASTNode.copySubtree(target, getReturnType()));
+		result.setExtraDimensions(getExtraDimensions());
 		result.setName((SimpleName) getName().clone(target));
 		result.parameters().addAll(
 			ASTNode.copySubtrees(target, parameters()));
@@ -339,6 +350,59 @@ public class MethodDeclaration extends BodyDeclaration {
 	}
 
 	/**
+	 * Returns the number of array dimensions that appear after the parameters
+	 * instead of after the return type.
+	 * <p>
+	 * For example, <code>int[][][] foo()</code> has no array dimensions after
+	 * the parameters; <code>int[] foo()[][]</code> has 2 array dimensions 
+	 * after the parameters. In both cases, the return type is an array type
+	 * with 3 dimensions.
+	 * </p>
+	 * <p>
+	 * The value is meaningless (and should be ignored) if the type is not an
+	 * array type or if it exceeds the number of dimensions in the array type.
+	 * The safe default value is 0; this represents the preferred syntax of the
+	 * construct where all dimensions appear as part of the type.
+	 * </p>
+	 * 
+	 * @return the number of array dimensions included after the 
+	 * parameters instead of after the return type
+	 * @since 2.1
+	 */ 
+	public int getExtraDimensions() {
+		return displacedArrayDimensions;
+	}
+
+	/**
+	 * Sets the number of array dimensions that appear after the parameters
+	 * instead of after the return type.
+	 * <p>
+	 * For example, <code>int[][][] foo()</code> has no array dimensions after
+	 * the parameters; <code>int[] foo()[][]</code> has 2 array dimensions 
+	 * after the parameters. In both cases, the return type is an array type 
+	 * with 3 dimensions.
+	 * </p>
+	 * <p>
+	 * The value is meaningless (and should be ignored) if the type is not an
+	 * array type or if it exceeds the number of dimensions in the array type.
+	 * The safe default value is 0; this represents the preferred syntax of the
+	 * construct where all dimensions appear as part of the type.
+	 * </p>
+	 * 
+	 * @param dimensions the number of array dimensions after the parameters 
+	 * @exception IllegalArgumentException if the number of dimensions is
+	 *    negative
+	 * @since 2.1
+	 */ 
+	public void setExtraDimensions(int dimensions) {
+		if (dimensions < 0) {
+			throw new IllegalArgumentException();
+		}
+		modifying();
+		this.displacedArrayDimensions = dimensions;
+	}
+
+	/**
 	 * Returns the body of this method declaration, or <code>null</code> if 
 	 * this method has <b>no</b> body.
 	 * <p>
@@ -419,7 +483,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 7 * 4;
+		return super.memSize() + 8 * 4;
 	}
 	
 	/* (omit javadoc for this method)
