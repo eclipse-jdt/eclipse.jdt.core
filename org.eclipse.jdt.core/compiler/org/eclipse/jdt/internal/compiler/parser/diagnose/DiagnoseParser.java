@@ -362,6 +362,10 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 				if(parser.reportOnlyOneSyntaxError) {
 					return;
 				}
+				
+				if(this.parser.problemReporter().options.maxProblemsPerUnit < this.parser.compilationUnit.compilationResult.problemCount) {
+					return;
+				}
 
 				act = stack[stateStackTop];
 
@@ -1318,6 +1322,8 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	}
 	
 	private void scopeTrialCheck(int stck[], int stack_top, PrimaryRepairInfo repair, int indx) {
+		if(indx > 20) return; // avoid too much recursive call to improve performance
+		
 		int act = stck[stack_top];
 	
 	    for (int i = stateSeen[stack_top]; i != NIL; i = statePool[i].next) {

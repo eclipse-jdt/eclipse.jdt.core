@@ -115,6 +115,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		problemFactory, 
 		new CompilerOptions(options),
 		true/*report local declarations*/);
+	parser.reportOnlyOneSyntaxError = !computeProblems;
 	requestor.parser = parser;
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
