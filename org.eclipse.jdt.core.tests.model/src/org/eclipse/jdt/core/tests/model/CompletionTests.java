@@ -207,6 +207,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionArrayAccess1"));
 	suite.addTest(new CompletionTests("testCompletionFindSecondaryType1"));
 	suite.addTest(new CompletionTests("testCompletion2InterfacesWithSameMethod"));
+	suite.addTest(new CompletionTests("testCompletionExactNameCaseInsensitive"));
 	
 	// completion keywords tests
 	suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
@@ -615,7 +616,7 @@ public void testCompletionCaseInsensitive() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Completion", "src", "", "CompletionCaseInsensitive.java");
 	
 	String str = cu.getSource();
-	String completeBehind = "Field";
+	String completeBehind = "Fiel";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	cu.codeComplete(cursorLocation, requestor);
 	
@@ -8610,6 +8611,23 @@ public void testCompletion2InterfacesWithSameMethod() throws JavaModelException 
 
 	assertEquals(
 			"element:method    completion:method()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC),
+			requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66570
+ */
+public void testCompletionExactNameCaseInsensitive() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionExactNameCaseInsensitive.java");
+
+	String str = cu.getSource();
+	String completeBehind = "(compleTionexactnamecaseInsensitive";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:CompletionExactNameCaseInsensitive    completion:CompletionExactNameCaseInsensitive    relevance:"+(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_UNQUALIFIED)+ "\n" +
+			"element:CompletionExactNameCaseInsensitivePlus    completion:CompletionExactNameCaseInsensitivePlus    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED),
 			requestor.getResults());
 }
 }

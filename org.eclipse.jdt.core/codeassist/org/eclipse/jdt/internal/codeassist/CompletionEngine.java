@@ -2212,6 +2212,9 @@ public final class CompletionEngine
 				return R_CASE;
 			}
 		} else {
+			if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
+				return R_EXACT_NAME;
+			}
 			return 0;
 		}
 	}
