@@ -294,11 +294,14 @@ protected RuntimeException internalException(CoreException t) {
 protected Compiler newCompiler() {
 	// disable entire javadoc support if not interested in diagnostics
 	Map projectOptions = javaBuilder.javaProject.getOptions(true);
-	if (projectOptions.get(JavaCore.COMPILER_PB_INVALID_JAVADOC).equals(JavaCore.IGNORE) &&
-		projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS).equals(JavaCore.IGNORE) &&
-		projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS).equals(JavaCore.IGNORE))
-	{
-		projectOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
+	String option = (String) projectOptions.get(JavaCore.COMPILER_PB_INVALID_JAVADOC);
+	if (option == null || option.equals(JavaCore.IGNORE)) { // TODO (frederic) see why option is null sometimes while running model tests!?
+		option = (String) projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS);
+		if (option == null || option.equals(JavaCore.IGNORE)) {
+			option = (String) projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS);
+			if (option == null || option.equals(JavaCore.IGNORE))
+				projectOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
+		}
 	}
 	
 	// called once when the builder is initialized... can override if needed
