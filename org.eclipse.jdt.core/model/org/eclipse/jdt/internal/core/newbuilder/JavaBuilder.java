@@ -74,10 +74,6 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		throw new CoreException(
 			new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1,
 				Util.bind("build.builderName"), e)); //$NON-NLS-1$
-	} catch (OperationCanceledException e) {
-		// Do nothing for now, and avoid propagating the exception.  
-		// The finally block ensures we will do a full build next time.
-		// See 1FVJ5Z8: ITPCORE:ALL - How should builders handle cancel?
 	} finally {
 		if (!ok)
 			// If the build failed, clear the previously built state, forcing a full build next time.
