@@ -28,7 +28,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	public static Test suite() {
 		if (false) {
 			TestSuite suite = new TestSuite();
-			suite.addTest(new ClassFileReaderTest("test068"));
+			suite.addTest(new ClassFileReaderTest("test069"));
 			return suite;
 		}
 		return setupSuite(testClass());
@@ -50,10 +50,10 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
 			int index = result.indexOf(expectedOutput);
-			if (index == -1) {
+			if (index == -1 || expectedOutput.length() == 0) {
 				System.out.print(Util.displayString(result, 3));
 			}
-			assertTrue("Wrong contents", index != -1);
+			assertTrue("Wrong contents", index != -1 && expectedOutput.length() != 0);
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -2821,5 +2821,27 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    Local variable table attribute:\n" + 
 			"      [pc: 3, pc: 23] local: i index: 0 type: int\n";
 		checkClassFile("X", source, expectedOutput);
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47886
+	 */
+	public void test069() {
+		String source =
+			"public interface I {\n" + 
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from I.java\n" + 
+			"abstract public interface I extends java.lang.Object {\n" + 
+			"  /* The ACC_SUPER bit is not set */\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("I", source, expectedOutput);
 	}
 }
