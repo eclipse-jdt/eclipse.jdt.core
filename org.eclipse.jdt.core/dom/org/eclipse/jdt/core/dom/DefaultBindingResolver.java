@@ -15,9 +15,43 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
+import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
+import org.eclipse.jdt.internal.compiler.ast.FalseLiteral;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
+import org.eclipse.jdt.internal.compiler.ast.Literal;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Internal class for resolving bindings using old ASTs.
@@ -118,7 +152,7 @@ class DefaultBindingResolver extends BindingResolver {
 						} else {
 							if (binding instanceof ProblemFieldBinding) {
 								ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
-								switch(problemFieldBinding.problemId() & IProblem.IgnoreCategoriesMask) {
+								switch(problemFieldBinding.problemId()) {
 									case ProblemReasons.NotVisible : 
 									case ProblemReasons.NonStaticReferenceInStaticContext :
 										ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
@@ -238,7 +272,7 @@ class DefaultBindingResolver extends BindingResolver {
 						 */
 						if (binding instanceof ProblemFieldBinding) {
 							ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
-							switch(problemFieldBinding.problemId() & IProblem.IgnoreCategoriesMask) {
+							switch(problemFieldBinding.problemId()) {
 								case ProblemReasons.NotVisible : 
 								case ProblemReasons.NonStaticReferenceInStaticContext :
 								case ProblemReasons.NonStaticReferenceInConstructorInvocation :
@@ -758,7 +792,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (referenceBinding == null) {
 			return null;
 		} else if (!referenceBinding.isValidBinding()) {
-			switch(referenceBinding.problemId() & IProblem.IgnoreCategoriesMask) {
+			switch(referenceBinding.problemId()) {
 				case ProblemReasons.NotVisible : 
 				case ProblemReasons.NonStaticReferenceInStaticContext :
 					if (referenceBinding instanceof ProblemReferenceBinding) {
@@ -820,7 +854,7 @@ class DefaultBindingResolver extends BindingResolver {
 				 */
 				if (variableBinding instanceof ProblemFieldBinding) {
 					ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) variableBinding;
-					switch(problemFieldBinding.problemId() & IProblem.IgnoreCategoriesMask) {
+					switch(problemFieldBinding.problemId()) {
 						case ProblemReasons.NotVisible : 
 						case ProblemReasons.NonStaticReferenceInStaticContext :
 						case ProblemReasons.NonStaticReferenceInConstructorInvocation :
@@ -860,7 +894,7 @@ class DefaultBindingResolver extends BindingResolver {
 				/*
 				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597
 				 */
-				switch(methodBinding.problemId() & IProblem.IgnoreCategoriesMask) {
+				switch(methodBinding.problemId()) {
 					case ProblemReasons.NotVisible : 
 					case ProblemReasons.NonStaticReferenceInStaticContext :
 					case ProblemReasons.NonStaticReferenceInConstructorInvocation :
