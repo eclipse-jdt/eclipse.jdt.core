@@ -138,10 +138,10 @@ public String[] getParameterTypes() {
 }
 
 /**
- * @see IMethod#getTypeParameters()
+ * @see IMethod#getTypeParameterSignatures()
  * @since 3.0
  */
-public String[] getTypeParameters() throws JavaModelException {
+public String[] getTypeParameterSignatures() throws JavaModelException {
 	// TODO (jerome) - missing implementation
 	return new String[0];
 }

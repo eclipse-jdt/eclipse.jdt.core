@@ -97,9 +97,13 @@ String getElementName();
 /**
  * Returns the type signature of this field. For enum constants,
  * this returns the signature of the declaring enum class.
-
+ * <p>
+ * The type signature may be either unresolved (for source types)
+ * or resolved (for binary types), and either basic (for basic types)
+ * or rich (for parameterized types). See {@link Signature} for details.
+ * </p>
  *
- * @return the type signature of this field.
+ * @return the type signature of this field
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource
  * @see Signature

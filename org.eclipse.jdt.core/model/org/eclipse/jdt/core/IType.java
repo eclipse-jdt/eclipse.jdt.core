@@ -358,10 +358,15 @@ public interface IType extends IMember {
 	
 	/**
 	 * Returns the method with the specified name and parameter types
-	 * in this type (for example, <code>"foo", {"I", "QString;"}</code>). To get the
-	 * handle for a constructor, the name specified must be the simple
-	 * name of the enclosing type.
+	 * in this type (for example, <code>"foo", {"I", "QString;"}</code>).
+	 * To get the handle for a constructor, the name specified must be the
+	 * simple name of the enclosing type.
 	 * This is a handle-only method.  The method may or may not be present.
+	 * <p>
+	 * The type signatures may be either unresolved (for source types)
+	 * or resolved (for binary types), and either basic (for basic types)
+	 * or rich (for parameterized types). See {@link Signature} for details.
+	 * </p>
 	 * 
 	 * @param name the given name
 	 * @param parameterTypeSignatures the given parameter types
@@ -394,6 +399,7 @@ public interface IType extends IMember {
 	/**
 	 * Returns the name of this type's superclass, or <code>null</code>
 	 * for source types that do not specify a superclass.
+	 * <p>
 	 * For interfaces, the superclass name is always <code>"java.lang.Object"</code>.
 	 * For source types, the name as declared is returned, for binary types,
 	 * the resolved, qualified name is returned.
@@ -401,8 +407,9 @@ public interface IType extends IMember {
 	 * If the superclass is a parameterized type, the string
 	 * may include its type arguments enclosed in "&lt;&gt;".
 	 * If the returned string is needed for anything other than display
-	 * purposes, use {@link #getSuperclassType()} which returns
-	 * a structured signature string containing more precise information.
+	 * purposes, use {@link #getSuperclassTypeSignature()} which returns
+	 * a structured type signature string containing more precise information.
+	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
@@ -411,33 +418,39 @@ public interface IType extends IMember {
 	String getSuperclassName() throws JavaModelException;
 	
 	/**
-	 * Returns the type signature of this type's superclass, or <code>null</code>
-	 * for source types that do not specify a superclass.
-	 * For interfaces, the superclass type is always <code>"Ljava.lang.Object;"</code>.
-	 * For source types, the unresolved type signatuure is returned, for binary types,
-	 * the resolved, qualified type signature is returned.
-	 * For anonymous types, the superclass type signature is what appearing after the 'new' keyword'.
-	 * For enum and annotation types, the result is unspecified.
+	 * Returns the type signature of this type's superclass, or 
+	 * <code>null</code> if none.
+	 * <p>
+	 * The type signature may be either unresolved (for source types)
+	 * or resolved (for binary types), and either basic (for basic types)
+	 * or rich (for parameterized types). See {@link Signature} for details.
+	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
-	 * @return the type signature of this type's superclass, or <code>null</code> for
-	 * source types that do not specify a superclass
+	 * @return the type signature of this type's superclass, or
+	 * <code>null</code> if none
 	 * @since 3.0
 	 */
-	String getSuperclassType() throws JavaModelException;
+	String getSuperclassTypeSignature() throws JavaModelException;
 	
 	/**
 	 * Returns the type signatures of the interfaces that this type
-	 * implements or extends, in the order in which they are listed in the source.
-	 * For classes, including enumerations, this gives the interfaces that this
-	 * class implements. For interfaces, including annotation types,
+	 * implements or extends, in the order in which they are listed in the
+	 * source.
+	 * <p>
+	 * For classes and enum types, this gives the interfaces that this
+	 * class implements. For interfaces and annotation types,
 	 * this gives the interfaces that this interface extends.
 	 * An empty collection is returned if this type does not implement or
-	 * extend any interfaces. For source types, unresolved type
-	 * signatures are returned, for binary types, resolved type
-	 * signatures are returned.
-	 * For anonymous types, an empty collection is always returned.
+	 * extend any interfaces. For anonymous types, an empty collection is
+	 * always returned.
+	 * </p>
+	 * <p>
+	 * The type signatures may be either unresolved (for source types)
+	 * or resolved (for binary types), and either basic (for basic types)
+	 * or rich (for parameterized types). See {@link Signature} for details.
+	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
@@ -446,11 +459,12 @@ public interface IType extends IMember {
 	 * an empty collection if none
 	 * @since 3.0
 	 */
-	String[] getSuperInterfaceTypes() throws JavaModelException;
+	String[] getSuperInterfaceTypeSignatures() throws JavaModelException;
 	
 	/**
 	 * Returns the names of interfaces that this type implements or extends,
 	 * in the order in which they are listed in the source.
+	 * </p>
 	 * For classes, this gives the interfaces that this class implements.
 	 * For interfaces, this gives the interfaces that this interface extends.
 	 * An empty collection is returned if this type does not implement or
@@ -460,8 +474,9 @@ public interface IType extends IMember {
 	 * If the list of supertypes includes parameterized types,
 	 * the string may include type arguments enclosed in "&lt;&gt;".
 	 * If the result is needed for anything other than display
-	 * purposes, use {@link #getSuperInterfaceTypes()} which returns
+	 * purposes, use {@link #getSuperInterfaceTypeSignatures()} which returns
 	 * structured signature strings containing more precise information.
+	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
@@ -473,10 +488,9 @@ public interface IType extends IMember {
 	/**
 	 * Returns the formal type parameter signatures for this type.
 	 * Returns an empty array if this type has no formal type parameters.
-	 * 
-	 * <p>For example, a source type with formal type parameters
-	 * <code>"&lt;D1,C1 extends A1 & B1&gt;"</code>,
-	 * would return the array <code>{"&lt;D1:&gt;", "&lt;C1:QA1;:QB1;&gt;"}</code>.
+	 * <p>
+	 * The formal type parameter signatures may be either unresolved (for source
+	 * types) or resolved (for binary types). See {@link Signature} for details.
 	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
@@ -486,7 +500,7 @@ public interface IType extends IMember {
 	 * @see Signature
 	 * @since 3.0
 	 */
-	String[] getTypeParameters() throws JavaModelException;
+	String[] getTypeParameterSignatures() throws JavaModelException;
 
 	/**
 	 * Returns the member type declared in this type with the given simple name.

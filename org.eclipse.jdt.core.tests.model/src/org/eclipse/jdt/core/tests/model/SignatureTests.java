@@ -62,45 +62,46 @@ public void testCreateMethodSignature() {
 		"Signature#createMethodSignature is not correct 2", 
 		"()Ljava.lang.String;", 
 		Signature.createMethodSignature(new String[] {}, "Ljava.lang.String;"));
-
-	// tests involving 1.5 formal type parameters and thrown exceptions
-	assertEquals(
-			"Signature#createMethodSignature is not correct 3", 
-			"()V", 
-			Signature.createMethodSignature(new String[0], "V", new String[0], new String[0]));
-	assertEquals(
-			"Signature#createMethodSignature is not correct 4", 
-			"<x:y:>()V", 
-			Signature.createMethodSignature(new String[0], "V",
-					new String[] {"x:", "y:"}, new String[0]));
-	assertEquals(
-			"Signature#createMethodSignature is not correct 5", 
-			"()V^Qexception;^Qerror;", 
-			Signature.createMethodSignature(new String[0], "V",
-					new String[0], new String[] {"Qexception;", "Qerror;"}));
 }
 /**
  * @see Signature
  */
 public void testCreateTypeSignature() {
-	assertEquals("Signature#createTypeSignature is not correct1", "I", Signature.createTypeSignature("int".toCharArray(), false));
-	assertEquals("Signature#createTypeSignature is not correct2", "Ljava.lang.String;", Signature.createTypeSignature("java.lang.String".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct3", "QString;", Signature.createTypeSignature("String".toCharArray(), false));
-	assertEquals("Signature#createTypeSignature is not correct4", "Qjava.lang.String;", Signature.createTypeSignature("java.lang.String".toCharArray(), false));
-	assertEquals("Signature#createTypeSignature is not correct5", "[I", Signature.createTypeSignature("int []".toCharArray(), false));
-	assertEquals("Signature#createTypeSignature is not correct6", "[QString;", Signature.createTypeSignature("String []".toCharArray(), false));
-	assertEquals("Signature#createTypeSignature is not correct7", "[Ljava.util.Vector;", Signature.createTypeSignature("java.util.Vector []".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct8", "[[Ljava.util.Vector;", Signature.createTypeSignature("java .\n util  .  Vector[  ][]".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct1", "I",
+			Signature.createTypeSignature("int".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct2", "Ljava.lang.String;",
+			Signature.createTypeSignature("java.lang.String".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct3", "QString;", 
+			Signature.createTypeSignature("String".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct4", "Qjava.lang.String;", 
+			Signature.createTypeSignature("java.lang.String".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct5", "[I",
+			Signature.createTypeSignature("int []".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct6", "[QString;",
+			Signature.createTypeSignature("String []".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct7", "[Ljava.util.Vector;",
+			Signature.createTypeSignature("java.util.Vector []".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct8", "[[Ljava.util.Vector;",
+			Signature.createTypeSignature("java .\n util  .  Vector[  ][]".toCharArray(), true));
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=41019
-	assertEquals("Signature#createTypeSignature is not correct9", "Linteration.test.MyData;", Signature.createTypeSignature("interation.test.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct10", "Llongtest.MyData;", Signature.createTypeSignature("longtest.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct11", "Lbooleantest.MyData;", Signature.createTypeSignature("booleantest.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct12", "Lbytetest.MyData;", Signature.createTypeSignature("bytetest.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct13", "Lchartest.MyData;", Signature.createTypeSignature("chartest.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct14", "Lshorttest.MyData;", Signature.createTypeSignature("shorttest.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct15", "Ldoubletest.MyData;", Signature.createTypeSignature("doubletest.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct16", "Lfloattest.MyData;", Signature.createTypeSignature("floattest.MyData".toCharArray(), true));
-	assertEquals("Signature#createTypeSignature is not correct17", "Lvoidtest.MyData;", Signature.createTypeSignature("voidtest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct9", "Linteration.test.MyData;",
+			Signature.createTypeSignature("interation.test.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct10", "Llongtest.MyData;",
+			Signature.createTypeSignature("longtest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct11", "Lbooleantest.MyData;",
+			Signature.createTypeSignature("booleantest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct12", "Lbytetest.MyData;",
+			Signature.createTypeSignature("bytetest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct13", "Lchartest.MyData;",
+			Signature.createTypeSignature("chartest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct14", "Lshorttest.MyData;",
+			Signature.createTypeSignature("shorttest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct15", "Ldoubletest.MyData;",
+			Signature.createTypeSignature("doubletest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct16", "Lfloattest.MyData;",
+			Signature.createTypeSignature("floattest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct17", "Lvoidtest.MyData;",
+			Signature.createTypeSignature("voidtest.MyData".toCharArray(), true));
 }
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.
@@ -116,7 +117,8 @@ public void testCreateInvalidTypeSignature() {
  * @see Signature
  */
 public void testGetArrayCount() {
-	assertTrue("Signature#getArrayCount is not correct", Signature.getArrayCount("[[[[QString;") == 4);
+	assertEquals("Signature#getArrayCount is not correct", 4,
+			Signature.getArrayCount("[[[[QString;"));
 	try {
 		Signature.getArrayCount("");
 		assertTrue("Signature#getArrayCount is not correct, exception", false);
@@ -125,18 +127,21 @@ public void testGetArrayCount() {
 	}
 
 	// tests with 1.5-specific elements
-	assertTrue(
-		"Signature#getArrayCount not correct", 
-		Signature.getArrayCount("[[[[Qlist<Qstring;>;") == 4);
+	assertEquals(
+		"Signature#getArrayCount not correct", 4,
+		Signature.getArrayCount("[[[[Qlist<Qstring;>;"));
 }
 
 /**
  * @see Signature
  */
 public void testGetElementType() {
-	assertTrue("Signature#getElementType is not correct1", Signature.getElementType("[[[[QString;").equals("QString;"));
-	assertTrue("Signature#getElementType is not correct2", Signature.getElementType("QString;").equals("QString;"));
-	assertTrue("Signature#getElementType is not correct2", Signature.getElementType("[[I").equals("I"));
+	assertEquals("Signature#getElementType is not correct1", "QString;",
+			Signature.getElementType("[[[[QString;"));
+	assertEquals("Signature#getElementType is not correct2", "QString;",
+			Signature.getElementType("QString;"));
+	assertEquals("Signature#getElementType is not correct2", "I",
+			Signature.getElementType("[[I"));
 	try {
 		Signature.getElementType("");
 		assertTrue("Signature#getArrayCount is not correct, exception", false);
@@ -145,16 +150,17 @@ public void testGetElementType() {
 	}
 	
 	// tests with 1.5-specific elements
-	assertTrue(
-		"Signature#getElementType not correct", 
-		Signature.getElementType("[[[[Qlist<Qstring;>;").equals("Qlist<Qstring;>;"));
+	assertEquals(
+		"Signature#getElementType not correct", "Qlist<Qstring;>;",
+		Signature.getElementType("[[[[Qlist<Qstring;>;"));
 }
 /**
  * @see Signature
  */
 public void testGetParameterCount() {
 	String methodSig = "(QString;QObject;I)I";
-	assertTrue("Signature#getParameterCount is not correct1", Signature.getParameterCount(methodSig) == 3);
+	assertEquals("Signature#getParameterCount is not correct1", 3,
+			Signature.getParameterCount(methodSig));
 	try {
 		Signature.getParameterCount("");
 		assertTrue("Signature#getParameterCount is not correct: exception", false);
@@ -164,9 +170,11 @@ public void testGetParameterCount() {
 
 	// tests with 1.5-specific elements
 	methodSig = "<X:Qlist<Qstring;>;>(IQlist;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
-	assertTrue("Signature#getParameterCount is not correct3", Signature.getParameterCount(methodSig) == 3);
-//	methodSig = "<X:Qlist<Qstring;>;>(Ilist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
-//	assertTrue("Signature#getParameterCount is not correct4", Signature.getParameterCount(methodSig) == 3);
+	assertEquals("Signature#getParameterCount is not correct3", 3,
+			Signature.getParameterCount(methodSig));
+	methodSig = "<X:Qlist<Qstring;>;>(IQlist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	assertEquals("Signature#getParameterCount is not correct4", 3,
+			Signature.getParameterCount(methodSig));
 }
 /**
  * @see Signature
@@ -174,8 +182,8 @@ public void testGetParameterCount() {
 public void testGetParameterTypes() {
 	String methodSig = "(QString;QObject;I)I";
 	String[] types= Signature.getParameterTypes(methodSig);
-	assertTrue("Signature#getParameterTypes is not correct1", types.length == 3);
-	assertTrue("Signature#getParameterTypes is not correct2", types[1].equals("QObject;"));
+	assertEquals("Signature#getParameterTypes is not correct1", 3, types.length);
+	assertEquals("Signature#getParameterTypes is not correct2", "QObject;", types[1]);
 	try {
 		Signature.getParameterTypes("");
 		assertTrue("Signature#getParameterTypes is not correct: exception", false);
@@ -183,24 +191,72 @@ public void testGetParameterTypes() {
 		// do nothing
 	}
 
-	// tests with 1.5-specific elements
-	methodSig = "<X:Qlist<Qstring;>;>(IQlist;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
-	assertTrue("Signature#getParameterTypes is not correct3", Signature.getParameterTypes(methodSig).length == 3);
-	assertEquals("Signature#getParameterTypes is not correct3a", Signature.getParameterTypes(methodSig)[0], "I");
-	assertEquals("Signature#getParameterTypes is not correct3b", Signature.getParameterTypes(methodSig)[1], "Qlist;");
-	assertEquals("Signature#getParameterTypes is not correct3c", Signature.getParameterTypes(methodSig)[2], "Tww;");
-//	methodSig = "<X:Qlist<Qstring;>;>(IQlist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
-//	assertTrue("Signature#getParameterTypes is not correct3", Signature.getParameterTypes(methodSig).length == 3);
-//	assertEquals("Signature#getParameterTypes is not correct3a", Signature.getParameterTypes(methodSig)[0], "I");
-//	assertEquals("Signature#getParameterTypes is not correct3b", Signature.getParameterTypes(methodSig)[1], "Qlist;");
-//	assertEquals("Signature#getParameterTypes is not correct3c", Signature.getParameterTypes(methodSig)[2], "Tww;");
+	// primitive types
+	methodSig = "(BCDFIJSVZ)V";
+	assertEquals("Signature#getParameterTypes 4", 9,
+			Signature.getParameterTypes(methodSig).length);
+	assertEquals("Signature#getParameterTypes 4", "B",
+			Signature.getParameterTypes(methodSig)[0]);
+	assertEquals("Signature#getParameterTypes 4", "C",
+			Signature.getParameterTypes(methodSig)[1]);
+	assertEquals("Signature#getParameterTypes 4", "D",
+			Signature.getParameterTypes(methodSig)[2]);
+	assertEquals("Signature#getParameterTypes 4", "F",
+			Signature.getParameterTypes(methodSig)[3]);
+	assertEquals("Signature#getParameterTypes 4", "I",
+			Signature.getParameterTypes(methodSig)[4]);
+	assertEquals("Signature#getParameterTypes 4", "J",
+			Signature.getParameterTypes(methodSig)[5]);
+	assertEquals("Signature#getParameterTypes 4", "S",
+			Signature.getParameterTypes(methodSig)[6]);
+	assertEquals("Signature#getParameterTypes 4", "V",
+			Signature.getParameterTypes(methodSig)[7]);
+	assertEquals("Signature#getParameterTypes 4", "Z",
+			Signature.getParameterTypes(methodSig)[8]);
+
+	// array types
+	methodSig = "([I[[J[[[B[Qstring;[Tv;[Lstring;)V";
+	assertEquals("Signature#getParameterTypes 5", 6,
+			Signature.getParameterTypes(methodSig).length);
+	assertEquals("Signature#getParameterTypes 5", "[I",
+			Signature.getParameterTypes(methodSig)[0]);
+	assertEquals("Signature#getParameterTypes 5", "[[J",
+			Signature.getParameterTypes(methodSig)[1]);
+	assertEquals("Signature#getParameterTypes 5", "[[[B",
+			Signature.getParameterTypes(methodSig)[2]);
+	assertEquals("Signature#getParameterTypes 5", "[Qstring;",
+			Signature.getParameterTypes(methodSig)[3]);
+	assertEquals("Signature#getParameterTypes 5", "[Tv;",
+			Signature.getParameterTypes(methodSig)[4]);
+	assertEquals("Signature#getParameterTypes 5", "[Lstring;",
+			Signature.getParameterTypes(methodSig)[5]);
+	
+	// resolved types
+	methodSig = "(La;)V";
+	assertEquals("Signature#getParameterTypes 6", 1,
+			Signature.getParameterTypes(methodSig).length);
+	assertEquals("Signature#getParameterTypes 6", "La;",
+			Signature.getParameterTypes(methodSig)[0]);
+	methodSig = "(La<TE;>;)V";
+	assertEquals("Signature#getParameterTypes 6", 1,
+			Signature.getParameterTypes(methodSig).length);
+	assertEquals("Signature#getParameterTypes 6", "La<TE;>;",
+			Signature.getParameterTypes(methodSig)[0]);
+	methodSig = "(La/b/c<TE;>.d<TF;>;)V";
+	assertEquals("Signature#getParameterTypes 6", 1,
+			Signature.getParameterTypes(methodSig).length);
+	assertEquals("Signature#getParameterTypes 6", "La/b/c<TE;>.d<TF;>;",
+			Signature.getParameterTypes(methodSig)[0]);
+
 }
 /**
  * @see Signature
  */
 public void testGetQualifier() {
-	assertTrue("Signature#getQualifier is not correct1", Signature.getQualifier("java.lang.Object").equals("java.lang"));
-	assertTrue("Signature#getQualifier is not correct2",  Signature.getQualifier("").equals(""));
+	assertEquals("Signature#getQualifier is not correct1", "java.lang",
+			Signature.getQualifier("java.lang.Object"));
+	assertEquals("Signature#getQualifier is not correct2",  "",
+			Signature.getQualifier(""));
 	
 }
 /**
@@ -208,7 +264,8 @@ public void testGetQualifier() {
  */
 public void testGetReturnType() {
 	String methodSig = "(QString;QObject;I)I";
-	assertTrue("Signature#getReturnType is not correct1", Signature.getReturnType(methodSig).equals("I"));
+	assertEquals("Signature#getReturnType is not correct1", "I",
+			Signature.getReturnType(methodSig));
 	try {
 		Signature.getReturnType("");
 		assertTrue("Signature#getReturnType is not correct: exception", false);
@@ -218,9 +275,11 @@ public void testGetReturnType() {
 	
 	// tests with 1.5-specific elements
 	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)I^Qexception;^Qerror;";
-	assertTrue("Signature#getReturnType is not correct2", Signature.getReturnType(methodSig).equals("I"));
+	assertEquals("Signature#getReturnType is not correct2", "I",
+			Signature.getReturnType(methodSig));
 	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;^Qexception;^Qerror;";
-	assertTrue("Signature#getReturnType is not correct3", Signature.getReturnType(methodSig).equals("Qlist<Qxxx;>;"));
+	assertEquals("Signature#getReturnType is not correct3", "Qlist<Qxxx;>;",
+			Signature.getReturnType(methodSig));
 }
 
 /**
@@ -230,11 +289,14 @@ public void testGetReturnType() {
 public void testGetTypeVariable() {
 	// tests with 1.5-specific elements
 	String formalTypeParameterSignature = "Hello:";
-	assertTrue("Signature#getTypeVariable is not correct1", Signature.getTypeVariable(formalTypeParameterSignature).equals("Hello"));
+	assertEquals("Signature#getTypeVariable is not correct1", "Hello",
+			Signature.getTypeVariable(formalTypeParameterSignature));
 	formalTypeParameterSignature = "Hello::Qi1;:Qi2;";
-	assertTrue("Signature#getTypeVariable is not correct2", Signature.getTypeVariable(formalTypeParameterSignature).equals("Hello"));
+	assertEquals("Signature#getTypeVariable is not correct2", "Hello",
+			Signature.getTypeVariable(formalTypeParameterSignature));
 	formalTypeParameterSignature = "Hello:Qlist<Qstring;>;:Qi1;:Qi2;";
-	assertTrue("Signature#getTypeVariable is not correct3", Signature.getTypeVariable(formalTypeParameterSignature).equals("Hello"));
+	assertEquals("Signature#getTypeVariable is not correct3", "Hello",
+			Signature.getTypeVariable(formalTypeParameterSignature));
 	try {
 		Signature.getTypeVariable("");
 		assertTrue("Signature#getTypeVariable is not correct: exception", false);
@@ -250,19 +312,29 @@ public void testGetTypeVariable() {
 public void testGetTypeParameterBounds() {
 	// tests with 1.5-specific elements
 	String formalTypeParameterSignature = "Hello:";
-	assertTrue("Signature#getTypeParameterBounds is not correct1", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 0);
+	assertEquals("Signature#getTypeParameterBounds is not correct1", 0,
+			Signature.getTypeParameterBounds(formalTypeParameterSignature).length);
 	formalTypeParameterSignature = "Hello::Qi1;:Qi2;";
-	assertTrue("Signature#getTypeParameterBounds is not correct2", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 2);
-	assertEquals("Signature#getTypeParameterBounds is not correct2a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qi1;");
-	assertEquals("Signature#getTypeParameterBounds is not correct2b", Signature.getTypeParameterBounds(formalTypeParameterSignature)[1], "Qi2;");
+	assertEquals("Signature#getTypeParameterBounds is not correct2", 2,
+			Signature.getTypeParameterBounds(formalTypeParameterSignature).length);
+	assertEquals("Signature#getTypeParameterBounds is not correct2a", "Qi1;",
+			Signature.getTypeParameterBounds(formalTypeParameterSignature)[0]);
+	assertEquals("Signature#getTypeParameterBounds is not correct2b", "Qi2;",
+			Signature.getTypeParameterBounds(formalTypeParameterSignature)[1]);
 	formalTypeParameterSignature = "Hello:Qlist<Qstring;>;:Qi1;:Qi2;";
-	assertTrue("Signature#getTypeParameterBounds is not correct3", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 3);
-	assertEquals("Signature#getTypeParameterBounds is not correct3a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qlist<Qstring;>;");
-	assertEquals("Signature#getTypeParameterBounds is not correct3b", Signature.getTypeParameterBounds(formalTypeParameterSignature)[1], "Qi1;");
-	assertEquals("Signature#getTypeParameterBounds is not correct3c", Signature.getTypeParameterBounds(formalTypeParameterSignature)[2], "Qi2;");
+	assertEquals("Signature#getTypeParameterBounds is not correct3", 3,
+			Signature.getTypeParameterBounds(formalTypeParameterSignature).length);
+	assertEquals("Signature#getTypeParameterBounds is not correct3a", "Qlist<Qstring;>;",
+			Signature.getTypeParameterBounds(formalTypeParameterSignature)[0]);
+	assertEquals("Signature#getTypeParameterBounds is not correct3b", "Qi1;",
+			Signature.getTypeParameterBounds(formalTypeParameterSignature)[1]);
+	assertEquals("Signature#getTypeParameterBounds is not correct3c", "Qi2;",
+			Signature.getTypeParameterBounds(formalTypeParameterSignature)[2]);
 	formalTypeParameterSignature = "Hello:Qi1;";
-	assertTrue("Signature#getTypeParameterBounds is not correct4", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 1);
-	assertEquals("Signature#getTypeParameterBounds is not correct4a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qi1;");
+	assertEquals("Signature#getTypeParameterBounds is not correct4", 1,
+			Signature.getTypeParameterBounds(formalTypeParameterSignature).length);
+	assertEquals("Signature#getTypeParameterBounds is not correct4a", "Qi1;",
+			Signature.getTypeParameterBounds(formalTypeParameterSignature)[0]);
 	try {
 		Signature.getTypeParameterBounds("");
 		assertTrue("Signature#getTypeParameterBounds is not correct: exception", false);
@@ -275,8 +347,10 @@ public void testGetTypeParameterBounds() {
  * @see Signature
  */
 public void testGetSimpleName() {
-	assertTrue("Signature#getSimpleName is not correct1", Signature.getSimpleName("java.lang.Object").equals("Object"));
-	assertTrue("Signature#getSimpleName is not correct2",  Signature.getSimpleName("").equals(""));
+	assertEquals("Signature#getSimpleName is not correct1", "Object",
+			Signature.getSimpleName("java.lang.Object"));
+	assertEquals("Signature#getSimpleName is not correct2", "",
+			Signature.getSimpleName(""));
 }
 /**
  * @see Signature
@@ -293,9 +367,12 @@ public void testGetSimpleNames() {
  * @see Signature
  */
 public void testToQualifiedName() {
-	assertTrue("Signature#toQualifiedName is not correct1", Signature.toQualifiedName(new String[] {"java", "lang", "Object"}).equals("java.lang.Object"));
-	assertTrue("Signature#toQualifiedName is not correct2", Signature.toQualifiedName(new String[] {"Object"}).equals("Object"));
-	assertTrue("Signature#toQualifiedName is not correct3", Signature.toQualifiedName(new String[0]).equals(""));
+	assertEquals("Signature#toQualifiedName is not correct1", "java.lang.Object",
+			Signature.toQualifiedName(new String[] {"java", "lang", "Object"}));
+	assertEquals("Signature#toQualifiedName is not correct2", "Object",
+			Signature.toQualifiedName(new String[] {"Object"}));
+	assertEquals("Signature#toQualifiedName is not correct3", "",
+			Signature.toQualifiedName(new String[0]));
 }
 /**
  * @see Signature.toString(String)
@@ -357,6 +434,37 @@ public void testToString1() {
 		"Signature#toString is not correct 14", 
 		"int[][][]",
 		Signature.toString("[[[I"));
+	
+	// signatures with 1.5 elements
+	assertEquals(
+		"Signature#toString is not correct 15", 
+		"VAR",
+		Signature.toString("TVAR;"));
+	assertEquals(
+		"Signature#toString is not correct 16", 
+		"A<B>",
+		Signature.toString("QA<QB;>;"));
+	assertEquals(
+		"Signature#toString is not correct 17", 
+		"A<?>",
+		Signature.toString("QA<*>;"));
+	assertEquals(
+		"Signature#toString is not correct 18", 
+		"A<? extends B>",
+		Signature.toString("QA<+QB;>;"));
+	assertEquals(
+		"Signature#toString is not correct 19", 
+		"A<? super B>",
+		Signature.toString("QA<-QB;>;"));
+	assertEquals(
+		"Signature#toString is not correct 20", 
+		"A<?,?,?,?,?>",
+		Signature.toString("LA<*****>;"));
+	assertEquals(
+		"Signature#toString is not correct 21", 
+		"a<V>.b<W>.c<X>",
+		Signature.toString("La<TV;>.b<QW;>.c<LX;>;"));
+	
 }
 /**
  * @see Signature.toString(String, String, String[], boolean, boolean)
