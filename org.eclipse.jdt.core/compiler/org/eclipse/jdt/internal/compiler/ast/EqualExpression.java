@@ -499,11 +499,18 @@ public boolean isCompactableOperation() {
 }
 public TypeBinding resolveType(BlockScope scope) {
 
-	if (left instanceof CastExpression) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-	TypeBinding leftType = left.resolveType(scope);
+		boolean argsContainCast = false;
+		if (left instanceof CastExpression) {
+			left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			argsContainCast = true;
+		}
+		TypeBinding leftType = left.resolveType(scope);
 
-	if (right instanceof CastExpression) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-	TypeBinding rightType = right.resolveType(scope);
+		if (right instanceof CastExpression) {
+			right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			argsContainCast = true;
+		}
+		TypeBinding rightType = right.resolveType(scope);
 
 	// always return BooleanBinding
 	if (leftType == null || rightType == null){
@@ -517,31 +524,19 @@ public TypeBinding resolveType(BlockScope scope) {
 		// (cast)  left   == (cast)  right --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
-		int result = ResolveTypeTables[EQUAL_EQUAL][ (leftType.id << 4) + rightType.id];
-		left.implicitConversion = result >>> 12;
-		right.implicitConversion = (result >>> 4) & 0x000FF;
-		bits |= result & 0xF;		
-		if ((result & 0x0000F) == T_undefined) {
+		int operatorSignature = ResolveTypeTables[EQUAL_EQUAL][ (leftType.id << 4) + rightType.id];
+		left.implicitConversion = operatorSignature >>> 12;
+		right.implicitConversion = (operatorSignature >>> 4) & 0x000FF;
+		bits |= operatorSignature & 0xF;		
+		if ((operatorSignature & 0x0000F) == T_undefined) {
 			constant = Constant.NotAConstant;
 			scope.problemReporter().invalidOperator(this, leftType, rightType);
 			return null;
 		}
 		// check need for operand cast
-		boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
-		boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;
-		if (unnecessaryLeftCast || unnecessaryRightCast) {
-			int alternateLeftId = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType.id : leftType.id;
-			int alternateRightId = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType.id : rightType.id;
-			int alternateResult = ResolveTypeTables[EQUAL_EQUAL][(alternateLeftId << 4) + alternateRightId];
-			// (cast)  left   Op (cast)  right --> result
-			//  1111   0000       1111   0000     1111
-			//  <<16   <<12       <<8    <<4       <<0
-			final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
-			if ((result & CompareMASK) == (alternateResult & CompareMASK)) { // same promotions and result
-				if (unnecessaryLeftCast) scope.problemReporter().unnecessaryCast((CastExpression)left); 
-				if (unnecessaryRightCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
-			}
-		}		
+		if (argsContainCast) {
+			CastExpression.checkNeedForArgumentCasts(scope, EQUAL_EQUAL, operatorSignature, left, leftType.id, right, rightType.id);
+		}	
 		computeConstant(leftType, rightType);
 		return this.resolvedType = BooleanBinding;
 	}
