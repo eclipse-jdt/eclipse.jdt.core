@@ -386,15 +386,16 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 /*
  * Create simple project.
  */
-protected void createProject(final String projectName) throws CoreException {
+protected IProject createProject(final String projectName) throws CoreException {
+	final IProject project = getProject(projectName);
 	IWorkspaceRunnable create = new IWorkspaceRunnable() {
 		public void run(IProgressMonitor monitor) throws CoreException {
-			IProject project = getProject(projectName);
 			project.create(null);
 			project.open(null);
 		}
 	};
 	getWorkspace().run(create, null);	
+	return project;
 }
 public void deleteFile(File file) {
 	file = file.getAbsoluteFile();

@@ -69,8 +69,13 @@ protected JavaModel() throws Error {
  * @see IJavaModel
  */
 public boolean contains(IResource resource) {
+	switch (resource.getType()) {
+		case IResource.ROOT:
+		case IResource.PROJECT:
+			return true;
+	}
+	// file or folder
 	try {
-		if (!resource.isAccessible()) return false;
 		IPath path = resource.getFullPath();
 		IJavaProject[] projects = this.getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
@@ -82,24 +87,29 @@ public boolean contains(IResource resource) {
 			IClasspathEntry innerMostEntry = null;
 			for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
 				IClasspathEntry entry = classpath[j];
+
 				IPath entryPath = entry.getPath();
-				if (entryPath.isPrefixOf(path) 
-						&& (innerMostEntry == null || innerMostEntry.getPath().isPrefixOf(entryPath))) {
+				if ((innerMostEntry == null || innerMostEntry.getPath().isPrefixOf(entryPath))
+						&& entryPath.isPrefixOf(path)) {
 					innerMostEntry = entry;
 				}
 				IPath entryOutput = classpath[j].getOutputLocation();
 				if (entryOutput != null && entryOutput.isPrefixOf(path)) {
 					isInOutput = true;
-					break; // don't return here as we could have src=bin or lib=bin
 				}
 			}
 			if (innerMostEntry != null) {
-				if (innerMostEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-					// .class files are not visible in source folders 
-					return !Util.isClassFileName(path.lastSegment());
-				} else {
-					// .java files are not visible in library folders
-					return !Util.isJavaFileName(path.lastSegment());
+				if  (resource instanceof IFolder) {
+					 // folders are always included in src/lib entries
+					 return true;
+				}
+				switch (innerMostEntry.getEntryKind()) {
+					case IClasspathEntry.CPE_SOURCE:
+						// .class files are not visible in source folders 
+						return !Util.isClassFileName(path.lastSegment());
+					case IClasspathEntry.CPE_LIBRARY:
+						// .java files are not visible in library folders
+						return !Util.isJavaFileName(path.lastSegment());
 				}
 			}
 			if (isInOutput) {

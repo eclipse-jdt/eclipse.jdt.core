@@ -10,11 +10,13 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.tests.model.*;
 
 import junit.framework.Test;
 /**
@@ -56,6 +58,146 @@ public void testAddFileToNonJavaProject() throws CoreException {
 			"Project P should not be present",
 			this.indexOf("P", projects) == -1
 		);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a resource belonging to the Java model is known to be contained in the Java model.
+ * Case of non-accessible resources
+ */
+public void testContains1() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+
+		// .java file
+		IFile file = this.getFile("/P/X.java");
+		assertTrue("/P/X.java should be in model", getJavaModel().contains(file));
+
+		// .class file
+		file = this.getFile("/P/X.class");
+		assertTrue("/P/X.class should not be in model", !getJavaModel().contains(file));
+
+		// non-Java resource
+		file = this.getFile("/P/read.txt");
+		assertTrue("/P/read.txt should be in model", getJavaModel().contains(file));
+
+		// package
+		IFolder folder = this.getFolder("/P/p");
+		assertTrue("/P/p should be in model", getJavaModel().contains(folder));
+		
+		// resource in closed project
+		file = this.createFile("/P/X.java", "");
+		project.getProject().close(null);
+		assertTrue("/P/X.java should be in model (even if project is closed)", getJavaModel().contains(file));
+		
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a resource belonging to the Java model is known to be contained in the Java model.
+ * Case of projects
+ */
+public void testContains2() throws CoreException {
+	try {
+		// Java project
+		IProject project = this.createJavaProject("P1", new String[] {""}, "").getProject();
+		assertTrue("/P1 should be in model", getJavaModel().contains(project));
+
+		// non-Java project
+		project = this.createProject("P2");
+		assertTrue("/P2 should be in model", getJavaModel().contains(project));
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+/*
+ * Ensure that a resource belonging to the Java model is known to be contained in the Java model.
+ * Case of prj=src=bin
+ */
+public void testContains3() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+
+		// .java file
+		IFile file = this.createFile("/P/X.java", "");
+		assertTrue("/P/X.java should be in model", getJavaModel().contains(file));
+
+		// .class file
+		file = this.createFile("/P/X.class", "");
+		assertTrue("/P/X.class should not be in model", !getJavaModel().contains(file));
+
+		// non-Java resource
+		file = this.createFile("/P/read.txt", "");
+		assertTrue("/P/read.txt should be in model", getJavaModel().contains(file));
+
+		// package
+		IFolder folder = this.createFolder("/P/p");
+		assertTrue("/P/p should be in model", getJavaModel().contains(folder));
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a resource belonging to the Java model is known to be contained in the Java model.
+ * Case of empty classpath.
+ */
+public void testContains4() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {}, "bin");
+
+		// .java file
+		IFile file = this.createFile("/P/X.java", "");
+		assertTrue("/P/X.java should be in model", getJavaModel().contains(file));
+		
+		// .class file
+		file = this.createFile("/P/X.class", "");
+		assertTrue("/P/X.class should be in model", getJavaModel().contains(file));
+
+		// non-Java resource file
+		file = this.createFile("/P/read.txt", "");
+		assertTrue("/P/read.txt should be in model", getJavaModel().contains(file));
+
+		// non-Java resource folder
+		IFolder folder = this.createFolder("/P/p");
+		assertTrue("/P/p should be in model", getJavaModel().contains(folder));
+		
+		// bin folder
+		folder = this.getFolder("/P/bin");
+		assertTrue("/P/bin should not be in model", !getJavaModel().contains(folder));
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a resource belonging to the Java model is known to be contained in the Java model.
+ * Case of src != bin
+ */
+public void testContains5() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {"src"}, "bin");
+
+		// .java file
+		IFile file = this.createFile("/P/src/X.java", "");
+		assertTrue("/P/src/X.java should be in model", getJavaModel().contains(file));
+
+		// .class file in bin
+		file = this.createFile("/P/bin/X.class", "");
+		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
+
+		// .class file in src
+		file = this.createFile("/P/src/X.class", "");
+		assertTrue("/P/src/X.class should not be in model", !getJavaModel().contains(file));
+
+		// non-Java resource
+		file = this.createFile("/P/src/read.txt", "");
+		assertTrue("/P/src/read.txt should be in model", getJavaModel().contains(file));
+
+		// package
+		IFolder folder = this.createFolder("/P/src/p");
+		assertTrue("/P/src/p should be in model", getJavaModel().contains(folder));
 	} finally {
 		this.deleteProject("P");
 	}

@@ -39,11 +39,16 @@ public interface IJavaModel extends IJavaElement, IOpenable, IParent {
 /**
  * Returns whether this Java model contains an <code>IJavaElement</code> whose
  * resource is the given resource or a non-Java resource which is the given resource.
- * Such resource can be found by navigating the Java model down using the
- * <code>getChildren()</code> and <code>getNonJavaResources()</code> methods.
- * 
- * @param resource the resource to be found
- * 
+ * <p>
+ * Note: no existency check is performed on the argument resource. If it is not accessible 
+ * (see <code>IResource.isAccessible()</code>) yet but would be located in Java model 
+ * range, then it will return <code>true</code>.
+ * </p><p>
+ * If the resource is accessible, it can be reached by navigating the Java model down using the
+ * <code>getChildren()</code> and/or <code>getNonJavaResources()</code> methods.
+ * </p>
+ * @param resource the resource to check
+ * @return true if the resource is accessible through the Java model
  * @since 2.1
  */
 boolean contains(IResource resource);
