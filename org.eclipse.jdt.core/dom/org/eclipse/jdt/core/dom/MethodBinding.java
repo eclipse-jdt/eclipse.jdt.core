@@ -12,6 +12,8 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * Internal implementation of method bindings.
@@ -27,6 +29,8 @@ class MethodBinding implements IMethodBinding {
 	private ITypeBinding declaringClass;
 	private ITypeBinding returnType;
 	private String key;
+	private ITypeBinding[] typeParameters;
+	private ITypeBinding[] typeArguments;
 	
 	MethodBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding) {
 		this.resolver = resolver;
@@ -85,11 +89,12 @@ class MethodBinding implements IMethodBinding {
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] parameters = this.binding.parameters;
 		int length = parameters.length;
 		if (length == 0) {
-			return NO_TYPE_BINDINGS;
-		}
-		this.parameterTypes = new ITypeBinding[length];
-		for (int i = 0; i < length; i++) {
-			this.parameterTypes[i] = this.resolver.getTypeBinding(parameters[i]);
+			this.parameterTypes = NO_TYPE_BINDINGS;
+		} else {
+			this.parameterTypes = new ITypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				this.parameterTypes[i] = this.resolver.getTypeBinding(parameters[i]);
+			}
 		}
 		return this.parameterTypes;
 	}
@@ -114,11 +119,12 @@ class MethodBinding implements IMethodBinding {
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] exceptions = this.binding.thrownExceptions;
 		int length = exceptions.length;
 		if (length == 0) {
-			return NO_TYPE_BINDINGS;
-		}
-		this.exceptionTypes = new ITypeBinding[length];
-		for (int i = 0; i < length; i++) {
-			this.exceptionTypes[i] = this.resolver.getTypeBinding(exceptions[i]);
+			this.exceptionTypes = NO_TYPE_BINDINGS;
+		} else {
+			this.exceptionTypes = new ITypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				this.exceptionTypes[i] = this.resolver.getTypeBinding(exceptions[i]);
+			}
 		}
 		return this.exceptionTypes;
 	}
@@ -221,40 +227,75 @@ class MethodBinding implements IMethodBinding {
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeParameters()
 	 */
 	public ITypeBinding[] getTypeParameters() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return NO_TYPE_BINDINGS;
+		if (this.typeParameters != null) {
+			return this.typeParameters;
+		}
+		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
+		if (typeVariableBindings != null) {
+			int typeVariableBindingsLength = typeVariableBindings.length;
+			if (typeVariableBindingsLength != 0) {
+				this.typeParameters = new ITypeBinding[typeVariableBindingsLength];
+				for (int i = 0; i < typeVariableBindingsLength; i++) {
+					typeParameters[i] = this.resolver.getTypeBinding(typeVariableBindings[i]);
+				}
+			} else {
+				this.typeParameters = NO_TYPE_BINDINGS;
+			}
+		} else {
+			this.typeParameters = NO_TYPE_BINDINGS;
+		}
+		return this.typeParameters;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeArguments()
 	 */
 	public ITypeBinding[] getTypeArguments() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return NO_TYPE_BINDINGS;
+		if (this.typeArguments != null) {
+			return this.typeArguments;
+		}
+
+		if (this.binding instanceof ParameterizedGenericMethodBinding) {
+			ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) this.binding;
+			org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] typeArgumentsBindings = genericMethodBinding.typeArguments;
+			if (typeArgumentsBindings != null) {
+				int typeArgumentsLength = typeArgumentsBindings.length;
+				if (typeArgumentsLength != 0) {
+					this.typeArguments = new ITypeBinding[typeArgumentsLength];
+					for (int i = 0; i < typeArgumentsLength; i++) {
+						this.typeArguments[i] = this.resolver.getTypeBinding(typeArgumentsBindings[i]);
+					}
+				} else {
+					this.typeArguments = NO_TYPE_BINDINGS;
+				}
+			} else {
+				this.typeArguments = NO_TYPE_BINDINGS;
+			}
+		} else {
+			this.typeArguments = NO_TYPE_BINDINGS;
+		}
+		return this.typeArguments;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isParameterizedMethod()
 	 */
 	public boolean isParameterizedMethod() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding instanceof ParameterizedGenericMethodBinding;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isRawMethod()
 	 */
 	public boolean isRawMethod() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return !(this.binding instanceof ParameterizedGenericMethodBinding);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getErasure()
 	 */
 	public IMethodBinding getErasure() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return this;
+		return this.resolver.getMethodBinding(this.binding.original());
 	}
 
 	/* 

@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -77,7 +78,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0043"));
+		suite.addTest(new ASTConverter15Test("test0045"));
 		return suite;
 	}
 		
@@ -430,8 +431,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	public void test0013() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0013", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		// TODO NPE when resolveBindings = true
-		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -1266,6 +1266,63 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong qualified name", "X", typeBinding.getQualifiedName());
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72891
+	 */
+	public void test0044() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0044", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List typeParameters = methodDeclaration.typeParameters();
+		assertEquals("wrong size", 1, typeParameters.size());
+		TypeParameter parameter = (TypeParameter) typeParameters.get(0);
+		IBinding binding = parameter.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
+		assertEquals("wrong key", "Z:test0044/A/voidfoo(Z)", binding.getKey());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		assertNotNull("no binding", methodBinding);
+		ITypeBinding[] typeParametersBindings = methodBinding.getTypeParameters();
+		assertNotNull("No type parameters", typeParametersBindings);
+		assertEquals("Wrong size", 1, typeParametersBindings.length);
+		ITypeBinding typeBinding = typeParametersBindings[0];
+		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertEquals("Wrong fully qualified name", "Z", typeBinding.getQualifiedName());
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72891
+	 */
+	public void test0045() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0045", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 1, 0, 1);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not a expression statement", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+		assertTrue("Not parameterized", methodBinding.isParameterizedMethod());
+		ITypeBinding[] typeArguments = methodBinding.getTypeArguments();
+		assertNotNull("No type arguments", typeArguments);
+		assertEquals("Wrong size", 1, typeArguments.length);
+		assertEquals("Wrong qualified name", "java.lang.String", typeArguments[0].getQualifiedName());
+		IMethodBinding erasure = methodBinding.getErasure();
+		assertNotNull("No erasure", erasure);
+		assertFalse("Not a parameterized method", erasure.isParameterizedMethod());
 	}
 }
 
