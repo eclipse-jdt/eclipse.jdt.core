@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added getNonJavaResources()
+ *     IBM Corporation - added contains(IResource)
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -39,7 +40,10 @@ public interface IJavaModel extends IJavaElement, IOpenable, IParent {
  * Returns whether this Java model contains an <code>IJavaElement</code> whose
  * resource is the given resource or a non-Java resource which is the given resource.
  * Such resource can be found by navigating the Java model down using the
- * <code>getChildren()</code> and <code>getNonJavaResources()</code>.
+ * <code>getChildren()</code> and <code>getNonJavaResources()</code> methods.
+ * 
+ * @param resource the resource to be found
+ * 
  * @since 2.1
  */
 boolean contains(IResource resource);

@@ -26,6 +26,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -64,9 +65,52 @@ public class JavaModel extends Openable implements IJavaModel {
 protected JavaModel() throws Error {
 	super(JAVA_MODEL, null, "" /*workspace has empty name*/); //$NON-NLS-1$
 }
-
-
-
+/*
+ * @see IJavaModel
+ */
+public boolean contains(IResource resource) {
+	try {
+		if (!resource.isAccessible()) return false;
+		IPath path = resource.getFullPath();
+		IJavaProject[] projects = this.getJavaProjects();
+		for (int i = 0, length = projects.length; i < length; i++) {
+			IJavaProject project = projects[i];
+			IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+			
+			IPath output = project.getOutputLocation();
+			boolean isInOutput = output.isPrefixOf(path);
+			IClasspathEntry innerMostEntry = null;
+			for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
+				IClasspathEntry entry = classpath[j];
+				IPath entryPath = entry.getPath();
+				if (entryPath.isPrefixOf(path) 
+						&& (innerMostEntry == null || innerMostEntry.getPath().isPrefixOf(entryPath))) {
+					innerMostEntry = entry;
+				}
+				IPath entryOutput = classpath[j].getOutputLocation();
+				if (entryOutput != null && entryOutput.isPrefixOf(path)) {
+					isInOutput = true;
+					break; // don't return here as we could have src=bin or lib=bin
+				}
+			}
+			if (innerMostEntry != null) {
+				if (innerMostEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+					// .class files are not visible in source folders 
+					return !Util.isClassFileName(path.lastSegment());
+				} else {
+					// .java files are not visible in library folders
+					return !Util.isJavaFileName(path.lastSegment());
+				}
+			}
+			if (isInOutput) {
+				return false;
+			}
+		}
+		return true;
+	} catch (JavaModelException e) {
+		return false;
+	}
+}
 /**
  * @see IJavaModel
  */
