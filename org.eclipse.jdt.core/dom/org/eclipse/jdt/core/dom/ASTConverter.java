@@ -745,7 +745,7 @@ class ASTConverter {
 				// try to get the best end position
 				IProblem[] problems = methodDeclaration.compilationResult().problems;
 				if (problems != null) {
-					for (int i = 0, max = problems.length; i < max; i++) {
+					for (int i = 0, max = methodDeclaration.compilationResult().problemCount; i < max; i++) {
 						IProblem currentProblem = problems[i];
 						if (currentProblem.getSourceStart() == start && currentProblem.getID() == IProblem.ParsingErrorInsertToComplete) {
 							end = currentProblem.getSourceEnd();
