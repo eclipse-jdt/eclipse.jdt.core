@@ -2529,7 +2529,7 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node begins.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link ASTParser} for details
+	 * See {@link ASTParser#setKind(int)} for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
@@ -2547,7 +2547,7 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node ends.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link ASTParser} methods for details
+	 * See {@link ASTParser#setKind(int)} methods for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
@@ -2564,8 +2564,8 @@ public abstract class ASTNode {
 	 * Sets the source range of the original source file where the source
 	 * fragment corresponding to this node was found.
 	 * <p>
-	 * See {@link ASTParser} for details
-	 * on precisely where source ranges begin and end.
+	 * See {@link ASTParser#setKind(int)} for details
+	 * on precisely where source ranges are supposed to begin and end.
 	 * </p>
 	 * 
 	 * @param startPosition a 0-based character index, 
