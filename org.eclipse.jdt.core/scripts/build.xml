@@ -2,7 +2,7 @@
 <project name="export-executable" default="build" basedir="..">
 
 	<property name="gcc-path" value="d:/gcc/gcc-3.4" />
-	<property name="binaryname" value="eclipsejc" />
+	<property name="binaryname" value="ejavac" />
 	<property name="dest" value="../../bingcj/" />
 	<property name="work" value="${dest}tmp/" />
 	<property name="gcj_script_name" value="export-executable.xml"/>

@@ -1,10 +1,4 @@
-
-<!-- Export executable version of batch compiler, using GCJ -->
-<!--
-        gcc-target    - the gcc target name to use (for example, i686-pc-mingw32)
-        binaryname    - the name to give to the final binary
--->
-
+<?xml version="1.0" encoding="UTF-8"?>
 <project name="export-executable" default="build" basedir="..">
 
 	<property name="gcc-path" value="d:/gcc/gcc-3.4" />
@@ -28,15 +22,7 @@
 	
 
         <echo message='compiling resources   -> .o'/>
-        <!-- apply failonerror='true' executable="cmd.exe" dest="${work}" parallel='false' output="${build_output}" >
-		  <arg line="/c ${basedir}/scripts/res.bat"/>
-		  <arg value="${basedir}/scripts/GetArguments.exe"/>
-		  <arg value="${gcc-path}/bin/gcj.exe"/>
-		  <targetfile/>
-          <fileset  dir='${work}' includes='**/*.properties,**/*.rsc'/>
-          <mapper type='regexp' from='(.*)\.(.*)$$' to='\1.o \1.\2'/>
-        </apply -->
-  		<exec dir="${work}" executable="${gcc-path}/bin/gcj.exe" os="Windows 2000">
+   		<exec dir="${work}" executable="${gcc-path}/bin/gcj.exe" os="Windows 2000">
   		  <arg line="--resource org/eclipse/jdt/internal/compiler/batch/messages.properties org/eclipse/jdt/internal/compiler/batch/messages.properties -c -o org/eclipse/jdt/internal/compiler/batch/messages.o"/>
   		</exec>
   		<exec dir="${work}" executable="${gcc-path}/bin/gcj.exe" os="Windows 2000">
