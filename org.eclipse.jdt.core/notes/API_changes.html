@@ -63,6 +63,37 @@
 as <code>'**/foo'</code> for free. This was inconsistent with Ant patternset rules. This has no incidence on
 source folder exclusion patterns which are implicitely concatenating exclusion patterns to source folder
 paths when using them. Only direct clients to this <code>CharOperation</code> API will be affected.
+</li>
+<li> Change in syntax error message ID. The new diagnose of syntax errors use new error messages.
+	  <p>
+		The following messages ID are added:
+		<ul>
+			<li>IProblem.ParsingErrorInsertTokenBefore</li>
+			<li>IProblem.ParsingErrorInsertTokenAfter</li>
+			<li>IProblem.ParsingErrorDeleteToken</li>
+			<li>IProblem.ParsingErrorDeleteTokens</li>
+			<li>IProblem.ParsingErrorMergeTokens</li>
+			<li>IProblem.ParsingErrorInvalidToken</li>
+			<li>IProblem.ParsingErrorMisplacedConstruct</li>
+			<li>IProblem.ParsingErrorReplaceTokens</li>
+			<li>IProblem.ParsingErrorNoSuggestionForTokens</li>
+			<li>IProblem.ParsingErrorUnexpectedEOF</li>
+			<li>IProblem.ParsingErrorInsertToComplete</li>
+			<li>IProblem.ParsingErrorInsertToCompleteScope</li>
+			<li>IProblem.ParsingErrorInsertToCompletePhrase</li>
+		</ul>
+	  </p>
+	  <p>
+		The following messages ID are removed:
+		<ul>
+			<li>IProblem.ParsingErrorNoSuggestion</li>
+			<li>IProblem.ParsingErrorOnKeyword</li>
+			<li>IProblem.ParsingErrorOnKeywordNoSuggestion</li>
+			<li>IProblem.UnmatchedBracket</li>
+			<li>IProblem.InvalidExpressionAsStatement</li>
+		</ul>
+	  </p>
+</li>
 </ul>
 </body>
 </html>
