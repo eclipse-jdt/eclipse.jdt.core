@@ -7,7 +7,7 @@
 <body>
 
 <h1>JDT Core 3.0 Porting Guide</h1>
-<p>Last modified 18:10 CET November 18, 2003</p>
+<p>Last modified 19:00 CET November 20, 2003</p>
 
 <a name="bug_36987"></a>
 <h4>Interface IWorkingCopy (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)</h4>
@@ -76,13 +76,14 @@
 		<tr>
 		<td>getOriginalElement()</td>
 		<td>getPrimary()</td>
-		<td>This no longer returns <code>null</code> if the receiver
-		        is not a working copy but this returns the receiver.</td>
+		<td>This no longer returns <code>null</code> if the receiver is not a working copy but this returns the receiver.
+				The returned object is no longer an <code>IJavaElement</code> but an <code>ICompilationUnit</code>.</td>
 		</tr>
 		<tr>
 		<td>getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</td>
 		<td>getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</td>
-		<td>See <a href="#bug_36888">next section</a> for details.</td>
+		<td>See <a href="#bug_36888">next section</a> for details.
+				The returned object is no longer an <code>IJavaElement</code> but an <code>ICompilationUnit</code>.</td>
 		</tr>
 		<tr>
 		<td>getWorkingCopy()</td>
@@ -92,7 +93,8 @@
 		<tr>
 		<td>getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</td>
 		<td>getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</td>
-		<td>Working copies are now implicitely shared. See <a href="#bug_36888">next section</a> for details.</td>
+		<td>Working copies are now implicitely shared. See <a href="#bug_36888">next section</a> for details.
+				The returned object is no longer an <code>IJavaElement</code> but an <code>ICompilationUnit</code>.</td>
 		</tr>
 		<tr>
 		<td>isBasedOn(IResource)</td>
@@ -107,7 +109,8 @@
 		<tr>
 		<td>reconcile()</td>
 		<td>reconcile(boolean, IProgressMonitor)</td>
-		<td>Pass in <code>false</code> to have the equivalent functionality. Note that this method doesn't return anything.</td>
+		<td>Pass in <code>false</code> and <code>null</code> to have the equivalent functionality. Note that this method doesn't 
+			    return anything.</td>
 		</tr>
 		<tr>
 		<td>reconcile(boolean, IProgressMonitor)</td>
@@ -147,6 +150,56 @@
 	<li>Clients that used <code>IBufferFactory</code> should now subclass <code>WorkingCopyOwner</code> and pass this working
 		  copy owner to the Java model operation in lieu of the buffer factory. The simplest implementation being: 
 		  <code>new WorkingCopyOwner() {}</code>
+	</li>
+	<li>A Package Explorer like client that used to have such code:
+	<pre>
+	IBufferFactory factory = ...
+	
+	// Create a shared working copy for this buffer factory (to show it in an editor)
+	ICompilationUnit cu = ...
+	IWorkingCopy copy = cu.getSharedWorkingCopy(null/*no progress monitor*/, factory, null/*no problem reporter*/);
+	
+	// Find out the children of a package
+	IPackageFragment pkg = ...
+	ICompilationUnit[] cus = pkg.getCompilationUnits();
+	for (int i = 0; i < cus.length; i++) {
+		ICompilationUnit copy = (ICompilationUnit) cus[i].findSharedWorkingCopy(factory);
+		if (copy != null) {
+			cus[i] = copy;
+		}
+	}
+	</pre>
+	would now convert this code to:
+	<pre>
+	WorkingCopyOwner owner = ...
+	
+	// Create a shared working copy for this working copy owner (to show it in an editor)
+	ICompilationUnit cu = ...
+	ICompilationUnit copy = cu.getWorkingCopy(owner, null/*no problem reporter*/, null/*no progress monitor*/);
+	
+	// Find out the children of a package
+	IPackageFragment pkg = ...
+	ICompilationUnit[] cus = pkg.getCompilationUnits(owner);
+	</pre>
+	</li>
+	<li>A refactoring like client that used to have to save all editors before proceding can now work with working copies:
+	<pre>
+	WorkingCopyOwner owner = ...
+	
+	// Search for references to a method in the working copies of the given owner
+	IMethod method = ....
+	IJavaSearchScope scope = ...
+	IJavaSearchResultCollector resultCollector = ...
+	SearchEngine searchEngine = new SearchEngine(owner);
+	searchEngine.search(ResourcesPlugin.getWorkspace(), method, REFERENCES, scope, resultCollector);
+	
+	// Build AST for a compilation unit that contains a reference to the method
+	// and build its bindings in the context of the working copies of the given owner
+	ICompilationUnit cu = ...;
+	CompilationUnit ast = AST.parseCompilationUnit(cu, true /*resolve bindings*/, owner) ;
+	</pre>
+	</li>
+	<li>[TODO: add a table for conversion of IBufferFactory usage to WorkingCopyOwner usage]
 	</li>
 </ul>
 
