@@ -833,7 +833,7 @@ public void testProjectClose() throws JavaModelException, CoreException {
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta 1",
-			"JavaProjectTests[*]: {CLOSED}\n" + 
+			"JavaProjectTests[-]: {}\n" + 
 			"ResourceDelta(/JavaProjectTests)"
 		);
 	} finally {
@@ -843,7 +843,7 @@ public void testProjectClose() throws JavaModelException, CoreException {
 			project.open(null);
 			assertDeltas(
 				"Unexpected delta 2",
-				"JavaProjectTests[*]: {OPENED}\n" + 
+				"JavaProjectTests[+]: {}\n" + 
 				"ResourceDelta(/JavaProjectTests)"
 			);
 
