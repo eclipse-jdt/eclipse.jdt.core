@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 //	static {
-//		TESTS_NUMBERS = new int[] { 69 };
+//		TESTS_NUMBERS = new int[] { 144 };
 //	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4279,5 +4279,39 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding parameterType = parameterTypes[0];
     	assertTrue("Not an array binding", parameterType.isArray());
     	assertEquals("wrong dimension", 2, parameterType.getDimensions());		
+    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87171
+    public void test0144() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X<T> {\n" + 
+    		"	void foo(T t) {\n" + 
+    		"		System.out.println(t);\n" + 
+    		"	}\n" + 
+    		"}\n" + 
+    		"\n" + 
+    		"class Use {\n" + 
+    		"	public static void main(String[] args) {\n" + 
+    		"		X<String> i= null;\n" + 
+    		"		i.foo(\"Eclipse\");\n" + 
+    		"	}\n" + 
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 1, 0, 1);
+    	assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+    	assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+		node = compilationUnit.findDeclaringNode(methodBinding);
+		assertNotNull("No declaring node", node);
     }
 }

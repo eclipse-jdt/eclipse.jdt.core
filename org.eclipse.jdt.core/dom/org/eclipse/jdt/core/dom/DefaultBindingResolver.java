@@ -160,6 +160,13 @@ class DefaultBindingResolver extends BindingResolver {
 		if (binding == null) {
 			return null;
 		}
+		if (binding instanceof IMethodBinding) {
+			IMethodBinding methodBinding = (IMethodBinding) binding;
+			return (ASTNode) this.bindingsToAstNodes.get(methodBinding.getMethodDeclaration());
+		} else if (binding instanceof ITypeBinding) {
+			ITypeBinding typeBinding = (ITypeBinding) binding;
+			return (ASTNode) this.bindingsToAstNodes.get(typeBinding.getTypeDeclaration());
+		}
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
 	}
 	
