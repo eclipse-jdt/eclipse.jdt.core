@@ -41,9 +41,9 @@ protected JarPackageFragment(PackageFragmentRoot root, String name) {
  */
 protected boolean computeChildren(OpenableElementInfo info) {
 	JarPackageFragmentInfo jInfo= (JarPackageFragmentInfo)info;
-	if (jInfo.fEntryNames != null){
+	if (jInfo.entryNames != null){
 		ArrayList vChildren = new ArrayList();
-		for (Iterator iter = jInfo.fEntryNames.iterator(); iter.hasNext();) {
+		for (Iterator iter = jInfo.entryNames.iterator(); iter.hasNext();) {
 			String child = (String) iter.next();
 			IClassFile classFile = getClassFile(child);
 			vChildren.add(classFile);

@@ -492,8 +492,11 @@ public class NameLookup implements SuffixConstants {
 					}
 				}
 			}
-		} catch (JavaModelException ignore) {
-		} catch (OperationCanceledException ignore) {}
+		} catch (JavaModelException e) {
+			// ignore
+		} catch (OperationCanceledException ignore) {
+			// ignore
+		}
 		return null;
 	}
 

@@ -12,6 +12,5 @@ package org.eclipse.jdt.internal.core;
 
 /** Element info for IOpenable elements. */
 public class OpenableElementInfo extends JavaElementInfo {
-	
-
+	// root of all openable element infos
 }

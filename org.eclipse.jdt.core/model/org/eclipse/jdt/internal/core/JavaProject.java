@@ -575,7 +575,7 @@ public class JavaProject
 	/**
 	 * Record a new marker denoting a classpath problem
 	 */
-	IMarker createClasspathProblemMarker(IJavaModelStatus status) {
+	void createClasspathProblemMarker(IJavaModelStatus status) {
 			
 		IMarker marker = null;
 		int severity;
@@ -639,8 +639,8 @@ public class JavaProject
 				}
 			);
 		} catch (CoreException e) {
+			// could not create marker: cannot do much
 		}
-		return marker;
 	}
 	
 	/**
@@ -978,6 +978,7 @@ public class JavaProject
 				}
 			}
 		} catch (JavaModelException e) {
+			// project doesn't exist: return an empty array
 		}
 		return new IPackageFragmentRoot[] {};
 	}
@@ -1083,6 +1084,7 @@ public class JavaProject
 				}
 			}
 		} catch (CoreException e) {
+			// could not flush markers: not much we can do
 		}
 	}
 
@@ -1164,6 +1166,7 @@ public class JavaProject
 					this.getPerProjectInfo().updateClasspathInformation(JavaProject.INVALID_CLASSPATH);
 					updatePackageFragmentRoots();
 				} catch (JavaModelException e) {
+					// ignore
 				}
 			}
 		}
@@ -1211,6 +1214,7 @@ public class JavaProject
 				}
 			}
 		} catch (CoreException e) {
+			// could not get markers: return null
 		}
 		return null;
 	}
@@ -2139,6 +2143,7 @@ public class JavaProject
 			try {
 				((JavaProjectElementInfo)getElementInfo()).setNameLookup(null);
 			} catch (JavaModelException e) {
+				// project was closed and deleted by another thread: ignore
 			}
 		}
 	}
@@ -2516,6 +2521,7 @@ public class JavaProject
 				}
 			}
 		} catch(JavaModelException e){
+			// project doesn't exist: ignore
 		}
 		prereqChain.remove(path);
 	}
@@ -2533,6 +2539,7 @@ public class JavaProject
 					try {
 						close(); // could not do better
 					} catch(JavaModelException ex){
+						// ignore
 					}
 				}
 			}

@@ -22,23 +22,23 @@ class JarPackageFragmentInfo extends PackageFragmentInfo {
 	 * The names of the zip entries that are the class files associated
 	 * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
 	 */
-	protected ArrayList fEntryNames;
+	protected ArrayList entryNames;
 /**
  */
 boolean containsJavaResources() {
-	return fEntryNames != null && fEntryNames.size() != 0;
+	return this.entryNames != null && this.entryNames.size() != 0;
 }
 /**
  * Returns an array of non-java resources contained in the receiver.
  */
 Object[] getNonJavaResources() {
-	return fNonJavaResources;
+	return this.nonJavaResources;
 }
 /**
  * Set the names of the zip entries that are the types associated
  * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
  */
 protected void setEntryNames(ArrayList entries) {
-	fEntryNames = entries;
+	this.entryNames = entries;
 }
 }
