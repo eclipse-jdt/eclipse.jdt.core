@@ -163,10 +163,68 @@ public class StringLiteral extends Expression {
 			}
 			if (c == '\\') {
 				// legal: b, t, n, f, r, ", ', \, 0, 1, 2, 3, 4, 5, 6, or 7
-				// FIXME
-				throw new RuntimeException("not implemented yet");//$NON-NLS-1$
+				char nextChar;
+				if ((i + 1) < len - 1) {
+					nextChar = s.charAt(i + 1);
+					i++;
+					switch(nextChar) {
+						case 'b' :
+							b.append('\b');
+							break;
+						case 't' :
+							b.append('\t');
+							break;
+						case 'n' :
+							b.append('\n');
+							break;
+						case 'f' :
+							b.append('\f');
+							break;
+						case 'r' :
+							b.append('\r');
+							break;
+						case '\"':
+							b.append('\"');
+							break;
+						case '\'':
+							b.append('\'');
+							break;
+						case '\\':
+							b.append('\\');
+							break;
+						case '0' :
+							b.append('\0');
+							break;
+						case '1' :
+							b.append('\1');
+							break;
+						case '2' :
+							b.append('\2');
+							break;
+						case '3' :
+							b.append('\3');
+							break;
+						case '4' :
+							b.append('\4');
+							break;
+						case '5' :
+							b.append('\5');
+							break;
+						case '6' :
+							b.append('\6');
+							break;
+						case '7' :
+							b.append('\7');
+							break;
+						default:
+							throw new IllegalArgumentException("Invalid string literal");//$NON-NLS-1$
+					}
+				} else {
+					throw new IllegalArgumentException("Invalid string literal");//$NON-NLS-1$
+				}
+			} else {
+				b.append(c);
 			}
-			b.append(c);
 		}
 		return b.toString();			
 	}
