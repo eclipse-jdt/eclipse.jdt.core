@@ -18,7 +18,8 @@ public class ClassScope extends Scope {
 	}
 	
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
-		buildLocalType(enclosingType, enclosingType.fPackage);
+		
+		LocalTypeBinding anonymousType = buildLocalType(enclosingType, enclosingType.fPackage);
 
 		SourceTypeBinding sourceType = referenceContext.binding;
 		if (supertype.isInterface()) {
@@ -30,6 +31,7 @@ public class ClassScope extends Scope {
 		}
 		connectMemberTypes();
 		buildFieldsAndMethods();
+		anonymousType.faultInTypesForFieldsAndMethods();
 		sourceType.verifyMethods(environment().methodVerifier());
 	}
 	
@@ -104,9 +106,6 @@ public class ClassScope extends Scope {
 		for (int i = 0; i < count; i++)
 			fieldBindings[i].id = i;
 		referenceContext.binding.fields = fieldBindings;
-		if (referenceContext.binding.isLocalType())
-			referenceContext.binding.fields();
-		// fault the types for the local type's fields now since we need them
 	}
 	
 	void buildFieldsAndMethods() {
@@ -176,9 +175,12 @@ public class ClassScope extends Scope {
 	}
 	
 	void buildLocalTypeBinding(SourceTypeBinding enclosingType) {
-		buildLocalType(enclosingType, enclosingType.fPackage);
+
+		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
 		buildFieldsAndMethods();
+		localType.faultInTypesForFieldsAndMethods();
+
 		referenceContext.binding.verifyMethods(environment().methodVerifier());
 	}
 	
@@ -214,9 +216,6 @@ public class ClassScope extends Scope {
 
 		referenceContext.binding.methods = methodBindings;
 		referenceContext.binding.modifiers |= AccUnresolved; // until methods() is sent
-		if (referenceContext.binding.isLocalType())
-			referenceContext.binding.methods();
-		// fault the types for the local type's methods now since we need them
 	}
 	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding) {
 		// provide the typeDeclaration with needed scopes
