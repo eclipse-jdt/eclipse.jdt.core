@@ -54,7 +54,7 @@ protected void assertResources(String message, String expected, IResource[] reso
 }
 public static Test suite() {
 	
-	if (false) {
+	if (true) {
 		TestSuite suite = new Suite(JavaProjectTests.class.getName());
 		suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
 		return suite;
@@ -721,17 +721,18 @@ public void testPackageFragmentRootRawEntry() throws CoreException {
 	try {
 		JavaCore.setClasspathVariable("MyVar", new Path("/P/lib"), null);
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
-		this.createFolder("/P/Lib");
+		this.createFolder("/P/lib");
 		final int length = 500;
 		IClasspathEntry[] classpath = new IClasspathEntry[length];
 		for (int i = 0; i < length; i++){
-			this.createFile("/P/Lib/lib"+i+".jar", "");
+			this.createFile("/P/lib/lib"+i+".jar", "");
 			classpath[i] = JavaCore.newVariableEntry(new Path("/MyVar/lib"+i+".jar"), null, null);
 		}
 		proj.setRawClasspath(classpath, null);
 		
 		long start = System.currentTimeMillis();
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
+		assertEquals("wrong number of entries:", roots.length, length);
 		for (int i = 0; i < roots.length; i++){
 			IClasspathEntry rawEntry = roots[i].getRawClasspathEntry();
 			assertEquals("unexpected root raw entry:", classpath[i], rawEntry);
