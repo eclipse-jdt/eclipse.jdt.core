@@ -308,14 +308,6 @@ public class EnhancedForStatement extends Statement {
 		postReplaceChild(oldChild, statement, BODY_PROPERTY);
 	}
 	
-	/**
-	 * @deprecated Use getParameter().resolveBinding() instead.
-	 */
-	// TODO (jeem) remove after 3.1 M4 - https://bugs.eclipse.org/bugs/show_bug.cgi?id=79098
-	public IVariableBinding resolveBinding() {
-		return null;
-	}
-
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
