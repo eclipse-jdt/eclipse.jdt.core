@@ -232,9 +232,9 @@ public void testFindElementClassFile() throws JavaModelException {
  */
 public void testFindElementCompilationUnit() throws JavaModelException {
 	IJavaProject project= getJavaProject("JavaProjectTests");
-	IJavaElement element= project.findElement(new Path("x/y/A.java"));
+	IJavaElement element= project.findElement(new Path("x/y/Main.java"));
 	assertTrue("CU not found" , element != null && element.getElementType() == IJavaElement.COMPILATION_UNIT
-		&& element.getElementName().equals("A.java"));
+		&& element.getElementName().equals("Main.java"));
 }
 /**
  * Test that a compilation unit can be found in a default package
