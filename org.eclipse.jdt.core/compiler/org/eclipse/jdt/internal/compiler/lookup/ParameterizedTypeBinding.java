@@ -295,21 +295,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#methods()
 	 */
 	public MethodBinding[] methods() {
-	    // TODO (kent) check handling of corner cases (AbortCompilation)
 		if (this.methods == null) {
 			try {
 			    MethodBinding[] originalMethods = this.type.methods();
 			    int length = originalMethods.length;
 			    MethodBinding[] parameterizedMethods = new MethodBinding[length];
-			    for (int i = 0; i < length; i++) {
-			        MethodBinding originalMethod = originalMethods[i];
-			        // substitute all methods, so as to get updated declaring class at least
-		            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethod);
-			    }
+			    for (int i = 0; i < length; i++)
+			    	// substitute all methods, so as to get updated declaring class at least
+		            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethods[i]);
 			    this.methods = parameterizedMethods;
 			} finally {
+				// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
 			    if (this.methods == null) 
-			        this.methods = NoMethods; // in case of trouble
+			        this.methods = NoMethods;
 			}
 		}
 		return this.methods;
