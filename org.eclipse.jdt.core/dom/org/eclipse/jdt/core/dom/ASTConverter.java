@@ -755,8 +755,8 @@ class ASTConverter {
 		if (expression instanceof BinaryExpression) {
 			return convert((BinaryExpression) expression);
 		}				
-		if (expression instanceof InstanceOfExpression) {
-			return convert((InstanceOfExpression) expression);
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression) expression);
 		}				
 		if (expression instanceof UnaryExpression) {
 			return convert((UnaryExpression) expression);
@@ -913,13 +913,28 @@ class ASTConverter {
 			}
 		}
 		Type type = convertType(expression.type);
+		if (this.resolveBindings) {
+			recordNodes(type, expression.type);
+		}		
 		ArrayType arrayType = null;
 		if (type.isArrayType()) {
 			arrayType = (ArrayType) type;
 		} else {
 			arrayType = this.ast.newArrayType(type, dimensionsLength);
+			int start = type.getStartPosition();
+			int end = type.getStartPosition() + type.getLength();
+			int previousSearchStart = end;
+			ArrayType componentType = (ArrayType) type.getParent();
+			for (int i = 0; i < dimensionsLength; i++) {
+				previousSearchStart = retrieveRightBracketPosition(previousSearchStart + 1, this.compilationUnitSource.length);
+				componentType.setSourceRange(start, previousSearchStart - start + 1);
+				componentType = (ArrayType) componentType.getParent();
+			}
 		}
 		arrayCreation.setType(arrayType);
+		if (this.resolveBindings) {
+			recordNodes(arrayType, expression);
+		}	
 		if (expression.initializer != null) {
 			arrayCreation.setInitializer(convert(expression.initializer));
 		}
@@ -1422,18 +1437,17 @@ class ASTConverter {
 		return prefixExpression;
 	}
 	
-	public InfixExpression convert(InstanceOfExpression expression) {
-		InfixExpression infixExpression = this.ast.newInfixExpression();
+	public InstanceofExpression convert(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression expression) {
+		InstanceofExpression instanceOfExpression = this.ast.newInstanceofExpression();
 		if (this.resolveBindings) {
-			recordNodes(infixExpression, expression);
+			recordNodes(instanceOfExpression, expression);
 		}
 		Expression leftExpression = convert(expression.expression);
-		infixExpression.setLeftOperand(leftExpression);
-		infixExpression.setRightOperand(convert(expression.type));
-		infixExpression.setOperator(InfixExpression.Operator.INSTANCEOF);
+		instanceOfExpression.setLeftOperand(leftExpression);
+		instanceOfExpression.setRightOperand(convertType(expression.type));
 		int startPosition = leftExpression.getStartPosition();
-		infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
-		return infixExpression;
+		instanceOfExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+		return instanceOfExpression;
 	}
 
 	public ConditionalExpression convert(org.eclipse.jdt.internal.compiler.ast.ConditionalExpression expression) {
@@ -2273,7 +2287,26 @@ class ASTConverter {
 		}
 		return -1;
 	}
-	
+
+	/**
+	 * This method is used to retrieve the position of the right bracket.
+	 * @return int the dimension found, -1 if none
+	 */
+	private int retrieveRightBracketPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameRBRACKET:
+						return scanner.currentPosition - 1;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+
 	/**
 	 * This method is used to retrieve the start position of the block.
 	 * @return int the dimension found, -1 if none

@@ -172,19 +172,20 @@ class DefaultBindingResolver extends BindingResolver {
 		int index = 0;
 		ASTNode parentType = type.getParent();
 		Type arrayType = null;
-		while ((parentType instanceof Type) && ((Type) parentType).isArrayType()) {
-			arrayType = (Type) parentType;
-			parentType = parentType.getParent();
-			index++;
-		}
-		AstNode node = null;
-		if (index != 0) {
-			node = (AstNode) this.newAstToOldAst.get(arrayType);
-		} else {
+		AstNode node = (AstNode) this.newAstToOldAst.get(type);
+		if (node == null) {
 			if (parentType instanceof ArrayCreation) {
 				node = (AstNode) this.newAstToOldAst.get(parentType);
 			} else {
-				node = (AstNode) this.newAstToOldAst.get(type);
+				// we try to retrieve the type as an element type of an array type
+				while ((parentType instanceof Type) && ((Type) parentType).isArrayType()) {
+					arrayType = (Type) parentType;
+					parentType = parentType.getParent();
+					index++;
+				}
+				if (index != 0) {
+					node = (AstNode) this.newAstToOldAst.get(arrayType);
+				}
 			}
 		}
 		if (node != null) {
@@ -260,7 +261,11 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 			} else if (node instanceof ArrayAllocationExpression) {
 				ArrayAllocationExpression arrayAllocationExpression = (ArrayAllocationExpression) node;
-				return this.getTypeBinding(arrayAllocationExpression.arrayTb);
+				ArrayBinding arrayBinding = arrayAllocationExpression.arrayTb;
+				if (index != 0) {
+					return this.getTypeBinding(this.scope.createArray(arrayBinding.leafComponentType, arrayBinding.dimensions - index));
+				} 
+				return this.getTypeBinding(arrayBinding);
 			}
 		}
 		return null;
@@ -443,6 +448,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (expression instanceof InfixExpression) {
 			OperatorExpression operatorExpression = (OperatorExpression) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(operatorExpression.typeBinding);
+		} else if (expression instanceof InstanceofExpression) {
+			org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression instanceOfExpression = (org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression) this.newAstToOldAst.get(expression);
+			return this.getTypeBinding(instanceOfExpression.typeBinding);
 		} else if (expression instanceof FieldAccess) {
 			FieldReference fieldReference = (FieldReference) this.newAstToOldAst.get(expression);
 			IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);

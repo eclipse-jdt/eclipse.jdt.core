@@ -533,8 +533,8 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type 
-	 * <code>InfixExpression</code>.
-	 * @see InfixExpression
+	 * <code>InstanceofExpression</code>.
+	 * @see InstanceofExpression
 	 */
 	public static final int INSTANCEOF_EXPRESSION = 62;
 
