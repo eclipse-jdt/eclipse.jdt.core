@@ -1514,7 +1514,7 @@ private boolean subtypesIncludeSupertypeOf(IType type) {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Focus: "); //$NON-NLS-1$
-	buffer.append(this.focusType == null ? "<NONE>" : this.focusType.getFullyQualifiedName()); //$NON-NLS-1$
+	buffer.append(this.focusType == null ? "<NONE>" : ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
 	buffer.append("\n"); //$NON-NLS-1$
 	if (exists()) {
 		if (this.focusType != null) {
@@ -1526,6 +1526,10 @@ public String toString() {
 			buffer.append("Sub types of root classes:\n"); //$NON-NLS-1$
 			IType[] roots= getRootClasses();
 			for (int i= 0; i < roots.length; i++) {
+				buffer.append("  "); //$NON-NLS-1$
+				JavaElement element = (JavaElement)roots[i];
+				buffer.append(element.toStringWithAncestors());
+				buffer.append('\n');
 				toString(buffer, roots[i], 1, false);
 			}
 		}
@@ -1551,15 +1555,14 @@ public String toString() {
  * If ascendant, shows the super types, otherwise show the sub types.
  */
 private void toString(StringBuffer buffer, IType type, int indent, boolean ascendant) {
-	for (int i= 0; i < indent; i++) {
-		buffer.append("  "); //$NON-NLS-1$
-	}
-	JavaElement element = (JavaElement)type;
-	buffer.append(element.toStringWithAncestors());
-	buffer.append('\n');
-
 	IType[] types= ascendant ? getSupertypes(type) : getSubtypes(type);
 	for (int i= 0; i < types.length; i++) {
+		for (int j= 0; j < indent; j++) {
+			buffer.append("  "); //$NON-NLS-1$
+		}
+		JavaElement element = (JavaElement)types[i];
+		buffer.append(element.toStringWithAncestors());
+		buffer.append('\n');
 		toString(buffer, types[i], indent + 1, ascendant);
 	}
 

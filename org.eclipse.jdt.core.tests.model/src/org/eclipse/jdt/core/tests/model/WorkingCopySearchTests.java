@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -32,7 +33,18 @@ public WorkingCopySearchTests(String name) {
 }
 
 public static Test suite() {
-	return new Suite(WorkingCopySearchTests.class);
+	// NOTE: cannot use 'new Suite(WorkingCopySearchTests.class)' as this would include tests from super class
+	TestSuite suite = new Suite(WorkingCopySearchTests.class.getName());
+	
+	suite.addTest(new WorkingCopySearchTests("testAddNewType"));
+	suite.addTest(new WorkingCopySearchTests("testAllTypeNames1"));
+	suite.addTest(new WorkingCopySearchTests("testAllTypeNames2"));
+	suite.addTest(new WorkingCopySearchTests("testRemoveType"));
+	suite.addTest(new WorkingCopySearchTests("testMoveType"));
+	suite.addTest(new WorkingCopySearchTests("testHierarchyScopeOnWorkingCopy"));
+	suite.addTest(new WorkingCopySearchTests("testDeclarationOfReferencedTypes"));
+
+	return suite;
 }
 
 /**

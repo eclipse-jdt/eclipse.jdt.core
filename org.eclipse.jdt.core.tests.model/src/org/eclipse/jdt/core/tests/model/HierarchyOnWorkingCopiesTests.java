@@ -25,6 +25,7 @@ public HierarchyOnWorkingCopiesTests(String name) {
 }
 
 public static Test suite() {
+	// NOTE: cannot use 'new Suite(HierarchyOnWorkingCopiesTests.class)' as this would include tests from super class
 	TestSuite suite = new Suite(HierarchyOnWorkingCopiesTests.class.getName());
 
 	suite.addTest(new HierarchyOnWorkingCopiesTests("testSimpleSuperTypeHierarchy"));
@@ -53,16 +54,13 @@ public void testSimpleSubTypeHierarchy() throws CoreException {
 		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
 		ITypeHierarchy h = type.newTypeHierarchy(new IWorkingCopy[] {this.copy}, null);
 
-		assertEquals(
-			"Unexpected hierarchy",
-			"Focus: x.y.B\n" +
-			"Super types:\n" +
-			"  B [in B.java [in x.y [in src [in P]]]]\n" +
-			"    Object [in Object.class [in java.lang [in " + this.getExternalJCLPath() + " [in P]]]]\n" +
-			"Sub types:\n" +
-			"  B [in B.java [in x.y [in src [in P]]]]\n" +
-			"    A [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
-			h.toString());
+		assertHierarchyEquals(
+			"Focus: B [in B.java [in x.y [in src [in P]]]]\n" + 
+			"Super types:\n" + 
+			"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in P]]]]\n" + 
+			"Sub types:\n" + 
+			"  A [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
+			h);
 	} finally {
 		if (file != null) {
 			this.deleteResource(file);
@@ -92,16 +90,13 @@ public void testSimpleSuperTypeHierarchy() throws CoreException {
 		IType type = this.getCompilationUnit("P/src/x/y/C.java").getType("C");
 		ITypeHierarchy h = type.newSupertypeHierarchy(new IWorkingCopy[] {this.copy}, null);
 
-		assertEquals(
-			"Unexpected hierarchy",
-			"Focus: x.y.C\n" +
-			"Super types:\n" +
-			"  C [in C.java [in x.y [in src [in P]]]]\n" +
-			"    B [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
-			"      Object [in Object.class [in java.lang [in " + this.getExternalJCLPath() + " [in P]]]]\n" +
-			"Sub types:\n" +
-			"  C [in C.java [in x.y [in src [in P]]]]\n",
-			h.toString());
+		assertHierarchyEquals(
+			"Focus: C [in C.java [in x.y [in src [in P]]]]\n" + 
+			"Super types:\n" + 
+			"  B [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
+			"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in P]]]]\n" + 
+			"Sub types:\n",
+			h);
 	} finally {
 		if (file != null) {
 			this.deleteResource(file);

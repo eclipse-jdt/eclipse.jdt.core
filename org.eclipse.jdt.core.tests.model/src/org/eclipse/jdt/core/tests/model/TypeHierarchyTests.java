@@ -13,8 +13,6 @@ package org.eclipse.jdt.core.tests.model;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -26,19 +24,6 @@ public class TypeHierarchyTests extends AbstractJavaModelTests {
 
 public TypeHierarchyTests(String name) {
 	super(name);
-}
-protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
-	String actual = hierarchy.toString();
-	if (!expected.equals(actual)) {
-		String displayString = Util.displayString(actual, 2);
-		char[] toDisplay = 
-			CharOperation.replace(
-				displayString.toCharArray(), 
-				getExternalJCLPath().toString().toCharArray(), 
-				("\"+  getExternalJCLPath() +\"").toCharArray());
-		System.out.println(new String(toDisplay) + ",");
-	}
-	assertEquals("Unexpected type hierarchy", expected, actual);
 }
 public static Test suite() {
 	return new Suite(TypeHierarchyTests.class);
@@ -76,13 +61,11 @@ public void testAnonymousType1() throws JavaModelException {
 	IType type = typeA.getInitializer(1).getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$\n" + 
+		"Focus: <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /*
@@ -93,13 +76,11 @@ public void testAnonymousType2() throws JavaModelException {
 	IType type = typeA.getInitializer(2).getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$\n" + 
+		"Focus: <anonymous #1> [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  <anonymous #1> [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  <anonymous #1> [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /*
@@ -110,13 +91,11 @@ public void testAnonymousType3() throws JavaModelException {
 	IType type = typeA.getField("field1").getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$\n" + 
+		"Focus: <anonymous #1> [in field1 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  <anonymous #1> [in field1 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  <anonymous #1> [in field1 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /*
@@ -127,24 +106,20 @@ public void testAnonymousType4() throws JavaModelException {
 	IType type = typeA.getField("field2").getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$\n" + 
+		"Focus: <anonymous #1> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  <anonymous #1> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  <anonymous #1> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 	type = typeA.getField("field2").getType("", 2);
 	hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$2$\n" + 
+		"Focus: <anonymous #2> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  <anonymous #2> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  <anonymous #2> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /*
@@ -155,13 +130,11 @@ public void testAnonymousType5() throws JavaModelException {
 	IType type = typeA.getMethod("foo", new String[] {}).getType("", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$\n" + 
+		"Focus: <anonymous #1> [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  <anonymous #1> [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  <anonymous #1> [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /**
@@ -264,22 +237,20 @@ public void testFocusWithLocalAndAnonymousTypes() throws JavaModelException {
 	IType type = getCompilationUnit("TypeHierarchy", "src", "p7", "X.java").getType("X");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.X\n" + 
+		"Focus: X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
 		"Super types:\n" + 
-		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n" + 
-		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"    Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"      Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    <anonymous #1> [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    <anonymous #2> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    <anonymous #1> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    <anonymous #1> [in field1 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    <anonymous #1> [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"      Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"    Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  <anonymous #1> [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  <anonymous #2> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  <anonymous #1> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  <anonymous #1> [in field1 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  <anonymous #1> [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"    Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
 /**
@@ -312,12 +283,10 @@ public void testInnerType1() throws JavaModelException {
 		assertTrue("IllegalArgumentException", false);
 	}
 	assertHierarchyEquals(
-		"Focus: p5.X$Inner\n" +
-		"Super types:\n" +
-		"  Inner [in X [in X.java [in p5 [in src [in TypeHierarchy]]]]]\n" +
-		"    Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" +
-		"Sub types:\n" +
-		"  Inner [in X [in X.java [in p5 [in src [in TypeHierarchy]]]]]\n",
+		"Focus: Inner [in X [in X.java [in p5 [in src [in TypeHierarchy]]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /**
@@ -333,13 +302,11 @@ public void testInnerType2() throws JavaModelException {
 		assertTrue("IllegalArgumentException", false);
 	}
 	assertHierarchyEquals(
-		"Focus: p6.A$Inner\n" +
-		"Super types:\n" +
-		"  Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" +
-		"    Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" +
-		"Sub types:\n" +
-		"  Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" +
-		"    B [in A.java [in p6 [in src [in TypeHierarchy]]]]\n",
+		"Focus: Inner [in A [in A.java [in p6 [in src [in TypeHierarchy]]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n" + 
+		"  B [in A.java [in p6 [in src [in TypeHierarchy]]]]\n",
 		hierarchy);
 }
 /*
@@ -350,14 +317,12 @@ public void testLocalType1() throws JavaModelException {
 	IType type = typeA.getInitializer(1).getType("Y1", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$Y1\n" + 
+		"Focus: Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"      Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n" + 
-		"  Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
 /*
@@ -368,12 +333,10 @@ public void testLocalType2() throws JavaModelException {
 	IType type = typeA.getInitializer(2).getType("Y3", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$Y3\n" + 
+		"Focus: Y3 [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  Y3 [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  Y3 [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /*
@@ -384,14 +347,12 @@ public void testLocalType3() throws JavaModelException {
 	IType type = typeA.getMethod("foo", new String[] {}).getType("Y2", 1);
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
-		"Focus: p7.A$1$Y2\n" + 
+		"Focus: Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"Super types:\n" + 
-		"  Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"      X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
-		"        Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
-		"Sub types:\n" + 
-		"  Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"  Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"    X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /**
@@ -407,12 +368,10 @@ public void testMissingInterface() throws JavaModelException {
 		assertTrue("IllegalArgumentException", false);
 	}
 	assertHierarchyEquals(
-		"Focus: p4.X\n" +
-		"Super types:\n" +
-		"  X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n" +
-		"    Object [in Object.class [in java.lang [in " + getExternalJCLPath() + " [in TypeHierarchy]]]]\n" +
-		"Sub types:\n" +
-		"  X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n",
+		"Focus: X [in X.java [in p4 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
 		hierarchy);
 }
 /**

@@ -100,6 +100,19 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 		buffer.toString()
 	);
 }
+protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
+	String actual = hierarchy.toString();
+	if (!expected.equals(actual)) {
+		String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2);
+		char[] toDisplay = 
+			CharOperation.replace(
+				displayString.toCharArray(), 
+				getExternalJCLPath().toString().toCharArray(), 
+				("\"+  getExternalJCLPath() +\"").toCharArray());
+		System.out.println(new String(toDisplay) + ",");
+	}
+	assertEquals("Unexpected type hierarchy", expected, actual);
+}
 /*
  * Asserts that the given actual source (usually coming from a file content) is equal to the expected one.
  * Note that 'expected' is assumed to have the '\n' line separator. 
