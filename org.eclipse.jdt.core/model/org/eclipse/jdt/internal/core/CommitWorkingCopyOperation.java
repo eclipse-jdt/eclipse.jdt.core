@@ -95,8 +95,15 @@ protected void executeOperation() throws JavaModelException {
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(original);
 
 	// save the cu
-	original.getBuffer().setContents(copy.getBuffer().getCharacters());
-	original.save(fMonitor, fForce);
+	char[] originalContents = original.getBuffer().getCharacters();
+	try {
+		original.getBuffer().setContents(copy.getBuffer().getCharacters());
+		original.save(fMonitor, fForce);
+	} catch(JavaModelException e){
+		// restore original buffer contents since something went wrong
+		original.getBuffer().setContents(originalContents);
+		throw e;
+	}
 
 	// make sure working copy is in sync
 	copy.restore();
@@ -114,6 +121,7 @@ protected void executeOperation() throws JavaModelException {
 	done();
 //	checkPackageDeclaration(original);
 }
+
 /**
  * Returns the compilation unit this operation is working on.
  */
@@ -145,6 +153,9 @@ public IJavaModelStatus verify() {
 	if (!cu.isBasedOn(resource) && !fForce) {
 		return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 	}
+	if (resource.isReadOnly()){
+		return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, original);
+	}	
 	return JavaModelStatus.VERIFIED_OK;
 }
 }
