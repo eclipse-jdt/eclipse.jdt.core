@@ -28,7 +28,8 @@ import java.util.List;
  * @since 2.0
  */
 public class CompilationUnit extends ASTNode {
-	
+
+	private static Message[] EMPTY_MESSAGES = new Message[0];	
 	/**
 	 * The package declaration, or <code>null</code> if none; initially
 	 * <code>null</code>.
@@ -59,6 +60,12 @@ public class CompilationUnit extends ASTNode {
 	 */
 	private int[] lineEndTable = new int[0];
 
+	/**
+	 * Arrays of messages reported by the compiler during the resolution or the parsing of 
+	 * this compilation unit.
+	 */
+	private Message[] messages;
+	 
 	/**
 	 * Sets the line end table for this compilation unit.
 	 * If <code>lineEndTable[i] == p</code> then line number <code>i+1</code> 
@@ -285,7 +292,29 @@ public class CompilationUnit extends ASTNode {
 			// in both cases, invariant reachieved with reduced measure
 		}
 	}
-	
+
+	/**
+	 * Return the array of messages reported by the compiler during the resolution or the parsing of 
+	 * this compilation unit.
+	 * If none, return an empty array.
+	 * @return Message[]
+	 */
+	public Message[] getMessages() {
+		if (this.messages == null) {
+			this.messages = EMPTY_MESSAGES;
+		}
+		return this.messages;
+	}
+
+	/**
+	 * Set the array of messages reported by the compiler during the resolution or the parsing of 
+	 * this compilation unit.
+	 * @param messages Message[]
+	 */
+	public void setMessages(Message[] messages) {
+		this.messages = messages;
+	}
+		
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

@@ -12,23 +12,40 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.internal.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.problem.ProblemIrritants;
 
-class ASTErrorPropagator extends ASTVisitor {
+class ASTSyntaxErrorPropagator extends ASTVisitor {
 
 	private IProblem[] problems;
 	
-	ASTErrorPropagator(IProblem[] problems) {
+	ASTSyntaxErrorPropagator(IProblem[] problems) {
 		this.problems = problems;
 	}
 
 	private boolean checkAndTagAsMalformed(ASTNode node) {
 		boolean tagWithErrors = false;
-		for (int i = 0, max = this.problems.length; i < max; i++) {
-			int position = this.problems[i].getSourceStart();
+		search: for (int i = 0, max = this.problems.length; i < max; i++) {
+			IProblem problem = this.problems[i];
+			switch(problem.getID()) {
+				case ProblemIrritants.ParsingErrorOnKeywordNoSuggestion :
+				case ProblemIrritants.ParsingErrorOnKeyword :
+				case ProblemIrritants.ParsingError :
+				case ProblemIrritants.ParsingErrorNoSuggestion :
+					break;
+				default:
+					continue search;
+			}
+			int position = problem.getSourceStart();
 			int start = node.getStartPosition();
 			int end = start + node.getLength();
 			if ((start <= position) && (position <= end)) {
 				node.setFlags(ASTNode.MALFORMED);
+				// clear the bits on parent
+				ASTNode currentNode = node.getParent();
+				while (currentNode != null) {
+					currentNode.setFlags(currentNode.getFlags() & ~ASTNode.MALFORMED);
+					currentNode = currentNode.getParent();
+				}
 				tagWithErrors = true;
 			}
 		}
@@ -60,6 +77,13 @@ class ASTErrorPropagator extends ASTVisitor {
 	 * @see ASTVisitor#visit(ImportDeclaration)
 	 */
 	public boolean visit(ImportDeclaration node) {
+		return checkAndTagAsMalformed(node);		
+	}
+
+	/*
+	 * @see ASTVisitor#visit(CompilationUnit)
+	 */
+	public boolean visit(CompilationUnit node) {
 		return checkAndTagAsMalformed(node);		
 	}
 

@@ -71,11 +71,39 @@ public final class AST {
 	 * like CharacterLiteral, NumberLiteral, StringLiteral or SimpleName.
 	 */
 	Scanner scanner;
+
 	/**
 	 * Creates a new, empty abstract syntax tree.
+	 * This AST uses the default JavaCore options to set up its source compatibility mode.
+	 * By default the source compatibility mode is 1.3.
+	 * See JavaCore#getDefaultOptions()
 	 */
 	public AST() {
 		this.scanner = new Scanner();
+	}
+
+	/**
+	 * Creates a new, empty abstract syntax tree.
+	 * This AST uses options parameter to set up its source compatibility mode. The key used to 
+	 * retrieve that information is:
+	 * <ul>
+	 * <li>"org.eclipse.jdt.core.compiler.source"
+	 * </ul>
+	 * Its values can be:
+	 * <ul>
+	 * <li>"1.3"
+	 * <li>"1.4"
+	 * </ul>
+	 * @param options The options to use to set up this AST.
+	 * See JavaCore#getDefaultOptions()
+	 */
+	public AST(Map options) {
+		Object value = options.get("org.eclipse.jdt.core.compiler.source");
+		if ("1.4".equals(value)) {
+			this.scanner = new Scanner(false, false, false, true);
+		} else {
+			this.scanner = new Scanner();
+		}
 	}
 		
 	/**

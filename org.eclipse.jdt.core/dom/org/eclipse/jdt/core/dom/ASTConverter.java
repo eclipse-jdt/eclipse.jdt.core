@@ -2175,8 +2175,15 @@ class ASTConverter {
 		} else {
 			System.arraycopy(problems, 0, (resizeProblems = new IProblem[problemLength]), 0, problemLength);
 		}
-		ASTErrorPropagator errorPropagator = new ASTErrorPropagator(resizeProblems);
-		unit.accept(errorPropagator);
+		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizeProblems);
+		unit.accept(syntaxErrorPropagator);
+		// store the messages error on the compulation unit
+		Message[] messages = new Message[problemLength];
+		for (int i = 0; i < problemLength; i++) {
+			IProblem problem = problems[i];
+			messages[i] = new Message(problem.getMessage(), problem.getSourceStart());
+		}
+		unit.setMessages(messages);
 	}
 	
 	private boolean checkAndTagAsMalformed(ASTNode node, int position) {
