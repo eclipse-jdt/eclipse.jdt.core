@@ -22,73 +22,72 @@ public class ConstantPool extends ClassFileStruct implements IConstantPool {
 	private int constantPoolCount;
 	private int[] constantPoolOffset;
 	private byte[] classFileBytes;
-	private ConstantPoolEntry constantPoolEntry;
 	
 	ConstantPool(byte[] reference, int[] constantPoolOffset) {
 		this.constantPoolCount = constantPoolOffset.length;
 		this.constantPoolOffset = constantPoolOffset;
 		this.classFileBytes = reference;
-		this.constantPoolEntry = new ConstantPoolEntry();
 	}
 
 	/**
 	 * @see IConstantPool#decodeEntry(int)
 	 */
 	public IConstantPoolEntry decodeEntry(int index) {
-		this.constantPoolEntry.reset();
+		ConstantPoolEntry constantPoolEntry = new ConstantPoolEntry();
+		constantPoolEntry.reset();
 		int kind = getEntryKind(index);
-		this.constantPoolEntry.setKind(kind);
+		constantPoolEntry.setKind(kind);
 		switch(kind) {
 			case IConstantPoolConstant.CONSTANT_Class :
-				this.constantPoolEntry.setClassInfoNameIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
-				this.constantPoolEntry.setClassInfoName(getUtf8ValueAt(this.constantPoolEntry.getClassInfoNameIndex()));
+				constantPoolEntry.setClassInfoNameIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
+				constantPoolEntry.setClassInfoName(getUtf8ValueAt(constantPoolEntry.getClassInfoNameIndex()));
 				break;
 			case IConstantPoolConstant.CONSTANT_Double :
-				this.constantPoolEntry.setDoubleValue(doubleAt(classFileBytes, 1, this.constantPoolOffset[index]));
+				constantPoolEntry.setDoubleValue(doubleAt(classFileBytes, 1, this.constantPoolOffset[index]));
 				break;
 			case IConstantPoolConstant.CONSTANT_Fieldref :
-				this.constantPoolEntry.setClassIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
-				int declaringClassIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[this.constantPoolEntry.getClassIndex()]);
-				this.constantPoolEntry.setClassName(getUtf8ValueAt(declaringClassIndex));
-				this.constantPoolEntry.setNameAndTypeIndex(u2At(this.classFileBytes,  3, this.constantPoolOffset[index]));
-				int fieldNameIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[this.constantPoolEntry.getNameAndTypeIndex()]);
-				int fieldDescriptorIndex = u2At(this.classFileBytes,  3, this.constantPoolOffset[this.constantPoolEntry.getNameAndTypeIndex()]);
-				this.constantPoolEntry.setFieldName(getUtf8ValueAt(fieldNameIndex));
-				this.constantPoolEntry.setFieldDescriptor(getUtf8ValueAt(fieldDescriptorIndex));
+				constantPoolEntry.setClassIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
+				int declaringClassIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[constantPoolEntry.getClassIndex()]);
+				constantPoolEntry.setClassName(getUtf8ValueAt(declaringClassIndex));
+				constantPoolEntry.setNameAndTypeIndex(u2At(this.classFileBytes,  3, this.constantPoolOffset[index]));
+				int fieldNameIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[constantPoolEntry.getNameAndTypeIndex()]);
+				int fieldDescriptorIndex = u2At(this.classFileBytes,  3, this.constantPoolOffset[constantPoolEntry.getNameAndTypeIndex()]);
+				constantPoolEntry.setFieldName(getUtf8ValueAt(fieldNameIndex));
+				constantPoolEntry.setFieldDescriptor(getUtf8ValueAt(fieldDescriptorIndex));
 				break;
 			case IConstantPoolConstant.CONSTANT_Methodref :
 			case IConstantPoolConstant.CONSTANT_InterfaceMethodref :
-				this.constantPoolEntry.setClassIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
-				declaringClassIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[this.constantPoolEntry.getClassIndex()]);
-				this.constantPoolEntry.setClassName(getUtf8ValueAt(declaringClassIndex));
-				this.constantPoolEntry.setNameAndTypeIndex(u2At(this.classFileBytes,  3, this.constantPoolOffset[index]));
-				int methodNameIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[this.constantPoolEntry.getNameAndTypeIndex()]);
-				int methodDescriptorIndex = u2At(this.classFileBytes,  3, this.constantPoolOffset[this.constantPoolEntry.getNameAndTypeIndex()]);
-				this.constantPoolEntry.setMethodName(getUtf8ValueAt(methodNameIndex));
-				this.constantPoolEntry.setMethodDescriptor(getUtf8ValueAt(methodDescriptorIndex));
+				constantPoolEntry.setClassIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
+				declaringClassIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[constantPoolEntry.getClassIndex()]);
+				constantPoolEntry.setClassName(getUtf8ValueAt(declaringClassIndex));
+				constantPoolEntry.setNameAndTypeIndex(u2At(this.classFileBytes,  3, this.constantPoolOffset[index]));
+				int methodNameIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[constantPoolEntry.getNameAndTypeIndex()]);
+				int methodDescriptorIndex = u2At(this.classFileBytes,  3, this.constantPoolOffset[constantPoolEntry.getNameAndTypeIndex()]);
+				constantPoolEntry.setMethodName(getUtf8ValueAt(methodNameIndex));
+				constantPoolEntry.setMethodDescriptor(getUtf8ValueAt(methodDescriptorIndex));
 				break;
 			case IConstantPoolConstant.CONSTANT_Float :
-				this.constantPoolEntry.setFloatValue(floatAt(classFileBytes, 1, this.constantPoolOffset[index]));
+				constantPoolEntry.setFloatValue(floatAt(classFileBytes, 1, this.constantPoolOffset[index]));
 				break;
 			case IConstantPoolConstant.CONSTANT_Integer :
-				this.constantPoolEntry.setIntegerValue(i4At(classFileBytes, 1, this.constantPoolOffset[index]));
+				constantPoolEntry.setIntegerValue(i4At(classFileBytes, 1, this.constantPoolOffset[index]));
 				break;
 			case IConstantPoolConstant.CONSTANT_Long :
-				this.constantPoolEntry.setLongValue(i8At(classFileBytes, 1, this.constantPoolOffset[index]));
+				constantPoolEntry.setLongValue(i8At(classFileBytes, 1, this.constantPoolOffset[index]));
 				break;
 			case IConstantPoolConstant.CONSTANT_NameAndType :
-				this.constantPoolEntry.setNameAndTypeNameIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
-				this.constantPoolEntry.setNameAndTypeDescriptorIndex(u2At(this.classFileBytes,  3, this.constantPoolOffset[index]));
+				constantPoolEntry.setNameAndTypeNameIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
+				constantPoolEntry.setNameAndTypeDescriptorIndex(u2At(this.classFileBytes,  3, this.constantPoolOffset[index]));
 				break;
 			case IConstantPoolConstant.CONSTANT_String :
-				this.constantPoolEntry.setStringIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
-				this.constantPoolEntry.setStringValue(getUtf8ValueAt(this.constantPoolEntry.getStringIndex()));
+				constantPoolEntry.setStringIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
+				constantPoolEntry.setStringValue(getUtf8ValueAt(constantPoolEntry.getStringIndex()));
 				break;
 			case IConstantPoolConstant.CONSTANT_Utf8 :
-				this.constantPoolEntry.setUtf8Length(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
-				this.constantPoolEntry.setUtf8Value(getUtf8ValueAt(index));
+				constantPoolEntry.setUtf8Length(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
+				constantPoolEntry.setUtf8Value(getUtf8ValueAt(index));
 		}
-		return this.constantPoolEntry;
+		return constantPoolEntry;
 	}
 
 	/**

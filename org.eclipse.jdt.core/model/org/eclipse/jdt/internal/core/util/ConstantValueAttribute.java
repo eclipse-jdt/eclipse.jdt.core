@@ -23,19 +23,19 @@ public class ConstantValueAttribute
 	implements IConstantValueAttribute {
 	
 	private int constantValueIndex;
-	private IConstantPool constantPool;
+	private IConstantPoolEntry constantPoolEntry;
 
 	
 	ConstantValueAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 		this.constantValueIndex = u2At(classFileBytes, 6, offset);
-		this.constantPool = constantPool;
+		this.constantPoolEntry = constantPool.decodeEntry(this.constantValueIndex);
 	}
 	/**
 	 * @see IConstantValueAttribute#getConstantValue()
 	 */
 	public IConstantPoolEntry getConstantValue() {
-		return this.constantPool.decodeEntry(this.constantValueIndex);
+		return this.constantPoolEntry;
 	}
 
 	/**

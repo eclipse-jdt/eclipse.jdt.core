@@ -771,6 +771,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 */
 	private void disassemble(IClassFileReader classFileReader, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
+		IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
 		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 		char[] methodDescriptor = methodInfo.getDescriptor();
 		IClassFileAttribute classFileAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
@@ -842,6 +843,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(exceptionName);
 		}
 		buffer.append(Util.bind("disassembler.endofmethodheader")); //$NON-NLS-1$
+		if (annotationDefaultAttribute != null) {
+			disassemble((IAnnotationDefaultAttribute) annotationDefaultAttribute, classFileReader.getConstantPool(), buffer, lineSeparator, tabNumber + 1);
+		}
 		if (mode == DETAILED || mode == SYSTEM) {
 			IClassFileAttribute[] attributes = methodInfo.getAttributes();
 			int length = attributes.length;
@@ -851,6 +855,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					if (attribute != codeAttribute
 							&& attribute != exceptionAttribute
 							&& attribute != signatureAttribute
+							&& attribute != annotationDefaultAttribute
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, tabNumber);
@@ -942,9 +947,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					int nameIndex = constantPoolEntry.getNameAndTypeInfoNameIndex();
 					int typeIndex = constantPoolEntry.getNameAndTypeInfoDescriptorIndex();
 					IConstantPoolEntry entry = constantPool.decodeEntry(nameIndex);
-					char[] nameValue = (char[]) entry.getUtf8Value().clone();
+					char[] nameValue = entry.getUtf8Value();
 					entry = constantPool.decodeEntry(typeIndex);
-					char[] typeValue = (char[])  entry.getUtf8Value().clone();
+					char[] typeValue = entry.getUtf8Value();
 					buffer.append(
 						Util.bind("disassembler.constantpool.name_and_type", //$NON-NLS-1$
 						new String[] {
@@ -991,6 +996,133 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			.append(' ')
 			.append(entry.getMethodDescriptor());
 		return String.valueOf(stringBuffer);
+	}
+
+	private void disassemble(IAnnotationDefaultAttribute annotationDefaultAttribute, IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Util.bind("disassembler.annotationdefaultheader")); //$NON-NLS-1$
+		IAnnotationComponentValue componentValue = annotationDefaultAttribute.getMemberValue();
+		writeNewLine(buffer, lineSeparator, tabNumber + 2);
+		disassemble(componentValue, constantPool, buffer, lineSeparator, tabNumber + 1);
+	}
+
+	private void disassemble(IAnnotationComponentValue annotationComponentValue, IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		switch(annotationComponentValue.getTag()) {
+			case IAnnotationComponentValue.BYTE_TAG:
+			case IAnnotationComponentValue.CHAR_TAG:
+			case IAnnotationComponentValue.DOUBLE_TAG:
+			case IAnnotationComponentValue.FLOAT_TAG:
+			case IAnnotationComponentValue.INTEGER_TAG:
+			case IAnnotationComponentValue.LONG_TAG:
+			case IAnnotationComponentValue.SHORT_TAG:
+			case IAnnotationComponentValue.BOOLEAN_TAG:
+			case IAnnotationComponentValue.STRING_TAG:
+				IConstantPoolEntry constantPoolEntry = annotationComponentValue.getConstantValue();
+				String value = null;
+				switch(constantPoolEntry.getKind()) {
+					case IConstantPoolConstant.CONSTANT_Long :
+						value = constantPoolEntry.getLongValue() + "L"; //$NON-NLS-1$
+						break;
+					case IConstantPoolConstant.CONSTANT_Float :
+						value = constantPoolEntry.getFloatValue() + "f"; //$NON-NLS-1$
+						break;
+					case IConstantPoolConstant.CONSTANT_Double :
+						value = Double.toString(constantPoolEntry.getDoubleValue());
+						break;
+					case IConstantPoolConstant.CONSTANT_Integer:
+						switch(annotationComponentValue.getTag()) {
+							case IAnnotationComponentValue.CHAR_TAG :
+								value = "'" + (char) constantPoolEntry.getIntegerValue() + "'"; //$NON-NLS-1$//$NON-NLS-2$
+								break;
+							case IAnnotationComponentValue.BOOLEAN_TAG :
+								value = constantPoolEntry.getIntegerValue() == 1 ? "true" : "false";//$NON-NLS-1$//$NON-NLS-2$
+								break;
+							case IAnnotationComponentValue.BYTE_TAG :
+								value = "(byte) " + constantPoolEntry.getIntegerValue(); //$NON-NLS-1$
+								break;
+							case IAnnotationComponentValue.SHORT_TAG :
+								value =  "(short) " + constantPoolEntry.getIntegerValue(); //$NON-NLS-1$
+								break;
+							case IAnnotationComponentValue.INTEGER_TAG :
+								value =  "(int) " + constantPoolEntry.getIntegerValue(); //$NON-NLS-1$
+						}
+						break;
+					case IConstantPoolConstant.CONSTANT_String:
+						value = "\"" + decodeStringValue(constantPoolEntry.getStringValue()) + "\"";//$NON-NLS-1$//$NON-NLS-2$
+				}
+				buffer.append(Util.bind("disassembler.annotationdefaultvalue", value)); //$NON-NLS-1$
+				break;
+			case IAnnotationComponentValue.ENUM_TAG:
+				final int enumConstantTypeNameIndex = annotationComponentValue.getEnumConstantTypeNameIndex();
+				constantPoolEntry = annotationComponentValue.getEnumConstantTypeName();
+				final char[] typeName = CharOperation.replaceOnCopy(constantPoolEntry.getUtf8Value(), '/', '.');
+				final int enumConstantNameIndex = annotationComponentValue.getEnumConstantNameIndex();
+				constantPoolEntry = annotationComponentValue.getEnumConstantName();
+				final char[] constantName = constantPoolEntry.getUtf8Value();
+				buffer.append(Util.bind("disassembler.annotationenumvalue", //$NON-NLS-1$
+					new String[] {
+						Integer.toString(enumConstantTypeNameIndex),
+						Integer.toString(enumConstantNameIndex),
+						new String(Signature.toCharArray(typeName)),
+						new String(constantName)
+				})); //$NON-NLS-1$
+				break;
+			case IAnnotationComponentValue.CLASS_TAG:
+				final int classIndex = annotationComponentValue.getClassInfoIndex();
+				constantPoolEntry = annotationComponentValue.getClassInfo();
+				final char[] className = CharOperation.replaceOnCopy(constantPoolEntry.getUtf8Value(), '/', '.');
+				buffer.append(Util.bind("disassembler.annotationclassvalue", //$NON-NLS-1$
+					new String[] {
+						Integer.toString(classIndex),
+						new String(Signature.toCharArray(className))
+				})); //$NON-NLS-1$
+				break;
+			case IAnnotationComponentValue.ANNOTATION_TAG:
+				buffer.append(Util.bind("disassembler.annotationannotationvalue")); //$NON-NLS-1$
+				IAnnotation annotation = annotationComponentValue.getAttributeValue();
+				disassemble(annotation, constantPool, buffer, lineSeparator, tabNumber + 1);
+				break;
+			case IAnnotationComponentValue.ARRAY_TAG:
+				buffer.append(Util.bind("disassembler.annotationarrayvaluestart")); //$NON-NLS-1$
+				final IAnnotationComponentValue[] annotationComponentValues = annotationComponentValue.getAnnotationComponentValues();
+				for (int i = 0, max = annotationComponentValues.length; i < max; i++) {
+					writeNewLine(buffer, lineSeparator, tabNumber + 1);
+					disassemble(annotationComponentValues[i], constantPool, buffer, lineSeparator, tabNumber + 1);
+				}
+				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				buffer.append(Util.bind("disassembler.annotationarrayvalueend")); //$NON-NLS-1$
+		}
+	}
+
+	private void disassemble(IAnnotation annotation, IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		final int typeIndex = annotation.getTypeIndex();
+		final char[] typeName = CharOperation.replaceOnCopy(constantPool.decodeEntry(typeIndex).getUtf8Value(), '/', '.');
+		buffer.append(
+			Util.bind("disassembler.annotationentrystart", //$NON-NLS-1$
+			new String[] {
+				Integer.toString(typeIndex),
+				new String(Signature.toCharArray(typeName))
+			}
+		));
+		final IAnnotationComponent[] components = annotation.getComponents();
+		for (int i = 0, max = components.length; i < max; i++) {
+			disassemble(components[i], constantPool, buffer, lineSeparator, tabNumber + 1);
+		}
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Util.bind("disassembler.annotationentryend")); //$NON-NLS-1$
+	}
+
+	private void disassemble(IAnnotationComponent annotationComponent, IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(
+			Util.bind("disassembler.annotationcomponent", //$NON-NLS-1$
+			new String[] {
+				Integer.toString(annotationComponent.getComponentNameIndex()),
+				new String(annotationComponent.getComponentName())
+			}
+		));
+		disassemble(annotationComponent.getComponentValue(), constantPool, buffer, lineSeparator, tabNumber + 1);
 	}
 
 	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {

@@ -98,7 +98,7 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 				this.classFileInfoIndex = classFileIndex;
 				if (classFileIndex != 0) {
 					IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(classFileIndex);
-					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Class) {
+					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 						throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 					}
 					this.classFileInfo = constantPoolEntry;

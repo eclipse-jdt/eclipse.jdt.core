@@ -21,6 +21,72 @@ package org.eclipse.jdt.core.util;
 public interface IAnnotationComponentValue {
 	
 	/**
+	 * Tag value for a constant of type <code>byte</code>
+	 * @since 3.1
+	 */
+	int BYTE_TAG = 'B';
+	/**
+	 * Tag value for a constant of type <code>char</code>
+	 * @since 3.1
+	 */
+	int CHAR_TAG = 'C';
+	/**
+	 * Tag value for a constant of type <code>double</code>
+	 * @since 3.1
+	 */
+	int DOUBLE_TAG = 'D';
+	/**
+	 * Tag value for a constant of type <code>float</code>
+	 * @since 3.1
+	 */
+	int FLOAT_TAG = 'F';
+	/**
+	 * Tag value for a constant of type <code>int</code>
+	 * @since 3.1
+	 */
+	int INTEGER_TAG = 'I';
+	/**
+	 * Tag value for a constant of type <code>long</code>
+	 * @since 3.1
+	 */
+	int LONG_TAG = 'J';
+	/**
+	 * Tag value for a constant of type <code>short</code>
+	 * @since 3.1
+	 */
+	int SHORT_TAG = 'S';
+	/**
+	 * Tag value for a constant of type <code>boolean</code>
+	 * @since 3.1
+	 */
+	int BOOLEAN_TAG = 'Z';
+	/**
+	 * Tag value for a constant of type <code>java.lang.String</code>
+	 * @since 3.1
+	 */
+	int STRING_TAG = 's';
+	/**
+	 * Tag value for a value that represents an enum constant
+	 * @since 3.1
+	 */
+	int ENUM_TAG = 'e';
+	/**
+	 * Tag value for a value that represents a class
+	 * @since 3.1
+	 */
+	int CLASS_TAG = 'c';
+	/**
+	 * Tag value for a value that represents an annotation
+	 * @since 3.1
+	 */
+	int ANNOTATION_TAG = '@';
+	/**
+	 * Tag value for a value that represents an array
+	 * @since 3.1
+	 */
+	int ARRAY_TAG = '[';
+	
+	/**
 	 * Answer back the annotation component values as described in the JVM specifications.
 	 * This is initialized only of the tag item is '['.
 	 * 
@@ -30,7 +96,7 @@ public interface IAnnotationComponentValue {
 	
 	/**
 	 * Answer back the attribute value as described in the JVM specifications.
-	 * This is initialized only of the tag item is '@'.
+	 * This is initialized only of the tag item is '&#064;'.
 	 * 
 	 * @return the attribute value
 	 */

@@ -48,7 +48,7 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 			this.components = new IAnnotationComponent[length];
 			for (int i = 0; i < length; i++) {
 				AnnotationComponent component = new AnnotationComponent(classFileBytes, constantPool, offset + readOffset);
-				this.components[i++] = component;
+				this.components[i] = component;
 				this.readOffset += component.sizeInBytes();
 			}
 		} else {
