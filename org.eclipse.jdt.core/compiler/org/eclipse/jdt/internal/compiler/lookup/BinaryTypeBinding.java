@@ -114,7 +114,8 @@ public MethodBinding[] availableMethods() {
 }
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
-	char[] typeSignature = environment.options.sourceLevel < ClassFileConstants.JDK1_5 ? null : binaryType.getGenericSignature();
+	boolean checkGenericSignatures = environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
+	char[] typeSignature = checkGenericSignatures ? binaryType.getGenericSignature() : null;
 	if (typeSignature == null) {
 		char[] superclassName = binaryType.getSuperclassName();
 		if (superclassName != null)
@@ -186,14 +187,14 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	}
 
 	if (needFieldsAndMethods) {
-		createFields(binaryType.getFields());
-		createMethods(binaryType.getMethods());
+		createFields(binaryType.getFields(), checkGenericSignatures);
+		createMethods(binaryType.getMethods(), checkGenericSignatures);
 	} else { // protect against incorrect use of the needFieldsAndMethods flag, see 48459
 		this.fields = NoFields;
 		this.methods = NoMethods;
 	}
 }
-private void createFields(IBinaryField[] iFields) {
+private void createFields(IBinaryField[] iFields, boolean checkGenericSignatures) {
 	this.fields = NoFields;
 	if (iFields != null) {
 		int size = iFields.length;
@@ -201,7 +202,7 @@ private void createFields(IBinaryField[] iFields) {
 			this.fields = new FieldBinding[size];
 			for (int i = 0; i < size; i++) {
 				IBinaryField field = iFields[i];
-				char[] fieldSignature = environment.options.sourceLevel < ClassFileConstants.JDK1_5 ? null : field.getGenericSignature();
+				char[] fieldSignature = checkGenericSignatures ? field.getGenericSignature() : null;
 				TypeBinding type = fieldSignature == null
 					? environment.getTypeFromSignature(field.getTypeName(), 0, -1)
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature, 0), this.typeVariables, NoTypeVariables);
@@ -216,13 +217,13 @@ private void createFields(IBinaryField[] iFields) {
 		}
 	}
 }
-private MethodBinding createMethod(IBinaryMethod method) {
+private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSignatures) {
 	int methodModifiers = method.getModifiers() | AccUnresolved;
 	ReferenceBinding[] exceptions = NoExceptions;
 	TypeBinding[] parameters = NoParameters;
 	TypeBinding returnType = null;
 
-	char[] methodSignature = environment.options.sourceLevel < ClassFileConstants.JDK1_5 ? null : method.getGenericSignature();
+	char[] methodSignature = checkGenericSignatures ? method.getGenericSignature() : null;
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 		int numOfParams = 0;
@@ -333,7 +334,7 @@ private MethodBinding createMethod(IBinaryMethod method) {
 /**
  * Create method bindings for binary type, filtering out <clinit> and synthetics
  */
-private void createMethods(IBinaryMethod[] iMethods) {
+private void createMethods(IBinaryMethod[] iMethods, boolean checkGenericSignatures) {
 	int total = 0, initialTotal = 0, iClinit = -1;
 	int[] toSkip = null;
 	if (iMethods != null) {
@@ -363,11 +364,11 @@ private void createMethods(IBinaryMethod[] iMethods) {
 	this.methods = new MethodBinding[total];
 	if (total == initialTotal) {
 		for (int i = 0; i < initialTotal; i++)
-			this.methods[i] = createMethod(iMethods[i]);
+			this.methods[i] = createMethod(iMethods[i], checkGenericSignatures);
 	} else {
 		for (int i = 0, index = 0; i < initialTotal; i++)
 			if (iClinit != i && (toSkip == null || toSkip[i] != -1))
-				this.methods[index++] = createMethod(iMethods[i]);
+				this.methods[index++] = createMethod(iMethods[i], checkGenericSignatures);
 	}
 	modifiers |= AccUnresolved; // until methods() is sent
 }
