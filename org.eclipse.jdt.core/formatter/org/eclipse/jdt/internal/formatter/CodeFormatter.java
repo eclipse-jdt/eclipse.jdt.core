@@ -1337,6 +1337,7 @@ public class CodeFormatter implements TerminalSymbols {
 							}
 					}
 				}
+				updateMappedPositions(scanner.currentPosition - 1);
 				multipleLineCommentCounter++;
 				break;
 			default :
