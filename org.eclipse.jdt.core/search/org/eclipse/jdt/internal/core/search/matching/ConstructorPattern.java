@@ -168,7 +168,7 @@ protected boolean mustResolve() {
 	if (this.parameterSimpleNames != null)
 		for (int i = 0, max = this.parameterSimpleNames.length; i < max; i++)
 			if (this.parameterQualifications[i] != null) return true;
-	return false;
+	return this.findReferences; // need to check resolved default constructors and explicit constructor calls
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
