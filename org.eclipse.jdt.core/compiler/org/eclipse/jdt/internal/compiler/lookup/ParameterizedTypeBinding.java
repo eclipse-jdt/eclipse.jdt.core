@@ -47,13 +47,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
 	 */
 	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
-	    if (otherType.isParameterizedType()) {
-	        ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
-	        if (this.type == otherParameterizedType.type) {
+	    if (otherType instanceof ReferenceBinding) {
+			// allow List<T> to match with LinkedList<String>
+	        ReferenceBinding otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo((ReferenceBinding)this.type.erasure());
+		    if (otherEquivalent.isParameterizedType()) {
+		        ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
 	            for (int i = 0, length = this.arguments.length; i < length; i++) {
 	                this.arguments[i].collectSubstitutes(otherParameterizedType.arguments[i], substitutes);
 	            }
-	        }
+		    }
 	    }
 	}
 	

@@ -318,6 +318,47 @@ public FieldBinding[] fields() {
 	return NoFields;
 }
 
+/**
+ * Find supertype which erases to a given type, or null if not found
+ */
+public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
+
+    if (erasure() == erasure) return this;
+    ReferenceBinding currentType = this;
+    if (erasure.isClass()) {
+		while ((currentType = currentType.superclass()) != null) {
+			if (currentType.erasure() == erasure) return currentType;
+		}
+		return null;
+    }
+	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+	int lastPosition = -1;
+	do {
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != NoSuperInterfaces) {
+			if (++lastPosition == interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+			interfacesToVisit[lastPosition] = itsInterfaces;
+		}
+	} while ((currentType = currentType.superclass()) != null);
+			
+	for (int i = 0; i <= lastPosition; i++) {
+		ReferenceBinding[] interfaces = interfacesToVisit[i];
+		for (int j = 0, length = interfaces.length; j < length; j++) {
+			if ((currentType = interfaces[j]).erasure() == erasure)
+				return currentType;
+
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		}
+	}
+	return null;
+}
+
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
