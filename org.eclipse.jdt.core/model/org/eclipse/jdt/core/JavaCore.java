@@ -1769,13 +1769,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IJavaProject affectedProject = affectedProjects[i];
 			IClasspathContainer newContainer = respectiveContainers[i];
 			
-			IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
 			boolean found = false;
-			for (int j = 0, cpLength = rawClasspath.length; j <cpLength; j++) {
-				IClasspathEntry entry = rawClasspath[j];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().equals(containerPath)){
-					found = true;
-					break;
+			if (affectedProject.getProject().exists()){
+				IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
+				for (int j = 0, cpLength = rawClasspath.length; j <cpLength; j++) {
+					IClasspathEntry entry = rawClasspath[j];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().equals(containerPath)){
+						found = true;
+						break;
+					}
 				}
 			}
 			if (!found){
