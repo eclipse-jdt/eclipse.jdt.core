@@ -12411,7 +12411,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79144
 	public void test463() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.Set;\n" + 
@@ -12438,7 +12438,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79144
 	public void test464() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.*;\n" + 
