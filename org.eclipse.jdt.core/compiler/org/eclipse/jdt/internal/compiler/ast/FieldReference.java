@@ -485,7 +485,11 @@ public class FieldReference extends Reference implements InvocationSite {
 		// constants are propaged when the field is final
 		// and initialized with a (compile time) constant 
 
-		// regular receiver reference 
+			// regular receiver reference 
+		if (this.receiver instanceof CastExpression) {
+				this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				//always ignore receiver cast, since may affect constant pool reference
+		}
 		this.receiverType = receiver.resolveType(scope);
 		if (this.receiverType == null) {
 			constant = NotAConstant;

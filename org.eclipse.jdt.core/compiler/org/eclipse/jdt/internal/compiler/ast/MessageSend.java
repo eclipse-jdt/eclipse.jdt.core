@@ -187,10 +187,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 
 	constant = NotAConstant;
+	boolean containsCast = false; 
+	if (this.receiver instanceof CastExpression) {
+			this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			//containsCast = true; - always ignore receiver cast, since may affect constant pool reference
+	}
 	this.qualifyingType = this.receiverType = receiver.resolveType(scope); 
 	
 	// will check for null after args are resolved
-	boolean argsContainCast = false; 
 	TypeBinding[] argumentTypes = NoParameters;
 	if (arguments != null) {
 		boolean argHasError = false; // typeChecks all arguments 
@@ -200,7 +204,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			Expression argument = arguments[i];
 			if (argument instanceof CastExpression) {
 				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-				argsContainCast = true;
+				containsCast = true;
 			}
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
 				argHasError = true;
@@ -265,7 +269,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		for (int i = 0; i < arguments.length; i++) {
 			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 		}
-		if (argsContainCast) {
+		if (containsCast) {
 			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, (ReferenceBinding)receiverType, binding, this.arguments, argumentTypes, this);
 		}
 	}
