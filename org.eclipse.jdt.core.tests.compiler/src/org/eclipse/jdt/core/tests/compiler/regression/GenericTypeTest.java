@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 468 };
+		TESTS_NUMBERS = new int[] { 469 };
 //		TESTS_RANGE = new int[] { 379, -1 };
 	}
 	public static Test suite() {
@@ -12567,4 +12567,44 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}	
 
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83083
+	public void _test469() {
+		this.runConformTest(
+			new String[] {
+				"a/C.java",
+				"package a; \n" + 
+				"import p.B; \n" + 
+				"public class C extends B { \n" + 
+				"	public void foo(Object obj) {} \n" + 
+				"} \n",
+				"p/B.java",
+				"package p; \n" + 
+				"public class B<E> extends A<E> {} \n",
+				"p/A.java",
+				"package p; \n" + 
+				"public class A<E> { \n" + 
+				"	public void foo(E e) {} \n" + 
+				"}\n",
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"a/C.java",
+				"package a; \n" + 
+				"import p.B; \n" + 
+				"public class C extends B { \n" + 
+				"	public void foo(Object obj) {} \n" + 
+				"} \n",
+				"p/A.java",
+				"package p; \n" + 
+				"public class A<E> { \n" + 
+				"	public void foo(E e) {} \n" + 
+				"}\n",
+			},
+			"",
+			null,
+			false, // do not flush output
+			null);			
+	}		
 }
