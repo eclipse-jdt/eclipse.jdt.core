@@ -177,16 +177,16 @@ protected void attachOrphanCompletionNode(){
 	}
 }
 private void buildMoreCompletionContext(Expression expression) {
-	int i = 0;
-	int kind = -1;
-	nextElement : while((kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, i)) != K_BLOCK_DELIMITER
-		&& kind != 0) {
-		int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, i);
-		switch (kind) {
-			case K_SELECTOR :
-				if(info == THIS_CONSTRUCTOR || info == SUPER_CONSTRUCTOR) {
+	Statement statement = expression;
+	int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+	if(kind != 0) {
+		int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
+		nextElement : switch (kind) {
+			case K_SELECTOR_QUALIFIER :
+				int selector = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, 2);
+				if(selector == THIS_CONSTRUCTOR || selector == SUPER_CONSTRUCTOR) {
 					ExplicitConstructorCall call = new ExplicitConstructorCall(
-						(info == THIS_CONSTRUCTOR) ? 
+						(selector == THIS_CONSTRUCTOR) ? 
 							ExplicitConstructorCall.This : 
 							ExplicitConstructorCall.Super
 					);
@@ -195,15 +195,15 @@ private void buildMoreCompletionContext(Expression expression) {
 					call.sourceEnd = expression.sourceEnd;
 					assistNodeParent = call;
 				} else {
-					int invocationType = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, i-1);
-					int qualifierExprPtr = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, i-2);
+					int invocationType = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER,1);
+					int qualifierExprPtr = info;
 					
 					// find arguments
 					int length = expressionLengthStack[expressionLengthPtr];
 					
 					// search previous arguments if missing
 					if(expressionLengthPtr > 0 && length == 1) {
-						int start = (int) (identifierPositionStack[info] >>> 32);
+						int start = (int) (identifierPositionStack[selector] >>> 32);
 						if(this.expressionStack[expressionPtr-1] != null && this.expressionStack[expressionPtr-1].sourceStart > start) {
 							length += expressionLengthStack[expressionLengthPtr-1];;	
 						}
@@ -220,7 +220,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					
 					if(invocationType != ALLOCATION && invocationType != QUALIFIED_ALLOCATION) {
 						MessageSend messageSend = new MessageSend();
-						messageSend.selector = identifierStack[info];
+						messageSend.selector = identifierStack[selector];
 						messageSend.arguments = arguments;
 	
 						// find receiver
@@ -317,25 +317,26 @@ private void buildMoreCompletionContext(Expression expression) {
 //				}
 				break nextElement;
 		}
-		i++;
 	}
 	if(assistNodeParent != null) {
 		currentElement = currentElement.add((Statement)assistNodeParent, 0);
 	} else {
-//		if(currentElement instanceof RecoveredField) {
-//			RecoveredField recoveredField = (RecoveredField) currentElement;
-//			if(!recoveredField.alreadyCompletedFieldInitialization) {
-//				assistNodeParent = recoveredField.fieldDeclaration;
-//			}
-//		} else if(currentElement instanceof RecoveredLocalVariable) {
-//			RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) currentElement;
-//			if(!recoveredLocalVariable.alreadyCompletedLocalInitialization) {
-//				assistNodeParent = recoveredLocalVariable.localDeclaration;
-//			}
-//		}
-		currentElement = currentElement.add(expression, 0);
+		if(currentElement instanceof RecoveredField
+			&& ((RecoveredField) currentElement).fieldDeclaration.initialization == null) {
+				
+			currentElement = currentElement.add(statement, 0);
+			assistNodeParent = ((RecoveredField) currentElement).fieldDeclaration;
+		} else if(currentElement instanceof RecoveredLocalVariable
+			&& ((RecoveredLocalVariable) currentElement).localDeclaration.initialization == null) {
+				
+			currentElement = currentElement.add(statement, 0);
+			assistNodeParent = ((RecoveredLocalVariable) currentElement).localDeclaration;
+		} else {
+			currentElement = currentElement.add(expression, 0);
+		}
 	}
 }
+
 public int bodyEnd(AbstractMethodDeclaration method){
 	return cursorLocation;
 }
@@ -396,6 +397,7 @@ private boolean checkClassInstanceCreation() {
 			this.expressionStack[this.qualifier] = allocExpr; // attach it now (it replaces the qualifier expression)
 			this.isOrphanCompletionNode = false;
 		}
+		popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
 		return true;
 	}
 	return false;
@@ -1312,6 +1314,7 @@ public void flushAssistState() {
 
 	super.flushAssistState();
 	this.isOrphanCompletionNode = false;
+	assistNodeParent = null;
 	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
 	completionScanner.completedIdentifierStart = 0;
 	completionScanner.completedIdentifierEnd = -1;
