@@ -90,7 +90,8 @@ public class ASTNodeFinder {
 				AbstractMethodDeclaration method = methods[i];
 				if (CharOperation.equals(selector, method.selector)) {
 					Argument[] args = method.arguments;
-					if (args != null && args.length == parameterCount) {
+					int argsLength = args == null ? 0 : args.length;
+					if (argsLength == parameterCount) {
 						for (int j = 0; j < parameterCount; j++) {
 							TypeReference type = args[j].type;
 							String signature = Util.typeSignature(type);
@@ -101,7 +102,6 @@ public class ASTNodeFinder {
 						return method;
 					}
 				}
-					
 			}
 		}
 		return null;

@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -35,6 +36,42 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class SuperTypeNamesCollector {
 
+	/**
+	 * An ast visitor that visits type declarations and member type declarations
+	 * collecting their super type names.
+	 */
+	public class TypeDeclarationVisitor extends ASTVisitor {
+		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+			ReferenceBinding binding = typeDeclaration.binding;
+			if (SuperTypeNamesCollector.this.matches(binding))
+				SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
+			return true;
+		}
+		public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
+			ReferenceBinding binding = typeDeclaration.binding;
+			if (SuperTypeNamesCollector.this.matches(binding))
+				SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
+			return true;
+		}
+		public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
+			ReferenceBinding binding = memberTypeDeclaration.binding;
+			if (SuperTypeNamesCollector.this.matches(binding))
+				SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
+			return true;
+		}
+		public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
+			return false; // don't visit field declarations
+		}
+		public boolean visit(Initializer initializer, MethodScope scope) {
+			return false; // don't visit initializers
+		}
+		public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
+			return false; // don't visit constructor declarations
+		}
+		public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
+			return false; // don't visit method declarations
+		}
+	}
 SearchPattern pattern;
 char[] typeSimpleName;
 char[] typeQualification;
@@ -43,43 +80,6 @@ IType type;
 IProgressMonitor progressMonitor;
 char[][][] result;
 int resultIndex;
-
-/**
- * An ast visitor that visits type declarations and member type declarations
- * collecting their super type names.
- */
-public class TypeDeclarationVisitor extends ASTVisitor {
-	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-		ReferenceBinding binding = typeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(binding))
-			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
-		return true;
-	}
-	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
-		ReferenceBinding binding = typeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(binding))
-			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
-		return true;
-	}
-	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
-		ReferenceBinding binding = memberTypeDeclaration.binding;
-		if (SuperTypeNamesCollector.this.matches(binding))
-			SuperTypeNamesCollector.this.collectSuperTypeNames(binding);
-		return true;
-	}
-	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-		return false; // don't visit field declarations
-	}
-	public boolean visit(Initializer initializer, MethodScope scope) {
-		return false; // don't visit initializers
-	}
-	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
-		return false; // don't visit constructor declarations
-	}
-	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-		return false; // don't visit method declarations
-	}
-}
 
 public SuperTypeNamesCollector(
 	SearchPattern pattern,
@@ -108,9 +108,8 @@ protected void addToResult(char[][] compoundName) {
 }
 /*
  * Parse the given compiation unit and build its type bindings.
- * Don't build methods and fields.
  */
-protected CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUnit) throws JavaModelException {
+protected CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUnit, boolean isTopLevelOrMember) throws JavaModelException {
 	final IFile file = (IFile) compilationUnit.getResource();
 	final String fileName = file.getFullPath().lastSegment();
 	final char[] mainTypeName = fileName.substring(0, fileName.length() - 5).toCharArray();
@@ -130,10 +129,18 @@ protected CompilationUnitDeclaration buildBindings(ICompilationUnit compilationU
 		};
 
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 1, 1, 0);
-	CompilationUnitDeclaration unit = this.locator.basicParser().dietParse(sourceUnit, compilationResult);
+	CompilationUnitDeclaration unit = 
+		isTopLevelOrMember ?
+			this.locator.basicParser().dietParse(sourceUnit, compilationResult) :
+			this.locator.basicParser().parse(sourceUnit, compilationResult);
 	if (unit != null) {
 		this.locator.lookupEnvironment.buildTypeBindings(unit);
-		this.locator.lookupEnvironment.completeTypeBindings(unit, false);
+		this.locator.lookupEnvironment.completeTypeBindings(unit, !isTopLevelOrMember);
+		if (!isTopLevelOrMember) {
+			if (unit.scope != null)
+				unit.scope.faultInTypes(); // fault in fields & methods
+			unit.resolve();
+		}
 	}
 	return unit;
 }
@@ -152,9 +159,14 @@ public char[][][] collect() throws JavaModelException {
 					collectSuperTypeNames(binding);
 			} else {
 				ICompilationUnit unit = this.type.getCompilationUnit();
-				CompilationUnitDeclaration parsedUnit = buildBindings(unit);
-				if (parsedUnit != null)
-					parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
+				SourceType sourceType = (SourceType) this.type;
+				boolean isTopLevelOrMember = sourceType.getOuterMostLocalContext() == null;
+				CompilationUnitDeclaration parsedUnit = buildBindings(unit, isTopLevelOrMember);
+				if (parsedUnit != null) {
+					TypeDeclaration typeDecl = new ASTNodeFinder(parsedUnit).findType(this.type);
+					if (typeDecl != null && typeDecl.binding != null) 
+						collectSuperTypeNames(typeDecl.binding);
+				}
 			}
 		} catch (AbortCompilation e) {
 			// problem with classpath: report inacurrate matches
@@ -193,7 +205,7 @@ public char[][][] collect() throws JavaModelException {
 				}
 				if (openable instanceof ICompilationUnit) {
 					ICompilationUnit unit = (ICompilationUnit) openable;
-					CompilationUnitDeclaration parsedUnit = buildBindings(unit);
+					CompilationUnitDeclaration parsedUnit = buildBindings(unit, true /*only toplevel and member types are visible to the focus type*/);
 					if (parsedUnit != null)
 						parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
 				} else if (openable instanceof IClassFile) {

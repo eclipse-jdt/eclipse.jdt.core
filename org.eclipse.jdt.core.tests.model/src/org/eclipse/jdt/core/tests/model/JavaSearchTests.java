@@ -284,7 +284,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testTypeReference5"));
+		suite.addTest(new JavaSearchTests("testMethodReference5"));
 		return suite;
 	}
 	
@@ -389,6 +389,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodReference2"));
 	suite.addTest(new JavaSearchTests("testMethodReference3"));
 	suite.addTest(new JavaSearchTests("testMethodReference4"));
+	suite.addTest(new JavaSearchTests("testMethodReference5"));
 	
 	// constructor reference
 	suite.addTest(new JavaSearchTests("testSimpleConstructorReference1"));
@@ -1979,6 +1980,24 @@ public void testMethodReference4() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/b2/Z.java void b2.Z.bar() [foo(inner)]",
+		resultCollector);
+}
+/**
+ * Method reference test.
+ * (regression test for bug 49120 search doesn't find references to anonymous inner methods)
+ */
+public void testMethodReference5() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch/src/e9/A.java").getType("A").getMethod("foo", new String[] {}).getType("", 1);
+	IMethod method = type.getMethod("bar", new String[] {});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		method, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/e9/A.java void e9.A.foo() [bar()]",
 		resultCollector);
 }
 /**
