@@ -490,13 +490,19 @@ public char[] getCharacters() {
  * @see IDOMNode#getChild(String)
  */
 public IDOMNode getChild(String name) {
-	DOMNode child= fFirstChild;
+	DOMNode child = fFirstChild;
 	while (child != null) {
-		String n= child.getName();
-		if (n != null && n.equals(name)) {
-			return child;
+		String n = child.getName();
+		if (name == null) {
+			if (n == null) {
+				return child;
+			}
+		} else {
+			if (name.equals(n)) {
+				return child;
+			}
 		}
-		child= child.fNextNode;
+		child = child.fNextNode;
 	}
 	return null;
 }
