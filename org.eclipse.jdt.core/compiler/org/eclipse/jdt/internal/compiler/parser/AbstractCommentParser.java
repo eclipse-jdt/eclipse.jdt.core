@@ -219,6 +219,7 @@ public abstract class AbstractCommentParser {
 							if (this.lineStarted && this.textStart != -1 && this.textStart <= charPosition) {
 								pushText(this.textStart, charPosition);
 							}
+							if (this.kind == DOM_PARSER) refreshInlineTagPosition(previousPosition);
 							this.textStart = this.index;
 							this.inlineTagStarted = false;
 						}
@@ -786,6 +787,9 @@ public abstract class AbstractCommentParser {
 	protected abstract boolean pushSeeRef(Object statement, boolean plain);
 
 	protected abstract void pushText(int start, int end);
+	protected void refreshInlineTagPosition(int previousPosition) {
+		// do nothing by default
+	}
 
 	/*
 	 * Push a throws type ref in ast node stack.

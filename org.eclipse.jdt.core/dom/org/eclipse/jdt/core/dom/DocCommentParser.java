@@ -159,7 +159,7 @@ class DocCommentParser extends AbstractCommentParser {
 			int length = ((int) this.identifierPositionStack[0]) - start + 1;
 			methodName.setSourceRange(start, length);
 			// Set qualifier
-			int end = methodName.getStartPosition()+methodName.getLength()-1;
+//			int end = methodName.getStartPosition()+methodName.getLength()-1;
 			if (receiver == null) {
 				methodRef.setSourceRange(this.memberStart, length);
 			} else {
@@ -173,10 +173,11 @@ class DocCommentParser extends AbstractCommentParser {
 				while (parameters.hasNext()) {
 					MethodRefParameter param = (MethodRefParameter) parameters.next();
 					methodRef.parameters().add(param);
-					end = param.getStartPosition()+param.getLength()-1;
+//					end = param.getStartPosition()+param.getLength()-1;
 				}
 			}
-			methodRef.setSourceRange(start, end-start+1);
+//			methodRef.setSourceRange(start, end-start+1);
+			methodRef.setSourceRange(start, this.scanner.getCurrentTokenEndPosition()-start+1);
 			return methodRef;
 		}
 		catch (ClassCastException ex) {
@@ -303,14 +304,16 @@ class DocCommentParser extends AbstractCommentParser {
 				seeTag.setTagName(TagElement.TAG_LINK);
 			}
 			TagElement previousTag = null;
+			int previousStart = this.tagSourceStart;
 			if (this.astPtr == -1) {
 				previousTag = this.ast.newTagElement();
-				previousTag.setSourceRange(this.tagSourceStart, end);
 				pushOnAstStack(previousTag, true);
 			} else {
 				previousTag = (TagElement) this.astStack[this.astPtr];
+				previousStart = previousTag.getStartPosition();
 			}
 			previousTag.fragments().add(seeTag);
+			previousTag.setSourceRange(previousStart, end-previousStart+1);
 		} else {
 			seeTag.setTagName(TagElement.TAG_SEE);
 			pushOnAstStack(seeTag, true);
@@ -328,7 +331,7 @@ class DocCommentParser extends AbstractCommentParser {
 		int previousStart = start;
 		if (this.astPtr == -1) {
 			previousTag = this.ast.newTagElement();
-			previousTag.setSourceRange(start, end);
+			previousTag.setSourceRange(start, end-start+1);
 			pushOnAstStack(previousTag, true);
 		} else {
 			previousTag = (TagElement) this.astStack[this.astPtr];
@@ -349,6 +352,18 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		previousTag.fragments().add(text);
 		previousTag.setSourceRange(previousStart, end-previousStart+1);
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
+	 */
+	protected void refreshInlineTagPosition(int previousPosition) {
+		if (this.astPtr != -1) {
+			TagElement previousTag = (TagElement) this.astStack[this.astPtr];
+			if (this.inlineTagStarted) {
+				int previousStart = previousTag.getStartPosition();
+				previousTag.setSourceRange(previousStart, previousPosition-previousStart+1);
+			}
+		}
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushThrowName(java.lang.Object)
