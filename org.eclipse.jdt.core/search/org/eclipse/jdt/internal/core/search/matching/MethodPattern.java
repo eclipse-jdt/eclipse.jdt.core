@@ -287,7 +287,7 @@ public int matchLevel(Binding binding) {
  * @see SearchPattern#matchLevel(Binding)
  */
 protected int matchLevel(MessageSend messageSend) {
-	MethodBinding method = (MethodBinding) messageSend.binding;
+	MethodBinding method = messageSend.binding;
 	if (method == null) return INACCURATE_MATCH;
 
 	int methodLevel = matchMethod(method);
