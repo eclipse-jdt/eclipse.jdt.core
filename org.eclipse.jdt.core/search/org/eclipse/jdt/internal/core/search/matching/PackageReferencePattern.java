@@ -28,6 +28,7 @@ public class PackageReferencePattern extends AndPattern {
 	private char[][] segments;
 	private int currentSegment;
 	private char[] decodedSegment;
+	
 public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSensitive) {
 	super(matchMode, isCaseSensitive);
 	this.pkgName = pkgName;
@@ -127,11 +128,54 @@ protected boolean matchIndexEntry() {
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] splitName = CharOperation.splitOn('.', 
-		this.pkgName == null ? 
-			new char[0] :
-			this.pkgName);
-	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, splitName, element, accuracy);
+	char[][] tokens = null;
+	if (reference instanceof ImportReference) {
+		ImportReference importRef = (ImportReference)reference;
+		if (importRef.onDemand) {
+			tokens = importRef.tokens;
+		} else {
+			int length = importRef.tokens.length - 1;
+			tokens = new char[length][];
+			System.arraycopy(importRef.tokens, 0, tokens, 0, length);
+		}
+	} else if (reference instanceof QualifiedNameReference) {
+		QualifiedNameReference qNameRef = (QualifiedNameReference)reference;
+		Binding binding = qNameRef.binding;
+		TypeBinding typeBinding = null;
+		switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
+			case BindingIds.FIELD : // reading a field
+				typeBinding = ((FieldBinding)binding).declaringClass;
+				break;
+			case BindingIds.TYPE : //=============only type ==============
+				typeBinding = (TypeBinding)binding;
+		}
+		if (typeBinding instanceof ReferenceBinding) {
+			PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
+			if (pkgBinding != null) {
+				tokens = pkgBinding.compoundName;
+			}
+		} 
+		if (tokens == null) {
+			tokens = qNameRef.tokens;
+		}
+	} else if (reference instanceof QualifiedTypeReference) {
+		QualifiedTypeReference qTypeRef = (QualifiedTypeReference)reference;
+		TypeBinding typeBinding = qTypeRef.binding;
+		if (typeBinding instanceof ArrayBinding) {
+			typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+		}
+		if (typeBinding instanceof ReferenceBinding) {
+			PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
+			if (pkgBinding != null) {
+				tokens = pkgBinding.compoundName;
+			}
+		} 
+		if (tokens == null) {
+			tokens = qTypeRef.tokens;
+		}
+	}
+	if (tokens == null) tokens = NO_CHAR_CHAR;
+	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, tokens, element, accuracy);
 }
 /**
  * @see AndPattern#resetQuery

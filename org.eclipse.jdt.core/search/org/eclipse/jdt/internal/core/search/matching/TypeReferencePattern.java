@@ -35,6 +35,7 @@ public class TypeReferencePattern extends MultipleSearchPattern {
 	private char[][] segments;
 	private int currentSegment;
 	private char[] decodedSegment;
+	
 public TypeReferencePattern(
 	char[] qualification,
 	char[] simpleName,
@@ -193,31 +194,75 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	}
 }
 /**
- * Reports the match of the given array type reference.
- */
-private void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] qualifiedName = CharOperation.splitOn('.', 
-		this.qualification == null ? 
-			this.simpleName :
-			CharOperation.concat(this.qualification, this.simpleName, '.'));
-	locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, qualifiedName, element, accuracy);
-}
-/**
  * Reports the match of the given qualified name reference.
  */
-private void matchReportReference(QualifiedNameReference nameRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] qualifiedName = CharOperation.splitOn('.', 
-		this.qualification == null ? 
-			this.simpleName :
-			CharOperation.concat(this.qualification, this.simpleName, '.'));
-	locator.reportAccurateReference(nameRef.sourceStart, nameRef.sourceEnd, qualifiedName, element, accuracy);
+private void matchReportReference(QualifiedNameReference qNameRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	char[][] tokens = null;
+	Binding binding = qNameRef.binding;
+	TypeBinding typeBinding = null;
+	char[][] nameTokens = qNameRef.tokens;
+	int lastIndex = nameTokens.length-1;
+	switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
+		case BindingIds.FIELD : // reading a field
+			typeBinding = ((FieldBinding)binding).declaringClass;
+			int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
+			lastIndex -= otherBindingsCount + 1;
+			break;
+		case BindingIds.TYPE : //=============only type ==============
+			typeBinding = (TypeBinding)binding;
+	}
+	// try to match all enclosing types for which the token matches as well.
+	while (typeBinding != null && lastIndex >= 0){
+		if (this.matchesName(this.simpleName, nameTokens[lastIndex--])) {
+			int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+			if (level != IMPOSSIBLE_MATCH) {
+				tokens = new char[lastIndex+2][];
+				System.arraycopy(nameTokens, 0, tokens, 0, lastIndex+2);
+				break;
+			}
+		}
+		if (typeBinding instanceof ReferenceBinding){
+			typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
+		} else {
+			typeBinding = null;
+		}
+	} 
+	if (tokens == null) {
+		tokens = qNameRef.tokens;
+	}
+	locator.reportAccurateReference(qNameRef.sourceStart, qNameRef.sourceEnd, tokens, element, accuracy);
 }
 /**
  * Reports the match of the given qualified type reference.
  */
-private void matchReportReference(QualifiedTypeReference typeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] qualifiedName = CharOperation.splitOn('.', CharOperation.concat(this.qualification, this.simpleName, '.'));
-	locator.reportAccurateReference(typeRef.sourceStart, typeRef.sourceEnd, qualifiedName, element, accuracy);
+private void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	char[][] tokens = null;
+	TypeBinding typeBinding = qTypeRef.binding;
+	if (typeBinding instanceof ArrayBinding) {
+		typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+	}
+	char[][] typeTokens = qTypeRef.tokens;
+	int lastIndex = typeTokens.length-1;
+	// try to match all enclosing types for which the token matches as well.
+	while (typeBinding != null && lastIndex >= 0){
+		if (matchesName(this.simpleName, typeTokens[lastIndex--])) {
+			int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+			if (level != IMPOSSIBLE_MATCH) {
+				tokens = new char[lastIndex+2][];
+				System.arraycopy(typeTokens, 0, tokens, 0, lastIndex+2);
+				break;
+			}
+		}
+		if (typeBinding instanceof ReferenceBinding){
+			typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
+		} else {
+			typeBinding = null;
+		}
+	}
+	if (tokens == null) {
+		tokens = qTypeRef.tokens;
+	}
+	locator.reportAccurateReference(qTypeRef.sourceStart, qTypeRef.sourceEnd, tokens, element, accuracy);
 }
 /**
  * @see AndPattern#resetQuery
@@ -380,6 +425,14 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 }
 
 /**
+ * Reports the match of the given array type reference.
+ */
+private void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	char[][] tokens = this.simpleName == null ? NO_CHAR_CHAR : new char[][] {this.simpleName};
+	locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, tokens, element, accuracy);
+}
+
+/**
  * Returns whether this type pattern matches the given type reference.
  * Look at resolved information only if specified.
  */
@@ -413,8 +466,8 @@ private int matchLevel(TypeReference typeRef, boolean resolve) {
 			if (typeRef instanceof SingleTypeReference){
 				return this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
 			} else { // QualifiedTypeReference
-				QualifiedTypeReference qNameRef = (QualifiedTypeReference)typeRef;
-				char[][] tokens = qNameRef.tokens;
+				QualifiedTypeReference qTypeRef = (QualifiedTypeReference)typeRef;
+				char[][] tokens = qTypeRef.tokens;
 				int lastIndex = tokens.length-1;
 				// try to match all enclosing types for which the token matches as well.
 				while (typeBinding != null && lastIndex >= 0){

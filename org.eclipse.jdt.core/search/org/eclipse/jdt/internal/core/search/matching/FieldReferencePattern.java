@@ -166,7 +166,62 @@ protected boolean matchIndexEntry() {
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, new char[][] {this.name}, element, accuracy);
+	if (reference instanceof QualifiedNameReference) {
+		QualifiedNameReference qNameRef = (QualifiedNameReference)reference;
+		int length = qNameRef.tokens.length;
+		int[] accuracies = new int[length];
+		Binding binding = qNameRef.binding;
+		int indexOfFirstFieldBinding = qNameRef.indexOfFirstFieldBinding > 0 ? qNameRef.indexOfFirstFieldBinding : 1;
+		// first token
+		if (this.matchesName(this.name, qNameRef.tokens[indexOfFirstFieldBinding-1])) {
+			FieldBinding fieldBinding =
+				binding instanceof FieldBinding ?
+					 (FieldBinding)binding :
+					 null;
+			int level = this.matchLevel(fieldBinding);
+			switch (level) {
+				case ACCURATE_MATCH:
+					accuracies[0] = IJavaSearchResultCollector.EXACT_MATCH;
+					break;
+				case INACCURATE_MATCH:
+					accuracies[0] = IJavaSearchResultCollector.POTENTIAL_MATCH;
+					break;
+				default:
+					accuracies[0] = -1;
+			}
+		} else {
+			accuracies[0] = -1;
+		}
+		// other tokens
+		for (int i = qNameRef.indexOfFirstFieldBinding; i < length; i++){
+			char[] token = qNameRef.tokens[i];
+			if (this.matchesName(this.name, token)) {
+				FieldBinding otherBinding = qNameRef.otherBindings == null ? null : qNameRef.otherBindings[i-indexOfFirstFieldBinding];
+				int level = this.matchLevel(otherBinding);
+				switch (level) {
+					case ACCURATE_MATCH:
+						accuracies[i] = IJavaSearchResultCollector.EXACT_MATCH;
+						break;
+					case INACCURATE_MATCH:
+						accuracies[i] = IJavaSearchResultCollector.POTENTIAL_MATCH;
+						break;
+					default:
+						accuracies[i] = -1;
+				}
+			} else {
+				accuracies[i] = -1;
+			}
+		}
+		locator.reportAccurateReference(
+			reference.sourceStart, 
+			reference.sourceEnd, 
+			new char[][] {this.name}, 
+			element, 
+			accuracies,
+			true); // accuracy starts on first token
+	} else {
+		locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, new char[][] {this.name}, element, accuracy);
+	}
 }
 /**
  * Returns whether a field reference or name reference will need to be resolved to 

@@ -479,7 +479,6 @@ public class MatchLocator implements ITypeRequestor {
 				}
 			}
 	}
-
 	public void report(
 		int sourceStart,
 		int sourceEnd,
@@ -597,7 +596,6 @@ public class MatchLocator implements ITypeRequestor {
 	public void reportPackageReference(ImportReference node) {
 		// TBD
 	}
-
 	/**
 	 * Reports the given reference to the search requestor.
 	 * Finds the accurate positions of the tokens given by qualifiedName
@@ -609,6 +607,29 @@ public class MatchLocator implements ITypeRequestor {
 		char[][] qualifiedName,
 		IJavaElement element,
 		int accuracy)
+		throws CoreException {
+			
+		this.reportAccurateReference(
+			sourceStart,
+			sourceEnd,
+			qualifiedName,
+			element,
+			new int[] {accuracy},
+			false);
+	}
+	/**
+	 * Reports the given reference to the search requestor.
+	 * Reports only occurence of the reference that have an accurracy which is not -1.
+	 * Finds the accurate positions of the tokens given by qualifiedName
+	 * in the source.
+	 */
+	public void reportAccurateReference(
+		int sourceStart,
+		int sourceEnd,
+		char[][] qualifiedName,
+		IJavaElement element,
+		int[] accuracies,
+		boolean accuracyStartsOnFirstToken)
 		throws CoreException {
 
 		// compute source positions of the qualified reference 
@@ -622,6 +643,7 @@ public class MatchLocator implements ITypeRequestor {
 		int token = -1;
 		int previousValid = -1;
 		int i = 0;
+		int accuracyIndex = 0;
 		do {
 			int currentPosition = scanner.currentPosition;
 			// read token
@@ -631,11 +653,11 @@ public class MatchLocator implements ITypeRequestor {
 			}
 			if (token != TerminalSymbols.TokenNameEOF) {
 				char[] currentTokenSource = scanner.getCurrentTokenSource();
+				boolean equals = false;
 				while (i < tokenNumber
-					&& !CharOperation.equals(currentTokenSource, qualifiedName[i++])) {
+					&& !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource))) {
 				}
-				if (CharOperation.equals(currentTokenSource, qualifiedName[i - 1])
-					&& (previousValid == -1 || previousValid == i - 2)) {
+				if (equals && (previousValid == -1 || previousValid == i - 2)) {
 					previousValid = i - 1;
 					if (refSourceStart == -1) {
 						refSourceStart = currentPosition;
@@ -652,15 +674,24 @@ public class MatchLocator implements ITypeRequestor {
 				} catch (InvalidInputException e) {
 				}
 			}
-		}
-		while (token != TerminalSymbols.TokenNameEOF && i < tokenNumber);
+			if (i == tokenNumber) {
+				if (accuracies[accuracyIndex] != -1) {
+					// accept reference
+					if (refSourceStart != -1) {
+						this.report(refSourceStart, refSourceEnd, element, accuracies[accuracyIndex]);
+					} else {
+						this.report(sourceStart, sourceEnd, element, accuracies[accuracyIndex]);
+					}
+					i = 0;
+					refSourceStart = -1;
+					previousValid = -1;
+				}
+			}
+			if (accuracyStartsOnFirstToken) {
+				accuracyIndex++;
+			}
+		} while (token != TerminalSymbols.TokenNameEOF && accuracyIndex < accuracies.length);
 
-		// accept reference
-		if (refSourceStart != -1) {
-			this.report(refSourceStart, refSourceEnd, element, accuracy);
-		} else {
-			this.report(sourceStart, sourceEnd, element, accuracy);
-		}
 	}
 
 	/**
@@ -842,6 +873,12 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 		for (this.potentialMatchesIndex = 0;
 			this.potentialMatchesIndex < this.potentialMatchesLength;
 			this.potentialMatchesIndex++) {
+				
+			IProgressMonitor monitor = this.collector.getProgressMonitor();
+			if (monitor != null && monitor.isCanceled()) {
+				throw new OperationCanceledException();
+			}
+			
 			try {
 				PotentialMatch potentialMatch =
 					this.potentialMatches[this.potentialMatchesIndex];
