@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.FloatUtil;
 
 public class FloatLiteral extends NumberLiteral {
 	float value;
@@ -24,45 +24,72 @@ public class FloatLiteral extends NumberLiteral {
 		super(token, s, e);
 	}
 	public void computeConstant() {
-		//the source is correctly formated so the exception should never occurs
 		Float computedValue;
 		try {
 			computedValue = Float.valueOf(String.valueOf(source));
 		} catch (NumberFormatException e) {
-			/*
-			 * this can happen if this is an hexadecimal floating-point literal and the libraries used 
-			 * are < 1.5
-			 */
-			computedValue = new Float(Util.getFloatingPoint(source));
+			// hex floating point literal
+			// being rejected by 1.4 libraries where Float.valueOf(...) doesn't handle hex decimal floats
+			try {
+				float v = FloatUtil.valueOfHexFloatLiteral(source);
+				if (v == Float.POSITIVE_INFINITY) {
+					// error: the number is too large to represent
+					return;
+				}
+				if (Float.isNaN(v)) {
+					// error: the number is too small to represent
+					return;
+				}
+				value = v;
+				constant = Constant.fromValue(v);
+			} catch (NumberFormatException e1) {
+				// if the computation of the constant fails
+			}
+			return;
 		}
 
-		if (computedValue.doubleValue() > Float.MAX_VALUE) {
-			return; //may be Infinity
+		final float floatValue = computedValue.floatValue();
+		if (floatValue > Float.MAX_VALUE) {
+			// error: the number is too large to represent
+			return;
 		}
-		if (computedValue.floatValue() < Float_MIN_VALUE) {
+		if (floatValue < Float.MIN_VALUE) {
 			// see 1F6IGUU
-			//only a true 0 can be made of zeros
-			//1.00000000e-46f is illegal ....
-			label : for (int i = 0; i < source.length; i++) {
+			// a true 0 only has '0' and '.' in mantissa
+			// 1.0e-5000d is non-zero, but underflows to 0
+			boolean isHexaDecimal = false;
+			label : for (int i = 0; i < source.length; i++) { //it is welled formated so just test against '0' and potential . D d  
 				switch (source[i]) {
-					case '.' :
-					case 'f' :
-					case 'F' :
 					case '0' :
+					case '.' :
+						break;
 					case 'x' :
 					case 'X' :
+						isHexaDecimal = true;
 						break;
 					case 'e' :
 					case 'E' :
+					case 'f' :
+					case 'F' :
+					case 'd' :
+					case 'D' :
+						if (isHexaDecimal) {
+							return;
+						}
+						// starting the exponent - mantissa is all zero
+						// no exponent - mantissa is all zero
+						break label;
 					case 'p' :
 					case 'P' :
-						break label; //exposant are valid !....
+						break label;
 					default :
-						return; //error
+						// error: the number is too small to represent
+						return;
 				}
 			}
 		}
-		constant = Constant.fromValue(value = computedValue.floatValue());
+		value = floatValue;
+		constant = Constant.fromValue(value);
 	}
 	/**
 	 * Code generation for float literal

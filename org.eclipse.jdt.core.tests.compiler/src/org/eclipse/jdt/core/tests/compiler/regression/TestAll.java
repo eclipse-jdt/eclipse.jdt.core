@@ -48,6 +48,7 @@ public static Test suite() {
 	standardTests.add(TryStatementTest.class);
 	standardTests.add(UtilTest.class);
 	standardTests.add(XLargeTest.class);
+	standardTests.add(InternalScannerTest.class);
 
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
@@ -77,6 +78,7 @@ public static Test suite() {
 	    tests_1_5.add(GenericTypeTest.class);
 	    tests_1_5.add(ForeachStatementTest.class);
 	    tests_1_5.add(GenericTypeSignatureTest.class);
+	    tests_1_5.add(InternalHexFloatTest.class);
 		// Reset forgotten subsets tests
 		AbstractRegressionTest.testsNames = null;
 		AbstractRegressionTest.testsNumbers= null;
