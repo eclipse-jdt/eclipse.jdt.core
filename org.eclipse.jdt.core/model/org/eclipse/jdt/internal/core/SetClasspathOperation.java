@@ -410,7 +410,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 			} else {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
-					this.needCycleCheck |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
+					// Need to updated dependents in case old and/or new entries are exported and have an access restriction
+					ClasspathEntry oldEntry = (ClasspathEntry) oldResolvedPath[i];
+					ClasspathEntry newEntry = (ClasspathEntry) newResolvedPath[index];
+					needToUpdateDependents |= (oldEntry.isExported && oldEntry.getImportRestriction() != null) || 
+						(newEntry.isExported && newEntry.getImportRestriction() != null);
+					this.needCycleCheck |= (oldEntry.isExported() != newEntry.isExported());
 					continue; 
 				}				
 				needToUpdateDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
