@@ -90,7 +90,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 1, types.size());
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(0);
@@ -146,7 +146,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	public void test0003() throws JavaModelException {
@@ -155,7 +155,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 3, types.size());
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(2);
@@ -192,7 +192,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 3, types.size());
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(2);
@@ -229,7 +229,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 4, types.size());
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(3);
@@ -293,7 +293,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 1);
 		PackageDeclaration packageDeclaration = compilationUnit.getPackage();
 		assertNotNull("No package declaration", packageDeclaration);
 		checkSourceRange(packageDeclaration, "@Retention package test0006;", source);
@@ -312,7 +312,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		List imports = compilationUnit.imports();
 		assertEquals("Wrong size", 2, imports.size());
 		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(0);
@@ -341,7 +341,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertTrue("Not a foreach statement", node.getNodeType() == ASTNode.ENHANCED_FOR_STATEMENT);
 		EnhancedForStatement enhancedForStatement = (EnhancedForStatement) node;
@@ -365,7 +365,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertTrue("Not a foreach statement", node.getNodeType() == ASTNode.ENHANCED_FOR_STATEMENT);
 		EnhancedForStatement enhancedForStatement = (EnhancedForStatement) node;
@@ -395,7 +395,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertTrue("Not a foreach statement", node.getNodeType() == ASTNode.ENHANCED_FOR_STATEMENT);
 		EnhancedForStatement enhancedForStatement = (EnhancedForStatement) node;
@@ -426,7 +426,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1, 0);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -450,7 +450,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -494,7 +494,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1);
 		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -530,7 +530,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -558,7 +558,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Wrong first character", '<', source[node.getStartPosition()]);
 	}
@@ -569,7 +569,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -609,7 +609,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -654,7 +654,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -699,7 +699,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
@@ -721,7 +721,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
@@ -748,7 +748,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
@@ -775,7 +775,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -793,7 +793,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement declarationStatement = (VariableDeclarationStatement) node;
@@ -815,7 +815,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
 		ConstructorInvocation constructorInvocation = (ConstructorInvocation) node;
@@ -830,7 +830,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
@@ -913,7 +913,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
@@ -970,7 +970,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
@@ -999,7 +999,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/**
@@ -1011,7 +1011,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
 		checkSourceRange(node, "<T>this();", source);		
@@ -1022,7 +1022,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	public void test0032() throws JavaModelException {
@@ -1031,7 +1031,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1050,7 +1050,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 
 	public void test0034() throws JavaModelException {
@@ -1059,7 +1059,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/**
@@ -1071,7 +1071,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/**
@@ -1084,7 +1084,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -1106,7 +1106,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1163,7 +1163,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1231,7 +1231,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/**
@@ -1243,7 +1243,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1270,7 +1270,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/**
@@ -1282,7 +1282,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1309,7 +1309,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1332,7 +1332,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1370,7 +1370,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 1);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -1397,7 +1397,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 1);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1424,7 +1424,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/**
@@ -1437,7 +1437,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
@@ -1461,7 +1461,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
@@ -1485,7 +1485,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 1, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 1);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1511,7 +1511,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1537,7 +1537,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/**
@@ -1549,7 +1549,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an annotation type declaration", ASTNode.ANNOTATION_TYPE_DECLARATION, node.getNodeType());
 		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
@@ -1565,7 +1565,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an annotation type declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
@@ -1581,7 +1581,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an annotation type declaration", ASTNode.ANNOTATION_TYPE_DECLARATION, node.getNodeType());
 		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
@@ -1597,7 +1597,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 1, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 1);
 	}
 	
 	/**
@@ -1609,7 +1609,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
@@ -1628,7 +1628,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1644,7 +1644,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/*
@@ -1742,7 +1742,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Wrong node", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1777,7 +1777,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Wrong node", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1812,7 +1812,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Wrong node", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -1872,7 +1872,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1901,7 +1901,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;

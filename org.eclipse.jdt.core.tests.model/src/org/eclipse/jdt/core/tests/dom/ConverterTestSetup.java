@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -230,5 +231,17 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	
 	protected boolean isOriginal(ASTNode node) {
 		return (node.getFlags() & ASTNode.ORIGINAL) != 0;
+	}
+	
+	protected void assertProblemsSize(CompilationUnit compilationUnit, int expectedSize) {
+		final IProblem[] problems = compilationUnit.getProblems();
+		final int length = problems.length;
+		if (length != expectedSize) {
+			System.err.println("Wrong number of problems for " + compilationUnit);
+			for (int i = 0; i < length; i++) {
+				System.err.println(problems[i]);
+			}
+			assertEquals("Wrong size", expectedSize, length);
+		}
 	}
 }
