@@ -45,43 +45,6 @@ public class ModifyingResourceTests extends AbstractJavaModelTests {
 public ModifyingResourceTests(String name) {
 	super(name);
 }
-protected void assertDeltas(String message, String expected) {
-	StringBuffer buffer = new StringBuffer();
-	IJavaElementDelta[] deltas = this.deltaListener.deltas;
-	for (int i=0, length= deltas.length; i<length; i++) {
-		IJavaElementDelta[] projects = deltas[i].getAffectedChildren();
-		this.sortDeltas(projects);
-		for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
-			buffer.append(projects[j]);
-			if (j != projectsLength-1) {
-				buffer.append("\n");
-			}
-		}
-		IResourceDelta[] nonJavaProjects = deltas[i].getResourceDeltas();
-		if (nonJavaProjects != null) {
-			for (int j=0, nonJavaProjectsLength=nonJavaProjects.length; j<nonJavaProjectsLength; j++) {
-				if (j == 0 && buffer.length() != 0) {
-					buffer.append("\n");
-				}
-				buffer.append(nonJavaProjects[j]);
-				if (j != nonJavaProjectsLength-1) {
-					buffer.append("\n");
-				}
-			}
-		}
-		if (i != length-1) {
-			buffer.append("\n\n");
-		}
-	}
-	String actual = buffer.toString();
-	if (!expected.equals(actual)) {
-		System.out.println(displayString(actual, 2));
-	}
-	assertEquals(
-		message,
-		expected,
-		actual);
-}
 protected void assertElementDescendants(String message,  String expected, IJavaElement element) throws CoreException {
 	String actual = expandAll(element);
 	if (!expected.equals(actual)){
@@ -192,16 +155,6 @@ private void expandAll(IJavaElement element, int tab, StringBuffer buffer) throw
 }
 protected void renameProject(String project, String newName) throws CoreException {
 	this.getProject(project).move(new Path(newName), true, null);
-}
-protected void sortDeltas(IJavaElementDelta[] deltas) {
-	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
-		public int compare(Object a, Object b) {
-			IJavaElementDelta deltaA = (IJavaElementDelta)a;
-			IJavaElementDelta deltaB = (IJavaElementDelta)b;
-			return deltaA.getElement().getElementName().compareTo(deltaB.getElement().getElementName());
-		}
-	};
-	org.eclipse.jdt.internal.core.util.Util.sort(deltas, comparer);
 }
 protected IClassFile getClassFile(String path) {
 	return (IClassFile)JavaCore.create(getFile(path));

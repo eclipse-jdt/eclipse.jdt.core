@@ -89,12 +89,55 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 * <code>#stopDeltas</code>.
 		 */
 		public IJavaElementDelta[] deltas;
+		
+		public ByteArrayOutputStream stackTraces;
 	
 		public void elementChanged(ElementChangedEvent ev) {
 			IJavaElementDelta[] copy= new IJavaElementDelta[deltas.length + 1];
 			System.arraycopy(deltas, 0, copy, 0, deltas.length);
 			copy[deltas.length]= ev.getDelta();
 			deltas= copy;
+			
+			new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
+		}
+		protected void sortDeltas(IJavaElementDelta[] elementDeltas) {
+			org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
+				public int compare(Object a, Object b) {
+					IJavaElementDelta deltaA = (IJavaElementDelta)a;
+					IJavaElementDelta deltaB = (IJavaElementDelta)b;
+					return deltaA.getElement().getElementName().compareTo(deltaB.getElement().getElementName());
+				}
+			};
+			org.eclipse.jdt.internal.core.util.Util.sort(elementDeltas, comparer);
+		}
+		public String toString() {
+			StringBuffer buffer = new StringBuffer();
+			for (int i=0, length= this.deltas.length; i<length; i++) {
+				IJavaElementDelta[] projects = this.deltas[i].getAffectedChildren();
+				sortDeltas(projects);
+				for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
+					buffer.append(projects[j]);
+					if (j != projectsLength-1) {
+						buffer.append("\n");
+					}
+				}
+				IResourceDelta[] nonJavaProjects = this.deltas[i].getResourceDeltas();
+				if (nonJavaProjects != null) {
+					for (int j=0, nonJavaProjectsLength=nonJavaProjects.length; j<nonJavaProjectsLength; j++) {
+						if (j == 0 && buffer.length() != 0) {
+							buffer.append("\n");
+						}
+						buffer.append(nonJavaProjects[j]);
+						if (j != nonJavaProjectsLength-1) {
+							buffer.append("\n");
+						}
+					}
+				}
+				if (i != length-1) {
+					buffer.append("\n\n");
+				}
+			}
+			return buffer.toString();
 		}
 	}
 	protected DeltaListener deltaListener = new DeltaListener();
@@ -373,6 +416,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			assertTrue("Element should not be present after deletion: " + elementToDelete, !elementToDelete.exists());
 		}
 	}
+protected void assertDeltas(String message, String expected) {
+	String actual = this.deltaListener.toString();
+	if (!expected.equals(actual)) {
+		System.out.println(displayString(actual, 2));
+		System.err.println(this.deltaListener.stackTraces.toString());
+	}
+	assertEquals(
+		message,
+		expected,
+		actual);
+}
 	protected void assertTypesEqual(String message, String expected, IType[] types) {
 		assertTypesEqual(message, expected, types, true);
 	}
@@ -456,6 +510,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	public void clearDeltas() {
 		this.deltaListener.deltas = new IJavaElementDelta[0];
+		this.deltaListener.stackTraces = new ByteArrayOutputStream();
 	}
 	protected IJavaElement[] codeSelect(ISourceReference sourceReference, String selectAt, String selection) throws JavaModelException {
 		String str = sourceReference.getSource();
