@@ -134,14 +134,16 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		
 		// check @Override annotation
 		if (this.binding != null) {
-			// claims to override, and doesn't actually do so
-			if ((this.binding.tagBits & TagBits.AnnotationOverride) != 0 && (this.binding.modifiers & AccOverriding) == 0) {
+			int bindingModifiers = this.binding.modifiers;
+			if ((this.binding.tagBits & TagBits.AnnotationOverride) != 0 
+					&& (bindingModifiers & AccOverriding) == 0) {
+				// claims to override, and doesn't actually do so
 				scope.problemReporter().methodMustOverride(this);
-			}
-			// actually overrides, but did not claim to do so
-			if ((this.binding.tagBits & TagBits.AnnotationOverride) == 0 
-					&& (this.binding.modifiers & AccOverriding) != 0
-					&& scope.environment().options.sourceLevel >= JDK1_5) {
+			} else	if ((this.binding.tagBits & TagBits.AnnotationOverride) == 0 
+						&& (bindingModifiers & AccStatic) == 0
+						&& (bindingModifiers & AccOverriding) != 0
+						&& scope.environment().options.sourceLevel >= JDK1_5) {
+				// actually overrides, but did not claim to do so
 				scope.problemReporter().missingOverrideAnnotation(this);
 			}
 		}
@@ -154,13 +156,13 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			case IGenericType.CLASS_DECL :
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body 
-				if ((modifiers & AccSemicolonBody) != 0) {
-					if ((modifiers & AccNative) == 0)
-						if ((modifiers & AccAbstract) == 0)
+				if ((this.modifiers & AccSemicolonBody) != 0) {
+					if ((this.modifiers & AccNative) == 0)
+						if ((this.modifiers & AccAbstract) == 0)
 							scope.problemReporter().methodNeedBody(this);
 				} else {
 					// the method HAS a body --> abstract native modifiers are forbiden
-					if (((modifiers & AccNative) != 0) || ((modifiers & AccAbstract) != 0))
+					if (((this.modifiers & AccNative) != 0) || ((this.modifiers & AccAbstract) != 0))
 						scope.problemReporter().methodNeedingNoBody(this);
 				}
 		}

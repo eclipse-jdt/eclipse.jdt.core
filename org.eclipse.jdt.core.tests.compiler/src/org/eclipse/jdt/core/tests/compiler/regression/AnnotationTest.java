@@ -3916,4 +3916,63 @@ public class AnnotationTest extends AbstractComparableTest {
             },
             "aMethod1");
     }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90110
+    public void test123() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"class SuperX {\n" + 
+				"\n" + 
+				"    static void notOverridden() {\n" + 
+				"        return;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends SuperX {\n" + 
+				"\n" + 
+				"    static void notOverridden() {\n" + 
+				"        return;\n" + 
+				"    }\n" + 
+				"  Zork z;\n" +
+				"} \n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90110 - variation
+    public void test124() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"class SuperX {\n" + 
+				"\n" + 
+				"    void notOverridden() {\n" + 
+				"        return;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends SuperX {\n" + 
+				"\n" + 
+				"    void notOverridden() {\n" + 
+				"        return;\n" + 
+				"    }\n" + 
+				"  Zork z;\n" +
+				"} \n",
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	void notOverridden() {\n" + 
+			"	     ^^^^^^^^^^^^^^^\n" + 
+			"The method notOverridden() of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }	
 }

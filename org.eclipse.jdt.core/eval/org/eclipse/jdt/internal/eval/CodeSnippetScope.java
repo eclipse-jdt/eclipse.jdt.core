@@ -243,7 +243,7 @@ public final boolean canBeSeenByForCodeSnippet(ReferenceBinding referenceBinding
 }
 // Internal use only
 public MethodBinding findExactMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-	MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
+	MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, null);
 	if (exactMethod != null){
 		if (receiverType.isInterface() || canBeSeenByForCodeSnippet(exactMethod, receiverType, invocationSite, this))
 			return exactMethod;
@@ -485,7 +485,7 @@ public MethodBinding findMethod(
 // Internal use only
 public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 	ReferenceBinding object = getJavaLangObject();
-	MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes);
+	MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes, null);
 	if (methodBinding != null) {
 		// handle the method clone() specially... cannot be protected or throw exceptions
 		if (argumentTypes == NoParameters && CharOperation.equals(selector, CLONE))

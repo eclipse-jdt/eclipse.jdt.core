@@ -1230,7 +1230,7 @@ public abstract class Scope
 		}
 
 		ReferenceBinding object = getJavaLangObject();
-		MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes);
+		MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes, null);
 		if (methodBinding != null) {
 			// handle the method clone() specially... cannot be protected or throw exceptions
 			if (argumentTypes == NoParameters) {
