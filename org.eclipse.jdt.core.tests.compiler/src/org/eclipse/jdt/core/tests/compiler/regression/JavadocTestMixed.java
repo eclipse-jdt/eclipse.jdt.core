@@ -52,8 +52,8 @@ public class JavadocTestMixed extends JavadocTest {
 		}
 		if (false) {
 			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestMixed("testBug47339b"));
-			ts.addTest(new JavadocTestMixed("testBug48064a"));
+			ts.addTest(new JavadocTestMixed("testBug50695"));
+			ts.addTest(new JavadocTestMixed("testBug50695b"));
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
@@ -2022,5 +2022,44 @@ public class JavadocTestMixed extends JavadocTest {
 					"	}\n" + 
 					"}\n"
 		 });
+	}
+
+	/**
+	 * Test fix for bug 50695.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50695">50695</a>
+	 */
+	public void testBug50695() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * @see java\n" + 
+					"	 * @see java.util\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+		 });
+	}
+	public void testBug50695b() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * @see java.unknown\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			 },
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @see java.unknown\n" + 
+				"	       ^^^^^^^^^^^^\n" + 
+				"Javadoc: java.unknown cannot be resolved or is not a type\n" + 
+				"----------\n"
+		);
 	}
 }
