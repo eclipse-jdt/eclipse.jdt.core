@@ -295,6 +295,21 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.flush();
 			}
 		}
+		public void logAverage(long[] times, long lineCount) {
+			Arrays.sort(times);
+			final int length = times.length;
+			long sum = 0;
+			for (int i = 1, max = length - 1; i < max; i++) {
+				sum += times[i];
+			}
+			long time = sum / (length - 2);
+			this.printlnOut(Main.bind(
+				"compile.averageTime", //$NON-NLS-1$
+				new String[] {
+					String.valueOf(lineCount),
+					String.valueOf(time),
+					String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0) }));
+		}
 		public void logClasspath(String[] classpaths) {
 			if (classpaths == null) return;
 			if (this.isXml) {
@@ -653,6 +668,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if (isTimed) {
 				long time = System.currentTimeMillis() - main.startTime;
 				this.logTiming(time, main.lineCount);
+				if (main.times != null) {
+					main.times[main.timesCounter++] = time;
+				}
 			}
 			if (main.globalProblemsCount > 0) {
 				this.logProblemsSummary(main.globalProblemsCount, main.globalErrorsCount, main.globalWarningsCount, main.globalTasksCount);
@@ -934,6 +952,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public boolean systemExitWhenFinished = true;
 	public long startTime;
 	public boolean timing = false;
+	public long[] times;
+	public int timesCounter;
 	public boolean verbose = false;
 
 	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
@@ -1110,6 +1130,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					} 
 					// request compilation
 					performCompilation();
+				}
+				if (this.times != null) {
+					this.logger.logAverage(this.times, this.lineCount);
 				}
 				if (this.showProgress) this.logger.printNewLine();
 			}
@@ -2169,6 +2192,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.logger.logClasspath(this.classpaths);
 		if (this.repetitions == 0) {
 			this.repetitions = 1;
+		}
+		if (this.repetitions >= 3 && this.timing) {
+			this.times = new long[this.repetitions];
+			this.timesCounter = 0;
 		}
 	}
 
