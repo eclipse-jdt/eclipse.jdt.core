@@ -660,6 +660,41 @@ public class EnumTest extends AbstractComparisonTest {
 			"Cannot make a static reference to the non-static method foo() from the type Foo\n" + 
 			"----------\n");
 	}		
+	// 77151 - cannot use qualified name to denote enum constants in switch case label
+	public void test022() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	enum MX { BLEU, BLANC, ROUGE }\n" + 
+				"	\n" + 
+				"	void foo(MX e) {\n" + 
+				"		switch(e) {\n" + 
+				"			case MX.BLEU : break;\n" + 
+				"			case MX.BLANC : break;\n" + 
+				"			case MX.ROUGE : break;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	case MX.BLEU : break;\n" + 
+			"	     ^^^^^^^\n" + 
+			"Cannot qualify the name of the enum constant BLEU in a case label\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	case MX.BLANC : break;\n" + 
+			"	     ^^^^^^^^\n" + 
+			"Cannot qualify the name of the enum constant BLANC in a case label\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	case MX.ROUGE : break;\n" + 
+			"	     ^^^^^^^^\n" + 
+			"Cannot qualify the name of the enum constant ROUGE in a case label\n" + 
+			"----------\n");
+	}		
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

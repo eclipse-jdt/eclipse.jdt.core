@@ -1002,6 +1002,8 @@ public interface IProblem {
 	int IllegalModifierForMemberEnum = TypeRelated + 753;
 	/** @since 3.1 */
 	int CannotDeclareEnumSpecialMethod = MethodRelated + 754;
+	/** @since 3.1 */
+	int IllegalQualifiedEnumConstantLabel = FieldRelated + 755;
 
 	/**
 	 * Var args

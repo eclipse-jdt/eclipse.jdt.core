@@ -353,6 +353,15 @@ public void cannotUseSuperInJavaLangObject(ASTNode reference) {
 		reference.sourceStart,
 		reference.sourceEnd);
 }
+public void cannotUseQualifiedEnumConstantInCaseLabel(QualifiedNameReference reference) {
+	String[] arguments = new String[]{ String.valueOf(reference.fieldBinding().name) };
+	this.handle(
+			IProblem.IllegalQualifiedEnumConstantLabel,
+			arguments,
+			arguments,
+			reference.sourceStart,
+			reference.sourceEnd);	
+}
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
 		IProblem.NonConstantExpression,

@@ -105,6 +105,9 @@ public class CaseStatement extends Statement {
 				this.isEnumConstant = true;
 				if (constantExpression instanceof NameReference
 						&& (constantExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
+					if (constantExpression instanceof QualifiedNameReference) {
+						 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel((QualifiedNameReference)constantExpression);
+					}
 					return Constant.fromValue(((NameReference)constantExpression).fieldBinding().id); // ordinal value
 				}
 			} else {
