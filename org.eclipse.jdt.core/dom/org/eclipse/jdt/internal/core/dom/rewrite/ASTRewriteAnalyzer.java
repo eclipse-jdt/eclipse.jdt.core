@@ -246,7 +246,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
 	final int doVisit(ASTNode node) {
 		node.accept(this);
-		return node.getStartPosition() + node.getLength();
+		return getExtendedEnd(node);
 	}
 	
 	private final int doVisit(ASTNode parent, StructuralPropertyDescriptor property, int offset) {
@@ -1112,25 +1112,36 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}		
 	}
 	
-	private void rewriteModifiers2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
+	private int rewriteModifiers2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
 		RewriteEvent event= getEvent(node, property);
 		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
-			doVisit(node, property, pos);
-			return;
+			return doVisit(node, property, pos);
 		}
-
-		int endPos= rewriteNodeList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
 		RewriteEvent[] children= event.getChildren();
-		if (isAllOfKind(children, RewriteEvent.INSERTED)) {
-			doTextInsert(endPos, " ", getEditGroup(children[children.length - 1])); //$NON-NLS-1$
-		} else if (isAllOfKind(children, RewriteEvent.REMOVED)) {
+		boolean isAllInsert= isAllOfKind(children, RewriteEvent.INSERTED);
+		boolean isAllRemove= isAllOfKind(children, RewriteEvent.REMOVED);
+		if (isAllInsert || isAllRemove) {
+			// update pos
 			try {
-				int nextPos= getScanner().getNextStartOffset(endPos, false);
-				doTextRemove(endPos, nextPos - endPos, getEditGroup(children[children.length - 1]));
+				pos= getScanner().getNextStartOffset(pos, false);
 			} catch (CoreException e) {
 				handleException(e);
 			}
 		}
+		int endPos= rewriteNodeList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
+
+		if (isAllInsert) {
+			doTextInsert(endPos, " ", getEditGroup(children[children.length - 1])); //$NON-NLS-1$
+		} else if (isAllRemove) {
+			try {
+				int nextPos= getScanner().getNextStartOffset(endPos, false);
+				doTextRemove(endPos, nextPos - endPos, getEditGroup(children[children.length - 1]));
+				return nextPos;
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		}
+		return endPos;
 	}
 	
 	
