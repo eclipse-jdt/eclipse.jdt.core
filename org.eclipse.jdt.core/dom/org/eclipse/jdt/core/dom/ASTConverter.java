@@ -2581,6 +2581,9 @@ class ASTConverter {
 		start = typeParameter.declarationSourceStart;
 		end = retrieveClosingAngleBracketPosition(end);
 		typeParameter2.setSourceRange(start, end - start + 1);
+		if (this.resolveBindings) {
+			recordNodes(typeParameter2, typeParameter);
+		}
 		return typeParameter2;
 	}
 	
@@ -2880,6 +2883,9 @@ class ASTConverter {
 			int start = wildcard.sourceStart;
 			int end = wildcard.sourceEnd;
 			wildcardType.setSourceRange(start, end - start + 1);
+			if (this.resolveBindings) {
+				recordNodes(wildcardType, typeReference);
+			}
 			return wildcardType;
 		}
 		Type type = null;				

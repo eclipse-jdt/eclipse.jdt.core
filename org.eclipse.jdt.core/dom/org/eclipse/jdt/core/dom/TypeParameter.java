@@ -197,6 +197,20 @@ public class TypeParameter extends ASTNode {
 	}
 	
 	/**
+	 * Resolves and returns the binding for this type parameter.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be 
+	 *    resolved
+	 */	
+	public final IBinding resolveBinding() {
+		return this.ast.getBindingResolver().resolveTypeParameter(this);
+	}
+	
+	/**
 	 * Sets the name of the type variable of this type parameter to the given
 	 * name.
 	 * 

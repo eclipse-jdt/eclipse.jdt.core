@@ -133,6 +133,13 @@ class BindingResolver {
 	}
 	
 	/**
+	 * TODO (jeem) add javadoc
+	 */
+	ITypeBinding resolveTypeParameter(TypeParameter typeParameter) {
+		return null;
+	}
+	
+	/**
 	 * Resolves the given enum declaration and returns the binding
 	 * for it.
 	 * <p>

@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -611,7 +612,17 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeParameters()
 	 */
 	public ITypeBinding[] getTypeParameters() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
+		if (typeVariableBindings != null) {
+			int typeVariableBindingsLength = typeVariableBindings.length;
+			if (typeVariableBindingsLength != 0) {
+				ITypeBinding[] typeParameters = new ITypeBinding[typeVariableBindingsLength];
+				for (int i = 0; i < typeVariableBindingsLength; i++) {
+					typeParameters[i] = this.resolver.getTypeBinding(typeVariableBindings[i]);
+				}
+				return typeParameters;
+			}
+		}
 		return NO_TYPE_BINDINGS;
 	}
 
@@ -619,7 +630,33 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeBounds()
 	 */
 	public ITypeBinding[] getTypeBounds() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		if (this.binding instanceof TypeVariableBinding) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			int boundsNumber = 0;
+			ReferenceBinding superclass = typeVariableBinding.superclass();
+			if (superclass != null) {
+				boundsNumber++;
+			}
+			ReferenceBinding[] superinterfaces = typeVariableBinding.superInterfaces();
+			int superinterfacesLength = 0;
+			if (superinterfaces != null) {
+				superinterfacesLength = superinterfaces.length;
+				boundsNumber += superinterfacesLength;
+			}
+			if (boundsNumber != 0) {
+				ITypeBinding[] typeBounds = new ITypeBinding[boundsNumber];
+				int boundsIndex = 0;
+				if (superclass != null) {
+					typeBounds[boundsIndex++] = this.resolver.getTypeBinding(superclass);
+				}
+				if (superinterfaces != null) {
+					for (int i = 0; i < superinterfacesLength; i++, boundsIndex++) {
+						typeBounds[boundsIndex] = this.resolver.getTypeBinding(superinterfaces[i]);
+					}
+				}
+				return typeBounds;
+			}
+		}
 		return NO_TYPE_BINDINGS;
 	}
 
@@ -627,15 +664,25 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isParameterizedType()
 	 */
 	public boolean isParameterizedType() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding.isParameterizedType();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeArguments()
 	 */
 	public ITypeBinding[] getTypeArguments() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		if (this.binding.isParameterizedType()) {
+			ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) this.binding;
+			final org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] arguments = parameterizedTypeBinding.arguments;
+			if (arguments != null) {
+				int argumentsLength = arguments.length;
+				ITypeBinding[] typeArguments = new ITypeBinding[argumentsLength];
+				for (int i = 0; i < argumentsLength; i++) {
+					typeArguments[i] = this.resolver.getTypeBinding(arguments[i]);
+				}
+				return typeArguments;
+			}
+		}
 		return NO_TYPE_BINDINGS;
 	}
 
@@ -643,31 +690,33 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getErasure()
 	 */
 	public ITypeBinding getErasure() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return this;
+		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isRawType()
 	 */
 	public boolean isRawType() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding.isRawType();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isWildcardType()
 	 */
 	public boolean isWildcardType() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding.isWildcard();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getBound()
 	 */
 	public ITypeBinding getBound() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		if (this.binding.isWildcard()) {
+			WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
+			if (wildcardBinding.bound != null) {
+				return this.resolver.getTypeBinding(wildcardBinding.bound);
+			}
+		}
 		return null;
 	}
 
@@ -675,8 +724,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isUpperbound()
 	 */
 	public boolean isUpperbound() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding.isWildcard() && ((WildcardBinding) this.binding).kind == Wildcard.SUPER;
 	}
 	
 	/* 

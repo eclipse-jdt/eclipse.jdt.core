@@ -469,6 +469,27 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
+	
+	synchronized ITypeBinding resolveTypeParameter(TypeParameter typeParameter) {
+		final Object node = this.newAstToOldAst.get(typeParameter);
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter) {
+			org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter2 = (org.eclipse.jdt.internal.compiler.ast.TypeParameter) node;
+			if (typeParameter2 != null) {
+				ITypeBinding typeBinding = this.getTypeBinding(typeParameter2.binding);
+				if (typeBinding == null) {
+					return null;
+				}
+				this.bindingsToAstNodes.put(typeBinding, typeParameter);
+				String key = typeBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, typeParameter);				
+				}
+				return typeBinding;
+			}
+		}
+		return null;
+	}
+	
 	/*
 	 * Method declared on BindingResolver.
 	 */

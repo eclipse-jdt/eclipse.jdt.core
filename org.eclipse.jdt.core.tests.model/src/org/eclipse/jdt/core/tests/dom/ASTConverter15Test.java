@@ -34,7 +34,9 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
@@ -75,7 +77,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0030"));
+		suite.addTest(new ASTConverter15Test("test0037"));
 		return suite;
 	}
 		
@@ -1075,5 +1077,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List typeArguments = methodInvocation.typeArguments();
 		assertEquals("Wrong size", 1, typeArguments.size());
 	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=68838
+	 */
+	public void test0037() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0037", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+//		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List typeParameters = typeDeclaration.typeParameters();
+		assertEquals("Wrong size", 2, typeParameters.size());
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
+		IBinding binding = typeParameter.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding = (ITypeBinding) binding;
+		assertEquals("Wrong name", "Y", typeBinding.getName());
+	}	
 }
 
