@@ -65,7 +65,7 @@ What's new in this drop</h2>
 <li> Removed tolerance for relative source attachments in <code>JavaCore.newLibraryEntry(...)</code>. Only
 allowing relative empty pathes so as to permit using classpath variables to denote the absence of a source attachment.
 <li>To finish closing the gap between compilation units and working copies 
-(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888 </a>), new APIs were added to generalize
+(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888">bug 36888</a>), new APIs were added to generalize
 the usage of a working copy owner (entire JavaModel is now aware of owned working copies). These new APIs are copies of existing APIs augmented with
 a <code>WorkingCopyOwner</code> parameter, that defines the working copies to consider in the operation. 
 When specifying an owner parameter, all working copies belonging to this owner will implicitly take precedence over primary ones
