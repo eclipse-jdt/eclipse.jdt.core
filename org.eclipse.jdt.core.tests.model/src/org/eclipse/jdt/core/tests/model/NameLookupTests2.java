@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.NameLookup;
+
 import junit.framework.Test;
 
 /**
@@ -35,7 +37,9 @@ public NameLookupTests2(String name) {
 public static Test suite() {
 	return new Suite(NameLookupTests2.class);
 }
-
+private NameLookup getNameLookup(JavaProject project) throws JavaModelException {
+	return project.newNameLookup((WorkingCopyOwner)null);
+}
 public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src1"}, "bin");
@@ -46,7 +50,7 @@ public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 			};
 		p2.setRawClasspath(classpath, null);
 		
-		IPackageFragment[] res = ((JavaProject)p2).newNameLookup((WorkingCopyOwner)null).findPackageFragments("p1", false);
+		IPackageFragment[] res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue("Should get no package fragment", res == null);
 		
 		IClasspathEntry[] classpath2 = 
@@ -57,7 +61,7 @@ public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 		p1.setRawClasspath(classpath2, null);
 		this.createFolder("/P1/src2/p1");
 		
-		res = ((JavaProject)p2).newNameLookup((WorkingCopyOwner)null).findPackageFragments("p1", false);
+		res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue(
 			"Should get 'p1' package fragment",
 			res != null &&
@@ -79,12 +83,12 @@ public void testAddPackageFragment() throws CoreException {
 			};
 		p2.setRawClasspath(classpath, null);
 		
-		IPackageFragment[] res = ((JavaProject)p2).newNameLookup((WorkingCopyOwner)null).findPackageFragments("p1", false);
+		IPackageFragment[] res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue("Should get no package fragment", res == null);
 		
 		this.createFolder("/P1/src1/p1");
 		
-		res = ((JavaProject)p2).newNameLookup((WorkingCopyOwner)null).findPackageFragments("p1", false);
+		res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue(
 			"Should get 'p1' package fragment",
 			res != null &&
@@ -105,7 +109,7 @@ public void testAddPackageFragment2() throws CoreException {
 		JavaProject project = (JavaProject)this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFolder("/P/src/p1");
 		
-		IPackageFragment[] pkgs = project.newNameLookup((WorkingCopyOwner)null).findPackageFragments("p1", false);
+		IPackageFragment[] pkgs = getNameLookup(project).findPackageFragments("p1", false);
 		assertElementsEqual(
 			"Didn't find p1",
 			"p1 [in src [in P]]",
@@ -113,7 +117,7 @@ public void testAddPackageFragment2() throws CoreException {
 		
 		this.createFolder("/P/src/p2");
 	
-		pkgs = project.newNameLookup((WorkingCopyOwner)null).findPackageFragments("p2", false);
+		pkgs = getNameLookup(project).findPackageFragments("p2", false);
 		assertElementsEqual(
 			"Didn't find p2",
 			"p2 [in src [in P]]",
