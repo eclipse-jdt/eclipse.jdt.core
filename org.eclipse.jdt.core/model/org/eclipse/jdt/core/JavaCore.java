@@ -2083,14 +2083,6 @@ public final class JavaCore extends Plugin {
 		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
 			return preferences.getString(propertyName).trim();
-		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-			// TODO (olivier) remove after M7
-			Preferences preferences = getPlugin().getPluginPreferences();
-			return Util.getConvertedDeprecatedValue(preferences, propertyName);
-		} else if (propertyName.equals("org.eclipse.jdt.core.align_type_members_on_columns")) { //$NON-NLS-1$
-			// TODO (olivier) remove after M7
-			Preferences preferences = getPlugin().getPluginPreferences();
-			return preferences.getString(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS);
 		}
 		return null;
 	}
@@ -2129,13 +2121,6 @@ public final class JavaCore extends Plugin {
 				String value = preferences.getString(propertyName).trim();
 				if (optionNames.contains(propertyName)){
 					options.put(propertyName, value);
-				}
-				// TODO (olivier) Remove after M7
-				else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-					Util.convertFormatterDeprecatedOptions(propertyName, value, options);
-				} else if (propertyName.equals("org.eclipse.jdt.core.align_type_members_on_columns")) { //$NON-NLS-1$
-					// TODO (olivier) remove after M7
-					options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, value);
 				}
 			}
 			// get encoding through resource plugin

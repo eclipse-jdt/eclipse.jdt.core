@@ -1400,10 +1400,6 @@ public class JavaProject
 				return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
 			}
 			return preferences.getString(propertyName).trim();
-		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-			// TODO (olivier) remove after M7
-			Preferences preferences = getPreferences();
-			return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : Util.getConvertedDeprecatedValue(preferences, propertyName);
 		}
 		return null;
 	}
@@ -1429,10 +1425,6 @@ public class JavaProject
 			String value = preferences.getString(propertyName).trim();
 			if (optionNames.contains(propertyName)){
 				options.put(propertyName, value);
-			}		
-			// TODO (olivier) Remove after M7
-			else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
-				Util.convertFormatterDeprecatedOptions(propertyName, value, options);
 			}
 		}		
 
