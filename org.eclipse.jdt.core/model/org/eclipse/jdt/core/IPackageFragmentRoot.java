@@ -102,7 +102,8 @@ public interface IPackageFragmentRoot
 	 * @param updateClasspath whether the classpath of the destination project
 	 * should be updated
 	 * @param sibling the classpath entry before which a copy of the classpath
-	 * entry should be inserted
+	 * entry should be inserted or <code>null</code> if the classpath entry should
+	 * be inserted at the end
 	 * @param monitor a progress monitor
 	 * 
 	 * @exception JavaModelException if this root could not be copied. Reasons
@@ -305,7 +306,8 @@ public interface IPackageFragmentRoot
 	 * @param updateClasspath whether the classpaths of the referring projects
 	 * and destination project should be updated
 	 * @param sibling the classpath entry before which a copy of the classpath
-	 * entry should be inserted
+	 * entry should be inserted or <code>null</code> if the classpath entry should
+	 * be inserted at the end
 	 * @param monitor a progress monitor
 	 * 
 	 * @exception JavaModelException if this root could not be moved. Reasons
