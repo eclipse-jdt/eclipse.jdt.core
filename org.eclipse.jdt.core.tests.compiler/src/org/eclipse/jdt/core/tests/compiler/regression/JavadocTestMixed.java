@@ -35,7 +35,13 @@ public class JavadocTestMixed extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug66551", "Bug66551a" };
+//		testsNames = new String[] {
+//			"Bug68017conform", "Bug68017negative", "Bug68017javadocWarning1","Bug68017javadocWarning2",
+//			"Bug68025conform", "Bug68025negative",
+//			"Bug69272classValid", "Bug69272classInvalid", "Bug69272fieldValid", "Bug69272fieldInvalid", "Bug69272methodValid", "Bug69272methodInvalid", 
+//			"Bug69275conform", "Bug69275negative",
+//			"Bug69302conform1", "Bug69302conform2", "Bug69302negative"
+//		};
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -1295,26 +1301,31 @@ public class JavadocTestMixed extends JavadocTest {
 				"	}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	* @see X(double)\n" + 
-			"	        ^^^^^^^^\n" + 
-			"Javadoc: Invalid reference\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	* @see X   (double)\n" + 
-			"	           ^^^^^^^^\n" + 
-			"Javadoc: Invalid reference\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
-			"	* @see foo()\n" + 
-			"	          ^^\n" + 
-			"Javadoc: Invalid reference\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 9)\n" + 
-			"	* @see foo  ()\n" + 
-			"	            ^^\n" + 
-			"Javadoc: Invalid reference\n" + 
-			"----------\n"
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @see X(double)\n" + 
+				"	       ^^^^^^^^^\n" + 
+				"Javadoc: Missing #: \"X(double\"\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* @see X[double]\n" + 
+				"	       ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	* @see X!=}}\n" + 
+				"	       ^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	* @see foo()\n" + 
+				"	       ^^^^^\n" + 
+				"Javadoc: Missing #: \"foo(\"\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
+				"	* @see foo  ()\n" + 
+				"	       ^^^\n" + 
+				"Javadoc: foo cannot be resolved or is not a type\n" + 
+				"----------\n"
 		);
 	}
 
@@ -2430,22 +2441,22 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in Test.java (at line 2)\n" + 
 				"	* @see Object#clone())\n" + 
 				"	                   ^^^\n" + 
-				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n" + 
 				"2. ERROR in Test.java (at line 3)\n" + 
 				"	* @see Object#equals(Object)}\n" + 
 				"	                    ^^^^^^^^^\n" + 
-				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n" + 
 				"3. ERROR in Test.java (at line 4)\n" + 
 				"	* @see Object#equals(Object))\n" + 
 				"	                    ^^^^^^^^^\n" + 
-				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n" + 
 				"4. ERROR in Test.java (at line 5)\n" + 
 				"	* @see Object#equals(Object)xx\n" + 
 				"	                    ^^^^^^^^^^\n" + 
-				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n"
 		);
 	}
@@ -2467,17 +2478,17 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in Test.java (at line 2)\n" + 
 				"	* {@link Object#clone())}\n" + 
 				"	                     ^^^^\n" + 
-				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n" + 
 				"2. ERROR in Test.java (at line 4)\n" + 
 				"	* {@link Object#equals(Object))}\n" + 
 				"	                      ^^^^^^^^^^\n" + 
-				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n" + 
 				"3. ERROR in Test.java (at line 5)\n" + 
 				"	* {@link Object#equals(Object)xx}\n" + 
 				"	                      ^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n"
 		);
 	}
@@ -3018,6 +3029,502 @@ public class JavadocTestMixed extends JavadocTest {
 				"	* @see Local\n" + 
 				"	       ^^^^^\n" + 
 				"Javadoc: Local cannot be resolved to a type\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 68017: Javadoc processing does not detect missing argument to @return
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017">68017</a>
+	 */
+	public void testBug68017conform() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@return valid integer*/\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return #\n" + 
+					"	 */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"}\n",
+			}
+		);
+	}
+	public void testBug68017negative() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@return*/\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/**@return        */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"	/**@return****/\n" + 
+					"	public int foo3() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return\n" + 
+					"	 */\n" + 
+					"	public int foo4() {return 0; }\n" + 
+					"}\n",
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	/**@return*/\n" + 
+				"	    ^^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	/**@return        */\n" + 
+				"	    ^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	/**@return****/\n" + 
+				"	    ^^^^^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 9)\n" + 
+				"	*	@return\n" + 
+				"	 	 ^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n"
+		);
+	}
+	// Javadoc issue a warning on following tests
+	public void testBug68017javadocWarning1() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return* */\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/**@return** **/\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"}\n",
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	*	@return* */\n" + 
+				"	 	 ^^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	/**@return** **/\n" + 
+				"	    ^^^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug68017javadocWarning2() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return#\n" + 
+					"	 */\n" + 
+					"	public int foo() {return 0; }\n" + 
+					"}\n",
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	*	@return#\n" + 
+				"	 	 ^^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 68025: Javadoc processing does not detect some wrong links
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025">68025</a>
+	 */
+	public void testBug68025conform() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Y.java",
+				"public class Y {\n" + 
+					"	public int field;\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+				"Z.java",
+				"public class Z {\n" + 
+					"	/**\n" + 
+					"	 *	@see Y#field #valid\n" + 
+					"	 *	@see Y#foo #valid\n" + 
+					"	 */\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see Y#field     # valid*/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see Y#foo		# valid*/\n" + 
+					"	public void foo3() {}\n" + 
+					"	/**@see Y#foo()\n" + 
+					"	 *# valid*/\n" + 
+					"	public void foo4() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug68025negative() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	public int field;\n" + 
+					"	public void foo() {}\n" + 
+					"	/**\n" + 
+					"	 *	@see #field#invalid\n" + 
+					"	 *	@see #foo#invalid\n" + 
+					"	 */\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see Y#field# invalid*/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see Y#foo#	invalid*/\n" + 
+					"	public void foo3() {}\n" + 
+					"	/**@see Y#foo()#\n" + 
+					"	 *valid*/\n" + 
+					"	public void foo4() {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	*	@see #field#invalid\n" + 
+				"	 	     ^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	*	@see #foo#invalid\n" + 
+				"	 	     ^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 9)\n" + 
+				"	/**@see Y#field# invalid*/\n" + 
+				"	         ^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 11)\n" + 
+				"	/**@see Y#foo#	invalid*/\n" + 
+				"	         ^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 13)\n" + 
+				"	/**@see Y#foo()#\n" + 
+				"	             ^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 69272: [Javadoc] Invalid malformed reference (missing separator)
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272">69272</a>
+	 */
+	public void testBug69272classValid() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@see Object*/\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see Object\n" + 
+					"	*/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see Object    */\n" + 
+					"	public void foo3() {}\n" + 
+					"	/**@see Object****/\n" + 
+					"	public void foo4() {}\n" + 
+					"	/**@see Object		****/\n" + 
+					"	public void foo5() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug69272classInvalid() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@see Object* */\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see Object*** ***/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see Object***\n" + 
+					"	 */\n" + 
+					"	public void foo3() {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	/**@see Object* */\n" + 
+				"	        ^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	/**@see Object*** ***/\n" + 
+				"	        ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	/**@see Object***\n" + 
+				"	        ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug69272fieldValid() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	int field;\n" + 
+					"	/**@see #field*/\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see #field\n" + 
+					"	*/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see #field    */\n" + 
+					"	public void foo3() {}\n" + 
+					"	/**@see #field****/\n" + 
+					"	public void foo4() {}\n" + 
+					"	/**@see #field		********/\n" + 
+					"	public void foo5() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug69272fieldInvalid() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	int field;\n" + 
+					"	/**@see #field* */\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see #field*** ***/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see #field***\n" + 
+					"	 */\n" + 
+					"	public void foo3() {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	/**@see #field* */\n" + 
+				"	        ^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	/**@see #field*** ***/\n" + 
+				"	        ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	/**@see #field***\n" + 
+				"	        ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug69272methodValid() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@see Object#wait()*/\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see Object#wait()\n" + 
+					"	*/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see Object#wait()    */\n" + 
+					"	public void foo3() {}\n" + 
+					"	/**@see Object#wait()****/\n" + 
+					"	public void foo4() {}\n" + 
+					"	/**@see Object#wait()		****/\n" + 
+					"	public void foo5() {}\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug69272methodInvalid() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@see Object#wait()* */\n" + 
+					"	public void foo1() {}\n" + 
+					"	/**@see Object#wait()*** ***/\n" + 
+					"	public void foo2() {}\n" + 
+					"	/**@see Object#wait()***\n" + 
+					"	 */\n" + 
+					"	public void foo3() {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	/**@see Object#wait()* */\n" + 
+				"	                   ^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	/**@see Object#wait()*** ***/\n" + 
+				"	                   ^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	/**@see Object#wait()***\n" + 
+				"	                   ^^^^^\n" + 
+				"Javadoc: Malformed reference (missing end space separator)\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 69275: [Javadoc] Invalid warning on @see link
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275">69275</a>
+	 */
+	public void testBug69275conform() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
+					"	void foo1() {}\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>\n" + 
+					"	*/\n" + 
+					"	void foo2() {}\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>		*/\n" + 
+					"	void foo3() {}\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>**/\n" + 
+					"	void foo4() {}\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>     *****/\n" + 
+					"	void foo5() {}\n" + 
+					"}\n"	
+			}
+		);
+	}
+	public void testBug69275negative() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>* */\n" + 
+					"	void foo1() {}\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>	** **/\n" + 
+					"	void foo2() {}\n" + 
+					"	/**@see <a href=\"http://www.eclipse.org\">text</a>**\n" + 
+					"	*/\n" + 
+					"	void foo3() {}\n" + 
+					"}\n"	
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	/**@see <a href=\"http://www.eclipse.org\">text</a>* */\n" + 
+				"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	/**@see <a href=\"http://www.eclipse.org\">text</a>	** **/\n" + 
+				"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302">69302</a>
+	 */
+	public void testBug69302conform1() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@see Object <a href=\"http://www.eclipse.org\">Eclipse</a>\n" + 
+					"	 */\n" + 
+					"	void foo1() {}\n" + 
+					"	/**\n" + 
+					"	 *	@see Object \"Valid string reference\"\n" + 
+					"	 */\n" + 
+					"	void foo2() {}\n" + 
+					"}\n"	
+			}
+		);
+	}
+	public void testBug69302conform2() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@see Unknown <a href=\"http://www.eclipse.org\">Eclipse</a>\n" + 
+					"	 */\n" + 
+					"	void foo1() {}\n" + 
+					"	/**\n" + 
+					"	 *	@see Unknown \"Valid string reference\"\n" + 
+					"	 */\n" + 
+					"	void foo2() {}\n" + 
+					"}\n"	
+			}
+		);
+	}
+	public void testBug69302negative() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
+					"	void foo1() {}\n" + 
+					"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
+					"	void foo2() {}\n" + 
+					"}\n"	
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
+				"	        ^^^^^^^\n" + 
+				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
+				"	        ^^^^^^^\n" + 
+				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
 				"----------\n"
 		);
 	}

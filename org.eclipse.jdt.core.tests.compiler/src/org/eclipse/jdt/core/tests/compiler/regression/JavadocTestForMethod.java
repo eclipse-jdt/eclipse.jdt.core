@@ -1617,7 +1617,7 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	/**\n"
 					+ "	 * Valid empty return declaration\n"
 					+ "	 *\n"
-					+ "	 * @return\n"
+					+ "	 * @return string\n"
 					+ "	 */\n"
 					+ "	public String s_foo() {\n"
 					+ "	  return \"\";\n"

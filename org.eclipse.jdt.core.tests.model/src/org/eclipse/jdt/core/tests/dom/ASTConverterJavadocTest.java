@@ -127,9 +127,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Run test cases subset
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug51600"));
-		suite.addTest(new ASTConverterJavadocTest("testBug54424"));
-		suite.addTest(new ASTConverterJavadocTest("testBug65174"));
+		suite.addTest(new ASTConverterJavadocTest("testBug68017"));
 		return suite;
 	}
 
@@ -569,31 +567,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					else buffer.append(this.chars);
 					break;
 				case 3: // '/**' has bee found, verify that's not an empty block comment
-					if (this.chars == null) buffer.append(currentChar);
-					else buffer.append(this.chars);
 					if (currentChar == '/') { // empty block comment
+						if (this.chars == null) buffer.append(currentChar);
+						else buffer.append(this.chars);
 						this.comments.add(buffer.toString());
 						this.allTags.add(new ArrayList());
 						comment = 0;
-					} else {
-						comment = DOC_COMMENT;
+						break;
 					}
-					break;
-				case LINE_COMMENT:
-					if (currentChar == '\r' || currentChar == '\n') {
-						/*
-						if (currentChar == '\r' && source[i+1] == '\n') {
-							buffer.append(source[++i]);
-						}
-						*/
-						comment = 0;
-						this.comments.add(buffer.toString());
-						this.allTags.add(tags);
-					} else {
-						if (this.chars == null) buffer.append(currentChar);
-						else buffer.append(this.chars);
-					}
-					break;
+					// do not break, directly go to next case...
+					comment = DOC_COMMENT;
 				case DOC_COMMENT:
 					if (tag != null) {
 						if (currentChar >= 'a' && currentChar <= 'z') {
@@ -632,6 +615,21 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						tags = new ArrayList();
 					}
 					end = currentChar == '*';
+					break;
+				case LINE_COMMENT:
+					if (currentChar == '\r' || currentChar == '\n') {
+						/*
+						if (currentChar == '\r' && source[i+1] == '\n') {
+							buffer.append(source[++i]);
+						}
+						*/
+						comment = 0;
+						this.comments.add(buffer.toString());
+						this.allTags.add(tags);
+					} else {
+						if (this.chars == null) buffer.append(currentChar);
+						else buffer.append(this.chars);
+					}
 					break;
 				default:
 					// do nothing
@@ -1993,7 +1991,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				"@ejb",
 				"@ejb+bean",
 				"@ejb,bean",
-				"@ejb",
+				"@ejb-bean",
 				"@ejb.bean",
 				"@ejb/bean",
 				"@ejb",
@@ -2026,7 +2024,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				"*bean test non-java id character '*' (val=42) in tag name",
 				" test non-java id character '+' (val=43) in tag name",
 				" test non-java id character ',' (val=44) in tag name",
-				"-bean test non-java id character '-' (val=45) in tag name",
+				" test non-java id character '-' (val=45) in tag name",
 				" test non-java id character '.' (val=46) in tag name",
 				" test non-java id character '/' (val=47) in tag name",
 				":bean test non-java id character ':' (val=58) in tag name",
@@ -2065,7 +2063,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * Test fix for bug 65174: [Javadoc] @@tag is wrongly parsed as @tag
+	 * Test fix for bug 65174: Spurious "Javadoc: Missing reference" error
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65174">65174</a>
 	 */
 	public void testBug65174() throws JavaModelException {
@@ -2081,10 +2079,50 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * Test fix for bug 65288: [Javadoc] @@tag is wrongly parsed as @tag
+	 * Test fix for bug 65288: Javadoc: tag gets mangled when javadoc closing on same line without whitespace
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65288">65288</a>
 	 */
 	public void testBug65288() throws JavaModelException {
 		verifyComments("testBug65288");
+	}
+
+	/**
+	 * Test fix for bug 68017: Javadoc processing does not detect missing argument to @return
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68017">68017</a>
+	 */
+	public void testBug68017() throws JavaModelException {
+		verifyComments("testBug68017");
+	}
+
+	/**
+	 * Test fix for bug 68025: Javadoc processing does not detect some wrong links
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68025">68025</a>
+	 */
+	public void testBug68025() throws JavaModelException {
+		verifyComments("testBug68025");
+	}
+
+	/**
+	 * Test fix for bug 69272: [Javadoc] Invalid malformed reference (missing separator)
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272">69272</a>
+	 */
+	public void testBug69272() throws JavaModelException {
+		verifyComments("testBug69272");
+	}
+
+	/**
+	 * Test fix for bug 69275: [Javadoc] Invalid warning on @see link
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69275">69275</a>
+	 */
+	public void testBug69275() throws JavaModelException {
+		verifyComments("testBug69275");
+	}
+
+	/**
+	 * Test fix for bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302">69302</a>
+	 */
+	public void testBug69302() throws JavaModelException {
+		verifyComments("testBug69302");
 	}
 }
