@@ -804,19 +804,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
-	
-		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
-		if (projectContainers == null){
-			projectContainers = new HashMap(1);
-			JavaModelManager.Containers.put(project, projectContainers);
-		}
-		IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
-	
+
+		IClasspathContainer container = JavaModelManager.containerGet(project, containerPath);
 		if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+
 		if (container == null){
 			final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
 			if (initializer != null){
-				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
+					System.out.println("CPContainer INIT - triggering initialization of: ["+project.getElementName()+"] " + containerPath + " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+					new Exception("FAKE exception for dumping current CPContainer (["+project.getElementName()+"] "+ containerPath+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				}
+				JavaModelManager.containerPut(project, containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
 				boolean ok = false;
 				try {
 					// wrap initializer call with Safe runnable in case initializer would be causing some grief
@@ -830,17 +829,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					});
 					
 					// retrieve value (if initialization was successful)
-					container = (IClasspathContainer)projectContainers.get(containerPath);
+					container = JavaModelManager.containerGet(project, containerPath);
 					if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 					ok = true;
 				} finally {
-					if (!ok) JavaModelManager.Containers.put(project, null); // flush cache
-				}
-				if (container != null){
-					projectContainers.put(containerPath, container);
+					if (!ok) JavaModelManager.containerPut(project, containerPath, null); // flush cache
 				}
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.print("CPContainer INIT - after resolution: " + containerPath + " --> "); //$NON-NLS-2$//$NON-NLS-1$
+					System.out.print("CPContainer INIT - after resolution: ["+project.getElementName()+"] " + containerPath + " --> "); //$NON-NLS-2$//$NON-NLS-1$//$NON-NLS-3$
 					if (container != null){
 						System.out.print("container: "+container.getDescription()+" {"); //$NON-NLS-2$//$NON-NLS-1$
 						IClasspathEntry[] entries = container.getClasspathEntries();
@@ -855,6 +851,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						System.out.println("{unbound}");//$NON-NLS-1$
 					}
 				}
+			} else {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
+					System.out.println("CPContainer INIT - no initializer found for: "+project.getElementName()+"] " + containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 		}
 		return container;			
@@ -867,6 +867,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * A containerID is the first segment of any container path, used to identify the registered container initializer.
 	 * <p>
+	 * @param String - a containerID identifying a registered initializer
 	 * @return ClasspathContainerInitializer - the registered classpath container initializer or <code>null</code> if 
 	 * none was found.
 	 * @since 2.1
@@ -919,46 +920,61 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #setClasspathVariable
 	 */
 	public static IPath getClasspathVariable(final String variableName) {
-
+	
 		IPath variablePath = JavaModelManager.variableGet(variableName);
 		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
 		
 		if (variablePath != null) {
 			return variablePath;
 		}
+
 		// even if persisted value exists, initializer is given priority, only if no initializer is found the persisted value is reused
-		final ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
+		final ClasspathVariableInitializer initializer = JavaCore.getClasspathVariableInitializer(variableName);
 		if (initializer != null){
-			JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
-			// wrap initializer call with Safe runnable in case initializer would be causing some grief
-			Platform.run(new ISafeRunnable() {
-				public void handleException(Throwable exception) {
-					Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer); //$NON-NLS-1$
-				}
-				public void run() throws Exception {
-					initializer.initialize(variableName);
-				}
-			});
-			variablePath = (IPath) JavaModelManager.variableGet(variableName); // retry
-			if (variablePath == JavaModelManager.VariableInitializationInProgress) {
-				// variable was not initialized by initializer, remove it
-				JavaModelManager.variablePut(variableName, null);
-				return null; // break cycle
-			}
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
+				System.out.println("CPVariable INIT - triggering initialization of: " + variableName+ " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$
+				new Exception("FAKE exception for dumping current CPVariable ("+variableName+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$
+			}
+			JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
+			boolean ok = false;
+			try {
+				// wrap initializer call with Safe runnable in case initializer would be causing some grief
+				Platform.run(new ISafeRunnable() {
+					public void handleException(Throwable exception) {
+						Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer+" while initializing variable: "+variableName); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					public void run() throws Exception {
+						initializer.initialize(variableName);
+					}
+				});
+				variablePath = (IPath) JavaModelManager.variableGet(variableName); // initializer should have performed side-effect
+				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle (initializer did not init or reentering call)
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
+					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
+				}
+				ok = true;
+			} finally {
+				if (!ok) JavaModelManager.variablePut(variableName, null); // flush cache
+			}
+		} else {
+			if (JavaModelManager.CP_RESOLVE_VERBOSE){
+				System.out.println("CPVariable INIT - no initializer found for: " + variableName); //$NON-NLS-1$
 			}
 		}
 		return variablePath;
 	}
 
 	/**
- 	 * Retrieve the client classpath variable initializer registered for a given variable if any
- 	 * 
+	 * Helper method finding the classpath variable initializer registered for a given classpath variable name 
+	 * or <code>null</code> if none was found while iterating over the contributions to extension point to
+	 * the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
+	 * <p>
  	 * @param the given variable
- 	 * @return the client classpath variable initializer registered for a given variable, <code>null</code> if none
+ 	 * @return ClasspathVariableInitializer - the registered classpath variable initializer or <code>null</code> if 
+	 * none was found.
+	 * @since 2.1
  	 */
-	private static ClasspathVariableInitializer getClasspathVariableInitializer(String variable){
+	public static ClasspathVariableInitializer getClasspathVariableInitializer(String variable){
 		
 		Plugin jdtCorePlugin = JavaCore.getPlugin();
 		if (jdtCorePlugin == null) return null;
@@ -1544,19 +1560,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *   if the given variable entry could not be resolved to a valid classpath entry
 	 */
 	public static IClasspathEntry getResolvedClasspathEntry(IClasspathEntry entry) {
-
+	
 		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE)
 			return entry;
-
+	
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		IPath resolvedPath = JavaCore.getResolvedVariablePath(entry.getPath());
 		if (resolvedPath == null)
 			return null;
-
+	
 		Object target = JavaModel.getTarget(workspaceRoot, resolvedPath, false);
 		if (target == null)
 			return null;
-
+	
 		// inside the workspace
 		if (target instanceof IResource) {
 			IResource resolvedResource = (IResource) target;
@@ -1625,19 +1641,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return the resolved variable path or <code>null</code> if none
 	 */
 	public static IPath getResolvedVariablePath(IPath variablePath) {
-
+	
 		if (variablePath == null)
 			return null;
 		int count = variablePath.segmentCount();
 		if (count == 0)
 			return null;
-
+	
 		// lookup variable	
 		String variableName = variablePath.segment(0);
 		IPath resolvedPath = JavaCore.getClasspathVariable(variableName);
 		if (resolvedPath == null)
 			return null;
-
+	
 		// append path suffix
 		if (count > 1) {
 			resolvedPath = resolvedPath.append(variablePath.removeFirstSegments(1));
@@ -2352,8 +2368,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
 		Assert.isTrue(exclusionPatterns != null, Util.bind("classpath.nullExclusionPattern" )); //$NON-NLS-1$
-//TODO: check here on in conventions ?
-//		Assert.isTrue(path.segment(0).equals(outputLocation.segment(0)), Util.bind("classpath.mustBeInSameProject" )); //$NON-NLS-1$
 
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -2597,14 +2611,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static void setClasspathContainer(IPath containerPath, final IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
-	
+		//TODO: need support for avoiding reentering calls (through getResolvedClasspath
+
 		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
 	
 		if (monitor != null && monitor.isCanceled()) return;
 	
 		final int projectLength = affectedProjects.length;
 		final IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
-	
+			
 		// filter out unmodified project containers
 		int remaining = 0;
 		for (int i = 0; i < projectLength; i++){
@@ -2629,22 +2644,29 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				affectedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't Java project
 			}
 			
-			Map perProjectContainers = (Map)JavaModelManager.Containers.get(affectedProject);
-			if (perProjectContainers == null){
-				perProjectContainers = new HashMap();
-				JavaModelManager.Containers.put(affectedProject, perProjectContainers);
-			} else {
-				IClasspathContainer oldContainer = (IClasspathContainer) perProjectContainers.get(containerPath);
-				if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){
-					affectedProjects[i] = null; // filter out this project - container did not change
-					continue;
+			IClasspathContainer oldContainer = JavaModelManager.containerGet(affectedProject, containerPath);
+			if (oldContainer == JavaModelManager.ContainerInitializationInProgress) {
+				Map previousContainerValues = (Map)JavaModelManager.PreviousSessionContainers.get(affectedProject);
+				if (previousContainerValues != null){
+					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
+					if (previousContainer != null) {
+						if (JavaModelManager.CP_RESOLVE_VERBOSE){
+							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer); //$NON-NLS-1$ //$NON-NLS-2$
+						}
+						JavaModelManager.containerPut(affectedProject, containerPath, previousContainer); 
+					}
+					oldContainer = previousContainer;
 				}
 			}
+			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){// TODO: could improve to only compare entries
+				affectedProjects[i] = null; // filter out this project - container did not change
+				continue;
+			}
 			if (found){
-				remaining++;
+				remaining++; 
 				oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
 			}
-			perProjectContainers.put(containerPath, newContainer);
+			JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
 		}
 		
 		if (remaining == 0) return;
@@ -2852,7 +2874,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			// retrieve variable values
 			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(new JavaModelManager.PluginPreferencesListener());
-			manager.loadVariables();
+			manager.loadVariablesAndContainers();
 
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
@@ -2893,8 +2915,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		// filter out unmodified variables
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
-			IPath oldPath = (IPath)JavaModelManager.variableGet(variableNames[i]);
-			if (oldPath == JavaModelManager.VariableInitializationInProgress) oldPath = null;
+			String variableName = variableNames[i];
+			IPath oldPath = (IPath)JavaModelManager.variableGet(variableName); // if reentering will provide previous session value 
+			if (oldPath == JavaModelManager.VariableInitializationInProgress){
+				IPath previousPath = (IPath)JavaModelManager.PreviousSessionVariables.get(variableName);
+				if (previousPath != null){
+					if (JavaModelManager.CP_RESOLVE_VERBOSE){
+						System.out.println("CPVariable INIT - reentering access to variable: " + variableName+ " during its initialization, will see previous value: "+ previousPath); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					JavaModelManager.variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
+				}
+				oldPath = previousPath;
+			}
 			if (oldPath != null && oldPath.equals(variablePaths[i])){
 				variableNames[i] = null;
 				discardCount++;
@@ -2935,14 +2967,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
 	
 							if (variableName.equals(entry.getPath().segment(0))){
-								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
+								affectedProjects.put(project, project.getResolvedClasspath(true));
 								continue nextProject;
 							}
 							IPath sourcePath, sourceRootPath;
 							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
 								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
 	
-								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
+								affectedProjects.put(project, project.getResolvedClasspath(true));
 								continue nextProject;
 							}
 						}												
@@ -2952,8 +2984,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 		// update variables
 		for (int i = 0; i < varLength; i++){
-			IPath path = variablePaths[i];
-			JavaModelManager.variablePut(variableNames[i], path);
+			JavaModelManager.variablePut(variableNames[i], variablePaths[i]);
 		}
 				
 		// update affected project classpaths

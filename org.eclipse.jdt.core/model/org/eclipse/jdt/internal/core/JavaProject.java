@@ -545,6 +545,83 @@ public class JavaProject
 	}
 
 	/**
+	 * Reads and decode an XML classpath string
+	 */
+	protected IClasspathEntry[] decodeClasspath(String xmlClasspath, boolean createMarker, boolean logProblems) {
+
+		ArrayList paths = new ArrayList();
+		try {
+			if (xmlClasspath == null) return null;
+			StringReader reader = new StringReader(xmlClasspath);
+			Element cpElement;
+	
+			try {
+				DocumentBuilder parser =
+					DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
+			} catch (SAXException e) {
+				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			} catch (ParserConfigurationException e) {
+				reader.close();
+				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			} finally {
+				reader.close();
+			}
+	
+			if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
+				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			}
+			NodeList list = cpElement.getElementsByTagName("classpathentry"); //$NON-NLS-1$
+			int length = list.getLength();
+	
+			for (int i = 0; i < length; ++i) {
+				Node node = list.item(i);
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					IClasspathEntry entry = ClasspathEntry.elementDecode((Element)node, this);
+					if (entry != null) paths.add(entry);
+				}
+			}
+		} catch (IOException e) {
+			// bad format
+			if (createMarker && this.getProject().isAccessible()) {
+				this.createClasspathProblemMarker(
+					Util.bind("classpath.xmlFormatError", this.getElementName(), e.getMessage()), //$NON-NLS-1$
+					IMarker.SEVERITY_ERROR,
+					false,	//  cycle error
+					true);	//	file format error
+			}
+			if (logProblems) {
+				Util.log(e, 
+					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+					+"/.classpath, will mark classpath as invalid"); //$NON-NLS-1$
+			}
+			return INVALID_CLASSPATH;
+		} catch (Assert.AssertionFailedException e) { 
+			// failed creating CP entries from file
+			if (createMarker && this.getProject().isAccessible()) {
+				this.createClasspathProblemMarker(
+					Util.bind("classpath.illegalEntryInClasspathFile", this.getElementName(), e.getMessage()), //$NON-NLS-1$
+					IMarker.SEVERITY_ERROR,
+					false,	//  cycle error
+					true);	//	file format error
+			}
+			if (logProblems) {
+				Util.log(e, 
+					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+					+"/.classpath, will mark classpath as invalid"); //$NON-NLS-1$
+			}
+			return INVALID_CLASSPATH;
+		}
+		if (paths.size() > 0) {
+			IClasspathEntry[] ips = new IClasspathEntry[paths.size()];
+			paths.toArray(ips);
+			return ips;
+		} else {
+			return null;
+		}
+	}
+
+	/**
 	/**
 	 * Removes the Java nature from the project.
 	 */
@@ -572,6 +649,49 @@ public class JavaProject
 		return getProject().getFullPath().append("bin"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Returns the XML String encoding of the class path.
+	 */
+	protected String encodeClasspath(IClasspathEntry[] classpath, IPath outputLocation, boolean useLineSeparator) throws JavaModelException {
+
+		Document document = new DocumentImpl();
+		Element cpElement = document.createElement("classpath"); //$NON-NLS-1$
+		document.appendChild(cpElement);
+
+		for (int i = 0; i < classpath.length; ++i) {
+			cpElement.appendChild(((ClasspathEntry)classpath[i]).elementEncode(document, getProject().getFullPath()));
+		}
+
+		if (outputLocation != null) {
+			outputLocation = outputLocation.removeFirstSegments(1);
+			outputLocation = outputLocation.makeRelative();
+			Element oElement = document.createElement("classpathentry"); //$NON-NLS-1$
+			oElement.setAttribute("kind", ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));	//$NON-NLS-1$
+			oElement.setAttribute("path", outputLocation.toString()); //$NON-NLS-1$
+			cpElement.appendChild(oElement);
+		}
+
+		// produce a String output
+		try {
+			ByteArrayOutputStream s = new ByteArrayOutputStream();
+			OutputFormat format = new OutputFormat();
+			if (useLineSeparator) {
+				format.setIndenting(true);
+				format.setLineSeparator(System.getProperty("line.separator"));  //$NON-NLS-1$
+			} else {
+				format.setPreserveSpace(true);
+			}			
+			Serializer serializer =
+				SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(
+					new OutputStreamWriter(s, "UTF8"), //$NON-NLS-1$
+					format);
+			serializer.asDOMSerializer().serialize(document);
+			return s.toString("UTF8"); //$NON-NLS-1$
+		} catch (IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
+	}
+	
 	/**
 	 * Returns true if this handle represents the same Java project
 	 * as the given handle. Two handles represent the same
@@ -717,13 +837,8 @@ public class JavaProject
 				if (classpath[i].equals(entry)) { // entry may need to be resolved
 					return 
 						computePackageFragmentRoots(
-							getResolvedClasspath(
-								new IClasspathEntry[] {entry}, 
-								true, // ignore unresolved entry
-								false // don't generate marker on error
-							), 
-							false // don't retrieve exported roots
-						);
+							getResolvedClasspath(new IClasspathEntry[] {entry}, true, false), 
+							false); // don't retrieve exported roots
 				}
 			}
 		} catch (JavaModelException e) {
@@ -828,49 +943,6 @@ public class JavaProject
 		throws JavaModelException {
 
 		return computePackageFragmentRoots(getResolvedClasspath(true), true);
-	}
-
-	/**
-	 * Returns the XML String encoding of the class path.
-	 */
-	protected String getClasspathAsXML(
-		IClasspathEntry[] classpath,
-		IPath outputLocation)
-		throws JavaModelException {
-
-		Document document = new DocumentImpl();
-		Element cpElement = document.createElement("classpath"); //$NON-NLS-1$
-		document.appendChild(cpElement);
-
-		for (int i = 0; i < classpath.length; ++i) {
-			cpElement.appendChild(((ClasspathEntry)classpath[i]).elementEncode(document, getProject().getFullPath()));
-		}
-
-		if (outputLocation != null) {
-			outputLocation = outputLocation.removeFirstSegments(1);
-			outputLocation = outputLocation.makeRelative();
-			Element oElement = document.createElement("classpathentry"); //$NON-NLS-1$
-			oElement.setAttribute("kind", ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));	//$NON-NLS-1$
-			oElement.setAttribute("path", outputLocation.toString()); //$NON-NLS-1$
-			cpElement.appendChild(oElement);
-		}
-
-		// produce a String output
-		try {
-			ByteArrayOutputStream s= new ByteArrayOutputStream();
-			OutputFormat format = new OutputFormat();
-			format.setIndenting(true);
-			format.setLineSeparator(System.getProperty("line.separator"));  //$NON-NLS-1$
-			
-			Serializer serializer =
-				SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(
-					new OutputStreamWriter(s, "UTF8"), //$NON-NLS-1$
-					format);
-			serializer.asDOMSerializer().serialize(document);
-			return s.toString("UTF8"); //$NON-NLS-1$
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		}
 	}
 
 	/**
@@ -1307,6 +1379,7 @@ public class JavaProject
 
 	/**
 	 * Internal variant which can create marker on project for invalid entries
+	 * and caches the resolved classpath on perProjectInfo
 	 */
 	public IClasspathEntry[] getResolvedClasspath(
 		boolean ignoreUnresolvedEntry,
@@ -1346,7 +1419,7 @@ public class JavaProject
 	public IClasspathEntry[] getResolvedClasspath(
 		IClasspathEntry[] classpathEntries,
 		boolean ignoreUnresolvedEntry,
-		boolean generateMarkerOnError)
+		boolean generateMarkerOnError) // if unresolved entries are met, should it trigger initializations
 		throws JavaModelException {
 
 		if (generateMarkerOnError){
@@ -1754,6 +1827,7 @@ public class JavaProject
 		}
 	}
 
+
 	/**
 	 * Reads the .classpath file from disk and returns the list of entries it contains (including output location entry)
 	 * Returns null if .classfile is not present.
@@ -1761,39 +1835,10 @@ public class JavaProject
 	 */
 	protected IClasspathEntry[] readClasspathFile(boolean createMarker, boolean logProblems) {
 
-		ArrayList paths = new ArrayList();
 		try {
 			String xmlClasspath = getSharedProperty(CLASSPATH_FILENAME);
 			if (xmlClasspath == null) return null;
-			StringReader reader = new StringReader(xmlClasspath);
-			Element cpElement;
-	
-			try {
-				DocumentBuilder parser =
-					DocumentBuilderFactory.newInstance().newDocumentBuilder();
-				cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
-			} catch (SAXException e) {
-				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
-			} catch (ParserConfigurationException e) {
-				reader.close();
-				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
-			} finally {
-				reader.close();
-			}
-	
-			if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
-				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
-			}
-			NodeList list = cpElement.getElementsByTagName("classpathentry"); //$NON-NLS-1$
-			int length = list.getLength();
-	
-			for (int i = 0; i < length; ++i) {
-				Node node = list.item(i);
-				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					IClasspathEntry entry = ClasspathEntry.elementDecode((Element)node, this);
-					if (entry != null) paths.add(entry);
-				}
-			}
+			return decodeClasspath(xmlClasspath, createMarker, logProblems);
 		} catch(CoreException e) {
 			// file does not exist (or not accessible)
 			if (createMarker && this.getProject().isAccessible()) {
@@ -1808,44 +1853,8 @@ public class JavaProject
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
 			}
-		} catch (IOException e) {
-			// bad format
-			if (createMarker && this.getProject().isAccessible()) {
-				this.createClasspathProblemMarker(
-					Util.bind("classpath.xmlFormatError", this.getElementName(), e.getMessage()), //$NON-NLS-1$
-					IMarker.SEVERITY_ERROR,
-					false,	//  cycle error
-					true);	//	file format error
-			}
-			if (logProblems) {
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will mark classpath as invalid"); //$NON-NLS-1$
-			}
-			return INVALID_CLASSPATH;
-		} catch (Assert.AssertionFailedException e) { 
-			// failed creating CP entries from file
-			if (createMarker && this.getProject().isAccessible()) {
-				this.createClasspathProblemMarker(
-					Util.bind("classpath.illegalEntryInClasspathFile", this.getElementName(), e.getMessage()), //$NON-NLS-1$
-					IMarker.SEVERITY_ERROR,
-					false,	//  cycle error
-					true);	//	file format error
-			}
-			if (logProblems) {
-				Util.log(e, 
-					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
-					+"/.classpath, will mark classpath as invalid"); //$NON-NLS-1$
-			}
-			return INVALID_CLASSPATH;
 		}
-		if (paths.size() > 0) {
-			IClasspathEntry[] ips = new IClasspathEntry[paths.size()];
-			paths.toArray(ips);
-			return ips;
-		} else {
-			return null;
-		}
+		return null;
 	}
 
 	/**
@@ -1903,9 +1912,7 @@ public class JavaProject
 
 		// actual file saving
 		try {
-			setSharedProperty(
-				CLASSPATH_FILENAME,
-				getClasspathAsXML(newClasspath, newOutputLocation));
+			setSharedProperty(CLASSPATH_FILENAME, encodeClasspath(newClasspath, newOutputLocation, true));
 			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
