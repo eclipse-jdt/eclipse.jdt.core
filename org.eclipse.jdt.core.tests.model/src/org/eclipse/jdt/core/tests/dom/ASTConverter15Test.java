@@ -35,16 +35,21 @@ import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class ASTConverter15Test extends ConverterTestSetup {
 	
@@ -57,7 +62,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0015"));
+		suite.addTest(new ASTConverter15Test("test0017"));
 		return suite;
 	}
 		
@@ -515,5 +520,63 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBound = (Type) typeBounds.get(2);
 		checkSourceRange(typeBound, "Comparable", source);		
 	}
+
+	public void test0016() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0016", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+//		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+	}
+	
+	public void test0017() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0017", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("Not a parameterized type", type.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "Integer", source);
+		Type innerType = parameterizedType.getType();
+		assertTrue("Not a qualified type", innerType.getNodeType() == ASTNode.QUALIFIED_TYPE);
+		QualifiedType qualifiedType = (QualifiedType) innerType;
+		checkSourceRange(qualifiedType.getName(), "B", source);
+		Type qualifier = qualifiedType.getQualifier();
+		checkSourceRange(qualifier, "test0017.A<String>", source);
+		assertTrue("Not a parameterized type", qualifier.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType2 = (ParameterizedType) qualifier;
+		typeArguments = parameterizedType2.typeArguments();
+		assertEquals("wrong size", 1, typeArguments.size());
+		typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "String", source);
+		innerType = parameterizedType2.getType();
+		assertTrue("Not a simple type", innerType.getNodeType() == ASTNode.SIMPLE_TYPE);
+		SimpleType simpleType = (SimpleType) innerType;
+		checkSourceRange(simpleType, "test0017.A", source);
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.getNodeType() == ASTNode.QUALIFIED_NAME);
+		QualifiedName qualifiedName = (QualifiedName) name;
+		checkSourceRange(qualifiedName.getQualifier(), "test0017", source);
+		checkSourceRange(qualifiedName.getName(), "A", source);		
+	}
+	
+	public void test0018() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0018", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+//		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+	}	
 }
 

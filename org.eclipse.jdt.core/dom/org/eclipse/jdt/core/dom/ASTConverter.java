@@ -3281,6 +3281,55 @@ class ASTConverter {
 		return name;
 	}
 	
+	protected QualifiedName setQualifiedNameNameAndSourceRanges(char[][] typeName, long[] positions, int startingIndex, int endingIndex, org.eclipse.jdt.internal.compiler.ast.ASTNode node) {
+		int length = endingIndex - startingIndex + 1;
+		SimpleName firstToken = this.ast.newSimpleName(new String(typeName[startingIndex]));
+		firstToken.index = startingIndex;
+		int start0 = (int)(positions[startingIndex]>>>32);
+		int start = start0;
+		int end = (int) positions[startingIndex];
+		firstToken.setSourceRange(start, end - start + 1);
+		SimpleName secondToken = this.ast.newSimpleName(new String(typeName[startingIndex + 1]));
+		secondToken.index = startingIndex + 1;
+		start = (int)(positions[startingIndex + 1]>>>32);
+		end = (int) positions[startingIndex + 1];
+		secondToken.setSourceRange(start, end - start + 1);
+		QualifiedName qualifiedName = this.ast.newQualifiedName(firstToken, secondToken);
+		if (this.resolveBindings) {
+			recordNodes(qualifiedName, node);
+			recordPendingNameScopeResolution(qualifiedName);
+			recordNodes(firstToken, node);
+			recordNodes(secondToken, node);
+			recordPendingNameScopeResolution(firstToken);
+			recordPendingNameScopeResolution(secondToken);
+		}
+		qualifiedName.index = startingIndex + 1;
+		qualifiedName.setSourceRange(start0, end - start0 + 1);
+		SimpleName newPart = null;
+		for (int i = 2; i < length; i++) {
+			newPart = this.ast.newSimpleName(new String(typeName[i]));
+			newPart.index = startingIndex + i;
+			start = (int)(positions[i]>>>32);
+			end = (int) positions[i];
+			newPart.setSourceRange(start,  end - start + 1);
+			qualifiedName = this.ast.newQualifiedName(qualifiedName, newPart);
+			qualifiedName.index = newPart.index;
+			qualifiedName.setSourceRange(start0, end - start0 + 1);
+			if (this.resolveBindings) {
+				recordNodes(qualifiedName, node);
+				recordNodes(newPart, node);				
+				recordPendingNameScopeResolution(qualifiedName);
+				recordPendingNameScopeResolution(newPart);
+			}
+		}
+		QualifiedName name = qualifiedName;
+		if (this.resolveBindings) {
+			recordNodes(name, node);
+			recordPendingNameScopeResolution(name);
+		}
+		return name;
+	}
+	
 	protected void setTypeForField(FieldDeclaration fieldDeclaration, Type type, int extraDimension) {
 		if (extraDimension != 0) {
 			if (type.isArrayType()) {

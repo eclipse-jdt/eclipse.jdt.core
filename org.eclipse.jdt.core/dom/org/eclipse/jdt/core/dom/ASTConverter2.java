@@ -121,6 +121,24 @@ class ASTConverter2 extends ASTConverter {
 		return super.convert(methodDeclaration);	
 	}
 	
+	public ClassInstanceCreation convert(org.eclipse.jdt.internal.compiler.ast.AllocationExpression expression) {
+		ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
+		if (this.resolveBindings) {
+			recordNodes(classInstanceCreation, expression);
+		}
+		classInstanceCreation.setType(convertType(expression.type));
+		classInstanceCreation.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = expression.arguments;
+		if (arguments != null) {
+			int length = arguments.length;
+			for (int i = 0; i < length; i++) {
+				classInstanceCreation.arguments().add(convert(arguments[i]));
+			}
+		}
+		removeTrailingCommentFromExpressionEndingWithAParen(classInstanceCreation);
+		return classInstanceCreation;
+	}
+	
 	public Annotation convert(org.eclipse.jdt.internal.compiler.ast.Annotation annotation) {
 		if (annotation instanceof org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation) annotation);
@@ -252,6 +270,57 @@ class ASTConverter2 extends ASTConverter {
 		return normalAnnotation;
 	}
 
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression allocation) {
+		if (allocation.anonymousType != null) {
+			ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
+			classInstanceCreation.setType(convertType(allocation.type));
+			if (allocation.enclosingInstance != null) {
+				classInstanceCreation.setExpression(convert(allocation.enclosingInstance));
+			}
+			int declarationSourceStart = allocation.sourceStart;
+			classInstanceCreation.setSourceRange(declarationSourceStart, allocation.anonymousType.bodyEnd - declarationSourceStart + 1);
+			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = allocation.arguments;
+			if (arguments != null) {
+				int length = arguments.length;
+				for (int i = 0; i < length; i++) {
+					classInstanceCreation.arguments().add(convert(arguments[i]));
+				}
+			}
+			AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
+			int start = retrieveStartBlockPosition(allocation.anonymousType.sourceEnd, allocation.anonymousType.bodyEnd);
+			anonymousClassDeclaration.setSourceRange(start, allocation.anonymousType.bodyEnd - start + 1);
+			classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
+			buildBodyDeclarations(allocation.anonymousType, anonymousClassDeclaration);
+			if (this.resolveBindings) {
+				recordNodes(classInstanceCreation, allocation.anonymousType);
+				recordNodes(anonymousClassDeclaration, allocation.anonymousType);
+				anonymousClassDeclaration.resolveBinding();
+			}
+			return classInstanceCreation;			
+		} else {
+			ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
+			classInstanceCreation.setExpression(convert(allocation.enclosingInstance));
+			classInstanceCreation.setType(convertType(allocation.type));
+			classInstanceCreation.setSourceRange(allocation.sourceStart, allocation.sourceEnd - allocation.sourceStart + 1);
+			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = allocation.arguments;
+			if (arguments != null) {
+				int length = arguments.length;
+				for (int i = 0; i < length; i++) {
+					Expression argument = convert(arguments[i]);
+					if (this.resolveBindings) {
+						recordNodes(argument, arguments[i]);
+					}
+					classInstanceCreation.arguments().add(argument);
+				}
+			}
+			if (this.resolveBindings) {
+				recordNodes(classInstanceCreation, allocation);
+			}
+			removeTrailingCommentFromExpressionEndingWithAParen(classInstanceCreation);
+			return classInstanceCreation;
+		}
+	}
+	
 	public SingleMemberAnnotation convert(org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation annotation) {
 		checkCanceled();
 		SingleMemberAnnotation singleMemberAnnotation = this.ast.newSingleMemberAnnotation();
@@ -475,7 +544,8 @@ class ASTConverter2 extends ASTConverter {
 					end = sourceStart + length - 1;
 				}
 				simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
-				type = this.ast.newParameterizedType(simpleName);
+				SimpleType simpleType = this.ast.newSimpleType(simpleName);
+				type = this.ast.newParameterizedType(simpleType);
 				TypeReference[] typeArguments = parameterizedSingleTypeReference.typeArguments;
 				if (typeArguments != null) {
 					Type type2 = null;
@@ -516,22 +586,74 @@ class ASTConverter2 extends ASTConverter {
 				}
 			}
 		} else {
-			char[][] name = ((org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference).getTypeName();
-			int nameLength = name.length;
-			long[] positions = ((org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference).sourcePositions;
-			sourceStart = (int)(positions[0]>>>32);
-			length = (int)(positions[nameLength - 1] & 0xFFFFFFFF) - sourceStart + 1;
-			Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 			if (typeReference instanceof ParameterizedQualifiedTypeReference) {
-//				ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = (ParameterizedQualifiedTypeReference) typeReference;
-				type = this.ast.newParameterizedType(qualifiedName);
-/*				TypeReference[][] typeArguments = parameterizedQualifiedTypeReference.typeArguments;
+				ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = (ParameterizedQualifiedTypeReference) typeReference;
+				char[][] tokens = parameterizedQualifiedTypeReference.tokens;
+				TypeReference[][] typeArguments = parameterizedQualifiedTypeReference.typeArguments;
+				long[] positions = parameterizedQualifiedTypeReference.sourcePositions;
 				if (typeArguments != null) {
-					for (int i = 0, max = typeArguments.length; i < max; i++) {
-						((ParameterizedType) type).typeArguments().add(convertType(typeArguments[i]));
+					int startingIndex = 0;
+					int endingIndex = 0;
+					while (typeArguments[endingIndex] == null) {
+						endingIndex++;
 					}
-				}*/
+					Name name = null;
+					if (endingIndex - startingIndex == 0) {
+						name = this.ast.newSimpleName(new String(tokens[startingIndex]));
+						int start = (int)(positions[startingIndex]>>>32);
+						int end = (int) positions[startingIndex];
+						name.setSourceRange(start, end - start + 1);
+					} else {
+						name = this.setQualifiedNameNameAndSourceRanges(tokens, positions, startingIndex, endingIndex, typeReference);
+					}
+					SimpleType simpleType = this.ast.newSimpleType(name);
+					int start = (int)(positions[startingIndex]>>>32);
+					int end = (int) positions[endingIndex];
+					simpleType.setSourceRange(start, end - start + 1);
+					ParameterizedType parameterizedType = this.ast.newParameterizedType(simpleType);
+					start = simpleType.getStartPosition();
+					end = start + simpleType.getLength() - 1;
+					for (int i = 0, max = typeArguments[endingIndex].length; i < max; i++) {
+						final Type type2 = convertType(typeArguments[endingIndex][i]);
+						parameterizedType.typeArguments().add(type2);
+						end = type2.getStartPosition() + type2.getLength() - 1;
+					}
+					end = retrieveClosingAngleBracketPosition(end + 1);
+					parameterizedType.setSourceRange(start, end - start + 1);
+					startingIndex = endingIndex + 1;
+					Type currentType = parameterizedType;
+					while(startingIndex < typeArguments.length) {
+						SimpleName simpleName = this.ast.newSimpleName(new String(tokens[startingIndex]));
+						start = (int)(positions[startingIndex]>>>32);
+						end = (int) positions[startingIndex];
+						simpleName.setSourceRange(start, end - start + 1);
+						QualifiedType qualifiedType = this.ast.newQualifiedType(currentType, simpleName);							
+						start = currentType.getStartPosition();
+						end = simpleName.getStartPosition() + simpleName.getLength() - 1;
+						qualifiedType.setSourceRange(start, end - start + 1);
+						if (typeArguments[startingIndex] != null) {
+							ParameterizedType parameterizedType2 = this.ast.newParameterizedType(qualifiedType);
+							for (int i = 0, max = typeArguments[startingIndex].length; i < max; i++) {
+								final Type type2 = convertType(typeArguments[startingIndex][i]);
+								parameterizedType2.typeArguments().add(type2);
+								end = type2.getStartPosition() + type2.getLength() - 1;
+							}
+							parameterizedType2.setSourceRange(start, end - start + 1);							
+							currentType = parameterizedType2;
+						} else {
+							currentType = qualifiedType;
+						}
+						startingIndex++;
+					}
+					return currentType;
+				}
 			} else {
+				char[][] name = ((org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference).getTypeName();
+				int nameLength = name.length;
+				long[] positions = ((org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference).sourcePositions;
+				sourceStart = (int)(positions[0]>>>32);
+				length = (int)(positions[nameLength - 1] & 0xFFFFFFFF) - sourceStart + 1;
+				Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 				type = this.ast.newSimpleType(qualifiedName);
 				type.setSourceRange(sourceStart, length);
 			}
