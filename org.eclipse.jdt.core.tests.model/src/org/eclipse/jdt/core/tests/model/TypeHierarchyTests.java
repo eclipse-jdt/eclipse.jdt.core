@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
 
@@ -26,6 +27,11 @@ public TypeHierarchyTests(String name) {
 	super(name);
 }
 public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(TypeHierarchyTests.class.getName());
+		suite.addTest(new TypeHierarchyTests("testSuperTypeHierarchyWithMissingBinary"));
+		return suite;
+	}
 	return new Suite(TypeHierarchyTests.class);
 }
 
@@ -970,5 +976,31 @@ public void testGetSupertypesWithProjectRegion() throws JavaModelException {
 		"Unexpected super types of Y",
 		"binary.X\n",
 		superTypes);
+}
+/*
+ * Ensures that creating a hierarchy on a project with classpath problem doesn't throw a NPE
+ * (regression test for bug 49809  NPE from MethodVerifier)
+ */
+public void testSuperTypeHierarchyWithMissingBinary() throws JavaModelException {
+	IJavaProject project = getJavaProject("TypeHierarchy");
+	IClasspathEntry[] originalClasspath = project.getRawClasspath();
+	try {
+		int length = originalClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(originalClasspath, 0, newClasspath, 0, length);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/TypeHierarchy/test49809.jar"), null, null);
+		project.setRawClasspath(newClasspath, null);
+		ICompilationUnit cu = getCompilationUnit("/TypeHierarchy/src/q3/Z.java");
+		IType type = cu.getType("Z");
+		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]\n" + 
+			"Super types:\n" + 
+			"Sub types:\n",
+			hierarchy
+		);
+	} finally {
+		project.setRawClasspath(originalClasspath, null);
+	}
 }
 }
