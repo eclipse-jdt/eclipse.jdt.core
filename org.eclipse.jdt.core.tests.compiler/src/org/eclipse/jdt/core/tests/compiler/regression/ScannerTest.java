@@ -43,5 +43,39 @@ public class ScannerTest extends AbstractRegressionTest {
 		} catch (InvalidInputException e) {
 		}
 		assertEquals("Wrong token type", ITerminalSymbols.TokenNameSEMICOLON, token);
-	}			
+	}
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23181
+	 */
+	public void test002() {
+		String sourceA002 =	"// tests\n  ";
+		IScanner scanner = ToolFactory.createScanner(false, true, false, false);
+		scanner.setSource(sourceA002.toCharArray());
+		int token = 0;
+		try {
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameWHITESPACE, token);
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+		}
+	}
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23181
+	 */
+	public void test003() {
+		String sourceA003 =	"// tests\n  ";
+		IScanner scanner = ToolFactory.createScanner(true, true, false, false);
+		scanner.setSource(sourceA003.toCharArray());
+		int token = 0;
+		try {
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameCOMMENT_LINE, token);
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameWHITESPACE, token);
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+		}
+	}						
 }
