@@ -68,14 +68,6 @@ public DocumentElementParser(
 	this.options = options;
 	this.javadocParser.checkDocComment = false;
 }
-
-/*
- *
- * INTERNAL USE-ONLY
- */
-protected void adjustInterfaceModifiers() {
-	intStack[intPtr - 2] |= AccInterface;
-}
 /*
  * Will clear the comment stack when looking
  * for a potential JavaDoc which might contain @deprecated.
@@ -709,7 +701,7 @@ protected void consumeInterfaceHeaderName1() {
 	intPtr--;
 	int declSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
-	typeDecl.modifiers = intStack[intPtr--];
+	typeDecl.modifiers = this.intStack[this.intPtr--] | AccInterface;
 	if (typeDecl.declarationSourceStart > declSourceStart) {
 		typeDecl.declarationSourceStart = declSourceStart;
 	}

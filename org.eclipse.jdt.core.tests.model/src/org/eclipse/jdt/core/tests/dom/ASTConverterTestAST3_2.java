@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0575"));
+		suite.addTest(new ASTConverterTestAST3_2("test0576"));
 		return suite;
 	}
 	/**
@@ -5326,5 +5326,19 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
 		assertFalse("are Equals", methodBinding.isEqualTo(methodBinding2));
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78740
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+	 */
+	public void test0576() throws JavaModelException {
+		org.eclipse.jdt.core.jdom.DOMFactory factory = new org.eclipse.jdt.core.jdom.DOMFactory();
+		org.eclipse.jdt.core.jdom.IDOMCompilationUnit domCompilationUnit = factory.createCompilationUnit(
+				"package x; /** @model */ interface X  {}", "NAME");
+		org.eclipse.jdt.core.jdom.IDOMType domType = (org.eclipse.jdt.core.jdom.IDOMType) domCompilationUnit.getFirstChild().getNextNode();
+		assertTrue("Not an interface", Flags.isInterface(domType.getFlags()));
+		domType.getComment();
+		assertTrue("Not an interface", Flags.isInterface(domType.getFlags()));
 	}
 }
