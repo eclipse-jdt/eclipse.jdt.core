@@ -48,7 +48,7 @@ public class SwitchFlowContext extends FlowContext {
 		if (initsOnBreak == FlowInfo.DEAD_END) {
 			initsOnBreak = flowInfo.copy().unconditionalInits();
 		} else {
-			initsOnBreak.mergedWith(flowInfo.unconditionalInits());
+			initsOnBreak = initsOnBreak.mergedWith(flowInfo.unconditionalInits());
 		};
 	}
 }
