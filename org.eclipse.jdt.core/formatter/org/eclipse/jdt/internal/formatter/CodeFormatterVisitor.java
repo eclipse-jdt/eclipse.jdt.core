@@ -5094,17 +5094,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printNextToken(TerminalTokens.TokenNamesuper, true);				
 				this.scribe.space();
 				wildcard.bound.traverse(this, scope);
-				if (this.preferences.insert_space_after_question_in_wilcard) {
-					this.scribe.space();
-				}
 				break;
 			case Wildcard.EXTENDS :
 				this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);				
 				this.scribe.space();
 				wildcard.bound.traverse(this, scope);
-				if (this.preferences.insert_space_after_question_in_wilcard) {
-					this.scribe.space();
-				}
 				break;
 			case Wildcard.UNBOUND :
 				if (this.preferences.insert_space_after_question_in_wilcard) {
@@ -5120,17 +5114,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printNextToken(TerminalTokens.TokenNamesuper, true);				
 				this.scribe.space();
 				wildcard.bound.traverse(this, scope);
-				if (this.preferences.insert_space_after_question_in_wilcard) {
-					this.scribe.space();
-				}
 				break;
 			case Wildcard.EXTENDS :
 				this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);				
 				this.scribe.space();
 				wildcard.bound.traverse(this, scope);
-				if (this.preferences.insert_space_after_question_in_wilcard) {
-					this.scribe.space();
-				}
 				break;
 			case Wildcard.UNBOUND :
 				if (this.preferences.insert_space_after_question_in_wilcard) {
