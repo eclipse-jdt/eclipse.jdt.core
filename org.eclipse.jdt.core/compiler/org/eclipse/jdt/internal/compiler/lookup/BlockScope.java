@@ -806,9 +806,9 @@ public class BlockScope extends Scope {
 	 * This retrieves the argument that maps to an enclosing instance of the suitable type,
 	 * 	if not found then answers nil -- do not create one
 	 *
-	 *			#implicitThis		  	 										:  the implicit this will be ok
-	 *			#((arg) this$n)												: available as a constructor arg
-	 * 		#((arg) this$n access$m... access$p) 			: available as as a constructor arg + a sequence of synthetic accessors to synthetic fields
+	 *		#implicitThis		  	 					:  the implicit this will be ok
+	 *		#((arg) this$n)								: available as a constructor arg
+	 * 		#((arg) this$n access$m... access$p) 		: available as as a constructor arg + a sequence of synthetic accessors to synthetic fields
 	 * 		#((fieldDescr) this$n access#m... access$p)	: available as a first synthetic field + a sequence of synthetic accessors to synthetic fields
 	 * 		nil 		 														: not found
 	 *
@@ -819,7 +819,8 @@ public class BlockScope extends Scope {
 		SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
 
 		// identity check
-		if ((!currentMethodScope.isStatic)
+		if (!currentMethodScope.isStatic 
+			&& !currentMethodScope.isConstructorCall
 			&& (sourceType == targetEnclosingType
 				|| targetEnclosingType.isSuperclassOf(sourceType))) {
 			return EmulationPathToImplicitThis; // implicit this is good enough
@@ -842,6 +843,7 @@ public class BlockScope extends Scope {
 				return new Object[] { syntheticArg };
 			}
 		}
+
 		// use a direct synthetic field then
 		if (!currentMethodScope.isStatic) {
 			FieldBinding syntheticField;
@@ -1022,13 +1024,16 @@ public class BlockScope extends Scope {
 		SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
 
 		// identity check
-		if ((!currentMethodScope.isStatic) && (sourceType == targetEnclosingType)) {
+		if (!currentMethodScope.isStatic 
+			&& !currentMethodScope.isConstructorCall
+			&& (sourceType == targetEnclosingType)) {
 			return EmulationPathToImplicitThis; // implicit this is good enough
 		}
 		if (!sourceType.isNestedType()
 			|| sourceType.isStatic()) { // no emulation from within non-inner types
 			return null;
 		}
+
 		boolean insideConstructor =
 			currentMethodScope.isInsideInitializerOrConstructor();
 		// use synthetic constructor arguments if possible
