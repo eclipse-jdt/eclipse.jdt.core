@@ -28,7 +28,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_NUMBERS = new int[] { 25 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
@@ -589,8 +589,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}			
 	
 	// check use of binary annotation - check default value presence
-	// TODO (olivier) reenable once addressed
-	public void _test025() {
+	public void test025() {
 		this.runConformTest(
 			new String[] {
 				"Foo.java",
@@ -611,5 +610,300 @@ public class AnnotationTest extends AbstractComparisonTest {
 			null,
 			false,
 			null);
-	}		
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test026() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		int value() default 8;\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test027() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		byte value() default 255;\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test028() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		boolean value() default true;\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test029() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		char value() default ' ';\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test030() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		short value() default 1024;\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test031() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		double value() default 0.0;\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test032() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		float value() default -0.0f;\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test033() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		long value() default 1234567890L;\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test034() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public @interface Foo {\n" + 
+				"		String value() default \"Hello, World\";\n" + 
+				"}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+
+	// check use of binary annotation - check default value presence
+	public void test035() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"enum E {\n" +
+				"	CONST1\n" +
+				"}\n" +
+				"@interface Foo {\n" +
+				"	E value() default E.CONST1;\n" +
+				"}"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test036() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"@interface Foo {\n" +
+				"	Class value() default Object.class;\n" +
+				"}"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	
+	// check use of binary annotation - check default value presence
+	public void test037() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"@interface Y {\n" +
+				"	int id() default 8;\n" +
+				"	Class type();\n" +
+				"}\n" +
+				"public @interface Foo {\n" +
+				"	Y value() default @Y(id=10,type=Object.class);\n" +
+				"}"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@Foo()\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"",
+			null,
+			false,
+			null);
+	}
 }

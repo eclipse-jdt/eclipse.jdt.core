@@ -63,7 +63,17 @@ public abstract class Annotation extends Expression {
 				case T_double :
 				case T_boolean :
 				case T_JavaLangString :
-					if (memberValue.constant == NotAConstant) {
+					if (memberValue instanceof ArrayInitializer) {
+						ArrayInitializer initializer = (ArrayInitializer) memberValue;
+						final Expression[] expressions = initializer.expressions;
+						if (expressions != null) {
+							for (int i =0, max = expressions.length; i < max; i++) {
+								if (expressions[i].constant == NotAConstant) {
+									scope.problemReporter().annotationValueMustBeConstant(annotationType, memberName, memberValue);
+								}
+							}
+						}
+					} else if (memberValue.constant == NotAConstant) {
 						scope.problemReporter().annotationValueMustBeConstant(annotationType, memberName, memberValue);
 					}
 					break checkAnnotationMethodType;

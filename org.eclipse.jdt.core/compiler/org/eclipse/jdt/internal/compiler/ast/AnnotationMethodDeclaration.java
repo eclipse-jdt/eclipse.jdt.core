@@ -11,7 +11,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -28,6 +30,13 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 		super(compilationResult);
 	}
 
+	public void generateCode(ClassFile classFile) {
+		classFile.generateMethodInfoHeader(this.binding);
+		int methodAttributeOffset = classFile.contentsOffset;
+		int attributeNumber = classFile.generateMethodInfoAttribute(this.binding, this);
+		classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
+	}
+	
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		// nothing to do
 		// annotation type member declaration don't have any body
@@ -37,7 +46,14 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 
 		super.resolveStatements();
 		if (this.defaultValue != null) {
-			this.defaultValue.resolveType(this.scope);
+			if (this.defaultValue instanceof ArrayInitializer) {
+				ArrayInitializer initializer = (ArrayInitializer) defaultValue;
+				if ((initializer.resolveTypeExpecting(scope, this.binding.returnType)) != null) {
+					this.defaultValue.resolvedType = initializer.binding = (ArrayBinding) this.binding.returnType;
+				}
+			} else {
+				this.defaultValue.resolveType(this.scope);
+			}
 		}
 		TypeBinding returnTypeBinding = this.binding.returnType;
 		if (returnTypeBinding != null) {
