@@ -211,7 +211,7 @@ public IType getDeclaringType() {
 			return 
 				new BinaryType(
 					(JavaElement)this.getPackageFragment().getClassFile(enclosingClassFileName),
-					enclosingName.substring(enclosingName.lastIndexOf('$')+1));
+					Util.localTypeName(enclosingName, enclosingName.lastIndexOf('$'), enclosingName.length()));
 		}
 	}
 }
@@ -831,5 +831,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}
 	}
+}
+protected void toStringName(StringBuffer buffer) {
+	if (getElementName().length() > 0)
+		super.toStringName(buffer);
+	else
+		buffer.append("<anonymous>"); //$NON-NLS-1$
 }
 }

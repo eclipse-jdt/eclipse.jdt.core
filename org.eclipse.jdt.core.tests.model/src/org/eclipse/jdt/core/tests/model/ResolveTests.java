@@ -793,7 +793,7 @@ public void testMethodDeclarationInAnonymous4() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(classFile, "bar(", "bar");
 	assertElementsEqual(
 		"Unexpected elements",
-		"bar() [in X$1 [in X$1.class [in p [in test47214.jar [in Resolve]]]]]",
+		"bar() [in <anonymous> [in X$1.class [in p [in test47214.jar [in Resolve]]]]]",
 		elements
 	);
 }

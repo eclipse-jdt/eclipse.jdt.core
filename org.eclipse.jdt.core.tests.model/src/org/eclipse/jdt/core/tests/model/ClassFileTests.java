@@ -69,7 +69,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"  }\n" +
 			"}",
 		};
-		add1_5Library(javaProject, "lib.jar", "libsrc.zip", pathAndContents);
+		addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 		this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
 			
 	}

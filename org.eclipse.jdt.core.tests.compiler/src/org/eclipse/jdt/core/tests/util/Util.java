@@ -167,11 +167,11 @@ public static void createJar(String[] pathsAndContents, Map options, String jarP
 	compile(pathsAndContents, options, classesPath);
 	zip(classesDir, jarPath);
 }
-public static void create1_5Jar(String[] pathsAndContents, String jarPath) throws IOException {
+public static void createJar(String[] pathsAndContents, String jarPath, String compliance) throws IOException {
 	Map options = new HashMap();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+	options.put(CompilerOptions.OPTION_Compliance, compliance);
+	options.put(CompilerOptions.OPTION_Source, compliance);	
+	options.put(CompilerOptions.OPTION_TargetPlatform, compliance);	
 	createJar(pathsAndContents, options, jarPath);
 }
 public static void createFile(String path, String contents) throws IOException {

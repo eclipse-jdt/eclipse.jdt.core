@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements SuffixConstants {
 	public static final int MAXTICKS = 800; // heuristic so that there still progress for deep hierachies
@@ -446,7 +447,7 @@ public static void searchAllPossibleSubTypes(
 							typeName = documentPath.substring(lastSlash+1, suffix).toCharArray();
 						} else {
 							enclosingTypeName = documentPath.substring(lastSlash+1, lastDollar).toCharArray();
-							typeName = documentPath.substring(lastDollar+1, suffix).toCharArray();
+							typeName = Util.localTypeName(documentPath, lastDollar, suffix).toCharArray();
 						}
 					}
 					binaryType = new HierarchyBinaryType(record.modifiers, record.pkgName, typeName, enclosingTypeName, record.classOrInterface);

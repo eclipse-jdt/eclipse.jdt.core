@@ -37,6 +37,7 @@ public class AttachSourceTests extends ModifyingResourceTests {
 
 	private IPackageFragmentRoot pkgFragmentRoot;
 	private IType genericType;
+	private IPackageFragment innerClasses;
 	
 public AttachSourceTests(String name) {
 	super(name);
@@ -64,6 +65,7 @@ public void setUpSuite() throws Exception {
 	IJavaProject project = setUpJavaProject("AttachSourceTests");
 	this.pkgFragmentRoot = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
 	setUpGenericJar();
+	setUpInnerClassesJar();
 }
 private void setUpGenericJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
@@ -78,9 +80,35 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"}"
 	};
 	IJavaProject project = getJavaProject("AttachSourceTests");
-	add1_5Library(project, "generic.jar", "genericsrc.zip", pathAndContents);
+	addLibrary(project, "generic.jar", "genericsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 	IFile jar = getFile("/AttachSourceTests/generic.jar");
 	this.genericType = project.getPackageFragmentRoot(jar).getPackageFragment("generic").getClassFile("X.class").getType();
+}
+private void setUpInnerClassesJar() throws IOException, CoreException {
+	String[] pathAndContents = new String[] {
+		"inner/X.java", 
+		"package inner;\n" +
+		"public class X {\n" + 
+		"  void foo() {\n" +
+		"    new X() {};\n" +
+		"    class Y {}\n" +
+		"    new Y() {\n" +
+		"      class Z {}\n" +
+		"    };\n" +
+		"    class W {\n" +
+		"      void bar() {\n" +
+		"        new W() {};\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
+		"  class V {\n" +
+		"  }\n" +
+		"}"
+	};
+	IJavaProject project = getJavaProject("AttachSourceTests");
+	addLibrary(project, "innerClasses.jar", "innerClassessrc.zip", pathAndContents, JavaCore.VERSION_1_4);
+	IFile jar = getFile("/AttachSourceTests/innerClasses.jar");
+	this.innerClasses = project.getPackageFragmentRoot(jar).getPackageFragment("inner");
 }
 protected void tearDown() throws Exception {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
@@ -88,6 +116,7 @@ protected void tearDown() throws Exception {
 	for (int i = 0; i < roots.length; i++) {
 		IPackageFragmentRoot root = roots[i];
 		if (this.genericType != null && root.equals(this.genericType.getPackageFragment().getParent())) continue;
+		if (this.innerClasses != null && root.equals(this.innerClasses.getParent())) continue;
 		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
 			this.attachSource(root, null, null); // detach source
 		}
@@ -309,6 +338,109 @@ public void testGetSourceRangeInnerClass() throws JavaModelException {
 	assertEquals("Unexpected offset", 0, sourceRange.getOffset());
 	assertEquals("Unexpected length", 100, sourceRange.getLength());
 }
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass1() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+		"    new X() {};\n" + 
+		"    class Y {}\n" + 
+		"    new Y() {\n" + 
+		"      class Z {}\n" + 
+		"    };\n" + 
+		"    class W {\n" + 
+		"      void bar() {\n" + 
+		"        new W() {};\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  class V {\n" + 
+		"  }\n" + 
+		"}",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass2() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$1.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"X() {}",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass3() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$2.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"Y() {\n" + 
+		"      class Z {}\n" + 
+		"    }",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass4() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$3.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"W() {}",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass5() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$1$Y.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class Y {}",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass6() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$1$W.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class W {\n" + 
+		"      void bar() {\n" + 
+		"        new W() {};\n" + 
+		"      }\n" + 
+		"    }",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass7() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$2$Z.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class Z {}",
+		type.getSource());
+}
+/*
+ * Ensures that the source of an inner class can be retrieved.
+ */
+public void testInnerClass8() throws JavaModelException {
+	IType type = this.innerClasses.getClassFile("X$V.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class V {\n" + 
+		"  }",
+		type.getSource());
+}
+
 /**
  * Ensures that a source folder can be attached to a lib folder.
  */

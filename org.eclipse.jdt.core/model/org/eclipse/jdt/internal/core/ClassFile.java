@@ -90,7 +90,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	}
 
 	// Make the type
-	IType type = new BinaryType(this, new String(simpleName(typeInfo.getName())));
+	IType type = new BinaryType(this, simpleName(typeInfo.getName()));
 	info.addChild(type);
 	newElements.put(type, typeInfo);
 	return true;
@@ -400,9 +400,7 @@ public IType getType() {
 		typeName = typeName.substring(typeName.lastIndexOf('.') + 1);
 		int index = typeName.lastIndexOf('$');
 		if (index > -1) {
-			if (typeName.length() > (index + 1) && !Character.isDigit(typeName.charAt(index + 1))) {
-				typeName = typeName.substring(index + 1);
-			}
+			typeName = Util.localTypeName(typeName, index, typeName.length());
 		}
 		this.binaryType = new BinaryType(this, typeName);
 	}
@@ -594,24 +592,15 @@ private IBuffer mapSource(SourceMapper mapper) {
 	}
 	return null;
 }
-/* package */ static char[] simpleName(char[] className) {
+/* package */ static String simpleName(char[] className) {
 	if (className == null)
 		return null;
-	className = unqualifiedName(className);
-	int count = 0;
-	int lastPosition = className.length - 1;
-	for (int i = lastPosition; i > -1; i--) {
-		if (className[i] == '$' && (i != lastPosition)) {
-			char[] name = new char[count];
-			System.arraycopy(className, i + 1, name, 0, count);
-			if (Character.isDigit(name[0])) {
-				break;
-			}
-			return name;
-		}
-		count++;
-	}
-	return className;
+	String simpleName = new String(unqualifiedName(className));
+	int lastDollar = simpleName.lastIndexOf('$');
+	if (lastDollar != -1) 
+		return Util.localTypeName(simpleName, lastDollar, simpleName.length());
+	else
+		return simpleName;
 }
 /**
  * Returns the Java Model representation of the given name

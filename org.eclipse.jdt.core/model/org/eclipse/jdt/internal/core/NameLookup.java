@@ -631,12 +631,9 @@ public class NameLookup implements SuffixConstants {
 		int index= name.lastIndexOf('$');
 		if (index != -1) {
 			//the type name of the inner type
-			unqualifiedName= name.substring(index + 1, name.length());
+			unqualifiedName= Util.localTypeName(name, index, name.length());
 			// unqualifiedName is empty if the name ends with a '$' sign.
 			// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
-			if ((unqualifiedName.length() > 0 && Character.isDigit(unqualifiedName.charAt(0))) || unqualifiedName.length() == 0){
-				unqualifiedName = name;
-			}
 		}
 		String matchName= partialMatch ? name.toLowerCase() : name;
 		for (int i= 0; i < length; i++) {

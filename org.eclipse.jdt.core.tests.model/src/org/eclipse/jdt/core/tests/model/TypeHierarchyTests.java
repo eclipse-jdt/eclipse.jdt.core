@@ -56,7 +56,7 @@ public void setUpSuite() throws Exception {
 	this.typeHierarchy = project.newTypeHierarchy(region, null);
 	
 	IJavaProject project15 = createJavaProject("TypeHierarchy15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
-	add1_5Library(project15, "lib15.jar", "lib15src.zip", new String[] {
+	addLibrary(project15, "lib15.jar", "lib15src.zip", new String[] {
 		"util/AbstractList.java",
 		"package util;\n" + 
 		"public class AbstractList<E> {\n" + 
@@ -69,7 +69,7 @@ public void setUpSuite() throws Exception {
 		"package util;\n" + 
 		"public interface List<E> {\n" + 
 		"}"
-	});
+	}, JavaCore.VERSION_1_5);
 	createFile(
 		"/TypeHierarchy15/src/X.java", 
 		"import util.*;\n" +

@@ -121,7 +121,7 @@ public void setUpSuite() throws Exception {
 		"}"
 	);
 	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
-	add1_5Library(
+	addLibrary(
 		javaProject, 
 		"lib15.jar", 
 		"lib15src.zip", 
@@ -138,7 +138,8 @@ public void setUpSuite() throws Exception {
 			"package java.util;\n" +
 			"public interface Map<K,V> {\n" +
 			"}"
-		}
+		}, 
+		JavaCore.VERSION_1_5
 	);
 }
 private void setUp15WorkingCopy() throws JavaModelException {

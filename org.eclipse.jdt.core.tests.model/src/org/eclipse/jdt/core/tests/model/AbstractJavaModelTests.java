@@ -265,12 +265,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			actual
 		);
 	}
-	protected void add1_5Library(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents) throws CoreException, IOException {
+	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
 		IProject project = javaProject.getProject();
 		String projectLocation = project.getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
 		String sourceZipPath = projectLocation + File.separator + sourceZipName;
-		org.eclipse.jdt.core.tests.util.Util.create1_5Jar(pathAndContents, jarPath);
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, jarPath, compliance);
 		org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		String projectPath = '/' + project.getName() + '/';

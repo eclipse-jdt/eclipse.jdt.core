@@ -1244,6 +1244,17 @@ public class Util {
 		int len = sig.length();
 		return checkTypeSignature(sig, 0, len, allowVoid) == len;
 	}
+	
+	/*
+	 * Returns the simple name of a local type from the given binary type name.
+	 * The last '$' is at lastDollar. The ;last character of the type name is at end-1.
+	 */
+	public static String localTypeName(String binaryTypeName, int lastDollar, int end) {
+		int nameStart = lastDollar+1;
+		while (nameStart < end && Character.isDigit(binaryTypeName.charAt(nameStart)))
+			nameStart++;
+		return binaryTypeName.substring(nameStart, end);
+	}
 
 	/*
 	 * Add a log entry

@@ -978,7 +978,18 @@ public class SourceMapper
 	 * as well.
 	 */
 	protected IType getType(String typeName) {
-		if (this.binaryType.getElementName().equals(typeName))
+		if (typeName.length() == 0) {
+			IJavaElement classFile = this.binaryType.getParent();
+			String classFileName = classFile.getElementName();
+			StringBuffer newClassFileName = new StringBuffer();
+			int lastDollar = classFileName.lastIndexOf('$');
+			for (int i = 0; i <= lastDollar; i++)
+				newClassFileName.append(classFileName.charAt(i));
+			newClassFileName.append(Integer.toString(this.anonymousCounter));
+			newClassFileName.append(SuffixConstants.SUFFIX_class);
+			PackageFragment pkg = (PackageFragment) classFile.getParent();
+			return new BinaryType(new ClassFile(pkg, newClassFileName.toString()), typeName);
+		} else if (this.binaryType.getElementName().equals(typeName))
 			return this.binaryType;
 		else
 			return this.binaryType.getType(typeName);
@@ -1099,7 +1110,7 @@ public class SourceMapper
 				// ignore
 			}
 			if (isAnonymousClass) {
-				String eltName = this.binaryType.getElementName();
+				String eltName = this.binaryType.getParent().getElementName();
 				eltName = eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());
 				try {
 					this.anonymousClassName = Integer.parseInt(eltName);
@@ -1197,33 +1208,19 @@ public class SourceMapper
 		 * A$B$B$2 : true
 		 * A$C$B$D : false
 		 * A$F$B$D$1$F : true
+		 * A$F$B$D$1F : true
 		 * A$1 : true
 		 * A$B : false
 		 */
 		if (eltName == null) return false;
-		int index = 0;
-		int dollarIndex = CharOperation.indexOf('$', eltName, index);
-		if (dollarIndex != -1) {
-			index = dollarIndex + 1;
-			dollarIndex = CharOperation.indexOf('$', eltName, index);
-			if (dollarIndex == -1) { 
-				dollarIndex = eltName.length;
-			}
-			while (dollarIndex != -1) {
-				for (int i = index; i < dollarIndex; i++) {
-					if (!Character.isDigit(eltName[i])) {
-						index = dollarIndex + 1;
-						i = dollarIndex;
-						if (index > eltName.length) return false;
-						dollarIndex = CharOperation.indexOf('$', eltName, index);
-						if (dollarIndex == -1) { 
-							dollarIndex = eltName.length;
-						}
-						continue;
-					}
-				}
+		int length = eltName.length;
+		int dollarIndex = CharOperation.indexOf('$', eltName, 0);
+		while (dollarIndex != -1) {
+			int nameStart = dollarIndex+1;
+			if (nameStart == length) return false;
+			if (Character.isDigit(eltName[nameStart]))
 				return true;
-			}
+			dollarIndex = CharOperation.indexOf('$', eltName, nameStart);
 		}
 		return false;
 	}	
