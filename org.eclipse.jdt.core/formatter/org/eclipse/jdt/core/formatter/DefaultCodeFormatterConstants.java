@@ -416,8 +416,6 @@ public class DefaultCodeFormatterConstants {
 	 * TODO remove prior to 3.0
 	 */
 	public static final String FORMATTER_FILLING_SPACE = JavaCore.PLUGIN_ID + ".formatter.filling_space";	//$NON-NLS-1$
-
-	
 	/**
 	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION instead
 	 */
