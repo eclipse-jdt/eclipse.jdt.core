@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
@@ -24,11 +25,11 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
-public class SyntaxErrorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
+public class SyntaxErrorTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 	
-	public SyntaxErrorTest(String testName){
+public SyntaxErrorTest(String testName){
 	super(testName);
 }
 public void checkParse(
@@ -41,7 +42,7 @@ public void checkParse(
 		new Parser(
 			new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-				new CompilerOptions(), 
+				new CompilerOptions(getCompilerOptions()), 
 				new DefaultProblemFactory(Locale.getDefault())),
 			optimizeStringLiterals);
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);

@@ -24,6 +24,8 @@ import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
 import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
+import org.eclipse.jdt.core.tests.util.*;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -42,15 +44,7 @@ import org.eclipse.jdt.internal.eval.GlobalVariable;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
 
-public class EvaluationTest extends StopableTestCase {
-	protected static final String JRE_PATH = Util.getJREDirectory();
-	protected static final String EVAL_DIRECTORY = Util.getOutputDirectory() + File.separator + "evaluation";
-	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory() + File.separator + "source";
-	public EvaluationContext context;
-	LocalVirtualMachine launchedVM;
-	String[] classPath;
-	INameEnvironment env;
-	TargetInterface target;
+public class EvaluationTest extends AbstractCompilerTest implements StopableTestCase {
 
 	public class Requestor implements IRequestor {
 		public int resultIndex = -1;
@@ -71,7 +65,7 @@ public class EvaluationTest extends StopableTestCase {
 			} else {
 				for (int i = 0, length = classFiles.length; i < length; i++) {
 					char[][] compoundName = classFiles[i].getCompoundName();
-					if (new String(compoundName[compoundName.length-1]).startsWith("GlobalVariable")) {
+					if (new String(compoundName[compoundName.length - 1]).startsWith("GlobalVariable")) {
 						try {
 							IBinaryField[] fields = new ClassFileReader(classFiles[i].getBytes(), null).getFields();
 							if (fields != null) {
@@ -91,436 +85,449 @@ public class EvaluationTest extends StopableTestCase {
 						}
 					}
 				}
-			} 
+			}
 			return true;
 		}
 		public void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind) {
-			this.acceptResult(new EvaluationResult(fragmentSource, fragmentKind, new IProblem[] {problem}));
+			this.acceptResult(new EvaluationResult(fragmentSource, fragmentKind, new IProblem[]{problem}));
 		}
 		public void acceptResult(EvaluationResult result) {
 			try {
 				this.results[++this.resultIndex] = result;
 			} catch (ArrayIndexOutOfBoundsException e) {
 				int oldResultLength = this.results.length;
-				System.arraycopy(this.results , 0, (this.results = new EvaluationResult[oldResultLength * 2]), 0, oldResultLength);
+				System.arraycopy(this.results, 0, (this.results = new EvaluationResult[oldResultLength * 2]), 0, oldResultLength);
 				this.results[this.resultIndex] = result;
 			}
 		}
 	}
-/**
- * Creates a new EvaluationTest.
- */
-public EvaluationTest(String name) {
-	super(name);
-}
-/**
- * Asserts that two char arrays are equal. If they are not
- * an AssertionFailedError is thrown.
- * @param message the detail message for this assertion
- * @param expected the expected value of a char array
- * @param actual the actual value of a char array
- */
-public void assertEquals(String message, char[] expected, char[] actual) {
-	if (expected == null && actual == null)
-		return;
-	if (expected != null) {
-		if (actual == null) {
-			failNotEquals(message, expected, actual);
+	
+	String[] classPath;
+	public EvaluationContext context;
+	INameEnvironment env;
+	LocalVirtualMachine launchedVM;
+	TargetInterface target;
+	
+	/**
+	 * Creates a new EvaluationTest.
+	 */
+	public EvaluationTest(String name) {
+		super(name);
+	}
+	
+	public static Test setupSuite(Class clazz) {
+		ArrayList testClasses = new ArrayList();
+		testClasses.add(clazz);
+		return AbstractCompilerTest.suite(clazz.getName(), EvaluationSetup.class, testClasses);
+	}
+	
+	public static Test suite(Class evaluationTestClass) {
+		TestSuite suite = new TestSuite(evaluationTestClass);
+		return suite;
+	}
+	
+	/**
+	 * Asserts that two char arrays are equal. If they are not an AssertionFailedError is thrown.
+	 * 
+	 * @param message
+	 *                 the detail message for this assertion
+	 * @param expected
+	 *                 the expected value of a char array
+	 * @param actual
+	 *                 the actual value of a char array
+	 */
+	public void assertEquals(String message, char[] expected, char[] actual) {
+		if (expected == null && actual == null)
 			return;
-		}
-		if (expected.length == actual.length) {
-			for (int i = 0; i < expected.length; i++) {
-				if (expected[i] != actual[i]) {
-					failNotEquals(message, expected, actual);
-					return;
-				}
+		if (expected != null) {
+			if (actual == null) {
+				failNotEquals(message, expected, actual);
+				return;
 			}
-			return;
+			if (expected.length == actual.length) {
+				for (int i = 0; i < expected.length; i++) {
+					if (expected[i] != actual[i]) {
+						failNotEquals(message, expected, actual);
+						return;
+					}
+				}
+				return;
+			}
 		}
+		failNotEquals(message, expected, actual);
 	}
-	failNotEquals(message, expected, actual);
-}
-/**
- * Build a char array from the given lines
- */
-protected char[] buildCharArray(String[] lines) {
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0; i < lines.length; i++) {
-		buffer.append(lines[i]);
-		if (i < lines.length - 1) {
-			buffer.append("\n");
+	
+	/**
+	 * Build a char array from the given lines
+	 */
+	protected char[] buildCharArray(String[] lines) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < lines.length; i++) {
+			buffer.append(lines[i]);
+			if (i < lines.length - 1) {
+				buffer.append("\n");
+			}
 		}
+		int length = buffer.length();
+		char[] result = new char[length];
+		buffer.getChars(0, length, result, 0);
+		return result;
 	}
-	int length = buffer.length();
-	char[] result = new char[length];
-	buffer.getChars(0, length, result, 0);
-	return result;
-}
 
-/**
- * Returns whether the 2 given problems are equals.
- */
-public boolean equals(IProblem pb1, IProblem pb2) {
-	if ((pb1 == null) && (pb2 == null)) {
-		return true;
+	/**
+	 * Returns whether the 2 given problems are equals.
+	 */
+	public boolean equals(IProblem pb1, IProblem pb2) {
+		if ((pb1 == null) && (pb2 == null)) {
+			return true;
+		}
+		if ((pb1 == null) || (pb2 == null)) {
+			return false;
+		}
+		return (pb1.getID() == pb2.getID()) && (pb1.isError() == pb2.isError()) && (pb1.getSourceStart() == pb2.getSourceStart()) && (pb1.getSourceEnd() == pb2.getSourceEnd()) && (pb1.getSourceLineNumber() == pb2.getSourceLineNumber());
 	}
-	if ((pb1 == null) || (pb2 == null)) {
-		return false;
-	}
-	return
-		(pb1.getID() == pb2.getID()) &&
-		(pb1.isError() == pb2.isError()) &&
-		(pb1.getSourceStart() == pb2.getSourceStart()) &&
-		(pb1.getSourceEnd() == pb2.getSourceEnd()) &&
-		(pb1.getSourceLineNumber() == pb2.getSourceLineNumber());
-}
-/**
- * Evaluates the given code snippet and makes sure it returns a result with the given display string.
- */
-public void evaluateWithExpectedDisplayString(char[] codeSnippet, char[] displayString) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluate(codeSnippet, getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	if (requestor.resultIndex != 0) {
-		for (int i = 0; i < requestor.resultIndex; i++){
-			System.out.println("unexpected result["+i+"]: " + requestor.results[i]);
+	
+	/**
+	 * Evaluates the given code snippet and makes sure it returns a result with the given display string.
+	 */
+	public void evaluateWithExpectedDisplayString(char[] codeSnippet, char[] displayString) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
+		}
+		if (requestor.resultIndex != 0) {
+			for (int i = 0; i < requestor.resultIndex; i++) {
+				System.out.println("unexpected result[" + i + "]: " + requestor.results[i]);
+			}
+		}
+		assertTrue("Unexpected result", requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Has problem", !result.hasProblems());
+		assertTrue("Empty problem list", result.getProblems().length == 0);
+		if (displayString == null) {
+			assertTrue("Has value", !result.hasValue());
+		} else {
+			assertTrue("Has value", result.hasValue());
+			assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
+			//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
+			assertEquals("Value display string", displayString, result.getValueDisplayString());
 		}
 	}
-	assertTrue("Unexpected result", requestor.resultIndex == 0);
-	EvaluationResult result = requestor.results[0];
-	assertTrue("Has problem", !result.hasProblems());
-	assertTrue("Empty problem list", result.getProblems().length == 0);
-	if (displayString == null) {
-		assertTrue("Has value", !result.hasValue());
-	} else {
-		assertTrue("Has value", result.hasValue());
-		assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
-		//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
-		assertEquals("Value display string", displayString, result.getValueDisplayString());
+	
+	/**
+	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem on the given import.
+	 */
+	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, IProblem expected) {
+		evaluateWithExpectedImportProblem(codeSnippet, importDeclaration, getCompilerOptions(), expected);
 	}
-}
-/**
- * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem
- * on the given import.
- */
-protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, IProblem expected) {
-	evaluateWithExpectedImportProblem(codeSnippet, importDeclaration, getOptions(), expected);
-}
-/**
- * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem
- * on the given import.
- */
-protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, Map options, IProblem expected) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluate(codeSnippet, getEnv(), options, requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	for (int i = 0; i <= requestor.resultIndex; i++) {
-		EvaluationResult result = requestor.results[i];
-		assertTrue("Has value", !result.hasValue());
-		assertTrue("Has problem", result.hasProblems());
-		assertEquals("Evaluation type", EvaluationResult.T_IMPORT, result.getEvaluationType());
-		assertEquals("Evaluation id", importDeclaration, result.getEvaluationID());
-		IProblem[] problems = result.getProblems();
-		if (equals(expected, problems[0])) {
-			return;
+	
+	/**
+	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem on the given import.
+	 */
+	protected void evaluateWithExpectedImportProblem(char[] codeSnippet, char[] importDeclaration, Map options, IProblem expected) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluate(codeSnippet, getEnv(), options, requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
 		}
+		for (int i = 0; i <= requestor.resultIndex; i++) {
+			EvaluationResult result = requestor.results[i];
+			assertTrue("Has value", !result.hasValue());
+			assertTrue("Has problem", result.hasProblems());
+			assertEquals("Evaluation type", EvaluationResult.T_IMPORT, result.getEvaluationType());
+			assertEquals("Evaluation id", importDeclaration, result.getEvaluationID());
+			IProblem[] problems = result.getProblems();
+			if (equals(expected, problems[0])) {
+				return;
+			}
+		}
+		assertTrue("Expected problem not found", false);
 	}
-	assertTrue("Expected problem not found", false);
-}
-/**
- * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem.
- */
-protected void evaluateWithExpectedProblem(char[] codeSnippet, String problemsString) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluate(codeSnippet, getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
+	
+	/**
+	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem.
+	 */
+	protected void evaluateWithExpectedProblem(char[] codeSnippet, IProblem expected) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
+		}
+		for (int i = 0; i <= requestor.resultIndex; i++) {
+			EvaluationResult result = requestor.results[i];
+			assertTrue("Has value", !result.hasValue());
+			assertTrue("Has problem", result.hasProblems());
+			assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
+			assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
+			IProblem[] problems = result.getProblems();
+			if (equals(expected, problems[0])) {
+				return;
+			}
+		}
+		assertTrue("Expected problem not found", false);
 	}
-	assertTrue("Got one result", requestor.resultIndex == 0);
-	EvaluationResult result = requestor.results[0];
-	assertTrue("Has value", !result.hasValue());
-	assertTrue("Has problem", result.hasProblems());
-	assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
-	assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
-	StringBuffer problemBuffer = new StringBuffer(20);
-	IProblem[] problems = result.getProblems();
-	for (int i = 0; i < problems.length; i++) {
-		problemBuffer.append(problems[i].getMessage()).append('\n');
-	}
-	assertEquals("Unexpected problems", problemsString, problemBuffer.toString());
-}
-/**
- * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem.
- */
-protected void evaluateWithExpectedProblem(char[] codeSnippet, IProblem expected) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluate(codeSnippet, getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	for (int i = 0; i <= requestor.resultIndex; i++) {
-		EvaluationResult result = requestor.results[i];
+	
+	/**
+	 * Evaluates the given code snippet and makes sure the evaluation result has at least the given problem.
+	 */
+	protected void evaluateWithExpectedProblem(char[] codeSnippet, String problemsString) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
+		}
+		assertTrue("Got one result", requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
 		assertTrue("Has value", !result.hasValue());
 		assertTrue("Has problem", result.hasProblems());
 		assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
 		assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
+		StringBuffer problemBuffer = new StringBuffer(20);
 		IProblem[] problems = result.getProblems();
-		if (equals(expected, problems[0])) {
-			return;
+		for (int i = 0; i < problems.length; i++) {
+			problemBuffer.append(problems[i].getMessage()).append('\n');
 		}
+		assertEquals("Unexpected problems", problemsString, problemBuffer.toString());
 	}
-	assertTrue("Expected problem not found", false);
-}
-/**
- * Evaluates the given variable and makes sure the evaluation result has at least the given problem.
- */
-protected void evaluateWithExpectedProblem(GlobalVariable var, IProblem expected) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluateVariables(getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	for (int i = 0; i <= requestor.resultIndex; i++) {
-		EvaluationResult result = requestor.results[i];
-		assertTrue("Has value", !result.hasValue());
-		assertTrue("Has problem", result.hasProblems());
-		assertEquals("Evaluation type", EvaluationResult.T_VARIABLE, result.getEvaluationType());
-		assertEquals("Evaluation id", var.getName(), result.getEvaluationID());
-		IProblem[] problems = result.getProblems();
-		if (equals(expected, problems[0])) {
-			return;
+	
+	/**
+	 * Evaluates the given variable and makes sure the evaluation result has at least the given problem.
+	 */
+	protected void evaluateWithExpectedProblem(GlobalVariable var, IProblem expected) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluateVariables(getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
 		}
-	}
-	assertTrue("Expected problem not found", false);
-}
-/**
- * Evaluates the given code snippet and makes sure it returns a result with the given type name.
- */
-protected void evaluateWithExpectedType(char[] codeSnippet, char[] expectedTypeName) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluate(codeSnippet, getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	if (requestor.resultIndex != 0) {
-		for (int i = 0; i < requestor.resultIndex; i++){
-			System.out.println("unexpected result["+i+"]: " + requestor.results[i]);
+		for (int i = 0; i <= requestor.resultIndex; i++) {
+			EvaluationResult result = requestor.results[i];
+			assertTrue("Has value", !result.hasValue());
+			assertTrue("Has problem", result.hasProblems());
+			assertEquals("Evaluation type", EvaluationResult.T_VARIABLE, result.getEvaluationType());
+			assertEquals("Evaluation id", var.getName(), result.getEvaluationID());
+			IProblem[] problems = result.getProblems();
+			if (equals(expected, problems[0])) {
+				return;
+			}
 		}
+		assertTrue("Expected problem not found", false);
 	}
-	assertTrue("Got one result", requestor.resultIndex == 0);
-	EvaluationResult result = requestor.results[0];
-	if (expectedTypeName == null) {
-		assertTrue("Has value", !result.hasValue());
-	} else {
-		assertTrue("Has value", result.hasValue());
-		assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
-		//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
-		assertEquals("Value type name", expectedTypeName, result.getValueTypeName());
-	}
-}
-/**
- * Evaluates the given code snippet and makes sure it returns a result with the given display string and type name.
- */
-protected void evaluateWithExpectedValue(char[] codeSnippet, char[] displayString, char[] typeName) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluate(codeSnippet, getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	assertTrue("Got one result", requestor.resultIndex == 0);
-	EvaluationResult result = requestor.results[0];
-	if (displayString == null) {
-		assertTrue("Missing value", !result.hasValue());
-	} else {
-		assertTrue("Has value", result.hasValue());
-		assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
-		//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
-		assertEquals("Value display string", displayString, result.getValueDisplayString());
-		assertEquals("Value type name", typeName, result.getValueTypeName());
-	}
-}
-/**
- * Evaluates the given variable and makes sure it returns a result with the given display string and type name.
- */
-protected void evaluateWithExpectedValue(GlobalVariable var, char[] displayString, char[] typeName) {
-	Requestor requestor = new Requestor();
-	try {
-		context.evaluateVariable(var, getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	if (requestor.resultIndex != 0) {
-		for (int i = 0; i < requestor.resultIndex; i++){
-			System.out.println("unexpected result["+i+"]: " + requestor.results[i]);
+	
+	/**
+	 * Evaluates the given code snippet and makes sure it returns a result with the given type name.
+	 */
+	protected void evaluateWithExpectedType(char[] codeSnippet, char[] expectedTypeName) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
 		}
-	}
-	assertTrue("Unexpected result", requestor.resultIndex == 0);
-	EvaluationResult result = requestor.results[0];
-	if (displayString == null) {
-		assertTrue("Has value", !result.hasValue());
-	} else {
-		assertTrue("Has value", result.hasValue());
-		assertEquals("Value display string", displayString, result.getValueDisplayString());
-		assertEquals("Value type name", typeName, result.getValueTypeName());
-	}
-}
-/**
- * Evaluates the given code snippet and makes sure an evaluation result has at least the given warning,
- * and that another evaluation result has the given display string.
- */
-protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnippet, final IProblem[] expected, final char[] displayString) {
-	class ResultRequestor extends Requestor {
-		ArrayList collectedProblems = new ArrayList();
-		boolean gotDisplayString = false;
-		public void acceptResult(EvaluationResult result) {
+		if (requestor.resultIndex != 0) {
+			for (int i = 0; i < requestor.resultIndex; i++) {
+				System.out.println("unexpected result[" + i + "]: " + requestor.results[i]);
+			}
+		}
+		assertTrue("Got one result", requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		if (expectedTypeName == null) {
+			assertTrue("Has value", !result.hasValue());
+		} else {
+			assertTrue("Has value", result.hasValue());
 			assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
 			//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
-			if (result.hasValue()) {
-				if (CharOperation.equals(result.getValueDisplayString(), displayString)) {
-					gotDisplayString = true;
-				}
-			} else {
-				assertTrue("Has problem", result.hasProblems());
-				IProblem[] problems = result.getProblems();
-				for (int i = 0; i < problems.length; i++) {
-						collectedProblems.add(problems[i]);
-				}
-			}
-		}
-	}
-	ResultRequestor requestor = new ResultRequestor();
-	try {
-		context.evaluate(codeSnippet, getEnv(), getOptions(), requestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception " + e.getMessage(), false);
-	}
-	if (expected.length == requestor.collectedProblems.size()) {
-		for (int i = 0; i < expected.length; i++) {
-			assertTrue("Problem mismatch"+ requestor.collectedProblems.get(i), this.equals(expected[i], (IProblem)requestor.collectedProblems.get(i)));
-		}
-	} else {
-		assertTrue("Wrong problem count", false);
-	}
-	assertTrue("Expected display string", requestor.gotDisplayString);
-}
-private void failNotEquals(String message, char[] expected, char[] actual) {
-	String formatted = "";
-	if (message != null)
-		formatted = message + " ";
-	String expectedString = expected == null ? "null" : new String(expected);
-	String actualString = actual == null ? "null" : new String(actual);
-	fail(formatted + "expected:<" + expectedString + "> but was:<" + actualString + ">");
-}
-public INameEnvironment getEnv() {
-	return env;
-}
-public Map getOptions() {
-	
-		Map defaultOptions = new CompilerOptions().getMap();
-		defaultOptions.put(
-			CompilerOptions.OPTION_LocalVariableAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_LineNumberAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_SourceFileAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedLocal, 
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedImport, 
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedParameter,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportLocalVariableHiding,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportFieldHiding,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-			CompilerOptions.WARNING);
-		return defaultOptions;
-}
-
-public IProblemFactory getProblemFactory() {
-	return new DefaultProblemFactory(java.util.Locale.getDefault());
-}
-/**
- * Installs all the variables and check that the number of installed variables is the given number.
- */
-protected void installVariables(final int expectedNumber) {
-	class InstallRequestor extends Requestor {
-		int count = 0;
-		public void acceptResult(EvaluationResult result) {
-			assertTrue("Has problems", !result.hasProblems());
-			assertTrue("Has value", result.hasValue());
-			this.count++;
+			assertEquals("Value type name", expectedTypeName, result.getValueTypeName());
 		}
 	}
 	
-	InstallRequestor installRequestor = new InstallRequestor();
-	try {
-		context.evaluateVariables(getEnv(), getOptions(), installRequestor, getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("Target exception: " + e.getMessage(), false);
-	}
-	assertEquals("Number of installed variables", expectedNumber, installRequestor.count);
-}
-/**
- * Returns a new problem with the given id, severity, source positions and line number.
- */
-protected DefaultProblem newProblem(int id, int severity, int startPos, int endPos, int line) {
-	return new DefaultProblem(null, null, id, null, severity, startPos, endPos, line);
-}
-public void resetEnv() {
-	String encoding = (String) getOptions().get(CompilerOptions.OPTION_Encoding);
-	if ("".equals(encoding)) encoding = null;
-	env = new FileSystem(Util.concatWithClassLibs(EvaluationTest.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY, false), new String[0], encoding);
-}
-public static Test setupSuite(Class clazz) {
-	EvaluationSetup evalSetup = new EvaluationSetup(suite(clazz));
-	evalSetup.jrePath = JRE_PATH;
-	evalSetup.evalDirectory = EVAL_DIRECTORY;
-	return evalSetup;
-}
-public void stop() {
-	if (this.target != null) {
-		this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed. 
-	}
-	if (this.launchedVM != null) {
+	/**
+	 * Evaluates the given code snippet and makes sure it returns a result with the given display string and type name.
+	 */
+	protected void evaluateWithExpectedValue(char[] codeSnippet, char[] displayString, char[] typeName) {
+		Requestor requestor = new Requestor();
 		try {
-			int retry = 0;
-			while (this.launchedVM.isRunning() && (++retry < 20)) {
-				try {
-					Thread.sleep(retry * 100);
-				} catch (InterruptedException e) {
-				}
-			}
-			if (this.launchedVM.isRunning()) {
-				this.launchedVM.shutDown();
-			}
-		} catch (TargetException e) {
+			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
+		}
+		assertTrue("Got one result", requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		if (displayString == null) {
+			assertTrue("Missing value", !result.hasValue());
+		} else {
+			assertTrue("Has value", result.hasValue());
+			assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
+			//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
+			assertEquals("Value display string", displayString, result.getValueDisplayString());
+			assertEquals("Value type name", typeName, result.getValueTypeName());
 		}
 	}
-}
-public static Test suite(Class evaluationTestClass) {
-	TestSuite suite = new TestSuite(evaluationTestClass);
-	return suite;
-}
+	
+	/**
+	 * Evaluates the given variable and makes sure it returns a result with the given display string and type name.
+	 */
+	protected void evaluateWithExpectedValue(GlobalVariable var, char[] displayString, char[] typeName) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluateVariable(var, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
+		}
+		if (requestor.resultIndex != 0) {
+			for (int i = 0; i < requestor.resultIndex; i++) {
+				System.out.println("unexpected result[" + i + "]: " + requestor.results[i]);
+			}
+		}
+		assertTrue("Unexpected result", requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		if (displayString == null) {
+			assertTrue("Has value", !result.hasValue());
+		} else {
+			assertTrue("Has value", result.hasValue());
+			assertEquals("Value display string", displayString, result.getValueDisplayString());
+			assertEquals("Value type name", typeName, result.getValueTypeName());
+		}
+	}
+	
+	/**
+	 * Evaluates the given code snippet and makes sure an evaluation result has at least the given warning, and that another evaluation result has the given display string.
+	 */
+	protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnippet, final IProblem[] expected, final char[] displayString) {
+		class ResultRequestor extends Requestor {
+			ArrayList collectedProblems = new ArrayList();
+			boolean gotDisplayString = false;
+			public void acceptResult(EvaluationResult result) {
+				assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
+				//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
+				if (result.hasValue()) {
+					if (CharOperation.equals(result.getValueDisplayString(), displayString)) {
+						gotDisplayString = true;
+					}
+				} else {
+					assertTrue("Has problem", result.hasProblems());
+					IProblem[] problems = result.getProblems();
+					for (int i = 0; i < problems.length; i++) {
+						collectedProblems.add(problems[i]);
+					}
+				}
+			}
+		}
+		ResultRequestor requestor = new ResultRequestor();
+		try {
+			context.evaluate(codeSnippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
+		}
+		if (expected.length == requestor.collectedProblems.size()) {
+			for (int i = 0; i < expected.length; i++) {
+				assertTrue("Problem mismatch" + requestor.collectedProblems.get(i), this.equals(expected[i], (IProblem)requestor.collectedProblems.get(i)));
+			}
+		} else {
+			assertTrue("Wrong problem count", false);
+		}
+		assertTrue("Expected display string", requestor.gotDisplayString);
+	}
+	
+	private void failNotEquals(String message, char[] expected, char[] actual) {
+		String formatted = "";
+		if (message != null)
+			formatted = message + " ";
+		String expectedString = expected == null ? "null" : new String(expected);
+		String actualString = actual == null ? "null" : new String(actual);
+		fail(formatted + "expected:<" + expectedString + "> but was:<" + actualString + ">");
+	}
+	
+	public Map getCompilerOptions() {
+		Map defaultOptions = super.getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.WARNING);
+		return defaultOptions;
+	}
+	
+	public INameEnvironment getEnv() {
+		return env;
+	}
+
+	public IProblemFactory getProblemFactory() {
+		return new DefaultProblemFactory(java.util.Locale.getDefault());
+	}
+	
+	public void initialize(CompilerTestSetup setUp) {
+		super.initialize(setUp);
+		EvaluationSetup evalSetUp = (EvaluationSetup)setUp;
+		this.context = evalSetUp.context;
+		this.target = evalSetUp.target;
+		this.launchedVM = evalSetUp.launchedVM;
+		this.env = evalSetUp.env;
+	}
+	
+	/**
+	 * Installs all the variables and check that the number of installed variables is the given number.
+	 */
+	protected void installVariables(final int expectedNumber) {
+		class InstallRequestor extends Requestor {
+			int count = 0;
+			public void acceptResult(EvaluationResult result) {
+				assertTrue("Has problems", !result.hasProblems());
+				assertTrue("Has value", result.hasValue());
+				this.count++;
+			}
+		}
+
+		InstallRequestor installRequestor = new InstallRequestor();
+		try {
+			context.evaluateVariables(getEnv(), getCompilerOptions(), installRequestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception: " + e.getMessage(), false);
+		}
+		assertEquals("Number of installed variables", expectedNumber, installRequestor.count);
+	}
+	
+	/**
+	 * Returns a new problem with the given id, severity, source positions and line number.
+	 */
+	protected DefaultProblem newProblem(int id, int severity, int startPos, int endPos, int line) {
+		return new DefaultProblem(null, null, id, null, severity, startPos, endPos, line);
+	}
+	
+	public void resetEnv() {
+		String encoding = (String)getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
+		if ("".equals(encoding))
+			encoding = null;
+		env = new FileSystem(Util.concatWithClassLibs(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY, false), new String[0], encoding);
+	}
+	
+	public void stop() {
+		if (this.target != null) {
+			this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed.
+		}
+		if (this.launchedVM != null) {
+			try {
+				int retry = 0;
+				while (this.launchedVM.isRunning() && (++retry < 20)) {
+					try {
+						Thread.sleep(retry * 100);
+					} catch (InterruptedException e) {
+					}
+				}
+				if (this.launchedVM.isRunning()) {
+					this.launchedVM.shutDown();
+				}
+			} catch (TargetException e) {
+			}
+		}
+	}
 }

@@ -76,7 +76,7 @@ public void testEvaluate() {
 	Requestor requestor = new Requestor();
 	char[] snippet = "return 1;".toCharArray();
 	try {
-		context.evaluate(snippet, getEnv(), getOptions(), requestor, getProblemFactory());
+		context.evaluate(snippet, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 	} catch (InstallException e) {
 		assertTrue("No targetException " + e.getMessage(), false);
 	}
@@ -123,7 +123,7 @@ public void testEvaluateVariable() {
 			}
 		}
 		try {
-			context.evaluateVariables(getEnv(), getOptions(), new NoPbRequestor(), getProblemFactory());
+			context.evaluateVariables(getEnv(), getCompilerOptions(), new NoPbRequestor(), getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
@@ -131,7 +131,7 @@ public void testEvaluateVariable() {
 		// Get its value
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluateVariable(var, getEnv(), getOptions(), requestor, getProblemFactory());
+			context.evaluateVariable(var, getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
@@ -159,7 +159,7 @@ public void testEvaluateVariables() {
 		// Install it and get its value
 		Requestor requestor = new Requestor();
 		try {
-			context.evaluateVariables(getEnv(), getOptions(), requestor, getProblemFactory());
+			context.evaluateVariables(getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}

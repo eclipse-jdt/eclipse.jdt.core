@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.ArrayList;
+
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -22,44 +26,43 @@ public class TestAll extends TestCase {
 public TestAll(String testName) {
 	super(testName);
 }
-/**
- * Adds all the tests in the given class to the suite except
- * the ones that are excluded.
- */
-public static void addTest(TestSuite suite, Class testClass) {
-	TestSuite innerSuite = new TestSuite(testClass);
-	suite.addTest(innerSuite);
-}
 public static Test suite() {
-	TestSuite suite = new TestSuite(TestAll.class.getName());
+	ArrayList standardTests = new ArrayList();
+	standardTests.add(AnnotationTest.class);
+	standardTests.add(ArrayTest.class);
+	standardTests.add(AssignmentTest.class);
+	standardTests.add(BatchCompilerTest.class);
+	standardTests.add(BooleanTest.class);
+	standardTests.add(CastTest.class);
+	standardTests.add(ClassFileComparatorTest.class);
+	standardTests.add(ClassFileReaderTest.class);
+	standardTests.add(ConstantTest.class);
+	standardTests.add(DeprecatedTest.class);
+	standardTests.add(LocalVariableTest.class);
+	standardTests.add(LookupTest.class);
+	standardTests.add(NumericTest.class);
+	standardTests.add(ProblemConstructorTest.class);
+	standardTests.add(ScannerTest.class);
+	standardTests.add(SwitchTest.class);
+	standardTests.add(TryStatementTest.class);
+	standardTests.add(UtilTest.class);
+	standardTests.add(XLargeTest.class);
 
-	String specVersion = System.getProperty("java.specification.version");
-	if (!"1.0".equals(specVersion) && !"1.1".equals(specVersion) && !"1.2".equals(specVersion) && !"1.3".equals(specVersion)) {
-		addTest(suite, AssertionTest.class);
-		addTest(suite, Compliance_1_4.class);	
+	TestSuite all = new TestSuite(TestAll.class.getName());
+	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+		standardTests.add(Compliance_1_3.class);
+		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_3, RegressionTestSetup.class, standardTests));
 	}
-
-	addTest(suite, AnnotationTest.class);
-	addTest(suite, ArrayTest.class);
-	addTest(suite, AssignmentTest.class);
-	addTest(suite, BatchCompilerTest.class);
-	addTest(suite, BooleanTest.class);
-	addTest(suite, CastTest.class);
-	addTest(suite, ClassFileComparatorTest.class);
-	addTest(suite, ClassFileReaderTest.class);
-	addTest(suite, Compliance_1_3.class);	
-	addTest(suite, ConstantTest.class);
-	addTest(suite, DeprecatedTest.class);
-	addTest(suite, LocalVariableTest.class);
-	addTest(suite, LookupTest.class);
-	addTest(suite, NumericTest.class);
-	addTest(suite, ProblemConstructorTest.class);
-	addTest(suite, ScannerTest.class);
-	addTest(suite, SwitchTest.class);
-	addTest(suite, TryStatementTest.class);
-	addTest(suite, UtilTest.class);
-	addTest(suite, XLargeTest.class);
-
-	return new RegressionTestSetup(suite);
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+		standardTests.remove(Compliance_1_3.class);
+		standardTests.add(AssertionTest.class);
+		standardTests.add(Compliance_1_4.class);	
+		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_4, RegressionTestSetup.class, standardTests));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, standardTests));
+	}
+	return all;
 }
 }

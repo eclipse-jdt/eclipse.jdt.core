@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
@@ -21,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
-public class SourceElementParserTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase implements ISourceElementRequestor, IConstants {
+public class SourceElementParserTest extends AbstractCompilerTest implements ISourceElementRequestor, IConstants {
 	private SourceType currentType;
 	private SourceMethod currentMethod;
 	private SourceField currentField;
@@ -137,7 +138,7 @@ public void dietParse(String s, String testName) {
 	this.source = s.toCharArray();
 	reset();
 	SourceElementParser parser = 
-		new SourceElementParser(this, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions()); 
+		new SourceElementParser(this, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions(getCompilerOptions())); 
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 
@@ -401,7 +402,7 @@ public void fullParse(String s, String testName) {
 	this.source = s.toCharArray();
 	reset();
 	SourceElementParser parser = 
-		new SourceElementParser(this, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions()); 
+		new SourceElementParser(this, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions(getCompilerOptions())); 
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 

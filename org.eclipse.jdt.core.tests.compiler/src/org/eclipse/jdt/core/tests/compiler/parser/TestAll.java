@@ -10,66 +10,58 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import java.util.ArrayList;
+
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 
 /**
  * Run all parser regression tests
  */
 public class TestAll extends TestCase {
 
-/**
- * TestAll constructor comment.
- * @param testName java.lang.String
- */
-public TestAll(String testName) {
-	super(testName);
-}
-/**
- * Adds all the tests in the given class to the suite except
- * the ones that are excluded.
- */
-public static void addTest(TestSuite suite, Class testClass) {
-	TestSuite innerSuite = new TestSuite(testClass);
-	suite.addTest(innerSuite);
-}
-public static Test suite() {
-	TestSuite suite = new TestSuite(TestAll.class.getName());
+	public TestAll(String testName) {
+		super(testName);
+	}
 	
-	/* completion tests */
-	addTest(suite, AllocationExpressionCompletionTest.class);
-	addTest(suite, ClassLiteralAccessCompletionTest.class);
-	addTest(suite, CompletionParserTest.class);
-	addTest(suite, CompletionRecoveryTest.class);
-	addTest(suite, DietCompletionTest.class);
-	addTest(suite, ExplicitConstructorInvocationCompletionTest.class);
-	addTest(suite, FieldAccessCompletionTest.class);
-	addTest(suite, InnerTypeCompletionTest.class);
-	addTest(suite, LabelStatementCompletionTest.class);
-	addTest(suite, MethodInvocationCompletionTest.class);
-	addTest(suite, NameReferenceCompletionTest.class);
-	addTest(suite, ReferenceTypeCompletionTest.class);
-	addTest(suite, CompletionParserTest2.class);
-	addTest(suite, CompletionParserTestKeyword.class);
+	public static Test suite() {
+		ArrayList testClasses = new ArrayList();
 
-	/* selection tests */
-	addTest(suite, ExplicitConstructorInvocationSelectionTest.class);
-	addTest(suite, SelectionTest.class);
-	addTest(suite, SelectionTest2.class);
+		/* completion tests */
+		testClasses.add(AllocationExpressionCompletionTest.class);
+		testClasses.add(ClassLiteralAccessCompletionTest.class);
+		testClasses.add(CompletionParserTest.class);
+		testClasses.add(CompletionRecoveryTest.class);
+		testClasses.add(DietCompletionTest.class);
+		testClasses.add(ExplicitConstructorInvocationCompletionTest.class);
+		testClasses.add(FieldAccessCompletionTest.class);
+		testClasses.add(InnerTypeCompletionTest.class);
+		testClasses.add(LabelStatementCompletionTest.class);
+		testClasses.add(MethodInvocationCompletionTest.class);
+		testClasses.add(NameReferenceCompletionTest.class);
+		testClasses.add(ReferenceTypeCompletionTest.class);
+		testClasses.add(CompletionParserTest2.class);
+		testClasses.add(CompletionParserTestKeyword.class);
 
-	/* recovery tests */
-	addTest(suite, DietRecoveryTest.class);
+		/* selection tests */
+		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
+		testClasses.add(SelectionTest.class);
+		testClasses.add(SelectionTest2.class);
 
-	/* source element parser tests */
-	addTest(suite, SourceElementParserTest.class);
+		/* recovery tests */
+		testClasses.add(DietRecoveryTest.class);
 
-	/* syntax error diagnosis tests */
-	addTest(suite, SyntaxErrorTest.class);
-	addTest(suite, DualParseSyntaxErrorTest.class);
-	addTest(suite, ParserTest.class);
+		/* source element parser tests */
+		testClasses.add(SourceElementParserTest.class);
 
-	return suite;
-}
+		/* syntax error diagnosis tests */
+		testClasses.add(SyntaxErrorTest.class);
+		testClasses.add(DualParseSyntaxErrorTest.class);
+		testClasses.add(ParserTest.class);
+
+		return AbstractCompilerTest.suite(TestAll.class.getName(), CompilerTestSetup.class, testClasses);
+	}
 }

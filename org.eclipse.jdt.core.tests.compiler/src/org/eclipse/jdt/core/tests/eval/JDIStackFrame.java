@@ -147,7 +147,7 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 				"  }\n" +
 				"}).start();\n").toCharArray(),
 				test.getEnv(), 
-				test.getOptions(), 
+				test.getCompilerOptions(), 
 				requestor, 
 				test.getProblemFactory());
 		} catch (InstallException e) {

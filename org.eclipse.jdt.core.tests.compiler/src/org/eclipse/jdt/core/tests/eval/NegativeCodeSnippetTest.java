@@ -332,7 +332,7 @@ public void testUnusedImport() {
 		context.setImports(new char[][] {"java.util.*".toCharArray()});
 		
 		// evaluate with import as error
-		Map options = this.getOptions();
+		Map options = this.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
 		
 		// force evaluation so that the following evaluation will use a CodeSnippetEvaluator instead

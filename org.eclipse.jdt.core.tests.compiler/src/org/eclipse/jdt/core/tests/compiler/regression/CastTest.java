@@ -24,7 +24,7 @@ public static Test suite() {
 		//some of the tests depend on the order of this suite.
 		ts = new TestSuite();
 		ts.addTest(new CastTest("test221"));
-		return new RegressionTestSetup(ts);
+		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 	}
 	return setupSuite(testClass());
 }

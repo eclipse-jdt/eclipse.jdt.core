@@ -13,13 +13,9 @@ package org.eclipse.jdt.core.tests.junit.extension;
 /**
  * A test case that is being sent stop() when the user presses 'Stop' or 'Exit'.
  */
-public class StopableTestCase extends TestCase {
-public StopableTestCase(String name) {
-	super(name);
-}
-/**
- * Default is to do nothing.
- */
-public void stop() {
-}
+public interface StopableTestCase {
+	/**
+	 * Invoked when this test needs to be stoped.
+	 */
+	public void stop();
 }

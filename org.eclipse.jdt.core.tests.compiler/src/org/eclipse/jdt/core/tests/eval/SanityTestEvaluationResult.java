@@ -39,7 +39,7 @@ protected void setUp() {
 		}
 	};
 	try {
-		this.context.evaluate("return 1;".toCharArray(), getEnv(), getOptions(), requestor, getProblemFactory());
+		this.context.evaluate("return 1;".toCharArray(), getEnv(), getCompilerOptions(), requestor, getProblemFactory());
 	} catch (InstallException e) {
 		throw new Error(e.getMessage());
 	}

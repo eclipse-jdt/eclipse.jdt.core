@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
+import java.util.ArrayList;
+
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 /**
@@ -20,23 +24,19 @@ public TestAll(String name) {
 	super(name);
 }
 public static Test suite() {
-	return suite(JRE_PATH, EVAL_DIRECTORY);
-}
-public static Test suite(String jrePath, String evalDirectory) {
 	if (System.getProperty("os.name").indexOf("Linux") == -1) {//$NON-NLS-1$//$NON-NLS-2$
-		TestSuite suite = new TestSuite(TestAll.class.getName());
-		suite.addTest(suite(SanityTestEvaluationContext.class));
-		suite.addTest(suite(SanityTestEvaluationResult.class));
-		suite.addTest(suite(VariableTest.class));
-		suite.addTest(suite(CodeSnippetTest.class));
-		suite.addTest(suite(NegativeCodeSnippetTest.class));
-		suite.addTest(suite(NegativeVariableTest.class));
-		suite.addTest(suite(DebugEvaluationTest.class));
-		EvaluationSetup evalSetup = new DebugEvaluationSetup(suite);
-		evalSetup.jrePath = jrePath;
-		evalSetup.evalDirectory = evalDirectory;
-		return evalSetup;
+		ArrayList testClasses = new ArrayList();
+		testClasses.add(SanityTestEvaluationContext.class);
+		testClasses.add(SanityTestEvaluationResult.class);
+		testClasses.add(VariableTest.class);
+		testClasses.add(CodeSnippetTest.class);
+		testClasses.add(NegativeCodeSnippetTest.class);
+		testClasses.add(NegativeVariableTest.class);
+		testClasses.add(DebugEvaluationTest.class);
+		
+		return AbstractCompilerTest.suite(TestAll.class.getName(), DebugEvaluationSetup.class, testClasses);
 	} else {
+		// Disable evaluation tests on Linux
 		return new TestSuite(TestAll.class.getName());
 	}
 }

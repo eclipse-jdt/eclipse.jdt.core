@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import java.util.Locale;
 
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -28,11 +29,11 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
-public class DualParseSyntaxErrorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
+public class DualParseSyntaxErrorTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 	
-	public DualParseSyntaxErrorTest(String testName){
+public DualParseSyntaxErrorTest(String testName){
 	super(testName);
 }
 public void checkParse(
@@ -44,7 +45,7 @@ public void checkParse(
 		new Parser(
 			new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-				new CompilerOptions(), 
+				new CompilerOptions(getCompilerOptions()), 
 				new DefaultProblemFactory(Locale.getDefault())),
 			optimizeStringLiterals);
 

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -26,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
-public class DietRecoveryTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
+public class DietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 	
@@ -48,7 +49,7 @@ public void checkParse(
 			new Parser(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					new CompilerOptions(), 
+					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
 
@@ -71,7 +72,7 @@ public void checkParse(
 			new Parser(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					new CompilerOptions(), 
+					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
 
@@ -108,7 +109,7 @@ public void checkParse(
 			new Parser(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					new CompilerOptions(), 
+					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
 
@@ -132,7 +133,7 @@ public void checkParse(
 			new SourceElementParser(
 				new TestSourceElementRequestor(),
 				new DefaultProblemFactory(Locale.getDefault()),
-				new CompilerOptions());
+				new CompilerOptions(getCompilerOptions()));
 			
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -153,7 +154,7 @@ public void checkParse(
 			new SourceElementParser(
 				new TestSourceElementRequestor(),
 				new DefaultProblemFactory(Locale.getDefault()),
-				new CompilerOptions());
+				new CompilerOptions(getCompilerOptions()));
 			
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -170,7 +171,7 @@ public void checkParse(
 	}	
 	/* using completion parser in DIET mode */
 	{
-		CompilerOptions options = new CompilerOptions();
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		CompletionParser parser =
 			new CompletionParser(
 				new ProblemReporter(

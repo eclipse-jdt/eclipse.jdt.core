@@ -45,7 +45,7 @@ private class SpecialSelectionParser extends SelectionParser {
 }
 
  SpecialSelectionParser createParser(){
-	CompilerOptions options = new CompilerOptions();
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	SpecialSelectionParser parser = 
 		new SpecialSelectionParser(
 			new ProblemReporter(

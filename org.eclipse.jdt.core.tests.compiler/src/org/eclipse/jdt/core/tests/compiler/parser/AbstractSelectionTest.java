@@ -29,9 +29,10 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public abstract class AbstractSelectionTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
+public abstract class AbstractSelectionTest extends AbstractCompilerTest {
 
 	public final static String NONE = "<NONE>";
 public AbstractSelectionTest(String testName){
@@ -50,7 +51,7 @@ public void checkDietParse(
 	String expectedSelectedSource,
 	String testName) {
 
-	CompilerOptions options = new CompilerOptions();
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	SelectionParser parser = 
 		new SelectionParser(
 			new ProblemReporter(
@@ -131,7 +132,7 @@ public void checkMethodParse(
 		String[] expectedLabels,
 		String testName) {
 
-	CompilerOptions options = new CompilerOptions();
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	SelectionParser parser = 
 		new SelectionParser(
 			new ProblemReporter(

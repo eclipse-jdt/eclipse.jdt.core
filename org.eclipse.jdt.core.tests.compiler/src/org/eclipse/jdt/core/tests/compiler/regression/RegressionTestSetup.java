@@ -10,52 +10,31 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+import org.eclipse.jdt.core.tests.util.TestVerifier;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.core.tests.util.*;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
-import java.util.Enumeration;
 
-import junit.extensions.*;
 import junit.framework.*;
 
-public class RegressionTestSetup extends TestDecorator {
+public class RegressionTestSetup extends CompilerTestSetup {
+	
 	TestVerifier verifier = new TestVerifier(true);
-public RegressionTestSetup(Test test) {
-	super(test);
-}
-private void initTest(Object test, TestVerifier testVerifier, INameEnvironment javaClassLib) {
-	if (test instanceof AbstractRegressionTest) {
-		AbstractRegressionTest regressionTest = (AbstractRegressionTest)test;
-		regressionTest.verifier = testVerifier;
-		regressionTest.javaClassLib = javaClassLib;
-		return;
+	INameEnvironment javaClassLib;
+	
+	public RegressionTestSetup(Test test, String complianceLevel) {
+		super(test, complianceLevel);
 	}
-	if (test instanceof TestSuite) {
-		TestSuite regressionTestClassSuite = (TestSuite) test;
-		Enumeration regressionTestClassTests = regressionTestClassSuite.tests();
-		while (regressionTestClassTests.hasMoreElements()) {
-			initTest(regressionTestClassTests.nextElement(), testVerifier, javaClassLib);
+	
+	protected void setUp() {
+		if (this.javaClassLib == null) {
+			// Create name environment
+			this.javaClassLib = new FileSystem(Util.getJavaClassLibs(), new String[0], null);
 		}
-		return;
+		super.setUp();
 	}
-		
-}
-public void run(TestResult result) {
-	try {
-		setUp();
-		super.run(result);
-	} finally {
-		tearDown();
+	protected void tearDown() {
+		this.verifier.shutDown();
 	}
-}
-protected void setUp() {
-	// Create name environment
-	INameEnvironment javaClassLib = new FileSystem(Util.getJavaClassLibs(), new String[0], null);
-
-	// Init wrapped suite
-	initTest(fTest, this.verifier, javaClassLib);
-}
-protected void tearDown() {
-	this.verifier.shutDown();
-}
 }

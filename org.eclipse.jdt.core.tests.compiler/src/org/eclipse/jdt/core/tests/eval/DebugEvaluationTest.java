@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -21,6 +22,8 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
@@ -29,8 +32,6 @@ import org.eclipse.jdt.internal.eval.InstallException;
 import com.sun.jdi.VirtualMachine;
 
 public class DebugEvaluationTest extends EvaluationTest {
-	VirtualMachine jdiVM;
-	public JDIStackFrame jdiStackFrame;
 	class DebugRequestor extends Requestor {
 		public boolean acceptClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles, char[] codeSnippetClassName) {
 			if (jdiStackFrame == null) {
@@ -57,108 +58,122 @@ public class DebugEvaluationTest extends EvaluationTest {
 			}
 		}
 	}
-public DebugEvaluationTest(String name) {
-	super(name);
-}
-public void compileAndDeploy(String source, String className) {
-	resetEnv(); // needed to reinitialize the caches
-	File directory = new File(SOURCE_DIRECTORY);
-	if (!directory.exists()) {
-		if (!directory.mkdir()) {
-			System.out.println("Could not create " + SOURCE_DIRECTORY);
+	
+	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory() + File.separator + "source";
+	
+	public JDIStackFrame jdiStackFrame;
+	VirtualMachine jdiVM;
+	
+	public DebugEvaluationTest(String name) {
+		super(name);
+	}
+	public static Test setupSuite(Class clazz) {
+		ArrayList testClasses = new ArrayList();
+		testClasses.add(clazz);
+		return AbstractCompilerTest.suite(clazz.getName(), DebugEvaluationSetup.class, testClasses);
+	}
+	public static Test suite() {
+		return setupSuite(testClass());
+	}
+	public static Class testClass() {
+		return DebugEvaluationTest.class;
+	}
+	public void compileAndDeploy(String source, String className) {
+		resetEnv(); // needed to reinitialize the caches
+		File directory = new File(SOURCE_DIRECTORY);
+		if (!directory.exists()) {
+			if (!directory.mkdir()) {
+				System.out.println("Could not create " + SOURCE_DIRECTORY);
+				return;
+			}
+		}
+		String fileName = SOURCE_DIRECTORY + File.separator + className + ".java";
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+			writer.write(source);
+			writer.flush();
+			writer.close();
+		} catch(IOException e) {
+			e.printStackTrace();
 			return;
 		}
+		StringBuffer buffer = new StringBuffer();
+		buffer
+			.append("\"")
+			.append(fileName)
+			.append("\" -d \"")
+			.append(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY)
+			.append("\" -nowarn -g -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(SOURCE_DIRECTORY)
+			.append("\"");
+		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
 	}
-	String fileName = SOURCE_DIRECTORY + File.separator + className + ".java";
-	try {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-		writer.write(source);
-		writer.flush();
-		writer.close();
-	} catch(IOException e) {
-		e.printStackTrace();
-		return;
+	/**
+	 * Generate local variable attribute for these tests.
+	 */
+	public Map getCompilerOptions() {
+		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
+		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+		return options;
 	}
-	StringBuffer buffer = new StringBuffer();
-	buffer
-		.append("\"")
-		.append(fileName)
-		.append("\" -d \"")
-		.append(EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY)
-		.append("\" -nowarn -g -classpath \"")
-		.append(Util.getJavaClassLibsAsString())
-		.append(SOURCE_DIRECTORY)
-		.append("\"");
-	org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
-}
-/**
- * Generate local variable attribute for these tests.
- */
-public Map getOptions() {
-	Map options = super.getOptions();
-	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
-	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);	
-	return options;
-}
-public void removeTempClass(String className) {
-	resetEnv(); // needed to reinitialize the caches
-	File sourceFile = new File(SOURCE_DIRECTORY + File.separator + className + ".java");
-	sourceFile.delete();
-
-	File binaryFile = new File(EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY + File.separator + className + ".class");
-
-	binaryFile.delete();
-}
-public static Test setupSuite(Class clazz) {
-	EvaluationSetup evalSetup = new DebugEvaluationSetup(suite(clazz));
-	evalSetup.jrePath = JRE_PATH;
-	evalSetup.evalDirectory = EVAL_DIRECTORY;
-	return evalSetup;
-}
-public static Test suite() {
-	return setupSuite(testClass());
-}
-/*public static Test suite(Class evaluationTestClass) {
-	junit.framework.TestSuite suite = new junit.framework.TestSuite();
-	suite.addTest(new DebugEvaluationTest("test018"));
-	return suite;
-}*/
-/**
- * Sanity test of IEvaluationContext.evaluate(char[], char[][], char[][], int[], char[], boolean, boolean, IRunner, INameEnvironment, ConfigurableOption[], IRequestor , IProblemFactory)
- */
-public void test001() {
-	String userCode =
-		"";
-	JDIStackFrame stackFrame = new JDIStackFrame(
-		this.jdiVM, 
-		this,
-		userCode);
+	public void initialize(CompilerTestSetup setUp) {
+		super.initialize(setUp);
+		if (setUp instanceof DebugEvaluationSetup) {
+			this.jdiVM = ((DebugEvaluationSetup)setUp).vm;
+		}
+	}
+	public void removeTempClass(String className) {
+		resetEnv(); // needed to reinitialize the caches
+		File sourceFile = new File(SOURCE_DIRECTORY + File.separator + className + ".java");
+		sourceFile.delete();
 	
-	DebugRequestor requestor = new DebugRequestor();
-	char[] snippet = "return 1;".toCharArray();
-	try {
-		context.evaluate(
-			snippet,
-			stackFrame.localVariableTypeNames(),
-			stackFrame.localVariableNames(),
-			stackFrame.localVariableModifiers(),
-			stackFrame.declaringTypeName(),
-			stackFrame.isStatic(),
-			stackFrame.isConstructorCall(),
-			getEnv(), 
-			getOptions(), 
-			requestor, 
-			getProblemFactory());
-	} catch (InstallException e) {
-		assertTrue("No targetException " + e.getMessage(), false);
+		File binaryFile = new File(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY + File.separator + className + ".class");
+	
+		binaryFile.delete();
 	}
-	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
-	EvaluationResult result = requestor.results[0];
-	assertTrue("Code snippet should not have problems", !result.hasProblems());
-	assertTrue("Result should have a value", result.hasValue());
-	assertEquals("Value", "1".toCharArray(), result.getValueDisplayString());
-	assertEquals("Type", "int".toCharArray(), result.getValueTypeName());
+	/*public static Test suite(Class evaluationTestClass) {
+		junit.framework.TestSuite suite = new junit.framework.TestSuite();
+		suite.addTest(new DebugEvaluationTest("test018"));
+		return suite;
+	}*/
+	/**
+	 * Sanity test of IEvaluationContext.evaluate(char[], char[][], char[][], int[], char[], boolean, boolean, IRunner, INameEnvironment, ConfigurableOption[], IRequestor , IProblemFactory)
+	 */
+	public void test001() {
+		String userCode =
+			"";
+		JDIStackFrame stackFrame = new JDIStackFrame(
+			this.jdiVM, 
+			this,
+			userCode);
+		
+		DebugRequestor requestor = new DebugRequestor();
+		char[] snippet = "return 1;".toCharArray();
+		try {
+			context.evaluate(
+				snippet,
+				stackFrame.localVariableTypeNames(),
+				stackFrame.localVariableNames(),
+				stackFrame.localVariableModifiers(),
+				stackFrame.declaringTypeName(),
+				stackFrame.isStatic(),
+				stackFrame.isConstructorCall(),
+				getEnv(), 
+				getCompilerOptions(), 
+				requestor, 
+				getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("No targetException " + e.getMessage(), false);
+		}
+		assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Code snippet should not have problems", !result.hasProblems());
+		assertTrue("Result should have a value", result.hasValue());
+		assertEquals("Value", "1".toCharArray(), result.getValueDisplayString());
+		assertEquals("Type", "int".toCharArray(), result.getValueTypeName());
 }
 /**
  * Return 'this'.
@@ -196,7 +211,7 @@ public void test002() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -248,7 +263,7 @@ public void test003() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -289,7 +304,7 @@ public void test004() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -338,7 +353,7 @@ public void test005() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -390,7 +405,7 @@ public void test006() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -442,7 +457,7 @@ public void test007() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -494,7 +509,7 @@ public void test008() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -533,7 +548,7 @@ public void test009() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -586,7 +601,7 @@ public void test010() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -627,7 +642,7 @@ public void test011() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -665,7 +680,7 @@ public void test012() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -683,7 +698,7 @@ public void test012() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -701,7 +716,8 @@ public void test012() {
  */
 /* Disabling since this test is sometimes failing for unknown reasons
  * (suspecting a problem in the JDI or JDWP implementation)
-public void test013() {
+ */
+public void _test013() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM, 
@@ -720,7 +736,7 @@ public void test013() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -738,7 +754,7 @@ public void test013() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -751,13 +767,13 @@ public void test013() {
 	assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
 	assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
 }
-*/
 /**
  * Set local variable 'i'.
  */
 /* Disabling since this test is sometimes failing for unknown reasons
  * (suspecting a problem in the JDI or JDWP implementation)
-public void test014() {
+ */
+public void _test014() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM, 
@@ -776,7 +792,7 @@ public void test014() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -794,7 +810,7 @@ public void test014() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -807,13 +823,13 @@ public void test014() {
 	assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
 	assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
 }
-*/
 /**
  * Check java.lang.System.out != null
  */
 /* Disabling since this test is sometimes failing for unknown reasons
  * (suspecting a problem in the JDI or JDWP implementation)
-public void test015() {
+ */
+public void _test015() {
 	String userCode = "int i = 0;";
 	JDIStackFrame stackFrame = new JDIStackFrame(
 		this.jdiVM, 
@@ -832,7 +848,7 @@ public void test015() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -851,7 +867,7 @@ public void test015() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -864,7 +880,6 @@ public void test015() {
 	assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
 	assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
 }
-*/
 /**
  * Check java.lang.System.out == null
  */
@@ -887,7 +902,7 @@ public void test016() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -905,7 +920,7 @@ public void test016() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -970,7 +985,7 @@ public void test017() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(),
-			getOptions(),
+			getCompilerOptions(),
 			requestor,
 			getProblemFactory());
 	} catch (InstallException e) {
@@ -1021,7 +1036,7 @@ public void test018() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1039,7 +1054,7 @@ public void test018() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1058,8 +1073,8 @@ public void test018() {
 /**
  * Access to super reference
  */
-public void test019() {
-/*  try {
+public void _test019() {
+  try {
 		String sourceA019 =
 			"public class A019 {\n" +
 			"  public int x = 1;\n" +
@@ -1091,7 +1106,7 @@ public void test019() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1106,7 +1121,6 @@ public void test019() {
 	} finally {
 		removeTempClass("A019");
 	}
-*/
 }
 /**
  * Implicit message expression
@@ -1149,7 +1163,7 @@ public void test020() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1208,7 +1222,7 @@ public void test021() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1226,7 +1240,7 @@ public void test021() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1291,7 +1305,7 @@ public void test022() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1315,7 +1329,7 @@ public void test022() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1388,7 +1402,7 @@ public void test023() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1412,7 +1426,7 @@ public void test023() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1486,7 +1500,7 @@ public void test024() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1510,7 +1524,7 @@ public void test024() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1571,7 +1585,7 @@ public void test025() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1595,7 +1609,7 @@ public void test025() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1653,7 +1667,7 @@ public void test026() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1720,7 +1734,7 @@ public void test027() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1789,7 +1803,7 @@ public void test028() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1858,7 +1872,7 @@ public void test029() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -1931,7 +1945,7 @@ public void test030() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) { 
@@ -1984,7 +1998,7 @@ public void test031() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) { 
@@ -2045,7 +2059,7 @@ public void test032() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) { 
@@ -2116,7 +2130,7 @@ public void test033() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) { 
@@ -2165,7 +2179,7 @@ public void test034() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2218,7 +2232,7 @@ public void test035() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) { 
@@ -2267,7 +2281,7 @@ public void test036() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2316,7 +2330,7 @@ public void test037() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2363,7 +2377,7 @@ public void test038() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2410,7 +2424,7 @@ public void test039() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2457,7 +2471,7 @@ public void test040() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2504,7 +2518,7 @@ public void test041() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2551,7 +2565,7 @@ public void test042() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2598,7 +2612,7 @@ public void test043() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2645,7 +2659,7 @@ public void test044() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2692,7 +2706,7 @@ public void test045() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2739,7 +2753,7 @@ public void test046() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2787,7 +2801,7 @@ public void test047() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2836,7 +2850,7 @@ public void test048() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2885,7 +2899,7 @@ public void test049() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2934,7 +2948,7 @@ public void test050() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -2983,7 +2997,7 @@ public void test051() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3032,7 +3046,7 @@ public void test052() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3081,7 +3095,7 @@ public void test053() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3130,7 +3144,7 @@ public void test054() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3179,7 +3193,7 @@ public void test055() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3228,7 +3242,7 @@ public void test056() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3277,7 +3291,7 @@ public void test057() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3326,7 +3340,7 @@ public void test058() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3375,7 +3389,7 @@ public void test059() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3427,7 +3441,7 @@ public void test060() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3479,7 +3493,7 @@ public void test061() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3525,7 +3539,7 @@ public void test062() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getOptions(),
+				getCompilerOptions(),
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3542,9 +3556,6 @@ public void test062() {
 	} finally {
 		removeTempClass("A62");
 	}
-}
-public static Class testClass() {
-	return DebugEvaluationTest.class;
 }
 /**
  * Return non-static field in static environment.
@@ -3582,7 +3593,7 @@ public void testNegative001() {
 				true, // force is static
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3642,7 +3653,7 @@ public void testNegative002() {
 				true, // force is static
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3702,7 +3713,7 @@ public void testNegative003() {
 				true, // force is static
 				stackFrame.isConstructorCall(),
 				getEnv(), 
-				getOptions(), 
+				getCompilerOptions(), 
 				requestor, 
 				getProblemFactory());
 		} catch (InstallException e) {
@@ -3748,7 +3759,7 @@ public void testNegative004() {
 			stackFrame.isStatic(),
 			stackFrame.isConstructorCall(),
 			getEnv(), 
-			getOptions(), 
+			getCompilerOptions(), 
 			requestor, 
 			getProblemFactory());
 	} catch (InstallException e) {
