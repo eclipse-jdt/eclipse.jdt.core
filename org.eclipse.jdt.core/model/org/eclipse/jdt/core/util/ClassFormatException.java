@@ -39,7 +39,7 @@ public class ClassFormatException extends Exception {
 	 * @param errorID the given error ID
 	 */
 	public ClassFormatException(int errorID) {
-		// TODO what is the errorID?
+		// TODO (olivier) what is the errorID?
 	}
 
 	/**

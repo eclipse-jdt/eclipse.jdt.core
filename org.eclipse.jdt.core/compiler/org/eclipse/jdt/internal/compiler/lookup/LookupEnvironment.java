@@ -655,20 +655,21 @@ TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariab
 	//   or '+' TypeSignature
 	//   or TypeSignature
 	//   or '*'
-	// TODO (philippe) plug in wildcards
 	switch (wrapper.signature[wrapper.start]) {
 		case '-' :
 			// ? super aType
 			wrapper.start++;
-			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			return createWildcard(bound, true/*isSuper*/);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
-			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			return createWildcard(bound, false/*isSuper*/);
 		case '*' :
 			// ?
 			wrapper.start++;
-			return getType(JAVA_LANG_OBJECT);
+			return createWildcard(null, false/*isSuper*/);
 	}
 	return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 }

@@ -440,7 +440,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
 	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
 	 * can simply refer to some variables defining the proper locations of these external JARs.
-	 * TODO (jim) please reformulate to include classpath containers in resolution aspects
+	 * TODO (jeem) please reformulate to include classpath containers in resolution aspects
 	 *  <p>
 	 * Note that in case the project isn't yet opened, the classpath will directly be read from the associated <tt>.classpath</tt> file.
 	 * <p>
@@ -685,7 +685,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * A raw classpath may contain classpath variable and/or container entries. Classpath variable entries can be resolved 
 	 * individually (see <code>JavaCore#getClasspathVariable</code>), or the full classpath can be resolved at once using the 
 	 * helper method <code>getResolvedClasspath</code>.
-	 * TODO (jim) please reformulate to include classpath containers in resolution aspects
+	 * TODO (jeem) please reformulate to include classpath containers in resolution aspects
 	 * <p>
 	 * Note that no check is performed whether the project has the Java nature set, allowing an existing <code>.classpath</code> 
 	 * file to be considered independantly (unlike <code>getRawClasspath</code> which requires the Java nature to be associated 

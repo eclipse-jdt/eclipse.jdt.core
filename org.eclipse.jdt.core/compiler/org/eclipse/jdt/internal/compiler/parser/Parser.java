@@ -2900,7 +2900,7 @@ protected void consumeEnumHeader() {
 	
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		//TODO this code will be never run while 'enum' is an identfier in 1.3 scanner 
+		//TODO this code will be never run while 'enum' is an identifier in 1.3 scanner 
 		this.problemReporter().invalidUsageOfEnumsDeclarations(enumDeclaration);
 	}
 	
