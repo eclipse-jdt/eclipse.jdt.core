@@ -273,16 +273,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		}
 	}
 
-	/**
-	 * Answer an array of descriptions for the configurable options.
-	 * The descriptions may be changed and passed back to a different
-	 * compiler.
-	 *
-	 *  @return ConfigurableOption[] - array of configurable options
-	 */
-	public static ConfigurableOption[] getDefaultOptions(Locale locale) {
-		return new CompilerOptions().getConfigurableOptions(locale);
-	}
 	protected void getMethodBodies(CompilationUnitDeclaration unit, int place) {
 		//fill the methods bodies in order for the code to be generated
 
@@ -502,5 +492,22 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// environment.
 			// this.reset();
 		}
+	}
+	
+	/**
+	 * Returns all the options of the compiler to be shown by the UI
+	 *
+	 * @param locale java.util.Locale
+	 * @return org.eclipse.jdt.internal.compiler.ConfigurableOption[]
+	 */
+	public static ConfigurableOption[] getDefaultOptions(Locale locale) {
+		String[] ids = ConfigurableOption.getIDs(Compiler.class.getName(),locale);
+	
+		ConfigurableOption[] result = new ConfigurableOption[ids.length];
+		for(int i = 0 ; i < ids.length ; i++){
+			result[i] = new ConfigurableOption(ids[i],locale);
+		}
+		
+		return result;
 	}
 }
