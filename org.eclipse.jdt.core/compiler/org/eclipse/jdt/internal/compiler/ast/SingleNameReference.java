@@ -559,9 +559,6 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				    this.genericCast = parameterizedField.type;
 		        }
 		    }
-		} else {
-		    // field or local
-		    this.codegenBinding = this.binding;
 		}		
 		if ((bits & FIELD) != 0) {
 			FieldBinding fieldBinding = (FieldBinding) binding;
@@ -612,9 +609,6 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				    this.genericCast = parameterizedField.type;
 		        }
 		    }
-		} else {
-		    // field or local
-		    this.codegenBinding = this.binding;
 		}		
 		if ((bits & FIELD) != 0) {
 			FieldBinding fieldBinding = (FieldBinding) binding;
