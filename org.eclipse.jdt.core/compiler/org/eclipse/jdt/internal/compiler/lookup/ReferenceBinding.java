@@ -135,14 +135,6 @@ public final boolean canBeSeenBy(Scope scope) {
 	if (invocationType == this) return true;
 
 	if (isProtected()) {
-		// answer true if the receiver (or its enclosing type) is the superclass 
-		//	of the invocationType or in the same package
-		return invocationType.fPackage == fPackage 
-				|| isSuperclassOf(invocationType)
-				|| enclosingType().isSuperclassOf(invocationType); // protected types always have an enclosing one
-	}
-
-	if (isProtected()) {
 		// answer true if the invocationType is the declaringClass or they are in the same package
 		// OR the invocationType is a subclass of the declaringClass
 		//    AND the invocationType is the invocationType or its subclass
