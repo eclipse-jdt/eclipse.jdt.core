@@ -168,6 +168,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			actual
 		);
 	}
+	protected void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
+		addLibraryEntry(project, new Path(path), null, null, exported);
+	} 
+	protected void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath, String srcAttachmentPathRoot, boolean exported) throws JavaModelException{
+		addLibraryEntry(
+			project,
+			new Path(path),
+			srcAttachmentPath == null ? null : new Path(srcAttachmentPath),
+			srcAttachmentPathRoot == null ? null : new Path(srcAttachmentPathRoot),
+			exported
+		);
+	}
+	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, boolean exported) throws JavaModelException{
+		IClasspathEntry[] entries = project.getRawClasspath();
+		int length = entries.length;
+		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
+		entries[0] = JavaCore.newLibraryEntry(path, srcAttachmentPath, srcAttachmentPathRoot, exported);
+		project.setRawClasspath(entries, null);
+	}
 	protected void assertSortedElementsEqual(String message, String expected, IJavaElement[] elements) {
 		this.sortElements(elements);
 		assertElementsEqual(message, expected, elements);

@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.StringTokenizer;
@@ -101,12 +100,7 @@ protected void assertElementDescendants(String message,  String expected, IJavaE
  */
 public static void generateClassFile(String className, String javaSource) throws IOException {
 	String cu = "d:/temp/" + className + ".java";
-	FileOutputStream output = new FileOutputStream(cu);
-	try {
-		output.write(javaSource.getBytes());
-	} finally {
-		output.close();
-	}
+	Util.createFile(cu, javaSource);
 	Main.compile(cu + " -d d:/temp -classpath " + System.getProperty("java.home") + "/lib/rt.jar");
 	FileInputStream input = new FileInputStream("d:/temp/" + className + ".class");
 	try {

@@ -162,6 +162,26 @@ public static void createJar(String[] pathsAndContents, Map options, String jarP
 	compile(pathsAndContents, options, classesPath);
 	zip(classesDir, jarPath);
 }
+public static void createFile(String path, String contents) throws IOException {
+	FileOutputStream output = new FileOutputStream(path);
+	try {
+		output.write(contents.getBytes());
+	} finally {
+		output.close();
+	}
+}
+public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
+	String sourcesPath = getOutputDirectory() + File.separator + "sources";
+	File sourcesDir = new File(sourcesPath);
+	flushDirectoryContent(sourcesDir);
+	for (int i = 0, length = pathsAndContents.length; i < length; i+=2) {
+		String sourcePath = sourcesPath + File.separator + pathsAndContents[i];
+		File sourceFile = new File(sourcePath);
+		sourceFile.getParentFile().mkdirs();
+		createFile(sourcePath, pathsAndContents[i+1]);
+	}
+	zip(sourcesDir, zipPath);
+}
 /**
  * Generate a display string from the given String.
  * @param indent number of tabs are added at the begining of each line.
