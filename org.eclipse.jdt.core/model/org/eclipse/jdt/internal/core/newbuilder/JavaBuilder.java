@@ -106,9 +106,6 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 }
 
 private void buildAll() {
-	if (DEBUG)
-		System.out.println("FULL build"); //$NON-NLS-1$
-
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	clearLastState();
 	BatchImageBuilder imageBuilder = new BatchImageBuilder(this);
@@ -117,9 +114,6 @@ private void buildAll() {
 }
 
 private void buildDeltas(SimpleLookupTable deltas) {
-	if (DEBUG)
-		System.out.println("INCREMENTAL build"); //$NON-NLS-1$
-
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
 	if (imageBuilder.build(deltas))
