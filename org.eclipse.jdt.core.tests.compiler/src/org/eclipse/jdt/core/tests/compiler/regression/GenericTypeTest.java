@@ -8152,13 +8152,26 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
-				"public  X<T extends Y> {}\n" + 
+				"public class X<T extends Y> {}\n" + 
 				"class Y extends X {}"
 			},
-			"SUCCESS");	
+			"");	
+	}
+	// 74420
+	// TODO (kent) waiting to release fix
+	public void _test305() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public class X<T> {\n" + 
+				"  	T x;\n" + 
+				"  	<U extends T> T foo(U u) { return u; }\n" + 
+				"}\n"
+			},
+			"");
 	}
 	// 74096
-	public void _test305() {
+	public void _test306() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
