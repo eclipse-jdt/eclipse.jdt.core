@@ -41,10 +41,10 @@ public static boolean DEBUG = false;
 static final String ProblemMarkerTag = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
 /**
  * A list of project names that have been built.
- * This list is used to reset the JavaModel.existingExternalFiles cache when a build occurs
+ * This list is used to reset the JavaModel.existingExternalFiles cache when a build cycle begins
  * so that deleted external jars are discovered.
  */
-static HashSet builtProjects = new HashSet();
+static ArrayList builtProjects = null;
 
 public static IMarker[] getProblemsFor(IResource resource) {
 	try {
@@ -304,11 +304,11 @@ private void initializeBuilder() throws CoreException {
 		? CharOperation.splitOn(',', filterSequence.toCharArray())
 		: null;
 		
-	// Reset the existing external files cache if needed
+	// Flush the existing external files cache if this is the beginning of a build cycle
 	String projectName = this.currentProject.getName();
-	if (builtProjects.isEmpty() || builtProjects.contains(projectName)) {
+	if (builtProjects == null || builtProjects.contains(projectName)) {
 		JavaModel.flushExternalFileCache();
-		builtProjects = new HashSet();
+		builtProjects = new ArrayList();
 	}
 	builtProjects.add(projectName);
 }
