@@ -18,7 +18,7 @@ import org.eclipse.text.edits.ReplaceEdit;
 
 import org.eclipse.jface.text.Document;
 
-import org.eclipse.jdt.core.internal.dom.rewrite.SourceModifier;
+import org.eclipse.jdt.internal.core.dom.rewrite.SourceModifier;
 
 /**
  *

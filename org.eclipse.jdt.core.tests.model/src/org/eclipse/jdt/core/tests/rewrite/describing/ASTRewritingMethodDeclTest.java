@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.ListRewriter;
-import org.eclipse.jdt.core.dom.rewrite.NewASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
@@ -60,7 +60,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -79,7 +79,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 			Type returnType= methodDecl.getReturnType();
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
-			rewrite.markAsReplaced(returnType, newReturnType, null);
+			rewrite.replace(returnType, newReturnType, null);
 		}
 		{ // remove return type
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "hee");
@@ -94,19 +94,19 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SimpleName name= methodDecl.getName();
 			SimpleName newName= ast.newSimpleName("xii");
 			
-			rewrite.markAsReplaced(name, newName, null);
+			rewrite.replace(name, newName, null);
 		}				
 		{ // rename first param & last throw statement
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "jee");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
-			rewrite.markAsReplaced((ASTNode) parameters.get(0), newParam, null);
+			rewrite.replace((ASTNode) parameters.get(0), newParam, null);
 						
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 			Name newThrownException= ast.newSimpleName("ArrayStoreException");
-			rewrite.markAsReplaced((ASTNode) thrownExceptions.get(1), newThrownException, null);			
+			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException, null);			
 		}
 		{ // rename first and second param & rename first and last exception
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "kee");
@@ -114,15 +114,15 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");
-			rewrite.markAsReplaced((ASTNode) parameters.get(0), newParam1, null);
-			rewrite.markAsReplaced((ASTNode) parameters.get(1), newParam2, null);
+			rewrite.replace((ASTNode) parameters.get(0), newParam1, null);
+			rewrite.replace((ASTNode) parameters.get(1), newParam2, null);
 			
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 			Name newThrownException1= ast.newSimpleName("ArrayStoreException");
 			Name newThrownException2= ast.newSimpleName("InterruptedException");
-			rewrite.markAsReplaced((ASTNode) thrownExceptions.get(0), newThrownException1, null);
-			rewrite.markAsReplaced((ASTNode) thrownExceptions.get(2), newThrownException2, null);
+			rewrite.replace((ASTNode) thrownExceptions.get(0), newThrownException1, null);
+			rewrite.replace((ASTNode) thrownExceptions.get(2), newThrownException2, null);
 		}		
 		{ // rename all params & rename second exception
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "lee");
@@ -131,14 +131,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");			
 			SingleVariableDeclaration newParam3= createNewParam(ast, "m3");	
-			rewrite.markAsReplaced((ASTNode) parameters.get(0), newParam1, null);
-			rewrite.markAsReplaced((ASTNode) parameters.get(1), newParam2, null);
-			rewrite.markAsReplaced((ASTNode) parameters.get(2), newParam3, null);
+			rewrite.replace((ASTNode) parameters.get(0), newParam1, null);
+			rewrite.replace((ASTNode) parameters.get(1), newParam2, null);
+			rewrite.replace((ASTNode) parameters.get(2), newParam3, null);
 			
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 			Name newThrownException= ast.newSimpleName("ArrayStoreException");
-			rewrite.markAsReplaced((ASTNode) thrownExceptions.get(1), newThrownException, null);
+			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException, null);
 		}				
 		
 					
@@ -176,14 +176,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
 		{ // delete first param
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "E");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
 		}
 		{ // delete second param & remove exception & remove public
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
@@ -193,63 +193,63 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
 			
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(0), null);
+			rewrite.remove((ASTNode) thrownExceptions.get(0), null);
 		}		
 		{ // delete last param
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "hee");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
-			rewrite.markAsRemoved((ASTNode) parameters.get(2), null);	
+			rewrite.remove((ASTNode) parameters.get(2), null);	
 		}				
 		{ // delete first and second param & remove first exception
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "iee");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
 			
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(0), null);	
+			rewrite.remove((ASTNode) thrownExceptions.get(0), null);	
 		}				
 		{ // delete first and last param & remove second
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "jee");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(2), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(2), null);
 			
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(1), null);			
+			rewrite.remove((ASTNode) thrownExceptions.get(1), null);			
 		}
 		{ // delete second and last param & remove first exception
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "kee");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(2), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(2), null);
 			
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(1), null);
+			rewrite.remove((ASTNode) thrownExceptions.get(1), null);
 		}		
 		{ // delete all params & remove first and last exception
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "lee");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(2), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(2), null);
 			
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(0), null);
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(2), null);				
+			rewrite.remove((ASTNode) thrownExceptions.get(0), null);
+			rewrite.remove((ASTNode) thrownExceptions.get(2), null);				
 		}				
 
 
@@ -287,7 +287,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -358,7 +358,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");
 			
-			ListRewriter listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
 			listRewrite.insertBefore(newParam1, firstParam, null);
 			listRewrite.insertBefore(newParam2, firstParam, null);
 
@@ -374,7 +374,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 
-			ListRewriter listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
 
 			ASTNode firstParam= (ASTNode) parameters.get(0);
 			
@@ -390,14 +390,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException1, null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.markAsReplaced((ASTNode) thrownExceptions.get(1), newThrownException2, null);
+			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException2, null);
 		}
 		{ // insert 2 params after last & remove the last exception and insert new after
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "kee");
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 
-			ListRewriter listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
 			ASTNode lastParam= (ASTNode) parameters.get(2);
 			
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
@@ -410,7 +410,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 			
 			ASTNode lastException= (ASTNode) thrownExceptions.get(2);
-			rewrite.markAsRemoved(lastException, null);
+			rewrite.remove(lastException, null);
 			
 			Name newThrownException= ast.newSimpleName("InterruptedException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertBefore(newThrownException, lastException, null);
@@ -420,7 +420,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 
-			ListRewriter listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
 			
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");
@@ -432,8 +432,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 			ASTNode secondException= (ASTNode) thrownExceptions.get(1);
 			ASTNode lastException= (ASTNode) thrownExceptions.get(2);
-			rewrite.markAsRemoved(secondException, null);
-			rewrite.markAsRemoved(lastException, null);
+			rewrite.remove(secondException, null);
+			rewrite.remove(lastException, null);
 			
 			Name newThrownException= ast.newSimpleName("InterruptedException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, secondException, null);
@@ -469,7 +469,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -478,7 +478,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 
-			ListRewriter listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
 			
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");
@@ -488,8 +488,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 			
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(1), null);
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(2), null);
+			rewrite.remove((ASTNode) thrownExceptions.get(1), null);
+			rewrite.remove((ASTNode) thrownExceptions.get(2), null);
 			
 			Name newThrownException= ast.newSimpleName("InterruptedException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException, null);
@@ -525,7 +525,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -534,9 +534,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 		
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(2), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(2), null);
 
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam, null);
@@ -557,11 +557,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
 			
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
-			rewrite.markAsReplaced((ASTNode) parameters.get(2), newParam1, null);
+			rewrite.replace((ASTNode) parameters.get(2), newParam1, null);
 						
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam2, null);
@@ -571,7 +571,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 			
 			Name modifiedThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.markAsReplaced((ASTNode) thrownExceptions.get(0), modifiedThrownException, null);
+			rewrite.replace((ASTNode) thrownExceptions.get(0), modifiedThrownException, null);
 						
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -582,11 +582,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
 			
 			SingleVariableDeclaration newParam1= createNewParam(ast, "m1");
-			rewrite.markAsReplaced((ASTNode) parameters.get(2), newParam1, null);
+			rewrite.replace((ASTNode) parameters.get(2), newParam1, null);
 						
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertFirst(newParam2, null);
@@ -594,7 +594,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List thrownExceptions= methodDecl.thrownExceptions();
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 			
-			rewrite.markAsRemoved((ASTNode) thrownExceptions.get(0), null);
+			rewrite.remove((ASTNode) thrownExceptions.get(0), null);
 						
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -629,7 +629,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -638,9 +638,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 		
-			rewrite.markAsRemoved((ASTNode) parameters.get(0), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(1), null);
-			rewrite.markAsRemoved((ASTNode) parameters.get(2), null);
+			rewrite.remove((ASTNode) parameters.get(0), null);
+			rewrite.remove((ASTNode) parameters.get(1), null);
+			rewrite.remove((ASTNode) parameters.get(2), null);
 
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam, null);
@@ -686,7 +686,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -698,7 +698,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 			Block newBlock= ast.newBlock();
 
-			rewrite.markAsReplaced(body, newBlock, null);
+			rewrite.replace(body, newBlock, null);
 		}
 		{ // delete block & set abstract
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
@@ -710,7 +710,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			Block body= methodDecl.getBody();
 			assertTrue("No body: gee", body != null);
 
-			rewrite.markAsRemoved(body, null);
+			rewrite.remove(body, null);
 		}
 		{ // insert block & set to private
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "kee");
@@ -762,7 +762,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -780,7 +780,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 			
-			rewrite.markAsRemoved((ASTNode) methodDecl.thrownExceptions().get(0), null);			
+			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);			
 		}		
 		{ // remove extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
@@ -796,7 +796,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 			
-			rewrite.markAsRemoved((ASTNode) methodDecl.thrownExceptions().get(0), null);			
+			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);			
 		}
 		{ // add params, add extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo5");
@@ -814,15 +814,15 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // remove params, add extra dim, remove throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo6");
 			
-			rewrite.markAsRemoved((ASTNode) methodDecl.parameters().get(0), null);		
+			rewrite.remove((ASTNode) methodDecl.parameters().get(0), null);		
 			
 			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
 			
-			rewrite.markAsRemoved((ASTNode) methodDecl.thrownExceptions().get(0), null);			
+			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);			
 		}
 		{ // remove block
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
-			rewrite.markAsRemoved(methodDecl.getBody(), null);			
+			rewrite.remove(methodDecl.getBody(), null);			
 		}					
 		
 		String preview= evaluateRewrite(cu, rewrite);
@@ -856,7 +856,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("A.java", buf.toString(), false, null);
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		
 		AST ast= astRoot.getAST();
 		
@@ -873,7 +873,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.set(decl, FieldDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 			
 			PrimitiveType newType= ast.newPrimitiveType(PrimitiveType.BOOLEAN);
-			rewrite.markAsReplaced(decl.getType(), newType, null);
+			rewrite.replace(decl.getType(), newType, null);
 					
 			VariableDeclarationFragment frag=	ast.newVariableDeclarationFragment();
 			frag.setName(ast.newSimpleName("k1"));
@@ -892,14 +892,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List fragments= decl.fragments();
 			assertTrue("Number of fragments not 3", fragments.size() == 3);
 			
-			rewrite.markAsRemoved((ASTNode) fragments.get(0), null);
-			rewrite.markAsRemoved((ASTNode) fragments.get(1), null);
+			rewrite.remove((ASTNode) fragments.get(0), null);
+			rewrite.remove((ASTNode) fragments.get(1), null);
 			
 			VariableDeclarationFragment frag=	ast.newVariableDeclarationFragment();
 			frag.setName(ast.newSimpleName("k2"));
 			frag.setInitializer(null);
 			
-			rewrite.markAsReplaced((ASTNode) fragments.get(2), frag, null);
+			rewrite.replace((ASTNode) fragments.get(2), frag, null);
 		}
 		{	// remove modifiers
 			FieldDeclaration decl= fieldDeclarations[2];
@@ -937,7 +937,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("A.java", buf.toString(), false, null);
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		
 		AST ast= astRoot.getAST();
 		
@@ -957,7 +957,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			Block block= ast.newBlock();
 			block.statements().add(ast.newReturnStatement());
 			
-			rewrite.markAsReplaced(initializer.getBody(), block, null);
+			rewrite.replace(initializer.getBody(), block, null);
 		}
 		{	// change modifier
 			Initializer initializer= (Initializer) declarations.get(1);
@@ -994,7 +994,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
@@ -1005,14 +1005,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 			SingleVariableDeclaration first= (SingleVariableDeclaration) params.get(0);
 			SingleVariableDeclaration second= (SingleVariableDeclaration) params.get(1);
-			rewrite.markAsReplaced(first.getName(), ast.newSimpleName("x"), null);
-			rewrite.markAsReplaced(second.getName(), ast.newSimpleName("y"), null);
+			rewrite.replace(first.getName(), ast.newSimpleName("x"), null);
+			rewrite.replace(second.getName(), ast.newSimpleName("y"), null);
 				
 			ASTNode copy1= rewrite.createCopyTarget(first);
 			ASTNode copy2= rewrite.createCopyTarget(second);
 			
-			rewrite.markAsReplaced(first, copy2, null);
-			rewrite.markAsReplaced(second, copy1, null);
+			rewrite.replace(first, copy2, null);
+			rewrite.replace(second, copy1, null);
 			
 		}
 	
@@ -1038,7 +1038,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		
 		{ 
@@ -1051,8 +1051,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 				
 			ASTNode copy2= rewrite.createCopyTarget(second);
 
-			rewrite.markAsReplaced(first, copy2, null);
-			rewrite.markAsRemoved(second, null);
+			rewrite.replace(first, copy2, null);
+			rewrite.remove(second, null);
 		}
 	
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1078,7 +1078,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "DD");
@@ -1122,11 +1122,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
-			rewrite.markAsRemoved(methodDecl, null);
+			rewrite.remove(methodDecl, null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1169,7 +1169,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
@@ -1228,11 +1228,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
-			rewrite.markAsRemoved(methodDecl, null);
+			rewrite.remove(methodDecl, null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1278,11 +1278,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
-			rewrite.markAsRemoved(methodDecl, null);
+			rewrite.remove(methodDecl, null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1329,7 +1329,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
 		CompilationUnit astRoot= createAST(cu);
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
@@ -1338,7 +1338,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY).insertLast(copy, null);
 			
 			MethodDeclaration newMethodDecl= createNewMethod(astRoot.getAST(), "xoo", false);
-			rewrite.markAsReplaced(methodDecl, newMethodDecl, null);
+			rewrite.replace(methodDecl, newMethodDecl, null);
 			
 			//MethodDeclaration methodDecl2= findMethodDeclaration(type, "foo1");
 			//rewrite.markAsReplaced(methodDecl2, copy);
@@ -1390,7 +1390,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		NewASTRewrite rewrite= new NewASTRewrite(astRoot.getAST());
+		ASTRewrite rewrite= new ASTRewrite(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
 		{
 			VariableDeclarationFragment frag= ast.newVariableDeclarationFragment();
