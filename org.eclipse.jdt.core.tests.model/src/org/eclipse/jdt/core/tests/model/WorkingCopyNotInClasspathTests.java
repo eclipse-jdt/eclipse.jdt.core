@@ -168,20 +168,14 @@ public void testIsOnClasspath() throws CoreException {
 		IFile file = this.createFile("/SimpleProject/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		workingCopy = (ICompilationUnit) cu.getWorkingCopy();
-		try {
-			workingCopy.getJavaProject().isOnClasspath(workingCopy);
-			// shouldn't reach that far, since isOnClasspath should throw an exception (not present)
-			assertTrue("working copy shouldn't answer to isOnClasspath (1/2)", false);
-		} catch(JavaModelException e) {
-		}
-		workingCopy.getJavaProject().getOptions(true); // bug 31799
-		try {
-			workingCopy.getJavaProject().isOnClasspath(workingCopy);
-			// shouldn't reach that far, since isOnClasspath should throw an exception (not present)
-			assertTrue("working copy should dstill not answer to isOnClasspath (2/2)", false);
-		} catch(JavaModelException e) {
-		}
 		
+		// working creation will cause it to open, and thus request project options
+		try {
+			workingCopy.getJavaProject().isOnClasspath(workingCopy);
+			// shouldn't reach that far, since isOnClasspath should throw an exception (not present)
+			assertTrue("working copy shouldn't answer to isOnClasspath", false);
+		} catch(JavaModelException e) {
+		}
 	} finally {
 		if (workingCopy != null) workingCopy.destroy();
 		this.deleteProject("SimpleProject");
