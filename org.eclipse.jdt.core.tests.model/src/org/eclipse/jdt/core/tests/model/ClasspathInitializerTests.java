@@ -29,7 +29,7 @@ import junit.framework.Test;
 /*
  * Test variable initializers and container initializers.
  */
-public class InitializerTests extends ModifyingResourceTests {
+public class ClasspathInitializerTests extends ModifyingResourceTests {
 	
 public class DefaultVariableInitializer implements VariablesInitializer.ITestInitializer {
 	Map variableValues;
@@ -99,7 +99,7 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 	}
 }
 	
-public InitializerTests(String name) {
+public ClasspathInitializerTests(String name) {
 	super(name);
 }
 public void testContainerInitializer1() throws CoreException {
@@ -120,7 +120,7 @@ public void testContainerInitializer1() throws CoreException {
 	}
 }
 public static Test suite() {
-	return new Suite(InitializerTests.class);
+	return new Suite(ClasspathInitializerTests.class);
 }
 public void testVariableInitializer1() throws CoreException {
 	try {
