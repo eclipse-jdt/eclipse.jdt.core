@@ -263,6 +263,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.IGNORE);
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PUBLIC);
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.DISABLED);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.DISABLED);
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef, CompilerOptions.DISABLED);
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.IGNORE);
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PUBLIC);
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTagsOverriding, CompilerOptions.DISABLED);

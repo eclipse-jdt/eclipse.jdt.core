@@ -413,6 +413,18 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
+	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS__DEPRECATED_REF = PLUGIN_ID + ".compiler.problem.invalidJavadocTagsDeprecatedRef"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS__NOT_VISIBLE_REF = PLUGIN_ID + ".compiler.problem.invalidJavadocTagsNotVisibleRef"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY = PLUGIN_ID + ".compiler.problem.invalidJavadocTagsVisibility"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -1806,6 +1818,22 @@ public final class JavaCore extends Plugin {
 	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"
 	 *     - possible values:   { "disabled", "enabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Invalid Javadoc Tags with Deprecated References
+	 *    Specify whether the compiler will report deprecated references used in Javadoc tags.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 * 
+	 * COMPILER / Reporting Invalid Javadoc Tags with Not Visible References
+	 *    Specify whether the compiler will report non-visible references used in Javadoc tags.
+	 *    <br>Note that this diagnosis can be enabled based on the visibility of the construct associated with the Javadoc;
+	 *    also see the setting "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef"
+	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * 
 	 * COMPILER / Reporting Missing Javadoc Tags

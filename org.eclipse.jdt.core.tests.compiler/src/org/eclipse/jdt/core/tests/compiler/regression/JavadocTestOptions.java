@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import junit.framework.Test;
 
@@ -25,10 +26,12 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  */
 public class JavadocTestOptions extends JavadocTest {
 
-	String localDocCommentSupport = null;
+	String docCommentSupport = null;
 	String reportInvalidJavadoc = null;
 	String reportInvalidJavadocTagsVisibility = null;
 	String reportInvalidJavadocTags = null;
+	String reportInvalidJavadocTagsDeprecatedRef= null;
+	String reportInvalidJavadocTagsNotVisibleRef = null;
 	String reportMissingJavadocTags = null;
 	String reportMissingJavadocTagsVisibility = null;
 	String reportMissingJavadocTagsOverriding = null;
@@ -251,7 +254,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"}\n"
 	};
 
-	private static String[] resultForInvalidTagsReferencesClassOrField = {
+	private static String[] resultForInvalidTagsClassOrField = {
 		"1. ERROR in Y.java (at line 3)\n" + 
 			"	* @see X.X_dep\n" + 
 			"	       ^^^^^^^\n" + 
@@ -514,367 +517,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n"
 	};
 
-	private static String[] resultForInvalidTagsReferencesMethodOrConstructor = {
-//		"1. ERROR in Y.java (at line 4)\n" + 
-//			"	* @param str\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Duplicate tag for parameter\n" + 
-//			"----------\n" + 
-//			"2. ERROR in Y.java (at line 5)\n" + 
-//			"	* @param xxx\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Parameter xxx is not declared\n" + 
-//			"----------\n" + 
-//			"3. ERROR in Y.java (at line 7)\n" + 
-//			"	* @throws IllegalArgumentException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Duplicate tag for thrown exception\n" + 
-//			"----------\n" + 
-//			"4. ERROR in Y.java (at line 8)\n" + 
-//			"	* @throws java.io.IOException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Exception IOException is not declared\n" + 
-//			"----------\n" + 
-//			"5. ERROR in Y.java (at line 9)\n" + 
-//			"	* @throws Unknown\n" + 
-//			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"6. ERROR in Y.java (at line 10)\n" + 
-//			"	* @see X.X_dep\n" + 
-//			"	       ^^^^^^^\n" + 
-//			"Javadoc: The type X.X_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"7. ERROR in Y.java (at line 11)\n" + 
-//			"	* @see X.X_priv\n" + 
-//			"	       ^^^^^^^^\n" + 
-//			"Javadoc: The type X.X_priv is not visible\n" + 
-//			"----------\n" + 
-//			"8. ERROR in Y.java (at line 12)\n" + 
-//			"	* @see X.Unknown\n" + 
-//			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"9. ERROR in Y.java (at line 13)\n" + 
-//			"	* @see X#X(int)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(int) is not visible\n" + 
-//			"----------\n" + 
-//			"10. ERROR in Y.java (at line 14)\n" + 
-//			"	* @see X#X(String)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(String) is undefined\n" + 
-//			"----------\n" + 
-//			"11. ERROR in Y.java (at line 15)\n" + 
-//			"	* @see X#X()\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X() is deprecated\n" + 
-//			"----------\n" + 
-//			"12. ERROR in Y.java (at line 16)\n" + 
-//			"	* @see X#x_dep\n" + 
-//			"	         ^^^^^\n" + 
-//			"Javadoc: The field X.x_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"13. ERROR in Y.java (at line 17)\n" + 
-//			"	* @see X#x_priv\n" + 
-//			"	         ^^^^^^\n" + 
-//			"Javadoc: The field x_priv is not visible\n" + 
-//			"----------\n" + 
-//			"14. ERROR in Y.java (at line 18)\n" + 
-//			"	* @see X#unknown\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: unknown cannot be resolved or is not a field\n" + 
-//			"----------\n" + 
-//			"15. ERROR in Y.java (at line 19)\n" + 
-//			"	* @see X#foo_dep()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
-//			"----------\n" + 
-//			"16. ERROR in Y.java (at line 20)\n" + 
-//			"	* @see X#foo_priv()\n" + 
-//			"	         ^^^^^^^^\n" + 
-//			"Javadoc: The method foo_priv() from the type X is not visible\n" + 
-//			"----------\n" + 
-//			"17. ERROR in Y.java (at line 21)\n" + 
-//			"	* @see X#foo_dep(String)\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" + 
-//			"----------\n" + 
-//			"18. ERROR in Y.java (at line 22)\n" + 
-//			"	* @see X#unknown()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method unknown() is undefined for the type X\n" + 
-//			"----------\n",
-//		"19. ERROR in Y.java (at line 27)\n" + 
-//			"	* @param str\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Duplicate tag for parameter\n" + 
-//			"----------\n" + 
-//			"20. ERROR in Y.java (at line 28)\n" + 
-//			"	* @param xxx\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Parameter xxx is not declared\n" + 
-//			"----------\n" + 
-//			"21. ERROR in Y.java (at line 30)\n" + 
-//			"	* @throws IllegalArgumentException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Duplicate tag for thrown exception\n" + 
-//			"----------\n" + 
-//			"22. ERROR in Y.java (at line 31)\n" + 
-//			"	* @throws java.io.IOException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Exception IOException is not declared\n" + 
-//			"----------\n" + 
-//			"23. ERROR in Y.java (at line 32)\n" + 
-//			"	* @throws Unknown\n" + 
-//			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"24. ERROR in Y.java (at line 33)\n" + 
-//			"	* @see X.X_dep\n" + 
-//			"	       ^^^^^^^\n" + 
-//			"Javadoc: The type X.X_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"25. ERROR in Y.java (at line 34)\n" + 
-//			"	* @see X.X_priv\n" + 
-//			"	       ^^^^^^^^\n" + 
-//			"Javadoc: The type X.X_priv is not visible\n" + 
-//			"----------\n" + 
-//			"26. ERROR in Y.java (at line 35)\n" + 
-//			"	* @see X.Unknown\n" + 
-//			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"27. ERROR in Y.java (at line 36)\n" + 
-//			"	* @see X#X(int)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(int) is not visible\n" + 
-//			"----------\n" + 
-//			"28. ERROR in Y.java (at line 37)\n" + 
-//			"	* @see X#X(String)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(String) is undefined\n" + 
-//			"----------\n" + 
-//			"29. ERROR in Y.java (at line 38)\n" + 
-//			"	* @see X#X()\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X() is deprecated\n" + 
-//			"----------\n" + 
-//			"30. ERROR in Y.java (at line 39)\n" + 
-//			"	* @see X#x_dep\n" + 
-//			"	         ^^^^^\n" + 
-//			"Javadoc: The field X.x_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"31. ERROR in Y.java (at line 40)\n" + 
-//			"	* @see X#x_priv\n" + 
-//			"	         ^^^^^^\n" + 
-//			"Javadoc: The field x_priv is not visible\n" + 
-//			"----------\n" + 
-//			"32. ERROR in Y.java (at line 41)\n" + 
-//			"	* @see X#unknown\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: unknown cannot be resolved or is not a field\n" + 
-//			"----------\n" + 
-//			"33. ERROR in Y.java (at line 42)\n" + 
-//			"	* @see X#foo_dep()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
-//			"----------\n" + 
-//			"34. ERROR in Y.java (at line 43)\n" + 
-//			"	* @see X#foo_priv()\n" + 
-//			"	         ^^^^^^^^\n" + 
-//			"Javadoc: The method foo_priv() from the type X is not visible\n" + 
-//			"----------\n" + 
-//			"35. ERROR in Y.java (at line 44)\n" + 
-//			"	* @see X#foo_dep(String)\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" + 
-//			"----------\n" + 
-//			"36. ERROR in Y.java (at line 45)\n" + 
-//			"	* @see X#unknown()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method unknown() is undefined for the type X\n" + 
-//			"----------\n",
-//		"37. ERROR in Y.java (at line 50)\n" + 
-//			"	* @param str\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Duplicate tag for parameter\n" + 
-//			"----------\n" + 
-//			"38. ERROR in Y.java (at line 51)\n" + 
-//			"	* @param xxx\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Parameter xxx is not declared\n" + 
-//			"----------\n" + 
-//			"39. ERROR in Y.java (at line 53)\n" + 
-//			"	* @throws IllegalArgumentException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Duplicate tag for thrown exception\n" + 
-//			"----------\n" + 
-//			"40. ERROR in Y.java (at line 54)\n" + 
-//			"	* @throws java.io.IOException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Exception IOException is not declared\n" + 
-//			"----------\n" + 
-//			"41. ERROR in Y.java (at line 55)\n" + 
-//			"	* @throws Unknown\n" + 
-//			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"42. ERROR in Y.java (at line 56)\n" + 
-//			"	* @see X.X_dep\n" + 
-//			"	       ^^^^^^^\n" + 
-//			"Javadoc: The type X.X_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"43. ERROR in Y.java (at line 57)\n" + 
-//			"	* @see X.X_priv\n" + 
-//			"	       ^^^^^^^^\n" + 
-//			"Javadoc: The type X.X_priv is not visible\n" + 
-//			"----------\n" + 
-//			"44. ERROR in Y.java (at line 58)\n" + 
-//			"	* @see X.Unknown\n" + 
-//			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"45. ERROR in Y.java (at line 59)\n" + 
-//			"	* @see X#X(int)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(int) is not visible\n" + 
-//			"----------\n" + 
-//			"46. ERROR in Y.java (at line 60)\n" + 
-//			"	* @see X#X(String)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(String) is undefined\n" + 
-//			"----------\n" + 
-//			"47. ERROR in Y.java (at line 61)\n" + 
-//			"	* @see X#X()\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X() is deprecated\n" + 
-//			"----------\n" + 
-//			"48. ERROR in Y.java (at line 62)\n" + 
-//			"	* @see X#x_dep\n" + 
-//			"	         ^^^^^\n" + 
-//			"Javadoc: The field X.x_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"49. ERROR in Y.java (at line 63)\n" + 
-//			"	* @see X#x_priv\n" + 
-//			"	         ^^^^^^\n" + 
-//			"Javadoc: The field x_priv is not visible\n" + 
-//			"----------\n" + 
-//			"50. ERROR in Y.java (at line 64)\n" + 
-//			"	* @see X#unknown\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: unknown cannot be resolved or is not a field\n" + 
-//			"----------\n" + 
-//			"51. ERROR in Y.java (at line 65)\n" + 
-//			"	* @see X#foo_dep()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
-//			"----------\n" + 
-//			"52. ERROR in Y.java (at line 66)\n" + 
-//			"	* @see X#foo_priv()\n" + 
-//			"	         ^^^^^^^^\n" + 
-//			"Javadoc: The method foo_priv() from the type X is not visible\n" + 
-//			"----------\n" + 
-//			"53. ERROR in Y.java (at line 67)\n" + 
-//			"	* @see X#foo_dep(String)\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" + 
-//			"----------\n" + 
-//			"54. ERROR in Y.java (at line 68)\n" + 
-//			"	* @see X#unknown()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method unknown() is undefined for the type X\n" + 
-//			"----------\n",
-//		"55. ERROR in Y.java (at line 73)\n" + 
-//			"	* @param str\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Duplicate tag for parameter\n" + 
-//			"----------\n" + 
-//			"56. ERROR in Y.java (at line 74)\n" + 
-//			"	* @param xxx\n" + 
-//			"	         ^^^\n" + 
-//			"Javadoc: Parameter xxx is not declared\n" + 
-//			"----------\n" + 
-//			"57. ERROR in Y.java (at line 76)\n" + 
-//			"	* @throws IllegalArgumentException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Duplicate tag for thrown exception\n" + 
-//			"----------\n" + 
-//			"58. ERROR in Y.java (at line 77)\n" + 
-//			"	* @throws java.io.IOException\n" + 
-//			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-//			"Javadoc: Exception IOException is not declared\n" + 
-//			"----------\n" + 
-//			"59. ERROR in Y.java (at line 78)\n" + 
-//			"	* @throws Unknown\n" + 
-//			"	          ^^^^^^^\n" + 
-//			"Javadoc: Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"60. ERROR in Y.java (at line 79)\n" + 
-//			"	* @see X.X_dep\n" + 
-//			"	       ^^^^^^^\n" + 
-//			"Javadoc: The type X.X_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"61. ERROR in Y.java (at line 80)\n" + 
-//			"	* @see X.X_priv\n" + 
-//			"	       ^^^^^^^^\n" + 
-//			"Javadoc: The type X.X_priv is not visible\n" + 
-//			"----------\n" + 
-//			"62. ERROR in Y.java (at line 81)\n" + 
-//			"	* @see X.Unknown\n" + 
-//			"	       ^^^^^^^^^\n" + 
-//			"Javadoc: X.Unknown cannot be resolved to a type\n" + 
-//			"----------\n" + 
-//			"63. ERROR in Y.java (at line 82)\n" + 
-//			"	* @see X#X(int)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(int) is not visible\n" + 
-//			"----------\n" + 
-//			"64. ERROR in Y.java (at line 83)\n" + 
-//			"	* @see X#X(String)\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X(String) is undefined\n" + 
-//			"----------\n" + 
-//			"65. ERROR in Y.java (at line 84)\n" + 
-//			"	* @see X#X()\n" + 
-//			"	         ^\n" + 
-//			"Javadoc: The constructor X() is deprecated\n" + 
-//			"----------\n" + 
-//			"66. ERROR in Y.java (at line 85)\n" + 
-//			"	* @see X#x_dep\n" + 
-//			"	         ^^^^^\n" + 
-//			"Javadoc: The field X.x_dep is deprecated\n" + 
-//			"----------\n" + 
-//			"67. ERROR in Y.java (at line 86)\n" + 
-//			"	* @see X#x_priv\n" + 
-//			"	         ^^^^^^\n" + 
-//			"Javadoc: The field x_priv is not visible\n" + 
-//			"----------\n" + 
-//			"68. ERROR in Y.java (at line 87)\n" + 
-//			"	* @see X#unknown\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: unknown cannot be resolved or is not a field\n" + 
-//			"----------\n" + 
-//			"69. ERROR in Y.java (at line 88)\n" + 
-//			"	* @see X#foo_dep()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
-//			"----------\n" + 
-//			"70. ERROR in Y.java (at line 89)\n" + 
-//			"	* @see X#foo_priv()\n" + 
-//			"	         ^^^^^^^^\n" + 
-//			"Javadoc: The method foo_priv() from the type X is not visible\n" + 
-//			"----------\n" + 
-//			"71. ERROR in Y.java (at line 90)\n" + 
-//			"	* @see X#foo_dep(String)\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method foo_dep() in the type X is not applicable for the arguments (String)\n" + 
-//			"----------\n" + 
-//			"72. ERROR in Y.java (at line 91)\n" + 
-//			"	* @see X#unknown()\n" + 
-//			"	         ^^^^^^^\n" + 
-//			"Javadoc: The method unknown() is undefined for the type X\n" + 
-//			"----------\n"
+	private static String[] resultForInvalidTagsMethodOrConstructor = {
 		"1. ERROR in Y.java (at line 4)\n" + 
 			"	* @param str\n" + 
 			"	         ^^^\n" + 
@@ -1217,20 +860,88 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n"
 	};
 
-	private String resultForInvalidTagsReferencesClassOrField(int visibility) {
-		String result = "----------\n";
-		for (int i=0; i<=visibility; i++) {
-			result += resultForInvalidTagsReferencesClassOrField[i];
+	private String resultForInvalidTagsClassOrField(int visibility) {
+		if (reportInvalidJavadocTagsDeprecatedRef == null && reportInvalidJavadocTagsNotVisibleRef == null) {
+			String result = "----------\n";
+			for (int i=0; i<=visibility; i++) {
+				result += resultForInvalidTagsClassOrField[i];
+			}
+			return result;
 		}
-		return result;
+		StringBuffer result = new StringBuffer("----------\n");
+		for (int i=0, count=1; i<= visibility; i++) {
+			StringTokenizer tokenizer = new StringTokenizer(resultForInvalidTagsClassOrField[i], "\n");
+			while (tokenizer.hasMoreTokens()) {
+				StringBuffer error = new StringBuffer();
+				boolean add = true;
+				for (int j=0; j<5; j++) {
+					String line = tokenizer.nextToken();
+					switch (j) {
+						case 0:
+							error.append(count);
+							error.append(line.substring(line.indexOf('.')));
+							break;
+						case 3:
+							if (CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsDeprecatedRef)) {
+								add = line.indexOf("is deprecated") == -1;
+							}
+							if (add && CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsNotVisibleRef)) {
+								add = line.indexOf("is not visible") == -1;
+							}
+						default:
+							error.append(line);
+					}
+					error.append('\n');
+				}
+				if (add) {
+					count++;
+					result.append(error);
+				}
+			}
+		}
+		return result.toString();
 	}
 
-	private String resultForInvalidTagsReferencesMethodOrConstructor(int visibility) {
-		String result = "----------\n";
-		for (int i=0; i<=visibility; i++) {
-			result += resultForInvalidTagsReferencesMethodOrConstructor[i];
+	private String resultForInvalidTagsMethodOrConstructor(int visibility) {
+		if (reportInvalidJavadocTagsDeprecatedRef == null && reportInvalidJavadocTagsNotVisibleRef == null) {
+			String result = "----------\n";
+			for (int i=0; i<=visibility; i++) {
+				result += resultForInvalidTagsMethodOrConstructor[i];
+			}
+			return result;
 		}
-		return result;
+		StringBuffer result = new StringBuffer("----------\n");
+		for (int i=0, count=1; i<= visibility; i++) {
+			StringTokenizer tokenizer = new StringTokenizer(resultForInvalidTagsMethodOrConstructor[i], "\n");
+			while (tokenizer.hasMoreTokens()) {
+				StringBuffer error = new StringBuffer();
+				boolean add = true;
+				for (int j=0; j<5; j++) {
+					String line = tokenizer.nextToken();
+					switch (j) {
+						case 0:
+							error.append(count);
+							error.append(line.substring(line.indexOf('.')));
+							break;
+						case 3:
+							if (CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsDeprecatedRef)) {
+								add = line.indexOf("is deprecated") == -1;
+							}
+							if (add && CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsNotVisibleRef)) {
+								add = line.indexOf("is not visible") == -1;
+							}
+						default:
+							error.append(line);
+					}
+					error.append('\n');
+				}
+				if (add) {
+					count++;
+					result.append(error);
+				}
+			}
+		}
+		return result.toString();
 	}
 	
 	private static String[] X_ResultForMissingTags = {
@@ -1517,7 +1228,7 @@ public class JavadocTestOptions extends JavadocTest {
 		return JavadocTestOptions.class;
 	}
 	public static Test suite() {
-		return buildSuite(javadocTestClass());
+		return buildTestSuite(javadocTestClass());
 	}
 	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
 	}
@@ -1536,14 +1247,18 @@ public class JavadocTestOptions extends JavadocTest {
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		// Set javadoc options if non null
-		if (this.localDocCommentSupport != null) 
-			options.put(CompilerOptions.OPTION_DocCommentSupport, this.localDocCommentSupport);
+		if (this.docCommentSupport != null) 
+			options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
 		if (reportInvalidJavadoc != null)
 			options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
 		if (reportInvalidJavadocTagsVisibility != null)
 			options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, reportInvalidJavadocTagsVisibility);
 		if (reportInvalidJavadocTags != null)
 			options.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, reportInvalidJavadocTags);
+		if (reportInvalidJavadocTagsDeprecatedRef != null)
+			options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, reportInvalidJavadocTagsDeprecatedRef);
+		if (reportInvalidJavadocTagsNotVisibleRef!= null)
+			options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef, reportInvalidJavadocTagsNotVisibleRef);
 		if (reportMissingJavadocTags != null)
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
 		if (reportMissingJavadocTagsVisibility != null)
@@ -1572,6 +1287,8 @@ public class JavadocTestOptions extends JavadocTest {
 		reportInvalidJavadoc = null;
 		reportInvalidJavadocTagsVisibility = null;
 		reportInvalidJavadocTags = null;
+		reportInvalidJavadocTagsDeprecatedRef = null;
+		reportInvalidJavadocTagsNotVisibleRef = null;
 		reportMissingJavadocTags = null;
 		reportMissingJavadocTagsVisibility = null;
 		reportMissingJavadocTagsOverriding = null;
@@ -1584,135 +1301,487 @@ public class JavadocTestOptions extends JavadocTest {
 	 * Tests for 'invalid javadoc' options
 	 */
 	// Test default invalid javadoc (means "ignore" with tags"disabled" and visibility "public")
-	public void testInvalidTagsReferencesClassDefaults() {
+	public void testInvalidTagsClassDefaults() {
 		runConformTest(InvalidReferencesClassJavadocComments);
 	}
-	public void testInvalidTagsReferencesFieldDefaults() {
+	public void testInvalidTagsFieldDefaults() {
 		runConformTest(InvalidReferencesFieldJavadocComments);
 	}
-	public void testInvalidTagsReferencesMethodDefaults() {
+	public void testInvalidTagsMethodDefaults() {
 		runConformTest(InvalidReferencesMethodJavadocComments);
 	}
-	public void testInvalidTagsReferencesConstructorDefaults() {
+	public void testInvalidTagsConstructorDefaults() {
 		runConformTest(InvalidReferencesConstructorJavadocComments);
 	}
 
 	// Test invalid javadoc "error" + tags "disabled" and visibility "public"
-	public void testInvalidTagsReferencesClassErrorNotags() {
+	public void testInvalidTagsClassErrorNotags() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(InvalidReferencesClassJavadocComments);
 	}
-	public void testInvalidTagsReferencesFieldErrorNotags() {
+	public void testInvalidTagsFieldErrorNotags() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(InvalidReferencesFieldJavadocComments);
 	}
-	public void testInvalidTagsReferencesMethodErrorNotags() {
+	public void testInvalidTagsMethodErrorNotags() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(InvalidReferencesMethodJavadocComments);
 	}
-	public void testInvalidTagsReferencesConstructorErrorNotags() {
+	public void testInvalidTagsConstructorErrorNotags() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.DISABLED;
 		runConformTest(InvalidReferencesConstructorJavadocComments);
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" and visibility "public"
-	public void testInvalidTagsReferencesClassErrorTagsPublic() {
+	public void testInvalidTagsClassErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
 		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsReferencesClassOrField(PUBLIC_VISIBILITY));
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesFieldErrorTagsPublic() {
+	public void testInvalidTagsFieldErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
 		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsReferencesClassOrField(PUBLIC_VISIBILITY));
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesMethodErrorTagsPublic() {
+	public void testInvalidTagsMethodErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
 		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(PUBLIC_VISIBILITY));
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesConstructorErrorTagsPublic() {
+	public void testInvalidTagsConstructorErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
 		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(PUBLIC_VISIBILITY));
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" and visibility "protected"
+	public void testInvalidTagsClassErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsFieldErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsMethodErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsConstructorErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" and visibility "default"
+	public void testInvalidTagsClassErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsFieldErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsMethodErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsConstructorErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
 	}
 
 	// Test invalid javadoc "error" + tags "enabled" and visibility "private"
-	public void testInvalidTagsReferencesClassErrorTagsProtected() {
+	public void testInvalidTagsClassErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
-		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsReferencesClassOrField(PROTECTED_VISIBILITY));
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesFieldErrorTagsProtected() {
+	public void testInvalidTagsFieldErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
-		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsReferencesClassOrField(PROTECTED_VISIBILITY));
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesMethodErrorTagsProtected() {
+	public void testInvalidTagsMethodErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
-		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(PROTECTED_VISIBILITY));
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesConstructorErrorTagsProtected() {
+	public void testInvalidTagsConstructorErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
-		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(PROTECTED_VISIBILITY));
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
 	}
 
-	// Test invalid javadoc "error" + tags "enabled" and visibility "private"
-	public void testInvalidTagsReferencesClassErrorTagsPackage() {
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" and visibility "public"
+	public void testInvalidTagsDeprecatedRefClassErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
-		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsReferencesClassOrField(DEFAULT_VISIBILITY));
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesFieldErrorTagsPackage() {
+	public void testInvalidTagsDeprecatedRefFieldErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
-		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsReferencesClassOrField(DEFAULT_VISIBILITY));
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesMethodErrorTagsPackage() {
+	public void testInvalidTagsDeprecatedRefMethodErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
-		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(DEFAULT_VISIBILITY));
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesConstructorErrorTagsPackage() {
+	public void testInvalidTagsDeprecatedRefConstructorErrorTagsPublic() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ENABLED;
-		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
-		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(DEFAULT_VISIBILITY));
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
 	}
 
-	// Test invalid javadoc "error" + tags "enabled" and visibility "private"
-	public void testInvalidTagsReferencesClassErrorTagsPrivate() {
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" visibility "protected"
+	public void testInvalidTagsDeprecatedRefClassErrorTagsProtected() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsReferencesClassOrField(PRIVATE_VISIBILITY));
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesFieldErrorTagsPrivate() {
+	public void testInvalidTagsDeprecatedRefFieldErrorTagsProtected() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsReferencesClassOrField(PRIVATE_VISIBILITY));
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesMethodErrorTagsPrivate() {
+	public void testInvalidTagsDeprecatedRefMethodErrorTagsProtected() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(PRIVATE_VISIBILITY));
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
 	}
-	public void testInvalidTagsReferencesConstructorErrorTagsPrivate() {
+	public void testInvalidTagsDeprecatedRefConstructorErrorTagsProtected() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsReferencesMethodOrConstructor(PRIVATE_VISIBILITY));
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" and visibility "default"
+	public void testInvalidTagsDeprecatedRefClassErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedRefFieldErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedRefMethodErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedRefConstructorErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" and visibility "private"
+	public void testInvalidTagsDeprecatedRefClassErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedRefFieldErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedRefMethodErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedRefConstructorErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" and visibility "public"
+	public void testInvalidTagsNotVisibleRefClassErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefFieldErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefMethodErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefConstructorErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" visibility "protected"
+	public void testInvalidTagsNotVisibleRefClassErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefFieldErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefMethodErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefConstructorErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" and visibility "default"
+	public void testInvalidTagsNotVisibleRefClassErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefFieldErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefMethodErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefConstructorErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid not visible references "disabled" and visibility "private"
+	public void testInvalidTagsNotVisibleRefClassErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefFieldErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefMethodErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsNotVisibleRefConstructorErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" and visibility "public"
+	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PUBLIC_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsPublic() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PUBLIC_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" visibility "protected"
+	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsProtected() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.PROTECTED;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PROTECTED_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" and visibility "default"
+	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsPackage() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ENABLED;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
+	}
+
+	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated or not visible references "disabled" and visibility "private"
+	public void testInvalidTagsDeprecatedAndNotVisibleRefClassErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesClassJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefFieldErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesFieldJavadocComments, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefMethodErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesMethodJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
+	}
+	public void testInvalidTagsDeprecatedAndNotVisibleRefConstructorErrorTagsPrivate() {
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTagsDeprecatedRef = CompilerOptions.DISABLED;
+		reportInvalidJavadocTagsNotVisibleRef = CompilerOptions.DISABLED;
+		runNegativeTest(InvalidReferencesConstructorJavadocComments, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
 	}
 
 	/*
@@ -1894,8 +1963,8 @@ public class JavadocTestOptions extends JavadocTest {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>
 	 */
 	// Test invalid javadoc "error" with javadoc comment support disabled
-	public void testInvalidTagsReferencesJavadocSupportDisabled() {
-		this.localDocCommentSupport = CompilerOptions.DISABLED;
+	public void testInvalidTagsJavadocSupportDisabled() {
+		this.docCommentSupport = CompilerOptions.DISABLED;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportInvalidJavadocTags = CompilerOptions.ERROR;
 		runConformTest(InvalidReferencesClassJavadocComments);
@@ -1906,14 +1975,14 @@ public class JavadocTestOptions extends JavadocTest {
 
 	// Test missing javadoc comments "error" with javadoc comment support disabled
 	public void testMissingCommentsJavadocSupportDisabled() {
-		this.localDocCommentSupport = CompilerOptions.DISABLED;
+		this.docCommentSupport = CompilerOptions.DISABLED;
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		runConformReferenceTest(MissingComments);
 	}
 
 	// Test missing javadoc tags "error" with javadoc comment support disabled
 	public void testMissingTagsJavadocSupportDisabled() {
-		this.localDocCommentSupport = CompilerOptions.DISABLED;
+		this.docCommentSupport = CompilerOptions.DISABLED;
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		runConformReferenceTest(MissingTags);
 	}

@@ -64,6 +64,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportUndocumentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportInvalidJavadoc = "org.eclipse.jdt.core.compiler.problem.invalidJavadoc"; //$NON-NLS-1$
 	public static final String OPTION_ReportInvalidJavadocTags = "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"; //$NON-NLS-1$
+	public static final String OPTION_ReportInvalidJavadocTagsDeprecatedRef = "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef"; //$NON-NLS-1$
+	public static final String OPTION_ReportInvalidJavadocTagsNotVisibleRef = "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef"; //$NON-NLS-1$
 	public static final String OPTION_ReportInvalidJavadocTagsVisibility = "org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocTags = "org.eclipse.jdt.core.compiler.problem.missingJavadocTags"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocTagsVisibility = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"; //$NON-NLS-1$
@@ -239,9 +241,11 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// constructor/setter parameter hiding
 	public boolean reportSpecialParameterHidingField = false;
 
-	// check javadoc comments
+	// check javadoc comments tags
 	public int reportInvalidJavadocTagsVisibility = AccPrivate; 
-	public boolean reportInvalidJavadocTags = true; 
+	public boolean reportInvalidJavadocTags = true;
+	public boolean reportInvalidJavadocTagsDeprecatedRef = true;
+	public boolean reportInvalidJavadocTagsNotVisibleRef = true;
 
 	// check missing javadoc tags
 	public int reportMissingJavadocTagsVisibility = AccPrivate; 
@@ -310,7 +314,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUnnecessaryElse, getSeverityString(UnnecessaryElse)); 
 		optionsMap.put(OPTION_ReportInvalidJavadoc, getSeverityString(InvalidJavadoc));
 		optionsMap.put(OPTION_ReportInvalidJavadocTagsVisibility, getVisibilityString(this.reportInvalidJavadocTagsVisibility));
-		optionsMap.put(OPTION_ReportInvalidJavadocTags, this.reportInvalidJavadocTags? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportInvalidJavadocTags, this.reportInvalidJavadocTags ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportInvalidJavadocTagsDeprecatedRef, this.reportInvalidJavadocTagsDeprecatedRef ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportInvalidJavadocTagsNotVisibleRef, this.reportInvalidJavadocTagsNotVisibleRef ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMissingJavadocTags, getSeverityString(MissingJavadocTags));
 		optionsMap.put(OPTION_ReportMissingJavadocTagsVisibility, getVisibilityString(this.reportMissingJavadocTagsVisibility));
 		optionsMap.put(OPTION_ReportMissingJavadocTagsOverriding, this.reportMissingJavadocTagsOverriding ? ENABLED : DISABLED);
@@ -622,9 +628,23 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTags)) != null) {
 			if (ENABLED.equals(optionValue)) {
-				this.reportInvalidJavadocTags= true;
+				this.reportInvalidJavadocTags = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportInvalidJavadocTags = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTagsDeprecatedRef)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportInvalidJavadocTagsDeprecatedRef = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportInvalidJavadocTagsDeprecatedRef = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTagsNotVisibleRef)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportInvalidJavadocTagsNotVisibleRef = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportInvalidJavadocTagsNotVisibleRef = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTags)) != null) {
@@ -701,6 +721,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- javadoc comment support: ").append(this.docCommentSupport ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t\t+ invalid javadoc: ").append(getSeverityString(InvalidJavadoc)); //$NON-NLS-1$
 		buf.append("\n\t\t+ report invalid javadoc tags: ").append(this.reportInvalidJavadocTags ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t\t\t* deprecated references: ").append(this.reportInvalidJavadocTagsDeprecatedRef ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t\t\t* not visble references: ").append(this.reportInvalidJavadocTagsNotVisibleRef ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t\t+ visibility level to report invalid javadoc tags: ").append(getVisibilityString(this.reportInvalidJavadocTagsVisibility)); //$NON-NLS-1$
 		buf.append("\n\t\t+ missing javadoc tags: ").append(getSeverityString(MissingJavadocTags)); //$NON-NLS-1$
 		buf.append("\n\t\t+ visibility level to report missing javadoc tags: ").append(getVisibilityString(this.reportMissingJavadocTagsVisibility)); //$NON-NLS-1$

@@ -565,23 +565,15 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocMissingThrowsClassName:
 		case IProblem.JavadocMissingReference:
 		case IProblem.JavadocInvalidValueReference:
-		case IProblem.JavadocUsingDeprecatedField:
-		case IProblem.JavadocUsingDeprecatedConstructor:
-		case IProblem.JavadocUsingDeprecatedMethod:
-		case IProblem.JavadocUsingDeprecatedType:
 		case IProblem.JavadocUndefinedField:
-		case IProblem.JavadocNotVisibleField:
 		case IProblem.JavadocAmbiguousField:
 		case IProblem.JavadocUndefinedConstructor:
-		case IProblem.JavadocNotVisibleConstructor:
 		case IProblem.JavadocAmbiguousConstructor:
 		case IProblem.JavadocUndefinedMethod:
-		case IProblem.JavadocNotVisibleMethod:
 		case IProblem.JavadocAmbiguousMethod:
 		case IProblem.JavadocAmbiguousMethodReference:
 		case IProblem.JavadocParameterMismatch:
 		case IProblem.JavadocUndefinedType:
-		case IProblem.JavadocNotVisibleType:
 		case IProblem.JavadocAmbiguousType:
 		case IProblem.JavadocInternalTypeNameProvided:
 		case IProblem.JavadocNoMessageSendOnArrayType:
@@ -591,9 +583,32 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInheritedNameHidesEnclosingTypeName:
 			if (this.options.docCommentSupport && this.options.reportInvalidJavadocTags) {
 				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
-			} else {
-				return ProblemSeverities.Ignore;
 			}
+			return ProblemSeverities.Ignore;
+
+		/*
+		 * Javadoc invalid tags due to deprecated references
+		 */
+		case IProblem.JavadocUsingDeprecatedField:
+		case IProblem.JavadocUsingDeprecatedConstructor:
+		case IProblem.JavadocUsingDeprecatedMethod:
+		case IProblem.JavadocUsingDeprecatedType:
+			if (this.options.docCommentSupport && this.options.reportInvalidJavadocTags && this.options.reportInvalidJavadocTagsDeprecatedRef) {
+				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
+			}
+			return ProblemSeverities.Ignore;
+
+		/*
+		 * Javadoc invalid tags due to non-visible references
+		 */
+		case IProblem.JavadocNotVisibleField:
+		case IProblem.JavadocNotVisibleConstructor:
+		case IProblem.JavadocNotVisibleMethod:
+		case IProblem.JavadocNotVisibleType:
+			if (this.options.docCommentSupport && this.options.reportInvalidJavadocTags && this.options.reportInvalidJavadocTagsNotVisibleRef) {
+				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
+			}
+			return ProblemSeverities.Ignore;
 
 		/*
 		 * Javadoc missing tags errors

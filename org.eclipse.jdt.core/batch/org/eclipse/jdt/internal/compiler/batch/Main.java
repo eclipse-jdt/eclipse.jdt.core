@@ -919,6 +919,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								CompilerOptions.OPTION_ReportInvalidJavadocTags,
 								CompilerOptions.ENABLED);
 							this.options.put(
+								CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
+								CompilerOptions.DISABLED);
+							this.options.put(
+								CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
+								CompilerOptions.DISABLED);
+							this.options.put(
 								CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
 								CompilerOptions.PRIVATE);
 							this.options.put(
