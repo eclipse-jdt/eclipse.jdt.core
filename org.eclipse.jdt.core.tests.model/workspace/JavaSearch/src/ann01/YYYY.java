@@ -1,4 +1,4 @@
-package Annotations;
+package ann01;
 
 public class YYYY {
 	int yyyy;
