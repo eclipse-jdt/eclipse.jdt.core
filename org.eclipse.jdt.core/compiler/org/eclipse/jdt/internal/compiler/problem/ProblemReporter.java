@@ -758,11 +758,11 @@ public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclarat
 		this.handle(
 			IProblem.DuplicateMethod,
 			new String[] {
-		        new String(method.selector),
+		        new String(methodDecl.selector),
 				new String(method.declaringClass.readableName()),
 				parametersAsString(method.parameters, false)},
 			new String[] {
-				new String(method.selector),
+				new String(methodDecl.selector),
 				new String(method.declaringClass.shortReadableName()),
 				parametersAsString(method.parameters, true)},
 			methodDecl.sourceStart,
