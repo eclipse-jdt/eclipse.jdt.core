@@ -110,7 +110,7 @@ public class Alignment {
 	 */
 	public static final int M_MULTICOLUMN = 256; // fragments are on same line, but multiple line of fragments will be aligned vertically
 	
-	public static final int M_NO_ALIGNMENT = 512;
+	public static final int M_NO_ALIGNMENT = 0;
 	
 	public int mode;
 	
@@ -144,28 +144,24 @@ public class Alignment {
 		this.wasSplit = false;
 		
 		// initialize the break indentation level, using modes and continuationIndentationLevel preference
-		int indentSize = this.scribe.useTab ? 1 : this.scribe.tabSize;
+		final int indentSize = this.scribe.useTab ? 1 : this.scribe.tabSize;
 		int currentColumn = this.location.outputColumn;
 		if (currentColumn == 1) {
-		    currentColumn = this.location.outputIndentationLevel * (this.scribe.useTab ?  this.scribe.tabSize : 1) + 1;
+		    currentColumn = this.location.outputIndentationLevel * indentSize + 1;
 		}
 		
 		if ((mode & M_INDENT_ON_COLUMN) != 0) {
 			// indent broken fragments at next indentation level, based on current column
 			this.breakIndentationLevel = this.scribe.getNextIndentationLevel(currentColumn);
+			if (this.breakIndentationLevel == this.location.outputIndentationLevel) {
+				this.breakIndentationLevel += (continuationIndent * indentSize);
+			}
 		} else if ((mode & M_INDENT_BY_ONE) != 0) {
 			// indent broken fragments exactly one level deeper than current indentation
 			this.breakIndentationLevel = this.location.outputIndentationLevel + indentSize;
 		} else {
 			// indent broken fragments by one continuation indentation deeper than current indentation
-			this.breakIndentationLevel = this.location.outputIndentationLevel + (continuationIndent * (this.scribe.useTab ?  1 : this.scribe.tabSize));
-		}
-		// reduce indentation of broken fragment in case first fragment would be before the subsequent ones
-		if ((mode & M_NEXT_SHIFTED_SPLIT) != 0) {
-			int firstFragmentNextIndentationLevel =  this.scribe.getNextIndentationLevel(currentColumn);
-			if (firstFragmentNextIndentationLevel < this.breakIndentationLevel) {
-				this.breakIndentationLevel = firstFragmentNextIndentationLevel;
-			}
+			this.breakIndentationLevel = this.location.outputIndentationLevel + continuationIndent * indentSize;
 		}
 		this.shiftBreakIndentationLevel = this.breakIndentationLevel + indentSize;
 

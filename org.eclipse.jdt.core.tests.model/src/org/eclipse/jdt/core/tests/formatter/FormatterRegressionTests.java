@@ -52,7 +52,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test391"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test388"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -4377,7 +4377,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48143
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48167
 	 */
 	public void test388() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
@@ -4393,7 +4393,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48143
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48167
 	 */
 	public void test389() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
@@ -4410,7 +4410,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48143
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48167
 	 */
 	public void test390() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
@@ -4427,7 +4427,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48143
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48167
 	 */
 	public void test391() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
@@ -4442,4 +4442,38 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test391", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48167
+	 */
+	public void test392() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		preferences.array_initializer_continuation_indentation = 3;
+		preferences.array_initializer_brace_position = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
+		preferences.array_initializer_expressions_alignment = Alignment.M_COMPACT_SPLIT | Alignment.M_INDENT_BY_ONE;
+		preferences.page_width = 40;
+		preferences.insert_new_line_after_opening_brace_in_array_initializer = true;
+		preferences.insert_new_line_before_closing_brace_in_array_initializer = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test392", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48167
+	 */
+	public void test393() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.use_tab = true;
+		preferences.array_initializer_continuation_indentation = 1;
+		preferences.array_initializer_brace_position = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
+		preferences.array_initializer_expressions_alignment = Alignment.M_COMPACT_SPLIT;
+		preferences.page_width = 40;
+		preferences.insert_new_line_after_opening_brace_in_array_initializer = true;
+		preferences.insert_new_line_before_closing_brace_in_array_initializer = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test393", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }
