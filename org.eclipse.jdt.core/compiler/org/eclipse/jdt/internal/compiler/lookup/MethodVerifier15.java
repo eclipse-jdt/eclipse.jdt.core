@@ -201,9 +201,7 @@ boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	TypeBinding[] currentVars = one.typeVariables;
 	TypeBinding[] inheritedVars = substituteTwo.original().typeVariables;
-	return currentVars.length != inheritedVars.length
-		&& currentVars.length > 0 && inheritedVars.length > 0; // must match unless all are replaced
-//		&& currentVars.length > 0;
+	return currentVars.length != inheritedVars.length && currentVars.length > 0;
 }
 boolean hasBoundedParameters(ParameterizedTypeBinding parameterizedType) {
 	TypeBinding[] arguments = parameterizedType.arguments;

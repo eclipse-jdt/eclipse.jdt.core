@@ -1102,4 +1102,59 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			// methods foo(T) from A<java.lang.String> and foo(java.lang.String) from A<java.lang.String> are inherited with the same signature
 		);
 	}
+
+	public void test024() { // 80626
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {\n" + 
+				"	public <E extends Object> void m(E e) {}\n" + 
+				"}\n" + 
+				"class B extends A {\n" + 
+				"	public void m(Object e) {}\n" + 
+				"}\n"
+			},
+			""
+			// no complaint
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A {\n" + 
+				"	public void m(Object e) {}\n" + 
+				"}\n" + 
+				"class B extends A {\n" + 
+				"	public <E extends Object> void m(E e) {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 5)\r\n" + 
+			"	public <E extends Object> void m(E e) {}\r\n" + 
+			"	                               ^^^^^^\n" + 
+			"Name clash: The method m(E) of type B has the same erasure as m(Object) of type A but does not override it\n" + 
+			"----------\n"
+			// name clash: <E>m(E) in B and m(java.lang.Object) in A have the same erasure, yet neither overrides the other
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"class A {\n" + 
+				"	public <E extends Object> void m(E e) {}\n" + 
+				"}\n" + 
+				"class B extends A {\n" + 
+				"	public void m(Object e) {}\n" + 
+				"}\n" + 
+				"class C extends B {\n" + 
+				"	public <E extends Object> void m(E e) {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 8)\r\n" + 
+			"	public <E extends Object> void m(E e) {}\r\n" + 
+			"	                               ^^^^^^\n" + 
+			"Name clash: The method m(E) of type C has the same erasure as m(Object) of type B but does not override it\n" + 
+			"----------\n"
+			// name clash: <E>m(E) in C and m(java.lang.Object) in B have the same erasure, yet neither overrides the other
+		);
+	}
 }
