@@ -88,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0094"));
+		suite.addTest(new ASTConverter15Test("test0098"));
 		return suite;
 	}
 		
@@ -2907,6 +2907,123 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			assertEquals(
 				null,
 				binding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82140
+	 */
+	public void test0096() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public @interface An1 {\n" +
+				"	String value();\n" +
+				"	String item() default \"Hello\";\n" +
+				"\n" +
+				"}\n" +
+				"\n" +
+				"@An1(value=\"X\") class A {\n" +
+				"	\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/An1.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			node = getASTNode(compilationUnit, 1);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			assertEquals("Wrong name", "A", typeDeclaration.getName().getIdentifier());
+			List modifiers = typeDeclaration.modifiers();
+			assertEquals("Wrong size", 1, modifiers.size());
+			IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Not an annotation", modifier instanceof Annotation);
+			checkSourceRange((Annotation) modifier, "@An1(value=\"X\")", contents.toCharArray());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82140
+	 */
+	public void test0097() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"@interface An1 {}\n" +
+				"@interface An2 {}\n" +
+				"@interface An3 {}\n" +
+				"@An2 class X {\n" +
+				"	@An1 Object o;\n" +
+				"	@An3 void foo() {\n" +
+				"		\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			node = getASTNode(compilationUnit, 3);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			List modifiers = typeDeclaration.modifiers();
+			assertEquals("Wrong size", 1, modifiers.size());
+			IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Not an annotation", modifier instanceof Annotation);
+			checkSourceRange((Annotation) modifier, "@An2", contents.toCharArray());
+			
+			node = getASTNode(compilationUnit, 3, 0);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			modifiers = fieldDeclaration.modifiers();
+			assertEquals("Wrong size", 1, modifiers.size());
+			modifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Not an annotation", modifier instanceof Annotation);
+			checkSourceRange((Annotation) modifier, "@An1", contents.toCharArray());
+
+			node = getASTNode(compilationUnit, 3, 1);
+			assertEquals("Not a field declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			modifiers = methodDeclaration.modifiers();
+			assertEquals("Wrong size", 1, modifiers.size());
+			modifier = (IExtendedModifier) modifiers.get(0);
+			assertTrue("Not an annotation", modifier instanceof Annotation);
+			checkSourceRange((Annotation) modifier, "@An3", contents.toCharArray());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82140
+	 */
+	public void test0098() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"class X {\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			node = getASTNode(compilationUnit, 0);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			List modifiers = typeDeclaration.modifiers();
+			assertEquals("Wrong size", 0, modifiers.size());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
