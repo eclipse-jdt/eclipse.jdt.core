@@ -7568,4 +7568,16 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"return type needs unchecked conversion from ISomething.getSomething()\n" + 
 			"----------\n");
 	}
+	// 62822
+	// TODO (kent) reenable once fixed
+	public void _test280() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface X<T extends Y<S>, S extends Z> {}\n" +
+				"interface Y<T extends Z> {}\n" +
+				"interface Z {}\n"
+			},
+			"");
+	}	
 }
