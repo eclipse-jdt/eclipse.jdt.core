@@ -471,6 +471,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	ReferenceBinding resolve() {
+		// TODO need flag to know that this has already been done... should it be on ReferenceBinding?
 		ReferenceBinding resolvedType = BinaryTypeBinding.resolveType(this.type, this.environment, false); // still part of parameterized type ref
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
