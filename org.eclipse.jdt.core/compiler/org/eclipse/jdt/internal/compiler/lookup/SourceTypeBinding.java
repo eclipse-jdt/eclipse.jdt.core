@@ -379,18 +379,29 @@ public FieldBinding[] fields() {
  * <T:LY<TT;>;U:Ljava/lang/Object;V::Ljava/lang/Runnable;:Ljava/lang/Cloneable;:Ljava/util/Map;>Ljava/lang/Exception;Ljava/lang/Runnable;
  */
 public char[] genericSignature() {
-	if (this.typeVariables == NoTypeVariables) return null;
-	    StringBuffer sig = new StringBuffer(10);
+    StringBuffer sig = null;
+	if (this.typeVariables != NoTypeVariables) {
+	    sig = new StringBuffer(10);
 	    sig.append('<');
 	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
 	        sig.append(this.typeVariables[i].genericSignature());
 	    }
 	    sig.append('>');
-	    if (this.superclass != null) sig.append(this.superclass.genericTypeSignature());
-	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-	        sig.append(this.superInterfaces[i].genericTypeSignature());
+	} else {
+	    // could still need a signature if any of supertypes is parameterized
+	    noSignature: if (this.superclass == null || !this.superclass.isParameterizedType()) {
+		    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+		        if (this.superInterfaces[i].isParameterizedType()) break noSignature;
+		    }        
+	        return null;
 	    }
-		return sig.toString().toCharArray();
+	    sig = new StringBuffer(10);
+	}
+	if (this.superclass != null) sig.append(this.superclass.genericTypeSignature());
+    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+        sig.append(this.superInterfaces[i].genericTypeSignature());
+    }
+	return sig.toString().toCharArray();
 }
 /**
  * Produce a signature equivalent to the genericTypeSignature of a reference to this type: X<T> 

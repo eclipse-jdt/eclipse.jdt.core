@@ -1565,7 +1565,7 @@ public class ClassFile
 			final boolean currentInstanceIsGeneric = 
 				!methodDeclarationIsStatic
 				&& declaringClassBinding != null 
-				&& declaringClassBinding.genericSignature() != null;
+				&& declaringClassBinding.typeVariables != NoTypeVariables;
 			if (genericLocalVariablesCounter != 0 || currentInstanceIsGeneric) {
 				// add the local variable type table attribute
 				numberOfEntries = genericLocalVariablesCounter + (currentInstanceIsGeneric ? 1 : 0);
@@ -2363,7 +2363,7 @@ public class ClassFile
 			final boolean currentInstanceIsGeneric = 
 				!methodDeclarationIsStatic
 				&& declaringClassBinding != null
-				&& declaringClassBinding.genericSignature() != null;
+				&& declaringClassBinding.typeVariables != NoTypeVariables;
 			if (genericLocalVariablesCounter != 0 || genericArgumentsCounter != 0 || currentInstanceIsGeneric) {
 				// add the local variable type table attribute
 				numberOfEntries = genericLocalVariablesCounter + genericArgumentsCounter + (currentInstanceIsGeneric ? 1 : 0);
