@@ -1229,12 +1229,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 		}
 
-		// if compliance 1.4 & source 1.3 => target is 1.2 if not specified
-		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_3)){
-			if (didSpecifyCompliance
-				&& this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)
-				&& !didSpecifyTarget) {
+		// set default target according to compliance & sourcelevel.
+		if (!didSpecifyTarget) {
+			if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_3)) {
+				this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+			} else if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)) {
+				if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_3)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)) {
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				}
 			}
 		}
 

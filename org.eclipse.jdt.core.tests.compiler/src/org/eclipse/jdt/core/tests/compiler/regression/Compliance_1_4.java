@@ -2284,6 +2284,40 @@ public void test069() {
 		"----------\n");
 }
 
+// binary compatibility
+public void test070() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Middle {\n" + 
+			"	public static void main(String argv[]) {\n" + 
+			"		System.out.println(new X().field);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Middle extends Top {\n" + 
+			"}\n" + 
+			"class Top {\n" + 
+			"	String field = \"Top.field\";\n" + 
+			"}\n"		
+		},
+		"Top.field");
+
+	this.runConformTest(
+		new String[] {
+			"Middle.java",
+			"public class Middle extends Top {\n" + 
+			"	public static void main(String[] arguments) { \n"+
+			"		X.main(arguments);	\n" +
+			"	}	\n" +
+			"	String field = \"Middle.field\";\n" + 
+			"}\n"
+		},
+		"Middle.field",
+		null, // use default class-path
+		false, // do not flush previous output dir content
+		null); // no special vm args		
+}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

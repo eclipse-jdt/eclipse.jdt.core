@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.internal.core.Assert;
 
 import junit.framework.*;
 
@@ -402,8 +403,8 @@ public void testResolveInvalidResolve() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "p1", "X.java");
 	try {
 		cu.codeSelect(-1, 10); 
-	} catch (JavaModelException jme) {
-		assertTrue("Incorrect status on the JavaModelException", jme.getStatus().getCode() == IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
+	} catch (Assert.AssertionFailedException e) {
+		assertEquals("Incorrect message on assertion failure", "Assertion failed; selected range (-1, 9) is not located in supplied source range (0, 36)", e.getMessage());
 		return;
 	}
 	assertTrue("Exception should have been thrown for out of bounds resolution", false);
