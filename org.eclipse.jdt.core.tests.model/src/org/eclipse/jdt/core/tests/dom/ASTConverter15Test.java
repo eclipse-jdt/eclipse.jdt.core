@@ -234,9 +234,20 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	
 	public void test0006() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0006", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-//		char[] source = sourceUnit.getSource().toCharArray();
+		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		PackageDeclaration packageDeclaration = compilationUnit.getPackage();
+		assertNotNull("No package declaration", packageDeclaration);
+		checkSourceRange(packageDeclaration, "@Retention package test0006;", source);
+		List annotations = packageDeclaration.annotations();
+		assertEquals("Wrong size", 1, annotations.size());
+		Annotation annotation = (Annotation) annotations.get(0);
+		checkSourceRange(annotation, "@Retention", source);
+		assertEquals("Not a marker annotation", annotation.getNodeType(), ASTNode.MARKER_ANNOTATION);
+		MarkerAnnotation markerAnnotation = (MarkerAnnotation) annotation;
+		checkSourceRange(markerAnnotation.getTypeName(), "Retention", source);
 	}	
 }
 

@@ -4178,7 +4178,7 @@ protected void consumePackageDeclarationNameWithModifiers() {
 		0, 
 		length);
 	
-	this.intPtr--; // we don't need the modifiers start
+	int packageModifiersSourceStart = this.intStack[this.intPtr--]; // we don't need the modifiers start
 	int packageModifiers = this.intStack[this.intPtr--];
 
 	impt = new ImportReference(tokens, positions, true, packageModifiers);
@@ -4190,7 +4190,11 @@ protected void consumePackageDeclarationNameWithModifiers() {
 			(this.expressionPtr -= length) + 1, 
 			impt.annotations = new Annotation[length], 
 			0, 
-			length); 
+			length);
+		impt.declarationSourceStart = packageModifiersSourceStart;
+		intPtr--; // we don't need the position of the 'package keyword
+	} else {
+		impt.declarationSourceStart = this.intStack[this.intPtr--];
 	}
 		
 	if (this.currentToken == TokenNameSEMICOLON){
@@ -4199,8 +4203,6 @@ protected void consumePackageDeclarationNameWithModifiers() {
 		impt.declarationSourceEnd = impt.sourceEnd;
 	}
 	impt.declarationEnd = impt.declarationSourceEnd;
-	//this.endPosition is just before the ;
-	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
 	// recovery
 	if (this.currentElement != null){
