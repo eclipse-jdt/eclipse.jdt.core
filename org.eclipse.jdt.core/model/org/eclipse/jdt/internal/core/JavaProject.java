@@ -2342,9 +2342,9 @@ public class JavaProject
 							for (int size = visited.size(); index < size; index++)
 								cycleParticipants.add(visited.get(index)); 
 						} else {
-							if (!alreadyTraversed.contains(project)) {
+//							if (!alreadyTraversed.contains(project)) {
 								project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot, alreadyTraversed);
-							}
+//							}
 						}
 					}
 				}
@@ -2352,7 +2352,7 @@ public class JavaProject
 		} catch(JavaModelException e){
 		}
 		visited.remove(this);
-		alreadyTraversed.add(this);
+//		alreadyTraversed.add(this);
 	}
 		
 	/**
