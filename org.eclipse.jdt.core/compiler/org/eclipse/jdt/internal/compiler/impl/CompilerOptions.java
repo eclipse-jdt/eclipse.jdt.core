@@ -581,49 +581,49 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public String toString() {
 	
 		StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
-		buf.append("\n-local variables debug attributes: ").append((produceDebugAttributes & Vars) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-line number debug attributes: ").append((produceDebugAttributes & Lines) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-source debug attributes: ").append((produceDebugAttributes & Source) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-preserve all local variables: ").append(preserveAllLocalVariables ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-unreachable code: ").append(getSeverityString(UnreachableCode)); //$NON-NLS-1$
-		buf.append("\n-import problem: ").append(getSeverityString(ImportProblem)); //$NON-NLS-1$
-		buf.append("\n--method with constructor name: ").append(getSeverityString(MethodWithConstructorName)); //$NON-NLS-1$
-		buf.append("\n-overridden package default method: ").append(getSeverityString(OverriddenPackageDefaultMethod)); //$NON-NLS-1$
-		buf.append("\n-deprecation: ").append(getSeverityString(UsingDeprecatedAPI)); //$NON-NLS-1$
-		buf.append("\n-masked catch block: ").append(getSeverityString(MaskedCatchBlock)); //$NON-NLS-1$
-		buf.append("\n-unused local variable: ").append(getSeverityString(UnusedLocalVariable)); //$NON-NLS-1$
-		buf.append("\n-unused parameter: ").append(getSeverityString(UnusedArgument)); //$NON-NLS-1$
-		buf.append("\n-unused import: ").append(getSeverityString(UnusedImport)); //$NON-NLS-1$
-		buf.append("\n-synthetic access emulation: ").append(getSeverityString(AccessEmulation)); //$NON-NLS-1$
-		buf.append("\n-assignment with no effect: ").append(getSeverityString(NoEffectAssignment)); //$NON-NLS-1$
-		buf.append("\n-non externalized string: ").append(getSeverityString(NonExternalizedString)); //$NON-NLS-1$
-		buf.append("\n-static access receiver: ").append(getSeverityString(NonStaticAccessToStatic)); //$NON-NLS-1$
-		buf.append("\n-indirect static access: ").append(getSeverityString(IndirectStaticAccess)); //$NON-NLS-1$
-		buf.append("\n-incompatible non inherited interface method: ").append(getSeverityString(IncompatibleNonInheritedInterfaceMethod)); //$NON-NLS-1$
-		buf.append("\n-unused private member: ").append(getSeverityString(UnusedPrivateMember)); //$NON-NLS-1$
-		buf.append("\n-local variable hiding another variable: ").append(getSeverityString(LocalVariableHiding)); //$NON-NLS-1$
-		buf.append("\n-field hiding another variable: ").append(getSeverityString(FieldHiding)); //$NON-NLS-1$
-		buf.append("\n-possible accidental boolean assignment: ").append(getSeverityString(AccidentalBooleanAssign)); //$NON-NLS-1$
-		buf.append("\n-superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
-		buf.append("\n-uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
-		buf.append("\n-unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
-		buf.append("\n-invalid annotation: ").append(getSeverityString(InvalidAnnotation)); //$NON-NLS-1$
-		buf.append("\n-finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
-		buf.append("\n-unused declared thrown exception: ").append(getSeverityString(UnusedDeclaredThrownException)); //$NON-NLS-1$
-		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
-		buf.append("\n-JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
-		buf.append("\n-JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$
-		buf.append("\n-private constructor access: ").append(isPrivateConstructorAccessChangingVisibility ? "extra argument" : "make default access"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-verbose : ").append(verbose ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-produce reference info : ").append(produceReferenceInfo ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-parse literal expressions as constants : ").append(parseLiteralExpressionsAsConstants ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-encoding : ").append(defaultEncoding == null ? "<default>" : defaultEncoding); //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-task tags: ").append(this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')));  //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-task priorities : ").append(this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-report deprecation inside deprecated code : ").append(reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-report unused parameter when implementing abstract method : ").append(reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-report unused parameter when overriding concrete method : ").append(reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-report constructor/setter parameter hiding existing field : ").append(reportSpecialParameterHidingField ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- local variables debug attributes: ").append((produceDebugAttributes & Vars) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- line number debug attributes: ").append((produceDebugAttributes & Lines) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- source debug attributes: ").append((produceDebugAttributes & Source) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- preserve all local variables: ").append(preserveAllLocalVariables ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- unreachable code: ").append(getSeverityString(UnreachableCode)); //$NON-NLS-1$
+		buf.append("\n\t- import problem: ").append(getSeverityString(ImportProblem)); //$NON-NLS-1$
+		buf.append("\n\t- method with constructor name: ").append(getSeverityString(MethodWithConstructorName)); //$NON-NLS-1$
+		buf.append("\n\t- overridden package default method: ").append(getSeverityString(OverriddenPackageDefaultMethod)); //$NON-NLS-1$
+		buf.append("\n\t- deprecation: ").append(getSeverityString(UsingDeprecatedAPI)); //$NON-NLS-1$
+		buf.append("\n\t- masked catch block: ").append(getSeverityString(MaskedCatchBlock)); //$NON-NLS-1$
+		buf.append("\n\t- unused local variable: ").append(getSeverityString(UnusedLocalVariable)); //$NON-NLS-1$
+		buf.append("\n\t- unused parameter: ").append(getSeverityString(UnusedArgument)); //$NON-NLS-1$
+		buf.append("\n\t- unused import: ").append(getSeverityString(UnusedImport)); //$NON-NLS-1$
+		buf.append("\n\t- synthetic access emulation: ").append(getSeverityString(AccessEmulation)); //$NON-NLS-1$
+		buf.append("\n\t- assignment with no effect: ").append(getSeverityString(NoEffectAssignment)); //$NON-NLS-1$
+		buf.append("\n\t- non externalized string: ").append(getSeverityString(NonExternalizedString)); //$NON-NLS-1$
+		buf.append("\n\t- static access receiver: ").append(getSeverityString(NonStaticAccessToStatic)); //$NON-NLS-1$
+		buf.append("\n\t- indirect static access: ").append(getSeverityString(IndirectStaticAccess)); //$NON-NLS-1$
+		buf.append("\n\t- incompatible non inherited interface method: ").append(getSeverityString(IncompatibleNonInheritedInterfaceMethod)); //$NON-NLS-1$
+		buf.append("\n\t- unused private member: ").append(getSeverityString(UnusedPrivateMember)); //$NON-NLS-1$
+		buf.append("\n\t- local variable hiding another variable: ").append(getSeverityString(LocalVariableHiding)); //$NON-NLS-1$
+		buf.append("\n\t- field hiding another variable: ").append(getSeverityString(FieldHiding)); //$NON-NLS-1$
+		buf.append("\n\t- possible accidental boolean assignment: ").append(getSeverityString(AccidentalBooleanAssign)); //$NON-NLS-1$
+		buf.append("\n\t- superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
+		buf.append("\n\t- uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
+		buf.append("\n\t- unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
+		buf.append("\n\t- invalid annotation: ").append(getSeverityString(InvalidAnnotation)); //$NON-NLS-1$
+		buf.append("\n\t- finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
+		buf.append("\n\t- unused declared thrown exception: ").append(getSeverityString(UnusedDeclaredThrownException)); //$NON-NLS-1$
+		buf.append("\n\t- JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
+		buf.append("\n\t- JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
+		buf.append("\n\t- JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$
+		buf.append("\n\t- private constructor access: ").append(isPrivateConstructorAccessChangingVisibility ? "extra argument" : "make default access"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- verbose : ").append(verbose ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- produce reference info : ").append(produceReferenceInfo ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- parse literal expressions as constants : ").append(parseLiteralExpressionsAsConstants ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- encoding : ").append(defaultEncoding == null ? "<default>" : defaultEncoding); //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n\t- task tags: ").append(this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')));  //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n\t- task priorities : ").append(this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n\t- report deprecation inside deprecated code : ").append(reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- report unused parameter when overriding concrete method : ").append(reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(reportSpecialParameterHidingField ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}
 
