@@ -155,11 +155,6 @@ public class SourceMapper
 	String encoding;
 	
 	/**
-	 * Internal flag.
-	 */
-	private boolean hasDollar;
-	
-	/**
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
 	 */
@@ -625,7 +620,7 @@ public class SourceMapper
 		if (element.getElementType() == IJavaElement.METHOD
 			&& ((IMember) element).isBinary()) {
 			el = getUnqualifiedMethodHandle((IMethod) element, false);
-			if(hasDollar && fSourceRanges.get(el) == null) {
+			if(fSourceRanges.get(el) == null) {
 				el = getUnqualifiedMethodHandle((IMethod) element, true);
 			}
 		}
@@ -645,7 +640,7 @@ public class SourceMapper
 		IJavaElement el = method;
 		if (((IMember) method).isBinary()) {
 			el = getUnqualifiedMethodHandle(method, false);
-			if(hasDollar && fParameterNames.get(el) == null) {
+			if(fParameterNames.get(el) == null) {
 				el = getUnqualifiedMethodHandle(method, true);
 			}
 		}
@@ -666,7 +661,7 @@ public class SourceMapper
 		if (element.getElementType() == IJavaElement.METHOD
 			&& ((IMember) element).isBinary()) {
 			el = getUnqualifiedMethodHandle((IMethod) element, false);
-			if(hasDollar && fSourceRanges.get(el) == null) {
+			if(fSourceRanges.get(el) == null) {
 				el = getUnqualifiedMethodHandle((IMethod) element, true);
 			}
 		}
@@ -694,7 +689,6 @@ public class SourceMapper
 	 * fully qualified so that the correct source is found.
 	 */
 	protected IJavaElement getUnqualifiedMethodHandle(IMethod method, boolean noDollar) {
-		hasDollar = false;
 		String[] qualifiedParameterTypes = method.getParameterTypes();
 		String[] unqualifiedParameterTypes = new String[qualifiedParameterTypes.length];
 		for (int i = 0; i < qualifiedParameterTypes.length; i++) {
@@ -709,9 +703,6 @@ public class SourceMapper
 				unqualifiedName.append(Signature.C_UNRESOLVED);
 				String simpleName = Signature.getSimpleName(qualifiedName.substring(count+1));
 				if(!noDollar) {
-					if(!hasDollar && simpleName.indexOf('$') != -1) {
-						hasDollar = true;
-					}
 					unqualifiedName.append(simpleName);
 				} else {
 					unqualifiedName.append(CharOperation.lastSegment(simpleName.toCharArray(), '$'));
