@@ -134,33 +134,6 @@ public class DeltaProcessor {
 		IResourceDelta delta,
 		IJavaElement parent) {
 	
-		try {
-			if (!ResourcesPlugin.getWorkspace().isAutoBuilding()) {
-				Iterator iterator = this.projectsToUpdate.iterator();
-				while (iterator.hasNext()) {
-					try {
-						JavaProject project = (JavaProject)iterator.next();
-						
-						 // force classpath marker refresh
-						project.getResolvedClasspath(
-							true, // ignoreUnresolvedEntry
-							true); // generateMarkerOnError
-						
-					} catch (JavaModelException e) {
-					}
-				}
-				if (!this.projectsToUpdate.isEmpty()){
-					try {
-						// update all cycle markers
-						JavaProject.updateAllCycleMarkers();
-					} catch (JavaModelException e) {
-					}
-				}				
-			}
-		} finally {
-			this.projectsToUpdate = new HashSet();
-		}
-	
 		IResource resource = delta.getResource();
 		IJavaElement element = JavaCore.create(resource);
 		boolean processChildren = false;
@@ -1085,6 +1058,38 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			// it's a non-java resource
 			return currentProject != null && elementType != -1;
 		}
+	}
+	/**
+	 * Update the classpath markers and cycle markers for the projects to update.
+	 */
+	void updateClasspathMarkers() {
+		try {
+			if (!ResourcesPlugin.getWorkspace().isAutoBuilding()) {
+				Iterator iterator = this.projectsToUpdate.iterator();
+				while (iterator.hasNext()) {
+					try {
+						JavaProject project = (JavaProject)iterator.next();
+						
+						 // force classpath marker refresh
+						project.getResolvedClasspath(
+							true, // ignoreUnresolvedEntry
+							true); // generateMarkerOnError
+						
+					} catch (JavaModelException e) {
+					}
+				}
+			}
+			if (!this.projectsToUpdate.isEmpty()){
+				try {
+					// update all cycle markers
+					JavaProject.updateAllCycleMarkers();
+				} catch (JavaModelException e) {
+				}
+			}				
+		} finally {
+			this.projectsToUpdate = new HashSet();
+		}
+	
 	}
 
 	/*

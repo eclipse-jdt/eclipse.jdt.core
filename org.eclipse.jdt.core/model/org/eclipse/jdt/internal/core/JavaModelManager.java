@@ -1263,8 +1263,10 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 					if(delta != null) {
 						this.checkProjectsBeingAddedOrRemoved(delta);
 						
+						// update the classpath related markers
+						this.deltaProcessor.updateClasspathMarkers();
+
 						// the following will close project if affected by the property file change
-						// and update the classpath related markers
 						this.deltaProcessor.performPreBuildCheck(delta, null); 
 					}
 					// only fire already computed deltas (resource ones will be processed in post change only)
