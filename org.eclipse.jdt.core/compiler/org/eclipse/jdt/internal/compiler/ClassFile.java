@@ -2899,19 +2899,23 @@ public class ClassFile
 			int attributeOffset) {
 		Constant constant = defaultValue.constant;
 		TypeBinding defaultValueBinding = defaultValue.resolvedType;
-		if (memberValuePairReturnType.isArrayType() && !defaultValueBinding.isArrayType()) {
-			// automatic wrapping
-			if (contentsOffset + 3 >= this.contents.length) {
-				resizeContents(3);
-			}
-			contents[contentsOffset++] = (byte) '[';
-			contents[contentsOffset++] = (byte) 0;
-			contents[contentsOffset++] = (byte) 1;
-		}
-		if (constant != null && constant != Constant.NotAConstant) {
-			generateElementValue(attributeOffset, defaultValue, constant);
+		if (defaultValueBinding == null) {
+			contentsOffset = attributeOffset;
 		} else {
-			generateElementValueForNonConstantExpression(defaultValue, attributeOffset, defaultValueBinding);
+			if (memberValuePairReturnType.isArrayType() && !defaultValueBinding.isArrayType()) {
+				// automatic wrapping
+				if (contentsOffset + 3 >= this.contents.length) {
+					resizeContents(3);
+				}
+				contents[contentsOffset++] = (byte) '[';
+				contents[contentsOffset++] = (byte) 0;
+				contents[contentsOffset++] = (byte) 1;
+			}
+			if (constant != null && constant != Constant.NotAConstant) {
+				generateElementValue(attributeOffset, defaultValue, constant);
+			} else {
+				generateElementValueForNonConstantExpression(defaultValue, attributeOffset, defaultValueBinding);
+			}
 		}
 	}
 
