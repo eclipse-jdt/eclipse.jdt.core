@@ -241,9 +241,22 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	}
 	
 	/*
+	 * Creates a new name lookup for this project info. 
+	 * The given project is assumed to be the handle of this info.
+	 * This name lookup first looks in the given working copies.
+	 */
+	synchronized NameLookup newNameLookup(JavaProject project, ICompilationUnit[] workingCopies) {
+		// note that this method has to be synchronized so that the field pathToResolvedEntries is not reset while computing the roots and package fragments
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=79766)
+		return new NameLookup(getAllPackageFragmentRoots(project), getAllPackageFragments(project), workingCopies, this.pathToResolvedEntries);
+	}
+	
+	/*
 	 * Reset the package fragment roots and package fragment caches
 	 */
-	void resetCaches() {
+	synchronized void resetCaches() {
+		// note that this method has to be synchronized so that the field pathToResolvedEntries is not reset while computing the roots and package fragments
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=79766)
 		this.allPkgFragmentRootsCache = null;
 		this.allPkgFragmentsCache = null;
 		this.pathToResolvedEntries = null;

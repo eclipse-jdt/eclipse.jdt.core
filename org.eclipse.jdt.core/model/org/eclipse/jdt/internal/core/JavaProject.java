@@ -2328,12 +2328,7 @@ public class JavaProject
 	 * Returns a new name lookup. This name lookup first looks in the given working copies.
 	 */
 	public NameLookup newNameLookup(ICompilationUnit[] workingCopies) throws JavaModelException {
-
-		JavaProjectElementInfo info = getJavaProjectElementInfo();
-		// lock on the project info to avoid race condition while computing the pkg fragment roots and package fragment caches
-		synchronized(info){
-			return new NameLookup(info.getAllPackageFragmentRoots(this), info.getAllPackageFragments(this), workingCopies, info.pathToResolvedEntries);
-		}
+		return getJavaProjectElementInfo().newNameLookup(this, workingCopies);
 	}
 
 	/*
