@@ -219,7 +219,7 @@ public class Scribe {
 		}
 	}
 		
-	private void print(char[] s, int start, int end, boolean considerSpaceIfAny) {
+	private void print(char[] s, int start, boolean considerSpaceIfAny) {
 		if (checkLineWrapping && s.length + column > this.pageWidth) {
 			handleLineTooLong();
 		}
@@ -247,7 +247,8 @@ public class Scribe {
 				if (lineCounter >= 1) {
 					buffer.append(" ");//$NON-NLS-1$
 				}
-				buffer.append(lineContents.trim());
+				// add position mapping
+				buffer.append(lineContents);
 				column += lineContents.length();
 				location = new Location(this, 0);
 				buffer.append(this.lineSeparator);
@@ -292,7 +293,7 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;						
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getRawTokenSource());
+						this.printCommentLine(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;						
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
@@ -314,7 +315,7 @@ public class Scribe {
 		}
 	}
 	
-	public void printCommentLine(char[] s) {
+	public void printCommentLine(char[] s, int start) {
 		int length = s.length;
 		int index;
 		loop: for (index = length - 1; index >= 0; index--) {
@@ -327,6 +328,9 @@ public class Scribe {
 			}
 		}
 		printIndentationIfNecessary();
+		if (this.positionsToMap != null) {
+			mapPositions(start, this.buffer.length(), s.length);
+		}
 		this.buffer
 			.append(s, 0, index + 1)
 			.append(lineSeparator);
@@ -370,7 +374,7 @@ public class Scribe {
 					case ITerminalSymbols.TokenNametransient :
 					case ITerminalSymbols.TokenNamevolatile :
 						firstComment = false;
-						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), !isFirstModifier);
+						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), !isFirstModifier);
 						isFirstModifier = false;
 						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 						break;
@@ -384,7 +388,7 @@ public class Scribe {
 						firstComment = false;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getRawTokenSource());
+						this.printCommentLine(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case ITerminalSymbols.TokenNameWHITESPACE :
@@ -440,7 +444,7 @@ public class Scribe {
 			if (expectedTokenType != this.currentToken) {
 				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), considerSpaceIfAny);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -454,7 +458,7 @@ public class Scribe {
 			if (expectedTokenType != this.currentToken) {
 				throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), considerSpaceIfAny);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -475,7 +479,7 @@ public class Scribe {
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), false);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), false);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -496,7 +500,7 @@ public class Scribe {
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
-			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), considerSpaceIfAny);
+			this.print(currentTokenSource, this.scanner.getCurrentTokenStartPosition(), considerSpaceIfAny);
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -512,7 +516,7 @@ public class Scribe {
 					case ITerminalSymbols.TokenNameWHITESPACE :
 						break;
 					default: 
-						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition(), false);
+						this.print(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition(), false);
 						break;
 				}
 			} while (this.scanner.currentPosition < sourceEnd);
@@ -574,13 +578,13 @@ public class Scribe {
 						}
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getCurrentTokenSource());
+						this.printCommentLine(this.scanner.getCurrentTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasCommentLine = true;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getCurrentTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default :
@@ -633,13 +637,13 @@ public class Scribe {
 						}
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getCurrentTokenSource());
+						this.printCommentLine(this.scanner.getCurrentTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasCommentLine = true;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-						this.printBlockComment(this.scanner.getCurrentTokenSource());
+						this.printBlockComment(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					default :
@@ -685,7 +689,7 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_LINE :
-						this.printCommentLine(this.scanner.getRawTokenSource());
+						this.printCommentLine(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
@@ -757,7 +761,7 @@ public class Scribe {
 		if (!this.needSpace) return;
 		this.lastNumberOfNewLines = 0;
 		if (CodeFormatterVisitor.DEBUG) {
-			this.buffer.append((char)183);
+			this.buffer.append(this.fillingSpace);
 		} else {
 			this.buffer.append(' ');
 		}
