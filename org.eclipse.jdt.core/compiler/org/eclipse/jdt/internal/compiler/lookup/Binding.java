@@ -44,6 +44,12 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	public char[] computeUniqueKey() {
 		return null;
 	}
+	
+	public long getAnnotationTagBits() {
+		// TODO (philippe) need to generalize to methods & fields
+		return 0;
+	}
+
 	/* API
 	* Answer true if the receiver is not a problem binding
 	*/

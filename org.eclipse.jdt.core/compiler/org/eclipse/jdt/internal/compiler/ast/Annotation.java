@@ -252,7 +252,7 @@ public abstract class Annotation extends Expression {
 			}
 			// check (meta)target compatibility
 			checkTargetCompatibility: {
-				long metaTagBits = annotationType.tagBits;
+				long metaTagBits = annotationType.getAnnotationTagBits();
 				if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) // does not specify any target restriction
 					break checkTargetCompatibility;
 					

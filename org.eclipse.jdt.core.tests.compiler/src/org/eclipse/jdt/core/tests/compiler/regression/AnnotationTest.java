@@ -3092,7 +3092,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80964
-	public void _test102() {
+	public void test102() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3117,7 +3117,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80964
-	public void _test103() {
+	public void test103() {
 		this.runConformTest(
 			new String[] {
 				"TestAnnotation.java",

@@ -607,6 +607,13 @@ public char[] genericSignature() {
     }
 	return sig.toString().toCharArray();
 }
+public long getAnnotationTagBits() {
+	if ((this.tagBits & AnnotationResolved) == 0) {
+		TypeDeclaration typeDecl = this.scope.referenceContext;
+		typeDecl.resolveAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+	}
+	return this.tagBits;
+}
 public MethodBinding[] getDefaultAbstractMethods() {
 	int count = 0;
 	for (int i = methods.length; --i >= 0;)
