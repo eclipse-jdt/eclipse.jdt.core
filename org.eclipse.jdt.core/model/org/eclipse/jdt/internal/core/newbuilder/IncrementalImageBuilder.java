@@ -299,21 +299,26 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 			String extension = location.getFileExtension();
 			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
 				IPath typePath = location.removeFirstSegments(sourceFolderSegmentCount).removeFileExtension();
+				String sourceLocation = location.toString();
 				switch (sourceDelta.getKind()) {
 					case IResourceDelta.ADDED :
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this added source file " + location); //$NON-NLS-1$
-						locations.add(location.toString());
+						locations.add(sourceLocation);
 						typeNames.add(typePath.setDevice(null).toString());
 						if (JavaBuilder.DEBUG)
 							System.out.println("Add dependents of added source file " + typePath); //$NON-NLS-1$
 						addDependentsOf(typePath, true);
 						return;
 					case IResourceDelta.REMOVED :
-						char[][] definedTypeNames = newState.getDefinedTypeNamesFor(location.toString());
-						if (definedTypeNames == null || definedTypeNames.length == 0) {
+						char[][] definedTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
+						if (definedTypeNames == null) { // defined a single type matching typePath
 							removeClassFile(typePath);
-						} else {
+						} else if (definedTypeNames.length == 0) { // failed to successfully define a type
+							if (JavaBuilder.DEBUG)
+								System.out.println("Add dependents of removed empty source file " + typePath); //$NON-NLS-1$
+							addDependentsOf(typePath, true);
+						} else { // defined multiple types
 							IPath packagePath = typePath.removeLastSegments(1);
 							for (int i = 0, length = definedTypeNames.length; i < length; i++)
 								removeClassFile(packagePath.append(new String(definedTypeNames[i])));
@@ -325,8 +330,14 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 							return; // skip it since it really isn't changed
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this changed source file " + location); //$NON-NLS-1$
-						locations.add(sourceDelta.getResource().getLocation().toString());
+						locations.add(sourceLocation);
 						typeNames.add(typePath.setDevice(null).toString());
+						char[][] previousTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
+						if (previousTypeNames != null && previousTypeNames.length == 0) {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Add dependents of changed empty source file " + typePath); //$NON-NLS-1$
+							addDependentsOf(typePath, true);
+						}
 				}
 				return;
 			} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
@@ -373,7 +384,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 }
 
 protected void finishedWith(String sourceLocation, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) throws CoreException {
-	char[][] previousTypeNames = (char[][]) newState.getDefinedTypeNamesFor(sourceLocation);
+	char[][] previousTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
 	if (previousTypeNames == null)
 		previousTypeNames = new char[][] {mainTypeName};
 	IPath packagePath = null;
