@@ -4373,7 +4373,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 	
 	/**
-	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11125
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=54431
 	 */
 	public void test0540() {
 		char[] source = 
