@@ -1469,13 +1469,7 @@ public class JavaModelManager implements ISaveParticipant {
 		if (this.indexManager != null){ // no more indexing
 			this.indexManager.shutdown();
 		}
-		try {
-			IJavaModel model = this.getJavaModel();
-			if (model != null) {
-				model.close();
-			}
-		} catch (JavaModelException e) {
-		}
+		// Note: no need to close the Java model as this just removes Java element infos from the Java model cache
 	}
 		
 	public static IPath variableGet(String variableName){
