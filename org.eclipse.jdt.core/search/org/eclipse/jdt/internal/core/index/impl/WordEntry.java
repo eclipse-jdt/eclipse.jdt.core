@@ -15,7 +15,7 @@ public class WordEntry {
 	public WordEntry(char[] word) {
 		fWord= word;
 		fNumRefs= 0;
-		fRefs= new int[10];
+		fRefs= new int[1];
 	}
 	/**
 	 * Adds a reference and records the change in footprint.
@@ -24,17 +24,16 @@ public class WordEntry {
 		if (fNumRefs > 0 && fRefs[fNumRefs - 1] == fileNum) {
 			return 0;
 		}
-		int footprintDelta= 0;
-		if (fRefs.length == 0)
-			fRefs= new int[20];
-		if (fNumRefs == fRefs.length) {
-			footprintDelta= fRefs.length * 4;
-			int[] newRefs= new int[fRefs.length * 2];
-			System.arraycopy(fRefs, 0, newRefs, 0, fRefs.length);
-			fRefs= newRefs;
-		}
+		if (fNumRefs < fRefs.length) {
+			fRefs[fNumRefs++]= fileNum;
+			return 0;
+		} 
+
+		// For rt.jar, 73265 word entries are created. 51997 have 1 ref, then 9438, 3738, 1980, 1214, 779, 547, 429, 371 etc.
+		int newSize= fNumRefs < 4 ? 4 : fNumRefs * 2; // so will start @ 1, grow to 4, 8, 16, 32, 64 etc.
+		System.arraycopy(fRefs, 0, fRefs= new int[newSize], 0, fNumRefs);
 		fRefs[fNumRefs++]= fileNum;
-		return footprintDelta;
+		return (newSize - fNumRefs + 1) * 4;
 	}
 	/**
 	 * Adds a set of references and records the change in footprint.
@@ -97,9 +96,8 @@ public class WordEntry {
 	 * returns the file number in the i position in the list of references.
 	 */
 	public int getRef(int i) {
-		if (i >= fNumRefs)
-			throw new IndexOutOfBoundsException();
-		return fRefs[i];
+		if (i < fNumRefs) return fRefs[i];
+		throw new IndexOutOfBoundsException();
 	}
 	/**
 	 * Returns the references of the wordEntry (the number of the files it appears in).
@@ -128,10 +126,8 @@ public class WordEntry {
 		int position= 0;
 		for (int i= 0; i < fNumRefs; i++) {
 			int map= mappings[fRefs[i]];
-			if (map != -1 && map != 0) {
-				fRefs[position]= map;
-				position++;
-			}
+			if (map != -1 && map != 0)
+				fRefs[position++]= map;
 		}
 		fNumRefs= position;
 
