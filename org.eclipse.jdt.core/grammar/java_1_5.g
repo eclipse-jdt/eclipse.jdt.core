@@ -1214,11 +1214,11 @@ UnaryExpressionNotPlusMinus -> CastExpression
 CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
 /.$putCase consumeCastExpression(); $break ./
 CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpression(); $break ./
+/.$putCase consumeCastExpressionWithNameArray(); $break ./
 CastExpression ::= PushLPAREN Name TypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpression(); $break ./
+/.$putCase consumeCastExpressionWithGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Name TypeArguments PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-/.$putCase consumeCastExpression(); $break ./
+/.$putCase consumeCastExpressionWithGenerics(); $break ./
 CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
 /:$readableName CastExpression:/
