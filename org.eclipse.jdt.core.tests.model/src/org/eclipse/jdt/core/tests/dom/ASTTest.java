@@ -1412,6 +1412,7 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == true);
 		assertTrue(x.getType().getParent() == x);
+		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getInitializer() == null);
 		assertTrue(x.getNodeType() == ASTNode.SINGLE_VARIABLE_DECLARATION);
 
@@ -1427,6 +1428,16 @@ public class ASTTest extends TestCase {
 		x.setModifiers(Modifier.NONE);
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.getModifiers() == Modifier.NONE);
+
+		previousCount = ast.modificationCount();
+		x.setExtraDimensions(1);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getExtraDimensions() == 1);
+
+		previousCount = ast.modificationCount();
+		x.setExtraDimensions(0);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getExtraDimensions() == 0);
 
 		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -1575,6 +1586,7 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == true);
 		assertTrue(x.getReturnType().getParent() == x);
+		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.parameters().size() == 0);
 		assertTrue(x.thrownExceptions().size() == 0);
@@ -1605,6 +1617,16 @@ public class ASTTest extends TestCase {
 		x.setModifiers(Modifier.NONE);
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.getModifiers() == Modifier.NONE);
+
+		previousCount = ast.modificationCount();
+		x.setExtraDimensions(1);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getExtraDimensions() == 1);
+
+		previousCount = ast.modificationCount();
+		x.setExtraDimensions(0);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.getExtraDimensions() == 0);
 
 		tJavadocComment(x);
 						
