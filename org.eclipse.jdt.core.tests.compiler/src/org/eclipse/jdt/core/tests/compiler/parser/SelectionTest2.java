@@ -34,7 +34,7 @@ public class SelectionTest2 extends AbstractSelectionTest {
 public SelectionTest2(String testName) {
 	super(testName);
 }
-private boolean thereWasAnNPE = false;
+boolean thereWasAnNPE = false;
 private class SpecialSelectionParser extends SelectionParser {
 	public SpecialSelectionParser(ProblemReporter problemReporter, boolean assertMode) {
 		super(problemReporter, assertMode);
@@ -44,7 +44,7 @@ private class SpecialSelectionParser extends SelectionParser {
 	}
 }
 
-private SpecialSelectionParser createParser(){
+ SpecialSelectionParser createParser(){
 	CompilerOptions options = new CompilerOptions();
 	SpecialSelectionParser parser = 
 		new SpecialSelectionParser(
@@ -55,7 +55,7 @@ private SpecialSelectionParser createParser(){
 			options.sourceLevel >= CompilerOptions.JDK1_4);
 	return parser;
 }
-private void checkMethodParse(
+void checkMethodParse(
 		SelectionParser parser,
 		char[] source, 
 		int selectionStart,
