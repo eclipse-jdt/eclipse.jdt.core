@@ -3622,7 +3622,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		}		
 		
-		if (wasACase && this.preferences.indent_switchstatements_compare_to_cases) {
+		if ((wasACase || wasAStatement) && this.preferences.indent_switchstatements_compare_to_cases) {
 			this.scribe.unIndent();
 		}
 		if (preferences.indent_switchstatements_compare_to_switch) {
