@@ -1436,11 +1436,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		for (int i=0; i<bogus.length; i++) {
 			try {
 				x.setIdentifier(bogus[i]);
-//				assertTrue(false);
-				System.out.println("Error: SimpleName.setIdentifier(\"" + bogus[i] + "\") was not rejected");
+				assertTrue(false);
 			} catch (RuntimeException e) {
 				// pass
-				System.out.println("SimpleName.setIdentifier(\"" + bogus[i] + "\") was rejected");
 			}
 		}
 		// check that "assert" is not considered a keyword
@@ -8479,10 +8477,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 		
 	public void testSubtreeBytes() {
-		
 		ASTNode x = SampleASTs.oneOfEach(ast);
-		System.out.println("oneOfEach().subtreeBytes(): " + x.subtreeBytes());
-		assertTrue(x.subtreeBytes() > 0);
+		final int subtreeBytes = x.subtreeBytes();
+		assertTrue(subtreeBytes > 0);
 	}
 	
 	public void testNodeTypeConstants() {

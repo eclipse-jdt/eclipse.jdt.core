@@ -177,11 +177,16 @@ public class SimpleName extends Name {
 		Scanner scanner = this.ast.scanner;
 		char[] source = identifier.toCharArray();
 		scanner.setSource(source);
-		scanner.resetTo(0, source.length);
+		final int length = source.length;
+		scanner.resetTo(0, length);
 		try {
 			int tokenType = scanner.getNextToken();
 			switch(tokenType) {
 				case TerminalTokens.TokenNameIdentifier:
+					if (scanner.getCurrentTokenEndPosition() != length - 1) {
+						// this is the case when there is only one identifier see 87849
+						throw new IllegalArgumentException();
+					}
 					break;
 				default:
 					throw new IllegalArgumentException();
