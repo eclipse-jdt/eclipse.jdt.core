@@ -932,4 +932,21 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83536
+	public void test023() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\r\n" + 
+				"    public static void main (String[] args) {\r\n" + 
+				"        new X().test (new byte[5]);\r\n" + 
+				"		 System.out.print(\"SUCCESS\");\n" +
+				"    }\r\n" + 
+				"    private void test (Object... params) {\r\n" + 
+				"    }\r\n" + 
+				"}",
+			},
+			"SUCCESS");
+	}
 }
