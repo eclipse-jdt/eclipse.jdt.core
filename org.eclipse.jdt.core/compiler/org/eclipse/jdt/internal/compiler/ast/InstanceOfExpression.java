@@ -72,12 +72,7 @@ public class InstanceOfExpression extends OperatorExpression {
 		expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
 		return type.print(0, output);
 	}
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#reportIllegalCast(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
-	 */
-	public void reportIllegalCast(Scope scope, TypeBinding castType, TypeBinding expressionType) {
-		scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
-	}
+
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = NotAConstant;
@@ -89,7 +84,10 @@ public class InstanceOfExpression extends OperatorExpression {
 		if (checkedType.isTypeVariable() || checkedType.isBoundParameterizedType() || checkedType.isGenericType()) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
 		} else {
-			checkCastTypesCompatibility(scope, checkedType, expressionType, null);
+			boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, null);
+			if (!isLegal) {
+				scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
+			}
 		}
 		return this.resolvedType = BooleanBinding;
 	}

@@ -85,7 +85,7 @@ public class CastExpression extends Expression {
 	
 		// check need for left operand cast
 		int alternateLeftTypeId = expressionTypeId;
-		if ((expression.bits & UnnecessaryCastMask) == 0 && expression.resolvedType.isBaseType()) {
+		if ((expression.bits & UnnecessaryCastMASK) == 0 && expression.resolvedType.isBaseType()) {
 			// narrowing conversion on base type may change value, thus necessary
 			return;
 		} else  {
@@ -127,7 +127,7 @@ public class CastExpression extends Expression {
 			Expression argument = arguments[i];
 			if (argument instanceof CastExpression) {
  				// narrowing conversion on base type may change value, thus necessary
-				if ((argument.bits & UnnecessaryCastMask) == 0 && argument.resolvedType.isBaseType()) {
+				if ((argument.bits & UnnecessaryCastMASK) == 0 && argument.resolvedType.isBaseType()) {
 					continue;
 				}		
 				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
@@ -162,7 +162,7 @@ public class CastExpression extends Expression {
 		// check need for left operand cast
 		int alternateLeftTypeId = leftTypeId;
 		if (leftIsCast) {
-			if ((left.bits & UnnecessaryCastMask) == 0 && left.resolvedType.isBaseType()) {
+			if ((left.bits & UnnecessaryCastMASK) == 0 && left.resolvedType.isBaseType()) {
  				// narrowing conversion on base type may change value, thus necessary
  				leftIsCast = false;
 			} else  {
@@ -180,7 +180,7 @@ public class CastExpression extends Expression {
 		// check need for right operand cast
 		int alternateRightTypeId = rightTypeId;
 		if (rightIsCast) {
-			if ((right.bits & UnnecessaryCastMask) == 0 && right.resolvedType.isBaseType()) {
+			if ((right.bits & UnnecessaryCastMASK) == 0 && right.resolvedType.isBaseType()) {
  				// narrowing conversion on base type may change value, thus necessary
  				rightIsCast = false;
 			} else {
@@ -255,22 +255,21 @@ public class CastExpression extends Expression {
 		}
 		if (castType.isBoundParameterizedType() || castType.isGenericType()) {
 			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
-				reportIllegalCast(scope, castType, expressionType);
 				return false; 
 			}
 			if (isNarrowing ? !expressionType.isEquivalentTo(match) : !match.isEquivalentTo(castType)) {
-				scope.problemReporter().unsafeCast(this, scope);
+				this.bits |= UnsafeCastMask;
 				return true;
 			}
 			if ((castType.tagBits & TagBits.HasDirectWildcard) == 0) {
 				if ((!match.isParameterizedType() && !match.isGenericType())
 						|| expressionType.isRawType()) {
-					scope.problemReporter().unsafeCast(this, scope);
+					this.bits |= UnsafeCastMask;
 					return true;
 				}
 			}
 		} else if (isNarrowing && castType.isTypeVariable()) {
-			scope.problemReporter().unsafeCast(this, scope);
+			this.bits |= UnsafeCastMask;
 			return true;
 		}
 		if (!isNarrowing && castType == this.resolvedType.leafComponentType()) { // do not tag as unnecessary when recursing through upper bounds
@@ -352,10 +351,6 @@ public class CastExpression extends Expression {
 		return expression.printExpression(0, output);
 	}
 
-	public void reportIllegalCast(Scope scope, TypeBinding castType, TypeBinding expressionType) {
-		scope.problemReporter().typeCastError(this, castType, expressionType);
-	}
-	
 	public TypeBinding resolveType(BlockScope scope) {
 		// compute a new constant if the cast is effective
 
@@ -373,13 +368,17 @@ public class CastExpression extends Expression {
 			expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation			
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && expressionType != null) {
-				checkCastTypesCompatibility(scope, this.resolvedType, expressionType, this.expression);
+				boolean isLegal = checkCastTypesCompatibility(scope, this.resolvedType, expressionType, this.expression);
 				this.expression.computeConversion(scope, this.resolvedType, expressionType);
-				if ((this.bits & UnnecessaryCastMask) != 0) {
-					if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {
+				if (isLegal) {
+					if ((this.bits & UnsafeCastMask) != 0) { // unsafe cast
+						scope.problemReporter().unsafeCast(this, scope);
+					} else if ((this.bits & (UnnecessaryCastMASK|IgnoreNeedForCastCheckMASK)) == UnnecessaryCastMASK) { // unnecessary cast 
 						if (!usedForGenericMethodReturnTypeInference()) // used for generic type inference ?
 							scope.problemReporter().unnecessaryCast(this);
 					}
+				} else { // illegal cast
+					scope.problemReporter().typeCastError(this,  this.resolvedType, expressionType);
 				}
 			}
 			return this.resolvedType;
@@ -428,7 +427,7 @@ public class CastExpression extends Expression {
 	 */
 	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
 		if (this.expression.resolvedType == null) return; // cannot do better if expression is not bound
-		this.bits |= UnnecessaryCastMask;
+		this.bits |= UnnecessaryCastMASK;
 	}
 	
 	public void traverse(

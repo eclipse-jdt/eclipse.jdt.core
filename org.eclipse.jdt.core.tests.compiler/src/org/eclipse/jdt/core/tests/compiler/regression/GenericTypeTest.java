@@ -12164,4 +12164,31 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82504
+	public void test454() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, U extends X> {\n" + 
+				"	Object[] objectArr;\n" + 
+				"	void foo(T t) {\n" + 
+				"		T x1= (T) objectArr;\n" + 
+				"		U x2= (U) objectArr;\n" + 
+				"		int[] x= (int[]) t;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	T x1= (T) objectArr;\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Object[] to T is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	U x2= (U) objectArr;\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"Cannot cast from Object[] to U\n" + 
+			"----------\n");
+	}		
 }

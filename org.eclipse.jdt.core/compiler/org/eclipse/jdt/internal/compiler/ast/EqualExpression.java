@@ -475,8 +475,8 @@ public class EqualExpression extends BinaryExpression {
 			left.computeConversion(scope, objectType, leftType);
 			right.computeConversion(scope, objectType, rightType);
 			// check need for operand cast
-			boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
-			boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;
+			boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMASK) != 0;
+			boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMASK) != 0;
 			if (unnecessaryLeftCast || unnecessaryRightCast) {
 				TypeBinding alternateLeftType = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType : leftType;
 				TypeBinding alternateRightType = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType : rightType;
