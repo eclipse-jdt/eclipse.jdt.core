@@ -3238,13 +3238,13 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		indicating that some arguments are available on the stack */
 	this.listLength++; 	
 	
-	if (isVarArgs && extendedDimensions > 0) {
-		this.problemReporter().illegalExtendedDimensions(arg);
-	}
-	if(isVarArgs &&
-			options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		this.problemReporter().invalidUsageOfVarargs(arg);
+	if(isVarArgs) {
+		if (options.sourceLevel < ClassFileConstants.JDK1_5 &&
+				this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+				this.problemReporter().invalidUsageOfVarargs(arg);
+		} else if (extendedDimensions > 0) {
+			this.problemReporter().illegalExtendedDimensions(arg);
+		}
 	}
 }
 protected void consumeFormalParameterList() {
