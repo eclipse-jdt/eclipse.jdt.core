@@ -54,7 +54,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
 	 */
 	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
-	    if (otherType instanceof ReferenceBinding) {
+		if (this.arguments == null) return;
+		if (otherType instanceof ReferenceBinding) {
 			// allow List<T> to match with LinkedList<String>
 	        ReferenceBinding otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo((ReferenceBinding)this.type.erasure());
 	        if (otherEquivalent != null && otherEquivalent.isParameterizedType()) {
