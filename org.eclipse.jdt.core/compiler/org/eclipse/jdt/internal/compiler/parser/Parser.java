@@ -2699,6 +2699,7 @@ protected void consumePackageDeclarationName() {
 	} else {
 		impt.declarationSourceEnd = impt.sourceEnd;
 	}
+	impt.declarationEnd = impt.declarationSourceEnd;
 	//endPosition is just before the ;
 	impt.declarationSourceStart = intStack[intPtr--];
 
