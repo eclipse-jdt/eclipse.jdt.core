@@ -19,16 +19,19 @@ ZipFile zipFile;
 SimpleLookupTable directoryCache;	
 
 ClasspathJar(String zipFilename) {
-	try {
-		this.zipFilename = zipFilename;
-		this.zipFile = new ZipFile(new File(zipFilename));
-		buildDirectoryStructure();
-	} catch(IOException e) {
-		directoryCache = new SimpleLookupTable();
-	}
+	this.zipFilename = zipFilename;
+	this.zipFile = null;
+	this.directoryCache = null;
 }
 
 void buildDirectoryStructure() {
+	try {
+		this.zipFile = new ZipFile(zipFilename);
+	} catch(IOException e) {
+		this.directoryCache = new SimpleLookupTable();
+		return;
+	}
+
 	directoryCache = new SimpleLookupTable(101);
 	for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = ((ZipEntry) e.nextElement()).getName();
@@ -63,6 +66,7 @@ public boolean equals(Object o) {
 }
 
 NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
+	if (directoryCache == null) buildDirectoryStructure();
 	try {
 		String binaryFilename =
 			NameEnvironment.assembleName(new String(className) + ".class", packageName, '/'); //$NON-NLS-1$
@@ -76,7 +80,8 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 }
 
 boolean isPackage(char[][] compoundName, char[] packageName) {
-	return 
+	if (directoryCache == null) buildDirectoryStructure();
+	return
 		directoryCache.get(
 			NameEnvironment.assembleName(packageName, compoundName, '/'))
 				!= null;
