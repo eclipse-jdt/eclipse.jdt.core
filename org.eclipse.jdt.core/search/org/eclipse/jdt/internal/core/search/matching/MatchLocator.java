@@ -402,6 +402,42 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		return this.parser == null ? null : this.parser.scanner;
 	}
 
+	/**
+	 * Create a new parser for the given project, as well as a lookup environment.
+	 */
+	public void initialize(JavaProject project) throws JavaModelException {
+		// create lookup environment
+		CompilerOptions options = new CompilerOptions(project.getOptions(true));
+		ProblemReporter problemReporter =
+			new ProblemReporter(
+				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+				options,
+				new DefaultProblemFactory());
+		this.lookupEnvironment =
+			new LookupEnvironment(this, options, problemReporter, this.nameEnvironment);
+			
+		// create parser
+		this.parser = new MatchLocatorParser(problemReporter, options.sourceLevel >= CompilerOptions.JDK1_4);
+		
+		// reset parsed units (they could hold onto obsolete bindings: see bug 16052)
+		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(project.getPackageFragmentRoots());
+		for (int i = 0, length = openables.length; i < length; i++) {
+			MatchingOpenable matchingOpenable = openables[i];
+			matchingOpenable.reset();
+		}
+		this.parsedUnits = new HashtableOfObject(10);
+		
+		// remember project's name lookup
+		this.nameLookup = project.getNameLookup();
+	}
+
+	public void initializeNameEnvironment(JavaProject project) throws JavaModelException {
+		// cleanup and recreate file name environment
+		if (this.nameEnvironment != null) {
+			this.nameEnvironment.cleanup();
+		}
+		this.nameEnvironment = this.getNameEnvironment(project);
+	}
 
 	/**
 	 * Locate the matches in the given files and report them using the search requestor. 
@@ -523,8 +559,19 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 							this.matchingOpenables = new MatchingOpenableSet();
 						}
 	
-						// create parser for this project
-						this.createParser(javaProject);
+						// initialization for this project
+						if (length == 1) {
+							// if only one potential match, a file name environment costs too much,
+							// so use the existing searchable  environment wich will populate the java model
+							// only for this potential match and its required types.
+							if (this.nameEnvironment != null) { // cleanup
+								this.nameEnvironment.cleanup();
+							}
+							this.nameEnvironment = javaProject.getSearchableNameEnvironment();
+						} else {
+							this.initializeNameEnvironment(javaProject);
+						}
+						this.initialize(javaProject);
 						previousJavaProject = javaProject;
 					}
 				} catch (JavaModelException e) {
@@ -1086,42 +1133,6 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 	}
 }
 
-
-	/**
-	 * Create a new parser for the given project, as well as a lookup environment.
-	 * Asks the pattern to initialize itself for polymorphic search.
-	 */
-	public void createParser(JavaProject project) throws JavaModelException {
-		// cleaup and recreate file name environment
-		if (this.nameEnvironment != null) {
-			this.nameEnvironment.cleanup();
-		}
-		this.nameEnvironment = this.getNameEnvironment(project);
-		
-		// create lookup environment
-		CompilerOptions options = new CompilerOptions(project.getOptions(true));
-		ProblemReporter problemReporter =
-			new ProblemReporter(
-				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-				options,
-				new DefaultProblemFactory());
-		this.lookupEnvironment =
-			new LookupEnvironment(this, options, problemReporter, this.nameEnvironment);
-			
-		// create parser
-		this.parser = new MatchLocatorParser(problemReporter, options.sourceLevel >= CompilerOptions.JDK1_4);
-		
-		// reset parsed units (they could hold onto obsolete bindings: see bug 16052)
-		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(project.getPackageFragmentRoots());
-		for (int i = 0, length = openables.length; i < length; i++) {
-			MatchingOpenable matchingOpenable = openables[i];
-			matchingOpenable.reset();
-		}
-		this.parsedUnits = new HashtableOfObject(10);
-		
-		// remember project's name lookup
-		this.nameLookup = project.getNameLookup();
-	}
 
 	private INameEnvironment getNameEnvironment(JavaProject project) throws JavaModelException {
 		//return project.getSearchableNameEnvironment();

@@ -35,7 +35,8 @@ public ClasspathJar(ZipFile zipFile, boolean closeZipFileAtEnd) throws IOExcepti
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }	
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-	if (!isPackage(qualifiedPackageName)) return null; // most common case
+	if (!isPackage(qualifiedPackageName)) 
+		return null; // most common case
 
 	try {
 		ClassFileReader reader = ClassFileReader.read(zipFile, qualifiedBinaryFileName);

@@ -45,6 +45,7 @@ public class MatchingOpenable {
 	public IResource resource;
 	public Openable openable;
 	private CompilationUnitDeclaration parsedUnit;
+	private char[] source;
 	private MatchSet matchSet;
 	public boolean shouldResolve = true;
 public MatchingOpenable(MatchLocator locator, IResource resource, Openable openable) {
@@ -134,22 +135,21 @@ private char[] getQualifiedName() {
 	}
 }
 public char[] getSource() {
+	if (this.source != null) return source;
 	try {
 		if (this.openable instanceof WorkingCopy) {
 			IBuffer buffer = this.openable.getBuffer();
 			if (buffer == null) return null;
-			return buffer.getCharacters();
+			this.source = buffer.getCharacters();
 		} else if (this.openable instanceof CompilationUnit) {
-			return Util.getResourceContentsAsCharArray((IFile)this.resource);
+			this.source = Util.getResourceContentsAsCharArray((IFile)this.resource);
 		} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
 			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
-			return this.locator.findSource(classFile);
-		} else {
-			return null;
+			this.source = this.locator.findSource(classFile);
 		}
 	} catch (JavaModelException e) {
-		return null;
 	}
+	return this.source;
 }
 public boolean hasAlreadyDefinedType() {
 	if (this.parsedUnit == null) return false;

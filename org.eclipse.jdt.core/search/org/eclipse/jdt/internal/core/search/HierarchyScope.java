@@ -15,18 +15,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModel;
@@ -37,8 +29,11 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
  */
 public class HierarchyScope extends AbstractSearchScope {
 
-	private ITypeHierarchy fHierarchy;
-	private IType[] fTypes;
+	private IType focusType;
+	private String focusPath;
+	
+	private ITypeHierarchy hierarchy;
+	private IType[] types;
 	private HashSet resourcePaths;
 	private IPath[] enclosingProjectsAndJars;
 
@@ -66,9 +61,33 @@ public class HierarchyScope extends AbstractSearchScope {
 	 * Creates a new hiearchy scope for the given type.
 	 */
 	public HierarchyScope(IType type) throws JavaModelException {
-		this.initialize();
-		fHierarchy = type.newTypeHierarchy(null);
-		buildResourceVector();
+		this.focusType = type;
+		
+		this.enclosingProjectsAndJars = this.computeProjectsAndJars(type);
+
+		// resource path
+		IPackageFragmentRoot root = (IPackageFragmentRoot)type.getPackageFragment().getParent();
+		if (root.isArchive()) {
+			IPath jarPath = root.getPath();
+			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), jarPath, true);
+			String zipFileName;
+			if (target instanceof IFile) {
+				// internal jar
+				zipFileName = jarPath.toString();
+			} else if (target instanceof File) {
+				// external jar
+				zipFileName = ((File)target).getPath();
+			} else {
+				return; // unknown target
+			}
+			this.focusPath =
+				zipFileName
+					+ JAR_FILE_ENTRY_SEPARATOR
+					+ type.getFullyQualifiedName().replace('.', '/')
+					+ ".class";//$NON-NLS-1$
+		} else {
+			this.focusPath = type.getPath().toString();
+		}
 			
 		//disabled for now as this could be expensive
 		//JavaModelManager.getJavaModelManager().rememberScope(this);
@@ -76,10 +95,10 @@ public class HierarchyScope extends AbstractSearchScope {
 	private void buildResourceVector() throws JavaModelException {
 		HashMap resources = new HashMap();
 		HashMap paths = new HashMap();
-		fTypes = fHierarchy.getAllTypes();
+		this.types = this.hierarchy.getAllTypes();
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		for (int i = 0; i < fTypes.length; i++) {
-			IType type = fTypes[i];
+		for (int i = 0; i < this.types.length; i++) {
+			IType type = this.types[i];
 			IResource resource = type.getUnderlyingResource();
 			if (resource != null && resources.get(resource) == null) {
 				resources.put(resource, resource);
@@ -121,10 +140,95 @@ public class HierarchyScope extends AbstractSearchScope {
 			this.enclosingProjectsAndJars[i++] = (IPath) iter.next();
 		}
 	}
+	/*
+	 * Computes the paths of projects and jars that the hierarchy on the given type could contain.
+	 * This is a super set of the project and jar paths once the hierarchy is computed.	 */
+	private IPath[] computeProjectsAndJars(IType type) throws JavaModelException {
+		HashSet set = new HashSet();
+		IPackageFragmentRoot root = (IPackageFragmentRoot)type.getPackageFragment().getParent();
+		if (root.isArchive()) {
+			// add the root
+			set.add(root.getPath());
+			// add all projects that reference this archive and their dependents
+			IPath rootPath = root.getPath();
+			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			IJavaProject[] projects = model.getJavaProjects();
+			HashSet visited = new HashSet();
+			for (int i = 0; i < projects.length; i++) {
+				IJavaProject project = projects[i];
+				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+				for (int j = 0; j < classpath.length; j++) {
+					if (rootPath.equals(classpath[j].getPath())) {
+						// add the project and its jar pkg fragment roots
+						IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+						set.add(project.getPath());
+						for (int k = 0; k < roots.length; k++) {
+							IPackageFragmentRoot pkgFragmentRoot = roots[k];
+							if (pkgFragmentRoot.isArchive()) {
+								set.add(pkgFragmentRoot.getPath());
+							}
+						}
+						// add the dependent projects
+						this.computeDependents(project, set, visited);
+						break;
+					}
+				}
+			}
+		} else {
+			// add all the project's pkg fragment roots
+			IJavaProject project = (IJavaProject)root.getParent();
+			IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
+			for (int i = 0; i < roots.length; i++) {
+				IPackageFragmentRoot pkgFragmentRoot = roots[i];
+				if (pkgFragmentRoot.isArchive()) {
+					set.add(pkgFragmentRoot.getPath());
+				} else {
+					set.add(pkgFragmentRoot.getParent().getPath());
+				}
+			}
+			// add the dependent projects
+			this.computeDependents(project, set, new HashSet());
+		}
+		IPath[] result = new IPath[set.size()];
+		set.toArray(result);
+		return result;
+	}
+	private void computeDependents(IJavaProject project, HashSet set, HashSet visited) {
+		if (visited.contains(project)) return;
+		visited.add(project);
+		IProject[] dependents = project.getProject().getReferencingProjects();
+		for (int i = 0; i < dependents.length; i++) {
+			try {
+				IJavaProject dependent = JavaCore.create(dependents[i]);
+				IPackageFragmentRoot[] roots = dependent.getPackageFragmentRoots();
+				set.add(dependent.getPath());
+				for (int j = 0; j < roots.length; j++) {
+					IPackageFragmentRoot pkgFragmentRoot = roots[j];
+					if (pkgFragmentRoot.isArchive()) {
+						set.add(pkgFragmentRoot.getPath());
+					}
+				}
+				this.computeDependents(dependent, set, visited);
+			} catch (JavaModelException e) {
+				// project is not a java project
+			}
+		}
+	}
 	/* (non-Javadoc)
 	 * @see IJavaSearchScope#encloses(String)
 	 */
 	public boolean encloses(String resourcePath) {
+		if (this.hierarchy == null) {
+			if (resourcePath.equals(this.focusPath)) {
+				return true;
+			} else {
+				try {
+					this.initialize();
+				} catch (JavaModelException e) {
+					return false;
+				}
+			}
+		}
 		if (this.needsRefresh) {
 			try {
 				this.refresh();
@@ -148,6 +252,17 @@ public class HierarchyScope extends AbstractSearchScope {
 	 * @see IJavaSearchScope#encloses(IJavaElement)
 	 */
 	public boolean encloses(IJavaElement element) {
+		if (this.hierarchy == null) {
+			if (this.focusType.equals(element.getAncestor(IJavaElement.TYPE))) {
+				return true;
+			} else {
+				try {
+					this.initialize();
+				} catch (JavaModelException e) {
+					return false;
+				}
+			}
+		}
 		if (this.needsRefresh) {
 			try {
 				this.refresh();
@@ -162,29 +277,17 @@ public class HierarchyScope extends AbstractSearchScope {
 			type = ((IMember) element).getDeclaringType();
 		}
 		if (type != null) {
-			if (fHierarchy.contains(type)) {
+			if (this.hierarchy.contains(type)) {
 				return true;
 			} else {
 				// be flexible: look at original element (see bug 14106 Declarations in Hierarchy does not find declarations in hierarchy)
 				IType original;
 				if (!type.isBinary() 
 						&& (original = (IType)type.getCompilationUnit().getOriginal(type)) != null) {
-					return fHierarchy.contains(original);
+					return this.hierarchy.contains(original);
 				}
 			}
 		} 
-		return false;
-	}
-	/* (non-Javadoc)
-	 * Returns whether this search scope encloses the given resource.
-	 */
-	protected boolean encloses(IResource element) {
-		IPath elementPath = element.getFullPath();
-		for (int i = 0; i < elementCount; i++) {
-			if (this.elements[i].getFullPath().isPrefixOf(elementPath)) {
-				return true;
-			}
-		}
 		return false;
 	}
 	/* (non-Javadoc)
@@ -201,26 +304,32 @@ public class HierarchyScope extends AbstractSearchScope {
 		}
 		return this.enclosingProjectsAndJars;
 	}
-	protected void initialize() {
+	protected void initialize() throws JavaModelException {
 		this.resourcePaths = new HashSet();
 		this.elements = new IResource[5];
 		this.elementCount = 0;
-		this.needsRefresh = false;		
+		this.needsRefresh = false;
+		if (this.hierarchy == null) {
+			this.hierarchy = this.focusType.newTypeHierarchy(null);
+		} else {
+			this.hierarchy.refresh(null);
+		}
+		this.buildResourceVector();
 	}
 	/*
 	 * @see AbstractSearchScope#processDelta(IJavaElementDelta)
 	 */
 	public void processDelta(IJavaElementDelta delta) {
 		if (this.needsRefresh) return;
-		this.needsRefresh = ((TypeHierarchy)fHierarchy).isAffected(delta);
+		this.needsRefresh = this.hierarchy == null ? false : ((TypeHierarchy)this.hierarchy).isAffected(delta);
 	}
 	protected void refresh() throws JavaModelException {
-		this.initialize();
-		fHierarchy.refresh(null);
-		this.buildResourceVector();
+		if (this.hierarchy != null) {
+			this.initialize();
+		}
 	}
 	public String toString() {
-		return "HierarchyScope on " + ((JavaElement)fHierarchy.getType()).toStringWithAncestors(); //$NON-NLS-1$
+		return "HierarchyScope on " + ((JavaElement)this.focusType).toStringWithAncestors(); //$NON-NLS-1$
 	}
 
 }
