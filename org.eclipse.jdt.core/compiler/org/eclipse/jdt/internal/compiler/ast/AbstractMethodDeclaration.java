@@ -108,6 +108,18 @@ public void bindArguments() {
 		}
 	}
 }
+/*
+ * Record the thrown exception type bindings in the corresponding type references.
+ */
+public void bindThrownExceptions() {
+
+	if (this.thrownExceptions != null && this.binding.thrownExceptions != null) {
+		int length = this.binding.thrownExceptions.length;
+		for (int i = 0; i < length; i++) {
+			this.thrownExceptions[i].binding = this.binding.thrownExceptions[i];
+		}
+	}
+}
 public void checkName(){
 	//look if the name of the method is correct
 }
@@ -242,6 +254,7 @@ public void resolve(ClassScope upperScope) {
 	// ========= abort on fatal error =============
 	try {
 		bindArguments(); //<-- shoud be done at binding/scope creation time
+		bindThrownExceptions();
 		checkName();
 
 		// create secret value location
