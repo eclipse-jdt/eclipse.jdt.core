@@ -7110,6 +7110,135 @@ public void test0166(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+* https://bugs.eclipse.org/bugs/show_bug.cgi?id=69598
+*/
+public void test0167(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    List<Integer> cont=new ArrayList<Integer>();\n" +
+		"    for (Integer i:cont){\n" +
+		"      i.\n" +
+		"    }\n" + 
+		"  }\n" + 
+		"}";
+
+
+	String completeBehind = "i.";
+	int cursorLocation = str.indexOf("i.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:i.>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "i.";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    List<Integer> cont;\n" + 
+		"    Integer i;\n" + 
+		"    {\n" + 
+		"      <CompleteOnName:i.>;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+* https://bugs.eclipse.org/bugs/show_bug.cgi?id=69598
+*/
+public void test0168(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    List<Integer> cont=new ArrayList<Integer>();\n" +
+		"    for (Integer i:cont){\n" +
+		"    }\n" + 
+		"    i.\n" +
+		"  }\n" + 
+		"}";
+
+
+	String completeBehind = "i.";
+	int cursorLocation = str.indexOf("i.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:i.>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "i.";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    List<Integer> cont;\n" + 
+		"    <CompleteOnName:i.>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 public void _testXXX2(){
 	String str =
 		"public class X extends Y. {\n" +

@@ -140,6 +140,10 @@ public RecoveredElement buildInitialRecoveryState(){
 
 	for(int i = 0; i <= astPtr; i++){
 		ASTNode node = astStack[i];
+		
+		if(node instanceof ForeachStatement && ((ForeachStatement)node).action == null) {
+			node = ((ForeachStatement)node).elementVariable;
+		}
 
 		/* check for intermediate block creation, so recovery can properly close them afterwards */
 		int nodeStart = node.sourceStart;
