@@ -299,6 +299,49 @@ public void testDeleteJarFile1() throws CoreException {
 	}
 }
 /*
+ * Ensure that deleting a jar file that is referenced by 2 projects triggers the right delta
+ * and that the model is up-to-date.
+ */
+public void testDeleteJarFile2() throws CoreException {
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, new String[] {"/P1/myLib.jar"}, "bin");
+		this.createFile("/P1/myLib.jar", "");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src"}, new String[] {"/P1/myLib.jar"}, "bin");
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/myLib.jar");
+		this.startDeltas();
+		root.delete(IResource.NONE, true, null);
+		assertDeltas(
+			"Unexpected delta",
+			"P1[*]: {CHILDREN}\n" + 
+			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P1/.classpath)[*]\n" + 
+			"	ResourceDelta(/P1/myLib.jar)[-]\n" + 
+			"P2[*]: {CHILDREN}\n" + 
+			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P1\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+/*
  * Ensure that a simple delete of a source root triggers the right delta
  * and that the model is up-to-date.
  */
@@ -756,6 +799,53 @@ public void testRenameJarFile1() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that renaming of a jar file that is referenced by 2 projects triggers the right delta
+ * and that the model is up-to-date.
+ */
+public void testRenameJarFile2() throws CoreException {
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, new String[] {"/P1/myLib.jar"}, "bin");
+		this.createFile("/P1/myLib.jar", "");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src"}, new String[] {"/P1/myLib.jar"}, "bin");
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/myLib.jar");
+		this.startDeltas();
+		root.move(new Path("/P1/myLib2.jar"), IResource.NONE, true, null, null);
+		assertDeltas(
+			"Unexpected delta",
+			"P1[*]: {CHILDREN}\n" + 
+			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P1/myLib2.jar[+]: {}\n" + 
+			"	ResourceDelta(/P1/.classpath)[*]\n" + 
+			"	ResourceDelta(/P1/myLib.jar)[-]\n" + 
+			"P2[*]: {CHILDREN}\n" + 
+			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P1/myLib2.jar[+]: {}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P1\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	/P1/myLib2.jar\n" + 
+			"	L/P1/.classpath\n" + 
+			"	L/P1/.project",
+			p1);
+		assertJavaProject(
+			"P2\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	/P1/myLib2.jar\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 }
