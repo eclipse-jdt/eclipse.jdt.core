@@ -239,14 +239,12 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	try {
 		notifier.checkCancel();
 
-		if ((this.lastState = getLastState(currentProject)) != null) {
-			initializeBuilder();
-			if (DEBUG && lastState != null)
-				System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
-			clearLastState();
-			removeProblemsAndTasksFor(currentProject);
-			new BatchImageBuilder(this).cleanOutputFolders(false);
-		}
+		initializeBuilder();
+		if (DEBUG)
+			System.out.println("Clearing last state as part of clean : " + lastState); //$NON-NLS-1$
+		clearLastState();
+		removeProblemsAndTasksFor(currentProject);
+		new BatchImageBuilder(this).cleanOutputFolders(false);
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while cleaning: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
