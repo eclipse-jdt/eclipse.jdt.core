@@ -49,7 +49,9 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public AbstractMethodDeclaration methodDeclaration;
 	public ExceptionLabel[] exceptionHandlers = new ExceptionLabel[LABELS_INCREMENT];
 	static ExceptionLabel[] noExceptionHandlers = new ExceptionLabel[LABELS_INCREMENT];
-	public int exceptionHandlersNumber;
+	public int exceptionHandlersIndex;
+	public int exceptionHandlersCounter;
+	
 	public static FieldBinding[] ImplicitThis = new FieldBinding[] {};
 	public boolean generateLineNumberAttributes;
 	public boolean generateLocalVariableTableAttributes;
@@ -2713,7 +2715,8 @@ public void init(ClassFile targetClassFile) {
 		noExceptionHandlers = new ExceptionLabel[length];
 	}
 	System.arraycopy(noExceptionHandlers, 0, exceptionHandlers, 0, length);
-	exceptionHandlersNumber = 0;
+	exceptionHandlersIndex = 0;
+	exceptionHandlersCounter = 0;
 	
 	length = labels.length;
 	if (noLabels.length < length) {
@@ -4760,12 +4763,22 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
  */
 public void registerExceptionHandler(ExceptionLabel anExceptionLabel) {
 	int length;
-	if (exceptionHandlersNumber >= (length = exceptionHandlers.length)) {
+	if (exceptionHandlersIndex >= (length = exceptionHandlers.length)) {
 		// resize the exception handlers table
 		System.arraycopy(exceptionHandlers, 0, exceptionHandlers = new ExceptionLabel[length + LABELS_INCREMENT], 0, length);
 	}
 	// no need to resize. So just add the new exception label
-	exceptionHandlers[exceptionHandlersNumber++] = anExceptionLabel;
+	exceptionHandlers[exceptionHandlersIndex++] = anExceptionLabel;
+	exceptionHandlersCounter++;
+}
+public void removeExceptionHandler(ExceptionLabel exceptionLabel) {
+	for (int i = 0; i < exceptionHandlersIndex; i++) {
+		if (exceptionHandlers[i] == exceptionLabel) {
+			exceptionHandlers[i] = null;
+			exceptionHandlersCounter--;
+			return;
+		}
+	}
 }
 public final void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization

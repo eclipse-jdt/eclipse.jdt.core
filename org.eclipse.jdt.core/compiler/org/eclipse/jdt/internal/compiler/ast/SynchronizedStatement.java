@@ -71,7 +71,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-
+	
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
@@ -82,7 +82,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			this.anyExceptionLabelsCount = 0;
 		}
 		int pc = codeStream.position;
-
+	
 		// generate the synchronization expression
 		expression.generateCode(scope, codeStream, true);
 		if (block.isEmptyBlock()) {
@@ -99,7 +99,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			// enter the monitor
 			codeStream.store(synchroVariable, true);
 			codeStream.monitorenter();
-
+	
 			// generate  the body of the synchronized block
 			this.enterAnyExceptionHandler(codeStream);
 			block.generateCode(scope, codeStream);
@@ -107,16 +107,14 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			if (!blockExit) {
 				codeStream.load(synchroVariable);
 				codeStream.monitorexit();
-				this.exitAnyExceptionHandler();				
 				codeStream.goto_(endLabel);
-				this.enterAnyExceptionHandler(codeStream);
 			}
 			// generate the body of the exception handler
+			this.exitAnyExceptionHandler();
 			this.placeAllAnyExceptionHandlers();
 			codeStream.incrStackSize(1);
 			codeStream.load(synchroVariable);
 			codeStream.monitorexit();
-			this.exitAnyExceptionHandler();
 			codeStream.athrow();
 			if (!blockExit) {
 				endLabel.place();
