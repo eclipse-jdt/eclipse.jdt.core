@@ -1686,7 +1686,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name", "test0063.X<T extends java.lang.Object>", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name", "test0063.X<T>", typeBinding.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Wrong node", ASTNode.RETURN_STATEMENT, node.getNodeType());
 		ReturnStatement returnStatement = (ReturnStatement) node;
