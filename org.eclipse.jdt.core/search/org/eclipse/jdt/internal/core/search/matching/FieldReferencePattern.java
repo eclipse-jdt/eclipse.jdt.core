@@ -79,7 +79,7 @@ public FieldReferencePattern(
 	this.readAccess = readAccess;
 	this.writeAccess = writeAccess;
 
-	this.needsResolve = this.needsResolve();
+	this.needsResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
 /**
  * Either decode ref/name, fieldRef/name 
@@ -266,20 +266,6 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 			element, 
 			accuracy);
 	}
-}
-/**
- * Returns whether a field reference or name reference will need to be resolved to 
- * find out if this method pattern matches it.
- */
-private boolean needsResolve() {
-
-	// declaring type
-	if (declaringSimpleName != null || declaringQualification != null) return true;
-
-	// return type
-	if (typeSimpleName != null || typeQualification != null) return true;
-
-	return false;
 }
 /**
  * @see AndPattern#resetQuery

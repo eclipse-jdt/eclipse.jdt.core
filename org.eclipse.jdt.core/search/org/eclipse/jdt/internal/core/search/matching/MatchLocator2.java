@@ -961,7 +961,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			matchingNodeSet.cuHasBeenResolved = this.compilationAborted;
 			matchingNodeSet.reportMatching(unit);
 
-			if ((this.pattern.needsResolve || matchingNodeSet.needsResolve()) 
+			if ((this.pattern.needsResolve || matchingNodeSet.needsResolve()/* TODO: do not need this check any longer */) 
 					&& unit.types != null 
 					&& !this.compilationAborted) {
 				// fault in fields & methods

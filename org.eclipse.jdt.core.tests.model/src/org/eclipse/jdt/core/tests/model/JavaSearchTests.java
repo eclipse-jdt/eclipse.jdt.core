@@ -220,6 +220,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testSimpleTypeReference"));
 	suite.addTest(new JavaSearchTests("testTypeReference1"));
 	suite.addTest(new JavaSearchTests("testTypeReference2"));
+	suite.addTest(new JavaSearchTests("testTypeReference3"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceInInitializer"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceAsSingleNameReference"));
 	suite.addTest(new JavaSearchTests("testMemberTypeReference"));
@@ -1319,8 +1320,8 @@ public void testMemberTypeReference() throws JavaModelException, CoreException {
 		resultCollector);
 	assertEquals(
 		"References to type BMember",
-		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz$AzzMember [BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz.poo() -> void [B.BMember] EXACT_MATCH\n" +
+		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz$AzzMember [BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [Azz.AzzMember.BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/B.java MemberTypeReference.B.foo() -> void [Azz.AzzMember.BMember] EXACT_MATCH",
 		resultCollector.toString());
@@ -2422,6 +2423,24 @@ public void testTypeReference2() throws JavaModelException, CoreException {
 		"src/d7/A.java d7.A.A [A]\n" +
 		"src/d7/A.java d7.A.A(A) -> A [A]\n" +
 		"src/d7/A.java d7.A.A(A) -> A [A]",
+		resultCollector.toString());
+}
+/**
+ * Type reference test.
+ * (Regression test for bug 31985 NPE searching non-qualified and case insensitive type ref)
+ */
+public void testTypeReference3() throws JavaModelException, CoreException {
+	ISearchPattern pattern = SearchEngine.createSearchPattern("x31985", TYPE, REFERENCES, false);
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showAccuracy = true;
+	new SearchEngine().search(
+		getWorkspace(), 
+		pattern,
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/e3/X31985.java e3.X31985.CONSTANT [X31985] EXACT_MATCH\n" +
+		"src/e3/Y31985.java e3.Y31985.foo() -> Object [X31985] EXACT_MATCH",
 		resultCollector.toString());
 }
 /**

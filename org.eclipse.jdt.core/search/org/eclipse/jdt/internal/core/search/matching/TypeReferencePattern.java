@@ -69,7 +69,7 @@ public TypeReferencePattern(
 		this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
 	}
 	
-	this.needsResolve = qualification != null;
+	this.needsResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
 /**
  * Either decode ref/name, typeRef/name or superRef/superName/name
