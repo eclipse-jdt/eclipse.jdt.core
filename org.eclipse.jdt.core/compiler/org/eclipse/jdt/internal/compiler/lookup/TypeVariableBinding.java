@@ -122,7 +122,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 		for (int i = 0; i < interfaceLength; i++) {
 		    sig.append(':').append(this.superInterfaces[i].genericTypeSignature());
 		}
-		return sig.toString().toCharArray();
+		int sigLength = sig.length();
+		char[] genericSignature = new char[sigLength];
+		sig.getChars(0, sigLength, genericSignature, 0);					
+		return genericSignature;
 	}
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;

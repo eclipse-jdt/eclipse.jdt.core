@@ -100,7 +100,9 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 	        nameBuffer.append(typeVars[i].readableName());
 	    }
 	    nameBuffer.append('>');
-	    readableName = nameBuffer.toString().toCharArray();
+	    int nameLength = nameBuffer.length();
+		readableName = new char[nameLength];
+		nameBuffer.getChars(0, nameLength, readableName, 0);
 	}
 	return readableName;
 }
@@ -126,7 +128,9 @@ public char[] shortReadableName() /*Object*/ {
 	        nameBuffer.append(typeVars[i].shortReadableName());
 	    }
 	    nameBuffer.append('>');
-	    shortReadableName = nameBuffer.toString().toCharArray();
+		int nameLength = nameBuffer.length();
+		shortReadableName = new char[nameLength];
+		nameBuffer.getChars(0, nameLength, shortReadableName, 0);	    
 	}
 	return shortReadableName;
 }

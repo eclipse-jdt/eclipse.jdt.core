@@ -83,6 +83,7 @@ public int dimensions() {
 }
 /**
  * @return char[][]
+ * TODO (jerome) should merge back into #getTypeName()
  */
 public char [][] getParameterizedTypeName(){
 	return getTypeName();

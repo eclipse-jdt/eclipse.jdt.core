@@ -159,7 +159,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			    sig.append('>'); //$NON-NLS-1$
 			}
 			sig.append(';');
-			this.genericTypeSignature = sig.toString().toCharArray();
+			int sigLength = sig.length();
+			this.genericTypeSignature = new char[sigLength];
+			sig.getChars(0, sigLength, this.genericTypeSignature, 0);			
 	    }
 		return this.genericTypeSignature;	    
 	}	
@@ -467,7 +469,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    }
 		    nameBuffer.append('>');
 		}
-	    return nameBuffer.toString().toCharArray();
+		int nameLength = nameBuffer.length();
+		char[] readableName = new char[nameLength];
+		nameBuffer.getChars(0, nameLength, readableName, 0);		
+	    return readableName;
 	}
 
 	ReferenceBinding resolve() {
@@ -515,7 +520,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    }
 		    nameBuffer.append('>');
 		}
-	    return nameBuffer.toString().toCharArray();
+		int nameLength = nameBuffer.length();
+		char[] shortReadableName = new char[nameLength];
+		nameBuffer.getChars(0, nameLength, shortReadableName, 0);	    
+	    return shortReadableName;
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()

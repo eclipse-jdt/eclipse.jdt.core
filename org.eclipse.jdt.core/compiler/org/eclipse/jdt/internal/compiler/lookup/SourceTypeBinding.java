@@ -417,7 +417,9 @@ public char[] genericTypeSignature() {
 		        sig.append(this.typeVariables[i].genericTypeSignature());
 		    }
 		    sig.append(">;"); //$NON-NLS-1$
-			this.genericReferenceTypeSignature = sig.toString().toCharArray();
+			int sigLength = sig.length();
+			this.genericReferenceTypeSignature = new char[sigLength];
+			sig.getChars(0, sigLength, this.genericReferenceTypeSignature, 0);		    
 	    }
     }
     return this.genericReferenceTypeSignature;

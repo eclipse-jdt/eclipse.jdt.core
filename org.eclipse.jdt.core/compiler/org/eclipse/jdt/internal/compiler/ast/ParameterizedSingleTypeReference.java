@@ -47,7 +47,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			buffer.append(CharOperation.concatWith(this.typeArguments[i].getParameterizedTypeName(), '.'));
 		}
 		buffer.append('>');
-		return new char[][]{ buffer.toString().toCharArray() };
+		int nameLength = buffer.length();
+		char[] name = new char[nameLength];
+		buffer.getChars(0, nameLength, name, 0);
+		return new char[][]{ name };
 	}	
 	/**
      * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)

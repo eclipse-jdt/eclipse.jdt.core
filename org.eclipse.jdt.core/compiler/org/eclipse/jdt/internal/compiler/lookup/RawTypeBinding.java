@@ -49,7 +49,9 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 			    char[] typeSig = this.enclosingType().genericTypeSignature();
 			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 			    sig.append('.').append(this.sourceName()).append(';');
-				this.genericTypeSignature = sig.toString().toCharArray();
+				int sigLength = sig.length();
+				this.genericTypeSignature = new char[sigLength];
+				sig.getChars(0, sigLength, this.genericTypeSignature, 0);						    
 			} else {
 			     this.genericTypeSignature = this.type.signature(); // erasure
 			}

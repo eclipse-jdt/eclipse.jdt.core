@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -40,6 +41,32 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		//warning : the new type ref has a null binding
 		this.dimensions = dim;
 		return this;
+	}	
+	
+	/**
+	 * @return char[][]
+	 */
+	public char [][] getParameterizedTypeName(){
+		int length = this.tokens.length;
+		char[][] qParamName = new char[length][];
+		for (int i = 0; i < length; i++) {
+			StringBuffer buffer = new StringBuffer(5);
+			if (i > 0) buffer.append('.');
+			buffer.append(this.tokens[i]);
+			TypeReference[] arguments = this.typeArguments[i];
+			if (arguments != null) {
+				buffer.append('<');
+				for (int j = 0, argLength =arguments.length; j < argLength; j++) {
+					if (j > 0) buffer.append(',');
+					buffer.append(CharOperation.concatWith(arguments[j].getParameterizedTypeName(), '.'));
+				}
+				buffer.append('>');
+			}
+			int nameLength = buffer.length();
+			qParamName[i] = new char[nameLength];
+			buffer.getChars(0, nameLength, qParamName[i], 0);			
+		}
+		return qParamName;
 	}	
 	
 	/* (non-Javadoc)

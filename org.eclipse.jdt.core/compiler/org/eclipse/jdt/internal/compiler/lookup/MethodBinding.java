@@ -270,7 +270,10 @@ public char[] genericSignature() {
 			break;
 		}
 	}
-	return sig.toString().toCharArray();
+	int sigLength = sig.length();
+	char[] genericSignature = new char[sigLength];
+	sig.getChars(0, sigLength, genericSignature, 0);	
+	return genericSignature;
 }
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
@@ -486,7 +489,10 @@ public char[] shortReadableName() {
 		}
 	}
 	buffer.append(')');
-	return buffer.toString().toCharArray();
+	int nameLength = buffer.length();
+	char[] shortReadableName = new char[nameLength];
+	buffer.getChars(0, nameLength, shortReadableName, 0);	    
+	return shortReadableName;
 }
 
 protected final void setSelector(char[] selector) {
@@ -541,7 +547,11 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 	}
 	buffer.append(')');
 	buffer.append(returnType.signature());
-	return signature = buffer.toString().toCharArray();
+	int nameLength = buffer.length();
+	signature = new char[nameLength];
+	buffer.getChars(0, nameLength, signature, 0);	    
+	
+	return signature;
 }
 public final int sourceEnd() {
 	AbstractMethodDeclaration method = sourceMethod();

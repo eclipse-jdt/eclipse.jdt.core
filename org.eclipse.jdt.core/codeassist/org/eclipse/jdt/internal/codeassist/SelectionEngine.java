@@ -402,8 +402,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			actualSelectionStart = lastIdentifierStart;
 			actualSelectionEnd = lastIdentifierEnd;
 			selectedIdentifier = lastIdentifier;
-			if (identCount > 1)
-				qualifiedSelection = entireSelection.toString().toCharArray();
+			if (identCount > 1) {
+				int entireSelectionLength = entireSelection.length();
+				qualifiedSelection = new char[entireSelectionLength];
+				entireSelection.getChars(0, entireSelectionLength, qualifiedSelection, 0);
+			}
 			return true;
 		}
 		return false;
