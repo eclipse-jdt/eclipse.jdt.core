@@ -48,6 +48,7 @@ public abstract class ClasspathContainerInitializer {
      * Creates a new classpath container initializer.
      */
     public ClasspathContainerInitializer() {
+    	// a classpath container initializer must have a public 0-argument constructor
     }
 
     /**

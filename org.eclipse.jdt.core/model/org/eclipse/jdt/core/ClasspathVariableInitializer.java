@@ -29,6 +29,7 @@ public abstract class ClasspathVariableInitializer {
      * Creates a new classpath variable initializer.
      */
     public ClasspathVariableInitializer() {
+    	// a classpath variable initializer must have a public 0-argument constructor
     }
 
     /**

@@ -110,6 +110,7 @@ public class Util {
 								output.append(argMessage);
 								done = true;
 							} catch (MissingResourceException e) {
+								// unable to bind argument, ignore (will leave argument in)
 							}
 						}
 						if (!done) output.append(message.substring(end + 1, start + 1));

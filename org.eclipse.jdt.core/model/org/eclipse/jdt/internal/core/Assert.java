@@ -91,8 +91,6 @@ public static boolean isTrue(boolean expression, String message) {
 }
 
 	public static class AssertionFailedException extends RuntimeException {
-		public AssertionFailedException() {
-		}
 		public AssertionFailedException(String detail) {
 			super(detail);
 		}
