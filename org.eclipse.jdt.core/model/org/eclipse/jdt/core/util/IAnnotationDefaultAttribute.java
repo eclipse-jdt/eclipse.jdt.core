@@ -16,7 +16,7 @@ package org.eclipse.jdt.core.util;
  * 
  * This interface may be implemented by clients.
  *  
- * @since 3.1
+ * @since 3.0
  */
 public interface IAnnotationDefaultAttribute extends IClassFileAttribute {
 	

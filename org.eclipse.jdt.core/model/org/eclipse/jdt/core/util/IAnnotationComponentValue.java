@@ -77,6 +77,7 @@ public interface IAnnotationComponentValue {
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant
+	 * @since 3.1
 	 */
 	IConstantPoolEntry getEnumConstantName();	
 	
@@ -85,6 +86,7 @@ public interface IAnnotationComponentValue {
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant index
+	 * @since 3.1
 	 */
 	int getEnumConstantNameIndex();
 
@@ -95,6 +97,7 @@ public interface IAnnotationComponentValue {
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant
+	 * @since 3.1
 	 */
 	IConstantPoolEntry getEnumConstantTypeName();	
 	
@@ -103,6 +106,7 @@ public interface IAnnotationComponentValue {
 	 * This is initialized only of the tag item is 'e'.
 	 * 
 	 * @return the enum constant index
+	 * @since 3.1
 	 */
 	int getEnumConstantTypeNameIndex();
 
