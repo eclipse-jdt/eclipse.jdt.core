@@ -794,7 +794,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
 		}		
 		// get encoding through resource plugin
-		defaultOptions.put(CORE_ENCODING, ""/*ResourcesPlugin.getEncoding()*/); //$NON-NLS-1$
+		defaultOptions.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); //$NON-NLS-1$
 		
 		return defaultOptions;
 	}
@@ -855,7 +855,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			options.put(propertyName, preferences.getString(propertyName));
 		}		
 		// get encoding through resource plugin
-		options.put(CORE_ENCODING, ""/*ResourcesPlugin.getEncoding()*/); //$NON-NLS-1$
+		options.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); //$NON-NLS-1$
 		
 		return options;
 	}
@@ -1778,7 +1778,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Enumeration keys = newOptions.keys();
 		while (keys.hasMoreElements()){
 			String key = (String)keys.nextElement();
-			//if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+			if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
 			String value = (String)newOptions.get(key);
 			preferences.setValue(key, value);
 		}
