@@ -83,32 +83,20 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 				MethodBinding[] methods = binding.methods();
 				for (int i = 0, l = methods.length; i < l; i++) {
 					MethodBinding method = methods[i];
-					int level = pattern.matchLevel(method);
-					if (level >= SearchPattern.POTENTIAL_MATCH) {
+					if (locator.patternLocator.resolveLevel(method) == PatternLocator.ACCURATE_MATCH) {
 						IMethod methodHandle = binaryType.getMethod(
 							new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
 							CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.signature()))));
-						locator.reportBinaryMatch(
-							methodHandle, 
-							info, 
-							level == SearchPattern.ACCURATE_MATCH
-								? IJavaSearchResultCollector.EXACT_MATCH
-								: IJavaSearchResultCollector.POTENTIAL_MATCH);
+						locator.reportBinaryMatch(methodHandle, info, IJavaSearchResultCollector.EXACT_MATCH);
 					}
 				}
 
 				FieldBinding[] fields = binding.fields();
 				for (int i = 0, l = fields.length; i < l; i++) {
 					FieldBinding field = fields[i];
-					int level = pattern.matchLevel(field);
-					if (level >= SearchPattern.POTENTIAL_MATCH) {
+					if (locator.patternLocator.resolveLevel(field) == PatternLocator.ACCURATE_MATCH) {
 						IField fieldHandle = binaryType.getField(new String(field.name));
-						locator.reportBinaryMatch(
-							fieldHandle, 
-							info, 
-							level == SearchPattern.ACCURATE_MATCH
-								? IJavaSearchResultCollector.EXACT_MATCH
-								: IJavaSearchResultCollector.POTENTIAL_MATCH);
+						locator.reportBinaryMatch(fieldHandle, info, IJavaSearchResultCollector.EXACT_MATCH);
 					}
 				}
 

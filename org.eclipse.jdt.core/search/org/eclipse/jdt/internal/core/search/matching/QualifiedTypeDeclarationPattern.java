@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 
 public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern {
@@ -95,28 +93,6 @@ protected boolean matchIndexEntry() {
 		}
 	}
 	return true;
-}
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-public int matchLevel(Binding binding) {
-	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof TypeBinding)) return IMPOSSIBLE_MATCH;
-
-	TypeBinding type = (TypeBinding) binding;
-
-	switch (this.classOrInterface) {
-		case CLASS_SUFFIX:
-			if (type.isInterface()) return IMPOSSIBLE_MATCH;
-			break;
-		case INTERFACE_SUFFIX:
-			if (!type.isInterface()) return IMPOSSIBLE_MATCH;
-			break;
-		case TYPE_SUFFIX: // nothing
-	}
-
-	// fully qualified name
-	return matchLevelForType(this.simpleName, this.qualification, type);
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);

@@ -16,9 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
@@ -36,18 +34,6 @@ public boolean mustResolve = true;
 
 /* focus element (used for reference patterns*/
 public IJavaElement focus;
-
-/* match level */
-public static final int IMPOSSIBLE_MATCH = 0;
-public static final int INACCURATE_MATCH = 1;
-public static final int POTENTIAL_MATCH = 2;
-public static final int ACCURATE_MATCH = 3;
-
-/* match container */
-public static final int COMPILATION_UNIT = 1;
-public static final int CLASS = 2;
-public static final int METHOD = 4;
-public static final int FIELD = 8;
 
 /**
  * Constructor pattern are formed by [declaringQualification.]type[(parameterTypes)]
@@ -1143,28 +1129,6 @@ public boolean isPolymorphicSearch() {
 	return false;
 }
 /**
- * Check if the given ast node syntactically matches this pattern.
- * If it does, add it to the match set.
- */
-protected void matchCheck(AstNode node, MatchingNodeSet set) {
-	int matchLevel = this.matchLevel(node, false);
-	switch (matchLevel) {
-		case SearchPattern.POTENTIAL_MATCH:
-			set.addPossibleMatch(node);
-			break;
-		case SearchPattern.ACCURATE_MATCH:
-			set.addTrustedMatch(node);
-	}
-}
-/**
- * Returns the type(s) of container for this pattern.
- * It is a bit combination of types, denoting compilation unit, class declarations, field declarations or method declarations.
- */
-protected int matchContainer() {
-	// override with the container for the pattern
-	return 0;
-}
-/**
  * Returns whether the given name matches the given pattern.
  */
 protected boolean matchesName(char[] pattern, char[] name) {
@@ -1184,120 +1148,11 @@ protected boolean matchesName(char[] pattern, char[] name) {
 	return false;
 }
 /**
- * Returns whether the given type reference matches the given pattern.
- */
-protected boolean matchesTypeReference(char[] pattern, TypeReference type) {
-	if (pattern == null) return true; // null is as if it was "*"
-
-	char[][] compoundName = type.getTypeName();
-	char[] simpleName = compoundName[compoundName.length - 1];
-	int dimensions = type.dimensions() * 2;
-	if (dimensions > 0) {
-		int length = simpleName.length;
-		char[] result = new char[length + dimensions];
-		System.arraycopy(simpleName, 0, result, 0, length);
-		for (int i = length, l = result.length; i < l;) {
-			result[i++] = '[';
-			result[i++] = ']';
-		}
-		simpleName = result;
-	}
-
-	return matchesName(pattern, simpleName);
-}
-/**
  * Checks whether an entry matches the current search pattern
  */
 protected boolean matchIndexEntry() {
 	// override if the pattern can match the index entry
 	return false;
-}
-/**
- * Finds out whether the given ast node matches this search pattern.
- * Returns IMPOSSIBLE_MATCH if it doesn't.
- * Returns POSSIBLE_MATCH if it potentially matches this search pattern 
- * and it has not been reolved, and it needs to be resolved to get more information.
- * Returns ACCURATE_MATCH if it matches exactly this search pattern (ie. 
- * it doesn't need to be resolved or it has already been resolved.)
- * Returns INACCURATE_MATCH if it potentially exactly this search pattern (ie. 
- * it has already been resolved but resolving failed.)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	// override if the pattern can match the node
-	return IMPOSSIBLE_MATCH;
-}
-/**
- * Finds out whether the given binding matches this search pattern.
- * Returns ACCURATE_MATCH if it does.
- * Returns INACCURATE_MATCH if resolve failed but match is still possible.
- * Retunrs IMPOSSIBLE_MATCH otherwise.
- * Default is to return INACCURATE_MATCH.
- */
-public int matchLevel(Binding binding) {
-	// override if the pattern can match the binding
-	return INACCURATE_MATCH;
-}
-/**
- * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
- */
-protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
-	int level = matchLevel(binding);
-	if (level >= SearchPattern.INACCURATE_MATCH) {
-		matchReportImportRef(
-			importRef, 
-			binding, 
-			locator.createImportHandle(importRef), 
-			level == SearchPattern.ACCURATE_MATCH
-				? IJavaSearchResultCollector.EXACT_MATCH
-				: IJavaSearchResultCollector.POTENTIAL_MATCH,
-			locator);
-	}
-}
-/**
- * Returns whether the given type binding matches the given simple name pattern 
- * and qualification pattern.
- * Returns ACCURATE_MATCH if it does.
- * Returns INACCURATE_MATCH if resolve failed.
- * Returns IMPOSSIBLE_MATCH if it doesn't.
- */
-protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
-	if (type == null) return INACCURATE_MATCH;
-
-	char[] qualifiedPackageName = type.qualifiedPackageName();
-	char[] qualifiedSourceName = type instanceof LocalTypeBinding
-			? CharOperation.concat("1".toCharArray(), type.qualifiedSourceName(), '.') //$NON-NLS-1$
-			: type.qualifiedSourceName();
-	char[] fullyQualifiedTypeName = qualifiedPackageName.length == 0
-		? qualifiedSourceName
-		: CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
-
-	// NOTE: if case insensitive search then simpleNamePattern & qualificationPattern are assumed to be lowercase
-	char[] pattern;
-	if (simpleNamePattern == null) {
-		if (qualificationPattern == null) return ACCURATE_MATCH;
-		pattern = CharOperation.concat(qualificationPattern, ONE_STAR, '.');
-	} else {
-		pattern = qualificationPattern == null
-			? CharOperation.concat(ONE_STAR, simpleNamePattern)
-			: CharOperation.concat(qualificationPattern, simpleNamePattern, '.');
-	}
-	return CharOperation.match(pattern, fullyQualifiedTypeName, this.isCaseSensitive)
-		? ACCURATE_MATCH
-		: IMPOSSIBLE_MATCH;
-}
-/**
- * Report the match of the given import reference
- */
-protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	// default is to report a match as a regular ref.
-	this.matchReportReference(importRef, element, accuracy, locator);
-}
-/**
- * Reports the match of the given reference.
- */
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	// default is to report a match on the whole node.
-	locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
 }
 public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$

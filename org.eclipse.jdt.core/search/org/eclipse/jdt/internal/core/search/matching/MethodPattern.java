@@ -16,8 +16,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
@@ -174,24 +172,6 @@ public boolean isPolymorphicSearch() {
 	return this.findReferences;
 }
 /**
- * Returns whether the code gen will use an invoke virtual for 
- * this message send or not.
- */
-protected boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend) {
-	return !method.isStatic() && !method.isPrivate() && !messageSend.isSuperAccess();
-}
-/**
- * @see SearchPattern#matchContainer()
- */
-protected int matchContainer() {
-	if (this.findReferences) {
-		if (this.findDeclarations)
-			return CLASS | METHOD | FIELD;
-		return METHOD | FIELD;
-	}
-	return CLASS;
-}
-/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -208,167 +188,6 @@ protected boolean matchIndexEntry() {
 		}
 	}
 	return true;
-}
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	if (resolve) {
-		if (this.findReferences && node instanceof MessageSend)
-			return matchLevel((MessageSend) node);
-		if (this.findDeclarations && node instanceof MethodDeclaration)
-			return matchLevel(((MethodDeclaration) node).binding);
-		return IMPOSSIBLE_MATCH;
-	}
-
-	char[] itsSelector = null;
-	AstNode[] args = null;
-	TypeReference methodReturnType = null;
-	boolean checkTypeReferences = false;
-	if (this.findDeclarations && node instanceof MethodDeclaration) {
-		MethodDeclaration method = (MethodDeclaration) node;
-		itsSelector = method.selector;
-		args = method.arguments;
-		methodReturnType = method.returnType;
-		checkTypeReferences = true;
-	} else if (this.findReferences && node instanceof MessageSend) {
-		MessageSend messageSend = (MessageSend) node;
-		itsSelector = messageSend.selector;
-		args = messageSend.arguments;
-	}
-
-	if (!matchesName(this.selector, itsSelector))
-		return IMPOSSIBLE_MATCH;
-	if (this.parameterSimpleNames != null) {
-		int length = this.parameterSimpleNames.length;
-		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return IMPOSSIBLE_MATCH;
-
-		if (checkTypeReferences)
-			for (int i = 0; i < argsLength; i++)
-				if (!matchesTypeReference(this.parameterSimpleNames[i], ((Argument) args[i]).type))
-					return IMPOSSIBLE_MATCH;
-	}
-	if (methodReturnType != null && !matchesTypeReference(this.returnSimpleName, methodReturnType))
-		return IMPOSSIBLE_MATCH;
-	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
-}
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-public int matchLevel(Binding binding) {
-	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof MethodBinding)) return IMPOSSIBLE_MATCH;
-
-	MethodBinding method = (MethodBinding) binding;
-	int methodLevel = matchMethod(method);
-	if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-
-	// declaring type
-	int declaringLevel = !method.isStatic() && !method.isPrivate()
-		? matchLevelAsSubtype(this.declaringSimpleName, this.declaringQualification, method.declaringClass)
-		: matchLevelForType(this.declaringSimpleName, this.declaringQualification, method.declaringClass);
-	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match
-}
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-protected int matchLevel(MessageSend messageSend) {
-	MethodBinding method = messageSend.binding;
-	if (method == null) return INACCURATE_MATCH;
-
-	int methodLevel = matchMethod(method);
-	if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-
-	// receiver type
-	int declaringLevel;
-	if (isVirtualInvoke(method, messageSend) && !(messageSend.receiverType instanceof ArrayBinding)) {
-		declaringLevel = matchLevelAsSubtype(this.declaringSimpleName, this.declaringQualification, method.declaringClass);
-		if (declaringLevel == IMPOSSIBLE_MATCH) {
-			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {
-				declaringLevel = INACCURATE_MATCH;
-			} else {
-				char[][] compoundName = method.declaringClass.compoundName;
-				for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++)
-					if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName))
-						return methodLevel; // since this is an ACCURATE_MATCH so return the possibly weaker match
-			}
-		}
-	} else {
-		declaringLevel = matchLevelForType(this.declaringSimpleName, this.declaringQualification, method.declaringClass);
-	}
-	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match
-}
-/**
- * Returns whether the given reference type binding matches or is a subtype of a type
- * that matches the given simple name pattern and qualification pattern.
- * Returns ACCURATE_MATCH if it does.
- * Returns INACCURATE_MATCH if resolve fails
- * Returns IMPOSSIBLE_MATCH if it doesn't.
- */
-protected int matchLevelAsSubtype(char[] simpleNamePattern, char[] qualificationPattern, ReferenceBinding type) {
-	if (type == null) return INACCURATE_MATCH;
-	
-	int level = matchLevelForType(simpleNamePattern, qualificationPattern, type);
-	if (level != IMPOSSIBLE_MATCH) return level;
-	
-	// matches superclass
-	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
-		level = matchLevelAsSubtype(simpleNamePattern, qualificationPattern, type.superclass());
-		if (level != IMPOSSIBLE_MATCH) return level;
-	}
-
-	// matches interfaces
-	ReferenceBinding[] interfaces = type.superInterfaces();
-	if (interfaces == null) return INACCURATE_MATCH;
-	for (int i = 0; i < interfaces.length; i++) {
-		level = matchLevelAsSubtype(simpleNamePattern, qualificationPattern, interfaces[i]);
-		if (level != IMPOSSIBLE_MATCH) return level;
-	}
-	return IMPOSSIBLE_MATCH;
-}
-protected int matchMethod(MethodBinding method) {
-	if (!matchesName(this.selector, method.selector)) return IMPOSSIBLE_MATCH;
-
-	int level = ACCURATE_MATCH;
-	// look at return type only if declaring type is not specified
-	if (this.declaringSimpleName == null) {
-		int newLevel = matchLevelForType(this.returnSimpleName, this.returnQualification, method.returnType);
-		if (level > newLevel) {
-			if (newLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-			level = newLevel; // can only be downgraded
-		}
-	}
-
-	// parameter types
-	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
-	if (parameterCount > -1) {
-		if (method.parameters == null) return INACCURATE_MATCH;
-		if (parameterCount != method.parameters.length) return IMPOSSIBLE_MATCH;
-		for (int i = 0; i < parameterCount; i++) {
-			int newLevel = matchLevelForType(this.parameterSimpleNames[i], this.parameterQualifications[i], method.parameters[i]);
-			if (level > newLevel) {
-				if (newLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-				level = newLevel; // can only be downgraded
-			}
-		}
-	}
-	return level;
-}
-/**
- * @see SearchPattern#matchReportReference
- */
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	if (this.findReferences && reference instanceof MessageSend) {
-		// message ref are starting at the selector start
-		locator.report(
-			(int) (((MessageSend) reference).nameSourcePosition >> 32),
-			reference.sourceEnd,
-			element,
-			accuracy);
-	} else {
-		super.matchReportReference(reference, element, accuracy, locator);
-	}
 }
 /**
  * Returns whether a method declaration or message send must be resolved to 
@@ -391,7 +210,7 @@ protected boolean mustResolve() {
 			if (parameterQualifications[i] != null) return true;
 	return false;
 }
-public String toString(){
+public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
 	if (this.findDeclarations) {
 		buffer.append(this.findReferences

@@ -12,13 +12,8 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.IInfoConstants;
@@ -50,19 +45,6 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	else
 		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 }
-protected SearchPattern findClosestPattern(AstNode reference, boolean resolve) {
-	SearchPattern closestPattern = null;
-	int level = IMPOSSIBLE_MATCH;
-	for (int i = 0, length = this.patterns.length; i < length; i++) {
-		int newLevel = this.patterns[i].matchLevel(reference, resolve);
-		if (newLevel > level) {
-			if (newLevel == ACCURATE_MATCH) return this.patterns[i];
-			closestPattern = this.patterns[i];
-			level = newLevel;
-		}
-	}
-	return closestPattern;
-}
 /**
  * see SearchPattern.findMatches
  */
@@ -89,59 +71,6 @@ public boolean isPolymorphicSearch() {
 	for (int i = 0, length = this.patterns.length; i < length; i++)
 		if (this.patterns[i].isPolymorphicSearch()) return true;
 	return false;
-}
-/**
- * @see SearchPattern#matchContainer()
- */
-protected int matchContainer() {
-	int result = 0;
-	for (int i = 0, length = this.patterns.length; i < length; i++)
-		result |= this.patterns[i].matchContainer();
-	return result;
-}
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	int level = IMPOSSIBLE_MATCH;
-	for (int i = 0, length = this.patterns.length; i < length; i++) {
-		int newLevel = this.patterns[i].matchLevel(node, resolve);
-		if (newLevel > level) {
-			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
-			level = newLevel; // want to answer the stronger match
-		}
-	}
-	return level;
-}
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-public int matchLevel(Binding binding) {
-	int level = IMPOSSIBLE_MATCH;
-	for (int i = 0, length = this.patterns.length; i < length; i++) {
-		int newLevel = this.patterns[i].matchLevel(binding);
-		if (newLevel > level) {
-			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
-			level = newLevel; // want to answer the stronger match
-		}
-	}
-	return level;
-}
-/**
- * @see SearchPattern#matchLevelAndReportImportRef(ImportReference, Binding, MatchLocator)
- */
-protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
-	SearchPattern closestPattern = findClosestPattern(importRef, false);
-	if (closestPattern != null)
-		closestPattern.matchLevelAndReportImportRef(importRef, binding, locator);
-}
-/**
- * @see SearchPattern#matchReportReference
- */
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	SearchPattern closestPattern = findClosestPattern(reference, true);
-	if (closestPattern != null)
-		closestPattern.matchReportReference(reference, element, accuracy, locator);
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();

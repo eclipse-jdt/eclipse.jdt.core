@@ -18,8 +18,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.*;
@@ -234,12 +232,6 @@ protected char[] indexEntryPrefix() {
 	return indexEntryPrefix(SUPER_REF, this.superSimpleName);
 }
 /**
- * @see SearchPattern#matchContainer()
- */
-protected int matchContainer() {
-	return CLASS;
-}
-/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -257,59 +249,6 @@ protected boolean matchIndexEntry() {
 		}
 	}
 	return true;
-}
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	if (!(node instanceof TypeReference)) return IMPOSSIBLE_MATCH;
-
-	TypeReference typeRef = (TypeReference) node;
-	if (resolve) {
-		TypeBinding binding = typeRef.resolvedType;
-		if (binding == null) return INACCURATE_MATCH;
-		return matchLevelForType(this.superSimpleName, this.superQualification, binding);
-	}
-
-	if (this.superSimpleName == null)
-		return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
-
-	char[] typeRefSimpleName = null;
-	if (typeRef instanceof SingleTypeReference) {
-		typeRefSimpleName = ((SingleTypeReference) typeRef).token;
-	} else { // QualifiedTypeReference
-		char[][] tokens = ((QualifiedTypeReference) typeRef).tokens;
-		typeRefSimpleName = tokens[tokens.length-1];
-	}				
-
-	if (matchesName(this.superSimpleName, typeRefSimpleName))
-		return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
-	return IMPOSSIBLE_MATCH;
-}
-
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-public int matchLevel(Binding binding) {
-	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof ReferenceBinding)) return IMPOSSIBLE_MATCH;
-
-	ReferenceBinding type = (ReferenceBinding) binding;
-	int level = IMPOSSIBLE_MATCH;
-	if (!this.checkOnlySuperinterfaces) {
-		level = matchLevelForType(this.superSimpleName, this.superQualification, type.superclass());
-		if (level == ACCURATE_MATCH) return ACCURATE_MATCH;
-	}
-
-	ReferenceBinding[] superInterfaces = type.superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++) {
-		int newLevel = matchLevelForType(this.superSimpleName, this.superQualification, superInterfaces[i]);
-		if (newLevel > level) {
-			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
-			level = newLevel;
-		}
-	}
-	return level;
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);

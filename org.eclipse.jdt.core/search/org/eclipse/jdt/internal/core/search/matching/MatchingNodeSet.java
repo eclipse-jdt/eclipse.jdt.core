@@ -98,7 +98,16 @@ public class WrappedCoreException extends RuntimeException {
 
 public MatchingNodeSet(MatchLocator locator) {
 	this.locator = locator;
-	this.matchContainer = locator.pattern.matchContainer();
+	this.matchContainer = locator.patternLocator.matchContainer();
+}
+public void addMatch(AstNode node, int matchLevel) {
+	switch (matchLevel) {
+		case PatternLocator.POTENTIAL_MATCH:
+			addPossibleMatch(node);
+			break;
+		case PatternLocator.ACCURATE_MATCH:
+			addTrustedMatch(node);
+	}
 }
 public void addPossibleMatch(AstNode node) {
 	// remove existing node at same position from set
@@ -125,9 +134,6 @@ public void addTrustedMatch(AstNode node) {
 	// map node to its accuracy level
 	this.matchingNodes.put(node, EXACT_MATCH);
 	this.matchingNodesKeys.put(key, node);
-}
-public void checkMatching(AstNode node) {
-	this.locator.pattern.matchCheck(node, this);
 }
 private boolean hasPotentialNodes(int start, int end) {
 	Object[] nodes = this.potentialMatchingNodesSet.values;
@@ -238,7 +244,7 @@ private void reportMatching(AbstractMethodDeclaration method, IJavaElement paren
 			for (int i = 0, l = nodes.length; i < l; i++) {
 				AstNode node = nodes[i];
 				Integer level = (Integer) this.matchingNodes.removeKey(node);
-				if ((this.matchContainer & SearchPattern.METHOD) != 0)
+				if ((this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0)
 					this.locator.reportReference(node, method, parent, level.intValue());
 			}
 		}
@@ -263,12 +269,12 @@ public void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve)
 				Binding binding = importRef.onDemand
 					? unit.scope.getTypeOrPackage(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length))
 					: unit.scope.getTypeOrPackage(importRef.tokens);
-				this.locator.pattern.matchLevelAndReportImportRef(importRef, binding, this.locator);
+				this.locator.patternLocator.matchLevelAndReportImportRef(importRef, binding, this.locator);
 			} else {
-				int level = this.locator.pattern.matchLevel(node, true);
-				if (level == SearchPattern.ACCURATE_MATCH)
+				int level = this.locator.patternLocator.resolveLevel(node);
+				if (level == PatternLocator.ACCURATE_MATCH)
 					this.matchingNodes.put(node, EXACT_MATCH);
-				else if (level == SearchPattern.INACCURATE_MATCH)
+				else if (level == PatternLocator.INACCURATE_MATCH)
 					this.matchingNodes.put(node, POTENTIAL_MATCH);
 			}
 		}
@@ -277,9 +283,10 @@ public void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve)
 
 	if (this.matchingNodes.elementSize == 0) return; // no matching nodes were found
 
+	boolean searchInsideCompilationUnits = (this.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0;
 	ImportReference pkg = unit.currentPackage;
 	if (pkg != null && this.matchingNodes.removeKey(pkg) != null)
-		if ((this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0)
+		if (searchInsideCompilationUnits)
 			this.locator.reportPackageDeclaration(pkg);
 
 	ImportReference[] imports = unit.imports;
@@ -287,7 +294,7 @@ public void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve)
 		for (int i = 0, l = imports.length; i < l; i++) {
 			ImportReference importRef = imports[i];
 			Integer level = (Integer) this.matchingNodes.removeKey(importRef);
-			if (level != null && (this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0)
+			if (level != null && searchInsideCompilationUnits)
 				this.locator.reportImport(importRef, level.intValue());
 		}
 	}
@@ -298,7 +305,7 @@ public void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve)
 			if (this.matchingNodes.elementSize == 0) return; // reported all the matching nodes
 			TypeDeclaration type = types[i];
 			Integer level = (Integer) this.matchingNodes.removeKey(type);
-			if (level != null && (this.matchContainer & SearchPattern.COMPILATION_UNIT) != 0)
+			if (level != null && searchInsideCompilationUnits)
 				this.locator.reportTypeDeclaration(type, null, level.intValue());
 			reportMatching(type, null);
 		}
@@ -331,7 +338,7 @@ private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDec
 			for (int i = 0, l = nodes.length; i < l; i++) {
 				AstNode node = nodes[i];
 				Integer level = (Integer) this.matchingNodes.removeKey(node);
-				if ((this.matchContainer & SearchPattern.FIELD) != 0)
+				if ((this.matchContainer & PatternLocator.FIELD_CONTAINER) != 0)
 					this.locator.reportReference(node, type, field, parent, level.intValue());
 			}
 		}
@@ -355,18 +362,19 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 	}
 
 	// super types
+	boolean searchInsideTypes = (this.matchContainer & PatternLocator.CLASS_CONTAINER) != 0;
 	if (type instanceof AnonymousLocalTypeDeclaration) {
 		TypeReference superType = ((AnonymousLocalTypeDeclaration) type).allocation.type;
 		if (superType != null) {
 			Integer level = (Integer) this.matchingNodes.removeKey(superType);
-			if (level != null && (this.matchContainer & SearchPattern.CLASS) != 0)
+			if (level != null && searchInsideTypes)
 				this.locator.reportSuperTypeReference(superType, enclosingElement, level.intValue());
 		}
 	} else {
 		TypeReference superClass = type.superclass;
 		if (superClass != null) {
 			Integer level = (Integer) this.matchingNodes.removeKey(superClass);
-			if (level != null && (this.matchContainer & SearchPattern.CLASS) != 0)
+			if (level != null && searchInsideTypes)
 				this.locator.reportSuperTypeReference(superClass, enclosingElement, level.intValue());
 		}
 		TypeReference[] superInterfaces = type.superInterfaces;
@@ -374,7 +382,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 			for (int i = 0, l = superInterfaces.length; i < l; i++) {
 				TypeReference superInterface = superInterfaces[i];
 				Integer level = (Integer) this.matchingNodes.removeKey(superInterface);
-				if (level != null && (this.matchContainer & SearchPattern.CLASS) != 0)
+				if (level != null && searchInsideTypes)
 					this.locator.reportSuperTypeReference(superInterface, enclosingElement, level.intValue());
 			}
 		}
@@ -389,7 +397,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 		for (int i = 0, l = fields.length; i < l; i++) {
 			FieldDeclaration field = fields[i];
 			Integer level = (Integer) this.matchingNodes.removeKey(field);
-			if (level != null && typeInHierarchy && (this.matchContainer & SearchPattern.CLASS) != 0)
+			if (level != null && typeInHierarchy && searchInsideTypes)
 				this.locator.reportFieldDeclaration(field, enclosingElement, level.intValue());
 			reportMatching(field, enclosingElement, type, typeInHierarchy);
 		}
@@ -401,7 +409,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 		for (int i = 0, l = methods.length; i < l; i++) {
 			AbstractMethodDeclaration method = methods[i];
 			Integer level = (Integer) this.matchingNodes.removeKey(method);
-			if (level != null && typeInHierarchy && (this.matchContainer & SearchPattern.CLASS) != 0)
+			if (level != null && typeInHierarchy && searchInsideTypes)
 				this.locator.reportMethodDeclaration(method, enclosingElement, level.intValue());
 			reportMatching(method, enclosingElement, typeInHierarchy);
 		}
@@ -413,7 +421,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 			if (this.matchingNodes.elementSize == 0) return; // reported all the matching nodes
 			MemberTypeDeclaration memberType = memberTypes[i];
 			Integer level = (Integer) this.matchingNodes.removeKey(memberType);
-			if (level != null && typeInHierarchy && (this.matchContainer & SearchPattern.CLASS) != 0)
+			if (level != null && typeInHierarchy && searchInsideTypes)
 				this.locator.reportTypeDeclaration(memberType, enclosingElement, level.intValue());
 			reportMatching(memberType, enclosingElement);
 		}

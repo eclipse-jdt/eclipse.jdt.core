@@ -14,9 +14,6 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
@@ -197,12 +194,6 @@ protected char[] indexEntryPrefix() {
 	return result;
 }
 /**
- * @see SearchPattern#matchContainer()
- */
-protected int matchContainer() {
-	return COMPILATION_UNIT | CLASS | METHOD | FIELD;
-}
-/**
  * see SearchPattern.matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -238,62 +229,6 @@ protected boolean matchIndexEntry() {
 		}
 	}
 	return true;
-}
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	if (!(node instanceof TypeDeclaration)) return IMPOSSIBLE_MATCH;
-
-	TypeDeclaration type = (TypeDeclaration) node;
-	if (resolve)
-		return matchLevel(type.binding);
-
-	if (this.simpleName != null && !matchesName(this.simpleName, type.name))
-		return IMPOSSIBLE_MATCH;
-	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
-}
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-public int matchLevel(Binding binding) {
-	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof TypeBinding)) return IMPOSSIBLE_MATCH;
-
-	TypeBinding type = (TypeBinding) binding;
-
-	switch (this.classOrInterface) {
-		case CLASS_SUFFIX:
-			if (type.isInterface()) return IMPOSSIBLE_MATCH;
-			break;
-		case INTERFACE_SUFFIX:
-			if (!type.isInterface()) return IMPOSSIBLE_MATCH;
-			break;
-		case TYPE_SUFFIX : // nothing
-	}
-
-	// fully qualified name
-	char[] enclosingTypeName = this.enclosingTypeNames == null ? null : CharOperation.concatWith(this.enclosingTypeNames, '.');
-	return matchLevelForType(this.simpleName, this.pkg, enclosingTypeName, type);
-}
-/**
- * Returns whether the given type binding matches the given simple name pattern 
- * qualification pattern and enclosing type name pattern.
- */
-protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPattern, char[] enclosingNamePattern, TypeBinding type) {
-	if (enclosingNamePattern == null)
-		return matchLevelForType(simpleNamePattern, qualificationPattern, type);
-	if (qualificationPattern == null)
-		return matchLevelForType(simpleNamePattern, enclosingNamePattern, type);
-
-	// case of an import reference while searching for ALL_OCCURENCES of a type (see bug 37166)
-	if (type instanceof ProblemReferenceBinding) return IMPOSSIBLE_MATCH;
-
-	// pattern was created from a Java element: qualification is the package name.
-	char[] fullQualificationPattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
-	if (CharOperation.equals(this.pkg, CharOperation.concatWith(type.getPackage().compoundName, '.')))
-		return matchLevelForType(simpleNamePattern, fullQualificationPattern, type);
-	return IMPOSSIBLE_MATCH;
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);

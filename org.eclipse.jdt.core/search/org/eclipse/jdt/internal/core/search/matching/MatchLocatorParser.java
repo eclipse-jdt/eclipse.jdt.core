@@ -21,7 +21,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 public class MatchLocatorParser extends Parser {
 
-public MatchingNodeSet matchSet;
+private MatchingNodeSet matchSet;
+private PatternLocator patternLocator;
 private AbstractSyntaxTreeVisitorAdapter localDeclarationVisitor;
 private int matchContainer;
 
@@ -40,47 +41,47 @@ public class NoClassNoMethodDeclarationVisitor extends AbstractSyntaxTreeVisitor
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 		return (methodDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
-	}	
+	}
 }
 public class MethodButNoClassDeclarationVisitor extends NoClassNoMethodDeclarationVisitor {
 	public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope) {
-		matchSet.checkMatching(anonymousTypeDeclaration);
+		patternLocator.match(anonymousTypeDeclaration, matchSet);
 		return true; 
 	}
 	public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
-		matchSet.checkMatching(localTypeDeclaration);
+		patternLocator.match(localTypeDeclaration, matchSet);
 		return true;
 	}
 }
 public class ClassButNoMethodDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
-		matchSet.checkMatching(constructorDeclaration);
+		patternLocator.match(constructorDeclaration, matchSet);
 		return (constructorDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-		matchSet.checkMatching(fieldDeclaration);
+		patternLocator.match(fieldDeclaration, matchSet);
 		return (fieldDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
 	}
 	public boolean visit(Initializer initializer, MethodScope scope) {
-		matchSet.checkMatching(initializer);
+		patternLocator.match(initializer, matchSet);
 		return (initializer.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
 	public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope) {
-		matchSet.checkMatching(memberTypeDeclaration);
+		patternLocator.match(memberTypeDeclaration, matchSet);
 		return true;
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-		matchSet.checkMatching(methodDeclaration);
+		patternLocator.match(methodDeclaration, matchSet);
 		return (methodDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
-	}	
+	}
 }
 public class ClassAndMethodDeclarationVisitor extends ClassButNoMethodDeclarationVisitor {
 	public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope scope) {
-		matchSet.checkMatching(anonymousTypeDeclaration);
+		patternLocator.match(anonymousTypeDeclaration, matchSet);
 		return true; 
 	}
 	public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
-		matchSet.checkMatching(localTypeDeclaration);
+		patternLocator.match(localTypeDeclaration, matchSet);
 		return true;
 	}
 }
@@ -90,31 +91,35 @@ public MatchLocatorParser(ProblemReporter problemReporter) {
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumeAssignment() {
 	super.consumeAssignment();
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
-	this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	this.patternLocator.match(this.astStack[this.astPtr], this.matchSet);
 }
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	super.consumeFieldAccess(isSuperAccess);
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	Expression node = this.expressionStack[this.expressionPtr];
+	if (node instanceof Reference) // should always be a FieldReference, but play it safe
+		this.patternLocator.match((Reference) node, this.matchSet);
+	else
+		this.patternLocator.match(node, this.matchSet);
 }
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumeMethodInvocationPrimary() {
 	super.consumeMethodInvocationPrimary();
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumeMethodInvocationSuper() {
 	super.consumeMethodInvocationSuper();
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected void consumePrimaryNoNewArray() {
 	// pop parenthesis positions (and don't update expression positions
@@ -124,15 +129,15 @@ protected void consumePrimaryNoNewArray() {
 }
 protected void consumeSingleTypeImportDeclarationName() {
 	super.consumeSingleTypeImportDeclarationName();
-	this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	this.patternLocator.match(this.astStack[this.astPtr], this.matchSet);
 }
 protected void consumeTypeImportOnDemandDeclarationName() {
 	super.consumeTypeImportOnDemandDeclarationName();
-	this.matchSet.checkMatching(this.astStack[this.astPtr]);
+	this.patternLocator.match(this.astStack[this.astPtr], this.matchSet);
 }
 protected void consumeUnaryExpression(int op, boolean post) {
 	super.consumeUnaryExpression(op, post);
-	this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.matchSet);
 }
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	TypeReference result = super.copyDims(typeRef, dim);
@@ -144,17 +149,17 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 }
 protected TypeReference getTypeReference(int dim) {
 	TypeReference typeRef = super.getTypeReference(dim);
-	this.matchSet.checkMatching(typeRef); // NB: Don't check container since type reference can happen anywhere
+	this.patternLocator.match(typeRef, this.matchSet); // NB: Don't check container since type reference can happen anywhere
 	return typeRef;
 }
 protected NameReference getUnspecifiedReference() {
 	NameReference nameRef = super.getUnspecifiedReference();
-	this.matchSet.checkMatching(nameRef); // NB: Don't check container since unspecified reference can happen anywhere
+	this.patternLocator.match(nameRef, this.matchSet); // NB: Don't check container since unspecified reference can happen anywhere
 	return nameRef;
 }
 protected NameReference getUnspecifiedReferenceOptimized() {
 	NameReference nameRef = super.getUnspecifiedReferenceOptimized();
-	this.matchSet.checkMatching(nameRef); // NB: Don't check container since unspecified reference can happen anywhere
+	this.patternLocator.match(nameRef, this.matchSet); // NB: Don't check container since unspecified reference can happen anywhere
 	return nameRef;
 }
 /**
@@ -166,12 +171,12 @@ public void parseBodies(CompilationUnitDeclaration unit) {
 
 	if (this.matchContainer != this.matchSet.matchContainer || this.localDeclarationVisitor == null) {
 		this.matchContainer = this.matchSet.matchContainer;
-		if ((this.matchContainer & SearchPattern.CLASS) != 0) {
-			this.localDeclarationVisitor = (this.matchContainer & SearchPattern.METHOD) != 0
+		if ((this.matchContainer & PatternLocator.CLASS_CONTAINER) != 0) {
+			this.localDeclarationVisitor = (this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0
 				? new ClassAndMethodDeclarationVisitor()
 				: new ClassButNoMethodDeclarationVisitor();
 		} else {
-			this.localDeclarationVisitor = (this.matchContainer & SearchPattern.METHOD) != 0
+			this.localDeclarationVisitor = (this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0
 				? new MethodButNoClassDeclarationVisitor()
 				: new NoClassNoMethodDeclarationVisitor();
 		}
@@ -179,7 +184,7 @@ public void parseBodies(CompilationUnitDeclaration unit) {
 
 	for (int i = 0; i < types.length; i++) {
 		TypeDeclaration type = types[i];
-		this.matchSet.checkMatching(type);
+		this.patternLocator.match(type, this.matchSet);
 		this.parseBodies(type, unit);
 	}
 }
@@ -196,7 +201,7 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 			field.traverse(localDeclarationVisitor, null);
 		}
 	}
-	
+
 	AbstractMethodDeclaration[] methods = type.methods;
 	if (methods != null) {
 		for (int i = 0; i < methods.length; i++) {
@@ -224,6 +229,15 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 			this.parseBodies(memberType, unit);
 			memberType.traverse(localDeclarationVisitor, (ClassScope) null);
 		}
+	}
+}
+public void setMatchSet(MatchingNodeSet nodeSet) {
+	if (nodeSet == null) {
+		this.matchSet = null;
+		this.patternLocator = null;
+	} else {
+		this.matchSet = nodeSet;
+		this.patternLocator = this.matchSet.locator.patternLocator;
 	}
 }
 }

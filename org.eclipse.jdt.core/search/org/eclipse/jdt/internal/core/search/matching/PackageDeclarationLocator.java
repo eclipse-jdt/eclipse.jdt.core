@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.util.SimpleSet;
+public class PackageDeclarationLocator extends PatternLocator {
 
-public class DeclarationOfAccessedFieldsPattern extends FieldPattern {
+protected PackageDeclarationPattern pattern;
 
-protected IJavaElement enclosingElement;
-protected SimpleSet knownFields;
+public PackageDeclarationLocator(PackageDeclarationPattern pattern) {
+	super(pattern);
 
-public DeclarationOfAccessedFieldsPattern(IJavaElement enclosingElement) {
-	super(false, true,  true, null, PATTERN_MATCH, false, null, null, null, null);
-
-	this.enclosingElement = enclosingElement;
-	this.knownFields = new SimpleSet();
-	this.mustResolve = true;
+	this.pattern = pattern;
+}
+protected int matchContainer() {
+	return 0;
+}
+public String toString() {
+	return "Locator for " + this.pattern.toString();
 }
 }

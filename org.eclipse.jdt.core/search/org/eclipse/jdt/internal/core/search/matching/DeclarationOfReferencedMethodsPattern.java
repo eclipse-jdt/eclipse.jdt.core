@@ -10,93 +10,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.util.HashSet;
+//import java.util.HashSet;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodPattern {
 
-protected HashSet knownMethods;
 protected IJavaElement enclosingElement;
-	
+protected SimpleSet knownMethods;
+
 public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
-	super(
-		false,
-		true,
-		null, 
-		PATTERN_MATCH, 
-		false, 
-		null, 
-		null,
-		null,
-		null,
-		null,
-		null,
-		null);
+	super(false, true, null, PATTERN_MATCH, false, null, null, null, null, null, null, null);
+
 	this.enclosingElement = enclosingElement;
+	this.knownMethods = new SimpleSet();
 	this.mustResolve = true;
-	this.knownMethods = new HashSet();
-}
-/**
- * @see SearchPattern#matchReportReference
- */
-protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	// need accurate match to be able to open on type ref
-	if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
-	
-	// element that references the method must be included in the enclosing element
-	while (element != null && !this.enclosingElement.equals(element)) {
-		element = element.getParent();
-	}
-	if (element == null) return;
-
-	this.reportDeclaration(((MessageSend) reference).binding, locator);
-}
-private void reportDeclaration(MethodBinding methodBinding, MatchLocator locator) throws CoreException {
-	ReferenceBinding declaringClass = methodBinding.declaringClass;
-	IType type = locator.lookupType(declaringClass);
-	if (type == null) return; // case of a secondary type
-
-	char[] bindingSelector = methodBinding.selector;
-	TypeBinding[] parameters = methodBinding.parameters;
-	int parameterLength = parameters.length;
-	String[] parameterTypes = new String[parameterLength];
-	for (int i = 0; i  < parameterLength; i++)
-		parameterTypes[i] = Signature.createTypeSignature(parameters[i].sourceName(), false);
-	IMethod method = type.getMethod(new String(bindingSelector), parameterTypes);
-	if (this.knownMethods.contains(method)) return;
-
-	this.knownMethods.add(method);
-	IResource resource = type.getResource();
-	boolean isBinary = type.isBinary();
-	IBinaryType info = null;
-	if (isBinary) {
-		if (resource == null)
-			resource = type.getJavaProject().getProject();
-		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
-		locator.reportBinaryMatch(resource, method, info, IJavaSearchResultCollector.EXACT_MATCH);
-	} else {
-		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
-		if (scope != null) {
-			TypeDeclaration typeDecl = scope.referenceContext;
-			AbstractMethodDeclaration methodDecl = null;
-			AbstractMethodDeclaration[] methodDecls = typeDecl.methods;
-			for (int i = 0, length = methodDecls.length; i < length; i++) {
-				if (CharOperation.equals(bindingSelector, methodDecls[i].selector)) {
-					methodDecl = methodDecls[i];
-					break;
-				}
-			} 
-			if (methodDecl != null)
-				locator.report(resource, methodDecl.sourceStart, methodDecl.sourceEnd, method, IJavaSearchResultCollector.EXACT_MATCH);
-		}
-	}
 }
 }

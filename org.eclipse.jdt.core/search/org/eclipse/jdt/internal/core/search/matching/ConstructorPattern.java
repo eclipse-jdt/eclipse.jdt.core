@@ -17,9 +17,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
@@ -147,20 +144,6 @@ protected char[] indexEntryPrefix() {
 	return this.currentTag; // find them all
 }
 /**
- * @see SearchPattern#matchContainer()
- */
-protected int matchContainer() {
-	if (this.findReferences) // handles both declarations + references & just references
-		return 
-			COMPILATION_UNIT // implicit constructor call: case of Y extends X and Y doesn't define any constructor
-			| CLASS // implicit constructor call: case of constructor declaration with no explicit super call
-			| METHOD // reference in another constructor
-			| FIELD; // anonymous in a field initializer
-
-	// declarations are only found in Class
-	return CLASS;
-}
-/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -178,162 +161,13 @@ protected boolean matchIndexEntry() {
 	}
 	return true;
 }
-/**
- * Returns whether this constructor pattern  matches the given allocation expression.
- * Look at resolved information only if specified.
- */
-protected int matchLevel(AllocationExpression allocation, boolean resolve) {
-	// constructor name is simple type name
-	char[][] typeName = allocation.type.getTypeName();
-	if (this.declaringSimpleName != null && !matchesName(this.declaringSimpleName, typeName[typeName.length-1]))
-		return IMPOSSIBLE_MATCH;
-
-	if (resolve)
-		return matchLevel(allocation.binding);
-
-	if (this.parameterSimpleNames != null) {
-		int length = this.parameterSimpleNames.length;
-		Expression[] args = allocation.arguments;
-		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return IMPOSSIBLE_MATCH;
-	}
-
-	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
-}
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	if (this.findReferences) {
-		if (node instanceof AllocationExpression)
-			return matchLevel((AllocationExpression) node, resolve);
-		if (node instanceof ExplicitConstructorCall)
-			return matchLevel((ExplicitConstructorCall) node, resolve);
-		if (node instanceof TypeDeclaration)
-			return matchLevel((TypeDeclaration) node, resolve);
-	}
-	if (node instanceof ConstructorDeclaration)
-		return matchLevel((ConstructorDeclaration) node, resolve);
-	return IMPOSSIBLE_MATCH;
-}
-/**
- * @see SearchPattern#matchLevel(Binding binding).
- */
-public int matchLevel(Binding binding) {
-	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof MethodBinding)) return IMPOSSIBLE_MATCH;
-
-	MethodBinding method = (MethodBinding) binding;
-	if (!method.isConstructor()) return IMPOSSIBLE_MATCH;
-
-	// declaring type, simple name has already been matched by matchIndexEntry()
-	int level = matchLevelForType(this.declaringSimpleName, this.declaringQualification, method.declaringClass);
-	if (level == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-
-	// parameter types
-	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
-	if (parameterCount > -1) {
-		if (method.parameters == null) return INACCURATE_MATCH;
-		if (parameterCount != method.parameters.length) return IMPOSSIBLE_MATCH;
-		for (int i = 0; i < parameterCount; i++) {
-			int newLevel = matchLevelForType(this.parameterSimpleNames[i], this.parameterQualifications[i], method.parameters[i]);
-			if (level > newLevel) {
-				if (newLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-				level = newLevel; // can only be downgraded
-			}
-		}
-	}
-	return level;
-}
-/**
- * Returns whether the given constructor declaration has an implicit constructor reference that matches
- * this constructor pattern.
- * Look at resolved information only if specified.
- */
-protected int matchLevel(ConstructorDeclaration constructor, boolean resolve) {
-	int referencesLevel = IMPOSSIBLE_MATCH;
-	if (this.findReferences) {
-		ExplicitConstructorCall constructorCall = constructor.constructorCall;
-		if (constructorCall != null && constructorCall.accessMode == ExplicitConstructorCall.ImplicitSuper) {
-			// eliminate explicit super call as it will be treated with matchLevel(ExplicitConstructorCall, boolean)
-			referencesLevel = matchLevel(constructorCall, resolve);
-			if (referencesLevel == ACCURATE_MATCH) return ACCURATE_MATCH; // cannot get better
-		}
-	}
-
-	int declarationsLevel = IMPOSSIBLE_MATCH;
-	if (this.findDeclarations) {
-		if (resolve) {
-			declarationsLevel = matchLevel(constructor.binding);
-		} else {
-			// constructor name is stored in selector field
-			if (this.declaringSimpleName != null && !matchesName(this.declaringSimpleName, constructor.selector))
-				return referencesLevel; // answer referencesLevel since this is an IMPOSSIBLE_MATCH
-
-			if (this.parameterSimpleNames != null) {
-				int length = this.parameterSimpleNames.length;
-				Argument[] args = constructor.arguments;
-				int argsLength = args == null ? 0 : args.length;
-				if (length != argsLength)
-					return referencesLevel; // answer referencesLevel since this is an IMPOSSIBLE_MATCH
-
-				for (int i = 0; i < length; i++)
-					if (!matchesTypeReference(this.parameterSimpleNames[i], args[i].type))
-						return referencesLevel; // answer referencesLevel since this is an IMPOSSIBLE_MATCH
-			}
-
-			if (!this.mustResolve) return ACCURATE_MATCH; // cannot get better
-			declarationsLevel = POTENTIAL_MATCH;
-		}
-	}
-	return referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel; // answer the stronger match
-}
-/**
- * Returns whether this constructor pattern  matches the given explicit constructor call.
- * Look at resolved information only if specified.
- */
-protected int matchLevel(ExplicitConstructorCall call, boolean resolve) {
-	if (resolve)
-		return matchLevel(call.binding);
-
-	if (this.parameterSimpleNames != null) {
-		int length = this.parameterSimpleNames.length;
-		Expression[] args = call.arguments;
-		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) return IMPOSSIBLE_MATCH;
-	}
-
-	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
-}
-/**
- * Returns whether the given type declaration has an implicit constructor reference that matches
- * this constructor pattern.
- * Look at resolved information only if specified.
- */
-protected int matchLevel(TypeDeclaration type, boolean resolve) {
-	if (resolve) {
-		// find default constructor
-		AbstractMethodDeclaration[] methods = type.methods;
-		if (methods != null) {
-			for (int i = 0, length = methods.length; i < length; i++) {
-				AbstractMethodDeclaration method = methods[i];
-				if (method.isDefaultConstructor() && method.sourceStart < type.bodyStart) // if synthetic
-					return matchLevel((ConstructorDeclaration) method, true);
-			}
-		}
-		return IMPOSSIBLE_MATCH;
-	}
-
-	// Need to wait for all the constructor bodies to have been parsed
-	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
-}
 protected boolean mustResolve() {
-	if (declaringQualification != null) return true;
+	if (this.declaringQualification != null) return true;
 
 	// parameter types
-	if (parameterSimpleNames != null)
-		for (int i = 0, max = parameterSimpleNames.length; i < max; i++)
-			if (parameterQualifications[i] != null) return true;
+	if (this.parameterSimpleNames != null)
+		for (int i = 0, max = this.parameterSimpleNames.length; i < max; i++)
+			if (this.parameterQualifications[i] != null) return true;
 	return false;
 }
 public String toString() {

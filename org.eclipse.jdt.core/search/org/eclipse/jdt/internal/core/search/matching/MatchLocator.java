@@ -44,6 +44,7 @@ public static final int MAX_AT_ONCE = 500;
 
 // permanent state
 public SearchPattern pattern;
+public PatternLocator patternLocator;
 public int detailLevel;
 public IJavaSearchResultCollector collector;
 public IJavaSearchScope scope;
@@ -110,6 +111,7 @@ public MatchLocator(
 	IProgressMonitor progressMonitor) {
 		
 	this.pattern = pattern;
+	this.patternLocator = PatternLocator.patternLocator(this.pattern);
 	this.detailLevel = detailLevel;
 	this.collector = collector;
 	this.scope = scope;
@@ -193,7 +195,7 @@ protected void buildBindings(PotentialMatch potentialMatch) {
 		if (SearchEngine.VERBOSE)
 			System.out.println("Parsing " + potentialMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
-		this.parser.matchSet = potentialMatch.matchingNodeSet;
+		this.parser.setMatchSet(potentialMatch.matchingNodeSet);
 		CompilationResult unitResult = new CompilationResult(potentialMatch, 1, 1, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = this.parser.dietParse(potentialMatch, unitResult);
 		if (parsedUnit != null) {
@@ -211,7 +213,7 @@ protected void buildBindings(PotentialMatch potentialMatch) {
 				this.progressMonitor.worked(4);
 		}
 	} finally {
-		this.parser.matchSet = null;
+		this.parser.setMatchSet(null);
 	}
 }
 /*
@@ -482,10 +484,10 @@ protected void getMethodBodies(CompilationUnitDeclaration unit, MatchingNodeSet 
 
 	try {
 		this.parser.scanner.setSource(unit.compilationResult.compilationUnit.getContents());
-		this.parser.matchSet = matchingNodeSet;
+		this.parser.setMatchSet(matchingNodeSet);
 		this.parser.parseBodies(unit);
 	} finally {
-		this.parser.matchSet = null;
+		this.parser.setMatchSet(null);
 	}
 }
 protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {
@@ -1035,7 +1037,7 @@ public void reportFieldDeclaration(FieldDeclaration fieldDeclaration, IJavaEleme
  */
 public void reportImport(ImportReference reference, int accuracy) throws CoreException {
 	IJavaElement importHandle = createImportHandle(reference);
-	this.pattern.matchReportImportRef(reference, null, importHandle, accuracy, this);
+	this.patternLocator.matchReportImportRef(reference, null, importHandle, accuracy, this);
 }
 /**
  * Reports the given method declaration to the search requestor.
@@ -1090,7 +1092,7 @@ public void reportReference(
 	} else {
 		enclosingElement = parent;
 	}
-	this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
+	this.patternLocator.matchReportReference(reference, enclosingElement, accuracy, this);
 }
 /**
  * Reports the given reference to the search requestor.
@@ -1114,14 +1116,14 @@ public void reportReference(
 	} else {
 		enclosingElement = parent;
 	}
-	this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
+	this.patternLocator.matchReportReference(reference, enclosingElement, accuracy, this);
 }
 /**
  * Reports the given super type reference to the search requestor.
  * It is done in the given defining type (with the given simple names).
  */
 public void reportSuperTypeReference(TypeReference typeRef, IJavaElement type, int accuracy) throws CoreException {
-	this.pattern.matchReportReference(typeRef, type, accuracy, this);
+	this.patternLocator.matchReportReference(typeRef, type, accuracy, this);
 }
 /**
  * Reports the given type declaration to the search requestor.
