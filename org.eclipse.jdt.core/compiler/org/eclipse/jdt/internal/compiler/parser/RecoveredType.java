@@ -285,7 +285,9 @@ public TypeDeclaration updatedTypeDeclaration(){
 		}
 		// may need to update the declarationSourceEnd of the last field
 		if (fields[fieldCount - 1].fieldDeclaration.declarationSourceEnd == 0){
-			fields[fieldCount - 1].fieldDeclaration.declarationSourceEnd = bodyEnd();
+			int temp = bodyEnd();
+			fields[fieldCount - 1].fieldDeclaration.declarationSourceEnd = temp;
+			fields[fieldCount - 1].fieldDeclaration.declarationEnd = temp;
 		}
 		for (int i = 0; i < fieldCount; i++){
 			fieldDeclarations[existingCount + i] = fields[i].updatedFieldDeclaration();
