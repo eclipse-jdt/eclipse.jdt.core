@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 /**
  * Specialized scanner for DOM AST nodes.
  */
-public class DOMScanner extends Scanner {
+class DOMScanner extends Scanner {
 
 	public DOMScanner(
 		boolean tokenizeComments,

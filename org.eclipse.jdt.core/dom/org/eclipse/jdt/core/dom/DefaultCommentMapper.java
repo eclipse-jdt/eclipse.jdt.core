@@ -12,7 +12,7 @@ package org.eclipse.jdt.core.dom;
 
 /**
  */
-public class DefaultCommentMapper {
+class DefaultCommentMapper {
 	private Comment[] comments;
 	/**
 	 * 

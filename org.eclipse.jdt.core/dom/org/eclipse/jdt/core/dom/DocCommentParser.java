@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 /**
  * Parser specialized for decoding javadoc comments
  */
-public class DocCommentParser extends AbstractCommentParser {
+class DocCommentParser extends AbstractCommentParser {
 
 	// recognized tags
 	public static final String STR_TAG_DEPRECATED = "@deprecated"; //$NON-NLS-1$

@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 /**
  * Specific parser to use while parsing source to create DOM AST nodes.
  */
-public class DOMParser extends Parser {
+class DOMParser extends Parser {
 	
 	// support for comments
 	int[] commentStops = new int[10];
