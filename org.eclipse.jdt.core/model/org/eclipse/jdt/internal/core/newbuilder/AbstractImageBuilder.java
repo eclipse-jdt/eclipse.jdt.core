@@ -323,9 +323,9 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 			location = ((JavaElement) element).readableName();
 		if (location != null)
 			marker.setAttribute(IMarker.LOCATION, location);
+		if (classPathIsIncorrect)
+			throw new IncompleteClassPathException();
 	}
-	if (classPathIsIncorrect)
-		throw new IncompleteClassPathException();
 }
 
 protected void updateProblemsFor(CompilationResult result) throws CoreException {
