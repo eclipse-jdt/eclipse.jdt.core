@@ -211,6 +211,8 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		if (fullyInitialize) {
 			this.initialize();
 		}
+	} catch(ClassFormatException e) {
+		throw e;
 	} catch (Exception e) {
 		throw new ClassFormatException(
 			ClassFormatException.ErrTruncatedInput, 
@@ -792,19 +794,24 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
  * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
  * will be therefore fully initialized and we can get rid of the bytes.
  */
-private void initialize() {
-	for (int i = 0, max = fieldsCount; i < max; i++) {
-		fields[i].initialize();
-	}
-	for (int i = 0, max = methodsCount; i < max; i++) {
-		methods[i].initialize();
-	}
-	if (innerInfos != null) {
-		for (int i = 0, max = innerInfos.length; i < max; i++) {
-			innerInfos[i].initialize();
+private void initialize() throws ClassFormatException {
+	try {
+		for (int i = 0, max = fieldsCount; i < max; i++) {
+			fields[i].initialize();
 		}
+		for (int i = 0, max = methodsCount; i < max; i++) {
+			methods[i].initialize();
+		}
+		if (innerInfos != null) {
+			for (int i = 0, max = innerInfos.length; i < max; i++) {
+				innerInfos[i].initialize();
+			}
+		}
+		this.reset();
+	} catch(RuntimeException e) {
+		ClassFormatException exception = new ClassFormatException(e, this.classFileName);
+		throw exception;
 	}
-	this.reset();
 }
 protected void reset() {
 	this.constantPoolOffsets = null;
