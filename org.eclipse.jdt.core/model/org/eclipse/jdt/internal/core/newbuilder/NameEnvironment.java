@@ -147,6 +147,11 @@ public static String assembleName(String fileName, char[][] packageName, char se
 			separator));
 }
 
+public void cleanup() {
+	for (int i = 0, length = classpathLocations.length; i < length; i++)
+		classpathLocations[i].cleanup();
+}
+
 private NameEnvironmentAnswer findClass(char[] name, char[][] packageName) {
 	String fullName = assembleName(name, packageName, '/');
 	if (initialTypeNames != null)
@@ -180,12 +185,6 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 		if (classpathLocations[i].isPackage(compoundName, packageName))
 			return true;
 	return false;
-}
-
-public void cleanup() {
-	for (int i = 0, length = classpathLocations.length; i < length; i++){
-		classpathLocations[i].cleanup();
-	}
 }
 
 public void setNames(String[] initialTypeNames, String[] additionalSourceFilenames) {

@@ -127,16 +127,16 @@ public void acceptResult(CompilationResult result) {
 }
 
 protected void cleanUp() {
+	this.nameEnvironment.cleanup();
+
 	this.javaBuilder = null;
 	this.outputFolder = null;
 	this.sourceFolders = null;
 	this.notifier = null;
 	this.compiler = null;
-	this.nameEnvironment.cleanup();
 	this.nameEnvironment = null;
 	this.workQueue = null;
 	this.problemTypeLocations = null;
-	this.newState.cleanup();
 }
 
 /* Compile the given elements, adding more elements to the work queue 

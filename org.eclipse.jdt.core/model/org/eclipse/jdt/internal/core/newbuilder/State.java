@@ -42,9 +42,6 @@ protected State(JavaBuilder javaBuilder) {
 	this.structuralBuildNumbers = new SimpleLookupTable(3);
 }
 
-void cleanup() {
-}
-
 void copyFrom(State lastState) {
 	try {
 		this.references = (SimpleLookupTable) lastState.references.clone();
