@@ -2802,8 +2802,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	}		
 	
 	// same as test001, but every type is now a SourceTypeBinding
-	// TODO (kent) NPE is due to the fact that Tc param hierarchy did not get connected when resolving hierarchy of Tx2 param
-	// Tx2 extends C, i.e. Tx2 extends C<bound erasures> (since raw type)
+	// TODO (philippe) fail implementInterface
 	public void _test094() {
 		this.runConformTest(
 			new String[] {
@@ -2826,7 +2825,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
-	// TODO (kent) same issue as test094
+	// TODO (philippe) same issue as test094
 	public void _test095() {
 		this.runConformTest(
 			new String[] {
@@ -2848,5 +2847,31 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"SUCCESS");
-	}	
+	}
+	public void test096() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> extends X {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T> extends X {}\n" + 
+			"	                          ^\n" + 
+			"X causes a cycle - the type X cannot extend/implement itself or one of its own member types\n" + 
+			"----------\n");
+	}		
+	public void test097() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> extends X<String> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T> extends X<String> {}\n" + 
+			"	             ^\n" + 
+			"X causes a cycle - the type X cannot extend/implement itself or one of its own member types\n" + 
+			"----------\n");
+	}		
 }

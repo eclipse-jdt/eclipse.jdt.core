@@ -854,10 +854,10 @@ public class ClassScope extends Scope {
 	}
 
 	// Answer whether a cycle was found between the sourceType & the superType
-	private boolean detectCycle(
-		SourceTypeBinding sourceType,
-		ReferenceBinding superType,
-		TypeReference reference) {
+	private boolean detectCycle(SourceTypeBinding sourceType, ReferenceBinding superType, TypeReference reference) {
+		if (superType.isRawType())
+			superType = ((RawTypeBinding) superType).type;
+
 		if (sourceType == superType) {
 			problemReporter().hierarchyCircularity(sourceType, superType, reference);
 			sourceType.tagBits |= HierarchyHasProblems;
