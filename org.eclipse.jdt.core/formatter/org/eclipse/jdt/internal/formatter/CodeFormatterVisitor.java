@@ -1049,17 +1049,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, spaceBeforeClosingParen); 
 		} else {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, spaceBetweenEmptyArgument); 
-		}
-		/*
-		 * Check for extra dimensions
-		 */
-		int extraDimensions = getExtraDimension();
-		if (extraDimensions != 0) {
-			 for (int i = 0; i < extraDimensions; i++) {
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
-			 }
-		}		
+		}	
 	}
 
 	private void formatOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace) {
@@ -2875,7 +2865,18 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.preferences.insert_space_before_first_argument,
 			this.preferences.insert_space_before_comma_in_method_arguments,
 			this.preferences.insert_space_after_comma_in_method_arguments);
-		
+
+		/*
+		 * Check for extra dimensions
+		 */
+		int extraDimensions = getExtraDimension();
+		if (extraDimensions != 0) {
+			 for (int i = 0; i < extraDimensions; i++) {
+			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+			 }
+		}
+				
 		formatThrowsClause(
 			methodDeclaration,
 			this.preferences.insert_space_before_comma_in_method_throws,
