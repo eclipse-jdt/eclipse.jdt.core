@@ -1148,12 +1148,12 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (!isPrimary()) {
 		buffer.append(this.tabString(tab));
 		buffer.append("[Working copy] "); //$NON-NLS-1$
-		buffer.append(getElementName());
+		toStringName(buffer);
 	} else {
 		if (isWorkingCopy()) {
 			buffer.append(this.tabString(tab));
 			buffer.append("[Working copy] "); //$NON-NLS-1$
-			buffer.append(getElementName());
+			toStringName(buffer);
 			if (info == null) {
 				buffer.append(" (not open)"); //$NON-NLS-1$
 			}

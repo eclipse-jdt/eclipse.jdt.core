@@ -150,8 +150,8 @@ public void testAddDuplicateMember() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	foo()[+]: {}"
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo#2()[+]: {}"
 	);
 }
 /**

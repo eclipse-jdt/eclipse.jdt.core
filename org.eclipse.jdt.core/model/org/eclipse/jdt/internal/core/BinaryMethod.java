@@ -292,11 +292,11 @@ public String readableName() {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
-		buffer.append(getElementName());
+		toStringName(buffer);
 		toStringParameters(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
-		buffer.append(getElementName());
+		toStringName(buffer);
 		toStringParameters(buffer);
 	} else {
 		try {
@@ -307,7 +307,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 				buffer.append(Signature.toString(this.getReturnType()));
 				buffer.append(' ');
 			}
-			buffer.append(this.getElementName());
+			toStringName(buffer);
 			toStringParameters(buffer);
 		} catch (JavaModelException e) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$

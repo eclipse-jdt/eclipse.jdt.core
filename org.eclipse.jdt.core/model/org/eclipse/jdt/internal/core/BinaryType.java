@@ -741,10 +741,10 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
-		buffer.append(this.getElementName());
+		toStringName(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
-		buffer.append(getElementName());
+		toStringName(buffer);
 	} else {
 		try {
 			if (this.isInterface()) {
@@ -752,7 +752,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 			} else {
 				buffer.append("class "); //$NON-NLS-1$
 			}
-			buffer.append(this.getElementName());
+			toStringName(buffer);
 		} catch (JavaModelException e) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}

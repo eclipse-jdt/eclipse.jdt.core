@@ -758,25 +758,25 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	buffer.append(this.tabString(tab));
+	buffer.append(tabString(tab));
 	if (info == null) {
-		String elementName = this.getElementName();
+		String elementName = getElementName();
 		if (elementName.length() == 0) {
 			buffer.append("<anonymous #"); //$NON-NLS-1$
 			buffer.append(this.occurrenceCount);
 			buffer.append(">"); //$NON-NLS-1$
 		} else {
-			buffer.append(elementName);
+			toStringName(buffer);
 		}
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
-		String elementName = this.getElementName();
+		String elementName = getElementName();
 		if (elementName.length() == 0) {
 			buffer.append("<anonymous #"); //$NON-NLS-1$
 			buffer.append(this.occurrenceCount);
 			buffer.append(">"); //$NON-NLS-1$
 		} else {
-			buffer.append(elementName);
+			toStringName(buffer);
 		}
 	} else {
 		try {
@@ -785,13 +785,13 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 			} else {
 				buffer.append("class "); //$NON-NLS-1$
 			}
-			String elementName = this.getElementName();
+			String elementName = getElementName();
 			if (elementName.length() == 0) {
 				buffer.append("<anonymous #"); //$NON-NLS-1$
 				buffer.append(this.occurrenceCount);
 				buffer.append(">"); //$NON-NLS-1$
 			} else {
-				buffer.append(elementName);
+				toStringName(buffer);
 			}
 		} catch (JavaModelException e) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
