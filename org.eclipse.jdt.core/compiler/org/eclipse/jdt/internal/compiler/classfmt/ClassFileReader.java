@@ -575,6 +575,9 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 				if (!CharOperation.equals(currentFieldInfo.getName(), otherFieldInfo.getName())) {
 					return true;
 				}
+				if (!CharOperation.equals(currentFieldInfo.getTypeName(), otherFieldInfo.getTypeName())) {
+					return true;
+				}
 				if (currentFieldInfo.hasConstant()) {
 					if (!otherFieldInfo.hasConstant()) {
 						return true;
