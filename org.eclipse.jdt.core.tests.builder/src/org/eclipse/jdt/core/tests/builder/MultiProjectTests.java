@@ -877,9 +877,8 @@ public class MultiProjectTests extends Tests {
 	
 	/*
 	 * Fix access restriction problem
-	 * TODO (kent) reenable once incremental builder detects changes in inclusion/exclusion rules
 	 */
-	public void _testExcludePartOfAnotherProject3() throws JavaModelException {
+	public void testExcludePartOfAnotherProject3() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------
@@ -1029,9 +1028,8 @@ public class MultiProjectTests extends Tests {
 	
 	/*
 	 * Fix access restriction problem
-	 * TODO (kent) reenable once incremental builder detects changes in inclusion/exclusion rules
 	 */
-	public void _testIncludePartOfAnotherProject3() throws JavaModelException {
+	public void testIncludePartOfAnotherProject3() throws JavaModelException {
 		//----------------------------
 		//           Step 1
 		//----------------------------

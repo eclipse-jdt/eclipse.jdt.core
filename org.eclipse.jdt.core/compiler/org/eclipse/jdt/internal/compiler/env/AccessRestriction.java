@@ -87,8 +87,13 @@ public class AccessRestriction {
 						? this.furtherRestriction.getViolatedRestriction(targetTypeName, referringTypeName)
 						: null;
 	}
+	public char[][] getExclusionPatterns() {
+			return this.exclusionPatterns;
+	}
+	public char[][] getInclusionPatterns() {
+			return this.inclusionPatterns;
+	}
 	/**
-
 	 * Returns readable description for problem reporting, 
 	 * message is expected to contain room for restricted type name
 	 * e.g. "{0} has restricted access"

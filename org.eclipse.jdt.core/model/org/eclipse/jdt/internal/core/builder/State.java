@@ -14,6 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 import java.io.*;
@@ -40,7 +41,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-static final byte VERSION = 0x0008;
+static final byte VERSION = 0x0009; // added AccessRestrictions
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -238,13 +239,13 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				IContainer outputFolder = path.segmentCount() == 1
 					? (IContainer) root.getProject(path.toString())
 					: (IContainer) root.getFolder(path);
-				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), null /* TODO store restriction in build state */);
+				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in));
 				break;
 			case EXTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), null /* TODO store restriction in build state */);
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), readRestriction(in));
 				break;
 			case INTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), null /* TODO store restriction in build state */);
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), readRestriction(in));
 		}
 	}
 
@@ -313,6 +314,14 @@ private static char[][] readNames(DataInputStream in) throws IOException {
 		names[i] = name;
 	}
 	return names;
+}
+
+private static AccessRestriction readRestriction(DataInputStream in) throws IOException {
+	if (in.readBoolean())
+		// skip the AccessRestriction.furtherRestriction until we decide if it will be used
+		return new AccessRestriction(in.readUTF(), readNames(in), readNames(in), null);
+
+	return null; // no restriction specified
 }
 
 void tagAsNoopBuild() {
@@ -399,6 +408,7 @@ void write(DataOutputStream out) throws IOException {
 			ClasspathDirectory cd = (ClasspathDirectory) c;
 			out.writeUTF(cd.binaryFolder.getFullPath().toString());
 			out.writeBoolean(cd.isOutputFolder);
+			writeRestriction(cd.accessRestriction, out);
 		} else {
 			ClasspathJar jar = (ClasspathJar) c;
 			if (jar.resource == null) {
@@ -408,6 +418,7 @@ void write(DataOutputStream out) throws IOException {
 				out.writeByte(INTERNAL_JAR);
 				out.writeUTF(jar.resource.getFullPath().toString());
 			}
+			writeRestriction(jar.accessRestriction, out);
 		}
 	}
 
@@ -559,6 +570,18 @@ private void writeNames(char[][] names, DataOutputStream out) throws IOException
 		out.writeInt(nLength);
 		for (int j = 0; j < nLength; j++)
 			out.writeChar(name[j]);
+	}
+}
+
+private void writeRestriction(AccessRestriction restriction, DataOutputStream out) throws IOException {
+	if (restriction == null) {
+		out.writeBoolean(false);
+	} else {
+		out.writeBoolean(true);
+		out.writeUTF(restriction.getMessageTemplate());
+		writeNames(restriction.getExclusionPatterns(), out);
+		writeNames(restriction.getInclusionPatterns(), out);
+		// skip the AccessRestriction.furtherRestriction until we decide if it will be used
 	}
 }
 

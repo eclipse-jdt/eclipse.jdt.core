@@ -83,7 +83,11 @@ public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathDirectory)) return false;
 
-	return binaryFolder.equals(((ClasspathDirectory) o).binaryFolder);
+	ClasspathDirectory dir = (ClasspathDirectory) o;
+	if (this.accessRestriction != dir.accessRestriction)
+		if (this.accessRestriction == null || !this.accessRestriction.equals(dir.accessRestriction))
+			return false;
+	return this.binaryFolder.equals(dir.binaryFolder);
 } 
 
 public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
@@ -92,11 +96,9 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		ClassFileReader reader = ClassFileReader.read(binaryLocation + qualifiedBinaryFileName);
 		if (reader != null) {
-			AccessRestriction violatedRestriction = null;
-			if (this.accessRestriction != null) {
-				violatedRestriction = this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null);
-			}
-			return new NameEnvironmentAnswer(reader, violatedRestriction);
+			if (this.accessRestriction == null)
+				return new NameEnvironmentAnswer(reader, null);
+			return new NameEnvironmentAnswer(reader, this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null));
 		}
 	} catch (Exception e) {
 		// handle the case when the project is the output folder and the top-level package is a linked folder
@@ -107,11 +109,11 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 				if (location != null) {
 					try {
 						ClassFileReader reader = ClassFileReader.read(location.toString());
-						AccessRestriction violatedRestriction = null;
-						if (this.accessRestriction != null) {
-							violatedRestriction = this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null);
-						}						
-						if (reader != null) return new NameEnvironmentAnswer(reader, violatedRestriction);
+						if (reader != null) {
+							if (this.accessRestriction == null)
+								return new NameEnvironmentAnswer(reader, null);
+							return new NameEnvironmentAnswer(reader, this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null));
+						}
 					} catch (Exception ignored) { // treat as if class file is missing
 					}
 				}

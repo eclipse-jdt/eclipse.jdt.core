@@ -122,7 +122,11 @@ public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathJar)) return false;
 
-	return zipFilename.equals(((ClasspathJar) o).zipFilename);
+	ClasspathJar jar = (ClasspathJar) o;
+	if (this.accessRestriction != jar.accessRestriction)
+		if (this.accessRestriction == null || !this.accessRestriction.equals(jar.accessRestriction))
+			return false;
+	return this.zipFilename.equals(((ClasspathJar) o).zipFilename);
 } 
 
 public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
@@ -131,11 +135,9 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
-			AccessRestriction violatedRestriction = null;
-			if (this.accessRestriction != null) {
-				violatedRestriction = this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null);
-			}			
-			return new NameEnvironmentAnswer(reader, violatedRestriction);
+			if (this.accessRestriction == null)
+				return new NameEnvironmentAnswer(reader, null);
+			return new NameEnvironmentAnswer(reader, this.accessRestriction.getViolatedRestriction(qualifiedBinaryFileName.toCharArray(), null));
 		}
 	} catch (Exception e) { // treat as if class file is missing
 	}
