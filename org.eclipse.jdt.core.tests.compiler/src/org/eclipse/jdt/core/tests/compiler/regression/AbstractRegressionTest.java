@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
@@ -184,7 +185,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			classLib, 
 			shouldFlushOutputDirectory, 
 			vmArguments,
-			null);
+			null /*no custom options*/,
+			null /*no custom requestor*/);
 	}
 
 	protected void runConformTest(
@@ -193,7 +195,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		String[] classLib,
 		boolean shouldFlushOutputDirectory, 
 		String[] vmArguments, 
-		Map customOptions) {
+		Map customOptions,
+		ICompilerRequestor clientRequestor) {
 
 		if (shouldFlushOutputDirectory)
 			Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -203,7 +206,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			new Requestor(
 				problemFactory, 
 				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
-				false);
+				false,
+				clientRequestor);
 
 		Map options = getCompilerOptions();
 		if (customOptions != null) {
@@ -216,6 +220,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options,
 				requestor, 
 				problemFactory);
+		batchCompiler.options.produceReferenceInfo = true;
 		try {
 			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
 		} catch(RuntimeException e) {
@@ -296,7 +301,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			new Requestor(
 				problemFactory, 
 				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
-				false);
+				false,
+				null/*no custom requestor*/);
 		Compiler batchCompiler = 
 			new Compiler(
 				getNameEnvironment(new String[]{}, classLib), 
@@ -304,6 +310,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getCompilerOptions(), 
 				requestor, 
 				problemFactory);
+		batchCompiler.options.produceReferenceInfo = true;
 		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
 		if (!requestor.hasErrors) {
 			String sourceFile = testFiles[0];
@@ -374,7 +381,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			new Requestor(
 				problemFactory, 
 				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
-				generateOutput);
+				generateOutput,
+				null/*no custom requestor*/);
 		Map options = getCompilerOptions();
 		if (customOptions != null) {
 			options.putAll(customOptions);
@@ -385,6 +393,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				getErrorHandlingPolicy(), 
 				options,
 				requestor, problemFactory);
+		batchCompiler.options.produceReferenceInfo = true;
 		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
 		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
 		String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);

@@ -31,10 +31,12 @@ public class Requestor extends Assert implements ICompilerRequestor {
 	private boolean generateOutput;
 	public Hashtable expectedProblems = new Hashtable();
 	public String problemLog = "";
-public Requestor(IProblemFactory problemFactory, String outputPath, boolean generateOutput) {
+	public ICompilerRequestor clientRequestor;
+public Requestor(IProblemFactory problemFactory, String outputPath, boolean generateOutput, ICompilerRequestor clientRequestor) {
 	this.problemFactory = problemFactory;
 	this.outputPath = outputPath;
 	this.generateOutput = generateOutput;
+	this.clientRequestor = clientRequestor;
 }
 public void acceptResult(CompilationResult compilationResult) {
 	StringBuffer buffer = new StringBuffer(100);
@@ -63,7 +65,10 @@ public void acceptResult(CompilationResult compilationResult) {
 		}
 		problemLog += buffer.toString();
 	}
-	outputClassFiles(compilationResult);	
+	outputClassFiles(compilationResult);
+	if (this.clientRequestor != null) {
+		this.clientRequestor.acceptResult(compilationResult);
+	}
 }
 protected void outputClassFiles(CompilationResult unitResult) {
 

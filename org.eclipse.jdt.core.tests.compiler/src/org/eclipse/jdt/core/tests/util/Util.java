@@ -47,7 +47,8 @@ public static void compile(String[] pathsAndContents, Map options, String output
 			new Requestor(
 				problemFactory, 
 				outputPath.endsWith(File.separator) ? outputPath : outputPath + File.separator, 
-				false);
+				false,
+				null/*no custom requestor*/);
 		INameEnvironment nameEnvironment = new FileSystem(getJavaClassLibs(), new String[] {}, null);
 		IErrorHandlingPolicy errorHandlingPolicy = 
 			new IErrorHandlingPolicy() {
@@ -65,6 +66,7 @@ public static void compile(String[] pathsAndContents, Map options, String output
 				options,
 				requestor, 
 				problemFactory);
+		batchCompiler.options.produceReferenceInfo = true;
 		batchCompiler.compile(compilationUnits(pathsAndContents)); // compile all files together
 		System.err.print(requestor.problemLog); // problem log empty if no problems
 }

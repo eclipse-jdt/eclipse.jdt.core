@@ -10,15 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Enumeration;
-
 import junit.framework.Test;
-
-import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
 
 public class ProblemConstructorTest extends AbstractRegressionTest {
 
@@ -32,33 +24,6 @@ public static Class testClass() {
 	return ProblemConstructorTest.class;
 }
 
-protected Requestor getRequestor(IProblemFactory problemFactory) {
-	return new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, false) {
-		public void acceptResult(CompilationResult cr) {
-			super.acceptResult(cr);
-			outputClassFiles(cr);
-		}
-
-		protected void outputClassFiles(CompilationResult unitResult) {
-		
-			if (unitResult != null) {
-				Enumeration classFiles = unitResult.compiledTypes.elements();
-				if (outputPath != null) {
-					while (classFiles.hasMoreElements()) {
-						// retrieve the key and the corresponding classfile
-						ClassFile classFile = (ClassFile) classFiles.nextElement();
-						String relativeName = 
-							new String(classFile.fileName()).replace('/', File.separatorChar) + ".class";
-						try {
-							ClassFile.writeToDisk(true, outputPath, relativeName, classFile.getBytes());
-						} catch(IOException e) {
-						}
-					}
-				}
-			}
-		}		
-	};
-}
 public void test001() {
 	this.runNegativeTest(
 		new String[] {

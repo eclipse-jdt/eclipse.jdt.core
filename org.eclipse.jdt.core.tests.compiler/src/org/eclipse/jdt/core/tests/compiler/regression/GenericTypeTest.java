@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeTest extends AbstractRegressionTest {
@@ -304,11 +305,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	protected void runConformTest(String[] testFiles,
 			String expectedSuccessOutputString, String[] classLib,
 			boolean shouldFlushOutputDirectory, String[] vmArguments,
-			Map customOptions) {
+			Map customOptions, ICompilerRequestor clientRequestor) {
 		try {
 			super.runConformTest(testFiles, expectedSuccessOutputString,
 					classLib, shouldFlushOutputDirectory, vmArguments,
-					customOptions);
+					customOptions, clientRequestor);
 		} catch (AssertionFailedError e) {
 			throw e;
 		} finally {
@@ -2648,7 +2649,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		null,
 		true,
 		null,
-		customOptions);		
+		customOptions,
+		null/*no custom requestor*/);		
 	}			
 	
 	public void test088() {
@@ -2672,7 +2674,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		null,
 		true,
 		null,
-		customOptions);		
+		customOptions,
+		null/*no custom requestor*/);		
 	}				
 
 	public void test089() {
@@ -2717,7 +2720,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		null,
 		true,
 		null,
-		customOptions);		
+		customOptions,
+		null/*no custom requestor*/);		
 	}				
 
 	public void test091() {
@@ -3225,7 +3229,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		null,
 		true,
 		null,
-		customOptions);		
+		customOptions,
+		null/*no custom requestor*/);		
 	}	
 	// parameterized interface cannot be implemented simultaneously with distinct arguments
 	public void test109() {
@@ -8066,6 +8071,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"SUCCESS");	
 	}
+	// 74320: check no complaint for unused private method
 	public void test301() {
 		this.runNegativeTest(
 			new String[] {

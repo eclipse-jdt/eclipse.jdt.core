@@ -178,7 +178,8 @@ public void test5() {
 		null,
 		true, // flush previous output dir content
 		null, // special vm args
-		null);  // custom options
+		null,  // custom options
+		null); // custom requestor
 	this.runNegativeTest(
 		new String[] {
 			"A.java",
@@ -219,7 +220,8 @@ public void test6() {
 		null,
 		true, // flush previous output dir content
 		null, // special vm args
-		null);  // custom options
+		null,  // custom options
+		null); // custom requestor
 	this.runNegativeTest(
 		new String[] {
 			"A.java",

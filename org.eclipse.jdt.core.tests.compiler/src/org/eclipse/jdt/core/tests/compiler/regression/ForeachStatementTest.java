@@ -219,7 +219,8 @@ public void test007() {
 		null,
 		true,
 		null,
-		customOptions);
+		customOptions,
+		null/*no custom requestor*/);
 	
 	String expectedOutput =
 		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 

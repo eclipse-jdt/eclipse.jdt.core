@@ -13,7 +13,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Hashtable;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 import junit.framework.Test;
 /**
@@ -1028,7 +1033,8 @@ public void test030() {
 		null, // custom classpath
 		true, // flush previous output dir content
 		null, // special vm args
-		target1_2);  // custom options
+		target1_2,  // custom options
+		null/*no custom requestor*/);
 
 	this.runConformTest(
 		new String[] {
@@ -1047,7 +1053,8 @@ public void test030() {
 		null, // custom classpath
 		false, // flush previous output dir content
 		null, // special vm args
-		null);  // custom options
+		null,  // custom options
+		null/*no custom requestor*/);
 }
 
 /*
@@ -1629,6 +1636,34 @@ public void test047() {
 			"}\n"	},
 		"String: Hello world");
 }
+	// 73740 - missing serialVersionUID diagnosis shouldn't trigger load of Serializable
+	public void test048() {
+		this.runConformTest(
+			new String[] {
+				"X.java", //---------------------------
+				"public class X {\n" + 
+				"   public static void main(String[] args) {\n"+
+				"		System.out.println(\"SUCCESS\");\n"+
+				"   }\n"+
+				"}\n",
+			},
+			"SUCCESS",
+			Util.concatWithClassLibs(OUTPUT_DIR, true/*output in front*/),
+			false, // do not flush output
+			null,  // vm args
+			null, // options
+			new ICompilerRequestor() {
+				public void acceptResult(CompilationResult result) {
+					assertNotNull("missing reference information",result.simpleNameReferences);
+					char[] serializable = TypeConstants.JAVA_IO_SERIALIZABLE[2];
+					for (int i = 0, length = result.simpleNameReferences.length; i < length; i++) {
+						char[] name = result.simpleNameReferences[i];
+						if (CharOperation.equals(name, serializable))
+							assertTrue("should not contain reference to Serializable", false);
+					}
+				}
+			});		
+	}
 public static Class testClass() {
 	return LookupTest.class;
 }
