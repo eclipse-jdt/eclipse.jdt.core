@@ -393,7 +393,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (recipient != null) {
 			switch (recipient.kind()) {
 				case Binding.PACKAGE :
-					// TODO (philippe) need support for package annotations
+					PackageBinding packageBinding = (PackageBinding) recipient;
+					if ((packageBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
+					packageBinding.tagBits |= TagBits.AnnotationResolved;
 					break;
 				case Binding.TYPE :
 				case Binding.GENERIC_TYPE :

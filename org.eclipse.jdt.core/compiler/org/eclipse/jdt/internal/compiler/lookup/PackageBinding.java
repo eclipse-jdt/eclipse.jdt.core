@@ -15,6 +15,8 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
 
 public class PackageBinding extends Binding implements TypeConstants {
+	public long tagBits = 0; // See values in the interface TagBits below
+	
 	public char[][] compoundName;
 	PackageBinding parent;
 	public LookupEnvironment environment;

@@ -143,4 +143,7 @@ public interface TypeConstants {
 	char[] SYNTHETIC_OUTER_LOCAL_PREFIX = "val$".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_ENCLOSING_INSTANCE_PREFIX = "this$".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_ACCESS_METHOD_PREFIX =  "access$".toCharArray(); //$NON-NLS-1$
+	
+	// synthetic package-info name
+	public static final char[] PACKAGE_INFO_NAME = "package-info".toCharArray(); //$NON-NLS-1$	
 }

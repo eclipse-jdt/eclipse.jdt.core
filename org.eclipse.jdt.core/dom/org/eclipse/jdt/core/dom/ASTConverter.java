@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
@@ -45,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
@@ -1144,7 +1146,11 @@ class ASTConverter {
 		if (types != null) {
 			int typesLength = types.length;
 			for (int i = 0; i < typesLength; i++) {
-				ASTNode type = convert(types[i]);
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration declaration = types[i];
+				if (CharOperation.equals(declaration.name, TypeConstants.PACKAGE_INFO_NAME)) {
+					continue;
+				}
+				ASTNode type = convert(declaration);
 				if (type == null) {
 					compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
 				} else {
@@ -2203,6 +2209,9 @@ class ASTConverter {
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 			ASTNode result = convert((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) statement);
+			if (result == null) {
+				return createFakeEmptyStatement(statement);
+			}
 			switch(result.getNodeType()) {
 				case ASTNode.ENUM_DECLARATION:
 					switch(this.ast.apiLevel) {

@@ -19,9 +19,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 public class CompilationUnitDeclaration
 	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
-	
-	private static final char[] PACKAGE_INFO_FILE_NAME = "package-info.java".toCharArray(); //$NON-NLS-1$
-		
+
 	public ImportReference currentPackage;
 	public ImportReference[] imports;
 	public TypeDeclaration[] types;
@@ -175,6 +173,9 @@ public class CompilationUnitDeclaration
 			}
 			return;
 		}
+		if (this.isPackageInfo()) {
+			types[0].annotations = this.currentPackage.annotations;
+		}
 		try {
 			if (types != null) {
 				for (int i = 0, count = types.length; i < count; i++)
@@ -214,6 +215,12 @@ public class CompilationUnitDeclaration
 		return (currentPackage == null) && (imports == null) && (types == null);
 	}
 
+	public boolean isPackageInfo() {
+		return CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)
+			&& this.currentPackage != null
+			&& this.currentPackage.annotations != null;
+	}
+	
 	public boolean hasErrors() {
 		return this.ignoreFurtherInvestigation;
 	}
@@ -269,17 +276,25 @@ public class CompilationUnitDeclaration
 	}
 
 	public void resolve() {
+		int startingTypeIndex = 0;
 		if (this.currentPackage != null) {
 			if (this.currentPackage.annotations != null) {
-				if (!CharOperation.endsWith(getFileName(), PACKAGE_INFO_FILE_NAME)) {
+				if (CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)) {
+					// resolve annotations
+					final TypeDeclaration syntheticTypeDeclaration = types[0];
+					syntheticTypeDeclaration.resolve(this.scope);
+					resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
+					// set the synthetic bit
+					syntheticTypeDeclaration.binding.modifiers |= AccSynthetic;
+					startingTypeIndex = 1;
+				} else {
 					scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
 				}
-				// (TODO) resolve annotations
 			}
 		}
 		try {
 			if (types != null) {
-				for (int i = 0, count = types.length; i < count; i++) {
+				for (int i = startingTypeIndex, count = types.length; i < count; i++) {
 					types[i].resolve(scope);
 				}
 			}

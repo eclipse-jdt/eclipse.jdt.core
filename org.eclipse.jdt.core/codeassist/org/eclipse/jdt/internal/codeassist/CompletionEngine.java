@@ -3690,6 +3690,7 @@ public final class CompletionEngine
 				SourceTypeBinding sourceType = types[i]; 
 				
 				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME) continue;
+				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue;
 
 				if (typeLength > sourceType.sourceName.length)	continue;
 				
@@ -3850,6 +3851,7 @@ public final class CompletionEngine
 				char[] qualifiedSourceTypeName = CharOperation.concatWith(sourceType.compoundName, '.');
 				
 				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME) continue;
+				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue;
 				if (typeLength > qualifiedSourceTypeName.length) continue;
 				if (!(packageBinding == sourceType.getPackage())) continue;
 				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false))	continue;

@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.diagnose.DiagnoseParser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -183,7 +184,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Compiler
 	public JavadocParser javadocParser;
 	// used for recovery
 	protected int lastJavadocEnd;
-
+	
 	static {
 		try{
 			initTables();
@@ -3483,6 +3484,14 @@ protected void consumeInternalCompilationUnit() {
 	// InternalCompilationUnit ::= PackageDeclaration
 	// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports
 	// InternalCompilationUnit ::= ImportDeclarations ReduceImports
+	if (this.compilationUnit.isPackageInfo()) {
+		this.compilationUnit.types = new TypeDeclaration[1];
+		// create a fake interface declaration
+		TypeDeclaration declaration = new TypeDeclaration(compilationUnit.compilationResult);
+		declaration.name = TypeConstants.PACKAGE_INFO_NAME;
+		declaration.modifiers = AccDefault | AccInterface;
+		this.compilationUnit.types[0] = declaration;
+	}
 }
 protected void consumeInternalCompilationUnitWithTypes() {
 	// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports TypeDeclarations
@@ -3492,8 +3501,20 @@ protected void consumeInternalCompilationUnitWithTypes() {
 	// consume type declarations
 	int length;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.astPtr -= length;
-		System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types = new TypeDeclaration[length], 0, length);
+		if (this.compilationUnit.isPackageInfo()) {
+			this.compilationUnit.types = new TypeDeclaration[length + 1];
+			this.astPtr -= length;
+			System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types, 1, length);
+			// create a fake interface declaration
+			TypeDeclaration declaration = new TypeDeclaration(compilationUnit.compilationResult);
+			declaration.name = TypeConstants.PACKAGE_INFO_NAME;
+			declaration.modifiers = AccDefault | AccInterface;
+			this.compilationUnit.types[0] = declaration;
+		} else {
+			this.compilationUnit.types = new TypeDeclaration[length];
+			this.astPtr -= length;
+			System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types, 0, length);
+		}
 	}
 }
 protected void consumeInvalidConstructorDeclaration() {

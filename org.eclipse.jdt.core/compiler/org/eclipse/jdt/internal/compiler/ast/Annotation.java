@@ -237,7 +237,7 @@ public abstract class Annotation extends Expression {
 				// tag bits onto recipient
 				switch (this.recipient.kind()) {
 					case Binding.PACKAGE :
-						// TODO (philippe) need support for package annotations
+						((PackageBinding)this.recipient).tagBits |= tagBits;
 						break;
 					case Binding.TYPE :
 					case Binding.GENERIC_TYPE :
