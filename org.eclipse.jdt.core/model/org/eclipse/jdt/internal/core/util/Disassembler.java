@@ -370,7 +370,7 @@ public class Disassembler extends ClassFileBytesDisassembler implements IClassFi
 	 * @see org.eclipse.jdt.core.util.ClassFileBytesDisassembler#disassemble(byte[], java.lang.String)
 	 */
 	public String disassemble(byte[] classFileBytes, String lineSeparator) throws ClassFormatException {
-		return disassemble(new ClassFileReader(classFileBytes, IClassFileReader.ALL), lineSeparator, IClassFileDisassembler.DEFAULT);
+		return disassemble(new ClassFileReader(classFileBytes, IClassFileReader.ALL), lineSeparator, ClassFileBytesDisassembler.DEFAULT);
 	}
 
 	/**
@@ -384,7 +384,7 @@ public class Disassembler extends ClassFileBytesDisassembler implements IClassFi
 	 * @see org.eclipse.jdt.core.util.IClassFileDisassembler#disassemble(org.eclipse.jdt.core.util.IClassFileReader, java.lang.String)
 	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator) {
-		return disassemble(classFileReader, lineSeparator, IClassFileDisassembler.DEFAULT);
+		return disassemble(classFileReader, lineSeparator, ClassFileBytesDisassembler.DEFAULT);
 	}
 
 	/**
@@ -395,7 +395,7 @@ public class Disassembler extends ClassFileBytesDisassembler implements IClassFi
 		
 		StringBuffer buffer = new StringBuffer();
 
-		if (mode == IClassFileDisassembler.DETAILED) {
+		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			int minorVersion = classFileReader.getMinorVersion();
 			int majorVersion = classFileReader.getMajorVersion();
 			buffer.append(Util.bind("disassembler.commentstart")); //$NON-NLS-1$
@@ -470,7 +470,7 @@ public class Disassembler extends ClassFileBytesDisassembler implements IClassFi
 		buffer.append(Util.bind("disassembler.opentypedeclaration")); //$NON-NLS-1$
 		checkSuperFlags(buffer, classFileReader.getAccessFlags(), lineSeparator, 1);
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
-		if (mode == IClassFileDisassembler.DETAILED) {
+		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
 			if (innerClassesAttribute != null) {
 				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
@@ -657,7 +657,7 @@ public class Disassembler extends ClassFileBytesDisassembler implements IClassFi
 				}
 			}
 		}
-		if (mode == IClassFileDisassembler.DETAILED) {
+		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			writeNewLine(buffer, lineSeparator, tabNumber);
 			CharOperation.replace(fieldDescriptor, '.', '/');
 			buffer
@@ -713,7 +713,7 @@ public class Disassembler extends ClassFileBytesDisassembler implements IClassFi
 		}
 		buffer.append(Util.bind("disassembler.endofmethodheader")); //$NON-NLS-1$
 		writeNewLine(buffer, lineSeparator, tabNumber);
-		if (mode == IClassFileDisassembler.DETAILED) {
+		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			CharOperation.replace(methodDescriptor, '.', '/');
 			buffer
 				.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
