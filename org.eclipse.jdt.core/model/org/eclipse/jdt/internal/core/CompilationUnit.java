@@ -64,7 +64,7 @@ protected void buildStructure(OpenableElementInfo info, final IProblemRequestor 
 	// remove existing (old) infos
 	removeInfo();
 	
-	//if (problemRequestor != null) 	problemRequestor.clear();
+	if (problemRequestor != null) 	problemRequestor.clear();
 
 	HashMap newElements = new HashMap(11);
 	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), null));
@@ -79,7 +79,7 @@ protected void buildStructure(OpenableElementInfo info, final IProblemRequestor 
 		CompilationUnitProblemFinder.resolve(this, problemRequestor);
 	}
 	
-//	if (problemRequestor != null) 	problemRequestor.done();
+	if (problemRequestor != null) 	problemRequestor.done();
 
 	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
 	// to be flushed. Might lead to performance issues.

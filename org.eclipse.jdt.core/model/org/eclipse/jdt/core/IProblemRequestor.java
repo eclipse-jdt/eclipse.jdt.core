@@ -31,17 +31,17 @@ public interface IProblemRequestor {
 	void acceptProblem(IProblem problem);
 
 	/**
-	 * Notification sent before starting a Java operation which can cause problems to be reported.
+	 * Notification sent before starting the problem detection process.
 	 * Typically, this would tell the problem collector to clear previously recorded problems.
 	 */
-	//void clear();
+	void clear();
 
 	/**
-	 * Notification sent after having completed the Java operation which caused problems to be reported.
+	 * Notification sent after having completed problem detection process.
 	 * Typically, this would tell the problem collector that no more problems should be expected in this
 	 * iteration.
 	 */
-	//void done();
+	void done();
 
 
 }
