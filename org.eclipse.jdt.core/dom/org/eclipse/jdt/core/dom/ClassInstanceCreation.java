@@ -53,7 +53,7 @@ import java.util.List;
  * The first form is preferred when "A" is known to be a type (as opposed
  * to a package). However, a parser cannot always determine this. Clients
  * should be prepared to handle either rather than make assumptions.
- * (Note also that the first form became possible as of JLS2; only the second
+ * (Note also that the first form became possible as of JLS3; only the second
  * form existed in JLS2.)
  * </p>
  * 
