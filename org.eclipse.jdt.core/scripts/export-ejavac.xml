@@ -33,5 +33,6 @@
 		
 		<echo message="run the new build script" />
 		<ant antfile="${basedir}/scripts/export-executable.xml"/>
+		<delete file="${basedir}/scripts/export-executable.xml"/>
 	</target>
 </project>
