@@ -1547,15 +1547,15 @@ EnumBodyDeclarationsopt -> EnumDeclarations
 -- 1.5 features : enhanced for statement
 -----------------------------------------------
 EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' Statement
+/.$putCase consumeEnhancedForStatement(false); $break ./
 EnhancedForStatement ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')' Statement
--- EnhancedForStatement ::= 'for' '(' FormalParameter ':' Expression ')' Statement
-/.$putCase consumeEnhancedForStatement(); $break ./
+/.$putCase consumeEnhancedForStatement(true); $break ./
 /:$readableName EnhancedForStatement:/
 
 EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
+/.$putCase consumeEnhancedForStatement(false); $break ./
 EnhancedForStatementNoShortIf ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
--- EnhancedForStatementNoShortIf ::= 'for' '(' FormalParameter ':' Expression ')' StatementNoShortIf
-/.$putCase consumeEnhancedForStatement(); $break ./
+/.$putCase consumeEnhancedForStatement(true); $break ./
 /:$readableName EnhancedForStatementNoShortIf:/
 
 -----------------------------------------------
