@@ -976,7 +976,7 @@ public void testMakeConsistentFoolingReconciler() throws JavaModelException {
  * Test bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60689
  * AST on reconcile: AST without Javadoc comments created
  */
-public void _testBug60689() throws JavaModelException {
+public void testBug60689() throws JavaModelException {
 	setWorkingCopyContents("public class X {\n" +
 		"	/**\n" +
 		"	 * Returns the length of the string representing the number of \n" +
@@ -989,7 +989,8 @@ public void _testBug60689() throws JavaModelException {
 		"}"
 	);
 	org.eclipse.jdt.core.dom.CompilationUnit testCU = this.workingCopy.reconcile(AST.JLS2, true, null, null);
-	assertEquals("Wrong size of comments!", 1, testCU.getCommentList().size());
+	assertNotNull("We should have a comment!", testCU.getCommentList());
+	assertEquals("We should have 1 comment!", 1, testCU.getCommentList().size());
 	testCU = this.workingCopy.reconcile(AST.JLS2, true, null, null);
 	assertNotNull("We should have a comment!", testCU.getCommentList());
 	assertEquals("We should have one comment!", 1, testCU.getCommentList().size());
