@@ -66,6 +66,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		dispatchDeclarationInto(length);
 		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
+		if (anonymousTypeDeclaration.allocation != null) {
+			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
+		}		
 		astPtr--;
 		astLengthPtr--;
 
