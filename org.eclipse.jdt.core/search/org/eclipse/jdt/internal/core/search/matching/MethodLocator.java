@@ -81,7 +81,7 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
 	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
-	if (this.pattern.parameterSimpleNames != null) {
+	if (this.pattern.parameterSimpleNames != null && !this.pattern.varargs) {
 		int length = this.pattern.parameterSimpleNames.length;
 		ASTNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;

@@ -229,6 +229,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					declaringQualificationChars, 
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
+					false,
 					matchRule);
 			case IJavaSearchConstants.REFERENCES :
 				return new ConstructorPattern(
@@ -238,6 +239,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					declaringQualificationChars, 
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
+					false,
 					matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
 				return new ConstructorPattern(
@@ -247,6 +249,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					declaringQualificationChars, 
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
+					false,
 					matchRule);
 		}
 		return null;
@@ -612,6 +615,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					returnTypeSimpleName, 
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
+					false,
 					null,
 					matchRule);
 			case IJavaSearchConstants.REFERENCES :
@@ -625,6 +629,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					returnTypeSimpleName, 
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
+					false,
 					null,
 					matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
@@ -638,6 +643,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					returnTypeSimpleName, 
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
+					false,
 					null,
 					matchRule);
 		}
@@ -996,6 +1002,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				char[] selector = method.getElementName().toCharArray();
 				char[] returnSimpleName;
 				char[] returnQualification;
+				boolean varargs = false;
 				try {
 					String returnType = Signature.toString(method.getReturnType()).replace('$', '.');
 					if ((lastDot = returnType.lastIndexOf('.')) == -1) {
@@ -1008,6 +1015,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
 							: CharOperation.concat(IIndexConstants.ONE_STAR, returnType.substring(0, lastDot).toCharArray());
 					}
+					varargs = Flags.isVarargs(method.getFlags());
 				} catch (JavaModelException e) {
 					return null;
 				}
@@ -1026,7 +1034,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							? signature.substring(0, lastDot).toCharArray()
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
 							: CharOperation.concat(IIndexConstants.ONE_STAR, signature.substring(0, lastDot).toCharArray());
-				}
+					}
 				}
 				switch (limitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
@@ -1039,6 +1047,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									declaringQualification, 
 									parameterQualifications, 
 									parameterSimpleNames,
+									varargs,
 									R_EXACT_MATCH | R_CASE_SENSITIVE);
 						} else {
 							searchPattern = 
@@ -1052,6 +1061,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									returnSimpleName, 
 									parameterQualifications, 
 									parameterSimpleNames,
+									varargs,
 									null,
 									R_EXACT_MATCH | R_CASE_SENSITIVE);
 						}
@@ -1066,6 +1076,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									declaringQualification, 
 									parameterQualifications, 
 									parameterSimpleNames,
+									varargs,
 									R_EXACT_MATCH | R_CASE_SENSITIVE);
 						} else {
 							searchPattern = 
@@ -1079,6 +1090,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									returnSimpleName, 
 									parameterQualifications, 
 									parameterSimpleNames,
+									varargs,
 									method.getDeclaringType(),
 									R_EXACT_MATCH | R_CASE_SENSITIVE);
 						}
@@ -1093,6 +1105,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									declaringQualification, 
 									parameterQualifications, 
 									parameterSimpleNames,
+									varargs,
 									R_EXACT_MATCH | R_CASE_SENSITIVE);
 						} else {
 							searchPattern =
@@ -1106,6 +1119,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 									returnSimpleName, 
 									parameterQualifications, 
 									parameterSimpleNames,
+									varargs,
 									method.getDeclaringType(),
 									R_EXACT_MATCH | R_CASE_SENSITIVE);
 						}

@@ -28,6 +28,7 @@ public char[] declaringSimpleName;
 public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
+public boolean varargs;
 
 protected static char[][] REF_CATEGORIES = { CONSTRUCTOR_REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { CONSTRUCTOR_REF, CONSTRUCTOR_DECL };
@@ -51,6 +52,7 @@ public ConstructorPattern(
 	char[] declaringQualification,
 	char[][] parameterQualifications,
 	char[][] parameterSimpleNames,
+	boolean varargs,
 	int matchRule) {
 
 	this(matchRule);
@@ -71,7 +73,7 @@ public ConstructorPattern(
 	} else {
 		this.parameterCount = -1;
 	}
-
+	this.varargs = varargs;
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 ConstructorPattern(int matchRule) {
@@ -97,7 +99,7 @@ public char[][] getIndexCategories() {
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;
 
-	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1)
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
 		&& matchesName(this.declaringSimpleName, pattern.declaringSimpleName);
 }
 protected boolean mustResolve() {
@@ -115,7 +117,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
-			if (this.declaringSimpleName != null && this.parameterCount >= 0)
+			if (!this.varargs && this.declaringSimpleName != null && this.parameterCount >= 0)
 				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
 			else // do a prefix query with the declaringSimpleName
 				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
@@ -124,7 +126,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the declaringSimpleName
 			break;
 		case R_PATTERN_MATCH :
-			if (this.parameterCount >= 0)
+			if (!this.varargs && this.parameterCount >= 0)
 				key = createIndexKey(this.declaringSimpleName == null ? ONE_STAR : this.declaringSimpleName, this.parameterCount);
 			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
 				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);

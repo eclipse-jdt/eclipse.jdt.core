@@ -35,6 +35,7 @@ public char[] returnSimpleName;
 public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
+public boolean varargs;
 
 // extra reference info
 protected IType declaringType;
@@ -69,6 +70,7 @@ public MethodPattern(
 	char[] returnSimpleName,
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
+	boolean varargs,
 	IType declaringType,
 	int matchRule) {
 
@@ -93,7 +95,7 @@ public MethodPattern(
 	} else {
 		this.parameterCount = -1;
 	}
-
+	this.varargs = varargs;
 	this.declaringType = declaringType;
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
@@ -155,7 +157,7 @@ boolean isPolymorphicSearch() {
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	MethodPattern pattern = (MethodPattern) decodedPattern;
 
-	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1)
+	return (this.parameterCount == pattern.parameterCount || this.parameterCount == -1 || this.varargs)
 		&& matchesName(this.selector, pattern.selector);
 }
 /**
@@ -183,7 +185,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
-			if (this.selector != null && this.parameterCount >= 0)
+			if (!this.varargs && this.selector != null && this.parameterCount >= 0)
 				key = createIndexKey(this.selector, this.parameterCount);
 			else // do a prefix query with the selector
 				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
@@ -192,7 +194,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the selector
 			break;
 		case R_PATTERN_MATCH :
-			if (this.parameterCount >= 0)
+			if (!this.varargs && this.parameterCount >= 0)
 				key = createIndexKey(this.selector == null ? ONE_STAR : this.selector, this.parameterCount);
 			else if (this.selector != null && this.selector[this.selector.length - 1] != '*')
 				key = CharOperation.concat(this.selector, ONE_STAR, SEPARATOR);

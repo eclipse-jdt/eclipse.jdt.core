@@ -183,11 +183,19 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 			results.append(method.getElementName());
 		}
 		results.append("(");
-		String[] parameters = method.getParameterTypes();			
-		for (int i = 0; i < parameters.length; i++) {
-			results.append(Signature.toString(parameters[i]));
-			if (i < parameters.length-1) {
-				results.append(", ");
+		String[] parameters = method.getParameterTypes();
+		boolean varargs = Flags.isVarargs(method.getFlags());
+		for (int i = 0, length=parameters.length; i<length; i++) {
+			if (i < length - 1) {
+				results.append(Signature.toString(parameters[i]));
+				results.append(", "); //$NON-NLS-1$
+			} else if (varargs) {
+				// remove array from signature
+				String parameter = parameters[i].substring(1);
+				results.append(Signature.toString(parameter));
+				results.append(" ..."); //$NON-NLS-1$
+			} else {
+				results.append(Signature.toString(parameters[i]));
 			}
 		}
 		results.append(")");
@@ -299,7 +307,6 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 	}
 }
 	
-//	protected IJavaProject javaProject;
 	protected JavaSearchResultCollector resultCollector;
 	
 public JavaSearchTests(String name) {
@@ -312,7 +319,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Prefix for tests names to be run
-//	TESTS_PREFIX =  "testEnum";
+//	TESTS_PREFIX =  "testVarargs";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_NAMES = new String[] { "testPackageReference9" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
@@ -3581,7 +3588,7 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
 	
 //	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	resultCollector.showInsideDoc = true;
-	search(type, REFERENCES, getJavaSearchScope(), resultCollector);
+	search(type, REFERENCES, getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
@@ -3594,7 +3601,7 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
  */
 public void testTypeReference39() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
-	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(type, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/s1/A.java [s1.j.l.S]\n" + 
 		"src/s1/A.java [s1.j.l.S]\n" + 
@@ -3610,7 +3617,7 @@ public void testTypeReference39() throws CoreException {
 public void testTypeReference40() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
 	IType member = type.getType("Member");
-	search(member, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(member, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/s1/E.java [s1.j.l.S.Member]\n" + 
 		"src/s1/E.java s1.E.m [Member]",
@@ -3621,7 +3628,7 @@ public void testTypeReference40() throws CoreException {
  */
 public void testEnum01() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
-	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(type, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/e1/X.java [e1.T]\n" + 
 		"src/e1/X.java void e1.X.main(String[]) [T]\n" + 
@@ -3632,7 +3639,7 @@ public void testEnum01() throws CoreException {
 public void testEnum02() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
 	IMethod method = type.getMethod("T", new String[0]);
-	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(method, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/e1/T.java e1.T.FREDERIC [FREDERIC]",
 		this.resultCollector);
@@ -3640,7 +3647,7 @@ public void testEnum02() throws CoreException {
 public void testEnum03() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
 	IMethod method = type.getMethod("T", new String[] { "I" });
-	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(method, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/e1/T.java e1.T.PHILIPPE [PHILIPPE]\n" + 
 		"src/e1/T.java e1.T.DAVID [DAVID]\n" + 
@@ -3652,7 +3659,7 @@ public void testEnum03() throws CoreException {
 public void testEnum04() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
 	IMethod method = type.getMethod("age", new String[0]);
-	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(method, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/e1/X.java void e1.X.main(String[]) [age()]",
 		this.resultCollector);
@@ -3660,7 +3667,7 @@ public void testEnum04() throws CoreException {
 public void testEnum05() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
 	IMethod method = type.getMethod("isManager", new String[0]);
-	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), resultCollector);
+	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/e1/T.java e1.T.PHILIPPE [isManager()]\n" + 
 		"src/e1/T.java boolean e1.T.isManager() [isManager]\n" + 
@@ -3670,9 +3677,68 @@ public void testEnum05() throws CoreException {
 public void testEnum06() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "T.java").getType("T");
 	IMethod method = type.getMethod("setRole", new String[] { "Z" });
-	search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+	search(method, REFERENCES, getJavaSearchScope15(), this.resultCollector);
 	assertSearchResults(
 		"src/e1/X.java void e1.X.main(String[]) [setRole(t.isManager())]",
+		this.resultCollector);
+}
+/**
+ * Search method with varargs
+ */
+public void testVarargs01() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "v1", "X.java").getType("X");
+	IMethod method = type.getMethod("vargs", new String[] { "I", "I" });
+	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
+	assertSearchResults(
+		"src/v1/X.java void v1.X.vargs(int, int) [vargs]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2)]",
+		this.resultCollector);
+}
+public void testVarargs02() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "v1", "X.java").getType("X");
+	IMethod method = type.getMethod("vargs", new String[] { "I", "[I" });
+	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
+	assertSearchResults(
+		"src/v1/X.java void v1.X.vargs(int, int ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3)]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3, 4, 5, 6)]",
+		this.resultCollector);
+}
+public void testVarargs03() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "v1", "X.java").getType("X");
+	IMethod method = type.getMethod("vargs", new String[] { "[QString;" });
+	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
+	assertSearchResults(
+		"src/v1/X.java void v1.X.vargs(String ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(\"x\", \"a\",\"'b\", \"c\")]",
+		this.resultCollector);
+}
+public void testVarargs04() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "v1", "X.java").getType("X");
+	IMethod method = type.getMethod("vargs", new String[] { "QString;", "[Z" });
+	search(method, ALL_OCCURRENCES, getJavaSearchScope15(), this.resultCollector);
+	assertSearchResults(
+		"src/v1/X.java void v1.X.vargs(String, boolean ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(\"x\", false, true)]",
+		this.resultCollector);
+}
+public void testVarargs05() throws CoreException {
+	search("vargs", METHOD, DECLARATIONS, getJavaSearchScope15(), this.resultCollector);
+	assertSearchResults(
+		"src/v1/X.java void v1.X.vargs(int, int) [vargs]\n" + 
+		"src/v1/X.java void v1.X.vargs(int, int ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.vargs(String ...) [vargs]\n" + 
+		"src/v1/X.java void v1.X.vargs(String, boolean ...) [vargs]",
+		this.resultCollector);
+}
+public void testVarargs06() throws CoreException {
+	search("vargs", METHOD, REFERENCES, getJavaSearchScope15(), this.resultCollector);
+	assertSearchResults(
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2)]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3)]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(1, 2, 3, 4, 5, 6)]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(\"x\", \"a\",\"\'b\", \"c\")]\n" + 
+		"src/v1/X.java void v1.X.bar() [vargs(\"x\", false, true)]",
 		this.resultCollector);
 }
 }
