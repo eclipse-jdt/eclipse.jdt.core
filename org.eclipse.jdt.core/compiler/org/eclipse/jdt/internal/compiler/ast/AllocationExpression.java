@@ -162,6 +162,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 	return allocatedType;
 }
+public void setActualReceiverType(ReferenceBinding receiverType) {
+	// ignored
+}
 public void setDepth(int i) {
 	// ignored
 }

@@ -17,6 +17,7 @@ public class CodeSnippetCodeStream extends CodeStream {
 		new InvocationSite(){	
 			public boolean isSuperAccess(){ return false; }
 			public boolean isTypeAccess() { return false; }
+			public void setActualReceiverType(ReferenceBinding receiverType) {}
 			public void setDepth(int depth) {}
 			public void setFieldIndex(int depth){}
 		};

@@ -490,6 +490,7 @@ public class BlockScope extends Scope {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			char[] nextName = compoundName[currentIndex++];
 			invocationSite.setFieldIndex(currentIndex);
+			invocationSite.setActualReceiverType(typeBinding);
 			if ((binding = findField(typeBinding, nextName, invocationSite)) != null) {
 				if (!binding.isValidBinding())
 					return new ProblemFieldBinding(
@@ -733,8 +734,10 @@ public class BlockScope extends Scope {
 									// found a valid field in the 'immediate' scope (ie. not inherited)
 									// OR in 1.4 mode (inherited shadows enclosing)
 									if (foundField == null) {
-										if (depth > 0)
+										if (depth > 0){
 											invocationSite.setDepth(depth);
+											invocationSite.setActualReceiverType(enclosingType);
+										}
 										// return the fieldBinding if it is not declared in a superclass of the scope's binding (i.e. "inherited")
 										return insideProblem == null ? fieldBinding : insideProblem;
 									}
@@ -753,8 +756,10 @@ public class BlockScope extends Scope {
 								|| (foundField.problemId() == NotVisible
 									&& fieldBinding.problemId() != NotVisible)) {
 								// only remember the fieldBinding if its the first one found or the previous one was not visible & fieldBinding is...
-								if (depth > 0)
+								if (depth > 0) {
 									invocationSite.setDepth(depth);
+									invocationSite.setActualReceiverType(enclosingType);
+								}
 								foundInsideProblem = insideProblem;
 								foundField = fieldBinding;
 							}
@@ -1241,8 +1246,10 @@ public class BlockScope extends Scope {
 								// OR the receiverType implemented a method with the correct name
 								// OR in 1.4 mode (inherited visible shadows enclosing)
 								if (foundMethod == null) {
-									if (depth > 0)
+									if (depth > 0){
 										invocationSite.setDepth(depth);
+										invocationSite.setActualReceiverType(receiverType);
+									}
 									// return the methodBinding if it is not declared in a superclass of the scope's binding (i.e. "inherited")
 									if (fuzzyProblem != null)
 										return fuzzyProblem;
@@ -1266,8 +1273,10 @@ public class BlockScope extends Scope {
 								&& methodBinding.problemId() != NotVisible)) {
 							// only remember the methodBinding if its the first one found or the previous one was not visible & methodBinding is...
 							// remember that private methods are visible if defined directly by an enclosing class
-							if (depth > 0)
+							if (depth > 0){
 								invocationSite.setDepth(depth);
+								invocationSite.setActualReceiverType(receiverType);
+							}
 							foundFuzzyProblem = fuzzyProblem;
 							foundInsideProblem = insideProblem;
 							if (fuzzyProblem == null)

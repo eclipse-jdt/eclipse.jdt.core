@@ -511,11 +511,15 @@ public class QualifiedNameReference extends NameReference {
 
 			// if the binding declaring class is not visible, need special action
 			// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+			// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
 			FieldBinding fieldBinding = (FieldBinding) binding;
-			if (fieldBinding.declaringClass != null
+			if (fieldBinding.declaringClass != this.actualReceiverType
+				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
-				&& !fieldBinding.declaringClass.canBeSeenBy(scope))
-				binding = new FieldBinding(fieldBinding, scope.enclosingSourceType());
+				&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+					|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
+				binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
+			}
 		}
 
 		TypeBinding type = ((VariableBinding) binding).type;
@@ -558,13 +562,17 @@ public class QualifiedNameReference extends NameReference {
 				if (constant != NotAConstant) {
 					constant = someConstant;
 				}
+				
 				// if the binding declaring class is not visible, need special action
 				// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+				// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
 				if (field.declaringClass != type
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
-					&& !field.declaringClass.canBeSeenBy(scope))
+					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+						|| !field.declaringClass.canBeSeenBy(scope))){
 					otherBindings[place] = new FieldBinding(field, (ReferenceBinding) type);
+				}
 				type = field.type;
 				index++;
 			} else {
@@ -690,7 +698,7 @@ public class QualifiedNameReference extends NameReference {
 		// field and/or local are done before type lookups
 		// the only available value for the restrictiveFlag BEFORE
 		// the TC is Flag_Type Flag_LocalField and Flag_TypeLocalField 
-		this.receiverType = scope.enclosingSourceType();
+		this.actualReceiverType = this.receiverType = scope.enclosingSourceType();
 
 		constant = Constant.NotAConstant;
 		if ((binding = scope.getBinding(tokens, bits & RestrictiveFlagMASK, this))
@@ -740,7 +748,7 @@ public class QualifiedNameReference extends NameReference {
 
 	public void setFieldIndex(int index) {
 
-		indexOfFirstFieldBinding = index;
+		this.indexOfFirstFieldBinding = index;
 	}
 
 	public String toStringExpression() {

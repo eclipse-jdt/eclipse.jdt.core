@@ -65,13 +65,18 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	constant = FieldReference.getConstantFor(fieldBinding, true, this, 0);
 	if (isFieldUseDeprecated(fieldBinding, scope))
 		scope.problemReporter().deprecatedField(fieldBinding, this);
+
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	if (fieldBinding.declaringClass != null
+	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
+	if (fieldBinding.declaringClass != this.actualReceiverType
+		&& fieldBinding.declaringClass != null
 		&& fieldBinding.constant == NotAConstant
-		&& !fieldBinding.declaringClass.canBeSeenBy(scope)) {
-		binding = new FieldBinding(fieldBinding, scope.enclosingSourceType());
+		&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+			|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
+		binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
 	}
+
 	return fieldBinding.type;
 
 }

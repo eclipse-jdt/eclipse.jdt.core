@@ -11,7 +11,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public abstract class NameReference extends Reference implements InvocationSite, BindingIds {
 	public Binding binding; //may be aTypeBinding-aFieldBinding-aLocalVariableBinding
 	
-	public TypeBinding receiverType;
+	public TypeBinding receiverType, actualReceiverType;
 
 	//the error printing
 	//some name reference are build as name reference but
@@ -41,11 +41,17 @@ public boolean isTypeAccess() {
 public boolean isTypeReference() {
 	return binding instanceof ReferenceBinding;
 }
+public void setActualReceiverType(ReferenceBinding receiverType) {
+	this.actualReceiverType = receiverType;
+}
 public void setDepth(int depth) {
 	if (depth > 0) {
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
 	}
 }
-public void setFieldIndex(int index){}
+public void setFieldIndex(int index){
+	// ignored
+}
+
 public abstract String unboundReferenceErrorName();
 }

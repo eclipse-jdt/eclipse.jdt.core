@@ -262,6 +262,10 @@ public class ExplicitConstructorCall
 		}
 	}
 
+	public void setActualReceiverType(ReferenceBinding receiverType) {
+		// ignored
+	}
+
 	public void setDepth(int depth) {
 		// ignore for here
 	}

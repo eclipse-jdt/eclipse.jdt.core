@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.eval;
  * All Rights Reserved.
  */
 
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -246,11 +247,15 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
+		
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	if (binding.declaringClass != receiverType
-		&& !binding.declaringClass.canBeSeenBy(scope))
-		binding = new MethodBinding(binding, (ReferenceBinding) receiverType);
+	// NOTE: from 1.4 on, method's declaring class is touched if any different from receiver type
+	if (binding.declaringClass != this.receiverType
+		&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+				|| !binding.declaringClass.canBeSeenBy(scope))) {
+		binding = new MethodBinding(binding, (ReferenceBinding) this.receiverType);
+	}
 	return binding.returnType;
 }
 }

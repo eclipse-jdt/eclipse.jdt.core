@@ -19,8 +19,9 @@ What's new in this drop</h2>
 <li> The selection engine now only selects identifier between selection start and selection end.
 Previous behaviour was to select identifier between selection start and identifier end.
 (e.g. if you select <b>File</b> in <b>File</b>Input, now the selection engine select the class File and not FileInput)
-<li> To fix bug 6839 AllTypesSearchEngine returns anonymous classes, indexes are
-     recomputed automaticaly on workspace startup.
+<li> Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6839">6839</a> require to increment the index signature 
+version so as to trigger automatic reindexing on workspace startup (and thus get rid of undesired anonymous type entries
+in the index files).
 </ul>
 
 <h3>

@@ -372,18 +372,25 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type		
 		FieldBinding fieldBinding = (FieldBinding)binding;
 		if (delegateThis == null) {
-			if (fieldBinding.declaringClass != null
+			if (fieldBinding.declaringClass != this.actualReceiverType
+				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
-				&& !fieldBinding.declaringClass.canBeSeenBy(scope))
-					binding = new FieldBinding(fieldBinding, (ReferenceBinding) delegateThis.type);
+				&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+					|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
+				binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
+			}
 		} else {
 			CodeSnippetScope localScope = new CodeSnippetScope(scope);
-			if (fieldBinding.declaringClass != null
+			if (fieldBinding.declaringClass != delegateThis.type
+				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
-				&& !localScope.canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) delegateThis.type))
+				&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4				
+					|| !localScope.canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) delegateThis.type))) {
 					binding = new FieldBinding(fieldBinding, (ReferenceBinding) delegateThis.type);
+			}
 		}
 	}
 
@@ -438,19 +445,24 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 			// if the binding declaring class is not visible, need special action
 			// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+			// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type			
 			if (delegateThis == null) {
 				if (field.declaringClass != type
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
-					&& !field.declaringClass.canBeSeenBy(scope))
+					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4					
+						|| !field.declaringClass.canBeSeenBy(scope))) {
 						otherBindings[place] = new FieldBinding(field, (ReferenceBinding)type);
+				}
 			} else {
 				CodeSnippetScope localScope = new CodeSnippetScope(scope);
 				if (field.declaringClass != type
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant
-					&& !localScope.canBeSeenByForCodeSnippet(field.declaringClass, (ReferenceBinding) delegateThis.type))
-						otherBindings[place] = new FieldBinding(field, (ReferenceBinding)type);
+					&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+						|| !localScope.canBeSeenByForCodeSnippet(field.declaringClass, (ReferenceBinding) delegateThis.type))){
+					otherBindings[place] = new FieldBinding(field, (ReferenceBinding)type);
+				}
 			}
 			type = field.type;
 			index++;

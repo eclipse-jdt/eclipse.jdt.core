@@ -70,10 +70,16 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (delegateThis.isValidBinding()) return delegateThis.type;
 	return snippetType;
 }
+public void setActualReceiverType(ReferenceBinding receiverType) {
+	// ignored
+}
 public void setDepth(int depth){
+	// ignored
 }
 public void setFieldIndex(int index){
+	// ignored
 }
+
 public String toStringExpression(){
 	char[] declaringType = this.evaluationContext.declaringTypeName;
 	return "(" + (declaringType == null ? "<NO DECLARING TYPE>" : new String(declaringType)) + ")this"; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$

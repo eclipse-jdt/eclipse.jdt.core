@@ -393,19 +393,27 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type
 	if (binding.declaringClass != this.receiverType
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant
-		&& !binding.declaringClass.canBeSeenBy(scope))
+		&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+			|| !binding.declaringClass.canBeSeenBy(scope))){
 			binding = new FieldBinding(binding, (ReferenceBinding) this.receiverType);
+	}
 	return binding.type;
+}
+public void setActualReceiverType(ReferenceBinding receiverType) {
+	// ignored
 }
 public void setDepth(int depth) {
 	if (depth > 0) {
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
 	}
 }
-public void setFieldIndex(int index){}
+public void setFieldIndex(int index){
+	// ignored
+}
 
 public String toStringExpression(){
 	

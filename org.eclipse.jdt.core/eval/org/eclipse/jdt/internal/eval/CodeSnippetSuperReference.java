@@ -35,9 +35,15 @@ public boolean isSuperAccess(){
 public boolean isTypeAccess(){
 	return false;
 }
+public void setActualReceiverType(ReferenceBinding receiverType) {
+	// ignored
+}
 public void setDepth(int depth){
+	// ignored
 }
 public void setFieldIndex(int index){
+	// ignored
 }
+
 }
 

@@ -21,8 +21,8 @@ public class MessageSend extends Expression implements InvocationSite {
 
 	MethodBinding syntheticAccessor;
 
-	public TypeBinding receiverType;
-
+	public TypeBinding receiverType, actualReceiverType;
+	
 public MessageSend() {
 	
 }
@@ -168,7 +168,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 
 	constant = NotAConstant;
-	this.receiverType = receiver.resolveType(scope); 
+	this.actualReceiverType = this.receiverType = receiver.resolveType(scope); 
+	
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = NoParameters;
 	if (arguments != null) {
@@ -229,12 +230,19 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
+
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	if (binding.declaringClass != this.receiverType
-		&& !binding.declaringClass.canBeSeenBy(scope))
-		binding = new MethodBinding(binding, (ReferenceBinding) this.receiverType);
+	// NOTE: from 1.4 on, method's declaring class is touched if any different from receiver type
+	if (binding.declaringClass != this.actualReceiverType
+		&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+				|| !binding.declaringClass.canBeSeenBy(scope))) {
+		binding = new MethodBinding(binding, (ReferenceBinding) this.actualReceiverType);
+	}
 	return binding.returnType;
+}
+public void setActualReceiverType(ReferenceBinding receiverType) {
+	this.actualReceiverType = receiverType;
 }
 public void setDepth(int depth) {
 	if (depth > 0) {
@@ -244,6 +252,7 @@ public void setDepth(int depth) {
 public void setFieldIndex(int depth) {
 	// ignore for here
 }
+
 public String toStringExpression(){
 	/*slow code*/
 	

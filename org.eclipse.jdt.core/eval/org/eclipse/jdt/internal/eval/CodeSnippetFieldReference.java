@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.eval;
  
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
@@ -321,11 +322,14 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-	if (binding.declaringClass != receiverType
+	// NOTE: from 1.4 on, field's declaring class is touched if any different from receiver type	
+	if (binding.declaringClass != this.receiverType
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant
-		&& !binding.declaringClass.canBeSeenBy(scope))
-			binding = new FieldBinding(binding, (ReferenceBinding) receiverType);
+		&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+			|| !binding.declaringClass.canBeSeenBy(scope))){
+			binding = new FieldBinding(binding, (ReferenceBinding) this.receiverType);
+	}
 	return binding.type;
 }
 }
