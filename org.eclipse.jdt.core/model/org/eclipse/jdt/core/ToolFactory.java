@@ -16,10 +16,12 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
@@ -28,6 +30,8 @@ import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
@@ -129,6 +133,47 @@ public class ToolFactory {
 			return null;
 		}
 	}	
+	
+	/**
+	 * Create a classfile reader onto a classfile Java element.
+	 * Create a default classfile reader, able to expose the internal representation of a given classfile
+	 * according to the decoding flag used to initialize the reader.
+	 * Answer null if the file named fileName doesn't represent a valid .class file.
+	 * 
+	 * The decoding flags are described in IClassFileReader.
+	 * 
+	 * @param classfile the classfile element to introspect
+	 * @param decodingFlag the flag used to decode the class file reader.
+	 * @return a default classfile reader
+	 * 
+	 * @see IClassFileReader
+	 */
+	public static IClassFileReader createDefaultClassFileReader(IClassFile classfile, int decodingFlag){
+
+		IPath filePath = classfile.getPath();
+		IPackageFragmentRoot root = (IPackageFragmentRoot) classfile.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		if (root != null){
+			try {
+				IPath rootPath = root.getPath();
+				if (root instanceof JarPackageFragmentRoot) {
+						
+					String archiveName = ((JarPackageFragmentRoot)root).getJar().getName();
+					String entryName = classfile.getParent().getElementName();
+					entryName = entryName.replace('.', '/');
+					if (entryName.equals("")) { //$NON-NLS-1$
+						entryName += classfile.getElementName();
+					} else {
+						entryName += '/' + classfile.getElementName();
+					}
+					return createDefaultClassFileReader(archiveName, entryName, decodingFlag);
+				} else {
+					return createDefaultClassFileReader(classfile.getCorrespondingResource().getLocation().toOSString(), decodingFlag);
+				}
+			} catch(CoreException e){
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Create a default classfile reader, able to expose the internal representation of a given classfile
