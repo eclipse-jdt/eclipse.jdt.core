@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -358,6 +359,17 @@ public void updateFromParserState(){
 				int argLength = parser.astLengthStack[parser.astLengthPtr];
 				int argStart = parser.astPtr - argLength + 1;
 				boolean needUpdateRParenPos = parser.rParenPos < parser.lParenPos; // 12387 : rParenPos will be used
+				
+				// remove unfinished annotation nodes
+				if (argLength > 0 && parser.astStack[parser.astPtr] instanceof MemberValuePair) {
+					parser.astLengthPtr--;
+					parser.astPtr -= argLength;
+					
+					argLength = parser.astLengthStack[parser.astLengthPtr];
+					argStart = parser.astPtr - argLength + 1;
+					needUpdateRParenPos = true;
+				}
+				
 				// to compute bodyStart, and thus used to set next checkpoint.
 				int count;
 				for (count = 0; count < argLength; count++){

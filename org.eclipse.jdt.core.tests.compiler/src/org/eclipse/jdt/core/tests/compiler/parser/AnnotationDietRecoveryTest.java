@@ -452,4 +452,46 @@ public void test0007() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+public void test0008() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X {				        		\n"
+			+ "  void foo(int var1, @Annot(at1=zzz, at2) int var2 {	\n"
+			+ "  }							        		\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(int var1) {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo(int var1) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }
