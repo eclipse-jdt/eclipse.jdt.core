@@ -1458,6 +1458,44 @@ public void test042() {
 		"----------\n");
 }
 
+public void test043() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //================================
+			"public class X {\n" + 
+			"	public interface Copyable extends Cloneable {\n" + 
+			"		public Object clone() throws CloneNotSupportedException;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface TestIf extends Copyable {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class ClassA implements Copyable {\n" + 
+			"		public Object clone() throws CloneNotSupportedException {\n" + 
+			"			return super.clone();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class ClassB implements TestIf {\n" + 
+			"		public Object clone() throws CloneNotSupportedException {\n" + 
+			"			return super.clone();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		Copyable o1 = new ClassA();\n" + 
+			"		ClassB o2 = new ClassB();\n" + 
+			"		TestIf o3 = o2;\n" + 
+			"		Object clonedObject;\n" + 
+			"		clonedObject = o1.clone();\n" + 
+			"		clonedObject = o2.clone();\n" + 
+			"		clonedObject = o3.clone();\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }
