@@ -623,7 +623,7 @@ public class ClassFile
 			codeStream.generateCodeAttributeForProblemMethod(
 				referenceBinding
 					.scope
-					.problemReporter()
+					.environment()
 					.options
 					.runtimeExceptionNameForCompileError,
 				problemString);

@@ -225,7 +225,7 @@ public class BlockScope extends Scope {
 				}
 				if (!generatesLocal) {
 					if (local.declaration != null
-						&& referenceCompilationUnit().problemReporter.options.preserveAllLocalVariables) {
+						&& environment().options.preserveAllLocalVariables) {
 						generatesLocal = true; // force it to be preserved in the generated code
 						local.used = true;
 					}
