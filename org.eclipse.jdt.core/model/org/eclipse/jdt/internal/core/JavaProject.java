@@ -1556,12 +1556,10 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns true if the given resource is contained in an open project
-	 * with a java nature, otherwise false.
+	 * Returns true if the given project is accessible and it has
+	 * a java nature, otherwise false.
 	 */
-	public static boolean hasJavaNature(IResource resource) { 
-		// ensure the project has a java nature (if open)
-		IProject project = resource.getProject();
+	public static boolean hasJavaNature(IProject project) { 
 		try {
 			return project.hasNature(JavaCore.NATURE_ID);
 		} catch (CoreException e) {

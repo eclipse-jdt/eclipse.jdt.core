@@ -1258,7 +1258,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				break;
 			case IResource.PROJECT :
 				// do not visit non-java projects (see bug 16140 Non-java project gets .classpath)
-				if (delta.getKind() == IResourceDelta.CHANGED && JavaProject.hasJavaNature(resource)) {
+				if (delta.getKind() == IResourceDelta.CHANGED && JavaProject.hasJavaNature(resource.getProject())) {
 					processChildren = true;
 				}
 				break;

@@ -755,14 +755,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
-
+	
 		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
 		if (projectContainers == null){
 			projectContainers = new HashMap(1);
 			JavaModelManager.Containers.put(project, projectContainers);
 		}
 		IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
-
+	
 		if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
 		if (container == null){
 			final ClasspathContainerInitializer initializer = JavaModelManager.getClasspathContainerInitializer(containerPath.segment(0));
@@ -2441,7 +2441,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IClasspathContainer newContainer = respectiveContainers[i];
 			
 			boolean found = false;
-			if (affectedProject.getProject().exists()){
+			if (JavaProject.hasJavaNature(affectedProject.getProject())){
 				IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
 				for (int j = 0, cpLength = rawClasspath.length; j <cpLength; j++) {
 					IClasspathEntry entry = rawClasspath[j];
@@ -2452,7 +2452,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				}
 			}
 			if (!found){
-				affectedProjects[i] = null; // filter out this project - does not reference the container path
+				affectedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't Java project
 			}
 			
 			Map perProjectContainers = (Map)JavaModelManager.Containers.get(affectedProject);
