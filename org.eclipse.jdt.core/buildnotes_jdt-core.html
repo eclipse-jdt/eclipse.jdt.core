@@ -62,9 +62,6 @@ What's new in this drop</h2>
 <ul>
 <li> Plugin version ID got incremented to 3.0.0. 
 </li>
-<li> Removed fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39248">39248</a>
-since old behavior was actually the right one.
-</li>
 <li> Removed tolerance for relative source attachments in <code>JavaCore.newLibraryEntry(...)</code>. Only
 allowing relative empty pathes so as to permit using classpath variables to denote the absence of a source attachment.
 <li>To finish closing the gap between compilation units and working copies 
@@ -135,8 +132,6 @@ Close the gap between original and working copies
 Outliner did not refresh after method rename (refactor) 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39259">39259</a>
 While statement has wrong source position
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39248">39248</a>
-object += "string"; okay with javac but not JDT--JLS ambiguity?
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39007">39007</a>
 Infinite loop trying to index a non-existing external jar
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39172">39172</a>
