@@ -146,6 +146,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  1GJY3KG: ITPJUI:WIN2000 - NPE in jdt.internal.core.ClassFileInfo
   1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
   1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference
   1GK7K17: ITPJCORE:WIN2000 - search: missing type reference
