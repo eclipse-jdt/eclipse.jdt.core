@@ -191,7 +191,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(EnhancedForStatement node) {
 		return true;
@@ -204,7 +204,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(EnumConstantDeclaration node) {
 		return true;
@@ -266,7 +266,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(ParameterizedType node) {
 		return true;
@@ -294,7 +294,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(QualifiedType node) {
 		return true;
@@ -355,7 +355,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(TypeParameter node) {
 		return true;
@@ -444,7 +444,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public void endVisit(EnhancedForStatement node) {
 	}
@@ -456,7 +456,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public void endVisit(EnumConstantDeclaration node) {
 	}	
@@ -516,7 +516,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public void endVisit(ParameterizedType node) {
 	}	
@@ -543,7 +543,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public void endVisit(QualifiedType node) {
 	}	
@@ -603,7 +603,7 @@ public abstract class ASTVisitor {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public void endVisit(TypeParameter node) {
  	}

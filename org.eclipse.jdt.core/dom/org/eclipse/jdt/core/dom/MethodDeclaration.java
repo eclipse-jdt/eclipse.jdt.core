@@ -91,7 +91,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * The type paramters (element type: <code>TypeParameter</code>). 
 	 * Defaults to an empty list.
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	private ASTNode.NodeList typeParameters =
 		new ASTNode.NodeList(false, TypeParameter.class);
@@ -266,7 +266,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * 
 	 * @return the live list of type parameters
 	 *    (element type: <code>TypeParameter</code>)
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public List typeParameters() {
 		return typeParameters;

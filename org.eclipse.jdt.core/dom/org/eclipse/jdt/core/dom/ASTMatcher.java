@@ -614,7 +614,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean match(EnhancedForStatement node, Object other) {
 		if (!(other instanceof EnhancedForStatement)) {
@@ -647,7 +647,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean match(EnumConstantDeclaration node, Object other) {
 		if (!(other instanceof EnumConstantDeclaration)) {
@@ -1089,7 +1089,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean match(ParameterizedType node, Object other) {
 		if (!(other instanceof ParameterizedType)) {
@@ -1235,7 +1235,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean match(QualifiedType node, Object other) {
 		if (!(other instanceof QualifiedType)) {
@@ -1672,7 +1672,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or 
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean match(TypeParameter node, Object other) {
 		if (!(other instanceof TypeParameter)) {

@@ -558,7 +558,7 @@ public abstract class ASTNode {
 	 * and subject to change.
 	 * </p>
 	 * @see EnhancedForStatement
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static final int ENHANCED_FOR_STATEMENT = 63;
 
@@ -572,7 +572,7 @@ public abstract class ASTNode {
 	 * and subject to change.
 	 * </p>
 	 * @see EnumConstantDeclaration
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static final int ENUM_CONSTANT_DECLARATION = 64;
 	
@@ -586,7 +586,7 @@ public abstract class ASTNode {
 	 * and subject to change.
 	 * </p>
 	 * @see TypeParameter
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static final int TYPE_PARAMETER = 65;
 
@@ -600,7 +600,7 @@ public abstract class ASTNode {
 	 * and subject to change.
 	 * </p>
 	 * @see ParameterizedType
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static final int PARAMETERIZED_TYPE = 66;
 
@@ -614,10 +614,10 @@ public abstract class ASTNode {
 	 * and subject to change.
 	 * </p>
 	 * @see QualifiedType
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public static final int QUALIFIED_TYPE = 67;
-
+	
 	/**
 	 * Owning AST.
 	 */

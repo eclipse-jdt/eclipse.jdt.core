@@ -42,7 +42,7 @@ import java.util.List;
  * The first form is preferred when "A" is known to be a type (as opposed
  * to a package). However, a parser cannot always determine this. Clients
  * should be prepared to handle either rather than make assumptions.
- * (Note also that the first form became possible as of 2.2; only the second
+ * (Note also that the first form became possible as of 3.0; only the second
  * form existed in 2.0 and 2.1.)
  * </p>
  * <p>
@@ -63,7 +63,7 @@ public class ClassInstanceCreation extends Expression {
 	
 	/**
 	 * The type; lazily initialized; defaults to a unspecified type.
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	private Type type = null;
 	
@@ -240,7 +240,7 @@ public class ClassInstanceCreation extends Expression {
 	 * Returns the type instantiated in this class instance creation expression.
 	 * 
 	 * @return the type node
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public Type getType() {
 		if (this.type == null) {
@@ -261,7 +261,7 @@ public class ClassInstanceCreation extends Expression {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>`
 	 * </ul>
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public void setType(Type type) {
 		if (type == null) {

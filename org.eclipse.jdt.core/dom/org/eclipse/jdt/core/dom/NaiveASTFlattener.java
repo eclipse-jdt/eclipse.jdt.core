@@ -377,7 +377,7 @@ class NaiveASTFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(EnhancedForStatement)
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(EnhancedForStatement node) {
 		buffer.append("for (");//$NON-NLS-1$
@@ -393,7 +393,7 @@ class NaiveASTFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(EnumConstantDeclaration)
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(EnumConstantDeclaration node) {
 		node.getName().accept(this);
@@ -662,7 +662,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * in the 1.5 release of J2SE. The support here is therefore tentative
 	 * and subject to change.
 	 * @see ASTVisitor#visit(ParameterizedType)
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(ParameterizedType node) {
 		node.getName().accept(this);
@@ -726,7 +726,7 @@ class NaiveASTFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(QualifiedType)
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(QualifiedType node) {
 		node.getQualifier().accept(this);
@@ -1005,7 +1005,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * in the 1.5 release of J2SE. The support here is therefore tentative
 	 * and subject to change.
 	 * @see ASTVisitor#visit(TypeParameter)
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean visit(TypeParameter node) {
 		node.getName().accept(this);

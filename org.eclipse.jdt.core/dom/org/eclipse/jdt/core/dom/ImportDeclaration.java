@@ -48,7 +48,7 @@ public class ImportDeclaration extends ASTNode {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	private boolean isStatic = false;
 
@@ -188,7 +188,7 @@ public class ImportDeclaration extends ASTNode {
 	 * 
 	 * @return <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public boolean isStatic() {
 		return isStatic;
@@ -205,7 +205,7 @@ public class ImportDeclaration extends ASTNode {
 	 * 
 	 * @param isStatic <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public void setStatic(boolean isStatic) {
 		modifying();

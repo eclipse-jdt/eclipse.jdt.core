@@ -93,7 +93,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * and subject to change.
 	 * </p>
 	 * 
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	private boolean isEnumeration = false;
 
@@ -106,7 +106,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	/**
 	 * The type paramters (element type: <code>TypeParameter</code>). 
 	 * Defaults to an empty list.
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	private ASTNode.NodeList typeParameters =
 		new ASTNode.NodeList(false, TypeParameter.class);
@@ -115,14 +115,14 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * The optional superclass type; <code>null</code> if none.
 	 * Defaults to none. Note that this field is not used for
 	 * interface declarations.
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	private Type optionalSuperclassType = null;
 
 	/**
 	 * The superinterface types (element type: <code>Type</code>). 
 	 * Defaults to an empty list.
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	private ASTNode.NodeList superInterfaceTypes =
 		new ASTNode.NodeList(false, Type.class);
@@ -241,7 +241,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * 
 	 * @return <code>true</code> if this is an enumeration declaration,
 	 *    and <code>false</code> if this is a class declaration
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public boolean isEnumeration() {
 		return isEnumeration;
@@ -260,7 +260,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * @param isEnumeration <code>true</code> if this is an enumeration
 	 *    declaration, and <code>false</code> if this is a class
 	 * 	  declaration
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public void setEnumeration(boolean isEnumeration) {
 		modifying();
@@ -343,7 +343,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * 
 	 * @return the live list of type parameters
 	 *    (element type: <code>TypeParameter</code>)
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public List typeParameters() {
 		return typeParameters;
@@ -398,7 +398,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	* 
 	* @return the superclass type node, or <code>null</code> if 
 	*    there is none
-	* @since 2.2
+	* @since 3.0
 	*/ 
 	public Type getSuperclassType() {
 		return this.optionalSuperclassType;
@@ -463,7 +463,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public void setSuperclassType(Type superclassType) {
 		replaceChild(this.optionalSuperclassType, superclassType, true);
@@ -595,7 +595,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * 
 	 * @return the live list of interface types
 	 *    (element type: <code>Type</code>)
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public List superInterfaceTypes() {
 		return superInterfaceTypes;
@@ -730,7 +730,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * </p>
 	 * 
 	 * @return the (possibly empty) list of enum constant declarations
-	 * @since 2.2
+	 * @since 3.0
 	 */ 
 	public EnumConstantDeclaration[] getEnumConstants() {
 		List bd = bodyDeclarations();

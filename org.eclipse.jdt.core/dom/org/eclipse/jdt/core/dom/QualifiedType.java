@@ -35,7 +35,7 @@ package org.eclipse.jdt.core.dom;
  * The first form is preferred when "A" is known to be a type. However, a 
  * parser cannot always determine this. Clients should be prepared to handle
  * either rather than make assumptions. (Note also that the first form
- * became possible as of 2.2; only the second form existed in 2.0 and 2.1.)
+ * became possible as of 3.0; only the second form existed in 2.0 and 2.1.)
  * </p>
  * <p>
  * Note: Support for generic types is an experimental language feature 
@@ -44,7 +44,7 @@ package org.eclipse.jdt.core.dom;
  * and subject to change.
  * </p>
  * 
- * @since 2.2
+ * @since 3.0
  */
 public class QualifiedType extends Type {
 	/** 

@@ -265,7 +265,7 @@ class BindingResolver {
 	 * @param statement the enhanced for statement of interest
 	 * @return the binding for the loop variable for the given enhanced for
 	 *    statement, or <code>null</code> if no binding is available
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	IVariableBinding resolveVariable(EnhancedForStatement statement) {
 		return null;
@@ -313,7 +313,7 @@ class BindingResolver {
 	 * @param enumConstant the enum constant declaration of interest
 	 * @return the field binding for the given enum constant declaration, or 
 	 *    <code>null</code> if no binding is available
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	IVariableBinding resolveVariable(EnumConstantDeclaration enumConstant) {
 		return null;

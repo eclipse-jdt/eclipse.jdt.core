@@ -26,7 +26,7 @@ package org.eclipse.jdt.core.dom;
  * in the 1.5 release of J2SE. The support here is therefore tentative
  * and subject to change.
  * </p>
- * @since 2.2
+ * @since 3.0
  */
 public class EnhancedForStatement extends Statement {
 	

@@ -26,7 +26,7 @@ import java.util.List;
  * and subject to change.
  * </p>
  * 
- * @since 2.2
+ * @since 3.0
  */
 public class TypeParameter extends ASTNode {
 	/** 

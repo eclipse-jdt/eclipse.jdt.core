@@ -112,7 +112,7 @@ public abstract class Type extends ASTNode {
 	 * 
 	 * @return <code>true</code> if this is a parameterized type, and 
 	 *    <code>false</code> otherwise
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public final boolean isParameterizedType() {
 		return (this instanceof ParameterizedType);
@@ -134,7 +134,7 @@ public abstract class Type extends ASTNode {
 	 * The first form is preferred when "A" is known to be a type. However, a 
 	 * parser cannot always determine this. Clients should be prepared to handle
 	 * either rather than make assumptions. (Note also that the first form
-	 * became possible as of 2.2; only the second form existed in 2.0 and 2.1.)
+	 * became possible as of 3.0; only the second form existed in 2.0 and 2.1.)
 	 * </p>
 	 * <p>
 	 * Note: Support for generic types is an experimental language feature 
@@ -145,7 +145,7 @@ public abstract class Type extends ASTNode {
 	 * 
 	 * @return <code>true</code> if this is a qualified type, and 
 	 *    <code>false</code> otherwise
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public final boolean isQualifiedType() {
 		return (this instanceof QualifiedType);

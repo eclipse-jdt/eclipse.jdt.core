@@ -120,7 +120,7 @@ public interface ITypeBinding extends IBinding {
 	 * 
 	 * @return <code>true</code> if this type binding is for a type variable,
 	 *   and <code>false</code> otherwise
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public boolean isTypeVariable();
 	

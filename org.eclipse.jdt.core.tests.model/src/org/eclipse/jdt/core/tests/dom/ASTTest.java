@@ -331,7 +331,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 		/**
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ParameterizedType, Object)
-		 * @since 2.2
+		 * @since 3.0
 		 */
 		public boolean match(ParameterizedType node, Object other) {
 			checkPositions(node, other);
@@ -524,7 +524,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 		/**
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TypeParameter, Object)
-		 * @since 2.2
+		 * @since 3.0
 		 */
 		public boolean match(TypeParameter node, Object other) {
 			checkPositions(node, other);
@@ -4720,7 +4720,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		variableDeclarationExpression.setSourceRange(430, 5);
 		z.add(variableDeclarationExpression);
 		
-		// new for 2.2
+		// new for 3.0
 		EnhancedForStatement foreachStatement = target.newEnhancedForStatement();
 		foreachStatement.setSourceRange(500, 5);
 		b.statements().add(foreachStatement);

@@ -304,7 +304,7 @@ class BindingsCollectorVisitor extends ASTVisitor {
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ParameterizedType)
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public void endVisit(ParameterizedType node) {
 		ITypeBinding typeBinding = node.resolveBinding();
@@ -475,7 +475,7 @@ class BindingsCollectorVisitor extends ASTVisitor {
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(TypeParameter)
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public void endVisit(TypeParameter node) {
 	}
