@@ -2061,12 +2061,12 @@ final char[] optimizedCurrentTokenSource2() {
 final char[] optimizedCurrentTokenSource3() {
 	//try to return the same char[] build only once
 
-	char c0, c1, c2;
-	int hash = 
-		(((c0 = this.source[this.startPosition]) << 12)
-			+ ((c1 = this.source[this.startPosition + 1]) << 6)
-			+ (c2 = this.source[this.startPosition + 2]))
-			% TableSize; 
+	char[] src = this.source;
+	int start = this.startPosition;
+	char c0 = src[start];
+	char c1 = src[start+1];
+	char c2 = src[start+2];
+	int hash = ((c0 << 12) + (c1<< 6) + c2) % TableSize; 
 	char[][] table = this.charArray_length[1][hash];
 	int i = newEntry3;
 	while (++i < InternalTableSize) {

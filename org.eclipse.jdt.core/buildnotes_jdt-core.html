@@ -54,10 +54,15 @@ What's new in this drop</h2>
 <li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=82004">bug 82004</a> required the index version to be incremented. 
      Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
+<li>Merged problem <code>IProblem.UnnecessaryArgumentCast</code> with <code>IProblem.UnnecessaryCast</code> since it provided little additional value,
+and was rather perceived as confusing. From now on, only <code>IProblem.UnnecessaryCast</code> is reported.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=81856">81856</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=82217">82217</a>
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73081">73081</a>
+[compiler][5.0] switch on enum allows non enum constants
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=81856">81856</a>
 quote problems in property files (JDT)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68823">68823</a>
 [dom] Ctrl+C command fails when "assert" is enabled

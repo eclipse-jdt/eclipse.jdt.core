@@ -109,10 +109,14 @@ public class CaseStatement extends Statement {
 				this.isEnumConstant = true;
 				if (constantExpression instanceof NameReference
 						&& (constantExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
-					if (constantExpression instanceof QualifiedNameReference) {
-						 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel((QualifiedNameReference)constantExpression);
+					NameReference reference = (NameReference) constantExpression;
+					FieldBinding field = reference.fieldBinding();
+					if ((field.modifiers & AccEnum) == 0) {
+						 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
+					} else 	if (reference instanceof QualifiedNameReference) {
+						 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
 					}
-					return Constant.fromValue(((NameReference)constantExpression).fieldBinding().id); // ordinal value
+					return Constant.fromValue(field.id); // ordinal value
 				}
 			} else {
 				return constantExpression.constant;

@@ -211,8 +211,8 @@ public class CastExpression extends Expression {
 			//  <<16   <<12       <<8    <<4       <<0
 			final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
 			if ((operatorSignature & CompareMASK) == (alternateOperatorSignature & CompareMASK)) { // same promotions and result
-				if (leftIsCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)left,  TypeBinding.wellKnownType(scope, (left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4)); 
-				if (rightIsCast) scope.problemReporter().unnecessaryCastForArgument((CastExpression)right, TypeBinding.wellKnownType(scope,  (right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4));
+				if (leftIsCast) scope.problemReporter().unnecessaryCast((CastExpression)left); 
+				if (rightIsCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
 			}
 		}
 	}
@@ -240,7 +240,7 @@ public class CastExpression extends Expression {
 			if (bindingIfNoCast == binding) {
 				for (int i = 0, length = originalArgumentTypes.length; i < length; i++) {
 					if (originalArgumentTypes[i] != alternateArgumentTypes[i]) {
-						scope.problemReporter().unnecessaryCastForArgument((CastExpression)arguments[i], binding.parameters[i]);
+						scope.problemReporter().unnecessaryCast((CastExpression)arguments[i]);
 					}
 				}
 			}	

@@ -473,12 +473,11 @@ public void cannotUseSuperInJavaLangObject(ASTNode reference) {
 		reference.sourceStart,
 		reference.sourceEnd);
 }
-public void cannotUseQualifiedEnumConstantInCaseLabel(QualifiedNameReference reference) {
-	String[] arguments = new String[]{ String.valueOf(reference.fieldBinding().name) };
+public void cannotUseQualifiedEnumConstantInCaseLabel(Reference reference, FieldBinding field) {
 	this.handle(
 			IProblem.IllegalQualifiedEnumConstantLabel,
-			arguments,
-			arguments,
+			new String[]{ String.valueOf(field.declaringClass.readableName()), String.valueOf(field.name) },
+			new String[]{ String.valueOf(field.declaringClass.shortReadableName()), String.valueOf(field.name) },
 			reference.sourceStart,
 			reference.sourceEnd);	
 }
@@ -625,7 +624,6 @@ public int computeSeverity(int problemId){
 			return this.options.getSeverity(CompilerOptions.UndocumentedEmptyBlock);
 			
 		case IProblem.UnnecessaryCast:
-		case IProblem.UnnecessaryArgumentCast:
 		case IProblem.UnnecessaryInstanceof:
 			return this.options.getSeverity(CompilerOptions.UnnecessaryTypeCheck);
 			
@@ -1170,7 +1168,14 @@ public void enumAbstractMethodMustBeImplemented(AbstractMethodDeclaration method
 		method.sourceStart(),
 		method.sourceEnd());
 }
-
+public void enumSwitchCannotTargetField(Reference reference, FieldBinding field) {
+	this.handle(
+			IProblem.EnumSwitchCannotTargetField,
+			new String[]{ String.valueOf(field.declaringClass.readableName()), String.valueOf(field.name) },
+			new String[]{ String.valueOf(field.declaringClass.shortReadableName()), String.valueOf(field.name) },
+			reference.sourceStart,
+			reference.sourceEnd);	
+}
 public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params) {
 	StringBuffer buffer = new StringBuffer();
 	StringBuffer shortBuffer = new StringBuffer();
@@ -4717,15 +4722,6 @@ public void unnecessaryCast(CastExpression castExpression) {
 		IProblem.UnnecessaryCast,
 		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName())},
 		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName())},
-		castExpression.sourceStart,
-		castExpression.sourceEnd);
-}
-public void unnecessaryCastForArgument(CastExpression castExpression, TypeBinding parameterType) {
-	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
-	this.handle(
-		IProblem.UnnecessaryArgumentCast,
-		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName()), new String(parameterType.readableName())},
-		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName()), new String(parameterType.shortReadableName())},
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }

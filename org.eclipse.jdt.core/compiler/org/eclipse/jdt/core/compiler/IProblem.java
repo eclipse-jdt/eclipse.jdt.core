@@ -415,7 +415,8 @@ public interface IProblem {
 	int SuperfluousSemicolon = Internal + 180;
 	/** @since 3.0 */
 	int UnnecessaryCast = Internal + TypeRelated + 181;
-	/** @since 3.0 */
+	/** @deprecated - no longer generated, simply treated as UnnecessaryCast
+	 *   @since 3.0 */
 	int UnnecessaryArgumentCast = Internal + TypeRelated + 182;
 	/** @since 3.0 */
 	int UnnecessaryInstanceof = Internal + TypeRelated + 183;	
@@ -1051,6 +1052,8 @@ public interface IProblem {
 	int CannotInvokeSuperConstructorInEnum = MethodRelated + 757;
 	/** @since 3.1 */
 	int EnumAbstractMethodMustBeImplemented = MethodRelated + 758;
+	/** @since 3.1 */
+	int EnumSwitchCannotTargetField = FieldRelated + 759;
 
 	/**
 	 * Var args
