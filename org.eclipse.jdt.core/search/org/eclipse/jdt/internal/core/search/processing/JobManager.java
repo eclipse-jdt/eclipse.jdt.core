@@ -412,4 +412,10 @@ public abstract class JobManager implements Runnable {
 		} catch (InterruptedException e) {
 		}
 	}
+public String toString() {
+	StringBuffer buffer = new StringBuffer(10);
+	buffer.append("Enabled:").append(this.enabled).append('\n'); //$NON-NLS-1$
+	buffer.append("Jobs in queue:").append(jobEnd - jobStart + 1).append('\n'); //$NON-NLS-1$
+	return buffer.toString();
+}	
 }

@@ -271,7 +271,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] oldResolvedPath,
 		IClasspathEntry[] newResolvedPath,
 		final JavaProject project) {
-
+	
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
@@ -310,7 +310,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					this.needCycleCheck = true;
 					continue; 
 				}
-
+	
 				IPackageFragmentRoot[] pkgFragmentRoots = null;
 				if (oldRoots != null) {
 					IPackageFragmentRoot oldRoot = (IPackageFragmentRoot)  oldRoots.get(oldResolvedPath[i].getPath());
@@ -340,7 +340,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				
 				int changeKind = oldResolvedPath[i].getEntryKind();
 				needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
-
+	
 				// Remove the .java files from the index for a source folder
 				// For a lib folder or a .jar file, remove the corresponding index if not shared.
 				if (indexManager != null) {
@@ -367,8 +367,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 								}
 								public void run() throws JavaModelException {
 									if (deltaProcessor.otherRoots.get(path) == null) { // if root was not shared
+										indexManager.discardJobs(path.toString());
 										indexManager.removeIndex(path);
-										// TODO: (kent) we could just remove the in-memory index and have the indexing check for timestamps
+										// TODO: we could just remove the in-memory index and have the indexing check for timestamps
 									}
 								}
 							}, 
@@ -377,7 +378,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					}		
 				}
 				hasDelta = true;
-
+	
 			} else {
 				// do not notify remote project changes
 				if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
@@ -418,9 +419,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 				}
 			}
 		}
-
+	
 		for (int i = 0; i < newLength; i++) {
-
+	
 			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
 			if (index == -1) {
 				// do not notify remote project changes
@@ -479,10 +480,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 				
 				needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE) || newResolvedPath[i].isExported();
 				hasDelta = true;
-
+	
 			} // classpath reordering has already been generated in previous loop
 		}
-
+	
 		if (hasDelta) {
 			this.addDelta(delta);
 		}

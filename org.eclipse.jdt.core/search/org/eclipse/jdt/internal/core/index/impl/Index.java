@@ -355,7 +355,9 @@ public class Index implements IIndex {
 		return (addsIndex.getFootprint() >= MAX_FOOTPRINT);
 	}
 public String toString() {
-	if (this.toString == null) return super.toString();
-	return this.toString;
+	String str = this.toString;
+	if (str == null) str = super.toString();
+	str += "(length: "+ getIndexFile().length() +")"; //$NON-NLS-1$ //$NON-NLS-1$
+	return str;
 }
 }

@@ -532,6 +532,17 @@ public void shutdown() {
 
 	super.shutdown();
 }
+
+public String toString() {
+	StringBuffer buffer = new StringBuffer(10);
+	buffer.append(super.toString());
+	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
+	for (Iterator iter = this.indexes.values().iterator(); iter.hasNext();) {
+		buffer.append(" -").append(iter.next().toString()).append('\n'); //$NON-NLS-1$
+	}
+	return buffer.toString();
+}
+
 private char[] readIndexState() {
 	try {
 		return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(savedIndexNamesFile, null);
