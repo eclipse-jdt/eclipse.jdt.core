@@ -542,7 +542,7 @@ public class ClassScope extends Scope {
 		if ((modifiers & AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForField(fieldBinding.declaringClass, fieldDecl);
 
-		if (fieldBinding.declaringClass.isInterface()) {
+		if ((fieldBinding.declaringClass.modifiers  & AccInterface) != 0) {
 			int expectedValue = AccPublic | AccStatic | AccFinal;
 			// set the modifiers
 			modifiers |= expectedValue;

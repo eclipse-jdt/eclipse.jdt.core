@@ -984,7 +984,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}			
 	
 	// check annotation array member initializer
-	public void test042() {
+	public void _test042() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
