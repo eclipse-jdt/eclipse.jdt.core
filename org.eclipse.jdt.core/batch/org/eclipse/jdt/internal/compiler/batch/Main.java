@@ -614,32 +614,25 @@ public class Main implements ProblemSeverities {
 						options.put((String) entry.getKey(), CompilerOptions.IGNORE);
 					}
 				}
-				options.put(
-					CompilerOptions.OPTION_TaskTags,
-					""); //$NON-NLS-1$
 				mode = Default;
 				continue;
 			}
 			if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
 				mode = Default;
 				String warningOption = currentArg;
-				// reset all warnings
-				Object[] entries = options.entrySet().toArray();
-				for (int i = 0, max = entries.length; i < max; i++) {
-					Map.Entry entry = (Map.Entry) entries[i];
-					if (!(entry.getKey() instanceof String))
-						continue;
-					if (!(entry.getValue() instanceof String))
-						continue;
-					if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-						options.put((String) entry.getKey(), CompilerOptions.IGNORE);
-					}
-				}
-				options.put(
-					CompilerOptions.OPTION_TaskTags,
-					""); //$NON-NLS-1$
 				int length = currentArg.length();
 				if (length == 10 && warningOption.equals("-warn:none")) { //$NON-NLS-1$
+					Object[] entries = options.entrySet().toArray();
+					for (int i = 0, max = entries.length; i < max; i++) {
+						Map.Entry entry = (Map.Entry) entries[i];
+						if (!(entry.getKey() instanceof String))
+							continue;
+						if (!(entry.getValue() instanceof String))
+							continue;
+						if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
+							options.put((String) entry.getKey(), CompilerOptions.IGNORE);
+						}
+					}
 					continue;
 				}
 				if (length < 6)
@@ -648,6 +641,68 @@ public class Main implements ProblemSeverities {
 				StringTokenizer tokenizer =
 					new StringTokenizer(warningOption.substring(6, warningOption.length()), ","); //$NON-NLS-1$
 				int tokenCounter = 0;
+
+				options.put(
+					CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportMethodWithConstructorName,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportDeprecation, 
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportHiddenCatchBlock,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportUnusedLocal, 
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportUnusedParameter,
+					CompilerOptions.IGNORE);
+				options.put( 
+					CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportAssertIdentifier,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportUnusedImport,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportStaticAccessReceiver,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportNoEffectAssignment,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportNoImplicitStringConversion,
+					CompilerOptions.IGNORE);				
+				options.put(
+					CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
+					CompilerOptions.IGNORE);				
+				options.put(
+					CompilerOptions.OPTION_ReportUnusedPrivateMember,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportLocalVariableHiding,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportFieldHiding,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_ReportSpecialParameterHidingField,
+					CompilerOptions.DISABLED);
+				options.put(
+					CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+					CompilerOptions.IGNORE);
+				options.put(
+					CompilerOptions.OPTION_TaskTags,
+					""); //$NON-NLS-1$
+
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
 					tokenCounter++;
