@@ -72,7 +72,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 * of this node.
 	 * 
 	 * @return the property descriptor
-	 * @si
+	 * @since 3.1
 	 */
 	public final ChildPropertyDescriptor getNameProperty() {
 		return internalNameProperty();
