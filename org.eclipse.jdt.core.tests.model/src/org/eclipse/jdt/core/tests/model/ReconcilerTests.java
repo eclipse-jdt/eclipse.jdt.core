@@ -975,7 +975,7 @@ public void testMethodWithError09() throws CoreException {
 	}
 }
 /*
- * Scenario of reconciling using a working copy owner
+ * Scenario of reconciling using a working copy owner  (68557)
  */
 public void testMethodWithError10() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
@@ -1003,6 +1003,55 @@ public void testMethodWithError10() throws CoreException {
 			"public class NestedGenericsTest {\n"+
 			"    void test() {  \n"+
 			"        Stack s = new NestedGenerics().stack;  \n"+
+			"    }\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+		deleteFolder("/Reconciler15/src/test");
+	}
+}
+/*
+ * Scenario of reconciling using a working copy owner (68557)
+ */
+public void testMethodWithError11() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		createFolder("/Reconciler15/src/test/cheetah");
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
+		workingCopy1.getBuffer().setContents(
+			"package test.cheetah;\n"+
+			"import java.util.*;\n"+
+			"public class NestedGenerics {\n"+
+			"    Map<List<Object>, String> stack = null;\n"+
+			"    Stack<List<Object>> stack2 = null;\n"+
+			"    Map<List<Object>,List<Object>> stack3 = null;\n"+
+			"}\n"
+		);
+		workingCopy1.makeConsistent(null);
+		
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(owner, this.problemRequestor, null);
+		setWorkingCopyContents(
+			"package test.cheetah;\n"+
+			"import java.util.*;\n"+
+			"public class NestedGenericsTest {\n"+
+			"    void test() {  \n"+
+			"        Stack s = new NestedGenerics().stack;  \n"+
+			"		 Stack s2 = new NestedGenerics().stack2;    \n"+
+			"        Map s3 = new NestedGenerics().stack3;    \n"+
 			"    }\n"+
 			"}\n"
 		);
