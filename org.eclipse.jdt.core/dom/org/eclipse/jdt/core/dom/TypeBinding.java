@@ -159,7 +159,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public IMethodBinding[] getDeclaredMethods() {
 		try {
-			if (isClass() || isInterface() || isEnum()) {
+			if (isClass() || isInterface() || isEnum() || isAnnotation()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] methods = referenceBinding.methods();
 				int length = methods.length;
