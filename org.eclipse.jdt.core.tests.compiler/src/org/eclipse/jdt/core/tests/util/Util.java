@@ -329,7 +329,7 @@ public static void writeToFile(String contents, String destinationFilePath) {
 		}
 	}
 }
-public static String convertToIndependantLfs(String source) {
+public static String convertToIndependantLineDelimiter(String source) {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = source.length(); i < length; i++) {
 		char car = source.charAt(i);
