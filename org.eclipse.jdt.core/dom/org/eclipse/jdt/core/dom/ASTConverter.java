@@ -674,7 +674,9 @@ class ASTConverter {
 		ExplicitConstructorCall explicitConstructorCall = null;
 		if (isConstructor) {
 			// set the return type to VOID
-			methodDecl.setReturnType(this.ast.newPrimitiveType(PrimitiveType.VOID));
+			PrimitiveType returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+			returnType.setSourceRange(methodDeclaration.sourceStart, 0);
+			methodDecl.setReturnType(returnType);
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
 			explicitConstructorCall = constructorDeclaration.constructorCall;
 		} else {
