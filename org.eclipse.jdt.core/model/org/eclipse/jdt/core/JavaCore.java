@@ -1117,6 +1117,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 *  COMPILER / Defining Target Java Platform
 	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
+	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too.
 	 *     - option id:			"org.eclipse.jdt.core.compiler.codegen.targetPlatform"
 	 *     - possible values:	{ "1.1", "1.2", "1.3", "1.4" }
 	 *     - default:			"1.1"

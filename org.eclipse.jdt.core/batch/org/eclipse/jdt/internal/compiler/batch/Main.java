@@ -903,6 +903,12 @@ public class Main implements ProblemSeverities {
 				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 		}
 
+		// target cannot be 1.4 if compliance is 1.3
+		if (options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_4)
+				&& !options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+		}
+		
 		if (log != null) {
 			try {
 				out = new PrintWriter(new FileOutputStream(log, false));
