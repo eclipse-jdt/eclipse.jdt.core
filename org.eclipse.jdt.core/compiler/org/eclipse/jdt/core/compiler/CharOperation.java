@@ -200,6 +200,75 @@ public final class CharOperation {
 		return result;
 	}
 
+	/**
+	 * Compare the contents of the two arrays array and prefix and answers:
+	 * <ul>
+	 * <li>zero if the array starts with the prefix contents</li>
+	 * <li>the difference between the first two characters that are not equal starting from 
+	 * the end of the shortest array</li>
+	 * <li>one if array length is lower than the prefix length and that the prefix starts with the 
+	 * array contents.</li>
+	 * </ul>
+	 * The comparison can be case-sensitive if isCaseSensitive is set to true.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = null
+	 *    prefix = null
+	 *    => result = NullPointerException
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a', 'b', 'c', 'd', 'e' }
+	 *    prefix = { 'a', 'b', 'c'}
+	 * 	  isCaseSensitive = true
+	 *    => result = 0
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a', 'b', 'c', 'd', 'e' }
+	 *    prefix = { 'a', 'B', 'c'}
+	 * 	  isCaseSensitive = false
+	 *    => result = 0
+	 * </pre>
+	 * <li><pre>
+	 *    array = { 'a', 'b', 'c', 'd', 'e' }
+	 *    prefix = { 'a', 'B', 'c'}
+	 * 	  isCaseSensitive = true
+	 *    => result = 32
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'd', 'b', 'c', 'd', 'e' }
+	 *    prefix = { 'a', 'b', 'c'}
+	 * 	  isCaseSensitive = true
+	 *    => result = 3
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a', 'b', 'c', 'd', 'e' }
+	 *    prefix = { 'd', 'b', 'c'}
+	 * 	  isCaseSensitive = true
+	 *    => result = -3
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a', 'a', 'c', 'd', 'e' }
+	 *    prefix = { 'a', 'e', 'c'}
+	 * 	  isCaseSensitive = true
+	 *    => result = -4
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param prefix the given prefix
+	 * @param isCaseSensitive check whether or not the comparison should be case sensitive
+	 * @return the result of the comparison
+	 * @exception NullPointerException if either array or prefix is null
+	 */
 	public static final int compareWith(char[] array, char[] prefix, boolean isCaseSensitive) {
 		int arrayLength = array.length;
 		int prefixLength = prefix.length;
