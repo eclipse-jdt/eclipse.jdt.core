@@ -7233,6 +7233,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 */
 	public void test0307() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0307", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
@@ -7246,6 +7247,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
 		Statement statement = (Statement) statements.get(0);
 		assertTrue("Not a super constructor invocation", statement instanceof SuperConstructorInvocation); //$NON-NLS-1$
+		checkSourceRange(statement, "super(10);", source);
 	}
 
 	/**

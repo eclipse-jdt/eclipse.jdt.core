@@ -864,6 +864,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0430() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0430", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
@@ -871,6 +872,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertTrue("Not a constructor invocation", node.getNodeType() == ASTNode.CONSTRUCTOR_INVOCATION);
 		ConstructorInvocation constructorInvocation = (ConstructorInvocation) node;
+		checkSourceRange(constructorInvocation, "this(coo2());", source);
 		List arguments = constructorInvocation.arguments();
 		assertEquals("Wrong size", 1, arguments.size());
 		Expression expression = (Expression) arguments.get(0);
