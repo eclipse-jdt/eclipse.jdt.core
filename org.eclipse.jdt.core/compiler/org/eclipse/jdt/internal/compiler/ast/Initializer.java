@@ -65,11 +65,11 @@ public class Initializer extends FieldDeclaration {
 
 	public void parseStatements(
 		Parser parser,
-		TypeDeclaration type,
+		TypeDeclaration typeDeclaration,
 		CompilationUnitDeclaration unit) {
 
 		//fill up the method body with statement
-		parser.parse(this, type, unit);
+		parser.parse(this, typeDeclaration, unit);
 	}
 
 	public void resolve(MethodScope scope) {

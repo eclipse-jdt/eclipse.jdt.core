@@ -160,7 +160,7 @@ public class AssertStatement extends Statement {
 		for (int i = 0, max = methods.length; i < max; i++) {
 			AbstractMethodDeclaration method = methods[i];
 			if (method.isClinit()) {
-				((Clinit) method).addSupportForAssertion(assertionSyntheticFieldBinding);
+				((Clinit) method).setAssertionSupport(assertionSyntheticFieldBinding);
 				break;
 			}
 		}

@@ -123,12 +123,12 @@ public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, IHierar
 	IErrorHandlingPolicy policy = DefaultErrorHandlingPolicies.exitAfterAllProblems();
 	ProblemReporter problemReporter = new ProblemReporter(policy, options, problemFactory);
 
-	this.initialize(
+	this.setEnvironment(
 		new LookupEnvironment(this, options, problemReporter, nameEnvironment),
 		requestor);
 }
 public HierarchyResolver(LookupEnvironment lookupEnvironment, IHierarchyRequestor requestor) {
-	this.initialize(lookupEnvironment, requestor);
+	this.setEnvironment(lookupEnvironment, requestor);
 }
 /**
  * Add an additional binary type
@@ -271,14 +271,6 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 		superinterfaces[i] = new MissingType(new String(simpleName));
 	}
 	return superinterfaces;
-}
-private void initialize(LookupEnvironment lookupEnvironment, IHierarchyRequestor requestor) {
-	this.lookupEnvironment = lookupEnvironment;
-	this.requestor = requestor;
-
-	this.typeIndex = -1;
-	this.typeModels = new IGenericType[5];
-	this.typeBindings = new ReferenceBinding[5];
 }
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
@@ -571,6 +563,14 @@ public ReferenceBinding setFocusType(char[][] compoundName) {
 		this.focusType = this.lookupEnvironment.askForType(compoundName);
 	}
 	return this.focusType;
+}
+private void setEnvironment(LookupEnvironment lookupEnvironment, IHierarchyRequestor requestor) {
+	this.lookupEnvironment = lookupEnvironment;
+	this.requestor = requestor;
+
+	this.typeIndex = -1;
+	this.typeModels = new IGenericType[5];
+	this.typeBindings = new ReferenceBinding[5];
 }
 public boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 	if (this.focusType == null) return true; // accept all types (case of hierarchy in a region)

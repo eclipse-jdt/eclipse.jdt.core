@@ -108,11 +108,11 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 		return cd.binding;
 
 	}
-	public void resolve(BlockScope scope) {
+	public void resolve(BlockScope currentScope) {
 
 		if (binding != null) {
 			// remember local types binding for innerclass emulation propagation
-			scope.referenceCompilationUnit().record((LocalTypeBinding)binding);
+			currentScope.referenceCompilationUnit().record((LocalTypeBinding)binding);
 		}
 		// scope and binding are provided in updateBindingSuperclass 
 		resolve();

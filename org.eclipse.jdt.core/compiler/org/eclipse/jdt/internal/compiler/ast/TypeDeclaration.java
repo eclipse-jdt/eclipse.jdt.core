@@ -81,26 +81,26 @@ public class TypeDeclaration
 		//see comment on needClassInitMethod
 		if (needClassInitMethod()) {
 			int length;
-			AbstractMethodDeclaration[] methods;
-			if ((methods = this.methods) == null) {
+			AbstractMethodDeclaration[] methodDeclarations;
+			if ((methodDeclarations = this.methods) == null) {
 				length = 0;
-				methods = new AbstractMethodDeclaration[1];
+				methodDeclarations = new AbstractMethodDeclaration[1];
 			} else {
-				length = methods.length;
+				length = methodDeclarations.length;
 				System.arraycopy(
-					methods,
+					methodDeclarations,
 					0,
-					(methods = new AbstractMethodDeclaration[length + 1]),
+					(methodDeclarations = new AbstractMethodDeclaration[length + 1]),
 					1,
 					length);
 			}
 			Clinit clinit = new Clinit(this.compilationResult);
-			methods[0] = clinit;
+			methodDeclarations[0] = clinit;
 			// clinit is added in first location, so as to minimize the use of ldcw (big consumer of constant inits)
 			clinit.declarationSourceStart = clinit.sourceStart = sourceStart;
 			clinit.declarationSourceEnd = clinit.sourceEnd = sourceEnd;
 			clinit.bodyEnd = sourceEnd;
-			this.methods = methods;
+			this.methods = methodDeclarations;
 		}
 	}
 

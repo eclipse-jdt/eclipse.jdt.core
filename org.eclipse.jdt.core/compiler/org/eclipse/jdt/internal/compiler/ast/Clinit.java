@@ -215,9 +215,9 @@ public class Clinit extends AbstractMethodDeclaration {
 		//the clinit is filled by hand .... 
 	}
 
-	public void resolve(ClassScope scope) {
+	public void resolve(ClassScope classScope) {
 
-		this.scope = new MethodScope(scope, scope.referenceContext, true);
+		this.scope = new MethodScope(classScope, classScope.referenceContext, true);
 	}
 
 	public String toString(int tab) {
@@ -238,7 +238,7 @@ public class Clinit extends AbstractMethodDeclaration {
 	}
 
 	// 1.4 feature
-	public void addSupportForAssertion(FieldBinding assertionSyntheticFieldBinding) {
+	public void setAssertionSupport(FieldBinding assertionSyntheticFieldBinding) {
 
 		this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
 

@@ -182,7 +182,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	}
 
 	public void generateSyntheticFieldInitializationsIfNecessary(
-		MethodScope scope,
+		MethodScope methodScope,
 		CodeStream codeStream,
 		ReferenceBinding declaringClass) {
 			
