@@ -8147,8 +8147,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"SUCCESS");	
 	}
 	// 74592
-	// TODO (kent) waiting to release fix
-	public void _test304() {
+	public void test304() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8158,8 +8157,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"");	
 	}
 	// 74420
-	// TODO (kent) waiting to release fix
-	public void _test305() {
+	public void test305() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
