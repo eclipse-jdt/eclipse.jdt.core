@@ -9,9 +9,9 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import java.io.*;
 
 /**
- * Implements a very simple version of the ICompilationUnit
+ * Implements a very simple version of the ICompilationUnit.
  *
- * <p>Please do not use outside of jdom.
+ * <p>Please do not use outside of jdom.</p>
  */
 public class CompilationUnit implements ICompilationUnit {
 	protected char[] fContents;

@@ -51,7 +51,7 @@ public class DOMBuilder extends AbstractDOMBuilder implements IDocumentElementRe
  */
 public DOMBuilder() {}
 /**
- * @see IDocumentElementRequestor.acceptImport(...);
+ * @see IDocumentElementRequestor#acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, int nameStartPosition, boolean onDemand)
  */
 public void acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, 
 	int nameStart, boolean onDemand) {
@@ -68,7 +68,7 @@ public void acceptImport(int declarationStart, int declarationEnd, int[] javaDoc
 	}
 }
 /**
- * @see IDocumentElementRequestor.acceptInitializer(...);
+ * @see IDocumentElementRequestor#acceptInitializer(int declarationStart, int declarationEnd, int[] javaDocPositions, int modifiers, int modifiersStart, int bodyStart, int bodyEnd)
  */
 public void acceptInitializer(int declarationStart, int declarationEnd, int[] javaDocPositions, int modifiers, 
 	int modifiersStart, int bodyStart, int bodyEnd) {
@@ -93,7 +93,7 @@ public void acceptInitializer(int declarationStart, int declarationEnd, int[] ja
 	}
 }
 /**
- * @see IDocumentElementRequestor.acceptPackage(...);
+ * @see IDocumentElementRequestor#acceptPackage(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, int nameStartPosition)
  */
 public void acceptPackage(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, 
 	int nameStartPosition) {
@@ -139,7 +139,7 @@ public IDOMCompilationUnit createCompilationUnit() {
 	return new DOMCompilationUnit();
 }
 /**
- * @see IDOMFactory#createCompilationUnit(String)
+ * @see IDOMFactory#createCompilationUnit(String, String)
  */
 public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUnit) {
 	initializeBuild(compilationUnit.getContents(), true, true, false);
@@ -147,7 +147,7 @@ public IDOMCompilationUnit createCompilationUnit(ICompilationUnit compilationUni
 	return super.createCompilationUnit(compilationUnit);
 }
 /**
- * @see IDOMFactory#createField(char[])
+ * @see IDOMFactory#createField(String)
  */
 public IDOMField createField(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
@@ -195,7 +195,7 @@ public IDOMImport createImport() {
 	return new DOMImport();
 }
 /**
- * @see IDOMFactory#createImport(char[])
+ * @see IDOMFactory#createImport(String)
  */
 public IDOMImport createImport(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
@@ -209,7 +209,7 @@ public IDOMImport createImport(char[] sourceCode) {
 /**
  * Creates an INITIALIZER document fragment from the given source.
  *
- * @see IDOMFactory#createInitializer(char[])
+ * @see IDOMFactory#createInitializer(String)
  */
 public IDOMInitializer createInitializer(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
@@ -221,7 +221,7 @@ public IDOMInitializer createInitializer(char[] sourceCode) {
 	return (IDOMInitializer)fNode;
 }
 /**
- * @see IDOMFactory#createMethod(char[])
+ * @see IDOMFactory#createMethod(String)
  */
 public IDOMMethod createMethod(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
@@ -239,7 +239,7 @@ public IDOMPackage createPackage() {
 	return new DOMPackage();
 }
 /**
- * @see IDOMFactory#createPackage(char[])
+ * @see IDOMFactory#createPackage(String)
  */
 public IDOMPackage createPackage(char[] sourceCode) {
 	initializeBuild(sourceCode, false, false, true);
@@ -251,7 +251,7 @@ public IDOMPackage createPackage(char[] sourceCode) {
 	return (IDOMPackage)fNode;
 }
 /**
- * @see IDOMFactory#createType(char[])
+ * @see IDOMFactory#createType(String)
  */
 public IDOMType createType(char[] sourceCode) {
 	initializeBuild(sourceCode, false, true, false);
@@ -353,7 +353,22 @@ protected void enterAbstractMethod(int declarationStart, int[] javaDocPositions,
 	fStack.push(fNode);
 }
 /**
- * @see IDocumentElementRequestor.enterClass(...);
+ * @see IDocumentElementRequestor#enterClass(
+	int declarationStart,
+	int[] javaDocPositions,
+	int modifiers,
+	int modifiersStart,
+	int classStart, 
+	char[] name,
+	int nameStart,
+	int nameEnd,
+	char[] superclass,
+	int superclassStart,
+	int superclassEnd,
+	char[][] superinterfaces,
+	int[] superinterfaceStarts,
+	int[] superinterfaceEnds,
+	int bodyStart)
  */
 public void enterClass(int declarationStart, int[] javaDocPositions, int modifiers, int modifiersStart, int keywordStart, 
 	char[] name, int nameStart, int nameEnd, char[] superclass, int superclassStart, 
@@ -366,7 +381,25 @@ public void enterClass(int declarationStart, int[] javaDocPositions, int modifie
 		superinterfaceEnds, bodyStart, true);
 }
 /**
- * @see IDocumentElementRequestor.enterConstructor(...);
+ * @see IDocumentElementRequestor#enterConstructor(
+	int declarationStart,
+	int[] javaDocPositions,	
+	int modifiers,
+	int modifiersStart, 
+	char[] name,
+	int nameStart,
+	int nameEnd,
+	char[][] parameterTypes,
+	int [] parameterTypeStarts,
+	int [] parameterTypeEnds,			
+	char[][] parameterNames,
+	int [] parameterNameStarts,
+	int [] parameterNameEnds,
+	int parametersEnd,	
+	char[][] exceptionTypes,
+	int [] exceptionTypeStarts,
+	int [] exceptionTypeEnds,
+	int bodyStart)
  */
 public void enterConstructor(int declarationStart, int[] javaDocPositions, int modifiers, int modifiersStart, 
 	char[] name, int nameStart, int nameEnd, char[][] parameterTypes, 
@@ -390,7 +423,20 @@ public void enterConstructor(int declarationStart, int[] javaDocPositions, int m
 		exceptionTypeEnds, bodyStart,true);
 }
 /**
- * @see IDocumentElementRequestor.enterField(...);
+ * @see IDocumentElementRequestor#enterField(
+	int declarationStart,
+	int[] javaDocPositions,	
+	int modifiers,
+	int modifiersStart,
+	char[] type,
+	int typeStart,
+	int typeEnd,
+ 	int typeDimensionCount,
+	char[] name,
+	int nameStart,
+	int nameEnd,
+	int extendedTypeDimensionCount,
+	int extendedTypeDimensionEnd)
  */
 public void enterField(int declarationStart, int[] javaDocPositions, int modifiers, int modifiersStart, 
 	char[] type, int typeStart, int typeEnd, int typeDimensionCount, char[] name, 
@@ -426,7 +472,19 @@ public void enterField(int declarationStart, int[] javaDocPositions, int modifie
 	fStack.push(fNode);
 }
 /**
- * @see IDocumentElementRequestor.enterInterface(...);
+ * @see IDocumentElementRequestor#enterInterface(
+	int declarationStart,
+	int[] javaDocPositions,	
+	int modifiers,
+	int modifiersStart,
+	int interfaceStart,
+	char[] name,
+	int nameStart,
+	int nameEnd,
+	char[][] superinterfaces,
+	int[] superinterfaceStarts,
+	int[] superinterfaceEnds,
+	int bodyStart)
  */
 public void enterInterface(int declarationStart, int[] javaDocPositions, int modifiers, int modifiersStart, int keywordStart,
 	char[] name, int nameStart, int nameEnd, char[][] superinterfaces, 
@@ -437,7 +495,31 @@ public void enterInterface(int declarationStart, int[] javaDocPositions, int mod
 		superinterfaceStarts, superinterfaceEnds, bodyStart, false);
 }
 /**
- * @see IDocumentElementRequestor.enterMethod(...);
+ * @see IDocumentElementRequestor#enterMethod(
+	int declarationStart,
+	int[] javaDocPositions,	
+	int modifiers,
+	int modifiersStart, 
+	char[] returnType,
+	int returnTypeStart,
+	int returnTypeEnd,
+ 	int returnTypeDimensionCount,
+	char[] name,
+	int nameStart,
+	int nameEnd,
+	char[][] parameterTypes,
+	int [] parameterTypeStarts,
+	int [] parameterTypeEnds,			
+	char[][] parameterNames,
+	int [] parameterNameStarts,
+	int [] parameterNameEnds,
+	int parametersEnd,
+	int extendedReturnTypeDimensionCount,
+	int extendedReturnTypeDimensionEnd,	
+	char[][] exceptionTypes,
+	int [] exceptionTypeStarts,
+	int [] exceptionTypeEnds,
+	int bodyStart)
  */
 public void enterMethod(int declarationStart, int[] javaDocPositions, int modifiers, int modifiersStart, 
 	char[] returnType, int returnTypeStart, int returnTypeEnd, int returnTypeDimensionCount, 
@@ -454,9 +536,7 @@ public void enterMethod(int declarationStart, int[] javaDocPositions, int modifi
 		extendedReturnTypeDimensionEnd, exceptionTypes, exceptionTypeStarts, 
 		exceptionTypeEnds, bodyStart,false);
 }
-/**
- * @see IDocumentElementRequestor.enterType(...);
- */
+
 protected void enterType(int declarationStart, int[] javaDocPositions, 
 	int modifiers, int modifiersStart, int keywordStart, char[] name, 
 	int nameStart, int nameEnd, char[] superclass, int superclassStart, 

@@ -206,7 +206,7 @@ public final void computeConstant(TypeBinding leftTb, TypeBinding rightTb) {
 	}
 }
 /**
- * Normal == or != code generation
+ * Normal == or != code generation.
  *
  * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
  * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream

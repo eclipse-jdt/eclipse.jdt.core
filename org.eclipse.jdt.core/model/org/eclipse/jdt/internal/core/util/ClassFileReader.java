@@ -319,7 +319,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	}
 
 	/**
-	 * @see IClassFileReader#getName()
+	 * @see IClassFileReader#getClassName()
 	 */
 	public char[] getClassName() {
 		return this.className;

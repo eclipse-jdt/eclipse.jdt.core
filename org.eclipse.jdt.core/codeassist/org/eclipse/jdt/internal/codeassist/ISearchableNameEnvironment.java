@@ -8,7 +8,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 
 /**
  * This interface defines the API that may be used to implement any
- * search-based tool (such as a CodeAssist, a Finder, ...)
+ * search-based tool (such as a CodeAssist, a Finder, ...).
  * It is mainly used to hide from the search tool the implementation
  * of the underlying environment and its constructions.
  */
