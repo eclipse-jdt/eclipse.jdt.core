@@ -447,11 +447,15 @@ private void computeInheritedMethods() {
 				MethodBinding method = methods[m];
 				if (!(method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())) { // look at all methods which are NOT private or constructors or default abstract
 					MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
-					if (existingMethods != null)
-						for (int i = 0, length = existingMethods.length; i < length; i++)
-							if (method.returnType == existingMethods[i].returnType)
-								if (method.areParametersEqual(existingMethods[i]))
-									continue nextMethod;
+					if (existingMethods != null) {
+						// 30805 - non-visible (abstract) method still needs to be implemented even if similar method defined below (overridesPackageDefaultMethod) 
+						if (!(method.isDefault() && method.isAbstract() && (method.declaringClass.fPackage != type.fPackage))) { 
+							for (int i = 0, length = existingMethods.length; i < length; i++)
+								if (method.returnType == existingMethods[i].returnType)
+									if (method.areParametersEqual(existingMethods[i]))
+										continue nextMethod;
+						}
+					}
 					if (nonVisibleDefaultMethods != null)
 						for (int i = 0; i < nonVisibleCount; i++)
 							if (method.returnType == nonVisibleDefaultMethods[i].returnType)
