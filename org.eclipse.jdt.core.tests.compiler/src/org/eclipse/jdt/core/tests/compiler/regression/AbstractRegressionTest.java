@@ -348,7 +348,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	public static Test setupSuite(Class clazz) {
 		ArrayList testClasses = new ArrayList();
 		testClasses.add(clazz);
-		return AbstractCompilerTest.suite(clazz.getName(), CompilerTestSetup.class, testClasses);
+		return AbstractCompilerTest.suite(clazz.getName(), RegressionTestSetup.class, testClasses);
 	}
 	public void stop() {
 		this.verifier.shutDown();
