@@ -251,7 +251,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
 			if (closestMatch != null) this.codegenBinding = this.binding = closestMatch;
 		}
-		return this.resolvedType = binding == null ? null : binding.returnType;
+		return this.resolvedType = this.binding == null ? null : this.binding.returnType;
 	}
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
