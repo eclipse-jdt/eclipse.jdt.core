@@ -30,6 +30,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -148,12 +150,14 @@ public static Test suite() {
 	// classpath
 	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable1"));
 	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable2"));
+	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable3"));
 	suite.addTest(new JavaElementDeltaTests("testChangeRootKind"));
 	suite.addTest(new JavaElementDeltaTests("testOverwriteClasspath"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot1"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot2"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot3"));
 	suite.addTest(new JavaElementDeltaTests("testAddDotClasspathFile"));
+	suite.addTest(new JavaElementDeltaTests("testSetClasspathOnFreshProject"));
 	
 	// batch operations
 	suite.addTest(new JavaElementDeltaTests("testBatchOperation"));
@@ -1732,6 +1736,68 @@ public void testSetClasspathVariable2() throws CoreException {
 		this.stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
+		this.deleteProject("LibProj");
+	}
+}
+
+/**
+ * Ensures that initializing a classpath variable on startup doesn't trigger a delta
+ */
+public void testSetClasspathVariable3() throws CoreException {
+	try {
+		this.createProject("LibProj");
+		this.createFile("LibProj/mylib.jar", "");
+		this.createFile("LibProj/otherlib.jar", "");
+		JavaCore.setClasspathVariables(new String[] {"LIB"}, new IPath[] {new Path("/LibProj/mylib.jar")}, null);
+		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[] {""}, new String[] {"LIB"}, "");
+		
+		// reset project resolved classpath - stored in perProjectInfo to simulate startup
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(p1.getProject()); 
+		perProjectInfo.lastResolvedClasspath = null;
+
+		this.startDeltas();
+		JavaCore.setClasspathVariables(new String[] {"LIB"}, new IPath[] {new Path("/LibProj/otherlib.jar")}, null);
+		assertEquals(
+			"Unexpected delta after setting classpath variable", 
+			"", 
+			this.getSortedByProjectDeltas());
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("LibProj");
+	}
+}
+
+/**
+ * Ensure that a classpath change is detected even on a project which got closed
+ */
+public void testSetClasspathOnFreshProject() throws CoreException {
+	try {
+		this.createProject("LibProj");
+		this.createFile("LibProj/mylib.jar", "");
+		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[] {""}, "bin");
+
+		p1.getProject().close(null);
+		p1.getProject().open(null);
+
+		this.startDeltas();
+
+		IClasspathEntry[] classpath = 
+			new IClasspathEntry[] {
+				JavaCore.newSourceEntry(new Path("/P1/src2")),
+				JavaCore.newLibraryEntry(new Path("/LibProj/mylib.jar"), null, null)
+			};
+		p1.setRawClasspath(classpath, null);
+		assertDeltas(
+			"Should notice src2 and myLib additions to the classpath", 
+			"P1[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
+			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
+			"	ResourceDelta(/P1/.classpath)[*]");
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
 		this.deleteProject("LibProj");
 	}
 }
