@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.core.resources" default="main" basedir="..">
+
+	<property name="bootclasspath" value=""/>
+
+	<target name="main">
+		<available file="${basedir}/jdtCompilerAdapter.jar" property="do.not.rebuild"/>
+		<antcall target="build"/>
+	</target>
+
+	<target name="build" unless="do.not.rebuild">
+		<antcall target="clean"/>
+		<antcall target="jdtCompilerAdapter.jar"/>
+		<antcall target="refresh"/>
+	</target>
+
+	<target name="init" depends="properties">
+		<property name="plugin" value="org.eclipse.jdt.core"/>
+		<property name="temp.folder" value="${basedir}/temp.folder"/>
+		<property name="plugin.destination" value="${basedir}"/>
+		<property name="build.result.folder" value="${basedir}"/>
+	</target>
+
+	<target name="properties" if="eclipse.running">
+		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+	</target>
+
+	<target name="jdtCompilerAdapter.jar" depends="init">
+		<property name="destdir" value="${temp.folder}/jdtCompilerAdapter.jar.bin"/>
+		<delete dir="${temp.folder}/jdtCompilerAdapter.jar.bin"/>
+		<mkdir dir="${temp.folder}/jdtCompilerAdapter.jar.bin"/>
+		<!-- compile the source code -->
+		<javac destdir="${temp.folder}/jdtCompilerAdapter.jar.bin" failonerror="false" target="1.1" source="1.3" verbose="false" debug="on" includeAntRuntime="no" bootclasspath="${bootclasspath}" classpath="../org.eclipse.core.runtime/bin;../org.eclipse.core.runtime/runtime.jar;../org.eclipse.core.resources/bin;../org.eclipse.core.resources/resources.jar;../org.apache.ant/ant.jar;../org.eclipse.jdt.core/bin;../org.eclipse.jdt.core/jdtcore.jar;">
+			<src path="antadapter/"/>
+		</javac>
+		<!-- copy necessary resources activate when we 
+		<copy todir="${temp.folder}/jdtCompilerAdapter.jar.bin">
+			<fileset dir="antadapter/" excludes="**/*.java"/>
+		</copy> -->
+		<jar jarfile="${build.result.folder}/jdtCompilerAdapter.jar" basedir="${temp.folder}/jdtCompilerAdapter.jar.bin"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete file="${build.result.folder}/jdtCompilerAdapter.jar"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="refresh" depends="init" if="eclipse.running">
+		<eclipse.refreshLocal resource="${plugin}" depth="infinite"/>
+	</target>
+
+</project>
