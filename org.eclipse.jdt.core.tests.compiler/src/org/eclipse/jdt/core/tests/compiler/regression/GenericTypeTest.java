@@ -12452,15 +12452,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
+			"1. ERROR in X.java (at line 4)\r\n" + 
 			"	Zork z;\r\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 6)\r\n" + 
-			"	return sets;\r\n" + 
-			"	       ^^^^\n" + 
-			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"	List<Integer>[] nums = new List[] {Collections.singletonList(\"Uh oh\")};\r\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List[] needs unchecked conversion to conform to List<Integer>[]\n" + 
 			"----------\n");
 	}		
 }
