@@ -3737,5 +3737,24 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The method bar() is undefined for the type List<T>\n" + 
 			"----------\n");
 	}
-				
+	public void test132() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  <T extends X<W>.Z> foo() {}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<T extends X<W>.Z> foo() {}\n" + 
+			"	             ^\n" + 
+			"W cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	<T extends X<W>.Z> foo() {}\n" + 
+			"	                   ^^^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n");
+	}
 }

@@ -6966,6 +6966,37 @@ public void test0163(){
 			expectedReplacedSource,
 	"diet ast");
 }
+public void test0164(){
+	String str =
+		"public class X {\n" +
+		"  <T extends X<W>.Z> foo() {}\n" +
+		"}";
+
+
+	String completeBehind = "Z";
+	int cursorLocation = str.indexOf("Z") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:X<W>.Z>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Z";
+	String expectedReplacedSource = "X<W>.Z";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  <T extends <CompleteOnType:X<W>.Z>>foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 public void _testXXX2(){
 	String str =
 		"public class X extends Y. {\n" +

@@ -6977,7 +6977,14 @@ public boolean containsComment(int sourceStart, int sourceEnd) {
 	return false;
 }
 public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
-	MethodDeclaration m = new MethodDeclaration(compilationResult);
+	MethodDeclaration m;
+	if(c instanceof ParameterizedConstructorDeclaration) {
+		ParameterizedMethodDeclaration pm = new ParameterizedMethodDeclaration(compilationResult);
+		pm.typeParameters = ((ParameterizedConstructorDeclaration)c).typeParameters;
+		m = pm;
+	} else {
+		m = new MethodDeclaration(compilationResult);
+	}
 	m.sourceStart = c.sourceStart;
 	m.sourceEnd = c.sourceEnd;
 	m.bodyStart = c.bodyStart;
