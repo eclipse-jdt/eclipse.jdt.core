@@ -521,7 +521,7 @@ class CompilationUnitResolver extends Compiler {
 			} else {
 				// binary member
 				try {
-					String key = ((BinaryMember) element).getBindingKey();
+					String key = ((BinaryMember) element).getKey();
 					binaryElementPositions.put(key, i);
 				} catch (JavaModelException e) {
 					throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$

@@ -118,22 +118,6 @@ public String[] getExceptionTypes() throws JavaModelException {
 	return this.exceptionTypes;
 }
 /*
- * @see BinaryMember
- */
-public String getBindingKey() throws JavaModelException {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append( ((BinaryMember) getParent()).getBindingKey());
-	buffer.append('.');
-	buffer.append(getElementName());
-	buffer.append('(');
-	if (this.parameterTypes != null)
-		for (int i = 0, length = this.parameterTypes.length; i < length; i++)
-			buffer.append(this.parameterTypes[i].replace('.', '/'));
-	buffer.append(')');
-	buffer.append(getReturnType());
-	return buffer.toString();
-}
-/*
  * @see IJavaElement
  */
 public int getElementType() {

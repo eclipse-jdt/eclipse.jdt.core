@@ -151,14 +151,6 @@ public IMethod[] findMethods(IMethod method) {
 	}
 }
 /*
- * @see BinaryMember
- */
-public String getBindingKey() {
-	String fullyQualifiedName = getFullyQualifiedName('$');
-	String sig = Signature.createTypeSignature(fullyQualifiedName, true/*resolved*/);
-	return sig.replace('.', '/');
-}
-/*
  * @see IParent#getChildren()
  */
 public IJavaElement[] getChildren() throws JavaModelException {

@@ -70,7 +70,7 @@ public abstract class NamedMember extends Member {
 		String declaringKey = ((IType) field.getParent()).getKey();
 		key.append(declaringKey);
 		
-		// field na,e
+		// field name
 		key.append('.');
 		key.append(field.getElementName());
 
@@ -93,7 +93,7 @@ public abstract class NamedMember extends Member {
 		key.append('(');
 		String[] parameters = method.getParameterTypes();
 		for (int i = 0, length = parameters.length; i < length; i++)
-			key.append(parameters[i]);
+			key.append(parameters[i].replace('.', '/'));
 		key.append(')');
 		
 		// return type

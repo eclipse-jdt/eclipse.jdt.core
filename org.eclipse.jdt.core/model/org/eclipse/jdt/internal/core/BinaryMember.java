@@ -52,7 +52,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()
  */
-public abstract String getBindingKey() throws JavaModelException;
+public abstract String getKey() throws JavaModelException;
 /*
  * @see ISourceReference
  */
