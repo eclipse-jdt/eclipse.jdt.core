@@ -664,13 +664,14 @@ public final class CompletionEngine
 						}
 					} catch (CompletionNodeFound e) {
 						//					completionNodeFound = true;
-						if (e.astNode != null)
+						if (e.astNode != null) {
 							if(DEBUG) {
 								System.out.print("COMPLETION - Completion node : ");
 								System.out.println(e.astNode.toString());
 							}
 							// if null then we found a problem in the completion node
 							complete(e.astNode, e.qualifiedBinding, e.scope);
+						}
 					}
 				}
 			}
