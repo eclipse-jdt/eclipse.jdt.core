@@ -314,26 +314,6 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 		return enumConstants;
 	}
 
-	/**
-	 * Returns the ordered list of enum constant declarations of this enum
-	 * declaration.
-	 * <p>
-	 * This convenience method returns this node's enum constant declarations
-	 * with non-enum constants filtered out. Unlike <code>bodyDeclarations</code>,
-	 * this method does not return a live result.
-	 * </p>
-	 * 
-	 * @return the (possibly empty) list of enum constant declarations
-	 * @deprecated Use enumConstants() to access the live list of enum constants which
-	 * are now separated for the other body declarations.
-	 */ 
-	// TODO (jeem) remove this deprecated method after 3.1M3
-	public EnumConstantDeclaration[] getEnumConstants() {
-		EnumConstantDeclaration[] enumConstantsInBody = new EnumConstantDeclaration[enumConstants().size()];
-		enumConstants().toArray(enumConstantsInBody);
-		return enumConstantsInBody;
-	}
-
 	/* (omit javadoc for this method)
 	 * Method declared on AsbtractTypeDeclaration.
 	 */

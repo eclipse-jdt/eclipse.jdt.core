@@ -2668,9 +2668,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	
 	}	
 	
-	/**
-	 * @deprecated (Uses getEnumConstants() which is deprecated)
-	 */
 	public void testEnumDeclaration() {
 		if (ast.apiLevel() == AST.JLS2) {
 			// node type introduced in 3.0 API
@@ -2795,12 +2792,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.bodyDeclarations().add(t1);
 		x.bodyDeclarations().add(t2);
 
-		// getEnumConstants() is deprecated - this test will be removed after 3.1M3
-		EnumConstantDeclaration[] cs = x.getEnumConstants();
-		assertTrue(cs.length == 2);
-		assertEquals(c1, cs[0]);
-		assertEquals(c2, cs[1]);
-		
 		// check that TypeDeclarations in body are classified correctly
 		assertTrue(t1.isLocalTypeDeclaration() == false);
 		assertTrue(t1.isMemberTypeDeclaration() == true);
