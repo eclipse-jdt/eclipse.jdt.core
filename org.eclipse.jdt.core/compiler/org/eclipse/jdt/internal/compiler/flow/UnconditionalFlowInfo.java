@@ -473,8 +473,12 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	
 		// reset optional inits when becoming unreachable
 		if ((this.reachMode & UNREACHABLE) == 0 && (reachMode & UNREACHABLE) != 0) {
-			potentialInits = 0;
-			extraPotentialInits = null;
+			this.potentialInits = 0;
+			if (this.extraPotentialInits != null){
+				for (int i = 0, length = this.extraPotentialInits.length; i < length; i++){
+					this.extraPotentialInits[i] = 0;
+				}
+			}
 		}				
 		this.reachMode = reachMode;
 	
