@@ -16,14 +16,14 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 /**
  * Flatten string literal
  */
-public class StringLiteralConcetanation extends StringLiteral {
+public class StringLiteralConcatenation extends StringLiteral {
 	private static final int INITIAL_SIZE = 5;
 	public StringLiteral[] literals;
 	public int counter;
 	/**	
 	 * Build a two-strings literal
 	 * */
-	public StringLiteralConcetanation(StringLiteral str1, StringLiteral str2) {
+	public StringLiteralConcatenation(StringLiteral str1, StringLiteral str2) {
 		super(str1.sourceStart, str1.sourceEnd);
 		this.source = str1.source;
 		this.literals = new StringLiteral[INITIAL_SIZE];
@@ -35,7 +35,7 @@ public class StringLiteralConcetanation extends StringLiteral {
 	/**
 	 *  Add the lit source to mine, just as if it was mine
 	 */
-	public StringLiteralConcetanation extendsWith(StringLiteral lit) {
+	public StringLiteralConcatenation extendsWith(StringLiteral lit) {
 		this.sourceEnd = lit.sourceEnd;
 		final int literalsLength = this.literals.length;
 		if (this.counter == literalsLength) {

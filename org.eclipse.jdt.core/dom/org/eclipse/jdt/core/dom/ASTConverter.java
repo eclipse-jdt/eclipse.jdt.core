@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcetanation;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -879,8 +879,8 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.LongLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.LongLiteral) expression);
 		}
-		if (expression instanceof StringLiteralConcetanation) {
-			return convert((StringLiteralConcetanation) expression);
+		if (expression instanceof StringLiteralConcatenation) {
+			return convert((StringLiteralConcatenation) expression);
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) expression);
@@ -1313,7 +1313,7 @@ class ASTConverter {
 		return literal;		
 	}
 
-	public InfixExpression convert(StringLiteralConcetanation expression) {
+	public InfixExpression convert(StringLiteralConcatenation expression) {
 		expression.computeConstant();
 		InfixExpression infixExpression = this.ast.newInfixExpression();
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
@@ -1589,9 +1589,9 @@ class ASTConverter {
 			int startPosition = leftExpression.getStartPosition();
 			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
 			return infixExpression;
-		} else if (expression.left instanceof StringLiteralConcetanation
+		} else if (expression.left instanceof StringLiteralConcatenation
 				&& ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)) {
-			StringLiteralConcetanation literal = (StringLiteralConcetanation) expression.left;
+			StringLiteralConcatenation literal = (StringLiteralConcatenation) expression.left;
 			final org.eclipse.jdt.internal.compiler.ast.StringLiteral[] stringLiterals = literal.literals;
 			infixExpression.setLeftOperand(convert(stringLiterals[0]));
 			infixExpression.setRightOperand(convert(stringLiterals[1]));
