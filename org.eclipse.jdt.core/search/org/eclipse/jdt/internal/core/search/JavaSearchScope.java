@@ -10,22 +10,15 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 
 import java.util.*;
 
 /**
- * A Java-specific scope for searching relative to one or more projects.
- * The scope can be configured to follow the respective classpath of 
- * in-scope projects, and to not search binaries. By default, both classpaths 
- * and binaries are included. 
+ * A Java-specific scope for searching relative to one or more java elements.
  */
-public class JavaSearchScope extends AbstractSearchScope implements IJavaSearchScope {
-
-	private IResource fLastCheckedResource;
-	private boolean fLastResult;
+public class JavaSearchScope implements IJavaSearchScope {
 
 	/* The paths of the resources in this search scope 
 	   (or the classpath entries' paths 
@@ -36,26 +29,6 @@ public class JavaSearchScope extends AbstractSearchScope implements IJavaSearchS
 	
 	private IPath[] enclosingProjectsAndJars = new IPath[0];
 	
-/**
- * Adds the given resource to this search scope.
- * Remember if subfolders need to be included as well.
- */
-public void add(IResource element, boolean withSubFolders) {
-	// clear indexer cache
-	fLastCheckedResource = null;
-	
-	if (!element.isAccessible()) return;
-	
-	super.add(element);
-	this.add(element.getFullPath(), withSubFolders);	
-}
-/**
- * Adds the given resource to this search scope.
- * Remember if subfolders need to be included as well.
- */
-public void add(IResource element) {
-	this.add(element, true);
-}
 private void addEnclosingProjectOrJar(IPath path) {
 	int length = this.enclosingProjectsAndJars.length;
 	for (int i = 0; i < length; i++) {
@@ -70,16 +43,16 @@ private void addEnclosingProjectOrJar(IPath path) {
 	this.enclosingProjectsAndJars[length] = path;
 }
 
-public void add(IJavaProject project, boolean includesPrereqProjects, Hashtable visitedProjects) throws JavaModelException {
-	
-	if (visitedProjects.get(project) != null) return;
+public void add(IJavaProject javaProject, boolean includesPrereqProjects, Hashtable visitedProjects) throws JavaModelException {
+	IProject project = javaProject.getProject();
+	if (!project.isAccessible() || visitedProjects.get(project) != null) return;
 	visitedProjects.put(project, project);
-	
-	this.addEnclosingProjectOrJar(project.getProject().getFullPath());
 
-	IWorkspaceRoot root = project.getUnderlyingResource().getWorkspace().getRoot();
-	IClasspathEntry[] entries = project.getResolvedClasspath(true);
-	IJavaModel model = project.getJavaModel();
+	this.addEnclosingProjectOrJar(project.getFullPath());
+
+	IWorkspaceRoot root = project.getWorkspace().getRoot();
+	IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
+	IJavaModel model = javaProject.getJavaModel();
 	for (int i = 0, length = entries.length; i < length; i++) {
 		IClasspathEntry entry = entries[i];
 		switch (entry.getEntryKind()) {
@@ -94,14 +67,7 @@ public void add(IJavaProject project, boolean includesPrereqProjects, Hashtable 
 				}
 				break;
 			case IClasspathEntry.CPE_SOURCE:
-				path = entry.getPath();
-				if (path.segmentCount() == 1) {
-					// project is source
-					this.add(root.getProject(path.lastSegment()));
-				} else {
-					// regular source folder
-					this.add(root.getFolder(path));
-				}
+				this.add(entry.getPath(), true);
 				break;
 		}
 	}
@@ -109,28 +75,25 @@ public void add(IJavaProject project, boolean includesPrereqProjects, Hashtable 
 public void add(IJavaElement element) throws JavaModelException {
 	IPackageFragmentRoot root = null;
 	if (element instanceof IJavaProject) {
-		IJavaProject project = (IJavaProject)element;
-		this.add(project, true, new Hashtable(2));
+		this.add((IJavaProject)element, true, new Hashtable(2));
 	} else if (element instanceof IPackageFragmentRoot) {
 		root = (IPackageFragmentRoot)element;
-		if (root.isArchive()) {
-			this.add(root.getPath(), false);
-		} else {
-			IJavaElement[] children = root.getChildren();
-			for (int i = 0, length = children.length; i < length; i++) {
-				this.add(children[i].getUnderlyingResource(), false);
-			}
-		}
+		this.add(root.getPath(), true);
 	} else if (element instanceof IPackageFragment) {
 		root = (IPackageFragmentRoot)element.getParent();
 		if (root.isArchive()) {
-			this.add(root.getPath(), false);
+			this.add(root.getPath().append(new Path(element.getElementName().replace('.', '/'))), false);
 		} else {
-			this.add(element.getUnderlyingResource(), false);
+			IResource resource = element.getUnderlyingResource();
+			if (resource != null && resource.isAccessible()) {
+				this.add(resource.getFullPath(), false);
+			}
 		}
 	} else {
-		this.add(element.getUnderlyingResource());
-		
+		IResource resource = element.getUnderlyingResource();
+		if (resource != null && resource.isAccessible()) {
+			this.add(resource.getFullPath(), true);
+		}	
 	}
 	
 	if (root != null) {
@@ -141,9 +104,6 @@ public void add(IJavaElement element) throws JavaModelException {
 		}
 	}
 }
-
-
-
 
 /**
  * Adds the given path to this search scope. Remember if subfolders need to be included as well.
@@ -184,16 +144,6 @@ public boolean encloses(String resourcePathString) {
 }
 
 /**
- * Returns whether this search scope encloses the given resource.
- */
-protected boolean encloses(IResource element) {
-	IPath elementPath = element.getFullPath();
-	boolean encloses = this.encloses(elementPath);
-	fLastCheckedResource = element;
-	fLastResult = encloses;
-	return encloses;
-}
-/**
  * Returns whether this search scope encloses the given path.
  */
 private boolean encloses(IPath path) {
@@ -217,18 +167,7 @@ private boolean encloses(IPath path) {
  * @see IJavaSearchScope#encloses(IJavaElement)
  */
 public boolean encloses(IJavaElement element) {
-	try {
-		IResource resource = element.getUnderlyingResource();
-		if (resource == null) {
-			// case of a binary in an external jar
-			return true;
-		} else if (resource.equals(fLastCheckedResource)) {
-			return fLastResult;
-		}
-		return encloses(resource);
-	} catch (JavaModelException e) {
-		return false;
-	}
+	return this.encloses(this.fullPath(element));
 }
 
 /* (non-Javadoc)
@@ -236,6 +175,23 @@ public boolean encloses(IJavaElement element) {
  */
 public IPath[] enclosingProjectsAndJars() {
 	return this.enclosingProjectsAndJars;
+}
+private IPath fullPath(IJavaElement element) {
+	if (element instanceof IPackageFragmentRoot) {
+		return ((IPackageFragmentRoot)element).getPath();
+	} else 	{
+		IJavaElement parent = element.getParent();
+		IPath parentPath = parent == null ? null : this.fullPath(parent);
+		IPath childPath;
+		if (element instanceof IPackageFragment) {
+			childPath = new Path(element.getElementName().replace('.', '/'));
+		} else if (element instanceof IOpenable) {
+			childPath = new Path(element.getElementName());
+		} else {
+			return parentPath;
+		}
+		return parentPath == null ? childPath : parentPath.append(childPath);
+	}
 }
 
 /* (non-Javadoc)
