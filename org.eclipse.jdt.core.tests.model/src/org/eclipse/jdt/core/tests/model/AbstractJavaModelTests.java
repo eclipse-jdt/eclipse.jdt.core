@@ -59,6 +59,21 @@ protected void addJavaNature(String projectName) throws CoreException {
 	description.setNatureIds(new String[] {JavaCore.NATURE_ID});
 	project.setDescription(description, null);
 }
+protected void assertSearchResults(String expected, Object collector) {
+	assertSearchResults("Unexpected search results", expected, collector);
+}
+protected void assertSearchResults(String message, String expected, Object collector) {
+	String actual = collector.toString();
+	if (!expected.equals(actual)) {
+		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		System.out.println(",");
+	}
+	assertEquals(
+		message,
+		expected,
+		actual
+	);
+}
 protected void assertSortedElementsEqual(String message, String expected, IJavaElement[] elements) {
 	this.sortElements(elements);
 	assertElementsEqual(message, expected, elements);

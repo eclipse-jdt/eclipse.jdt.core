@@ -146,9 +146,9 @@ public void testHierarchyScope1() throws CoreException {
 			REFERENCES, 
 			scope, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"p/X.java [in P1] void p.X.bar() [foo()]", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
@@ -202,9 +202,9 @@ public void testHierarchyScope2() throws CoreException {
 			REFERENCES, 
 			scope, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"p/X.java [in P1] void p.X.bar() [foo()]", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
@@ -251,9 +251,9 @@ public void testHierarchyScope3() throws CoreException {
 			REFERENCES, 
 			scope, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"q/Y.java [in P2] void q.Y.bar() [foo()]", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
@@ -330,9 +330,9 @@ public void testHierarchyScope4() throws CoreException {
 			REFERENCES, 
 			scope, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"p2/Y.java [in P2] void p2.Y.bar() [foo()] EXACT_MATCH", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		deleteProjects(new String[] {"P0", "P1", "P2", "P3"});
 	}
@@ -376,11 +376,50 @@ public void testMethodOccurences() throws CoreException {
 			ALL_OCCURRENCES, 
 			scope, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"Unexpected occurences of method p.I.method(Object)",
 			"p/C.java [in P1] void p.C.method(Object) [method]\n" +
 			"p/I.java [in P1] void p.I.method(Object) [method]", 
-			resultCollector.toString());
+			resultCollector);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
+ * Package declaration with 2 unrelated projects that contain the same source.
+ * (regression test for bug 46276 Search for package declarations incorrectly finds matches in clone project)
+ */
+public void testPackageDeclaration() throws CoreException {
+	try {
+		// setup project P1
+		IJavaProject p1 = createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		
+		// copy to project P2
+		p1.getProject().copy(new Path("/P2"), false, null);
+		IJavaProject p2 = getJavaProject("P2");
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		IPackageFragment pkg = getPackage("/P1/p");
+		new SearchEngine().search(
+			getWorkspace(), 
+			pkg,
+			DECLARATIONS, 
+			scope, 
+			resultCollector);
+		assertSearchResults(
+			"Unexpected package declarations",
+			"p [in P1] p",
+			resultCollector);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
@@ -405,10 +444,10 @@ public void testTypeDeclarationInJar() throws CoreException {
 			DECLARATIONS, 
 			scope, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"Unexpected result in scope of P1",
 			getExternalJCLPathString() + " [in P1] java.lang.Object", 
-			resultCollector.toString());
+			resultCollector);
 			
 		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
 		resultCollector = new JavaSearchResultCollector();
@@ -420,10 +459,10 @@ public void testTypeDeclarationInJar() throws CoreException {
 			DECLARATIONS, 
 			scope, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"Unexpected result in scope of P2",
 			getExternalJCLPathString() + " [in P2] java.lang.Object", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
