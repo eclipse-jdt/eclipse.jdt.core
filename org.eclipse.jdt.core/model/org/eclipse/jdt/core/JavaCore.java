@@ -1149,17 +1149,36 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static boolean isReferencedBy(IJavaElement element, IMarker marker) throws CoreException {
 		
-		if (element instanceof IMember)
-			element = ((IMember) element).getClassFile();
-			
+		// only match units or classfiles
+		if (element instanceof IMember){
+			IMember member = (IMember) element;
+			if (member.isBinary()){
+				element = member.getClassFile();
+			} else {
+				element = member.getCompilationUnit();
+			}
+		}
+		if (element == null) return false;			
 		if (marker == null) return false;
+
 		String markerHandleId = (String)marker.getAttribute(ATT_HANDLE_ID);
 		if (markerHandleId == null) return false;
 		
 		IJavaElement markerElement = JavaCore.create(markerHandleId);
-		if (markerElement == null) return false;
-		
-		return element.equals(markerElement); // external elements may still be equal with different handleIDs.
+		while (markerElement != null){
+			if (element.equals(markerElement)) return true; // external elements may still be equal with different handleIDs.
+			
+			// cycle through enclosing types in case marker is associated with a classfile (15568)
+			if (markerElement instanceof IClassFile){
+				IType enclosingType = ((IClassFile)markerElement).getType().getDeclaringType();
+				if (enclosingType != null){
+					markerElement = enclosingType.getClassFile(); // retry with immediate enclosing classfile
+				}
+			} else {
+				break;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -1173,17 +1192,37 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static boolean isReferencedBy(IJavaElement element, IMarkerDelta markerDelta) throws CoreException {
 		
-		if (element instanceof IMember)
-			element = ((IMember) element).getClassFile();
-
+		// only match units or classfiles
+		if (element instanceof IMember){
+			IMember member = (IMember) element;
+			if (member.isBinary()){
+				element = member.getClassFile();
+			} else {
+				element = member.getCompilationUnit();
+			}
+		}
+		if (element == null) return false;			
 		if (markerDelta == null) return false;
+
 		String markerDeltarHandleId = (String)markerDelta.getAttribute(ATT_HANDLE_ID);
 		if (markerDeltarHandleId == null) return false;
 		
 		IJavaElement markerElement = JavaCore.create(markerDeltarHandleId);
-		if (markerElement == null) return false;
-		
-		return element.equals(markerElement); // external elements may still be equal with different handleIDs.
+		while (markerElement != null){
+			if (element.equals(markerElement)) return true; // external elements may still be equal with different handleIDs.
+			
+			// cycle through enclosing types in case marker is associated with a classfile (15568)
+			if (markerElement instanceof IClassFile){
+				IType enclosingType = ((IClassFile)markerElement).getType().getDeclaringType();
+				if (enclosingType != null){
+					markerElement = enclosingType.getClassFile(); // retry with immediate enclosing classfile
+				}
+			} else {
+				break;
+			}
+		}
+		return false;
+
 	}
 
 	/**
