@@ -442,11 +442,7 @@ public class BlockScope extends Scope {
 		int currentIndex = 1;
 		foundType : if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
-// this is replaced by the call to recordSimpleReference above
-			compilationUnitScope().addNamespaceReference(packageBinding);
-
 			while (currentIndex < length) {
-// replaces call to addNamespaceReference at the end of the loop & call to addTypeReference
 				compilationUnitScope().recordReference(packageBinding.compoundName, compoundName[currentIndex]);
 				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
 				invocationSite.setFieldIndex(currentIndex);
@@ -466,7 +462,6 @@ public class BlockScope extends Scope {
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							binding.problemId());
-					compilationUnitScope().addTypeReference((ReferenceBinding) binding);
 					if (!((ReferenceBinding) binding).canBeSeenBy(this))
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
@@ -475,7 +470,6 @@ public class BlockScope extends Scope {
 					break foundType;
 				}
 				packageBinding = (PackageBinding) binding;
-				compilationUnitScope().addNamespaceReference(packageBinding);
 			}
 
 			// It is illegal to request a PACKAGE from this method.
@@ -915,11 +909,8 @@ public class BlockScope extends Scope {
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
-// is this needed? Or when the type is resolved, is it recorded?
 		compilationUnitScope().recordTypeReference(receiverType);
-// replaces call to addTypeReferences
 		compilationUnitScope().recordTypeReferences(argumentTypes);
-		compilationUnitScope().addTypeReferences(argumentTypes);
 		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
 		if (methodBinding != null)
 			if (methodBinding.canBeSeenBy(invocationSite, this))

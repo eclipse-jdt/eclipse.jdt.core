@@ -123,14 +123,10 @@ public abstract class Scope
 			return null; // know it has no member types (nor inherited member types)
 
 		SourceTypeBinding enclosingSourceType = enclosingSourceType();
-// replaces call to addTypeReference
 		compilationUnitScope().recordReference(enclosingType.compoundName, typeName);
-		compilationUnitScope().addTypeReference(enclosingType);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
-// was the enclosing type not recorded 3 lines above?
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
-			compilationUnitScope().addTypeReference(memberType);
 			if (enclosingSourceType == null
 				? memberType.canBeSeenBy(getCurrentPackage())
 				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
@@ -148,17 +144,11 @@ public abstract class Scope
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
-// replaces call to addTypeReference
 		compilationUnitScope().recordTypeReference(receiverType);
-		compilationUnitScope().addTypeReference(receiverType);
-// replaces call to addTypeReferences
 		compilationUnitScope().recordTypeReferences(argumentTypes);
-		compilationUnitScope().addTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
 		if (exactMethod != null) {
-// replaces call to addTypeReferences
 			compilationUnitScope().recordTypeReferences(exactMethod.thrownExceptions);
-			compilationUnitScope().addTypeReferences(exactMethod.thrownExceptions);
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this))
 				return exactMethod;
 		}
@@ -183,7 +173,6 @@ public abstract class Scope
 			return null;
 		}
 
-// replaces call to addTypeReference which should be here
 		compilationUnitScope().recordTypeReference(receiverType);
 
 		ReferenceBinding currentType = (ReferenceBinding) receiverType;
@@ -191,7 +180,6 @@ public abstract class Scope
 			return new ProblemFieldBinding(currentType, fieldName, NotVisible);
 		// *** Need a new problem id - TypeNotVisible?
 
-		compilationUnitScope().addTypeReference(currentType);
 		FieldBinding field = currentType.getField(fieldName);
 		if (field != null) {
 			if (field.canBeSeenBy(currentType, invocationSite, this))
@@ -294,14 +282,10 @@ public abstract class Scope
 
 		SourceTypeBinding enclosingSourceType = enclosingSourceType();
 		PackageBinding currentPackage = getCurrentPackage();
-// replaces call to addTypeReference
 		compilationUnitScope().recordReference(enclosingType.compoundName, typeName);
-		compilationUnitScope().addTypeReference(enclosingType);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
-// was the enclosing type not recorded 3 lines above?
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
-			compilationUnitScope().addTypeReference(memberType);
 			if (enclosingSourceType == null
 				? memberType.canBeSeenBy(currentPackage)
 				: memberType.canBeSeenBy(enclosingType, enclosingSourceType))
@@ -335,13 +319,9 @@ public abstract class Scope
 			if ((currentType = currentType.superclass()) == null)
 				break;
 
-// replaces call to addTypeReference
 			compilationUnitScope().recordReference(currentType.compoundName, typeName);
-			compilationUnitScope().addTypeReference(currentType);
 			if ((memberType = currentType.getMemberType(typeName)) != null) {
-// was the superclass not recorded 3 lines above?
 				compilationUnitScope().recordTypeReference(memberType); // to record supertypes
-				compilationUnitScope().addTypeReference(memberType);
 				keepLooking = false;
 				if (enclosingSourceType == null
 					? memberType.canBeSeenBy(currentPackage)
@@ -365,13 +345,9 @@ public abstract class Scope
 					if ((anInterface.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						anInterface.tagBits |= InterfaceVisited;
-// replaces call to addTypeReference
 						compilationUnitScope().recordReference(anInterface.compoundName, typeName);
-						compilationUnitScope().addTypeReference(anInterface);
 						if ((memberType = anInterface.getMemberType(typeName)) != null) {
-// was the interface not recorded 3 lines above?
 							compilationUnitScope().recordTypeReference(memberType); // to record supertypes
-							compilationUnitScope().addTypeReference(memberType);
 							if (visibleMemberType == null) {
 								visibleMemberType = memberType;
 							} else {
@@ -422,12 +398,8 @@ public abstract class Scope
 		MethodBinding matchingMethod = null;
 		ObjectVector found = null;
 
-// replaces call to addTypeReference
 		compilationUnitScope().recordTypeReference(receiverType);
-		compilationUnitScope().addTypeReference(receiverType);
-// replaces call to addTypeReferences
 		compilationUnitScope().recordTypeReferences(argumentTypes);
-		compilationUnitScope().addTypeReferences(argumentTypes);
 		if (currentType.isInterface()) {
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
@@ -540,9 +512,7 @@ public abstract class Scope
 				visible[visibleIndex++] = methodBinding;
 		}
 		if (visibleIndex == 1) {
-// replaces call to addTypeReferences
 			compilationUnitScope().recordTypeReferences(visible[0].thrownExceptions);
-			compilationUnitScope().addTypeReferences(visible[0].thrownExceptions);
 			return visible[0];
 		}
 		if (visibleIndex == 0)
@@ -606,9 +576,7 @@ public abstract class Scope
 		PackageBinding declarationPackage,
 		PackageBinding invocationPackage) {
 
-// replaces call to addNamespaceReference
 		compilationUnitScope().recordReference(declarationPackage.compoundName, typeName);
-		compilationUnitScope().addNamespaceReference(declarationPackage);
 		ReferenceBinding typeBinding = declarationPackage.getType(typeName);
 		if (typeBinding == null)
 			return null;
@@ -616,7 +584,6 @@ public abstract class Scope
 		if (typeBinding.isValidBinding()) {
 // Not convinced that this is necessary
 //			compilationUnitScope().recordTypeReference(typeBinding); // to record supertypes
-			compilationUnitScope().addTypeReference(typeBinding);
 			if (declarationPackage != invocationPackage && !typeBinding.canBeSeenBy(invocationPackage))
 				return new ProblemReferenceBinding(typeName, typeBinding, NotVisible);
 		}
@@ -793,23 +760,18 @@ public abstract class Scope
 			if (binding != null) return binding;
 		}
 
-// replaces 3 calls to addNamespaceReference & 1 to addTypeReference
 		compilationUnitScope().recordQualifiedReference(compoundName);
 		Binding binding =
 			getTypeOrPackage(compoundName[0], typeNameLength == 1 ? TYPE : TYPE | PACKAGE);
 		if (binding == null)
 			return new ProblemReferenceBinding(compoundName[0], NotFound);
-		if (!binding.isValidBinding()) {
-			compilationUnitScope().addNamespaceReference(
-				new ProblemPackageBinding(compoundName[0], NotFound)); // record extra reference to pkg
+		if (!binding.isValidBinding())
 			return (ReferenceBinding) binding;
-		}
+
 		int currentIndex = 1;
 		boolean checkVisibility = false;
 		if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
-			compilationUnitScope().addNamespaceReference(packageBinding);
-
 			while (currentIndex < typeNameLength) {
 				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]); // does not check visibility
 				if (binding == null)
@@ -823,7 +785,6 @@ public abstract class Scope
 				if (!(binding instanceof PackageBinding))
 					break;
 				packageBinding = (PackageBinding) binding;
-				compilationUnitScope().addNamespaceReference(packageBinding);
 			}
 			if (binding instanceof PackageBinding)
 				return new ProblemReferenceBinding(
@@ -834,9 +795,7 @@ public abstract class Scope
 
 		// binding is now a ReferenceBinding
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
-// is this needed?
 		compilationUnitScope().recordTypeReference(typeBinding); // to record supertypes
-		compilationUnitScope().addTypeReference(typeBinding);
 		if (checkVisibility) // handles the fall through case
 			if (!typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
@@ -1032,10 +991,7 @@ public abstract class Scope
 				return packageBinding;
 		}
 
-// replaces calls to addNamespaceReference
 		compilationUnitScope().recordSimpleReference(name);
-		compilationUnitScope().addNamespaceReference(
-			new ProblemPackageBinding(name, NotFound));
 		// Answer error binding -- could not find name
 		return new ProblemReferenceBinding(name, NotFound);
 	}
@@ -1114,9 +1070,7 @@ public abstract class Scope
 				if (!areParametersAssignable(next.parameters, method.parameters))
 					continue nextVisible;
 			}
-// replaces call to addTypeReferences
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
-			compilationUnitScope().addTypeReferences(method.thrownExceptions);
 			return method;
 		}
 		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
@@ -1161,9 +1115,7 @@ public abstract class Scope
 				if (!areParametersAssignable(next.parameters, method.parameters))
 					continue nextVisible;
 			}
-// replaces call to addTypeReferences
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
-			compilationUnitScope().addTypeReferences(method.thrownExceptions);
 			return method;
 		}
 		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);

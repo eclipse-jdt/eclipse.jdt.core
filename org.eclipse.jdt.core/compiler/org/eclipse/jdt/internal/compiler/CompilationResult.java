@@ -37,8 +37,6 @@ public class CompilationResult {
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
 
-	public char[][] namespaceDependencies;
-	public char[][] fileDependencies;
 	public int lineSeparatorPositions[];
 	public Hashtable compiledTypes = new Hashtable(11);
 	public int unitIndex, totalUnitsKnown;
@@ -82,38 +80,10 @@ public ICompilationUnit getCompilationUnit(){
 	return compilationUnit;
 }
 /**
- * Answer the file names of the types on which the compilation unit depends.
- * For example, if Foo.java refers to class p1.Bar, and p1.Bar is found,
- * then the type dependency info for Foo.java will include the file name
- * for p1.Bar.
- * If a type is looked up in some package but is not found, this does not
- * introduce a type dependency, but it does introduce a namespace dependency
- * on that package.
- * In general, if any of the types listed are deleted from the image, it will 
- * break the owner of the dependency info.
- */
-
-public char[][] getFileDependencies() {
-	return fileDependencies;
-}
-/**
  * Answer the initial file name
  */
 public char[] getFileName(){
 	return fileName;
-}
-/**
- * Answer the names of the packages on which the compilation result depends.
- * That is, in order to compile the compilation unit, the compiler needed
- * to look up names in these packages.  Such dependencies usually arise
- * from import statements and qualified type references.
- * The names are qualified package names separated by periods.
- * For example, {{{java.lang}, {java.io}}}.
- * The default package is indicated by the char[0].
- */
-
-public char[][] getNamespaceDependencies() {
-	return namespaceDependencies;
 }
 /**
  * Answer the problems (errors and warnings) encountered during compilation.

@@ -21,9 +21,6 @@ public class CompilationUnitScope extends Scope {
 	private SimpleNameVector simpleNameReferences;
 	private ObjectVector referencedTypes;
 
-	private ObjectVector namespaceDependencies;
-	private ObjectVector typeDependencies;
-
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
 	this.environment = environment;
@@ -35,49 +32,11 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment e
 		this.qualifiedReferences = new CompoundNameVector();
 		this.simpleNameReferences = new SimpleNameVector();
 		this.referencedTypes = new ObjectVector();
-
-		this.namespaceDependencies = new ObjectVector();
-		this.typeDependencies = new ObjectVector();
 	} else {
 		this.qualifiedReferences = null; // used to test if dependencies should be recorded
 		this.simpleNameReferences = null;
 		this.referencedTypes = null;
-
-		this.namespaceDependencies = null; // used to test if dependencies should be recorded
-		this.typeDependencies = null;
 	}
-}
-public void addNamespaceReference(PackageBinding packageBinding) {
-	if (namespaceDependencies == null) return; // we're not recording dependencies
-
-	if (packageBinding.isValidBinding()) {
-		if (!namespaceDependencies.containsIdentical(packageBinding))
-			namespaceDependencies.add(packageBinding);
-	} else {
-		for (int i = namespaceDependencies.size; --i >= 0;) {
-			PackageBinding next = (PackageBinding) namespaceDependencies.elementAt(i);
-			if (!next.isValidBinding() && CharOperation.equals(packageBinding.compoundName, next.compoundName))
-				return;
-		}
-		namespaceDependencies.add(packageBinding);
-	}
-}
-public void addTypeReference(TypeBinding type) {
-	if (typeDependencies == null) return; // we're not recording dependencies
-
-	if (type.isArrayType())
-		type = ((ArrayBinding) type).leafComponentType;
-	if (!type.isBaseType()) {
-		ReferenceBinding actualType = (ReferenceBinding) type;
-		if (!typeDependencies.containsIdentical(actualType))
-			typeDependencies.add(actualType);
-	}
-}
-public void addTypeReferences(TypeBinding[] types) {
-	if (typeDependencies == null) return; // we're not recording dependencies
-	if (types == null || types == NoExceptions) return;
-
-	for (int i = 0, max = types.length; i < max; i++) addTypeReference(types[i]);
 }
 void buildFieldsAndMethods() {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
@@ -302,25 +261,19 @@ public void faultInTypes() {
 		topLevelTypes[i].faultInTypesForFieldsAndMethods();
 }
 private Binding findOnDemandImport(char[][] compoundName) {
-	// replaces the 3 calls to addNamespaceReference & 2 to addTypeReference
 	recordQualifiedReference(compoundName);
 
 	Binding binding = environment.getPackage0(compoundName[0]);
 	if (binding == null) {
 		if (environment.isPackage(null, compoundName[0]))
 			binding = environment.getTopLevelPackage(compoundName[0]);
-		else // hold onto a problem package since a real one will never be created
-			addNamespaceReference(new ProblemPackageBinding(compoundName[0], NotFound));
-	} else {
-		if (binding == environment.theNotFoundPackage)
-			binding = null; // forget the NotFound package
+	} else if (binding == environment.theNotFoundPackage) {
+		binding = null; // forget the NotFound package
 	}
 	int i = 1;
 	int length = compoundName.length;
 	foundNothingOrType: if (binding != null) {
 		PackageBinding packageBinding = (PackageBinding) binding;
-		addNamespaceReference(packageBinding);
-
 		while (i < length) {
 			binding = packageBinding.getTypeOrPackage(compoundName[i++]);
 			if (binding == null || !binding.isValidBinding()) {
@@ -331,7 +284,6 @@ private Binding findOnDemandImport(char[][] compoundName) {
 				break foundNothingOrType;
 
 			packageBinding = (PackageBinding) binding;
-			addNamespaceReference(packageBinding);
 		}
 		return packageBinding;
 	}
@@ -355,14 +307,12 @@ private Binding findOnDemandImport(char[][] compoundName) {
 	}
 
 	for (; i < length; i++) {
-		addTypeReference(type);
 		// does not look for inherited member types on purpose
 		if ((type = type.getMemberType(compoundName[i])) == null)
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, i + 1),
 				NotFound);
 	}
-	addTypeReference(type);
 	if (!type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, NotVisible);
 	return type;
@@ -536,63 +486,6 @@ public void storeDependencyInfo() {
 	for (int i = 0; i < size; i++)
 		simpleRefs[i] = simpleNameReferences.elementAt(i);
 	referenceContext.compilationResult.simpleNameReferences = simpleRefs;
-
-// Old code to be removed
-	for (int i = 0; i < typeDependencies.size; i++) { // grows as more types are added
-		// add all the supertypes & associated packages
-		ReferenceBinding type = (ReferenceBinding) typeDependencies.elementAt(i);
-
-		addNamespaceReference(type.fPackage); // is this necessary? If so what about a & a.b from a.b.c?
-		if (type.enclosingType() != null)
-			addTypeReference(type.enclosingType());
-		if (type.superclass() != null)
-			addTypeReference(type.superclass());
-		ReferenceBinding[] interfaces = type.superInterfaces();
-		for (int j = 0, length = interfaces.length; j < length; j++)
-			addTypeReference(interfaces[j]);
-	}
-
-	int length = namespaceDependencies.size;
-	char[][] namespaceNames = new char[length][];
-	for (int i = 0; i < length; i++)
-		namespaceNames[i] = ((PackageBinding) namespaceDependencies.elementAt(i)).readableName();
-	referenceContext.compilationResult.namespaceDependencies = namespaceNames;
-
-	length = typeDependencies.size;
-	int toplevelTypeCount = 0;
-	for (int i = 0; i < length; i++)
-		if (!((ReferenceBinding) typeDependencies.elementAt(i)).isNestedType())
-			toplevelTypeCount++;
-	char[][] fileNames = new char[toplevelTypeCount][];
-	for (int i = 0; i < length; i++)
-		if (!((ReferenceBinding) typeDependencies.elementAt(i)).isNestedType())
-			fileNames[--toplevelTypeCount] = ((ReferenceBinding) typeDependencies.elementAt(i)).getFileName();
-
-	// eliminate duplicates
-	int unique = 0;
-	char[] ownFileName = referenceContext.getFileName();
-	next : for (int i = 0, l = fileNames.length; i < l; i++) {
-		char[] fileName = fileNames[i];
-		if (CharOperation.equals(fileName, ownFileName)) {
-			fileNames[i] = null;
-			continue next;
-		}
-		for (int j = i + 1; j < l; j++) {
-			if (CharOperation.equals(fileName, fileNames[j])) {
-				fileNames[i] = null;
-				continue next;
-			}
-		}
-		unique++;
-	}
-	if (unique < fileNames.length) {
-		char[][] uniqueFileNames = new char[unique][];
-		for (int i = fileNames.length; --i >= 0;)
-			if (fileNames[i] != null)
-				uniqueFileNames[--unique] = fileNames[i];
-		fileNames = uniqueFileNames;
-	}
-	referenceContext.compilationResult.fileDependencies = fileNames;
 }
 public String toString() {
 	return "--- CompilationUnit Scope : " + new String(referenceContext.getFileName()); //$NON-NLS-1$

@@ -557,7 +557,6 @@ public class ClassScope extends Scope {
 			if (isJavaLangObject(sourceType))
 				return true;
 			sourceType.superclass = getJavaLangObject();
-			compilationUnitScope().addTypeReference(sourceType.superclass);
 			return !detectCycle(sourceType, sourceType.superclass, null);
 			// ensure Object is initialized if it comes from a source file
 		}
@@ -762,7 +761,6 @@ public class ClassScope extends Scope {
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
 		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
 		char[][] compoundName = typeReference.getTypeName();
-// replaces 2 calls to addNamespaceReference
 		compilationUnitScope().recordQualifiedReference(compoundName);
 		SourceTypeBinding sourceType = referenceContext.binding;
 		int size = compoundName.length;
@@ -775,20 +773,16 @@ public class ClassScope extends Scope {
 			// match against the sourceType even though nested members cannot be supertypes
 		} else {
 			Binding typeOrPackage = parent.getTypeOrPackage(compoundName[0], TYPE | PACKAGE);
-			if (typeOrPackage == null || !typeOrPackage.isValidBinding()) {
-				compilationUnitScope().addNamespaceReference(new ProblemPackageBinding(compoundName[0], NotFound));
-				// record package ref
+			if (typeOrPackage == null || !typeOrPackage.isValidBinding())
 				return new ProblemReferenceBinding(
 					compoundName[0],
 					typeOrPackage == null ? NotFound : typeOrPackage.problemId());
-			}
+
 			boolean checkVisibility = false;
 			for (; n < size; n++) {
 				if (!(typeOrPackage instanceof PackageBinding))
 					break;
-
 				PackageBinding packageBinding = (PackageBinding) typeOrPackage;
-				compilationUnitScope().addNamespaceReference(packageBinding);
 				typeOrPackage = packageBinding.getTypeOrPackage(compoundName[n]);
 				if (typeOrPackage == null || !typeOrPackage.isValidBinding())
 					return new ProblemReferenceBinding(
@@ -802,7 +796,6 @@ public class ClassScope extends Scope {
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, n), NotFound);
 			superType = (ReferenceBinding) typeOrPackage;
 			compilationUnitScope().recordTypeReference(superType); // to record supertypes
-			compilationUnitScope().addTypeReference(superType);
 
 			if (checkVisibility
 				&& n == size) { // if we're finished and know the final supertype then check visibility
