@@ -341,7 +341,7 @@ public void saveIndexes(){
 				if (IndexManager.VERBOSE){
 					e.printStackTrace();
 				}
-				org.eclipse.jdt.internal.core.Util.log(e);
+				//org.eclipse.jdt.internal.core.Util.log(e);
 			}
 		} finally {
 			monitor.exitWrite();
