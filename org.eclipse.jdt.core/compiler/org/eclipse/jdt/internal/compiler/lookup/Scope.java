@@ -717,6 +717,10 @@ public abstract class Scope
 		// we could hold onto the not visible field for extra error reporting
 		while (keepLooking) {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces == null) { // needed for statically imported types which don't know their hierarchy yet
+				((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
+				itsInterfaces = currentType.superInterfaces();
+			}
 			if (itsInterfaces != NoSuperInterfaces) {
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
