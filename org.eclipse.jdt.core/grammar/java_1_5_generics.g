@@ -1489,15 +1489,14 @@ EnumDeclaration ::= Modifiersopt 'enum' Identifier ClassHeaderImplementsopt Enum
 /. $putCase consumeEnumDeclaration(); $break ./
 /:$readableName EnumDeclaration:/
 
-EnumBody ::= '{' EnumConstantsopt EnumBodyDeclarationsopt '}'
+EnumBody ::= '{' EnumBodyDeclarationsopt '}'
+EnumBody ::= '{' ',' EnumBodyDeclarationsopt '}'
+EnumBody ::= '{' EnumConstants ',' EnumBodyDeclarationsopt '}'
+EnumBody ::= '{' EnumConstants EnumBodyDeclarationsopt '}'
 
 EnumConstants ::= EnumConstant
-EnumConstants ::= EnumConstants EnumConstant
+EnumConstants ::= EnumConstants ',' EnumConstant
 /.$putCase consumeEnumConstants(); $break ./
-
-EnumConstantsopt ::= $empty
-/.$putCase consumeEmptyEnumConstants(); $break ./
-EnumConstantsopt ::= EnumConstants
 
 EnumConstant ::= Identifier Argumentsopt ClassBodyopt
 /.$putCase consumeEnumConstant(); $break ./
@@ -1519,7 +1518,7 @@ EnumBodyDeclarationsopt ::= $empty
 EnumBodyDeclarationsopt ::= EnumDeclarations
 
 EnumConst ::= Name
--- EnumConst ::= ExpressionNotAName
+EnumConst ::= Expression_NotName
 
 -----------------------------------------------
 -- 1.5 features : enhanced for statement
