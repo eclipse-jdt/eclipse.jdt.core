@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+
 /**
  * Binding denoting a field after type substitution got performed.
  * On parameterized type bindings, all fields got substituted, regardless whether
@@ -26,8 +28,26 @@ public class ParameterizedFieldBinding extends FieldBinding {
 	            parameterizedDeclaringClass.substitute(originalField.type), 
 	            originalField.modifiers, 
 	            parameterizedDeclaringClass, 
-	            originalField.constant);
+	            null);
 	    this.originalField = originalField;
 	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.VariableBinding#constant()
+	 */
+	public Constant constant() {
+		return this.originalField.constant();
+	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.VariableBinding#isConstantValue()
+	 */
+	public boolean isConstantValue() {
+		return this.originalField.isConstantValue();
+	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.VariableBinding#constant()
+	 */
+	public void setConstant(Constant constant) {
+		this.originalField.setConstant(constant);
+	}	
 }
 

@@ -167,7 +167,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		//continue even on errors in order to have the TC done into the statements
 		synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, AccDefault, false);
 		scope.addLocalVariable(synchroVariable);
-		synchroVariable.constant = NotAConstant; // not inlinable
+		synchroVariable.setConstant(NotAConstant); // not inlinable
 		expression.computeConversion(scope, type, type);
 		block.resolveUsing(scope);
 	}

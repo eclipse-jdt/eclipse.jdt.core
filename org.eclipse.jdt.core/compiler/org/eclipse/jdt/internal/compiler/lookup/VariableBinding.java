@@ -17,29 +17,43 @@ public abstract class VariableBinding extends Binding {
 	public int modifiers;
 	public TypeBinding type;
 	public char[] name;
-	public Constant constant;
+	private Constant constant;
 	public int id; // for flow-analysis (position in flowInfo bit vector)
 
-public boolean isConstantValue() {
-	return constant != Constant.NotAConstant;
-}
-
-public final boolean isBlankFinal(){
-	return (modifiers & AccBlankFinal) != 0;
-}
-/* Answer true if the receiver is final and cannot be changed
-*/
-
-public final boolean isFinal() {
-	return (modifiers & AccFinal) != 0;
-}
-public char[] readableName() {
-	return name;
-}
-public String toString() {
-	String s = (type != null) ? type.debugName() : "UNDEFINED TYPE"; //$NON-NLS-1$
-	s += " "; //$NON-NLS-1$
-	s += (name != null) ? new String(name) : "UNNAMED FIELD"; //$NON-NLS-1$
-	return s;
-}
+	public VariableBinding(char[] name, TypeBinding type, int modifiers, Constant constant) {
+		this.name = name;
+		this.type = type;
+		this.modifiers = modifiers;
+		this.constant = constant;
+	}
+	
+	public Constant constant() {
+		return this.constant;
+	}
+	
+	public final boolean isBlankFinal(){
+		return (modifiers & AccBlankFinal) != 0;
+	}
+	/* Answer true if the receiver is final and cannot be changed
+	*/
+	
+	public boolean isConstantValue() {
+		return constant != Constant.NotAConstant;
+	}
+	
+	public final boolean isFinal() {
+		return (modifiers & AccFinal) != 0;
+	}
+	public char[] readableName() {
+		return name;
+	}
+	public void setConstant(Constant constant) {
+		this.constant = constant;
+	}
+	public String toString() {
+		String s = (type != null) ? type.debugName() : "UNDEFINED TYPE"; //$NON-NLS-1$
+		s += " "; //$NON-NLS-1$
+		s += (name != null) ? new String(name) : "UNNAMED FIELD"; //$NON-NLS-1$
+		return s;
+	}
 }

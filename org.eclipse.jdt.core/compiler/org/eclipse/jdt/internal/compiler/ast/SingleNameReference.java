@@ -277,7 +277,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				case FIELD : // reading a field
 					FieldBinding fieldBinding;
 					if (valueRequired) {
-						if ((fieldBinding = (FieldBinding) this.codegenBinding).constant == NotAConstant) { // directly use inlined value for constant fields
+						if (!(fieldBinding = (FieldBinding) this.codegenBinding).isConstantValue()) { // directly use inlined value for constant fields
 							boolean isStatic;
 							if (!(isStatic = fieldBinding.isStatic())) {
 								if ((bits & DepthMASK) != 0) {
@@ -301,7 +301,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							codeStream.generateImplicitConversion(implicitConversion);
 							if (this.genericCast != null) codeStream.checkcast(this.genericCast);
 					} else { // directly use the inlined value
-							codeStream.generateConstant(fieldBinding.constant, implicitConversion);
+							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
 						}
 					}
 					break;
@@ -585,7 +585,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			if (fieldBinding.declaringClass != this.actualReceiverType
 				&& !this.actualReceiverType.isArrayType()	
 				&& fieldBinding.declaringClass != null
-				&& fieldBinding.constant == NotAConstant
+				&& !fieldBinding.isConstantValue()
 				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 						&& !fieldBinding.isStatic()
 						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
@@ -630,7 +630,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							bits &= ~RestrictiveFlagMASK;  // clear bits
 							bits |= LOCAL;
 							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
-								constant = variable.constant;
+								constant = variable.constant();
 							} else {
 								constant = NotAConstant;
 							}

@@ -470,14 +470,14 @@ public class TryStatement extends SubRoutineStatement {
 					this.returnAddressVariable =
 						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);
-					this.returnAddressVariable.constant = NotAConstant; // not inlinable
+					this.returnAddressVariable.setConstant(NotAConstant); // not inlinable
 				}
 				this.subRoutineStartLabel = new Label();
 	
 				this.anyExceptionVariable =
 					new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), AccDefault, false);
 				finallyScope.addLocalVariable(this.anyExceptionVariable);
-				this.anyExceptionVariable.constant = NotAConstant; // not inlinable
+				this.anyExceptionVariable.setConstant(NotAConstant); // not inlinable
 	
 				if (!methodScope.isInsideInitializer()) {
 					MethodBinding methodBinding =
@@ -492,7 +492,7 @@ public class TryStatement extends SubRoutineStatement {
 									AccDefault,
 									false);
 							finallyScope.addLocalVariable(this.secretReturnValue);
-							this.secretReturnValue.constant = NotAConstant; // not inlinable
+							this.secretReturnValue.setConstant(NotAConstant); // not inlinable
 						}
 					}
 				}

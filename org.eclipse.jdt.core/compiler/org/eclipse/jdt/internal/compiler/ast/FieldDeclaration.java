@@ -64,7 +64,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		if (this.binding != null
 			&& this.binding.isValidBinding()
 			&& this.binding.isStatic()
-			&& this.binding.constant == NotAConstant
+			&& !this.binding.isConstantValue()
 			&& this.binding.declaringClass.isNestedType()
 			&& this.binding.declaringClass.isClass()
 			&& !this.binding.declaringClass.isStatic()) {
@@ -100,7 +100,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 		int pc = codeStream.position;
 		boolean isStatic;
 		if (this.initialization != null
-			&& !((isStatic = this.binding.isStatic()) && this.binding.constant != NotAConstant)) {
+			&& !((isStatic = this.binding.isStatic()) && this.binding.isConstantValue())) {
 			// non-static field, need receiver
 			if (!isStatic)
 				codeStream.aload_0();
@@ -177,10 +177,10 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 				// the resolution of the initialization hasn't been done
 				if (this.initialization == null) {
-					this.binding.constant = Constant.NotAConstant;
+					this.binding.setConstant(Constant.NotAConstant);
 				} else {
 					// break dead-lock cycles by forcing constant to NotAConstant
-					this.binding.constant = Constant.NotAConstant;
+					this.binding.setConstant(Constant.NotAConstant);
 					
 					TypeBinding fieldType = this.binding.type;
 					TypeBinding initializationType;
@@ -204,12 +204,10 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 							initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this);
 						}
 						if (this.binding.isFinal()){ // cast from constant actual type to variable type
-							this.binding.constant =
-								this.initialization.constant.castTo(
-									(this.binding.type.id << 4) + this.initialization.constant.typeID());
+							this.binding.setConstant(this.initialization.constant.castTo((this.binding.type.id << 4) + this.initialization.constant.typeID()));
 						}
 					} else {
-						this.binding.constant = NotAConstant;
+						this.binding.setConstant(NotAConstant);
 					}
 				}
 				// Resolve Javadoc comment if one is present
@@ -226,8 +224,8 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 			} finally {
 				initializationScope.initializedField = previousField;
 				initializationScope.lastVisibleFieldID = previousFieldID;
-				if (this.binding.constant == null)
-					this.binding.constant = Constant.NotAConstant;
+				if (this.binding.constant() == null)
+					this.binding.setConstant(Constant.NotAConstant);
 			}
 		}
 	}

@@ -411,7 +411,7 @@ public class ClassFile
 		contentsOffset += 2;
 		// 4.7.2 only static constant fields get a ConstantAttribute
 		// Generate the constantValueAttribute
-		if (fieldBinding.constant != Constant.NotAConstant){
+		if (fieldBinding.isConstantValue()){
 			if (contentsOffset + 8 >= contents.length) {
 				resizeContents(8);
 			}
@@ -427,10 +427,11 @@ public class ClassFile
 			contents[contentsOffset++] = 2;
 			attributeNumber++;
 			// Need to add the constant_value_index
-			switch (fieldBinding.constant.typeID()) {
+			Constant fieldConstant = fieldBinding.constant();
+			switch (fieldConstant.typeID()) {
 				case T_boolean :
 					int booleanValueIndex =
-						constantPool.literalIndex(fieldBinding.constant.booleanValue() ? 1 : 0);
+						constantPool.literalIndex(fieldConstant.booleanValue() ? 1 : 0);
 					contents[contentsOffset++] = (byte) (booleanValueIndex >> 8);
 					contents[contentsOffset++] = (byte) booleanValueIndex;
 					break;
@@ -439,32 +440,32 @@ public class ClassFile
 				case T_int :
 				case T_short :
 					int integerValueIndex =
-						constantPool.literalIndex(fieldBinding.constant.intValue());
+						constantPool.literalIndex(fieldConstant.intValue());
 					contents[contentsOffset++] = (byte) (integerValueIndex >> 8);
 					contents[contentsOffset++] = (byte) integerValueIndex;
 					break;
 				case T_float :
 					int floatValueIndex =
-						constantPool.literalIndex(fieldBinding.constant.floatValue());
+						constantPool.literalIndex(fieldConstant.floatValue());
 					contents[contentsOffset++] = (byte) (floatValueIndex >> 8);
 					contents[contentsOffset++] = (byte) floatValueIndex;
 					break;
 				case T_double :
 					int doubleValueIndex =
-						constantPool.literalIndex(fieldBinding.constant.doubleValue());
+						constantPool.literalIndex(fieldConstant.doubleValue());
 					contents[contentsOffset++] = (byte) (doubleValueIndex >> 8);
 					contents[contentsOffset++] = (byte) doubleValueIndex;
 					break;
 				case T_long :
 					int longValueIndex =
-						constantPool.literalIndex(fieldBinding.constant.longValue());
+						constantPool.literalIndex(fieldConstant.longValue());
 					contents[contentsOffset++] = (byte) (longValueIndex >> 8);
 					contents[contentsOffset++] = (byte) longValueIndex;
 					break;
 				case T_String :
 					int stringValueIndex =
 						constantPool.literalIndex(
-							((StringConstant) fieldBinding.constant).stringValue());
+							((StringConstant) fieldConstant).stringValue());
 					if (stringValueIndex == -1) {
 						if (!creatingProblemType) {
 							// report an error and abort: will lead to a problem type classfile creation
@@ -2486,7 +2487,7 @@ public class ClassFile
 		FieldBinding[] fields = typeBinding.fields;
 		if ((fields != null) && (fields != NoFields)) {
 			for (int i = 0, max = fields.length; i < max; i++) {
-				if (fields[i].constant == null) {
+				if (fields[i].constant() == null) {
 					FieldReference.getConstantFor(fields[i], null, false, null);
 				}
 			}

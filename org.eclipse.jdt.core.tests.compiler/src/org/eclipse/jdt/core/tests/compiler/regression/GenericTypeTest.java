@@ -5954,7 +5954,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		}
 	}
 	// 68998 parameterized field constants
-	public void _test216() { 
+	public void test216() { 
 		this.runConformTest(
 			new String[] {
 				"test/cheetah/NG.java",

@@ -84,7 +84,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		boolean isStatic = this.codegenBinding.isStatic();
 		this.receiver.generateCode(currentScope, codeStream, !isStatic);
 		if (valueRequired) {
-			if (this.codegenBinding.constant == NotAConstant) {
+			if (!this.codegenBinding.isConstantValue()) {
 				if (this.codegenBinding.declaringClass == null) { // array length
 					codeStream.arraylength();
 				} else {
@@ -108,7 +108,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.invokeObjectGetClass(); // perform null check
 					codeStream.pop();
 				}
-				codeStream.generateConstant(this.codegenBinding.constant, this.implicitConversion);
+				codeStream.generateConstant(this.codegenBinding.constant(), this.implicitConversion);
 			}
 		} else {
 			if (!isStatic){
@@ -307,7 +307,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (this.delegateThis != null) {
 		if (this.binding.declaringClass != this.delegateThis.type
 			&& this.binding.declaringClass != null
-			&& this.binding.constant == NotAConstant
+			&& !this.binding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 					&& !this.binding.isStatic()
 					&& this.binding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
@@ -317,7 +317,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	} else if (this.binding.declaringClass != this.receiverType
 		&& !this.receiverType.isArrayType()
 		&& this.binding.declaringClass != null // array.length
-		&& this.binding.constant == NotAConstant
+		&& !this.binding.isConstantValue()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& this.binding.declaringClass.id != T_Object) //no change for Object fields (in case there was)
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope))){

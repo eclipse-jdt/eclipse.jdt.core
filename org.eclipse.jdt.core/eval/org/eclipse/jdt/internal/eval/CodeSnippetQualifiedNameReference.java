@@ -93,13 +93,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				codeStream.arraylength();
 				codeStream.generateImplicitConversion(this.implicitConversion);
 			} else {
-				if (lastFieldBinding.constant != NotAConstant) {
+				if (lastFieldBinding.isConstantValue()) {
 					if (!lastFieldBinding.isStatic()){
 						codeStream.invokeObjectGetClass();
 						codeStream.pop();
 					}
 					// inline the last field constant
-					codeStream.generateConstant(lastFieldBinding.constant, this.implicitConversion);
+					codeStream.generateConstant(lastFieldBinding.constant(), this.implicitConversion);
 				} else {	
 					if (lastFieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 						if (lastFieldBinding.isStatic()) {
@@ -288,7 +288,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 			lastFieldBinding = (FieldBinding) this.codegenBinding;
 			lastGenericCast = this.genericCast;
 			// if first field is actually constant, we can inline it
-			if (lastFieldBinding.constant != NotAConstant) {
+			if (lastFieldBinding.isConstantValue()) {
 				break;
 			}
 			if (needValue) {
@@ -321,8 +321,8 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 			if (!needValue) break; // no value needed
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 			// regular local variable read
-			if (localBinding.constant != NotAConstant) {
-				codeStream.generateConstant(localBinding.constant, 0);
+			if (localBinding.isConstantValue()) {
+				codeStream.generateConstant(localBinding.constant(), 0);
 				// no implicit conversion
 			} else {
 				// outer local?
@@ -346,12 +346,12 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 				needValue = !nextField.isStatic();
 				if (needValue) {
 					if (lastFieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
-						if (lastFieldBinding.constant != NotAConstant) {
+						if (lastFieldBinding.isConstantValue()) {
 							if (lastFieldBinding != this.codegenBinding && !lastFieldBinding.isStatic()) {
 								codeStream.invokeObjectGetClass(); // perform null check
 								codeStream.pop();
 							}
-							codeStream.generateConstant(lastFieldBinding.constant, 0);
+							codeStream.generateConstant(lastFieldBinding.constant(), 0);
 						} else if (lastFieldBinding.isStatic()) {
 							codeStream.getstatic(lastFieldBinding);
 						} else {
@@ -424,7 +424,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	this.constant =
 		((this.bits & FIELD) != 0)
 			? FieldReference.getConstantFor((FieldBinding) this.binding, this, false, scope)
-			: ((VariableBinding) this.binding).constant;
+			: ((VariableBinding) this.binding).constant();
 
 	// iteration on each field	
 	while (index < length) {
@@ -514,7 +514,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		if (fieldBinding.declaringClass != lastReceiverType
 			&& !lastReceiverType.isArrayType()			
 			&& fieldBinding.declaringClass != null
-			&& fieldBinding.constant == NotAConstant
+			&& !fieldBinding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 					&& ((index < 0 ? fieldBinding != binding : index > 0) || this.indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_Object)

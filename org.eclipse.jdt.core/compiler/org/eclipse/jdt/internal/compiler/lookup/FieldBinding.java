@@ -16,14 +16,12 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 public class FieldBinding extends VariableBinding {
 	public ReferenceBinding declaringClass;
 protected FieldBinding() {
+	super(null, null, 0, null);
 	// for creating problem field
 }
 public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant) {
-	this.modifiers = modifiers;
-	this.type = type;
-	this.name = name;
+	super(name, type, modifiers, constant);
 	this.declaringClass = declaringClass;
-	this.constant = constant;
 
 	// propagate the deprecated modifier
 	if (this.declaringClass != null)
@@ -36,11 +34,8 @@ public FieldBinding(FieldDeclaration field, TypeBinding type, int modifiers, Ref
 }
 // special API used to change field declaring class for runtime visibility check
 public FieldBinding(FieldBinding initialFieldBinding, ReferenceBinding declaringClass) {
-	this.modifiers = initialFieldBinding.modifiers;
-	this.type = initialFieldBinding.type;
-	this.name = initialFieldBinding.name;
+	super(initialFieldBinding.name, initialFieldBinding.type, initialFieldBinding.modifiers, initialFieldBinding.constant());
 	this.declaringClass = declaringClass;
-	this.constant = initialFieldBinding.constant;
 	this.id = initialFieldBinding.id;
 }
 /* API

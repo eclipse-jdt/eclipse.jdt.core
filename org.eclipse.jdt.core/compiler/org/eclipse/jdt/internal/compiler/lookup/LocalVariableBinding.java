@@ -33,13 +33,8 @@ public class LocalVariableBinding extends VariableBinding {
 	// if declaration slot is not positionned, the variable will not be listed in attribute
 	// note that the name of a variable should be chosen so as not to conflict with user ones (usually starting with a space char is all needed)
 	public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolean isArgument) {
-
-		this.name = name;
-		this.type = type;
-		this.modifiers = modifiers;
+		super(name, type, modifiers, isArgument ? Constant.NotAConstant : null);
 		this.isArgument = isArgument;
-		if (isArgument)
-			this.constant = Constant.NotAConstant;
 	}
 	
 	// regular local variable or argument

@@ -288,13 +288,13 @@ public class QualifiedNameReference extends NameReference {
 					codeStream.arraylength();
 					codeStream.generateImplicitConversion(implicitConversion);
 				} else {
-					if (lastFieldBinding.constant != NotAConstant) {
+					if (lastFieldBinding.isConstantValue()) {
 						if (!lastFieldBinding.isStatic()){
 							codeStream.invokeObjectGetClass();
 							codeStream.pop();
 						}
 						// inline the last field constant
-						codeStream.generateConstant(lastFieldBinding.constant, implicitConversion);
+						codeStream.generateConstant(lastFieldBinding.constant(), implicitConversion);
 					} else {
 						SyntheticAccessMethodBinding accessor =
 							syntheticReadAccessors == null
@@ -442,7 +442,7 @@ public class QualifiedNameReference extends NameReference {
 				lastFieldBinding = (FieldBinding) this.codegenBinding;
 				lastGenericCast = this.genericCast;
 				// if first field is actually constant, we can inline it
-				if (lastFieldBinding.constant != NotAConstant) {
+				if (lastFieldBinding.isConstantValue()) {
 					break;
 				}
 				if (needValue && !lastFieldBinding.isStatic()) {
@@ -459,8 +459,8 @@ public class QualifiedNameReference extends NameReference {
 				if (!needValue) break; // no value needed
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				// regular local variable read
-				if (localBinding.constant != NotAConstant) {
-					codeStream.generateConstant(localBinding.constant, 0);
+				if (localBinding.isConstantValue()) {
+					codeStream.generateConstant(localBinding.constant(), 0);
 					// no implicit conversion
 				} else {
 					// outer local?
@@ -486,12 +486,12 @@ public class QualifiedNameReference extends NameReference {
 						MethodBinding accessor =
 							syntheticReadAccessors == null ? null : syntheticReadAccessors[i]; 
 						if (accessor == null) {
-							if (lastFieldBinding.constant != NotAConstant) {
+							if (lastFieldBinding.isConstantValue()) {
 								if (lastFieldBinding != this.codegenBinding && !lastFieldBinding.isStatic()) {
 									codeStream.invokeObjectGetClass(); // perform null check
 									codeStream.pop();
 								}
-								codeStream.generateConstant(lastFieldBinding.constant, 0);
+								codeStream.generateConstant(lastFieldBinding.constant(), 0);
 							} else if (lastFieldBinding.isStatic()) {
 								codeStream.getstatic(lastFieldBinding);
 							} else {
@@ -595,7 +595,7 @@ public class QualifiedNameReference extends NameReference {
 		this.constant =
 			((bits & FIELD) != 0)
 				? FieldReference.getConstantFor((FieldBinding) binding, this, false, scope)
-				: ((VariableBinding) binding).constant;
+				: ((VariableBinding) binding).constant();
 		// save first depth, since will be updated by visibility checks of other bindings
 		int firstDepth = (bits & DepthMASK) >> DepthSHIFT;
 		// iteration on each field	
@@ -662,7 +662,7 @@ public class QualifiedNameReference extends NameReference {
 	    
 		if (!flowInfo.isReachable()) return;
 		// index == 0 denotes the first fieldBinding, index > 0 denotes one of the 'otherBindings', index < 0 denotes a write access (to last binding)
-		if (fieldBinding.constant != NotAConstant)
+		if (fieldBinding.isConstantValue())
 			return;
 
 		// if field from parameterized type got found, use the original field at codegen time
@@ -705,7 +705,7 @@ public class QualifiedNameReference extends NameReference {
 		if (fieldBinding.declaringClass != lastReceiverType
 			&& !lastReceiverType.isArrayType()			
 			&& fieldBinding.declaringClass != null
-			&& fieldBinding.constant == NotAConstant
+			&& !fieldBinding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_Object)

@@ -111,7 +111,7 @@ public class Argument extends LocalDeclaration {
 
 		binding = new LocalVariableBinding(this, exceptionType, modifiers, false); // argument decl, but local var  (where isArgument = false)
 		scope.addLocalVariable(binding);
-		binding.constant = NotAConstant;
+		binding.setConstant(NotAConstant);
 		return exceptionType;
 	}
 

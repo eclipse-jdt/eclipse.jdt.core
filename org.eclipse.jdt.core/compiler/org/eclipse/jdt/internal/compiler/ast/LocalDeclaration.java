@@ -166,7 +166,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			}
 			binding = new LocalVariableBinding(this, variableType, modifiers, false);
 			scope.addLocalVariable(binding);
-			binding.constant = NotAConstant;
+			binding.setConstant(NotAConstant);
 			// allow to recursivelly target the binding....
 			// the correct constant is harmed if correctly computed at the end of this method
 		}
@@ -206,10 +206,10 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			// (the optimization of the constant propagation will be done later on)
 			// cast from constant actual type to variable type
 			if (binding != null) {
-				binding.constant =
+				binding.setConstant(
 					binding.isFinal()
 						? initialization.constant.castTo((variableType.id << 4) + initialization.constant.typeID())
-						: NotAConstant;
+						: NotAConstant);
 			}
 		}
 	}

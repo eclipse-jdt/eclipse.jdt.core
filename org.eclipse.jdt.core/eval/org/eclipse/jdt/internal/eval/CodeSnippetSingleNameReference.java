@@ -220,7 +220,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			case FIELD : // reading a field
 				FieldBinding fieldBinding;
 				if (valueRequired) {
-					if ((fieldBinding = (FieldBinding) this.codegenBinding).constant == NotAConstant) { // directly use inlined value for constant fields
+					if (!(fieldBinding = (FieldBinding) this.codegenBinding).isConstantValue()) { // directly use inlined value for constant fields
 						if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 							 // directly use inlined value for constant fields
 							boolean isStatic;
@@ -257,7 +257,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 						codeStream.generateImplicitConversion(this.implicitConversion);
 						if (this.genericCast != null) codeStream.checkcast(this.genericCast);						
 					} else { // directly use the inlined value
-						codeStream.generateConstant(fieldBinding.constant, this.implicitConversion);
+						codeStream.generateConstant(fieldBinding.constant(), this.implicitConversion);
 					}
 				}
 				break;
@@ -580,7 +580,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		// and not from Object or implicit static field access.	
 		if (fieldBinding.declaringClass != this.delegateThis.type
 			&& fieldBinding.declaringClass != null
-			&& fieldBinding.constant == NotAConstant
+			&& !fieldBinding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
 					&& !fieldBinding.isStatic()
 					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)

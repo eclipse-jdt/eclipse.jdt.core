@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class BlockScope extends Scope {
@@ -223,7 +222,7 @@ public class BlockScope extends Scope {
 				LocalVariableBinding local = locals[ilocal]; // if no local at all, will be locals[ilocal]==null
 				
 				// check if variable is actually used, and may force it to be preserved
-				boolean generateCurrentLocalVar = (local.useFlag == LocalVariableBinding.USED && (local.constant == Constant.NotAConstant));
+				boolean generateCurrentLocalVar = (local.useFlag == LocalVariableBinding.USED && !local.isConstantValue());
 					
 				// do not report fake used variable
 				if (local.useFlag == LocalVariableBinding.UNUSED

@@ -167,7 +167,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			boolean isStatic = this.codegenBinding.isStatic();
 			receiver.generateCode(currentScope, codeStream, !isStatic);
 			if (valueRequired) {
-				if (this.codegenBinding.constant == NotAConstant) {
+				if (!this.codegenBinding.isConstantValue()) {
 					if (this.codegenBinding.declaringClass == null) { // array length
 						codeStream.arraylength();
 					} else {
@@ -188,7 +188,7 @@ public class FieldReference extends Reference implements InvocationSite {
 						codeStream.invokeObjectGetClass(); // perform null check
 						codeStream.pop();
 					}
-					codeStream.generateConstant(this.codegenBinding.constant, implicitConversion);
+					codeStream.generateConstant(this.codegenBinding.constant(), implicitConversion);
 				}
 			} else {
 				if (!isStatic){
@@ -332,12 +332,14 @@ public class FieldReference extends Reference implements InvocationSite {
 			return NotAConstant;
 		}
 		if (!binding.isFinal()) {
-			return binding.constant = NotAConstant;
+			binding.setConstant(NotAConstant);
+			return NotAConstant;
 		}
-		if (binding.constant != null) {
+		Constant fieldConstant = binding.constant();
+		if (fieldConstant != null) {
 			if (isImplicit || (reference instanceof QualifiedNameReference
 					&& binding == ((QualifiedNameReference)reference).binding)) {
-				return binding.constant;
+				return fieldConstant;
 			}
 			return NotAConstant;
 		}
@@ -357,7 +359,7 @@ public class FieldReference extends Reference implements InvocationSite {
 
 		if (isImplicit || (reference instanceof QualifiedNameReference
 				&& binding == ((QualifiedNameReference)reference).binding)) {
-			return binding.constant;
+			return binding.constant();
 		}
 		return NotAConstant;
 	}
@@ -392,8 +394,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 		
 		if (binding.isPrivate()) {
-			if ((currentScope.enclosingSourceType() != binding.declaringClass)
-				&& (binding.constant == NotAConstant)) {
+			if ((currentScope.enclosingSourceType() != binding.declaringClass) && !binding.isConstantValue()) {
 				if (syntheticAccessors == null)
 					syntheticAccessors = new MethodBinding[2];
 				syntheticAccessors[isReadAccess ? READ : WRITE] = 
@@ -437,7 +438,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		if (this.binding.declaringClass != this.receiverType
 			&& !this.receiverType.isArrayType()
 			&& this.binding.declaringClass != null // array.length
-			&& this.binding.constant == NotAConstant
+			&& !this.binding.isConstantValue()
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& this.binding.declaringClass.id != T_Object)
 			//no change for Object fields (in case there was)

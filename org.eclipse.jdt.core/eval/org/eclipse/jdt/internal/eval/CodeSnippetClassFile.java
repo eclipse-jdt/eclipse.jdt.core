@@ -140,7 +140,7 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	FieldBinding[] fields = typeBinding.fields;
 	if ((fields != null) && (fields != NoFields)) {
 		for (int i = 0, max = fields.length; i < max; i++) {
-			if (fields[i].constant == null) {
+			if (fields[i].constant() == null) {
 				FieldReference.getConstantFor(fields[i], null, false, null);
 			}
 		}
