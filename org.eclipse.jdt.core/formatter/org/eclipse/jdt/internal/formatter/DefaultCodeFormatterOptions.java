@@ -2154,7 +2154,7 @@ public class DefaultCodeFormatterOptions {
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = true;
-		this.tab_length = 8;
+		this.tab_length = 4;
 		this.indentation_size = 4;
 		this.page_width = 80;
 		this.snapToTabs = false;
