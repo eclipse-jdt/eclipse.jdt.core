@@ -20,8 +20,8 @@ public class AllPerformanceTests extends TestCase {
 
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-			FullSourceWorkspaceSearchTests.class,	// need to be run first to avoid OutOfMemory error with default VM memory heap size
 			FullSourceWorkspaceBuildTests.class,
+			FullSourceWorkspaceSearchTests.class,
 			FullSourceWorkspaceASTTests.class,
 			FullSourceWorkspaceTypeHierarchyTests.class,
 			BuildBatchCompilerTest.class,
