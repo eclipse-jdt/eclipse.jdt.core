@@ -28,10 +28,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 class TypeBinding implements ITypeBinding {
 
 	private static final String NO_NAME = ""; //$NON-NLS-1$	
-	private static final ITypeBinding[] NO_INTERFACES = new ITypeBinding[0];
-	private static final ITypeBinding[] NO_DECLARED_TYPES = new ITypeBinding[0];
-	private static final IVariableBinding[] NO_DECLARED_FIELDS = new IVariableBinding[0];
-	private static final IMethodBinding[] NO_DECLARED_METHODS = new IMethodBinding[0];
+	private static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
+	private static final IVariableBinding[] NO_VARIABLE_BINDINGS = new IVariableBinding[0];
+	private static final IMethodBinding[] NO_METHOD_BINDINGS = new IMethodBinding[0];
 	
 	private org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 	private BindingResolver resolver;
@@ -96,8 +95,8 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isTypeVariable()
 	 */
 	public boolean isTypeVariable() {
-		// TODO: missing implementation of type variables (JSR-014)
-		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
 	}
 
 	/*
@@ -195,13 +194,13 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public ITypeBinding[] getInterfaces() {
 		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType()) {
-			return NO_INTERFACES;
+			return NO_TYPE_BINDINGS;
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 		ReferenceBinding[] interfaces = referenceBinding.superInterfaces();
 		int length = interfaces.length;
 		if (length == 0) {
-			return NO_INTERFACES;
+			return NO_TYPE_BINDINGS;
 		} else {
 			ITypeBinding[] newInterfaces = new ITypeBinding[length];
 			for (int i = 0; i < length; i++) {
@@ -306,7 +305,7 @@ class TypeBinding implements ITypeBinding {
 			}
 			return newMembers;
 		} else {
-			return NO_DECLARED_TYPES;
+			return NO_TYPE_BINDINGS;
 		}
 	}
 	
@@ -338,7 +337,7 @@ class TypeBinding implements ITypeBinding {
 			}
 			return newFields;
 		} else {
-			return NO_DECLARED_FIELDS;
+			return NO_VARIABLE_BINDINGS;
 		}
 	}
 
@@ -363,7 +362,7 @@ class TypeBinding implements ITypeBinding {
 			}
 			return newMethods;
 		} else {
-			return NO_DECLARED_METHODS;
+			return NO_METHOD_BINDINGS;
 		}
 	}
 
@@ -533,6 +532,94 @@ class TypeBinding implements ITypeBinding {
 			}
 		}
 		return NO_NAME;
+	}
+	
+	/* (non-Javadoc)
+	 * @see ITypeBinding#isEnum()
+	 */
+	public boolean isEnum() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isAnnotation()
+	 */
+	public boolean isAnnotation() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeParameters()
+	 */
+	public ITypeBinding[] getTypeParameters() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return NO_TYPE_BINDINGS;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeBounds()
+	 */
+	public ITypeBinding[] getTypeBounds() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return NO_TYPE_BINDINGS;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isParameterizedType()
+	 */
+	public boolean isParameterizedType() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeArguments()
+	 */
+	public ITypeBinding[] getTypeArguments() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return NO_TYPE_BINDINGS;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getErasure()
+	 */
+	public ITypeBinding getErasure() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return this;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isRawType()
+	 */
+	public boolean isRawType() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isWildcardType()
+	 */
+	public boolean isWildcardType() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getBound()
+	 */
+	public ITypeBinding getBound() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isUpperbound()
+	 */
+	public boolean isUpperbound() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
 	}
 	
 	/* 

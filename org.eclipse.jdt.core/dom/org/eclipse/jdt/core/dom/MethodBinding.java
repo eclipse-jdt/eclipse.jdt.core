@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
  */
 class MethodBinding implements IMethodBinding {
 
-	private static final ITypeBinding[] NO_PARAMETERS = new ITypeBinding[0];
+	private static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
 	private org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding;
 	private BindingResolver resolver;
 	private ITypeBinding[] parameterTypes;
@@ -84,7 +84,7 @@ class MethodBinding implements IMethodBinding {
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] parameters = this.binding.parameters;
 		int length = parameters.length;
 		if (length == 0) {
-			return NO_PARAMETERS;
+			return NO_TYPE_BINDINGS;
 		}
 		this.parameterTypes = new ITypeBinding[length];
 		for (int i = 0; i < length; i++) {
@@ -113,7 +113,7 @@ class MethodBinding implements IMethodBinding {
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] exceptions = this.binding.thrownExceptions;
 		int length = exceptions.length;
 		if (length == 0) {
-			return NO_PARAMETERS;
+			return NO_TYPE_BINDINGS;
 		}
 		this.exceptionTypes = new ITypeBinding[length];
 		for (int i = 0; i < length; i++) {
@@ -182,6 +182,14 @@ class MethodBinding implements IMethodBinding {
 		return buffer.toString();
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeParameters()
+	 */
+	public ITypeBinding[] getTypeParameters() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return NO_TYPE_BINDINGS;
+	}
+
 	/* 
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()
