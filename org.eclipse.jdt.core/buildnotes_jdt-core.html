@@ -36,14 +36,45 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M2 Build - 15th July 2003 
-<br>Project org.eclipse.jdt.core v_363 - 3.0 MILESTONE-2
+Eclipse SDK 3.0M2 Build - 17th July 2003 - 3.0 MILESTONE-2
+<br>Project org.eclipse.jdt.core v_364a 
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_364a">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40423">40423</a>
+NPE Saving a file
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40288">40288</a>
+NPE while building
+
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M2 Build - 16th July 2003
+<br>Project org.eclipse.jdt.core v_364 
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_364">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40210">40210</a>
+ICompilationUnit#isWorkingCopy() misbehaving for discarded working copies
+
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M2 Build - 15th July 2003
+<br>Project org.eclipse.jdt.core v_363 
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_363">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added flag <code>IJavaElementDelta.F_PRIMARY_WORKING_COPY</code> that signals that a primary compilation unit has become a
-     working copy, or that a primary working copy has become a compilation unit.
+<li>Added flag <code>IJavaElementDelta.F_PRIMARY_WORKING_COPY</code> that signals that a compilation unit has become a
+     primary working copy, or that a primary working copy has reverted to a compilation unit (i.e. primary working copies are not notified
+     as being added/removed like other working copies, since the primary unit is only changing mode, also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40028">40028</a>).
 </li>
 </ul>
 
