@@ -31,7 +31,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_LineNumberAttribute = "org.eclipse.jdt.core.compiler.debug.lineNumber"; //$NON-NLS-1$
 	public static final String OPTION_SourceFileAttribute = "org.eclipse.jdt.core.compiler.debug.sourceFile"; //$NON-NLS-1$
 	public static final String OPTION_PreserveUnusedLocal = "org.eclipse.jdt.core.compiler.codegen.unusedLocal"; //$NON-NLS-1$
-	public static final String OPTION_ReportUnreachableCode = "org.eclipse.jdt.core.compiler.problem.unreachableCode"; //$NON-NLS-1$
 	public static final String OPTION_ReportMethodWithConstructorName = "org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
 	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
@@ -95,7 +94,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
 	 */
-	public static final long UnreachableCode = 0x100L; // TODO : (philippe) should remove warning tolerance, since must be an error by the spec
+	// 0x100L unused
 	// 0x200L unused
 	// 0x400L unused
 	// 0x800L unused
@@ -128,8 +127,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long UnqualifiedFieldAccess = 0x4000000000L;
 	
 	// Default severity level for handlers
-	public long errorThreshold = 
-		UnreachableCode;
+	public long errorThreshold = 0;
 		
 	public long warningThreshold = 
 		MethodWithConstructorName 
@@ -218,7 +216,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_LineNumberAttribute, (produceDebugAttributes & Lines) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_SourceFileAttribute, (produceDebugAttributes & Source) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_PreserveUnusedLocal, preserveAllLocalVariables ? PRESERVE : OPTIMIZE_OUT);
-		optionsMap.put(OPTION_ReportUnreachableCode, getSeverityString(UnreachableCode)); 
 		optionsMap.put(OPTION_ReportMethodWithConstructorName, getSeverityString(MethodWithConstructorName)); 
 		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod)); 
 		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI)); 
@@ -409,7 +406,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.reportMissingAnnotation = false;
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_ReportUnreachableCode)) != null) updateSeverity(UnreachableCode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
@@ -449,7 +445,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- line number debug attributes: ").append((produceDebugAttributes & Lines) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- source debug attributes: ").append((produceDebugAttributes & Source) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- preserve all local variables: ").append(preserveAllLocalVariables ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n\t- unreachable code: ").append(getSeverityString(UnreachableCode)); //$NON-NLS-1$
 		buf.append("\n\t- method with constructor name: ").append(getSeverityString(MethodWithConstructorName)); //$NON-NLS-1$
 		buf.append("\n\t- overridden package default method: ").append(getSeverityString(OverriddenPackageDefaultMethod)); //$NON-NLS-1$
 		buf.append("\n\t- deprecation: ").append(getSeverityString(UsingDeprecatedAPI)); //$NON-NLS-1$

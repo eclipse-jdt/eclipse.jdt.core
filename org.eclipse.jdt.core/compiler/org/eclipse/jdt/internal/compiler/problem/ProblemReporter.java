@@ -489,10 +489,6 @@ public int computeSeverity(int problemId){
 	// if not then check whether it is a configurable problem
 	switch(problemId){
 
-		case IProblem.UnreachableCatch :
-		case IProblem.CodeCannotBeReached :
-			return this.options.getSeverity(CompilerOptions.UnreachableCode);
-
 		case IProblem.MaskedCatch : 
 			return this.options.getSeverity(CompilerOptions.MaskedCatchBlock);
 

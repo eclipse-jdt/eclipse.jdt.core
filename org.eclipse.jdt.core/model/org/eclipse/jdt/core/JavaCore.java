@@ -144,6 +144,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @deprecated - discontinued since turning off would violate language specs
 	 */
 	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"; //$NON-NLS-1$
 	/**
@@ -1913,6 +1914,7 @@ public final class JavaCore extends Plugin {
 		defaultOptions.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); 
 		// backward compatibility
 		defaultOptions.put(COMPILER_PB_INVALID_IMPORT, ERROR);		
+		defaultOptions.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
 		
 		return defaultOptions;
 	}
@@ -1945,7 +1947,8 @@ public final class JavaCore extends Plugin {
 			return ResourcesPlugin.getEncoding();
 		}
 		// backward compatibility
-		if (COMPILER_PB_INVALID_IMPORT.equals(optionName)) {
+		if (COMPILER_PB_INVALID_IMPORT.equals(optionName)
+				|| COMPILER_PB_UNREACHABLE_CODE.equals(optionName)) {
 			return ERROR;
 		}
 		if (JavaModelManager.OptionNames.contains(optionName)){
@@ -1996,6 +1999,7 @@ public final class JavaCore extends Plugin {
 			options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
 			// backward compatibility
 			options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
+			options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
 		}
 		return options;
 	}

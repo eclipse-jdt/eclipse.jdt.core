@@ -43,9 +43,10 @@ Eclipse SDK 3.0M5 Build - ?th October 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> Compiler option for controlling the severity of problems for invalid imports got discontinued. Indeed, allowing this kind of problem to be ignored
-or treated as a warning would violate the language spec. As a consequence, <code>JavaCore#COMPILER_PB_INVALID_IMPORT</code> got deprecated, 
-further attempts to set this preference are now ignored and import problems are always reported as errors.
+<li> Compiler options for controlling the severity of problems for invalid imports or unreachable code got discontinued. Indeed, allowing this kind of problems to be ignored
+or treated as a warning would violate the language spec. As a consequence, <code>JavaCore#COMPILER_PB_INVALID_IMPORT</code> and
+<code>JavaCore#COMPILER_PB_UNREACHABLE_CODE</code> got deprecated, 
+further attempts to set these preferences are now ignored and import problems or unreachable code are always reported as errors.
 <li> The warning level of the batch compiler can now be configured more easily using <code>-warn:+...</code> or <code>-warn:-...</code> command line
 argument (as opposed to only existing <code>-warn:...</code> command line argument). 
 <code>-warn:+...</code> will not reset override default warning level, but simply enable
