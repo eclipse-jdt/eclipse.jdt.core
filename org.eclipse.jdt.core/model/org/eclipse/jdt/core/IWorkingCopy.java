@@ -100,6 +100,24 @@ IJavaElement getOriginalElement();
  */
 IJavaElement getWorkingCopy() throws JavaModelException;
 /**
+ * Returns an open working copy of this element using the given factory to create
+ * the buffer, or this element if this element is a working copy.
+ * Note that this factory will be used for the life time of this working copy, i.e. if the 
+ * working copy is closed then reopened, this factory will be used.
+ *
+ * @param monitor a progress monitor used to report progress while opening this compilation unit
+ *                 or <code>null</code> if no progress should be reported 
+ * @param factory the factory that creates a buffer that is used to get the content of the working copy
+ *                 or <code>null</code> if the internal factory should be used
+ * @exception JavaModelException if the contents of this element can
+ *   not be determined. Reasons include:
+ * <ul>
+ * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ * @since 2.0
+ */
+IWorkingCopy getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
+/**
  * Returns whether this working copy's original element's content
  * has not changed since the inception of this working copy.
  */

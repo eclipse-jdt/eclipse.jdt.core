@@ -190,6 +190,12 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
 /**
  * @see IWorkingCopy
  */
+public IWorkingCopy getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException {
+	return this;
+}
+/**
+ * @see IWorkingCopy
+ */
 public boolean isBasedOn(IResource resource) {
 	if (resource.getType() != IResource.FILE) {
 		return false;
