@@ -189,8 +189,10 @@ boolean isWorkingCopy();
  * over the cached contents and the new contents, and finally firing
  * this delta.
  * <p>
- * Returns the syntax problems found in the new contents as transient markers
- * associated with the original element. Returns <code>null</code> if no problems were found.
+ * Syntax problems found in the new contents are notified through the
+ * <code>IProblemRequestor</code> interface which was passed at
+ * creation, and no longer as transient markers. Therefore this API will
+ * return <code>null</code>.
  * <p>
  * Note: It has been assumed that added inner types should
  * not generate change deltas.  The implementation has been
@@ -201,7 +203,6 @@ boolean isWorkingCopy();
  * <ul>
  * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
- * @deprecated - use <code>IWorkingCopy#reconcile(IProblemRequestor)</code> instead.
  */
 IMarker[] reconcile() throws JavaModelException;
 /**
@@ -229,6 +230,8 @@ IMarker[] reconcile() throws JavaModelException;
  * </ul>
  * @see IProblem
  * @since 2.0
+ * 
+ * @deprecated - problem requestor must be passed upon creation of the working copy
  */
 void reconcile(IProblemRequestor problemRequestor) throws JavaModelException;
 

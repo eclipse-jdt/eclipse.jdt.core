@@ -23,7 +23,13 @@ public class WorkingCopy extends CompilationUnit {
 	 * If set, this is the factory that will be used to create the buffer.
 	 */
 	protected IBufferFactory bufferFactory;
-	
+
+	/**
+	 * If set, this is the problem requestor which will be used to notify problems
+	 * detected during reconciling.
+	 */
+	protected IProblemRequestor problemRequestor;
+		
 	/**
 	 * A counter of the number of time clients have asked for this 
 	 * working copy. It is set to 1, if the working
@@ -283,44 +289,33 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 }
 /**
  * @see IWorkingCopy
- * @deprecated
- */
+ */ 
 public IMarker[] reconcile() throws JavaModelException {
-	this.reconcile(null);
 
-	// report syntax problems
-	return null;
-/* DISABLED because of 1GAJJ3A: ITPJUI:WINNT - Deadlock in Java Editor
-	try {
-		WorkingCopyElementInfo info = (WorkingCopyElementInfo)JavaModelManager.getJavaModelManager().getInfo(this);
-		IProblem[] problems = info.problems;
-		int length; 
-		IResource resource = getOriginalElement().getUnderlyingResource();
-		
-		// flush previous markers first
-		IMarker[] markers = resource.findMarkers(IJavaModelMarker.TRANSIENT_PROBLEM, true,  IResource.DEPTH_ONE);
-		resource.getWorkspace().deleteMarkers(markers);
+	// create the delta builder (this remembers the current content of the cu)
+	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
 
-		// create markers if needed
-		if (problems == null || (length = problems.length) == 0) return null;
-		markers = new IMarker[length];
-		for (int i = 0; i < length; i++) {
-			IProblem problem = problems[i];
-			IMarker marker = resource.createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-			marker.setAttribute(IJavaModelMarker.ID, problem.getID());
-			marker.setAttribute(IJavaModelMarker.CHAR_START, problem.getSourceStart());
-			marker.setAttribute(IJavaModelMarker.CHAR_END, problem.getSourceEnd() + 1);
-			marker.setAttribute(IJavaModelMarker.LINE_NUMBER, problem.getSourceLineNumber());
-			marker.setAttribute(IMarker.LOCATION, "#" + problem.getSourceLineNumber());
-			marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
-			marker.setAttribute(IMarker.PRIORITY, (problem.isWarning() ? IMarker.PRIORITY_LOW : IMarker.PRIORITY_HIGH));
-			markers[i] = marker;
+	// update the element infos with the content of the working copy
+	if (this.problemRequestor != null) this.problemRequestor.clear();
+	this.makeConsistent(this.problemRequestor, this.problemRequestor != null, null);
+	//if (this.problemRequestor != null) this.problemRequestor.done();
+
+	// build the deltas
+	deltaBuilder.buildDeltas();
+	
+	// fire the deltas
+	boolean shouldFire = false;
+	JavaModelManager manager = null;
+	if (deltaBuilder.delta != null) {
+		manager = (JavaModelManager)JavaModelManager.getJavaModelManager();
+		if (deltaBuilder.delta.getAffectedChildren().length > 0) {
+			manager.registerJavaModelDelta(deltaBuilder.delta);
+			shouldFire = true;
 		}
-		return markers;
-	} catch (CoreException e) {
-		throw new JavaModelException(e);
 	}
-*/
+	if (shouldFire) manager.fire();
+
+	return null;
 }
 
 /**

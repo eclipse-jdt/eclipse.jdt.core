@@ -1,8 +1,16 @@
+/**********************************************************************
+Copyright (c) 2002 IBM Corp. and others.
+All rights reserved.   This program and the accompanying materials
+are made available under the terms of the Common Public License v0.5
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/cpl-v05.html
+ 
+Contributors:
+    Philippe Mulet - Initial API and implementation
+**********************************************************************/
+
 package org.eclipse.jdt.core;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
+
 import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
@@ -21,5 +29,19 @@ public interface IProblemRequestor {
 	 * @param problem IProblem - The discovered Java problem.
 	 */	
 	void acceptProblem(IProblem problem);
+
+	/**
+	 * Notification sent before starting a Java operation which can cause problems to be reported.
+	 * Typically, this would tell the problem collector to clear previously recorded problems.
+	 */
+	void clear();
+
+	/**
+	 * Notification sent after having completed the Java operation which caused problems to be reported.
+	 * Typically, this would tell the problem collector that no more problems should be expected in this
+	 * iteration.
+	 */
+	//void done();
+
 
 }

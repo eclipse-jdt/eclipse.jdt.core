@@ -6,7 +6,7 @@ package org.eclipse.jdt.internal.compiler.batch;
  */
 import java.io.*;
 import java.util.*;
-import java.util.zip.*;
+import java.util.zip.*; 
 
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;

@@ -377,7 +377,6 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 
 	/**
 	 * @see IWorkingCopy#reconcile()
-	 * @deprecated
 	 */
 	public IMarker[] reconcile() throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
