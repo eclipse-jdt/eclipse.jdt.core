@@ -222,7 +222,7 @@ public void _testCommit2() throws CoreException {
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
 		copy = (ICompilationUnit) cu.getWorkingCopy();
 		
-		IBuffer workingCopyBuffer = this.workingCopy.getBuffer();
+		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
 		String newContents = 
 			"public class X {\n" +
@@ -231,7 +231,7 @@ public void _testCommit2() throws CoreException {
 			"}";
 			
 		workingCopyBuffer.setContents(newContents);
-		this.workingCopy.commit(true, null);
+		copy.commit(true, null);
 		
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
