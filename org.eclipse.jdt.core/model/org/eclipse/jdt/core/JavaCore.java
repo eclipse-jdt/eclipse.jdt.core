@@ -2805,8 +2805,8 @@ public final class JavaCore extends Plugin {
 	 * marker for example. The severity of this marker is controled through
 	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
 	 * Note this is different from inclusion and 
-	 * exclusion patterns on source folders - a source file that is excluded 
-	 * cannot be refered to.
+	 * exclusion patterns on source classpath entries, where a source file that
+	 * is excluded is not even compiled.
 	 * When no inclusion patterns are specified, all source and class files
 	 * in the container are initially accessible. On the other hand, specifying one 
 	 * or more inclusion patterns means that all <b>and only</b> source and
@@ -2973,8 +2973,8 @@ public final class JavaCore extends Plugin {
 	 * marker for example. The severity of this marker is controled through
 	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
 	 * Note this is different from inclusion and 
-	 * exclusion patterns on source folders - a source file that is excluded 
-	 * cannot be refered to.
+	 * exclusion patterns on source classpath entries, where a source file that
+	 * is excluded is not even compiled.
 	 * When no inclusion patterns are specified, all class files
 	 * in the resource tree (or in the jar file) rooted at the library
 	 * entry's path are initially accessible. On the other hand, specifying one 
@@ -3112,8 +3112,8 @@ public final class JavaCore extends Plugin {
 	 * marker for example. The severity of this marker is controled through
 	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
 	 * Note this is different from inclusion and 
-	 * exclusion patterns on source folders - a source file that is excluded 
-	 * cannot be refered to.
+	 * exclusion patterns on source classpath entries, where a source file that
+	 * is excluded is not even compiled.
 	 * When no inclusion patterns are specified, all source and class files
 	 * in the project are initially accessible. On the other hand, specifying one 
 	 * or more inclusion patterns means that all <b>and only</b> source and
@@ -3431,8 +3431,8 @@ public final class JavaCore extends Plugin {
 	 * marker for example. The severity of this marker is controled through
 	 * the {@link #COMPILER_PB_FORBIDDEN_REFERENCE} compiler option.
 	 * Note this is different from inclusion and 
-	 * exclusion patterns on source folders - a source file that is excluded 
-	 * cannot be refered to.
+	 * exclusion patterns on source classpath entries, where a source file that
+	 * is excluded is not even compiled.
 	 * When no inclusion patterns are specified, all source and class files
 	 * in the project or library are initially accessible. On the other hand, specifying one 
 	 * or more inclusion patterns means that all <b>and only</b> source and

@@ -180,11 +180,11 @@ public interface IClasspathEntry {
 	int getEntryKind();
 
 	/**
-	 * TODO (jeem) enlarge spec to allow expression import restriction for lib/proj/cont/var entries
-	 * Returns the set of patterns used to exclude resources associated with
-	 * this source entry.
+	 * Returns the set of patterns used to exclude resources or classes associated with
+	 * this classpath entry.
 	 * <p>
-	 * Exclusion patterns allow specified portions of the resource tree rooted
+	 * For source classpath entries,
+	 * exclusion patterns allow specified portions of the resource tree rooted
 	 * at this source entry's path to be filtered out. If no exclusion patterns
 	 * are specified, this source entry includes all relevent files. Each path
 	 * specified must be a relative path, and will be interpreted relative
@@ -198,6 +198,15 @@ public interface IClasspathEntry {
 	 * <p>
 	 * Note that there is no need to supply a pattern to exclude ".class" files
 	 * because a source entry filters these out automatically.
+	 * </p>
+	 * <p>
+	 * Exclusion patterns on library, project, container,
+	 * and variable classpath entries (added in 3.1) are used in a similar
+	 * fashion to express access restrictions. Each path
+	 * specified is relative path encoding a package-qualified class name
+	 * (e.g., <code>java/lang/String</code>). Class names that match
+	 * the exclusion pattern should not be referred to by source code in the
+	 * project (compiler will generate a warning or error).
 	 * </p>
 	 * <p>
 	 * The pattern mechanism is similar to Ant's. Each pattern is represented as
@@ -220,13 +229,13 @@ public interface IClasspathEntry {
 	 * Combinations of *'s and ?'s are allowed.
 	 * </p>
 	 * <p>
-	 * The special pattern '**' matches zero or more segments. A path 
-	 * like <code>tests/</code> that ends in a trailing separator is interpreted
-	 * as <code>tests/&#42;&#42;</code>, and would match all files under the 
+	 * The special pattern '**' matches zero or more segments. In a source enry,
+	 * a path like <code>tests/</code> that ends in a trailing separator is interpreted
+	 * as <code>tests/&#42;&#42;</code>, and would match everything under
 	 * the folder named <code>tests</code>.
 	 * </p>
 	 * <p>
-	 * Examples:
+	 * Example patterns in source entries:
 	 * <ul>
 	 * <li>
 	 * <code>tests/&#42;&#42;</code> (or simply <code>tests/</code>) 
@@ -256,18 +265,18 @@ public interface IClasspathEntry {
 	 * </p>
 	 * 
 	 * @return the possibly empty list of resource exclusion patterns 
-	 *   associated with this source entry, and <code>null</code> for other
-	 *   kinds of classpath entries
+	 *   associated with this classpath entry, or <code>null</code> if this kind
+	 *   of classpath entry does not support exclusion patterns
 	 * @since 2.1
 	 */
 	IPath[] getExclusionPatterns();
 	
 	/**
-	 * TODO (jeem) enlarge spec to allow expression import restriction for lib/proj/cont/var entries
-	 * Returns the set of patterns used to explicitly define resources to be
-	 * included with this source entry.
+	 * Returns the set of patterns used to explicitly define resources or classes
+	 * to be included with this classpath entry.
 	 * <p>
-	 * When no inclusion patterns are specified, the source entry includes all
+	 * For source classpath entries,
+	 * when no inclusion patterns are specified, the source entry includes all
 	 * relevent files in the resource tree rooted at this source entry's path.
 	 * Specifying one or more inclusion patterns means that only the specified
 	 * portions of the resource tree are to be included. Each path specified
@@ -280,13 +289,22 @@ public interface IClasspathEntry {
 	 * ones that are to be included, not the other way around.
 	 * </p>
 	 * <p>
+	 * Inclusion patterns on library, project, container,
+	 * and variable classpath entries (added in 3.1) are used in a similar
+	 * fashion to express access restrictions. Each path
+	 * specified is relative path encoding a package-qualified class name
+	 * (e.g., <code>java/lang/String</code>). Class names that match
+	 * the inclusion pattern can be legally referred to by source code in the
+	 * project.
+	 * </p>
+	 * <p>
 	 * See {@link #getExclusionPatterns()} for a discussion of the syntax and
 	 * semantics of path patterns. The absence of any inclusion patterns is
 	 * semantically equivalent to the explicit inclusion pattern
 	 * <code>&#42;&#42;</code>.
 	 * </p>
 	 * <p>
-	 * Examples:
+	 * Example patterns in source entries:
 	 * <ul>
 	 * <li>
 	 * The inclusion pattern <code>src/&#42;&#42;</code> by itself includes all
@@ -307,8 +325,8 @@ public interface IClasspathEntry {
 	 * </p>
 	 * 
 	 * @return the possibly empty list of resource inclusion patterns 
-	 *   associated with this source entry, and <code>null</code> for other
-	 *   kinds of classpath entries
+	 *   associated with this classpath entry, or <code>null</code> if this kind
+	 *   of classpath entry does not support exclusion patterns
 	 * @since 3.0
 	 */
 	IPath[] getInclusionPatterns();
