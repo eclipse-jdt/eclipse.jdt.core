@@ -16,7 +16,7 @@ import java.io.*;
 
 import org.eclipse.core.runtime.IPath;
 
-class AddCompilationUnitToIndex implements IJob {
+class AddCompilationUnitToIndex extends IndexRequest {
 	IFile resource;
 	IndexManager manager;
 	IPath indexedContainer;

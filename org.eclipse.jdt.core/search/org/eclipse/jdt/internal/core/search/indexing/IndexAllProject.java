@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.core.index.impl.*;
 import java.io.*;
 import java.util.*;
 
-public class IndexAllProject implements IJob, IResourceVisitor {
+public class IndexAllProject extends IndexRequest implements IResourceVisitor {
 	IProject project;
 	IndexManager manager;
 	Hashtable indexedFileNames;
@@ -28,6 +28,7 @@ public class IndexAllProject implements IJob, IResourceVisitor {
 	public IndexAllProject(IProject project, IndexManager manager) {
 		this.project = project;
 		this.manager = manager;
+		this.timeStamp = project.getModificationStamp();
 	}
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(project.getName());

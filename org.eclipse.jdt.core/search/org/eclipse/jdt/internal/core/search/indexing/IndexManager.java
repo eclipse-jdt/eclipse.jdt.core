@@ -44,7 +44,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	
 	/* queue of awaiting index requests
 	 * if null, requests are fired right away, otherwise this is done with fireIndexRequests() */
-	private HashSet indexRequestQueue = null;
+
 /**
  * Before processing all jobs, need to ensure that the indexes are up to date.
  */
@@ -90,11 +90,7 @@ public void checkIndexConsistency() {
 		disable();
 
 		if (this.workspace == null) return;
-		
-		// queue index requests (and eliminate duplicate)
-		// e.g. several projects can reference the same jar
-		this.queueIndexRequests();
-		
+
 		IProject[] projects = this.workspace.getRoot().getProjects();
 		for (int i = 0, max = projects.length; i < max; i++){
 			IProject project = projects[i];
@@ -104,7 +100,6 @@ public void checkIndexConsistency() {
 			}
 		}
 	} finally {
-		this.fireIndexRequests();
 		if (wasEnabled) enable();
 		if (VERBOSE) System.out.println("DONE ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$//$NON-NLS-2$
 	}
@@ -171,18 +166,7 @@ public void discardJobsUntilNextProjectAddition(String jobFamily) {
 		if (wasEnabled)	enable();
 	}
 }
-/**
- * Fires the queued index requests.
- * Subsequent requests will be fired right away.
- */
-public void fireIndexRequests() {
-	if (this.indexRequestQueue == null) return;
-	Iterator iterator = this.indexRequestQueue.iterator();
-	this.indexRequestQueue = null;
-	while (iterator.hasNext()) {
-		this.request((IJob)iterator.next());
-	}
-}
+
 /**
  * Returns the index for a given project, if none then create an empty one.
  * Note: if there is an existing index file already, it will be reused. 
@@ -286,13 +270,7 @@ protected void notifyIdle(long idlingTime){
 public String processName(){
 	return Util.bind("process.name"); //$NON-NLS-1$
 }
-/**
- * Queue the subsequent index requests.
- * Requests will be fired by fireIndexRequests().
- */
-public void queueIndexRequests() {
-	this.indexRequestQueue = new HashSet(5);
-}
+
 /**
  * Recreates the index for a given path, keeping the same read-write monitor.
  * Returns the new empty index or null if it didn't exist before.
@@ -327,13 +305,7 @@ public synchronized IIndex recreateIndex(IPath path) {
 public void remove(String resourceName, IPath indexedContainer){
 	request(new RemoveFromIndex(resourceName, indexedContainer, this));
 }
-public synchronized void request(IJob job) {
-	if (this.indexRequestQueue == null) {
-		super.request(job);
-	} else {
-		this.indexRequestQueue.add(job);
-	}
-}
+
 /**
  * Flush current state
  */
@@ -415,13 +387,29 @@ public void indexLibrary(IPath path, IProject referingProject) {
 
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
 	
+	IndexRequest request = null;
 	if (target instanceof IFile) {
-		this.request(new AddJarFileToIndex((IFile)target, this, referingProject.getName()));
+		request = new AddJarFileToIndex((IFile)target, this, referingProject.getName());
 	} else if (target instanceof java.io.File) {
-		this.request(new AddJarFileToIndex(path, this, referingProject.getName()));
+		request = new AddJarFileToIndex(path, this, referingProject.getName());
 	} else if (target instanceof IFolder) {
-		this.request(new IndexBinaryFolder((IFolder)target, this, referingProject));
-	} 
+		request = new IndexBinaryFolder((IFolder)target, this, referingProject);
+	} else {
+		return;
+	}
+	
+	// check if the same request is not already in the queue
+	for (int i = this.jobEnd; i >= this.jobStart; i--) {
+		IJob awaiting = this.awaitingJobs[i];
+		if (awaiting != null
+			&& request.equals(awaiting) 
+			&& (request.timeStamp == ((IndexRequest)awaiting).timeStamp)) {
+				
+			return;
+		}
+	}
+
+	this.request(request);
 }
 }
 

@@ -16,7 +16,7 @@ import java.io.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-class AddClassFileToIndex implements IJob {
+class AddClassFileToIndex extends IndexRequest {
 	IFile resource;
 	IndexManager manager;
 	IPath indexedContainer;

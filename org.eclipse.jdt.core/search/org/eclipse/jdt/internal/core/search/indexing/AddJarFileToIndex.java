@@ -20,7 +20,7 @@ import java.util.*;
 
 import org.eclipse.jdt.internal.core.Util;
 
-class AddJarFileToIndex implements IJob {
+class AddJarFileToIndex extends IndexRequest {
 
 	IndexManager manager;
 	String projectName;
@@ -36,6 +36,7 @@ class AddJarFileToIndex implements IJob {
 		this.path = resource.getFullPath();
 		this.manager = manager;
 		this.projectName = projectName;
+		this.timeStamp = resource.getModificationStamp();
 	}
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(projectName);
@@ -199,5 +200,7 @@ public int hashCode() {
 		this.path = path;
 		this.manager = manager;
 		this.projectName = projectName;
+		
+		this.timeStamp = new File(path.toOSString()).lastModified();
 	}
 }

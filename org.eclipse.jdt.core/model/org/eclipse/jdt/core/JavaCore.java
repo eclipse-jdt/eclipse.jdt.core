@@ -1004,10 +1004,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 		if (!affectedProjects.isEmpty()) {
 			boolean wasFiring = manager.isFiring();
-			IndexManager indexManager = manager.getIndexManager();
-			if (indexManager != null) {
-				indexManager.queueIndexRequests();
-			}
 			try {
 				if (wasFiring)
 					manager.stopDeltas();
@@ -1026,9 +1022,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							(IClasspathEntry[]) affectedProjects.get(project));
 				}
 			} finally {
-				if (indexManager != null) {
-					indexManager.fireIndexRequests();
-				}
 				manager.mergeDeltas();
 				if (wasFiring) {
 					manager.startDeltas();
