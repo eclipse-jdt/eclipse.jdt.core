@@ -165,12 +165,12 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		if (anonymousType == null && enclosingInstance == null)
+		// added for code assist...cannot occur with 'normal' code
+		if (anonymousType == null && enclosingInstance == null) {
 			return super.resolveType(scope);
-		// added for code assist... is not possible with 'normal' code
+		}
 
 		// Propagate the type checking to the arguments, and checks if the constructor is defined.
-
 		// ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 		// ClassInstanceCreationExpression ::= Name '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 		// ==> by construction, when there is an enclosing instance the typename may NOT be qualified
@@ -178,42 +178,41 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// sometime a SingleTypeReference and sometime a QualifedTypeReference
 
 		constant = NotAConstant;
-		TypeBinding enclosingInstTb = null;
-		TypeBinding recType;
-		if (anonymousType == null) {
-			//----------------no anonymous class------------------------	
-			if ((enclosingInstTb = enclosingInstance.resolveType(scope)) == null)
-				return null;
-			if (enclosingInstTb.isBaseType() | enclosingInstTb.isArrayType()) {
+		TypeBinding enclosingInstanceType = null;
+		TypeBinding receiverType = null;
+		boolean hasError = false;
+		if (anonymousType == null) { //----------------no anonymous class------------------------	
+			if ((enclosingInstanceType = enclosingInstance.resolveType(scope)) == null){
+				hasError = true;
+			} else if (enclosingInstanceType.isBaseType() || enclosingInstanceType.isArrayType()) {
 				scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(
-					enclosingInstTb,
+					enclosingInstanceType,
 					enclosingInstance);
-				return null;
+			} else if ((receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
+							scope,
+							(ReferenceBinding) enclosingInstanceType)) == null) {
+				hasError = true;
 			}
-			recType =
-				((SingleTypeReference) type).resolveTypeEnclosing(
-					scope,
-					(ReferenceBinding) enclosingInstTb);
 			// will check for null after args are resolved
 			TypeBinding[] argumentTypes = NoParameters;
 			if (arguments != null) {
-				boolean argHasError = false;
 				int length = arguments.length;
 				argumentTypes = new TypeBinding[length];
 				for (int i = 0; i < length; i++)
-					if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
-						argHasError = true;
-				if (argHasError)
-					return recType;
+					if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null){
+						hasError = true;
+					}
 			}
-			if (recType == null)
-				return null;
-			if (!recType.canBeInstantiated()) {
-				scope.problemReporter().cannotInstantiate(type, recType);
-				return recType;
+			// limit of fault-tolerance
+			if (hasError) {
+					return receiverType;
+			}
+			if (!receiverType.canBeInstantiated()) {
+				scope.problemReporter().cannotInstantiate(type, receiverType);
+				return receiverType;
 			}
 			if ((binding =
-				scope.getConstructor((ReferenceBinding) recType, argumentTypes, this))
+				scope.getConstructor((ReferenceBinding) receiverType, argumentTypes, this))
 				.isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope))
 					scope.problemReporter().deprecatedMethod(binding, this);
@@ -223,58 +222,62 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 						arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 			} else {
 				if (binding.declaringClass == null)
-					binding.declaringClass = (ReferenceBinding) recType;
+					binding.declaringClass = (ReferenceBinding) receiverType;
 				scope.problemReporter().invalidConstructor(this, binding);
-				return recType;
+				return receiverType;
 			}
 
 			// The enclosing instance must be compatible with the innermost enclosing type
 			ReferenceBinding expectedType = binding.declaringClass.enclosingType();
-			if (Scope.areTypesCompatible(enclosingInstTb, expectedType))
-				return recType;
+			if (Scope.areTypesCompatible(enclosingInstanceType, expectedType))
+				return receiverType;
 			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 				enclosingInstance,
-				enclosingInstTb,
+				enclosingInstanceType,
 				expectedType);
-			return recType;
+			return receiverType;
 		}
 
 		//--------------there is an anonymous type declaration-----------------
 		if (enclosingInstance != null) {
-			if ((enclosingInstTb = enclosingInstance.resolveType(scope)) == null)
-				return null;
-			if (enclosingInstTb.isBaseType() | enclosingInstTb.isArrayType()) {
+			if ((enclosingInstanceType = enclosingInstance.resolveType(scope)) == null) {
+				hasError = true;
+			} else if (enclosingInstanceType.isBaseType() || enclosingInstanceType.isArrayType()) {
 				scope.problemReporter().illegalPrimitiveOrArrayTypeForEnclosingInstance(
-					enclosingInstTb,
+					enclosingInstanceType,
 					enclosingInstance);
-				return null;
+				hasError = true;
+			} else {
+				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(
+										scope,
+										(ReferenceBinding) enclosingInstanceType);				
 			}
+		} else {
+			receiverType = type.resolveType(scope);
 		}
-		// due to syntax-construction, recType is a ReferenceBinding		
-		recType =
-			(enclosingInstance == null)
-				? type.resolveType(scope)
-				: ((SingleTypeReference) type).resolveTypeEnclosing(
-					scope,
-					(ReferenceBinding) enclosingInstTb);
-		if (recType == null)
-			return null;
-		if (((ReferenceBinding) recType).isFinal()) {
-			scope.problemReporter().anonymousClassCannotExtendFinalClass(type, recType);
-			return null;
+		if (receiverType == null) {
+			hasError = true;
+		} else if (((ReferenceBinding) receiverType).isFinal()) {
+			scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
+			hasError = true;
 		}
 		TypeBinding[] argumentTypes = NoParameters;
 		if (arguments != null) {
 			int length = arguments.length;
 			argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++)
-				if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
-					return null;
+				if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null) {
+					hasError = true;
+				}
+		}
+		// limit of fault-tolerance
+		if (hasError) {
+				return receiverType;
 		}
 
 		// an anonymous class inherits from java.lang.Object when declared "after" an interface
 		ReferenceBinding superBinding =
-			recType.isInterface() ? scope.getJavaLangObject() : (ReferenceBinding) recType;
+			receiverType.isInterface() ? scope.getJavaLangObject() : (ReferenceBinding) receiverType;
 		MethodBinding inheritedBinding =
 			scope.getConstructor(superBinding, argumentTypes, this);
 		if (!inheritedBinding.isValidBinding()) {
@@ -286,11 +289,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (enclosingInstance != null) {
 			if (!Scope
 				.areTypesCompatible(
-					enclosingInstTb,
+					enclosingInstanceType,
 					inheritedBinding.declaringClass.enclosingType())) {
 				scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 					enclosingInstance,
-					enclosingInstTb,
+					enclosingInstanceType,
 					inheritedBinding.declaringClass.enclosingType());
 				return null;
 			}
@@ -303,7 +306,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				arguments[i].implicitWidening(inheritedBinding.parameters[i], argumentTypes[i]);
 
 		// Update the anonymous inner class : superclass, interface  
-		scope.addAnonymousType(anonymousType, (ReferenceBinding) recType);
+		scope.addAnonymousType(anonymousType, (ReferenceBinding) receiverType);
 		anonymousType.resolve(scope);
 		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);
 		return anonymousType.binding; // 1.2 change
