@@ -340,6 +340,7 @@ public class TestingEnvironment {
 	 * open.
 	 */
 	public void fullBuild() {
+		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -353,6 +354,7 @@ public class TestingEnvironment {
 	 * open.
 	 */
 	public void fullBuild(IPath projectPath) {
+		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getProject(projectPath).build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -539,6 +541,7 @@ public class TestingEnvironment {
 	 * open.
 	 */
 	public void incrementalBuild() {
+		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		checkAssertion("the workspace must have been built", fWasBuilt); //$NON-NLS-1$
 		try {
@@ -552,6 +555,7 @@ public class TestingEnvironment {
 	 * open.
 	 */
 	public void incrementalBuild(IPath projectPath) {
+		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		checkAssertion("the workspace must have been built", fWasBuilt); //$NON-NLS-1$
 		try {
