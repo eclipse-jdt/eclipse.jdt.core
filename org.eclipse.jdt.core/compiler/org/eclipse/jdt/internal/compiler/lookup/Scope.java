@@ -2031,6 +2031,13 @@ public abstract class Scope
 				if (!methodBinding.canBeSeenBy(currentType, invocationSite, this))
 					return new ProblemMethodBinding( methodBinding, selector, methodBinding.parameters, NotVisible);
 			}
+			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
+			if (receiverType.id != T_JavaLangObject
+				&& argumentTypes == NoParameters
+			    && CharOperation.equals(selector, GETCLASS)
+			    && methodBinding.returnType.isParameterizedType()/*1.5*/) {
+					return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
+		    }			
 			return methodBinding;
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);

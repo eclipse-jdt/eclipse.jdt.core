@@ -12346,5 +12346,38 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"should be 2 unchecked warnings"
 		);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82439
+	public void test460() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public <E extends Object, S extends Collection<E>> S test(S param) {\n" + 
+				"		\n" + 
+				"		Class<? extends Collection> c = param.getClass(); // ok\n" + 
+				"		Class<? extends Collection> d = getClazz(); // ko\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	Class<? extends Object> getClazz() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"abstract class Z implements Collection<String> {\n" + 
+				"	void foo() {\n" + 
+				"		Class<? extends Collection> c = getClass(); // ok\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	Class<? extends Collection> d = getClazz(); // ko\n" + 
+			"	                            ^\n" + 
+			"Type mismatch: cannot convert from Class<? extends Object> to Class<? extends Collection>\n" + 
+			"----------\n"	);
 	}		
 }
