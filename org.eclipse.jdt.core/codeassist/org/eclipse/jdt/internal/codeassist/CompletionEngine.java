@@ -4,7 +4,7 @@ package org.eclipse.jdt.internal.codeassist;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.util.Locale;
+import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 public final class CompletionEngine
 	extends Engine
 	implements ISearchRequestor, TypeConstants {
-	CompletionOptions options;
+	AssistOptions options;
 	CompletionParser parser;
 	ISearchableNameEnvironment nameEnvironment;
 	ICompletionRequestor requestor;
@@ -110,12 +110,12 @@ public final class CompletionEngine
 	public CompletionEngine(
 		ISearchableNameEnvironment nameEnvironment,
 		ICompletionRequestor requestor,
-		ConfigurableOption[] settings) {
+		Map settings) {
 
 		this.requestor = requestor;
 		this.nameEnvironment = nameEnvironment;
 
-		options = new CompletionOptions(settings);
+		options = new AssistOptions(settings);
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
 		ProblemReporter problemReporter =
 			new ProblemReporter(
@@ -516,7 +516,7 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding constructor = methods[f];
 			if (constructor.isConstructor()) {
-				if (options.checkVisibilitySensitive()
+				if (options.checkVisibility()
 					&& !constructor.canBeSeenBy(invocationSite, scope))
 					continue next;
 
@@ -584,7 +584,7 @@ public final class CompletionEngine
 				))
 				continue next;
 
-			if (options.checkVisibilitySensitive()
+			if (options.checkVisibility()
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))
 				continue next;
 
@@ -835,7 +835,7 @@ public final class CompletionEngine
 				))
 				continue next;
 
-			if (options.checkVisibilitySensitive()
+			if (options.checkVisibility()
 				&& !memberType.canBeSeenBy(receiverType, invocationType))
 				continue next;
 
@@ -1028,7 +1028,7 @@ public final class CompletionEngine
 			if (onlyStaticMethods && !method.isStatic())
 				continue next;
 
-			if (options.checkVisibilitySensitive()
+			if (options.checkVisibility()
 				&& !method.canBeSeenBy(receiverType, invocationSite, scope))
 				continue next;
 
@@ -1432,28 +1432,6 @@ public final class CompletionEngine
 	}
 	private void setSourceRange(int start, int end) {
 		this.startPosition = start;
-		if (options.checkEntireWordReplacement()) {
-			this.endPosition = end + 1; // Add 1 for now
-		} else {
-			this.endPosition = actualCompletionPosition + 1;
-		}
-	}
-
-	/**
-	 * Returns all the options of the Completion Engine to be shown by the UI
-	 *
-	 * @param locale java.util.Locale
-	 * @return com.ibm.compiler.java.ConfigurableOption[]
-	 */
-	public static ConfigurableOption[] getDefaultOptions(Locale locale) {
-		String[] ids =
-			ConfigurableOption.getIDs(CompletionEngine.class.getName(), locale);
-
-		ConfigurableOption[] result = new ConfigurableOption[ids.length];
-		for (int i = 0; i < ids.length; i++) {
-			result[i] = new ConfigurableOption(ids[i], locale);
-		}
-
-		return result;
+		this.endPosition = end + 1;
 	}
 }

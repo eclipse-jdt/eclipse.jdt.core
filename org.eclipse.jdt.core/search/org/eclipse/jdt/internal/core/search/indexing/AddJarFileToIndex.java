@@ -117,20 +117,11 @@ public boolean execute() {
 				// iterate each entry to index it
 				ZipEntry ze = (ZipEntry) e.nextElement();
 				if (Util.isClassFileName(ze.getName())) {
-					InputStream zipInputStream = zip.getInputStream(ze);
-					byte classFileBytes[] = new byte[(int) ze.getSize()];
-					int length = classFileBytes.length;
-					int len = 0;
-					int readSize = 0;
-					while ((readSize != -1) && (len != length)) {
-						readSize = zipInputStream.read(classFileBytes, len, length - len);
-						len += readSize;
-					}
-					zipInputStream.close();
+					byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
 					// Add the name of the file to the index
 					index.add(
 						new JarFileEntryDocument(ze, classFileBytes, zipFilePath), 
-						new BinaryIndexer()); 
+						new BinaryIndexer(true)); 
 				}
 			}
 			if (JobManager.VERBOSE)

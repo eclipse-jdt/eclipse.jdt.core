@@ -21,10 +21,10 @@ public class LabeledStatement extends Statement {
  * LabeledStatement constructor comment.
  */
 public LabeledStatement(char[] l , Statement st, int s,int e) {
-	statement = st ;
-	label = l ;
-	sourceStart = s;
-	sourceEnd = e;
+	this.statement = st ;
+	this.label = l ;
+	this.sourceStart = s;
+	this.sourceEnd = e;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -85,5 +85,8 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) 
 		statement.traverse(visitor, blockScope);
 	}
 	visitor.endVisit(this, blockScope);
+}
+public void resetStateForCodeGeneration() {
+	this.targetLabel.resetStateForCodeGeneration();
 }
 }

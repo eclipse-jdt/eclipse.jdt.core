@@ -63,7 +63,7 @@ public void generateStoreSaveValueIfNecessary(BlockScope currentScope, CodeStrea
 
 		// generate wrapper if needed
 		if (this.expressionType.isBaseType()) { 
-			codeStream.generateObjectWrapperForType(this.expressionType);
+			((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.expressionType);
 		}
 
 		// generate the expression type

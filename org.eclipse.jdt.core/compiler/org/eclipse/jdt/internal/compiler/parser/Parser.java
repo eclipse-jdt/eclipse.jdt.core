@@ -466,14 +466,9 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 
 	//[org.eclipse.jdt.internal.compiler.parser.Parser.buildFilesFromLPG("d:/leapfrog/grammar/javadcl.java")]
 
-	File file = new File(dataFilename);
-	FileReader reader = null;
 	char[] contents = new char[] {};
 	try {
-		reader = new FileReader(file);
-		contents = new char[(int) file.length()];
-		reader.read(contents, 0, contents.length);
-		reader.close();
+		contents = Util.getFileCharContent(new File(dataFilename));
 	} catch (IOException ex) {
 		System.out.println(Util.bind("parser.incorrectPath")); //$NON-NLS-1$
 		return;
@@ -967,7 +962,6 @@ public void checkAnnotation() {
 	//since jdk1.2 look only in the last java doc comment...
 	found : {
 		if ((lastAnnotationIndex = scanner.commentPtr) >= 0) { //look for @deprecated
-			scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 			int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
 			// javadoc only (non javadoc comment have negative end positions.)
 			int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
@@ -998,7 +992,8 @@ public void checkAnnotation() {
 	}
 	// modify the modifier source start to point at the first comment
 	if (lastAnnotationIndex >= 0) {
-		modifiersSourceStart = scanner.commentStarts[0]; 
+		modifiersSourceStart = scanner.commentStarts[scanner.commentPtr]; 
+		scanner.commentPtr = -1; // reset the comment stack, since not necessary after having checked
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
@@ -1040,6 +1035,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		astPtr--;
 		astLengthPtr--;
+		
+		// mark fields and initializer with local type mark if needed
+		markFieldsWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected final void concatExpressionLists() {
@@ -1162,15 +1160,34 @@ protected void consumeAssignment() {
 	int op = intStack[intPtr--] ; //<--the encoded operator
 	
 	expressionPtr -- ; expressionLengthPtr -- ;
+	Expression expr = expressionStack[expressionPtr + 1];
+	if (expr instanceof QualifiedAllocationExpression) {
+		if (((QualifiedAllocationExpression) expr).anonymousType != null) {
+			expressionStack[expressionPtr] =
+				(op != EQUAL ) ?
+					new CompoundAssignment(
+						expressionStack[expressionPtr] ,
+						expressionStack[expressionPtr+1], 
+						op,
+						scanner.startPosition - 1)	:
+					new Assignment(
+						expressionStack[expressionPtr] ,
+						expressionStack[expressionPtr+1],
+						scanner.startPosition - 1);
+			return;
+		}
+	}
 	expressionStack[expressionPtr] =
 		(op != EQUAL ) ?
 			new CompoundAssignment(
 				expressionStack[expressionPtr] ,
 				expressionStack[expressionPtr+1], 
-				op)	:
+				op,
+				scanner.startPosition - 1)	:
 			new Assignment(
 				expressionStack[expressionPtr] ,
-				expressionStack[expressionPtr+1]);
+				expressionStack[expressionPtr+1],
+				scanner.startPosition - 1);
 }
 protected void consumeAssignmentOperator(int pos) {
 	// AssignmentOperator ::= '='
@@ -1291,7 +1308,7 @@ protected void consumeBlockStatements() {
 protected void consumeCaseLabel() {
 	// SwitchLabel ::= 'case' ConstantExpression ':'
 	expressionLengthPtr--;
-	pushOnAstStack(new Case(expressionStack[expressionPtr--]));
+	pushOnAstStack(new Case(intStack[intPtr--], expressionStack[expressionPtr--]));
 }
 protected void consumeCastExpression() {
 	// CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN UnaryExpression
@@ -1382,6 +1399,9 @@ protected void consumeClassDeclaration() {
 
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
 
+	// mark fields and initializer with local type mark if needed
+	markFieldsWithLocalType(typeDecl);
+
 	//convert constructor that do not have the type's name into methods
 	boolean hasConstructor = typeDecl.checkConstructors(this);
 	
@@ -1392,7 +1412,7 @@ protected void consumeClassDeclaration() {
 
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= Statement.AddAssertionMASK;
+		typeDecl.bits |= AstNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
@@ -1455,6 +1475,7 @@ protected void consumeClassHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -1659,7 +1680,7 @@ protected void consumeConstructorHeaderName() {
 }
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
-	pushOnAstStack(new DefaultCase(endPosition));
+	pushOnAstStack(new DefaultCase(intStack[intPtr--], intStack[intPtr--]));
 }
 protected void consumeDefaultModifiers() {
 	checkAnnotation(); // might update modifiers with AccDeprecated
@@ -1743,7 +1764,12 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
-	pushOnAstLengthStack(0);
+	if (this.scanner.source[endStatementPosition] == ';') {
+		pushOnAstStack(new EmptyStatement(endStatementPosition, endStatementPosition));
+	} else {
+		// we have a Unicode for the ';' (/u003B)
+		pushOnAstStack(new EmptyStatement(endStatementPosition - 5, endStatementPosition));
+	}
 }
 protected void consumeEmptySwitchBlock() {
 	// SwitchBlock ::= '{' '}'
@@ -1764,6 +1790,7 @@ protected void consumeEnterAnonymousClassBody() {
 		new AnonymousLocalTypeDeclaration(); 
 	alloc = 
 		anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
+	markCurrentMethodWithLocalType();
 	pushOnAstStack(anonymousType);
 
 	alloc.sourceEnd = rParenPos; //the position has been stored explicitly
@@ -1859,8 +1886,10 @@ protected void consumeEnterVariable() {
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
 			int typeSourceStart = type.sourceStart();
+			int typeSourceEnd = type.sourceEnd();
 			type = TypeReference.baseTypeReference(-baseType, dimension);
 			type.sourceStart = typeSourceStart;
+			type.sourceEnd = typeSourceEnd;
 			declaration.type = type;
 		} else {
 			declaration.type = type.copyDims(dimension);
@@ -1918,7 +1947,6 @@ protected void consumeExitVariableWithInitialization() {
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
 	// do nothing by default
-	((AbstractVariableDeclaration) astStack[astPtr]).declarationSourceEnd = scanner.currentPosition - 1;	
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 
@@ -2127,13 +2155,16 @@ protected void consumeInterfaceDeclaration() {
 	}
 
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	
+	// mark fields and initializer with local type mark if needed
+	markFieldsWithLocalType(typeDecl);
 
 	//convert constructor that do not have the type's name into methods
 	typeDecl.checkConstructors(this);
 	
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= Statement.AddAssertionMASK;
+		typeDecl.bits |= AstNode.AddAssertionMASK;
 	}
 	typeDecl.addClinit();
 	typeDecl.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition); 
@@ -2183,6 +2214,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -2688,6 +2720,13 @@ protected void consumePrimitiveType() {
 	pushOnIntStack(0);
 }
 protected void consumePushModifiers() {
+	if ((modifiers & AccSynchronized) != 0) {
+		 /* remove the starting position of the synchronized keyword
+		  * we don't need it when synchronized is part of the modifiers
+		  */
+		intPtr--;
+	}
+	
 	checkAnnotation(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
 	pushOnIntStack(modifiersSourceStart);
@@ -3493,10 +3532,10 @@ protected void consumeStatementDo() {
 	intPtr--;
 
 	//optimize the push/pop
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
+	Statement action = (Statement) astStack[astPtr];
+	if (action instanceof EmptyStatement) {
 		expressionLengthPtr--;
-		astStack[++astPtr] = 
+		astStack[astPtr] = 
 			new DoStatement(
 				expressionStack[expressionPtr--], 
 				null, 
@@ -3507,7 +3546,7 @@ protected void consumeStatementDo() {
 		astStack[astPtr] = 
 			new DoStatement(
 				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
+				action, 
 				intStack[intPtr--], 
 				endPosition); 
 	}
@@ -3527,9 +3566,9 @@ protected void consumeStatementFor() {
 	boolean scope = true;
 
 	//statements
-	if (astLengthStack[astLengthPtr--] != 0) {
-		action = (Statement) astStack[astPtr--];
-	} else {
+	astLengthPtr--; // we need to consume it
+	action = (Statement) astStack[astPtr--];
+	if (action instanceof EmptyStatement) {
 		action = null;
 	}
 
@@ -3574,36 +3613,53 @@ protected void consumeStatementFor() {
 				length); 
 		}
 	};
-
-	pushOnAstStack(
-		new ForStatement(
-			inits, 
-			cond, 
-			updates, 
-			action, 
-			scope, 
-			intStack[intPtr--], 
-			endPosition)); 
+	if (action instanceof Block) {
+		pushOnAstStack(
+			new ForStatement(
+				inits, 
+				cond, 
+				updates, 
+				action, 
+				scope, 
+				intStack[intPtr--], 
+				endStatementPosition)); 
+	} else {
+		pushOnAstStack(
+			new ForStatement(
+				inits, 
+				cond, 
+				updates, 
+				action, 
+				scope, 
+				intStack[intPtr--], 
+				endPosition)); 
+	}
 }
 protected void consumeStatementIfNoElse() {
 	// IfThenStatement ::=  'if' '(' Expression ')' Statement
 
 	//optimize the push/pop
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
-		expressionLengthPtr--;
-		astStack[++astPtr] = 
+	expressionLengthPtr--;
+	Statement thenStatement = (Statement) astStack[astPtr];
+	if (thenStatement instanceof Block) {
+		astStack[astPtr] = 
+			new IfStatement(
+				expressionStack[expressionPtr--], 
+				thenStatement, 
+				intStack[intPtr--], 
+				endStatementPosition); 
+	} else if (thenStatement instanceof EmptyStatement) {
+		astStack[astPtr] = 
 			new IfStatement(
 				expressionStack[expressionPtr--], 
 				Block.None, 
 				intStack[intPtr--], 
 				endPosition); 
 	} else {
-		expressionLengthPtr--;
 		astStack[astPtr] = 
 			new IfStatement(
 				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
+				thenStatement, 
 				intStack[intPtr--], 
 				endPosition); 
 	}
@@ -3614,26 +3670,34 @@ protected void consumeStatementIfWithElse() {
 
 	int lengthE, lengthT;
 	lengthE = astLengthStack[astLengthPtr--]; //first decrement
+	lengthT = astLengthStack[astLengthPtr];
 
-	if (((lengthT = astLengthStack[astLengthPtr]) != 0) && (lengthE != 0)) {
-		expressionLengthPtr--;
-		//optimize the push/pop
-		astStack[--astPtr] = 
+	expressionLengthPtr--;
+	//optimize the push/pop
+	Statement elseStatement = (Statement) astStack[astPtr--];
+	Statement thenStatement = (Statement) astStack[astPtr];
+	if (elseStatement instanceof EmptyStatement) {
+		elseStatement = Block.None;
+	}
+	if (thenStatement instanceof EmptyStatement) {
+		thenStatement = Block.None;
+	}
+	if (elseStatement instanceof Block) {
+		astStack[astPtr] = 
 			new IfStatement(
 				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
-				(Statement) astStack[astPtr + 1], 
+				thenStatement, 
+				elseStatement, 
+				intStack[intPtr--], 
+				endStatementPosition); 
+	} else {
+		astStack[astPtr] = 
+			new IfStatement(
+				expressionStack[expressionPtr--], 
+				thenStatement, 
+				elseStatement, 
 				intStack[intPtr--], 
 				endPosition); 
-	} else {
-		astLengthPtr--; //second decrement
-		expressionLengthPtr--;
-		pushOnAstStack(new IfStatement(expressionStack[expressionPtr--],
-		//here only one of lengthE/T can be different 0
-		(lengthT == 0) ? Block.None : (Statement) astStack[astPtr--], 
-			(lengthE == 0) ? Block.None : (Statement) astStack[astPtr--], 
-			intStack[intPtr--], 
-			endPosition)); 
 	}
 }
 protected void consumeStatementLabel() {
@@ -3642,22 +3706,22 @@ protected void consumeStatementLabel() {
 
 	//optimize push/pop
 
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
-		astStack[++astPtr] = 
-			new LabeledStatement(identifierStack[identifierPtr], Block.None, (int) 
-				(identifierPositionStack[identifierPtr--] >>> 32), 
-				endPosition); 
+	Statement stmt = (Statement) astStack[astPtr];
+	if (stmt instanceof EmptyStatement) {
+		astStack[astPtr] = 
+			new LabeledStatement(
+				identifierStack[identifierPtr], 
+				Block.None, 
+				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
+				endStatementPosition); 
 	} else {
 		astStack[astPtr] = 
 			new LabeledStatement(
 				identifierStack[identifierPtr], 
-				(Statement) astStack[astPtr], 
-				(int)
-				(identifierPositionStack[identifierPtr--] >>> 32), 
-				endPosition); 
+				stmt, 
+				(int) (identifierPositionStack[identifierPtr--] >>> 32), 
+				endStatementPosition); 
 	}
-
 	identifierLengthPtr--;
 }
 protected void consumeStatementReturn() {
@@ -3713,16 +3777,16 @@ protected void consumeStatementSynchronized() {
 			new SynchronizedStatement(
 				exp = expressionStack[expressionPtr--], 
 				Block.None, 
-				exp.sourceStart, 
-				exp.sourceEnd); 
+				intStack[intPtr--], 
+				endStatementPosition); 
 	} else {
 		expressionLengthPtr--;
 		astStack[astPtr] = 
 			new SynchronizedStatement(
 				exp = expressionStack[expressionPtr--], 
 				(Block) astStack[astPtr], 
-				exp.sourceStart, 
-				exp.sourceEnd); 
+				intStack[intPtr--], 
+				endStatementPosition); 
 	}
 	resetModifiers();
 }
@@ -3769,24 +3833,31 @@ protected void consumeStatementWhile() {
 	// WhileStatement ::= 'while' '(' Expression ')' Statement
 	// WhileStatementNoShortIf ::= 'while' '(' Expression ')' StatementNoShortIf
 
-	//optimize the push/pop
-	if (astLengthStack[astLengthPtr] == 0) {
-		astLengthStack[astLengthPtr] = 1;
-		expressionLengthPtr--;
-		astStack[++astPtr] = 
-			new WhileStatement(
-				expressionStack[expressionPtr--], 
-				null, 
-				intStack[intPtr--], 
-				endPosition); 
-	} else {
-		expressionLengthPtr--;
+	Statement action = (Statement) astStack[astPtr];
+	expressionLengthPtr--;
+	if (action instanceof Block) {
 		astStack[astPtr] = 
 			new WhileStatement(
 				expressionStack[expressionPtr--], 
-				(Statement) astStack[astPtr], 
+				action, 
 				intStack[intPtr--], 
-				endPosition); 
+				endStatementPosition); 
+	} else {
+		if (action instanceof EmptyStatement) {
+			astStack[astPtr] = 
+				new WhileStatement(
+					expressionStack[expressionPtr--], 
+					null, 
+					intStack[intPtr--], 
+					endPosition); 
+		} else {
+			astStack[astPtr] = 
+				new WhileStatement(
+					expressionStack[expressionPtr--], 
+					action, 
+					intStack[intPtr--], 
+					endPosition); 
+		}
 	}
 }
 protected void consumeStaticInitializer() {
@@ -3897,6 +3968,7 @@ protected void consumeToken(int type) {
 			checkAndSetModifiers(AccStatic);
 			break;
 		case TokenNamesynchronized :
+			pushOnIntStack(scanner.startPosition);			
 			checkAndSetModifiers(AccSynchronized);
 			break;
 
@@ -3904,6 +3976,7 @@ protected void consumeToken(int type) {
 
 		case TokenNamevoid :
 			pushIdentifier(-T_void);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);
 			break;
 			//push a default dimension while void is not part of the primitive
@@ -3912,34 +3985,42 @@ protected void consumeToken(int type) {
 
 		case TokenNameboolean :
 			pushIdentifier(-T_boolean);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);		
 			break;
 		case TokenNamebyte :
 			pushIdentifier(-T_byte);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamechar :
 			pushIdentifier(-T_char);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamedouble :
 			pushIdentifier(-T_double);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamefloat :
 			pushIdentifier(-T_float);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNameint :
 			pushIdentifier(-T_int);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNamelong :
 			pushIdentifier(-T_long);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 		case TokenNameshort :
 			pushIdentifier(-T_short);
+			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
 			break;
 
@@ -4021,12 +4102,14 @@ protected void consumeToken(int type) {
 		case TokenNamecontinue :
 		case TokenNameclass :
 		case TokenNamereturn :
+		case TokenNamecase :
 			pushOnIntStack(scanner.startPosition);
 			break;
-
-			//let extra semantic action decide when to push
-
 		case TokenNamedefault :
+			pushOnIntStack(scanner.startPosition);
+			pushOnIntStack(scanner.currentPosition - 1);
+			break;
+			//let extra semantic action decide when to push
 		case TokenNameRBRACKET :
 		case TokenNamePLUS_PLUS :
 		case TokenNameMINUS_MINUS :
@@ -4036,7 +4119,7 @@ protected void consumeToken(int type) {
 		case TokenNameTWIDDLE :
 			endPosition = scanner.startPosition;
 			break;
-		case TokenNameRBRACE :
+		case TokenNameRBRACE:
 		case TokenNameSEMICOLON :
 			endStatementPosition = scanner.currentPosition - 1;
 			endPosition = scanner.startPosition - 1; 
@@ -4205,7 +4288,7 @@ protected void consumeUnaryExpression(int op, boolean post) {
 					leftHandSide,
 					IntLiteral.One,
 					op,
-					endPosition + 1); 
+					scanner.startPosition - 1); 
 		} else {
 			expressionStack[expressionPtr] = 
 				new PrefixExpression(
@@ -4488,11 +4571,18 @@ This variable is a type reference and dim will be its dimensions*/
 					identifierStack[identifierPtr], 
 					dim, 
 					identifierPositionStack[identifierPtr--]); 
+			ref.sourceEnd = endPosition;			
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
 			ref.sourceStart = intStack[intPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[intPtr--];
+			} else {
+				intPtr--;
+				ref.sourceEnd = endPosition;
+			}
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
@@ -4504,17 +4594,19 @@ This variable is a type reference and dim will be its dimensions*/
 				positions, 
 				0, 
 				length); 
-			if (dim == 0)
+			if (dim == 0) {
 				ref = new QualifiedTypeReference(tokens, positions);
-			else
+			} else {
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
+				ref.sourceEnd = endPosition;
+			}
 		}
 	};
 	return ref;
 }
 protected Expression getTypeReference(Expression exp) {
 	
-	exp.bits &= ~NameReference.RestrictiveFlagMASK;
+	exp.bits &= ~AstNode.RestrictiveFlagMASK;
 	exp.bits |= TYPE;
 	return exp;
 }
@@ -4558,7 +4650,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			new SingleNameReference(
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
-		ref.bits &= ~NameReference.RestrictiveFlagMASK;
+		ref.bits &= ~AstNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		return ref;
 	}
@@ -4576,7 +4668,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 			tokens, 
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 			(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
-	ref.bits &= ~NameReference.RestrictiveFlagMASK;
+	ref.bits &= ~AstNode.RestrictiveFlagMASK;
 	ref.bits |= LOCAL | FIELD;
 	return ref;
 }
@@ -4598,8 +4690,6 @@ public void goForCompilationUnit(){
 	firstToken = TokenNamePLUS_PLUS ;
 	scanner.linePtr = -1;	
 	scanner.recordLineSeparator = true;
-	scanner.currentLineNr= -1;
-	scanner.previousLineNr= -1;
 	scanner.currentLine= null;
 	scanner.lines= new ArrayList();
 }
@@ -5939,6 +6029,9 @@ protected void ignoreInterfaceDeclaration() {
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
 	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
 
+	// mark fields and initializer with local type mark if needed
+	markFieldsWithLocalType(typeDecl);
+
 	// remove the ast node created in interface header
 	astPtr--;	
 	// Don't create an astnode for this inner interface, but have to push
@@ -6093,6 +6186,28 @@ public final void jumpOverMethodBody() {
 
 	if (diet && (dietInt == 0))
 		scanner.diet = true;
+}
+protected void markCurrentMethodWithLocalType() {
+	if (this.currentElement != null) return; // this is already done in the recovery code
+	for (int i = this.astPtr; i >= 0; i--) {
+		AstNode node = this.astStack[i];
+		if (node instanceof AbstractMethodDeclaration 
+				|| node instanceof TypeDeclaration) { // mark type for now: all fields will be marked when added to this type
+			node.bits |= AstNode.HasLocalTypeMASK;
+			return;
+		}
+	}
+	// default to reference context (case of parse method body)
+	if (this.referenceContext instanceof AbstractMethodDeclaration
+			|| this.referenceContext instanceof TypeDeclaration) {
+		((AstNode)this.referenceContext).bits |= AstNode.HasLocalTypeMASK;
+	}
+}
+protected void markFieldsWithLocalType(TypeDeclaration type) {
+	if (type.fields == null || (type.bits & AstNode.HasLocalTypeMASK) == 0) return;
+	for (int i = 0, length = type.fields.length; i < length; i++) {
+		type.fields[i].bits |= AstNode.HasLocalTypeMASK;
+	}
 }
 /*
  * Move checkpoint location (current implementation is moving it by one token)
@@ -6432,6 +6547,11 @@ public void parse(
 	}
 
 	ini.block = ((Initializer) astStack[astPtr]).block;
+	
+	// mark initializer with local type if one was found during parsing
+	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
+		ini.bits |= AstNode.HasLocalTypeMASK;
+	}	
 }
 // A P I
 
@@ -6699,36 +6819,33 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//files are located at Parser.class directory
 
-	InputStream stream = Parser.class.getResourceAsStream(filename);
+	InputStream stream = new BufferedInputStream(Parser.class.getResourceAsStream(filename));
 	if (stream == null) {
 		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
 	}
-
-	ByteArrayOutputStream os = new ByteArrayOutputStream(32000);
-	// the largest file is 30K
-	byte[] buffer = new byte[10000];
-
-	int streamLength = 0;
-	int lastReadSize = 0;
-	while ((lastReadSize = stream.read(buffer)) > 0) {
-		streamLength += lastReadSize;
-		os.write(buffer, 0, lastReadSize);
+	byte[] bytes = null;
+	try {
+		bytes = Util.getInputStreamAsByteArray(stream, -1);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
 	}
-	byte[] bytes = os.toByteArray();
-	stream.close();
 
 	//minimal integrity check (even size expected)
-	if (streamLength % 2 != 0)
+	int length = bytes.length;
+	if (length % 2 != 0)
 		throw new java.io.IOException(Util.bind("parser.corruptedFile",filename)); //$NON-NLS-1$
 
 	// convert bytes into chars
-	char[] chars = new char[streamLength / 2];
+	char[] chars = new char[length / 2];
 	int i = 0;
 	int charIndex = 0;
 
 	while (true) {
 		chars[charIndex++] = (char) (((bytes[i++] & 0xFF) << 8) + (bytes[i++] & 0xFF));
-		if (i == streamLength)
+		if (i == length)
 			break;
 	}
 	return chars;

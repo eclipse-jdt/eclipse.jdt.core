@@ -20,21 +20,8 @@ import java.io.*;
 import java.util.*;
 
 public class Main implements ConfigurableProblems, ProblemSeverities {
-	private ConfigurableOption[] options;
-	private static final String[] problemOption ={
-		CompilerOptions.OPTION_ReportMethodWithConstructorName,
-		CompilerOptions.OPTION_ReportHiddenCatchBlock,
-		CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-		CompilerOptions.OPTION_ReportDeprecation,
-		CompilerOptions.OPTION_ReportUnusedLocal,
-		CompilerOptions.OPTION_ReportUnusedParameter,
-		CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-		CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-		CompilerOptions.OPTION_ReportInvalidImport,
-		CompilerOptions.OPTION_ReportUnreachableCode,
-		CompilerOptions.OPTION_ReportAssertIdentifier,
-	};
-	private boolean noWarn = false;
+
+private boolean noWarn = false;
 	
 	PrintWriter out;
 	boolean systemExitWhenFinished = true;
@@ -47,6 +34,7 @@ public class Main implements ConfigurableProblems, ProblemSeverities {
 	public long time = 0;
 	long lineCount;
 
+	Hashtable options;
 	String[] filenames;
 	String[] classpaths;
 	String destinationPath;
@@ -56,7 +44,6 @@ public class Main implements ConfigurableProblems, ProblemSeverities {
 	int globalErrorsCount;
 	int globalWarningsCount;
 
-	String versionID = "0.125.12 (jck1.3a)"; //$NON-NLS-1$
 	private static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray(); //$NON-NLS-1$
 
 	int exportedClassFilesCounter;
@@ -81,7 +68,24 @@ protected Main(PrintWriter writer, boolean systemExitWhenFinished) {
 	this.out = writer;
 	this.systemExitWhenFinished = systemExitWhenFinished;
 	exportedClassFilesCounter = 0;
-	options = Compiler.getDefaultOptions(Locale.getDefault());
+	options = new Hashtable();
+	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+	options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+	options.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+	options.put(CompilerOptions.OPTION_ReportUnreachableCode, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 }
 /*
  *  Low-level API performing the actual compilation
@@ -248,14 +252,6 @@ public static void compile(String commandLine, PrintWriter writer) {
 	System.arraycopy(argv, 0, argv = new String[count], 0, count);
 	new Main(writer, false).compile(argv);
 }
-private void setOptionValueIndex(String id,int valueIndex){
-	for(int i = 0 ; i < options.length ; i++){
-		if(options[i].getID().equals(id)){
-			options[i].setValueIndex(valueIndex);
-			return;
-		}
-	}
-}
 
 /*
 Decode the command line arguments 
@@ -347,7 +343,7 @@ private void configure(String[] argv) throws InvalidInputException {
 		}		
 		if (currentArg.equals("-noImportError")) { //$NON-NLS-1$
 			mode = Default;
-			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemInvalidImport",2); //$NON-NLS-1$
+			options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.WARNING);
 			continue;
 		}
 		if (currentArg.equals("-noExit")) { //$NON-NLS-1$
@@ -370,26 +366,26 @@ private void configure(String[] argv) throws InvalidInputException {
 			String debugOption = currentArg;
 			int length = currentArg.length();
 			if (length == 2) {
-				setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 0);
-				setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 0);
-				setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 0);
+				options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
+				options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.GENERATE);
+				options.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.GENERATE);
 				continue;
 			}
 			if (length > 3) {
-				setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 1);
-				setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 1);
-				setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 1);				
+				options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+				options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+				options.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
 				if (length == 7 && debugOption.equals("-g:none")) //$NON-NLS-1$
 					continue;
 				StringTokenizer tokenizer = new StringTokenizer(debugOption.substring(3, debugOption.length()), ","); //$NON-NLS-1$
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
 					if (token.equals("vars")) { //$NON-NLS-1$
-						setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 0);
+						options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 					} else if (token.equals("lines")) { //$NON-NLS-1$
-						setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 0);
+						options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.GENERATE);
 					} else if (token.equals("source")) { //$NON-NLS-1$
-						setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 0);
+						options.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.GENERATE);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidDebugOption",debugOption)); //$NON-NLS-1$
 					}
@@ -422,37 +418,37 @@ private void configure(String[] argv) throws InvalidInputException {
 			StringTokenizer tokenizer = new StringTokenizer(warningOption.substring(6, warningOption.length()), ","); //$NON-NLS-1$
 			int tokenCounter = 0;
 
-			setOptionValueIndex(CompilerOptions.OPTION_ReportMethodWithConstructorName, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportHiddenCatchBlock, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportDeprecation, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedLocal, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedParameter, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, 2);
-			setOptionValueIndex(CompilerOptions.OPTION_ReportAssertIdentifier, 2);
-			
+			options.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
+			options.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE);
+
 			while (tokenizer.hasMoreTokens()) {
 				String token = tokenizer.nextToken();
 				tokenCounter++;
 				if (token.equals("constructorName")) { //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportMethodWithConstructorName, 1);
+					options.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
 				} else if (token.equals("packageDefaultMethod")) { //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, 1);
+					options.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
 				} else if (token.equals("maskedCatchBlocks")) { //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportHiddenCatchBlock, 1);
+					options.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
 				} else if (token.equals("deprecation")) { //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportDeprecation, 1);
+					options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 				} else if (token.equals("unusedLocals")) { //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedLocal, 1);
+					options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 				} else if (token.equals("unusedArguments")) { //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedParameter, 1);
+					options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
 				} else if (token.equals("syntheticAccess")){ //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, 1);
+					options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
 				} else if (token.equals("nls")){ //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, 1);
+					options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
 				} else if (token.equals("assertIdentifier")){ //$NON-NLS-1$
-					setOptionValueIndex(CompilerOptions.OPTION_ReportAssertIdentifier, 1);
+					options.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.WARNING);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.invalidWarning",token)); //$NON-NLS-1$
 				}
@@ -466,14 +462,18 @@ private void configure(String[] argv) throws InvalidInputException {
 			continue;
 		}
 		if (currentArg.equals("-preserveAllLocals")) { //$NON-NLS-1$
-			setOptionValueIndex(CompilerOptions.OPTION_PreserveUnusedLocal, 0);
+			options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
 			continue;
 		}
 		if (mode == TargetSetting) {
 			if (currentArg.equals("1.1")) { //$NON-NLS-1$
-				setOptionValueIndex(CompilerOptions.OPTION_TargetPlatform, 0);
+				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 			} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
-				setOptionValueIndex(CompilerOptions.OPTION_TargetPlatform, 1);
+				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+			} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
+				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
+			} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
+				options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.targetJDK",currentArg)); //$NON-NLS-1$
 			}
@@ -499,9 +499,9 @@ private void configure(String[] argv) throws InvalidInputException {
 		}
 		if (mode == InsideSource){
 			if (currentArg.equals("1.3")) { //$NON-NLS-1$
-				setOptionValueIndex(CompilerOptions.OPTION_Source, 0);
+				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 			} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-				setOptionValueIndex(CompilerOptions.OPTION_Source, 1);
+				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.source",currentArg)); //$NON-NLS-1$
 			}
@@ -554,11 +554,14 @@ private void configure(String[] argv) throws InvalidInputException {
 	}
 
 	if(noWarn){
-		for(int i = 0; i < problemOption.length ; i++){
-			for(int j = 0 ; j < options.length ; j++){
-				if(options[j].getID().equals(problemOption[i]) && options[j].getValueIndex() == 1){
-					options[j].setValueIndex(2);
-				}
+		// filter options which are related to the assist component
+		Object[] entries = options.entrySet().toArray();
+		for (int i = 0, max = entries.length; i < max; i++){
+			Map.Entry entry = (Map.Entry)entries[i];
+			if (!(entry.getKey() instanceof String)) continue;
+			if (!(entry.getValue() instanceof String)) continue;
+			if (((String) entry.getValue()).equals(CompilerOptions.WARNING)){
+				options.put((String) entry.getKey(), CompilerOptions.IGNORE);
 			}
 		}
 	}
@@ -566,7 +569,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	 * Standalone options
 	 */
 	if (versionIDRequired) {
-		out.println(Main.bind("configure.version",this.versionID)); //$NON-NLS-1$
+		out.println(Main.bind("configure.version",Main.bind("compiler.version"))); //$NON-NLS-1$
 		out.println();
 		proceed = false;
 		return;
@@ -623,6 +626,9 @@ private void configure(String[] argv) throws InvalidInputException {
 	if (repetitions == 0) {
 		repetitions = 1;
 	}
+}
+protected Map getOptions() {
+	return this.options;
 }
 /*
  * Answer the component to which will be handed back compilation results from the compiler
@@ -724,9 +730,6 @@ protected FileSystem getLibraryAccess() {
 /*
  *  Low-level API performing the actual compilation
  */
-protected ConfigurableOption[] getOptions() {
-	return options;
-}
 protected IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(Locale.getDefault());
 }
@@ -787,7 +790,7 @@ protected void performCompilation() throws InvalidInputException {
 	batchCompiler.compile(getCompilationUnits());
 }
 private void printUsage() {
-	out.println(Main.bind("misc.usage",this.versionID)); //$NON-NLS-1$
+	out.println(Main.bind("misc.usage",Main.bind("compiler.version"))); //$NON-NLS-1$
 	out.flush();
 }
 

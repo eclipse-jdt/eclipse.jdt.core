@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -21,6 +22,7 @@ import java.io.*;
 import java.util.zip.ZipFile;
 
 public class PotentialMatch {
+	private static char[] EMPTY_FILE_NAME = new char[0];
 	private MatchLocator locator;
 	public IResource resource;
 	public Openable openable;
@@ -31,18 +33,47 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 	this.resource = resource;
 	this.openable = openable;
 	if (openable instanceof CompilationUnit) {
-		this.buildTypeBindings();
+		this.buildTypeBindings(this.getSource());
+	} else if (openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
+		try {
+			String source = ((org.eclipse.jdt.internal.core.ClassFile)openable).getSource();
+			if (source != null) {
+				this.buildTypeBindings(source.toCharArray());
+				
+				// try to use the main type's class file as the openable
+				TypeDeclaration[] types = this.parsedUnit.types;
+				if (types != null && types.length > 0) {
+					String simpleTypeName = new String(types[0].name);
+					IPackageFragment parent = (IPackageFragment)openable.getParent();
+					org.eclipse.jdt.core.IClassFile classFile = 
+						parent.getClassFile(simpleTypeName + ".class");
+					if (classFile.exists()) {
+						this.openable = (Openable)classFile;
+					} 
+				}
+			}
+		} catch (JavaModelException e) {
+		}
 	}
 }
-private void buildTypeBindings() {
-	// get main type name
-	String fileName = this.resource.getFullPath().lastSegment();
-	// remove extension ".java"
-	final char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); 
-
+private void buildTypeBindings(final char[] source) {
 	// get qualified name
-	CompilationUnit cu = (CompilationUnit)this.openable;
-	char[] qualifiedName = cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+	char[] qualifiedName;
+	if (this.openable instanceof CompilationUnit) {
+		// get file name
+		String fileName = this.resource.getFullPath().lastSegment();
+		// get main type name
+		char[] mainTypeName = fileName.substring(0, fileName.length()-5).toCharArray(); 
+		CompilationUnit cu = (CompilationUnit)this.openable;
+		qualifiedName = cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+	} else {
+		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
+		try {
+			qualifiedName = classFile.getType().getFullyQualifiedName().toCharArray();
+		} catch (JavaModelException e) {
+			return; // nothing we can do here
+		}
+	}
 
 	// create match set	
 	this.matchSet = new MatchSet(this.locator);
@@ -50,19 +81,16 @@ private void buildTypeBindings() {
 
 	this.parsedUnit = (CompilationUnitDeclaration)this.locator.parsedUnits.get(qualifiedName);
 	if (this.parsedUnit == null) {
-		// get source
-		final char[] source = this.getSource();
-
 		// source unit
 		ICompilationUnit sourceUnit = new ICompilationUnit() {
 			public char[] getContents() {
 				return source;
 			}
 			public char[] getFileName() {
-				return PotentialMatch.this.resource.getName().toCharArray();
+				return EMPTY_FILE_NAME; // not used
 			}
 			public char[] getMainTypeName() {
-				return mainTypeName;
+				return null; // don't need to check if main type name == compilation unit name
 			}
 		};
 		
@@ -77,42 +105,31 @@ private void buildTypeBindings() {
 		this.locator.parsedUnits.put(qualifiedName, null);
 	}
 }
-public static char[] getContents(IFile file) {
-	BufferedInputStream input = null;
-	try {
-		input = new BufferedInputStream(file.getContents(true));
-		StringBuffer buffer= new StringBuffer();
-		int nextChar = input.read();
-		while (nextChar != -1) {
-			buffer.append( (char)nextChar );
-			nextChar = input.read();
-		}
-		int length = buffer.length();
-		char[] result = new char[length];
-		buffer.getChars(0, length, result, 0);
-		return result;
-	} catch (IOException e) {
-		return null;
-	} catch (CoreException e) {
-		return null;
-	} finally {
-		if (input != null) {
-			try {
-				input.close();
-			} catch (IOException e) {
-				// nothing can be done if the file cannot be closed
-			}
-		}
-	}
-}
 public char[] getSource() {
-	return getContents((IFile)this.resource);
+	try {
+		if (this.openable instanceof CompilationUnit) {
+			return Util.getResourceContentsAsCharArray((IFile)this.resource);
+		} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
+			org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
+			return classFile.getSource().toCharArray();
+		} else {
+			return null;
+		}
+	} catch (JavaModelException e) {
+		return null;
+	}
 }
 public void locateMatches() throws CoreException {
 	if (this.openable instanceof CompilationUnit) {
-		this.locateMatchesInCompilationUnit();
+		this.locateMatchesInCompilationUnit(this.getSource());
 	} else if (this.openable instanceof org.eclipse.jdt.internal.core.ClassFile) {
-		this.locateMatchesInClassFile();
+		org.eclipse.jdt.internal.core.ClassFile classFile = (org.eclipse.jdt.internal.core.ClassFile)this.openable;
+		String source = classFile.getSource();
+		if (source != null) {
+			this.locateMatchesInCompilationUnit(source.toCharArray());
+		} else {
+			this.locateMatchesInClassFile();
+		}
 	}
 }
 /**
@@ -192,18 +209,22 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				for (int i = 0; i < methods.length; i++) {
 					MethodBinding method = methods[i];
 					int level = this.locator.pattern.matchLevel(method);
-					if (level != SearchPattern.IMPOSSIBLE_MATCH) {
-						IMethod methodHandle = 
-							binaryType.getMethod(
-								new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
-								Signature.getParameterTypes(new String(method.signature()).replace('/', '.'))
-							);
-						this.locator.reportBinaryMatch(
-							methodHandle, 
-							info, 
-							level == SearchPattern.ACCURATE_MATCH ? 
-								IJavaSearchResultCollector.EXACT_MATCH : 
-								IJavaSearchResultCollector.POTENTIAL_MATCH);
+					switch (level) {
+						case SearchPattern.IMPOSSIBLE_MATCH:
+						case SearchPattern.INACCURATE_MATCH:
+							break;
+						default:
+							IMethod methodHandle = 
+								binaryType.getMethod(
+									new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
+									Signature.getParameterTypes(new String(method.signature()).replace('/', '.'))
+								);
+							this.locator.reportBinaryMatch(
+								methodHandle, 
+								info, 
+								level == SearchPattern.ACCURATE_MATCH ? 
+									IJavaSearchResultCollector.EXACT_MATCH : 
+									IJavaSearchResultCollector.POTENTIAL_MATCH);
 					}
 				}
 			}
@@ -214,14 +235,18 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				for (int i = 0; i < fields.length; i++) {
 					FieldBinding field = fields[i];
 					int level = this.locator.pattern.matchLevel(field);
-					if (level != SearchPattern.IMPOSSIBLE_MATCH) {
-						IField fieldHandle = binaryType.getField(new String(field.name));
-						this.locator.reportBinaryMatch(
-							fieldHandle, 
-							info, 
-							level == SearchPattern.ACCURATE_MATCH ? 
-								IJavaSearchResultCollector.EXACT_MATCH : 
-								IJavaSearchResultCollector.POTENTIAL_MATCH);
+					switch (level) {
+						case SearchPattern.IMPOSSIBLE_MATCH:
+						case SearchPattern.INACCURATE_MATCH:
+							break;
+						default:
+							IField fieldHandle = binaryType.getField(new String(field.name));
+							this.locator.reportBinaryMatch(
+								fieldHandle, 
+								info, 
+								level == SearchPattern.ACCURATE_MATCH ? 
+									IJavaSearchResultCollector.EXACT_MATCH : 
+									IJavaSearchResultCollector.POTENTIAL_MATCH);
 					}
 				}
 			}
@@ -264,10 +289,10 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 		}
 	}
 }
-private void locateMatchesInCompilationUnit() throws CoreException {
+private void locateMatchesInCompilationUnit(char[] source) throws CoreException {
 	if (this.parsedUnit != null) {
 		this.locator.parser.matchSet = this.matchSet;
-		this.locator.parser.scanner.setSourceBuffer(this.getSource());
+		this.locator.parser.scanner.setSourceBuffer(source);
 		this.locator.parser.parseBodies(this.parsedUnit);
 		// report matches that don't need resolve
 		this.matchSet.cuHasBeenResolved = false;

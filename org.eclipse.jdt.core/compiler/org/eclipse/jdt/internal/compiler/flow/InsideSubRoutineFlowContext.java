@@ -14,13 +14,26 @@ import org.eclipse.jdt.internal.compiler.problem.*;
  *	try statements, exception handlers, etc...
  */
 public class InsideSubRoutineFlowContext extends FlowContext {
-public InsideSubRoutineFlowContext(FlowContext parent, AstNode associatedNode){
-	super(parent, associatedNode);
-}
-public boolean isNonReturningContext() {
-	return associatedNode.cannotReturn();
-}
-public AstNode subRoutine(){
-	return associatedNode;
-}
+
+	public UnconditionalFlowInfo initsOnReturn;
+	
+	public InsideSubRoutineFlowContext(
+		FlowContext parent,
+		AstNode associatedNode) {
+		super(parent, associatedNode);
+		this.initsOnReturn = FlowInfo.DeadEnd;				
+	}
+	
+	public boolean isNonReturningContext() {
+		return associatedNode.cannotReturn();
+	}
+	
+	public AstNode subRoutine() {
+		return associatedNode;
+	}
+	
+	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+		// record initializations which were performed at the return point
+		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
+	}
 }

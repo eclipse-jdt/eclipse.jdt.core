@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.compiler.codegen;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 /**
  * This type is a port of smalltalks JavaLabel
@@ -12,9 +13,10 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class Label {
 	public CodeStream codeStream;
 	final static int POS_NOT_SET = -1;
-	public int position = POS_NOT_SET; // iPOS=POS_NOT_SET Then it's pos is not set.
+	public int position = POS_NOT_SET; // position=POS_NOT_SET Then it's pos is not set.
 	int[] forwardReferences = new int[10]; // Add an overflow check here.
 	int forwardReferenceCount = 0;
+	private boolean isWide = false;
 public Label() {
 }
 /**
@@ -67,6 +69,7 @@ void branchWide() {
 	if (position == POS_NOT_SET) {
 		addForwardReference(codeStream.position);
 		// Leave 4 bytes free to generate the jump offset afterwards
+		isWide = true;
 		codeStream.position += 4;
 		codeStream.classFileOffset += 4;
 	} else { //Position is set. Write it!
@@ -164,7 +167,19 @@ public void place() { // Currently lacking wide support.
 			}
 		}
 		for (int i = 0; i < forwardReferenceCount; i++) {
-			codeStream.writeSignedShort(forwardReferences[i], (short) (position - forwardReferences[i] + 1));
+			int offset = position - forwardReferences[i] + 1;
+			if (offset > 0x7FFF && !this.codeStream.wideMode) {
+				throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE);
+			}
+			if (this.codeStream.wideMode) {
+				if (this.isWide) {
+					codeStream.writeSignedWord(forwardReferences[i], offset);
+				} else {
+					codeStream.writeSignedShort(forwardReferences[i], (short) offset);
+				}
+			} else {
+				codeStream.writeSignedShort(forwardReferences[i], (short) offset);
+			}
 		}
 		// For all labels placed at that position we check if we need to rewrite the jump
 		// offset. It is the case each time a label had a forward reference to the current position.
@@ -183,7 +198,19 @@ public void place() { // Currently lacking wide support.
 					} else {
 						for (int j = 0; j < label.forwardReferenceCount; j++) {
 							int forwardPosition = label.forwardReferences[j];
-							codeStream.writeSignedShort(forwardPosition, (short) (position - forwardPosition + 1));
+							int offset = position - forwardPosition + 1;
+							if (offset > 0x7FFF && !this.codeStream.wideMode) {
+								throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE);
+							}
+							if (this.codeStream.wideMode) {
+								if (this.isWide) {
+									codeStream.writeSignedWord(forwardPosition, offset);
+								} else {
+									codeStream.writeSignedShort(forwardPosition, (short) offset);
+								}
+							} else {
+								codeStream.writeSignedShort(forwardPosition, (short) offset);
+							}
 						}
 					}
 				}
@@ -204,5 +231,10 @@ public String toString() {
 		buffer.append(forwardReferences[forwardReferenceCount-1]);
 	buffer.append("] )"); //$NON-NLS-1$
 	return buffer.toString();
+}
+
+public void resetStateForCodeGeneration() {
+	this.position = POS_NOT_SET;
+	this.forwardReferenceCount = 0;
 }
 }

@@ -65,7 +65,7 @@ public DocumentElementParser(
 public DocumentElementParser(
 	final IDocumentElementRequestor requestor, 
 	IProblemFactory problemFactory) {
-		this(requestor, problemFactory, new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault())));
+		this(requestor, problemFactory, new CompilerOptions());
 }
 /**
  *
@@ -247,6 +247,7 @@ protected void consumeClassHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -482,6 +483,8 @@ protected void consumeEnterVariable() {
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
 			declaration.type = TypeReference.baseTypeReference(-baseType, dimension);
+			declaration.type.sourceStart = type.sourceStart;
+			declaration.type.sourceEnd = type.sourceEnd;
 		} else {
 			declaration.type = type.copyDims(dimension);
 		}
@@ -649,6 +652,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -920,24 +924,6 @@ protected void consumeStaticOnly() {
 	nestedMethod[nestedType]++;
 	resetModifiers();
 }
-protected void consumeToken(int type) {
-	super.consumeToken(type);
-
-	switch (type) {
-		case TokenNamevoid :
-		case TokenNameboolean :
-		case TokenNamebyte :
-		case TokenNamechar :
-		case TokenNamedouble :
-		case TokenNamefloat :
-		case TokenNameint :
-		case TokenNamelong :
-		case TokenNameshort :
-		// we need this position to know where the base type name ends.
-			pushOnIntStack(scanner.currentPosition - 1);
-			break;
-	}
-}
 /**
  *
  * INTERNAL USE-ONLY
@@ -999,12 +985,18 @@ This variable is a type reference and dim will be its dimensions*/
 					identifierStack[identifierPtr], 
 					dim, 
 					identifierPositionStack[identifierPtr--]); 
+			ref.sourceEnd = endPosition;
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceEnd = intStack[intPtr--];
 			ref.sourceStart = intStack[intPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[intPtr--];
+			} else {
+				intPtr--;
+				ref.sourceEnd = endPosition;
+			}
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
@@ -1016,10 +1008,12 @@ This variable is a type reference and dim will be its dimensions*/
 				positions, 
 				0, 
 				length); 
-			if (dim == 0)
+			if (dim == 0) {
 				ref = new QualifiedTypeReference(tokens, positions);
-			else
+			} else {
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
+				ref.sourceEnd = endPosition;
+			}
 		}
 	};
 	return ref;
@@ -1301,12 +1295,18 @@ protected TypeReference typeReference(
 					identifierStack[localIdentifierPtr], 
 					dim, 
 					identifierPositionStack[localIdentifierPtr--]); 
+			ref.sourceEnd = endPosition;				
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceEnd = intStack[localIntPtr--];
 			ref.sourceStart = intStack[localIntPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[localIntPtr--];
+			} else {
+				localIntPtr--;
+				ref.sourceEnd = endPosition;
+			}
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			localIdentifierPtr -= length;

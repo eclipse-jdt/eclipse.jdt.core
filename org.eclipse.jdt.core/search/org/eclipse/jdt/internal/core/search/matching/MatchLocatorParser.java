@@ -4,10 +4,12 @@ package org.eclipse.jdt.internal.core.search.matching;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
@@ -19,6 +21,69 @@ import java.util.*;
 public class MatchLocatorParser extends Parser {
 
 	public MatchSet matchSet;
+	private LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor();
+	
+/**
+ * An ast visitor that visits local type declarations.
+ */
+public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
+	public boolean visit(
+			AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
+			BlockScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.METHOD) != 0) {
+			matchSet.checkMatching(anonymousTypeDeclaration);
+		}
+		return true; 
+	}
+	public boolean visit(
+			ConstructorDeclaration constructorDeclaration,
+			ClassScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
+			matchSet.checkMatching(constructorDeclaration);
+		}
+		return (constructorDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+	}
+	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
+			matchSet.checkMatching(fieldDeclaration);
+		}
+		return (fieldDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
+	}
+	public boolean visit(Initializer initializer, MethodScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
+			matchSet.checkMatching(initializer);
+		}
+		return (initializer.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+	}
+	public boolean visit(
+			LocalTypeDeclaration localTypeDeclaration,
+			MethodScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.METHOD) != 0) {
+			matchSet.checkMatching(localTypeDeclaration);
+		}
+		return true;
+	}
+	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
+			matchSet.checkMatching(methodDeclaration);
+		}
+		return (methodDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+	}
+	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.METHOD) != 0) {
+			matchSet.checkMatching(typeDeclaration);
+		}
+		return true;
+	}
+	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
+			matchSet.checkMatching(typeDeclaration);
+		}
+		return true; 
+	}
+	
+}
+
 public MatchLocatorParser(ProblemReporter problemReporter) {
 	super(problemReporter);
 }
@@ -118,12 +183,10 @@ private void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit) 
 	if (fields != null) {
 		for (int i = 0; i < fields.length; i++) {
 			FieldDeclaration field = fields[i];
-			if ((this.matchSet.matchContainer & SearchPattern.CLASS) != 0) {
-				this.matchSet.checkMatching(field);
-			}
 			if (field instanceof Initializer) { // initializer block
-				this.parse((Initializer)field, type, unit);					
+				this.parse((Initializer)field, type, unit);		
 			}
+			field.traverse(localDeclarationVisitor, null);
 		}
 	}
 	
@@ -132,14 +195,15 @@ private void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit) 
 	if (methods != null) {
 		for (int i = 0; i < methods.length; i++) {
 			AbstractMethodDeclaration method = methods[i];
-			if ((this.matchSet.matchContainer & SearchPattern.CLASS) != 0) {
-				this.matchSet.checkMatching(method);
-			}
 			if (method.sourceStart >= type.bodyStart) { // if not synthetic
 				if (method instanceof MethodDeclaration) {
-					this.parse((MethodDeclaration)method, unit);
+					MethodDeclaration methodDeclaration = (MethodDeclaration)method;
+					this.parse(methodDeclaration, unit);
+					methodDeclaration.traverse(localDeclarationVisitor, (ClassScope)null);
 				} else if (method instanceof ConstructorDeclaration) {
-					this.parse((ConstructorDeclaration)method, unit);
+					ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration)method;
+					this.parse(constructorDeclaration, unit);
+					constructorDeclaration.traverse(localDeclarationVisitor, (ClassScope)null);
 				}
 			}	
 		}
@@ -150,10 +214,8 @@ private void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit) 
 	if (memberTypes != null) {
 		for (int i = 0; i < memberTypes.length; i++) {
 			MemberTypeDeclaration memberType = memberTypes[i];
-			if ((this.matchSet.matchContainer & SearchPattern.CLASS) != 0) {
-				this.matchSet.checkMatching(memberType);
-			}
 			this.parseBodies(memberType, unit);
+			memberType.traverse(localDeclarationVisitor, (ClassScope)null);
 		}
 	}
 }

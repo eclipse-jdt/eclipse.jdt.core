@@ -58,14 +58,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (returnAddressVariable != null) {
 		returnAddressVariable.used = true;
 	}
-	FlowContext insideSubContext;
+	InsideSubRoutineFlowContext insideSubContext;
 	FinallyFlowContext finallyContext;
 	UnconditionalFlowInfo subInfo;
 	if (subRoutineStartLabel == null) {
-		insideSubContext = flowContext;
+		// no finally block
+		insideSubContext = null;
 		finallyContext = null;
 		subInfo = null;
 	} else {
+		// analyse finally block first
 		insideSubContext = new InsideSubRoutineFlowContext(flowContext, this);
 		subInfo = finallyBlock.analyseCode(
 			currentScope,
@@ -76,10 +78,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			subRoutineCannotReturn = false;
 		}
 	}
-
 	// process the try block in a context handling the local exceptions.
 	ExceptionHandlingFlowContext handlingContext =
-		new ExceptionHandlingFlowContext(insideSubContext, tryBlock, caughtExceptionTypes, scope, flowInfo.unconditionalInits());
+		new ExceptionHandlingFlowContext(
+			insideSubContext == null ? flowContext: insideSubContext, 
+			tryBlock, 
+			caughtExceptionTypes, 
+			scope, 
+			flowInfo.unconditionalInits());
+			
 	FlowInfo tryInfo;
 	if (tryBlock.statements == null) {
 		tryInfo = flowInfo;
@@ -100,7 +107,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 			///*
 			FlowInfo catchInfo = flowInfo.copy().unconditionalInits()
-									.addPotentialInitializationsFrom(handlingContext.initsOnException(caughtExceptionTypes[i]).unconditionalInits())
+									.addPotentialInitializationsFrom(
+										handlingContext.initsOnException(caughtExceptionTypes[i]).unconditionalInits())
 									.addPotentialInitializationsFrom(tryInfo.unconditionalInits());
 			//*/
 			// SMART ANALYSIS (see 1FBPLCY)
@@ -118,7 +126,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (tryBlock.statements == null) {
 				catchInfo.markAsFakeReachable(true);
 			}
-			catchInfo = catchBlocks[i].analyseCode(currentScope, insideSubContext, catchInfo);
+			catchInfo = catchBlocks[i].analyseCode(
+				currentScope, 
+				insideSubContext == null ? flowContext: insideSubContext, 
+				catchInfo);
 			catchExits[i] = ((catchInfo == FlowInfo.DeadEnd) || catchInfo.isFakeReachable());
 			tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
 		}
@@ -129,6 +140,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	// we also need to check potential multiple assignments of final variables inside the finally block
+	// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
+	tryInfo.addPotentialInitializationsFrom(insideSubContext.initsOnReturn);
 	finallyContext.complainOnRedundantFinalAssignments(tryInfo, currentScope);
 	if (subInfo == FlowInfo.DeadEnd) {
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(subInfo);

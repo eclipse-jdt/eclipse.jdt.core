@@ -22,13 +22,13 @@ public class FileDocument extends PropertyDocument {
 	 * @see IDocument#getByteContent
 	 */
 	public byte[] getByteContent() throws IOException {
-		return Util.getFileByteContent(file);
+		return org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file);
 	}
 	/**
 	 * @see IDocument#getCharContent
 	 */
 	public char[] getCharContent() throws IOException {
-		return Util.getFileCharContent(file);
+		return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file);
 	}
 	/**
 	 * @see IDocument#getName

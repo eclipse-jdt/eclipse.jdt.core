@@ -33,14 +33,6 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	addChild(fNode);	
 }
 /**
-
- */
-public void acceptInitializer(int modifiers, int declarationSourceStart, int declarationSourceEnd) {
-	int[] sourceRange = {declarationSourceStart, declarationSourceEnd};
-	fNode = new DOMInitializer(fDocument, sourceRange, modifiers);
-	addChild(fNode);
-}
-/**
  */
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
 	int[] sourceRange= new int[] {declarationStart, declarationEnd};
@@ -124,6 +116,15 @@ public void enterField(int declarationStart, int modifiers, char[] type, char[] 
 	fStack.push(fNode);
 }
 /**
+
+ */
+public void enterInitializer(int declarationSourceStart, int modifiers) {
+	int[] sourceRange = {declarationSourceStart, -1};
+	fNode = new DOMInitializer(fDocument, sourceRange, modifiers);
+	addChild(fNode);
+	fStack.push(fNode);
+}
+/**
  */
 public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces) {
 	enterType(declarationStart, modifiers, name, nameStart, nameEnd, null,
@@ -170,6 +171,11 @@ public void exitConstructor(int declarationEnd) {
 /**
  */
 public void exitField(int declarationEnd) {
+	exitMember(declarationEnd);
+}
+/**
+ */
+public void exitInitializer(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**

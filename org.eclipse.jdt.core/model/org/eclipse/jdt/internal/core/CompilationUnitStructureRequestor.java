@@ -193,33 +193,6 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	fImportContainerInfo.addChild(handle);
 	fNewElements.put(handle, info);
 }
-/**
- * @see ISourceElementRequestor
- */
-public void acceptInitializer(
-	int modifiers, 
-	int declarationSourceStart, 
-	int declarationSourceEnd) {
-		JavaElementInfo parentInfo = (JavaElementInfo) fInfoStack.peek();
-		JavaElement parentHandle= (JavaElement)fHandleStack.peek();
-		IInitializer handle = null;
-		
-		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = ((IType) parentHandle).getInitializer(1);
-		}
-		else {
-			Assert.isTrue(false); // Should not happen
-		}
-		resolveDuplicates(handle);
-		
-		InitializerElementInfo info = new InitializerElementInfo();
-		info.setSourceRangeStart(declarationSourceStart);
-		info.setSourceRangeEnd(declarationSourceEnd);
-		info.setFlags(modifiers);
-
-		parentInfo.addChild(handle);
-		fNewElements.put(handle, info);
-}
 /*
  * Table of line separator position. This table is passed once at the end
  * of the parse action, so as to allow computation of normalized ranges.
@@ -448,6 +421,34 @@ public void enterField(
 /**
  * @see ISourceElementRequestor
  */
+public void enterInitializer(
+	int declarationSourceStart,
+	int modifiers) {
+		JavaElementInfo parentInfo = (JavaElementInfo) fInfoStack.peek();
+		JavaElement parentHandle= (JavaElement)fHandleStack.peek();
+		IInitializer handle = null;
+		
+		if (parentHandle.getElementType() == IJavaElement.TYPE) {
+			handle = ((IType) parentHandle).getInitializer(1);
+		}
+		else {
+			Assert.isTrue(false); // Should not happen
+		}
+		resolveDuplicates(handle);
+		
+		InitializerElementInfo info = new InitializerElementInfo();
+		info.setSourceRangeStart(declarationSourceStart);
+		info.setFlags(modifiers);
+
+		parentInfo.addChild(handle);
+		fNewElements.put(handle, info);
+
+		fInfoStack.push(info);
+		fHandleStack.push(handle);
+}
+/**
+ * @see ISourceElementRequestor
+ */
 public void enterInterface(
 	int declarationStart,
 	int modifiers,
@@ -648,6 +649,12 @@ public void exitConstructor(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitField(int declarationEnd) {
+	exitMember(declarationEnd);
+}
+/**
+ * @see ISourceElementRequestor
+ */
+public void exitInitializer(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**

@@ -62,7 +62,7 @@ public void initializeContents() {
 		try {
 			IPath location = resource.getLocation();
 			if (location != null){
-				this.contents = Util.getFileCharContent(location.toFile());
+				this.contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile());
 			}
 		} catch (IOException e) {
 		}

@@ -12,9 +12,9 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class PostfixExpression extends CompoundAssignment {
 
 public PostfixExpression(Expression l, Expression e, int op, int pos) {
-	super(l, e, op);
-	sourceStart = l.sourceStart;
-	sourceEnd = pos ;
+	super(l, e, op, pos);
+	this.sourceStart = l.sourceStart;
+	this.sourceEnd = pos ;
 }
 /**
  * Code generation for PostfixExpression

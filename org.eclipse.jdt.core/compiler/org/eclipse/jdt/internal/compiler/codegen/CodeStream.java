@@ -60,6 +60,11 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public int countLabels;
 	public int allLocalsCounter;
 	public int maxFieldCount;
+	
+	// to handle goto_w
+	public boolean wideMode = false;
+	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0);
+	
 public CodeStream(ClassFile classFile) {
 	generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
 	generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
@@ -1765,51 +1770,6 @@ public void generateInlinedValue(boolean inlinedValue) {
 	else
 		this.iconst_0();
 }
-public void generateObjectWrapperForType(TypeBinding valueType) {
-
-	/* The top of stack must be encapsulated inside 
-	 * a wrapper object if it corresponds to a base type
-	 */
-	char[][] wrapperTypeCompoundName = null;
-	switch (valueType.id) {
-		case T_int : // new: java.lang.Integer
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Integer".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_boolean : // new: java.lang.Boolean
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Boolean".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_byte : // new: java.lang.Byte
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Byte".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_char : // new: java.lang.Character
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Character".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_float : // new: java.lang.Float
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Float".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_double : // new: java.lang.Double
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Double".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_short : // new: java.lang.Short
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Short".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-		case T_long : // new: java.lang.Long
-			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
-			break;
-	}
-	TypeBinding wrapperType = methodDeclaration.scope.getType(wrapperTypeCompoundName);
-	new_(wrapperType);
-	if (valueType.id == T_long || valueType.id == T_double) {
-		dup_x2();
-		dup_x2();
-		pop();
-	} else {
-		dup_x1();
-		swap();
-	}
-	MethodBinding methodBinding = methodDeclaration.scope.getMethod(wrapperType, QualifiedNamesConstants.Init, new TypeBinding[] {valueType}, null);
-	invokespecial(methodBinding);
-}
 public void generateOuterAccess(Object[] mappingSequence, AstNode invocationSite, Scope scope) {
 	if (mappingSequence == null)
 		return;
@@ -2165,6 +2125,51 @@ public void getTYPE(int baseTypeID) {
  * We didn't call it goto, because there is a conflit with the goto keyword
  */
 final public void goto_(Label lbl) {
+	if (this.wideMode) {
+		this.goto_w(lbl);
+		return;
+	}
+	try {
+		lbl.inlineForwardReferencesFromLabelsTargeting(position);
+		/*
+		 Possible optimization for code such as:
+		 public Object foo() {
+			boolean b = true;
+			if (b) {
+				if (b)
+					return null;
+			} else {
+				if (b) {
+					return null;
+				}
+			}
+			return null;
+		}
+		The goto around the else block for the first if will
+		be unreachable, because the thenClause of the second if
+		returns.
+		See inlineForwardReferencesFromLabelsTargeting defined
+		on the Label class for the remaining part of this
+		optimization.
+		 if (!lbl.isBranchTarget(position)) {
+			switch(bCodeStream[classFileOffset-1]) {
+				case OPC_return :
+				case OPC_areturn:
+					return;
+			}
+		}*/
+		position++;
+		bCodeStream[classFileOffset++] = OPC_goto;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_goto);
+	}
+	lbl.branch();
+}
+
+/**
+ * We didn't call it goto, because there is a conflit with the goto keyword
+ */
+final public void internal_goto_(Label lbl) {
 	try {
 		lbl.inlineForwardReferencesFromLabelsTargeting(position);
 		/*
@@ -2406,179 +2411,243 @@ final public void idiv() {
 }
 final public void if_acmpeq(Label lbl) {
 	countLabels = 0;
-	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_acmpeq;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_acmpeq);
+	stackDepth-=2;
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_acmpeq, lbl);
+	} else {	
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_acmpeq;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_acmpeq);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void if_acmpne(Label lbl) {
 	countLabels = 0;
-	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_acmpne;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_acmpne);
+	stackDepth-=2;
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_acmpne, lbl);
+	} else {	
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_acmpne;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_acmpne);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void if_icmpeq(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_icmpeq;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_icmpeq);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_icmpeq, lbl);
+	} else {	
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_icmpeq;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_icmpeq);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void if_icmpge(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_icmpge;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_icmpge);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_icmpge, lbl);
+	} else {	
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_icmpge;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_icmpge);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void if_icmpgt(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_icmpgt;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_icmpgt);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_icmpgt, lbl);
+	} else {	
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_icmpgt;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_icmpgt);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void if_icmple(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_icmple;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_icmple);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_icmple, lbl);
+	} else {	
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_icmple;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_icmple);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void if_icmplt(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_icmplt;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_icmplt);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_icmplt, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_icmplt;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_icmplt);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void if_icmpne(Label lbl) {
 	countLabels = 0;
 	stackDepth -= 2;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_if_icmpne;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_if_icmpne);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_if_icmpne, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_if_icmpne;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_if_icmpne);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void ifeq(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ifeq;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ifeq);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_ifeq, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ifeq;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_ifeq);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void ifge(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ifge;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ifge);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_ifge, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ifge;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_ifge);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void ifgt(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ifgt;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ifgt);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_ifgt, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ifgt;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_ifgt);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void ifle(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ifle;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ifle);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_ifle, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ifle;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_ifle);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void iflt(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_iflt;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_iflt);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_iflt, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_iflt;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_iflt);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void ifne(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ifne;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ifne);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_ifne, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ifne;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_ifne);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void ifnonnull(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ifnonnull;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ifnonnull);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_ifnonnull, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ifnonnull;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_ifnonnull);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void ifnull(Label lbl) {
 	countLabels = 0;
 	stackDepth--;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_ifnull;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_ifnull);
+	if (this.wideMode) {
+		generateWideConditionalBranch(OPC_ifnull, lbl);
+	} else {
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = OPC_ifnull;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(OPC_ifnull);
+		}
+		lbl.branch();
 	}
-	lbl.branch();
 }
 final public void iinc(int index, int value) {
 	countLabels = 0;
@@ -5477,54 +5546,54 @@ public final void writeSignedShort(int pos, int b) {
 public final void writeSignedWord(int value) {
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >> 24);
+		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF000000) >> 24);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >> 24));
+		resizeByteArray((byte) ((value & 0xFF000000) >> 24));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >> 16);
+		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF0000) >> 16);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >> 16));
+		resizeByteArray((byte) ((value & 0xFF0000) >> 16));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >> 8);
+		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF00) >> 8);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >> 8));
+		resizeByteArray((byte) ((value & 0xFF00) >> 8));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) value;
+		bCodeStream[classFileOffset++] = (byte) (value & 0xFF);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) value);
+		resizeByteArray((byte) (value & 0xFF));
 	}
 }
 public final void writeSignedWord(int pos, int value) {
 	int currentOffset = startingClassFileOffset + pos;
 	try {
-		bCodeStream[currentOffset] = (byte) (value >> 24);
+		bCodeStream[currentOffset++] = (byte) ((value & 0xFF000000) >> 24);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) (value >> 24);
+		bCodeStream[currentOffset] = (byte) ((value & 0xFF000000) >> 24);
 	}
 	try {
-		bCodeStream[currentOffset + 1] = (byte) (value >> 16);
+		bCodeStream[currentOffset++] = (byte) ((value & 0xFF0000) >> 16);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset + 1] = (byte) (value >> 16);
+		bCodeStream[currentOffset] = (byte) ((value & 0xFF0000) >> 16);
 	}
 	try {
-		bCodeStream[currentOffset + 2] = (byte) (value >> 8);
+		bCodeStream[currentOffset++] = (byte) ((value & 0xFF00) >> 8);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset + 2] = (byte) (value >> 8);
+		bCodeStream[currentOffset] = (byte) ((value & 0xFF00) >> 8);
 	}
 	try {
-		bCodeStream[currentOffset + 3] = (byte) value;
+		bCodeStream[currentOffset++] = (byte) (value & 0xFF);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset + 3] = (byte) value;
+		bCodeStream[currentOffset] = (byte) (value & 0xFF);
 	}
 }
 /**
@@ -5586,5 +5655,31 @@ public final void writeUnsignedWord(int value) {
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray((byte) value);
 	}
+}
+
+public void generateWideConditionalBranch(byte opcode, Label lbl) {
+		/* we handle the goto_w problem inside an if.... with some macro expansion
+		 * at the bytecode level
+		 * instead of:
+		 * if_...... lbl
+		 * we have:
+		 *    ifne <l1>
+		 *    goto <l2>
+		 * l1 gotow <l3> // l3 is a wide target
+		 * l2 ....
+		 */
+		Label l1 = new Label(this);
+		try {
+			position++;
+			bCodeStream[classFileOffset++] = opcode;
+		} catch (IndexOutOfBoundsException e) {
+			resizeByteArray(opcode);
+		}
+		l1.branch();
+		Label l2 = new Label(this);
+		this.internal_goto_(l2);
+		l1.place();
+		this.goto_w(lbl);
+		l2.place();
 }
 }

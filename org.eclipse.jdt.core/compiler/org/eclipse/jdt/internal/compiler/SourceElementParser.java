@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
@@ -44,6 +45,31 @@ public class SourceElementParser extends Parser {
 	private char[][] superTypeNames;
 	private int nestedTypeIndex;
 	private static final char[] JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
+	private NameReference[] unknownRefs;
+	private int unknownRefsCounter;
+	private LocalDeclarationVisitor localDeclarationVisitor = null;
+	
+/**
+ * An ast visitor that visits local type declarations.
+ */
+public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
+	public boolean visit(
+			AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
+			BlockScope scope) {
+		notifySourceElementRequestor(anonymousTypeDeclaration, sourceType == null);
+		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
+	}
+	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+		notifySourceElementRequestor(typeDeclaration, sourceType == null);
+		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
+	}
+	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+		notifySourceElementRequestor(typeDeclaration, sourceType == null);
+		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
+	}
+	
+}
+
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory,
@@ -70,7 +96,17 @@ public SourceElementParser(
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory) {
-		this(requestor, problemFactory, new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault())));
+		this(requestor, problemFactory, new CompilerOptions());
+}
+
+public SourceElementParser(
+	final ISourceElementRequestor requestor, 
+	IProblemFactory problemFactory,
+	boolean reportLocalDeclarations) {
+		this(requestor, problemFactory, new CompilerOptions());
+		if (reportLocalDeclarations) {
+			this.localDeclarationVisitor = new LocalDeclarationVisitor();
+		}
 }
 
 protected void classInstanceCreation(boolean alwaysQualified) {
@@ -328,6 +364,7 @@ public TypeReference getTypeReference(int dim) {
 					identifierStack[identifierPtr], 
 					dim, 
 					identifierPositionStack[identifierPtr--]); 
+			ref.sourceEnd = endPosition;
 			if (reportReferenceInfo) {
 				requestor.acceptTypeReference(ref.token, ref.sourceStart);
 			}
@@ -337,6 +374,15 @@ public TypeReference getTypeReference(int dim) {
 		if (length < 0) { //flag for precompiled type reference on base types
 			TypeReference ref = TypeReference.baseTypeReference(-length, dim);
 			ref.sourceStart = intStack[intPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[intPtr--];
+			} else {
+				intPtr--; // no need to use this position as it is an array
+				ref.sourceEnd = endPosition;
+			}
+			if (reportReferenceInfo){
+					requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+			}
 			return ref;
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
@@ -358,6 +404,7 @@ public TypeReference getTypeReference(int dim) {
 			} else {
 				ArrayQualifiedTypeReference ref = 
 					new ArrayQualifiedTypeReference(tokens, dim, positions); 
+				ref.sourceEnd = endPosition;					
 				if (reportReferenceInfo) {
 					requestor.acceptTypeReference(ref.tokens, ref.sourceStart(), ref.sourceEnd());
 				}
@@ -377,7 +424,8 @@ public NameReference getUnspecifiedReference() {
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
 		if (reportReferenceInfo) {
-			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
+			this.addUnknownRef(ref);
+//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	} else {
@@ -388,14 +436,14 @@ public NameReference getUnspecifiedReference() {
 		QualifiedNameReference ref = 
 			new QualifiedNameReference(
 				tokens, 
-				(int) (identifierPositionStack[identifierPtr + 1] >> 32), 
-		// sourceStart
-		 (int) identifierPositionStack[identifierPtr + length]); // sourceEnd
+				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
+				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 		if (reportReferenceInfo) {
-			requestor.acceptUnknownReference(
+			this.addUnknownRef(ref);
+/*			requestor.acceptUnknownReference(
 				ref.tokens, 
 				ref.sourceStart(), 
-				ref.sourceEnd()); 
+				ref.sourceEnd()); */
 		}
 		return ref;
 	}
@@ -415,10 +463,11 @@ public NameReference getUnspecifiedReferenceOptimized() {
 			new SingleNameReference(
 				identifierStack[identifierPtr], 
 				identifierPositionStack[identifierPtr--]); 
-		ref.bits &= ~NameReference.RestrictiveFlagMASK;
+		ref.bits &= ~AstNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		if (reportReferenceInfo) {
-			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
+			this.addUnknownRef(ref);
+//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	}
@@ -438,13 +487,14 @@ public NameReference getUnspecifiedReferenceOptimized() {
 			(int) (identifierPositionStack[identifierPtr + 1] >> 32), 
 	// sourceStart
 	 (int) identifierPositionStack[identifierPtr + length]); // sourceEnd
-	ref.bits &= ~NameReference.RestrictiveFlagMASK;
+	ref.bits &= ~AstNode.RestrictiveFlagMASK;
 	ref.bits |= LOCAL | FIELD;
 	if (reportReferenceInfo) {
-		requestor.acceptUnknownReference(
+		this.addUnknownRef(ref);
+/*		requestor.acceptUnknownReference(
 			ref.tokens, 
 			ref.sourceStart(), 
-			ref.sourceEnd());
+			ref.sourceEnd());*/
 	}
 	return ref;
 }
@@ -466,34 +516,109 @@ private boolean isLocalDeclaration() {
  * Update the bodyStart of the corresponding parse node
  */
 public void notifySourceElementRequestor() {
-
+	if (reportReferenceInfo) {
+		notifyAllUnknownReferences();
+	}
+	// collect the top level ast nodes
+	int length = 0;
+	AstNode[] nodes = null;
 	if (sourceType == null){
 		if (scanner.initialPosition == 0) {
 			requestor.enterCompilationUnit();
 		}
-		// first we notify the package declaration
 		ImportReference currentPackage = compilationUnit.currentPackage;
-		if (currentPackage != null) {
-			notifySourceElementRequestor(currentPackage, true);
-		}
-		// then the imports
 		ImportReference[] imports = compilationUnit.imports;
+		TypeDeclaration[] types = compilationUnit.types;
+		length = 
+			(currentPackage == null ? 0 : 1) 
+			+ (imports == null ? 0 : imports.length)
+			+ (types == null ? 0 : types.length);
+		nodes = new AstNode[length];
+		int index = 0;
+		if (currentPackage != null) {
+			nodes[index++] = currentPackage;
+		}
 		if (imports != null) {
 			for (int i = 0, max = imports.length; i < max; i++) {
-				notifySourceElementRequestor(imports[i], false);
+				nodes[index++] = imports[i];
+			}
+		}
+		if (types != null) {
+			for (int i = 0, max = types.length; i < max; i++) {
+				nodes[index++] = types[i];
+			}
+		}
+	} else {
+		TypeDeclaration[] types = compilationUnit.types;
+		if (types != null) {
+			length = types.length;
+			nodes = new AstNode[length];
+			for (int i = 0, max = types.length; i < max; i++) {
+				nodes[i] = types[i];
 			}
 		}
 	}
-	// then the types contained by this compilation unit
-	TypeDeclaration[] types = compilationUnit.types;
-	if (types != null) {
-		for (int i = 0, max = types.length; i < max; i++) {
-			notifySourceElementRequestor(types[i], sourceType == null);
+	
+	// notify the nodes in the syntactical order
+	if (nodes != null && length > 0) {
+		quickSort(nodes, 0, length-1);
+		for (int i=0;i<length;i++) {
+			AstNode node = nodes[i];
+			if (node instanceof ImportReference) {
+				ImportReference importRef = (ImportReference)node;
+				if (node == compilationUnit.currentPackage) {
+					notifySourceElementRequestor(importRef, true);
+				} else {
+					notifySourceElementRequestor(importRef, false);
+				}
+			} else { // instanceof TypeDeclaration
+				notifySourceElementRequestor((TypeDeclaration)node, sourceType == null);
+			}
 		}
 	}
+	
 	if (sourceType == null){
 		if (scanner.eofPosition >= compilationUnit.sourceEnd) {
 			requestor.exitCompilationUnit(compilationUnit.sourceEnd);
+		}
+	}
+}
+
+private void notifyAllUnknownReferences() {
+	for (int i = 0, max = this.unknownRefsCounter; i < max; i++) {
+		NameReference nameRef = this.unknownRefs[i];
+		if ((nameRef.bits & BindingIds.VARIABLE) != 0) {
+			if ((nameRef.bits & BindingIds.TYPE) == 0) { 
+				// variable but not type
+				if (nameRef instanceof SingleNameReference) { 
+					// local var or field
+					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+				} else {
+					// QualifiedNameReference
+					// The last token is a field reference and the previous tokens are a type/variable references
+					char[][] tokens = ((QualifiedNameReference) nameRef).tokens;
+					int tokensLength = tokens.length;
+					requestor.acceptFieldReference(tokens[tokensLength - 1], nameRef.sourceEnd() - tokens[tokensLength - 1].length + 1);
+					char[][] typeRef = new char[tokensLength - 1][];
+					System.arraycopy(tokens, 0, typeRef, 0, tokensLength - 1);
+					requestor.acceptUnknownReference(typeRef, nameRef.sourceStart(), nameRef.sourceEnd() - tokens[tokensLength - 1].length);
+				}
+			} else {
+				// variable or type
+				if (nameRef instanceof SingleNameReference) {
+					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+				} else {
+					//QualifiedNameReference
+					requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
+				}
+			}
+		} else if ((nameRef.bits & BindingIds.TYPE) != 0) {
+			if (nameRef instanceof SingleNameReference) {
+				requestor.acceptTypeReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+			} else {
+				// it is a QualifiedNameReference
+				requestor.acceptTypeReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
+			}
 		}
 	}
 }
@@ -501,8 +626,10 @@ public void notifySourceElementRequestor() {
  * Update the bodyStart of the corresponding parse node
  */
 public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclaration) {
-	if (methodDeclaration.isClinit())
+	if (methodDeclaration.isClinit()) {
+		this.visitIfNeeded(methodDeclaration);
 		return;
+	}
 
 	if (methodDeclaration.isDefaultConstructor()) {
 		if (reportReferenceInfo) {
@@ -608,6 +735,9 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		argumentTypes, 
 		argumentNames, 
 		thrownExceptionTypes); 
+		
+	this.visitIfNeeded(methodDeclaration);
+	
 	requestor.exitMethod(methodDeclaration.declarationSourceEnd);
 }
 /*
@@ -630,13 +760,15 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 			fieldDeclaration.name, 
 			fieldDeclaration.sourceStart, 
 			fieldDeclaration.sourceEnd); 
+		this.visitIfNeeded(fieldDeclaration);
 		requestor.exitField(fieldEndPosition);
 
 	} else {
-		requestor.acceptInitializer(
-			fieldDeclaration.modifiers, 
-			fieldDeclaration.declarationSourceStart, 
-			fieldDeclaration.declarationSourceEnd); 
+		requestor.enterInitializer(
+			fieldDeclaration.declarationSourceStart,
+			fieldDeclaration.modifiers); 
+		this.visitIfNeeded((Initializer)fieldDeclaration);
+		requestor.exitInitializer(fieldDeclaration.declarationSourceEnd);
 	}
 }
 public void notifySourceElementRequestor(
@@ -674,6 +806,12 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		if (superInterfaces != null) {
 			superInterfacesLength = superInterfaces.length;
 			interfaceNames = new char[superInterfacesLength][];
+		} else {
+			if (typeDeclaration instanceof AnonymousLocalTypeDeclaration) {
+				superInterfaces = new TypeReference[] { ((AnonymousLocalTypeDeclaration)typeDeclaration).allocation.type};
+				superInterfacesLength = 1;
+				interfaceNames = new char[1][];
+			}
 		}
 		if (superInterfaces != null) {
 			for (int i = 0; i < superInterfacesLength; i++) {
@@ -788,6 +926,10 @@ public void parseCompilationUnit(
 	CompilationUnitDeclaration result;
 	reportReferenceInfo = needReferenceInfo;
 	boolean old = diet;
+	if (needReferenceInfo) {
+		unknownRefs = new NameReference[10];
+		unknownRefsCounter = 0;
+	}
 	try {
 		diet = !needReferenceInfo;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
@@ -806,6 +948,11 @@ public void parseCompilationUnit(
 
 	CompilationUnitDeclaration result;
 	boolean old = diet;
+	if (needReferenceInfo) {
+		unknownRefs = new NameReference[10];
+		unknownRefsCounter = 0;
+	}
+		
 	try {
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
@@ -827,6 +974,11 @@ public void parseTypeMemberDeclarations(
 	boolean needReferenceInfo) {
 
 	boolean old = diet;
+	if (needReferenceInfo) {
+		unknownRefs = new NameReference[10];
+		unknownRefsCounter = 0;
+	}
+	
 	try {
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
@@ -873,6 +1025,35 @@ public void parseTypeMemberDeclarations(
 		diet = old;
 	}
 }
+/**
+ * Sort the given ast nodes by their positions.
+ */
+private static void quickSort(AstNode[] sortedCollection, int left, int right) {
+	int original_left = left;
+	int original_right = right;
+	AstNode mid = sortedCollection[ (left + right) / 2];
+	do {
+		while (sortedCollection[left].sourceStart < mid.sourceStart) {
+			left++;
+		}
+		while (mid.sourceStart < sortedCollection[right].sourceStart) {
+			right--;
+		}
+		if (left <= right) {
+			AstNode tmp = sortedCollection[left];
+			sortedCollection[left] = sortedCollection[right];
+			sortedCollection[right] = tmp;
+			left++;
+			right--;
+		}
+	} while (left <= right);
+	if (original_left < right) {
+		quickSort(sortedCollection, original_left, right);
+	}
+	if (left < original_right) {
+		quickSort(sortedCollection, left, original_right);
+	}
+}
 /*
  * Answer a char array representation of the type name formatted like:
  * - type name + dimensions
@@ -895,6 +1076,19 @@ private char[] returnTypeName(TypeReference type) {
 			dimensionsArray); 
 	}
 	return CharOperation.concatWith(type.getTypeName(), '.');
+}
+
+public void addUnknownRef(NameReference nameRef) {
+	if (this.unknownRefs.length == this.unknownRefsCounter) {
+		// resize
+		System.arraycopy(
+			this.unknownRefs,
+			0,
+			(this.unknownRefs = new NameReference[this.unknownRefsCounter * 2]),
+			0,
+			this.unknownRefsCounter);
+	}
+	this.unknownRefs[this.unknownRefsCounter++] = nameRef;
 }
 private TypeReference typeReference(
 	int dim, 
@@ -919,12 +1113,19 @@ private TypeReference typeReference(
 				new ArrayTypeReference(
 					identifierStack[localIdentifierPtr], 
 					dim, 
-					identifierPositionStack[localIdentifierPtr--]); 
+					identifierPositionStack[localIdentifierPtr--]);
+			ref.sourceEnd = endPosition;			 
 		}
 	} else {
 		if (length < 0) { //flag for precompiled type reference on base types
 			ref = TypeReference.baseTypeReference(-length, dim);
 			ref.sourceStart = intStack[localIntPtr--];
+			if (dim == 0) {
+				ref.sourceEnd = intStack[localIntPtr--];
+			} else {
+				localIntPtr--;
+				ref.sourceEnd = endPosition;
+			}	
 		} else { //Qualified variable reference
 			char[][] tokens = new char[length][];
 			localIdentifierPtr -= length;
@@ -936,12 +1137,43 @@ private TypeReference typeReference(
 				positions, 
 				0, 
 				length); 
-			if (dim == 0)
+			if (dim == 0)  {
 				ref = new QualifiedTypeReference(tokens, positions);
-			else
+			} else {
 				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
+				ref.sourceEnd = endPosition;
+			}
 		}
 	};
 	return ref;
+}
+
+private void visitIfNeeded(AbstractMethodDeclaration method) {
+	if (this.localDeclarationVisitor != null 
+		&& (method.bits & AstNode.HasLocalTypeMASK) != 0) {
+			if (method.statements != null) {
+				int statementsLength = method.statements.length;
+				for (int i = 0; i < statementsLength; i++)
+					method.statements[i].traverse(this.localDeclarationVisitor, method.scope);
+			}
+	}
+}
+
+private void visitIfNeeded(FieldDeclaration field) {
+	if (this.localDeclarationVisitor != null 
+		&& (field.bits & AstNode.HasLocalTypeMASK) != 0) {
+			if (field.initialization != null) {
+				field.initialization.traverse(this.localDeclarationVisitor, null);
+			}
+	}
+}
+
+private void visitIfNeeded(Initializer initializer) {
+	if (this.localDeclarationVisitor != null 
+		&& (initializer.bits & AstNode.HasLocalTypeMASK) != 0) {
+			if (initializer.block != null) {
+				initializer.block.traverse(this.localDeclarationVisitor, null);
+			}
+	}
 }
 }

@@ -7,19 +7,22 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.resources.*;
+
+import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.Util;
+
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
-
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
-
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 /**
  * A SourceMapper maps source code in a ZIP file to binary types in
@@ -150,19 +153,15 @@ public class SourceMapper
 				0,
 				importsCounter);
 		}
+		if (onDemand) {
+			int nameLength = name.length;
+			System.arraycopy(name, 0, (name = new char[nameLength + 2]), 0, nameLength);
+			name[nameLength] = '.';
+			name[nameLength + 1] = '*';
+		}
 		imports[importsCounter++] = name;
 		this.importsTable.put(fType, imports);
 		this.importsCounterTable.put(fType, new Integer(importsCounter));
-	}
-	
-	/**
-	 * @see ISourceElementRequestor
-	 */
-	public void acceptInitializer(
-		int modifiers,
-		int declarationSourceStart,
-		int declarationSourceEnd) {
-		//do nothing
 	}
 	
 	/**
@@ -307,6 +306,15 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	public void enterInitializer(
+		int declarationSourceStart,
+		int modifiers) {
+		//do nothing
+	}
+	
+	/**
+	 * @see ISourceElementRequestor
+	 */
 	public void enterInterface(
 		int declarationStart,
 		int modifiers,
@@ -397,6 +405,12 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	public void exitInitializer(int declarationEnd) {
+	}
+	
+	/**
+	 * @see ISourceElementRequestor
+	 */
 	public void exitInterface(int declarationEnd) {
 		exitClass(declarationEnd);
 	}
@@ -477,11 +491,15 @@ public class SourceMapper
 			entry = zip.getEntry(fullName);
 			if (entry != null) {
 				// now read the source code
-				byte[] bytes = readEntry(zip, entry);
+				byte[] bytes = null;
+				try {
+					bytes = Util.getZipEntryByteContent(entry, zip);
+				} catch (IOException e) {
+				}
 				if (bytes != null) {
 					try {
-						source = BufferManager.bytesToChar(bytes);
-					} catch (JavaModelException e) {
+						source = Util.bytesToChar(bytes);
+					} catch (IOException e) {
 						source = null;
 					}
 				}
@@ -629,38 +647,6 @@ public class SourceMapper
 			this.typeDeclarationStarts = null;
 			this.typeNameRanges = null;
 			this.typeDepth = -1;
-		}
-	}
-	
-	/**
-	 * Returns the contents of the specified zip entry
-	 */
-	protected byte[] readEntry(ZipFile zip, ZipEntry entry) {
-		InputStream stream = null;
-		try {
-			stream = zip.getInputStream(entry);
-			int remaining = (int) entry.getSize();
-			byte[] bytes = new byte[remaining];
-			int offset = 0;
-			while (remaining > 0) {
-				int read = stream.read(bytes, offset, remaining);
-				if (read == -1)
-					break;
-				remaining -= read;
-				offset += read;
-			}
-			return bytes;
-		} catch (IOException e) {
-			return null;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return null;
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException ioe) {
-				}
-			}
 		}
 	}
 	

@@ -43,112 +43,112 @@ public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassForma
 	// by index are tweaked to have their value in inst vars, this minor cost at read-time makes
 	// all subsequent uses of the constant pool element faster.
 	super(classFileBytes, 0);
-	classFileName = fileName;
+	this.classFileName = fileName;
 	int readOffset = 10;
 	try {
 		constantPoolCount = this.u2At(8);
 		// Pass #1 - Fill in all primitive constants
-		constantPoolOffsets = new int[constantPoolCount];
+		this.constantPoolOffsets = new int[constantPoolCount];
 		for (int i = 1; i < constantPoolCount; i++) {
 			int tag = this.u1At(readOffset);
 			switch (tag) {
 				case Utf8Tag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += u2At(readOffset + 1);
 					readOffset += ConstantUtf8FixedSize;
 					break;
 				case IntegerTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantIntegerFixedSize;
 					break;
 				case FloatTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantFloatFixedSize;
 					break;
 				case LongTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantLongFixedSize;
 					i++;
 					break;
 				case DoubleTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantDoubleFixedSize;
 					i++;
 					break;
 				case ClassTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantClassFixedSize;
 					break;
 				case StringTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantStringFixedSize;
 					break;
 				case FieldRefTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantFieldRefFixedSize;
 					break;
 				case MethodRefTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantMethodRefFixedSize;
 					break;
 				case InterfaceMethodRefTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantInterfaceMethodRefFixedSize;
 					break;
 				case NameAndTypeTag :
-					constantPoolOffsets[i] = readOffset;
+					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ConstantNameAndTypeFixedSize;
 			}
 		}
 		// Read and validate access flags
-		accessFlags = u2At(readOffset);
+		this.accessFlags = u2At(readOffset);
 		readOffset += 2;
 
 		// Read the classname, use exception handlers to catch bad format
-		classNameIndex = u2At(readOffset);
-		className = getConstantClassNameAt(classNameIndex);
+		this.classNameIndex = u2At(readOffset);
+		this.className = getConstantClassNameAt(this.classNameIndex);
 		readOffset += 2;
 
 		// Read the superclass name, can be null for java.lang.Object
 		int superclassNameIndex = u2At(readOffset);
 		readOffset += 2;
 		// if superclassNameIndex is equals to 0 there is no need to set a value for the 
-		// field superclassName. null is fine.
+		// field this.superclassName. null is fine.
 		if (superclassNameIndex != 0) {
-			superclassName = getConstantClassNameAt(superclassNameIndex);
+			this.superclassName = getConstantClassNameAt(superclassNameIndex);
 		}
 
 		// Read the interfaces, use exception handlers to catch bad format
-		interfacesCount = u2At(readOffset);
+		this.interfacesCount = u2At(readOffset);
 		readOffset += 2;
-		if (interfacesCount != 0) {
-			interfaceNames = new char[interfacesCount][];
-			for (int i = 0; i < interfacesCount; i++) {
-				interfaceNames[i] = getConstantClassNameAt(u2At(readOffset));
+		if (this.interfacesCount != 0) {
+			this.interfaceNames = new char[this.interfacesCount][];
+			for (int i = 0; i < this.interfacesCount; i++) {
+				this.interfaceNames[i] = getConstantClassNameAt(u2At(readOffset));
 				readOffset += 2;
 			}
 		}
-		// Read the fields, use exception handlers to catch bad format
-		fieldsCount = u2At(readOffset);
+		// Read the this.fields, use exception handlers to catch bad format
+		this.fieldsCount = u2At(readOffset);
 		readOffset += 2;
-		if (fieldsCount != 0) {
+		if (this.fieldsCount != 0) {
 			FieldInfo field;
-			fields = new FieldInfo[fieldsCount];
-			for (int i = 0; i < fieldsCount; i++) {
-				field = new FieldInfo(reference, constantPoolOffsets, readOffset);
-				fields[i] = field;
+			this.fields = new FieldInfo[this.fieldsCount];
+			for (int i = 0; i < this.fieldsCount; i++) {
+				field = new FieldInfo(reference, this.constantPoolOffsets, readOffset);
+				this.fields[i] = field;
 				readOffset += field.sizeInBytes();
 			}
 		}
-		// Read the methods
-		methodsCount = u2At(readOffset);
+		// Read the this.methods
+		this.methodsCount = u2At(readOffset);
 		readOffset += 2;
-		if (methodsCount != 0) {
-			methods = new MethodInfo[methodsCount];
+		if (this.methodsCount != 0) {
+			this.methods = new MethodInfo[this.methodsCount];
 			MethodInfo method;
-			for (int i = 0; i < methodsCount; i++) {
-				method = new MethodInfo(reference, constantPoolOffsets, readOffset);
-				methods[i] = method;
+			for (int i = 0; i < this.methodsCount; i++) {
+				method = new MethodInfo(reference, this.constantPoolOffsets, readOffset);
+				this.methods[i] = method;
 				readOffset += method.sizeInBytes();
 			}
 		}
@@ -158,33 +158,33 @@ public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassForma
 		readOffset += 2;
 
 		for (int i = 0; i < attributesCount; i++) {
-			int utf8Offset = constantPoolOffsets[u2At(readOffset)];
+			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
 			char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 			if (CharOperation.equals(attributeName, DeprecatedName)) {
-				accessFlags |= AccDeprecated;
+				this.accessFlags |= AccDeprecated;
 			} else {
 				if (CharOperation.equals(attributeName, InnerClassName)) {
 					int innerOffset = readOffset + 6;
 					int number_of_classes = u2At(innerOffset);
 					if (number_of_classes != 0) {
-						innerInfos = new InnerClassInfo[number_of_classes];
+						this.innerInfos = new InnerClassInfo[number_of_classes];
 						for (int j = 0; j < number_of_classes; j++) {
-							innerInfos[j] = 
-								new InnerClassInfo(reference, constantPoolOffsets, innerOffset + 2); 
-							if (classNameIndex == innerInfos[j].innerClassNameIndex) {
-								innerInfo = innerInfos[j];
-								innerInfoIndex = j;
+							this.innerInfos[j] = 
+								new InnerClassInfo(reference, this.constantPoolOffsets, innerOffset + 2); 
+							if (this.classNameIndex == this.innerInfos[j].innerClassNameIndex) {
+								this.innerInfo = this.innerInfos[j];
+								this.innerInfoIndex = j;
 							}
 							innerOffset += 8;
 						}
 					}
 				} else {
 					if (CharOperation.equals(attributeName, SourceName)) {
-						utf8Offset = constantPoolOffsets[u2At(readOffset + 6)];
-						sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+						utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
+						this.sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 					} else {
 						if (CharOperation.equals(attributeName, SyntheticName)) {
-							accessFlags |= AccSynthetic;
+							this.accessFlags |= AccSynthetic;
 						}
 					}
 				}
@@ -203,7 +203,7 @@ public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassForma
  *  @return int 
  */
 public int accessFlags() {
-	return accessFlags;
+	return this.accessFlags;
 }
 /**
  * (c)1998 Object Technology International.
@@ -216,7 +216,7 @@ public int accessFlags() {
  * @return char[]
  */
 private char[] getConstantClassNameAt(int constantPoolIndex) {
-	int utf8Offset = constantPoolOffsets[u2At(constantPoolOffsets[constantPoolIndex] + 1)];
+	int utf8Offset = this.constantPoolOffsets[u2At(this.constantPoolOffsets[constantPoolIndex] + 1)];
 	return utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 }
 /**
@@ -225,31 +225,31 @@ private char[] getConstantClassNameAt(int constantPoolIndex) {
  * @return int[]
  */
 public int[] getConstantPoolOffsets() {
-	return constantPoolOffsets;
+	return this.constantPoolOffsets;
 }
 /*
  * Answer the resolved compoundName of the enclosing type
  * or null if the receiver is a top level type.
  */
 public char[] getEnclosingTypeName() {
-	if (innerInfo != null) {
-		return innerInfo.getEnclosingTypeName();
+	if (this.innerInfo != null) {
+		return this.innerInfo.getEnclosingTypeName();
 	}
 	return null;
 }
 /**
- * Answer the receiver's fields or null if the array is empty.
+ * Answer the receiver's this.fields or null if the array is empty.
  * @return org.eclipse.jdt.internal.compiler.api.IBinaryField[]
  */
 public IBinaryField[] getFields() {
-	return fields;
+	return this.fields;
 }
 /**
  * Answer the file name which defines the type.
  * The format is unspecified.
  */
 public char[] getFileName() {
-	return classFileName;
+	return this.classFileName;
 }
 /**
  * Answer the source name if the receiver is a inner type. Return null if it is an anonymous class or if the receiver is a top-level class.
@@ -273,8 +273,8 @@ public char[] getFileName() {
  * @return char[]
  */
 public char[] getInnerSourceName() {
-	if (innerInfo != null)
-		return innerInfo.getSourceName();
+	if (this.innerInfo != null)
+		return this.innerInfo.getSourceName();
 	return null;
 }
 /**
@@ -286,7 +286,7 @@ public char[] getInnerSourceName() {
  * @return char[][]
  */
 public char[][] getInterfaceNames() {
-	return interfaceNames;
+	return this.interfaceNames;
 }
 /**
  * Answer the receiver's nested types or null if the array is empty.
@@ -297,18 +297,18 @@ public char[][] getInterfaceNames() {
  */
 public IBinaryNestedType[] getMemberTypes() {
 	// we might have some member types of the current type
-	if (innerInfos == null) return null;
+	if (this.innerInfos == null) return null;
 
-	int length = innerInfos.length;
-	int startingIndex = innerInfo != null ? innerInfoIndex + 1 : 0;
+	int length = this.innerInfos.length;
+	int startingIndex = this.innerInfo != null ? this.innerInfoIndex + 1 : 0;
 	if (length != startingIndex) {
 		IBinaryNestedType[] memberTypes = 
-			new IBinaryNestedType[length - innerInfoIndex]; 
+			new IBinaryNestedType[length - this.innerInfoIndex]; 
 		int memberTypeIndex = 0;
 		for (int i = startingIndex; i < length; i++) {
-			InnerClassInfo currentInnerInfo = innerInfos[i];
+			InnerClassInfo currentInnerInfo = this.innerInfos[i];
 			int outerClassNameIdx = currentInnerInfo.outerClassNameIndex;
-			if (outerClassNameIdx != 0 && outerClassNameIdx == classNameIndex) {
+			if (outerClassNameIdx != 0 && outerClassNameIdx == this.classNameIndex) {
 				memberTypes[memberTypeIndex++] = currentInnerInfo;
 			}
 		}
@@ -328,11 +328,11 @@ public IBinaryNestedType[] getMemberTypes() {
 	return null;
 }
 /**
- * Answer the receiver's methods or null if the array is empty.
+ * Answer the receiver's this.methods or null if the array is empty.
  * @return org.eclipse.jdt.internal.compiler.api.env.IBinaryMethod[]
  */
 public IBinaryMethod[] getMethods() {
-	return methods;
+	return this.methods;
 }
 /**
  * Answer an int whose bits are set according the access constants
@@ -341,10 +341,10 @@ public IBinaryMethod[] getMethods() {
  * @return int
  */
 public int getModifiers() {
-	if (innerInfo != null) {
-		return innerInfo.getModifiers();
+	if (this.innerInfo != null) {
+		return this.innerInfo.getModifiers();
 	}
-	return accessFlags;
+	return this.accessFlags;
 }
 /**
  * Answer the resolved name of the type in the
@@ -354,7 +354,7 @@ public int getModifiers() {
  * @return char[]
  */
 public char[] getName() {
-	return className;
+	return this.className;
 }
 /**
  * Answer the resolved name of the receiver's superclass in the
@@ -365,7 +365,7 @@ public char[] getName() {
  * @return char[]
  */
 public char[] getSuperclassName() {
-	return superclassName;
+	return this.superclassName;
 }
 /**
  * Answer true if the receiver is an anonymous type, false otherwise
@@ -373,7 +373,7 @@ public char[] getSuperclassName() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isAnonymous() {
-	return innerInfo != null && innerInfo.getEnclosingTypeName() == null && innerInfo.getSourceName() == null;
+	return this.innerInfo != null && this.innerInfo.getEnclosingTypeName() == null && this.innerInfo.getSourceName() == null;
 }
 /**
  * Answer whether the receiver contains the resolved binary form
@@ -403,7 +403,7 @@ public boolean isInterface() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isLocal() {
-	return innerInfo != null && innerInfo.getEnclosingTypeName() == null && innerInfo.getSourceName() != null;
+	return this.innerInfo != null && this.innerInfo.getEnclosingTypeName() == null && this.innerInfo.getSourceName() != null;
 }
 /**
  * Answer true if the receiver is a member type, false otherwise
@@ -411,7 +411,7 @@ public boolean isLocal() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isMember() {
-	return innerInfo != null && innerInfo.getEnclosingTypeName() != null;
+	return this.innerInfo != null && this.innerInfo.getEnclosingTypeName() != null;
 }
 /**
  * Answer true if the receiver is a nested type, false otherwise
@@ -419,7 +419,7 @@ public boolean isMember() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isNestedType() {
-	return innerInfo != null;
+	return this.innerInfo != null;
 }
 /**
  * (c)1998 Object Technology International.
@@ -428,19 +428,9 @@ public boolean isNestedType() {
  * @param file The file you want to read
  * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
  */
-public static ClassFileReader read(java.io.File file) throws ClassFormatException, java.io.IOException {
-	int fileLength;
-	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-	java.io.FileInputStream stream = new java.io.FileInputStream(file);
-	int bytesRead = 0;
-	int lastReadSize = 0;
-	while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-		lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-		bytesRead += lastReadSize;
-	}
-	ClassFileReader classFile = new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
-	stream.close();
-	return classFile;
+public static ClassFileReader read(File file) throws ClassFormatException, IOException {
+	byte classFileBytes[] = Util.getFileByteContent(file);
+	return new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
 }
 /**
  * (c)1998 Object Technology International.
@@ -449,19 +439,7 @@ public static ClassFileReader read(java.io.File file) throws ClassFormatExceptio
  * @param String fileName
  */
 public static ClassFileReader read(String fileName) throws ClassFormatException, java.io.IOException {
-	int fileLength;
-	File file = new File(fileName);
-	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-	java.io.FileInputStream stream = new java.io.FileInputStream(file);
-	int bytesRead = 0;
-	int lastReadSize = 0;
-	while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-		lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-		bytesRead += lastReadSize;
-	}
-	ClassFileReader classFile = new ClassFileReader(classFileBytes, fileName.toCharArray());
-	stream.close();
-	return classFile;
+	return read(new File(fileName));
 }
 /**
  * (c)1998 Object Technology International.
@@ -478,16 +456,7 @@ public static ClassFileReader read(
 	java.util.zip.ZipEntry ze = zip.getEntry(filename);
 	if (ze == null)
 		return null;
-	java.io.InputStream zipInputStream = zip.getInputStream(ze);
-	byte classFileBytes[] = new byte[(int) ze.getSize()];
-	int length = classFileBytes.length;
-	int len = 0;
-	int readSize = 0;
-	while ((readSize != -1) && (len != length)) {
-		readSize = zipInputStream.read(classFileBytes, len, length - len);
-		len += readSize;
-	}
-	zipInputStream.close();
+	byte classFileBytes[] = Util.getZipEntryByteContent(ze, zip);
 	return new ClassFileReader(classFileBytes, filename.toCharArray());
 }
 /**
@@ -499,7 +468,7 @@ public static ClassFileReader read(
  * @return char[]
  */
 public char[] sourceFileName() {
-	return sourceFileName;
+	return this.sourceFileName;
 }
 /**
  * (c)1998 Object Technology International.
@@ -512,9 +481,9 @@ public String toString() {
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
 	
 	print.println(this.getClass().getName() + "{"); //$NON-NLS-1$
-	print.println(" className: " + new String(getName())); //$NON-NLS-1$
-	print.println(" superclassName: " + (getSuperclassName() == null ? "null" : new String(getSuperclassName()))); //$NON-NLS-2$ //$NON-NLS-1$
-	print.println(" access_flags: " + ClassFileStruct.printTypeModifiers(accessFlags()) + "(" + accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
+	print.println(" this.className: " + new String(getName())); //$NON-NLS-1$
+	print.println(" this.superclassName: " + (getSuperclassName() == null ? "null" : new String(getSuperclassName()))); //$NON-NLS-2$ //$NON-NLS-1$
+	print.println(" access_flags: " + ClassFileStruct.printTypeModifiers(this.accessFlags()) + "(" + this.accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
 
 	print.flush();
 	return out.toString();
@@ -522,9 +491,9 @@ public String toString() {
 /**
  * Check if the receiver has structural changes compare to the byte array in argument.
  * Structural changes are:
- * - modifiers changes for the class, the fields or the methods
- * - signature changes for fields or methods.
- * - changes in the number of fields or methods
+ * - modifiers changes for the class, the this.fields or the this.methods
+ * - signature changes for this.fields or this.methods.
+ * - changes in the number of this.fields or this.methods
  * - changes for field constants
  * - changes for thrown exceptions
  * - change for the super class or any super interfaces.
@@ -557,7 +526,7 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 				}
 			}
 		}
-		// fields
+		// this.fields
 		FieldInfo[] otherFieldInfos = (FieldInfo[]) newClassFile.getFields();
 		int otherFieldInfosLength = otherFieldInfos == null ? 0 : otherFieldInfos.length;
 		if (this.fieldsCount != otherFieldInfosLength) {
@@ -665,7 +634,7 @@ public boolean hasStructuralChanges(byte[] newBytes) {
 				}
 			}
 		}
-		// methods
+		// this.methods
 		MethodInfo[] otherMethodInfos = (MethodInfo[]) newClassFile.getMethods();
 		int otherMethodInfosLength = otherMethodInfos == null ? 0 : otherMethodInfos.length;
 		if (this.methodsCount != otherMethodInfosLength) {

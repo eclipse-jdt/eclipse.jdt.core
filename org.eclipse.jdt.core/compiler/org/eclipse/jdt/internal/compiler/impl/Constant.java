@@ -225,9 +225,9 @@ public static final Constant computeConstantOperation(Constant cst, int id, int 
 	//the result should be availbale with not runtime error
 
 	switch (operator) {
-		case NOT	: 	if ( cst.booleanValue() == true ) return Constant.fromValue(false);
-						return Constant.fromValue(true);
-		case PLUS	:	return cst ; //apriori we do not need to clone it
+		case NOT	: 	
+						return Constant.fromValue(!cst.booleanValue());
+		case PLUS	:	return cst ; 
 		case MINUS	:	//the two special -9223372036854775808L and -2147483648 are inlined at parseTime
 						switch (id){
 							case T_float  :	float f ;

@@ -96,7 +96,7 @@ public void generateCode(
 				codeStream.generateInlinedValue(i);
 				arguments[i].generateCode(currentScope, codeStream, true);
 				if (binding.parameters[i].isBaseType()) {
-					codeStream.generateObjectWrapperForType(binding.parameters[i]);
+					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(binding.parameters[i]);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {

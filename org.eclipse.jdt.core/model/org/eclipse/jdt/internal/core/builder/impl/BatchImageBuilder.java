@@ -4,9 +4,9 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.Map;
 import java.util.Vector;
 
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.Util;
@@ -37,7 +37,7 @@ public BatchImageBuilder(StateImpl state) {
  * This constructor has been created for testing purposes.  This allows
  * tests to control the compiler options used by the batch build.
  */
-protected BatchImageBuilder(StateImpl state, ConfigurableOption[] options) {
+protected BatchImageBuilder(StateImpl state, Map options) {
 	fDC = (JavaDevelopmentContextImpl) state.getDevelopmentContext();
 	fCompilerOptions = options;
 	fNewState = state;

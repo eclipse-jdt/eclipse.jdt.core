@@ -42,6 +42,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(DoStatement doStatement, BlockScope scope);
 	void endVisit(DoubleLiteral doubleLiteral, BlockScope scope);
 	void endVisit(EqualExpression equalExpression, BlockScope scope);
+	void endVisit(EmptyStatement statement, BlockScope scope);
 	void endVisit(ExplicitConstructorCall explicitConstructor, BlockScope scope);
 	void endVisit(ExtendedStringLiteral extendedStringLiteral, BlockScope scope);
 	void endVisit(FalseLiteral falseLiteral, BlockScope scope);
@@ -118,6 +119,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(DoStatement doStatement, BlockScope scope);
 	boolean visit(DoubleLiteral doubleLiteral, BlockScope scope);
 	boolean visit(EqualExpression equalExpression, BlockScope scope);
+	boolean visit(EmptyStatement statement, BlockScope scope);
 	boolean visit(ExplicitConstructorCall explicitConstructor, BlockScope scope);
 	boolean visit(ExtendedStringLiteral extendedStringLiteral, BlockScope scope);
 	boolean visit(FalseLiteral falseLiteral, BlockScope scope);

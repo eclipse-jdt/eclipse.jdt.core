@@ -104,6 +104,7 @@ public FieldDeclaration updatedFieldDeclaration(){
 					((AnonymousLocalTypeDeclaration)this.anonymousTypes[i].updatedTypeDeclaration()).allocation;
 			}
 		}
+		if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= AstNode.HasLocalTypeMASK;
 	}
 	return fieldDeclaration;
 }

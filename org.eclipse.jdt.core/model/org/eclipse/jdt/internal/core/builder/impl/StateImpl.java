@@ -35,7 +35,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -771,15 +770,7 @@ public class StateImpl implements IState {
 				if (zipEntry == null) {
 					return new byte[0];
 				}
-				InputStream input= zipFile.getInputStream(zipEntry);
-				if (input == null){
-					return new byte[0];
-				}
-				byte[] contents= Util.readContentsAsBytes(input);
-				if (contents == null) {
-					return new byte[0];
-				}
-				return contents;
+				return org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(zipEntry, zipFile);
 			} catch (CoreException e) {
 				return new byte[0];
 			} catch (IOException e) {
@@ -798,13 +789,9 @@ public class StateImpl implements IState {
 			try {
 				// Fix for 1FVTLHB: ITPCORE:WINNT - Importing a project does not import class files
 				JavaModelManager.getJavaModelManager().ensureLocal(file);
-				return Util.readContentsAsBytes(file.getContents(true));
+				return Util.getResourceContentsAsByteArray(file);
 			} catch (CoreException e) {
 				return fDevelopmentContext.getBinaryFromFileSystem(file);
-			} catch (IOException e) {
-				String message= e.getMessage();
-				message= (message == null ? "." : " due to " + message + "."); //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
-				return new byte[0];
 			}
 		}
 	}
@@ -814,34 +801,19 @@ public class StateImpl implements IState {
 	protected char[] getElementContentCharArray(SourceEntry entry) {
 		// TBD: need proper byte->char conversion
 		byte[] bytes= getElementContentBytes(entry);
-		BufferedReader reader = null;
+		InputStream stream = null;
 		try {
-			reader= new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
-			int length= bytes.length;
-			char[] contents= new char[length];
-			int len= 0;
-			int readSize= 0;
-			while ((readSize != -1) && (len != length)) {
-				// See PR 1FMS89U
-				// We record first the read size. In this case len is the actual read size.
-				len += readSize;
-				readSize= reader.read(contents, len, length - len);
-			}
-			reader.close();
-			// See PR 1FMS89U
-			// Now we need to resize in case the default encoding used more than one byte for each
-			// character
-			if (len != length)
-				System.arraycopy(contents, 0, (contents= new char[len]), 0, len);
-			return contents;
+			stream = new ByteArrayInputStream(bytes);
+			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, bytes.length);
 		} catch (IOException e) {
-			if (reader != null) {
+			return new char[0];
+		} finally {
+			if (stream != null) {
 				try {
-					reader.close();
+					stream.close();
 				} catch(IOException ioe) {
 				}
 			}
-			return new char[0];
 		}
 	}
 	/**

@@ -44,7 +44,7 @@ public boolean isStandardLabel(){
 	return false;
 }
 /*
-* Put down  a refernece to the array at the location in the codestream.
+* Put down  a reference to the array at the location in the codestream.
 */
 public void place() {
 	position = codeStream.position;

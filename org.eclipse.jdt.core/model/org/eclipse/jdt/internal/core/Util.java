@@ -4,6 +4,11 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
@@ -392,6 +397,48 @@ public static int getParameterCount(char[] sig) {
 	}
 	return count;
 }
+/**
+ * Returns the given file's contents as a byte array.
+ */
+public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModelException {
+	InputStream stream= null;
+	try {
+		stream = new BufferedInputStream(file.getContents(true));
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
+	}
+	try {
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, -1);
+	} catch (IOException e) {
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
+	}
+}
+/**
+ * Returns the given file's contents as a character array.
+ */
+public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
+	InputStream stream= null;
+	try {
+		stream = new BufferedInputStream(file.getContents(true));
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
+	}
+	try {
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1);
+	} catch (IOException e) {
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
+	}
+}
 	/**
 	 * Returns true if the given method signature is valid,
 	 * false if it is not.
@@ -567,40 +614,6 @@ private static void quickSortReverse(String[] sortedCollection, int left, int ri
 	}
 	if (left < original_right) {
 		quickSortReverse(sortedCollection, left, original_right);
-	}
-}
-public static byte[] readContentsAsBytes(InputStream input) throws IOException {
-	BufferedInputStream bufferedInputStream = null;
-	try {
-		final int BUF_SIZE = 8192;
-		byte[] buf = new byte[BUF_SIZE];
-		int read;
-		int totalRead = 0;
-		bufferedInputStream = new BufferedInputStream(input);
-		while (totalRead < BUF_SIZE && (read = bufferedInputStream.read(buf, totalRead, BUF_SIZE - totalRead)) != -1) {
-			totalRead += read;
-		}
-		if (totalRead < BUF_SIZE) {
-			byte[] result = new byte[totalRead];
-			System.arraycopy(buf, 0, result, 0, totalRead);
-			return result;
-		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream(BUF_SIZE*2);
-		out.write(buf);
-		while ((read = bufferedInputStream.read(buf, 0, BUF_SIZE)) != -1) {
-			out.write(buf, 0, read);
-		}
-		return out.toByteArray();
-	}
-	finally {
-		try {
-			if (bufferedInputStream != null) {
-				bufferedInputStream.close();
-			}
-		}
-		catch (IOException e) {
-			// Ignore
-		}
 	}
 }
 /**

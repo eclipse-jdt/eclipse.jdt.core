@@ -131,7 +131,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		this.pkgName == null ? 
 			new char[0] :
 			this.pkgName);
-	locator.reportQualifiedReference(reference.sourceStart, reference.sourceEnd, splitName, element, accuracy);
+	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, splitName, element, accuracy);
 }
 /**
  * @see AndPattern#resetQuery
@@ -236,7 +236,7 @@ private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 			TypeBinding typeBinding = null;
 			char[][] tokens = qNameRef.tokens;
 			int lastIndex = tokens.length-1;
-			switch (qNameRef.bits & Statement.RestrictiveFlagMASK) {
+			switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 				case BindingIds.FIELD : // reading a field
 					typeBinding = ((FieldBinding)binding).declaringClass;
 					// no valid match amongst fields

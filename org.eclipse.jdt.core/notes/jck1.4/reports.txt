@@ -1,0 +1,5353 @@
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+Problem Reports generated on 17/09/2001 @ 6:32:04 PM by Olivier Thomann
+
+1. 1GK7WHA:  ITPJCORE:WIN2000 - JCK 1.4 - a NullPointerException is raised in run time 
+2. 1GK7WCP:  ITPJCORE:WIN2000 - JCK 1.4 - the new method is a static (respectively instance) method. 
+3. 1GK7VXD:  ITPJCORE:WIN2000 - JCK 1.4 - the new method is less accessible than the old one
+4. 1GK7VSN:  ITPJCORE:WIN2000 - JCK 1.4 - the new field is a static (respectively instance) field
+5. 1GK7VMD:  ITPJCORE:WIN2000 - JCK 1.4 - the new field is less accessible than the old one
+6. 1GK7VCA:  ITPJCORE:WIN2000 - JCK 1.4 - detection of an IncompatibleClassChangeError 
+7. 1GK7UGQ:  ITPJCORE:WIN2000 - JCK 1.4 - Invoke overriding class methods
+8. 1GK7U6C:  ITPJCORE:WIN2000 - JCK 1.4 - Overriding instance and class methods
+9. 1GK7MHO:  ITPJCORE:WIN2000 - JCK 1.4 - Adding a String field that has the same name as a String field of a superclass
+10. 1GK7MEQ:  ITPJCORE:WIN2000 - JCK 1.4 - null literal in throw statement
+11. 1GK7M9B:  ITPJCORE:WIN2000 - JCK 1.4 - qualified AmbiguousName and an ExpressionName
+12. 1GK7M25:  ITPJCORE:WIN2000 - JCK 1.4 - The field of protected interface is used in other package
+13. 1GK7LYF:  ITPJCORE:WIN2000 - JCK 1.4 - An instance initializer in an anonymous class may throw any exception
+14. 1GK7LW2:  ITPJCORE:WIN2000 - JCK 1.4 - An inherited interface that shadows a name from an enclosing non-package scope
+15. 1GK7LTA:  ITPJCORE:WIN2000 - JCK 1.4 - An inherited class that shadows a name from an enclosing non-package scope
+16. 1GK7LKV:  ITPJCORE:WIN2000 - JCK 1.4 - An inherited method that shadows a name from an enclosing non-package scope
+17. 1GK7LHR:  ITPJCORE:WIN2000 - JCK 1.4 - An inherited variable that shadows a name from an enclosing non-package scope
+18. 1GK7LCX:  ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited field in nested class
+19. 1GK7LAA:  ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited public field in nested class
+20. 1GK7L79:  ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited protected field in nested class
+21. 1GK7HMN:  ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited field in nested class
+22. 1GK7HKE:  ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited public field in nested class
+23. 1GK7HH1:  ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited protected field in nested class
+24. 1GK7HEF:  ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited field in top-level nested class
+25. 1GK7HBJ:  ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited public field in top-level nested class
+26. 1GK7H5X:  ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited protected field in top-level nested class
+27. 1GK7H2Z:  ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited field in top-level nested class
+28. 1GK7H0B:  ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited public field in top-level nested class
+29. 1GK7GW6:  ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited protected field in top-level nested class
+30. 1GK7GQA:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and class from superclass in nested class
+31. 1GK7GC1:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public class from superclass in nested class
+32. 1GK7G8E:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected class from superclass in nested class
+33. 1GK7G5A:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and static class from superclass in nested class
+34. 1GK7G2A:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public static class from superclass in nested class
+35. 1GK7FX7:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected static class from superclass in nested class
+36. 1GK7FTA:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and class from superclass in top-level nested class
+37. 1GK7FOT:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public class from superclass in top-level nested class
+38. 1GK7FLC:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected class from superclass in top-level nested class
+39. 1GK7FHB:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and static class from superclass in top-level nested class
+40. 1GK7FCN:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public static class from superclass in top-level nested class
+41. 1GK7F8L:  ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected static class from superclass in top-level nested class
+42. 1GK7F4S:  ITPJCORE:WIN2000 - JCK 1.4 -static class from outer and class from superclass in nested class
+43. 1GK7EZB:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public class from superclass in nested class
+44. 1GK7EVB:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected class from superclass in nested class
+45. 1GK7ERE:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and static class from superclass in nested class
+46. 1GK7EB9:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public static class from superclass in nested class
+47. 1GK7DZV:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected static class from superclass in nested class
+48. 1GK7DVJ:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and class from superclass in top-level nested class
+49. 1GK7DBD:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public class from superclass in top-level nested class
+50. 1GK7D7Q:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected class from superclass in top-level nested class
+51. 1GK7D2P:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and static class from superclass in top-level nested class
+52. 1GK7CTV:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public static class from superclass in top-level nested class. 
+53. 1GK7BGP:  ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected static class from superclass in top-level nested class
+54. 1GK7B5L:  ITPJCORE:WIN2000 - JCK 1.4 - checked exception in variable initializer of anonymous class 
+55. 1GK2BLM:  ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
+56. 1GK2B6D:  ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value before the second operand of the boolean operator &&
+57. 1GK2AWS:  ITPJCORE:WIN2000 - JCK 1.4 - illegal method declaration for interface
+58. 1GK2AOF:  ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
+59. 1GK2AHX:  ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
+60. 1GK2A45:  ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true 
+61. 1GK29Q8:  ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
+62. 1GHW0G1:  ITPJCORE:WINNT - JCK 1.4  - illegal simple name imports
+63. 1GHW0DF:  ITPJCORE:WINNT - JCK 1.4 - target is now 1.2
+64. 1GHW0AZ:  ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
+65. 1FL4T1Q:  LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump
+--------------------------------------------------------------------------------
+
+
+
+====================------------------------------------------------------------
+1	# : 1GK7WHA  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - a NullPointerException is raised in run time 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/EXPR/expr622/expr62201/expr62201.html - POSITIVE TEST
+Test case:
+[// Ident: @(#)expr62201.java 1.1 01/03/27
+// Copyright 03/27/01 Sun Microsystems, Inc.  All Rights Reserved
+
+import java.io.PrintStream;
+
+public class expr62201 {
+
+    public static void main(String argv[]) {
+    	int temp = run(argv, System.out) + 95/*STATUS_TEMP*/;
+    	System.out.println(temp);
+        System.exit(temp);
+    }
+
+    public static int run(String argv[],PrintStream out) {
+        int i;
+        expr62201 expr = null;
+        try {
+            i = expr.new Loc().getval();
+        } catch (NullPointerException e) {
+            return 0/*STATUS_PASSED*/;
+        }
+        return 2/*STATUS_FAILED*/;       
+    }
+
+    class Loc {
+        int getval() { return 0; }
+    }
+}
+]
+
+	javac 1.4:
+		compilation: OK
+		runtime: 95
+
+	javac 1.3:
+		compilation: OK
+		runtime: 97
+
+	Eclipse compiler:
+		compilation: OK
+		runtime: 97
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+2	# : 1GK7WCP  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - the new method is a static (respectively instance) method. 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc058/binc05802/binc05802.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile the test cases in the same order I put them below one by one. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc05802.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc058.binc05802;
+import java.io.PrintStream;
+
+class Super {
+    public int m() {
+        return 123;
+    }
+}
+
+class binc05802s extends Super {
+}
+
+class binc05802c extends binc05802s {
+    public int mm() {
+        return m();
+    }
+}
+
+public class binc05802 {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+
+    public static int run(String argv[],PrintStream out) {
+
+        try {
+            int i = (new binc05802c()).mm();
+        } catch (LinkageError e) {
+            out.println("passed with " + e);
+            return 0/*STATUS_PASSED*/;
+        } catch (Throwable e) {
+            out.println("failed with " + e);
+            return 2/*STATUS_FAILED*/;
+        }
+        out.println("failed ");
+        return 2/*STATUS_FAILED*/; 
+    }
+}
+    
+]
+[// Ident: @(#)binc05802a.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc058.binc05802;
+
+class Super {
+    public static int m() {
+        return 123;
+    }
+}
+
+class binc05802s extends Super {
+    public static int m() {
+        return 123;
+    }
+}
+
+]
+[// Ident: @(#)binc05802b.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc058.binc05802;
+
+class Super {
+    public int m() {
+        return 123;
+    }
+}
+]
+
+	javac 1.4:
+		compilation: OK
+		runtime: passed with java.lang.IncompatibleClassChangeError
+
+	javac 1.3:
+		compilation: OK
+		runtime: failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime: failed
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+3	# : 1GK7VXD  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - the new method is less accessible than the old one
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc058/binc05801/binc05801.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile the test cases in the same order I put them below one by one. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc05801.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc058.binc05801;
+import java.io.PrintStream;
+
+class Super {
+    public int m() {
+        return 123;
+    }
+}
+
+class binc05801s extends Super {
+}
+
+class binc05801c extends binc05801s {
+    public int mm() {
+        return m();
+    }
+}
+
+public class binc05801 {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+
+    public static int run(String argv[],PrintStream out) {
+
+        try {
+            int i = (new binc05801c()).mm();
+        } catch (LinkageError e) {
+            out.println("passed with " + e);
+            return 0/*STATUS_PASSED*/;
+        } catch (Throwable e) {
+            out.println("failed with " + e);
+            return 2/*STATUS_FAILED*/;
+        }
+        out.println("failed ");
+        return 2/*STATUS_FAILED*/; 
+    }
+}
+    
+]
+[// Ident: @(#)binc05801a.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc058.binc05801;
+
+class Super {
+    private int m() {
+        return 123;
+    }
+}
+
+class binc05801s extends Super {
+    private int m() {
+        return 123;
+    }
+}
+]
+[// Ident: @(#)binc05801b.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc058.binc05801;
+
+class Super {
+    public int m() {
+        return 123;
+    }
+}
+]
+
+	javac 1.4:
+		compilation: OK
+		runtime: failed
+
+	javac 1.3:
+		compilation: OK
+		runtime: failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime: failed
+
+NOTES:
+
+OT (17/09/2001 5:51:35 PM)
+	javac 1.4 fails this one as well. We might want to double check this test.
+
+
+
+
+====================------------------------------------------------------------
+4	# : 1GK7VSN  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - the new field is a static (respectively instance) field
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc057/binc05702/binc05702.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile the test cases in the same order I put them below one by one. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc05702.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc057.binc05702;
+import java.io.PrintStream;
+
+class Super {
+    public float f = 123;
+}
+
+class binc05702s extends Super {
+}
+
+class binc05702c extends binc05702s {
+    float fl = f;
+}
+
+public class binc05702 {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+
+    public static int run(String argv[],PrintStream out) {
+
+        try {
+            float var = (new binc05702c()).fl;
+        } catch (LinkageError e) {
+            out.println("passed with " + e);
+            return 0/*STATUS_PASSED*/;
+        } catch (Throwable e) {
+            out.println("failed with " + e);
+            return 2/*STATUS_FAILED*/;
+        }
+        out.println("failed ");
+        return 2/*STATUS_FAILED*/; 
+    }
+}
+    
+]
+[// Ident: @(#)binc05702a.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc057.binc05702;
+
+class binc05702s extends Super {
+    static float f;
+}
+
+]
+
+	javac 1.4:
+		compilation: OK
+		runtime: passed with java.lang.IncompatibleClassChangeError
+
+	javac 1.3:
+		compilation: OK
+		runtime: failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime: failed
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+5	# : 1GK7VMD  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - the new field is less accessible than the old one
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc057/binc05701/binc05701.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile the test cases in the same order I put them below one by one. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc05701.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc057.binc05701;
+import java.io.PrintStream;
+
+class Super {
+    public float f = 123;
+}
+
+class binc05701s extends Super {
+}
+
+class binc05701c extends binc05701s {
+    float fl = f;
+}
+
+public class binc05701 {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+
+    public static int run(String argv[],PrintStream out) {
+
+        try {
+            float var = (new binc05701c()).fl;
+        } catch (LinkageError e) {
+            out.println("passed with " + e);
+            return 0/*STATUS_PASSED*/;
+        } catch (Throwable e) {
+            out.println("failed with " + e);
+            return 2/*STATUS_FAILED*/;
+        }
+        out.println("failed ");
+        return 2/*STATUS_FAILED*/; 
+    }
+}
+    
+]
+[// Ident: @(#)binc05701a.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc057.binc05701;
+
+class binc05701s extends Super {
+    private float f;
+}
+]
+
+	javac 1.4:
+		compilation: OK
+		runtime: passed with java.lang.IllegalAccessError: try to access field javasoft.sqe.tests.lang.binc057.binc05701.binc05701s.f from class javasoft.sqe.tests.lang.binc057.binc05701.binc05701c
+
+	javac 1.3:
+		compilation: OK
+		runtime: failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime: failed
+
+NOTES:
+
+
+
+====================------------------------------------------------------------
+6	# : 1GK7VCA  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - detection of an IncompatibleClassChangeError 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc055/binc05501/binc05501.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile the test cases in the same order I put them below one by one. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc05501c.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc055.binc05501;
+
+interface binc05501i {
+}
+
+class binc05501s {
+    int i = 321;
+}
+
+class binc05501c extends binc05501s implements binc05501i {
+    public int var1 = i;
+}
+]
+[// Ident: @(#)binc05501.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc055.binc05501;
+
+import java.io.PrintStream;
+
+public class binc05501 {
+    public static void main(String args[]) {
+	System.exit(run(args, System.out) + 95/*STATUS_TEMP*/); 
+    } 
+    
+    public static int run(String args[], PrintStream out) {
+	try {
+	    Class.forName("javasoft.sqe.tests.lang.binc055.binc05501.binc05501c").newInstance();
+	} catch (IncompatibleClassChangeError e) {
+	    out.println("passed with " + e);
+	    return 0/*STATUS_PASSED*/;
+	} catch (Throwable e) {
+	    out.println("failed with " + e);
+	    return 2/*STATUS_FAILED*/;
+	}
+	out.println("failed ");
+	return 2/*STATUS_FAILED*/;
+    }
+}
+]
+[// Ident: @(#)binc05501i.java 1.1 01/02/05
+// Copyright 02/05/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc055.binc05501;
+
+interface binc05501i {
+    public static int i = 123;
+}
+
+class binc05501s {
+    int i = 321;
+}
+]
+
+	javac 1.4:
+		compilation: OK
+		runtime: passed with java.lang.IncompatibleClassChangeError
+
+	javac 1.3:
+		compilation: OK
+		runtime: failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime: failed
+
+NOTES:
+
+
+
+====================------------------------------------------------------------
+7	# : 1GK7UGQ  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - Invoke overriding class methods
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc044/binc04402/binc04402.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile first the first test case and then the second. Not both at the same time. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc04402.java 1.1 01/03/27
+// Copyright 03/27/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc044.binc04402;
+import java.io.PrintStream;
+
+class Hyper {
+    static String cm() { return "cm_Hyper";} 
+}
+class Super extends Hyper { }
+
+public class binc04402 extends Super {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+    
+    public static int run(String argv[],PrintStream out) {
+        String cs = Hyper.cm();
+        String is = Super.cm();
+        if (cs.equals("cm_Hyper") && is.equals("cm_Super"))
+            return 0/*STATUS_PASSED*/;
+        else {
+            out.println ("failed");
+            return 2/*STATUS_FAILED*/;
+        }        
+    }
+}
+    
+]
+[]
+
+	javac 1.4:
+		compilation: OK
+		runtime: NONE
+
+	javac 1.3:
+		compilation: OK
+		runtime: failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime: failed
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+8	# : 1GK7U6C  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - Overriding instance and class methods
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc044/binc04401/binc04401.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile first the first test case and then the second. Not both at the same time. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc04401.java 1.2 01/03/28
+// Copyright 03/28/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc044.binc04401;
+import java.io.PrintStream;
+
+class Hyper {
+    static String cm() { return "cm_Hyper";} 
+    String im() { return "im_Hyper";} 
+}
+class Super extends Hyper { }
+
+public class binc04401 extends Super {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+    
+    public static int run(String argv[],PrintStream out) {
+        Super s = new Super();
+        String cs = s.cm();
+        out.println(cs);
+        String is = s.im();
+        out.println(is);
+        if (cs.equals("cm_Super") && is.equals("im_Super"))
+            return 0/*STATUS_PASSED*/;
+        else {
+            out.println ("failed");
+            return 2/*STATUS_FAILED*/;
+        }        
+    }
+}
+    
+]
+[// Ident: @(#)binc04401a.java 1.1 96/12/27
+// Copyright 12/27/96 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc044.binc04401;
+
+class Super extends Hyper {
+  static String cm() { return "cm_Super";}
+  String im() { return "im_Super";} 
+}
+]
+	javac 1.4:
+		compilation: OK
+		runtime:
+cm_Super
+im_Super
+
+	javac 1.3: 
+		compilation: OK
+		runtime:
+cm_Hyper
+im_Super
+failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime:
+cm_Hyper
+im_Super
+failed
+
+NOTES:
+
+
+
+
+
+
+====================------------------------------------------------------------
+9	# : 1GK7MHO  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - Adding a String field that has the same name as a String field of a superclass
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/BINC/binc014/binc01401/binc01401.html - POSITIVE TEST
+	This is a binary compatibility test. You need to compile first the first test case and then the second. Not both at the same time. And then execute it. The problem with the Eclipse
+	compiler occurs only at runtime.
+
+Test cases:
+[// Ident: @(#)binc01401.java 1.3 01/03/28
+// Copyright 03/28/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc014.binc01401;
+import java.io.PrintStream;
+
+class Hyper { String h = "Hyper"; } 
+class Super extends Hyper { }
+
+public class binc01401 extends Super {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+
+    public static int run(String argv[],PrintStream out) {
+        String s = new binc01401().h;
+        out.println(s);
+        if (s.equals("Super"))
+            return 0/*STATUS_PASSED*/;
+        else {
+            out.println ("failed");
+            return 2/*STATUS_FAILED*/;
+        }        
+    }
+}
+    
+]
+[// Ident: @(#)binc01401a.java 1.1 96/11/13
+// Copyright 11/13/96 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.binc014.binc01401;
+
+class Super extends Hyper { String h = "Super"; }
+]
+
+	javac 1.4:
+		compilation: OK
+		runtime:
+Super
+
+	javac 1.3: 
+		compilation: OK
+		runtime:
+Hyper
+failed
+
+	Eclipse compiler:
+		compilation: OK
+		runtime:
+Hyper
+failed
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+10	# : 1GK7MEQ  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - null literal in throw statement
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/STMT/stmt100/stmt10003/stmt10003.html - POSITIVE TEST
+Test case:
+[//File: @(#)stmt10003.java 1.1 98/08/24 
+//Copyright 08/24/98 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.stmt100.stmt10003;
+
+import java.io.PrintStream;
+
+public class stmt10003 { 
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+    public static int run(String argv[],PrintStream out) {
+        ArithmeticException ex = null;
+	try {
+	    throw  null;
+	} catch (NullPointerException e) {
+	    out.println("passed " + e );
+	    return 0/*STATUS_PASSED*/;
+	} catch (Exception e) {
+	    out.println("failed " + e );
+	    return 2/*STATUS_FAILED*/;
+	}
+    }
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+stmt10003.java:15: unreported exception <null>; must be caught or declared to be thrown
+            throw  null;
+            ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in stmt10003.java (at line 15)
+        throw  null;
+        ^^^^^^^^^^^
+Cannot throw null
+----------
+NOTES:
+
+
+
+
+
+====================------------------------------------------------------------
+11	# : 1GK7M9B  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - qualified AmbiguousName and an ExpressionName
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/NAME/name136/name13601/name13601.html - POSITIVE TEST
+Test case:
+[// Ident: @(#)name13601.java 1.1 01/01/30
+// Copyright 01/30/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.name136.name13601;
+
+import java.io.PrintStream;
+
+public class name13601 {
+    int i1 = 4;
+    name13601 cl;
+    static PrintStream Out;
+    static int result;
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+    static void errorAlert (int level, int res) {
+        Out.println("failed "+level+": "+res);
+        result = 2/*STATUS_FAILED*/;
+    }
+    public static int run(String argv[],PrintStream out) {
+        int res;
+        name13601 cl1 = new name13601();
+        a cla;
+
+        cl1.cl = new name13601();
+        Out = out;
+        result = 0/*STATUS_PASSED*/;
+
+        res = cl1.cl.a.get_i2();
+        if (res != 6)
+            errorAlert(3, res);
+
+        return result;
+    }
+    name13601 get () {
+        return new name13601();
+    }
+    static class a {
+         static int i2 = 6;
+         static int get_i2 () {
+             return i2;
+         }
+    }
+}
+]
+
+	javac 1.4: OK
+	javac 1.3: OK
+	Eclipse compiler:
+----------
+1. ERROR in name13601.java (at line 29)
+        res = cl1.cl.a.get_i2();
+              ^^^^^^^^
+cl1.cl.a cannot be resolved or is not a field
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+12	# : 1GK7M25  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - The field of protected interface is used in other package
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/INTF/intf042/intf04201/intf04201.html - POSITIVE TEST
+Test case: 2 classes
+[// Ident: @(#)intf04201.java 1.1 01/04/27
+// Copyright 04/27/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.intf042.intf04201;
+import java.io.PrintStream;
+
+public class intf04201 extends javasoft.sqe.tests.lang.intf042.intf04201_a.intf04201_a {
+    public static void main(String argv[]) {
+        System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+    public static int run(String argv[],PrintStream out) {
+        if (javasoft.sqe.tests.lang.intf042.intf04201_a.intf04201_a.intr.fname == 4)     
+            return 0/*STATUS_PASSED*/;
+        else
+            return 2/*STATUS_FAILED*/;
+    }
+}
+
+
+    
+]
+[// Ident: @(#)intf04201_a.java 1.1 01/04/27
+// Copyright 04/27/01 Sun Microsystems, Inc.  All Rights Reserved
+
+package javasoft.sqe.tests.lang.intf042.intf04201_a;
+
+public class intf04201_a {
+    protected interface intr {
+        int fname = 4;
+    }
+    int fname = 8;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3: OK
+	Eclipse compiler:
+----------
+1. ERROR in intf04201.java (at line 12)
+        if (javasoft.sqe.tests.lang.intf042.intf04201_a.intf04201_a.intr.fname == 4)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The type javasoft.sqe.tests.lang.intf042.intf04201_a.intf04201_a.intr is not visible
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+13	# : 1GK7LYF  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - An instance initializer in an anonymous class may throw any exception
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls088/icls08891m22/icls08891m22.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls08891m22.java generated from: @(#)icls08891m.jmpp 1.10 01/03/27 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls088.icls08891m22;
+
+import java.io.PrintStream;
+
+/**
+ * Test $asrt:
+ * An instance initializer may not throw an exception, unless declared by every constructor.
+ * <p>
+ * Separately, test if initializers can throw checked exceptions
+ * if all constructors declare them.
+ * <p>
+ * An initializer in an anonymous class always manages checked exceptions,
+ * as if the constructor had been given the necessary throws clause.
+ */
+class icls08891m22 {
+    public static void main(String argv[]) {
+	System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+    public static PrintStream out;
+    public static int run(String argv[],PrintStream out) {
+	icls08891m22.out = out;
+	return 0;
+    }
+    icls08891m22() throws InstantiationException, IllegalAccessException
+    { }
+
+    icls08891m22(String a) throws InstantiationException
+    { }
+
+    //[icls088]
+
+    void throwException() throws ClassNotFoundException {
+	final String badName = getClass().getName() + ".no.such.class";
+	if (true) new Object() { { Class.forName(badName); } };
+	Class.forName(badName);
+    }
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls08891m22.java:37: unreported exception java.lang.ClassNotFoundException; must be caught or declared to be thrown
+        if (true) new Object() { { Class.forName(badName); } };
+                                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls08891m22.java (at line 37)
+        if (true) new Object() { { Class.forName(badName); } };
+                                   ^^^^^^^^^^^^^^^^^^^^^^
+Exception java.lang.ClassNotFoundException thrown within an initializer must be handled locally
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+14	# : 1GK7LW2  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - An inherited interface that shadows a name from an enclosing non-package scope
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls073/icls07391m5/icls07391m5.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls07391m5.java generated from: @(#)icls07391m.jmpp 1.8 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls073.icls07391m5;
+
+import java.io.PrintStream;
+
+public class icls07391m5 {
+	public static void main(String argv[]) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+		
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls07391m5().new SomeInner().someMethod();
+		if (k == 8)
+			return 0/*STATUS_FAILED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+
+	// definition to shadow by extending class A
+	interface I {
+		int intValueOfI = 5;
+	}
+
+	class SomeInner extends A {
+		int someMethod() {
+			class TestInterface implements I {};
+			int i = new TestInterface().intValueOfI;
+			return i;
+		}
+	}
+}
+
+class A {
+	interface I {
+		int intValueOfI = 8;
+	}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls07391m5.java:28: javasoft.sqe.tests.lang.icls073.icls07391m5.A.I is inherited from javasoft.sqe.tests.lang.icls073.icls07391m5.A and hides class in outer class 
+javasoft.sqe.tests.lang.icls073.icls07391m5.icls07391m5.  An explicit 'this' qualifier must be used to select the desired instance.
+                        class TestInterface implements I {};
+                                                       ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls07391m5.java (at line 28)
+        class TestInterface implements I {};
+                                       ^
+Superinterface I is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls07391m5.java (at line 29)
+        int i = new TestInterface().intValueOfI;
+                                    ^^^^^^^^^^^
+intValueOfI cannot be resolved or is not a field
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+15	# : 1GK7LTA  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - An inherited class that shadows a name from an enclosing non-package scope
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls073/icls07391m4/icls07391m4.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls07391m4.java generated from: @(#)icls07391m.jmpp 1.8 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls073.icls07391m4;
+
+import java.io.PrintStream;
+
+public class icls07391m4 {
+	public static void main(String argv[]) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+		
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls07391m4().new SomeInner().someMethod();
+		if (k == -9)
+			return 0/*STATUS_FAILED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+
+	// definition to shadow by extending class A
+	class B {
+		int intValueOfB = -6;
+	}
+
+	class SomeInner extends A {
+		int someMethod() {
+			int i = new B().intValueOfB;
+			return i;
+		}
+	}
+}
+
+class A {
+	class B {
+		int intValueOfB = -9;
+	}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls07391m4.java:28: javasoft.sqe.tests.lang.icls073.icls07391m4.A.B is inherited from javasoft.sqe.tests.lang.icls073.icls07391m4.A and hides class in outer 
+class javasoft.sqe.tests.lang.icls073.icls07391m4.icls07391m4.  An explicit 'this' qualifier must be used to select the desired instance.
+                        int i = new B().intValueOfB;
+                                    ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls07391m4.java (at line 28)
+        int i = new B().intValueOfB;
+                    ^
+The type B is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+16	# : 1GK7LKV  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - An inherited method that shadows a name from an enclosing non-package scope
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls073/icls07391m3/icls07391m3.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls07391m3.java generated from: @(#)icls07391m.jmpp 1.8 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls073.icls07391m3;
+
+import java.io.PrintStream;
+
+public class icls07391m3 {
+	public static void main(String argv[]) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+		
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls07391m3().new SomeInner().someMethod();
+		if (k == 3333)
+			return 0/*STATUS_FAILED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+
+	// definition to shadow by extending class A
+	int intMethod() {
+		return 333;
+	}
+
+	class SomeInner extends A {
+		int someMethod() {
+			int i = intMethod();
+			return i;
+		}
+	}
+}
+
+class A {
+	int intMethod() {
+		return 3333;
+	}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls07391m3.java:28: intMethod() is inherited from javasoft.sqe.tests.lang.icls073.icls07391m3.A and hides method in outer class 
+javasoft.sqe.tests.lang.icls073.icls07391m3.icls07391m3.  An explicit 'this' qualifier must be used to select the desired instance.
+                        int i = intMethod();
+                                ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls07391m3.java (at line 28)
+        int i = intMethod();
+                ^^^^^^^^^
+The method intMethod is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+17	# : 1GK7LHR  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - An inherited variable that shadows a name from an enclosing non-package scope
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls073/icls07391m2/icls07391m2.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls07391m2.java generated from: @(#)icls07391m.jmpp 1.8 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls073.icls07391m2;
+
+import java.io.PrintStream;
+
+public class icls07391m2 {
+	public static void main(String argv[]) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+		
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls07391m2().new SomeInner().someMethod();
+		if (k == 153)
+			return 0/*STATUS_FAILED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+
+	// definition to shadow by extending class A
+	int intValue = 151;
+
+	class SomeInner extends A {
+		int someMethod() {
+			int i = intValue;
+			return i;
+		}
+	}
+}
+
+class A {
+	int intValue = 153;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls07391m2.java:26: intValue is inherited from javasoft.sqe.tests.lang.icls073.icls07391m2.A and hides variable in outer class
+ javasoft.sqe.tests.lang.icls073.icls07391m2.icls07391m2.  An explicit 'this' qualifier must be used to select the desired instance.
+                        int i = intValue;
+                                ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls07391m2.java (at line 26)
+        int i = intValue;
+                ^^^^^^^^
+The field intValue is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+18	# : 1GK7LCX  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited field in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/ - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m113.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m113;
+import java.io.PrintStream;
+
+public class icls00504m113 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	int i = 4;
+	class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00504m113().new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m113.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m113.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m113.icls00504m113.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m113.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+19	# : 1GK7LAA  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited public field in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m112/icls00504m112.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m112.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m112;
+import java.io.PrintStream;
+
+public class icls00504m112 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	int i = 4;
+	class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00504m112().new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m112.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m112.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m112.icls00504m112.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m112.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+20	# : 1GK7L79  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited protected field in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m111/icls00504m111.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m111.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m111;
+import java.io.PrintStream;
+
+public class icls00504m111 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	int i = 4;
+	class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00504m111().new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m111.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m111.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m111.icls00504m111.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m111.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+21	# : 1GK7HMN  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited field in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m103/icls00504m103.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m103.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m103;
+import java.io.PrintStream;
+
+public class icls00504m103 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static int i = 4;
+	class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00504m103().new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m103.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m103.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m103.icls00504m103.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m103.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+22	# : 1GK7HKE  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited public field in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m102/icls00504m102.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m102.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m102;
+import java.io.PrintStream;
+
+public class icls00504m102 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static int i = 4;
+	class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00504m102().new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m102.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m102.Y and hides variable in outer 
+class javasoft.sqe.tests.lang.icls005.icls00504m102.icls00504m102.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m102.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+23	# : 1GK7HH1  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited protected field in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m101/icls00504m101.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m101.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m101;
+import java.io.PrintStream;
+
+public class icls00504m101 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static int i = 4;
+	class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00504m101().new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m101.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m101.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m101.icls00504m101.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m101.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+24	# : 1GK7HEF  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited field in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m013/icls00504m013.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m013.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m013;
+import java.io.PrintStream;
+
+public class icls00504m013 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	int i = 4;
+	static class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m013.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m013.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m013.icls00504m013.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m013.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+25	# : 1GK7HBJ  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited public field in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m012/icls00504m012.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m012.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m012;
+import java.io.PrintStream;
+
+public class icls00504m012 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	int i = 4;
+	static class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m012.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m012.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m012.icls00504m012.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m012.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+26	# : 1GK7H5X  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - field from outer class and inherited protected field in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m011/icls00504m011.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m011.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m011;
+import java.io.PrintStream;
+
+public class icls00504m011 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	int i = 4;
+	static class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m011.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m011.Y and hides variable in outer class 
+javasoft.sqe.tests.lang.icls005.icls00504m011.icls00504m011.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m011.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+27	# : 1GK7H2Z  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited field in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m003/icls00504m003.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m003.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m003;
+import java.io.PrintStream;
+
+public class icls00504m003 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static int i = 4;
+	static class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m003.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m003.Y and hides variable in outer class 
+	javasoft.sqe.tests.lang.icls005.icls00504m003.icls00504m003.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m003.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+28	# : 1GK7H0B  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited public field in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m002/icls00504m002.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m002.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m002;
+import java.io.PrintStream;
+
+public class icls00504m002 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static int i = 4;
+	static class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m002.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m002.Y and hides variable in outer class
+	javasoft.sqe.tests.lang.icls005.icls00504m002.icls00504m002.  An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error	Eclipse compiler:
+----------
+1. ERROR in icls00504m002.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+29	# : 1GK7GW6  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static field from outer class and inherited protected field in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00504m001/icls00504m001.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00504m001.java generated from: @(#)icls00504m.jmpp 1.2 01/03/28 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00504m001;
+import java.io.PrintStream;
+
+public class icls00504m001 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static int i = 4;
+	static class NC extends Y {
+		int x = i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().x;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected int i = 6;
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00504m001.java:14: i is inherited from javasoft.sqe.tests.lang.icls005.icls00504m001.Y and hides variable in outer class javasoft.sqe.tests.lang.icls005.icls00504m001.icls00504m001.  
+	An explicit 'this' qualifier must be used to select the desired instance.
+                int x = i;
+                        ^
+1 error
+
+	Eclipse compiler:
+----------
+1. ERROR in icls00504m001.java (at line 14)
+        int x = i;
+                ^
+The field i is defined in an inherited type and an enclosing scope
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+30	# : 1GK7GQA  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1113/icls00502m1113.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1113.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1113;
+import java.io.PrintStream;
+
+public class icls00502m1113 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m1113().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1113.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1113.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1113.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1113.icls00502m1113.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1113.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1113.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1113.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1113.icls00502m1113.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1113.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1113.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+31	# : 1GK7GC1  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1112/icls00502m1112.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1112.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1112;
+import java.io.PrintStream;
+
+public class icls00502m1112 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m1112().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1112.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1112.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1112.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1112.icls00502m1112.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1112.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1112.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1112.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1112.icls00502m1112.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1112.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1112.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+32	# : 1GK7G8E  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1111/icls00502m1111.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1111.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1111;
+import java.io.PrintStream;
+
+public class icls00502m1111 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m1111().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1111.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1111.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1111.Y and hides class in outer class javasoft.sqe.tests.lang.icl
+s005.icls00502m1111.icls00502m1111.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1111.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1111.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1111.Y and hides class in outer class javasoft.sqe.tests.lang.icl
+s005.icls00502m1111.icls00502m1111.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1111.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1111.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+33	# : 1GK7G5A  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and static class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1103/icls00502m1103.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1103.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1103;
+import java.io.PrintStream;
+
+public class icls00502m1103 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m1103().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1103.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1103.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1103.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1103.icls00502m1103.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1103.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1103.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1103.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1103.icls00502m1103.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1103.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1103.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+
+====================------------------------------------------------------------
+34	# : 1GK7G2A  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public static class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1102/icls00502m1102.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1102.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1102;
+import java.io.PrintStream;
+
+public class icls00502m1102 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m1102().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1102.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1102.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1102.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1102.icls00502m1102.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1102.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1102.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1102.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1102.icls00502m1102.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1102.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1102.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+35	# : 1GK7FX7  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected static class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1101/icls00502m1101.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1101.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1101;
+import java.io.PrintStream;
+
+public class icls00502m1101 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m1101().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1101.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1101.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1101.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1101.icls00502m1101.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1101.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1101.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1101.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1101.icls00502m1101.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1101.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1101.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+====================------------------------------------------------------------
+36	# : 1GK7FTA  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+DESCRIPTION:
+http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1013/icls00502m1013.html  - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1013.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1013;
+import java.io.PrintStream;
+
+public class icls00502m1013 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1013.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1013.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1013.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1013.icls00502m1013.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1013.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1013.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1013.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1013.icls00502m1013.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1013.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1013.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+NOTES:
+
+
+
+====================------------------------------------------------------------
+37	# : 1GK7FOT  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1012/icls00502m1012.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1012.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1012;
+import java.io.PrintStream;
+
+public class icls00502m1012 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1012.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1012.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1012.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1012.icls00502m1012.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1012.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1012.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1012.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1012.icls00502m1012.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1012.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1012.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+38	# : 1GK7FLC  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1011/icls00502m1011.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1011.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1011;
+import java.io.PrintStream;
+
+public class icls00502m1011 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3: 
+icls00502m1011.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1011.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1011.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1011.icls00502m1011.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1011.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1011.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1011.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1011.icls00502m1011.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1011.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1011.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+39	# : 1GK7FHB  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and static class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1003/icls00502m1003.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1003.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1003;
+import java.io.PrintStream;
+
+public class icls00502m1003 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1003.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1003.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1003.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1003.icls00502m1003.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1003.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1003.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1003.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1003.icls00502m1003.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1003.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1003.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+40	# : 1GK7FCN  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and public static class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1002/icls00502m1002.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1002.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1002;
+import java.io.PrintStream;
+
+public class icls00502m1002 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1002.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1002.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1002.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1002.icls00502m1002.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1002.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1002.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1002.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1002.icls00502m1002.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1002.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1002.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+41	# : 1GK7F8L  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - class from outer and protected static class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m1001/icls00502m1001.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m1001.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m1001;
+import java.io.PrintStream;
+
+public class icls00502m1001 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m1001.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1001.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1001.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1001.icls00502m1001.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m1001.java:14: javasoft.sqe.tests.lang.icls005.icls00502m1001.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m1001.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m1001.icls00502m1001.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m1001.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m1001.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+42	# : 1GK7F4S  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 -static class from outer and class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0113/icls00502m0113.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m0113.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0113;
+import java.io.PrintStream;
+
+public class icls00502m0113 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m0113().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3: 
+icls00502m0113.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0113.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0113.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0113.icls00502m0113.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0113.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0113.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0113.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0113.icls00502m0113.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m0113.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0113.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+43	# : 1GK7EZB  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0112/icls00502m0112.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m0112.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0112;
+import java.io.PrintStream;
+
+public class icls00502m0112 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m0112().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m0112.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0112.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0112.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0112.icls00502m0112.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0112.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0112.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0112.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0112.icls00502m0112.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m0112.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0112.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+44	# : 1GK7EVB  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0111/icls00502m0111.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m0111.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0111;
+import java.io.PrintStream;
+
+public class icls00502m0111 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m0111().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m0111.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0111.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0111.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0111.icls00502m0111.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0111.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0111.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0111.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0111.icls00502m0111.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m0111.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0111.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+45	# : 1GK7ERE  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and static class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0103/icls00502m0103.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m0103.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0103;
+import java.io.PrintStream;
+
+public class icls00502m0103 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m0103().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3: 
+icls00502m0103.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0103.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0103.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0103.icls00502m0103.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0103.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0103.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0103.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0103.icls00502m0103.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m0103.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0103.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+46	# : 1GK7EB9  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public static class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0102/icls00502m0102.html - POSITIVE TEST
+	Test case:
+[/* Ident: @(#)icls00502m0102.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0102;
+import java.io.PrintStream;
+
+public class icls00502m0102 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m0102().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3:
+icls00502m0102.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0102.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0102.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0102.icls00502m0102.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0102.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0102.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0102.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0102.icls00502m0102.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m0102.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0102.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+47	# : 1GK7DZV  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected static class from superclass in nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0101/icls00502m0101.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m0101.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0101;
+import java.io.PrintStream;
+
+public class icls00502m0101 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new icls00502m0101().new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected static class Z {int i = 6;}
+}
+]
+
+	javac 1.4: OK
+	javac 1.3: 
+icls00502m0101.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0101.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0101.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0101.icls00502m0101.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0101.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0101.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0101.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0101.icls00502m0101.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+
+	Eclipse compiler:
+----------
+1. ERROR in icls00502m0101.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0101.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+
+
+
+
+====================------------------------------------------------------------
+48	# : 1GK7DVJ  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0013/icls00502m0013.html - POSITIVE TEST
+Test case:
+[/* Ident: @(#)icls00502m0013.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0013;
+import java.io.PrintStream;
+
+public class icls00502m0013 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	class Z {int i = 6;}
+}
+]
+
+	javac 1.4 compiles it fine.
+	javac 1.3 fails:
+icls00502m0013.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0013.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0013.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0013.icls00502m0013.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0013.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0013.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0013.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0013.icls00502m0013.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+
+	Eclipse compiler fails:
+----------
+1. ERROR in icls00502m0013.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0013.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+49	# : 1GK7DBD  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0012/icls00502m0012.html - POSITIVE TEST
+Test case:
+[package javasoft.sqe.tests.lang.icls005.icls00502m0012;
+import java.io.PrintStream;
+
+public class icls00502m0012 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public class Z {int i = 6;}
+}
+]
+
+	javac 1.4 compiles this code fine.
+	Eclipse compiler fails with:
+----------
+1. ERROR in icls00502m0012.java (at line 11)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0012.java (at line 12)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+	javac 1.3 fails:
+icls00502m0012.java:11: javasoft.sqe.tests.lang.icls005.icls00502m0012.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0012.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0012.icls00502m0012.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0012.java:11: javasoft.sqe.tests.lang.icls005.icls00502m0012.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0012.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0012.icls00502m0012.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+50	# : 1GK7D7Q  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0011/icls00502m0011.html - POSITIVE TEST
+Test case:
+[package javasoft.sqe.tests.lang.icls005.icls00502m0011;
+import java.io.PrintStream;
+
+public class icls00502m0011 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected class Z {int i = 6;}
+}
+]
+
+	Eclipse compiler fails:
+----------
+1. ERROR in icls00502m0011.java (at line 11)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0011.java (at line 12)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+
+	javac 1.3 fails:
+icls00502m0011.java:11: javasoft.sqe.tests.lang.icls005.icls00502m0011.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0011.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0011.icls00502m0011.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0011.java:11: javasoft.sqe.tests.lang.icls005.icls00502m0011.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0011.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0011.icls00502m0011.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+51	# : 1GK7D2P  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and static class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0003/icls00502m0003.html - POSITIVE TEST
+
+Test case:
+ [package javasoft.sqe.tests.lang.icls005.icls00502m0003;
+import java.io.PrintStream;
+
+public class icls00502m0003 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	static class Z {int i = 6;}
+}
+]
+
+	javac 1.4 compiles this code fine.
+	javac 1.3 reports:
+icls00502m0003.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0003.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0003.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0003.icls00502m0003.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0003.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0003.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0003.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0003.icls00502m0003.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+
+	Eclipse compiler reports:
+----------
+1. ERROR in icls00502m0003.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0003.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+52	# : 1GK7CTV  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and public static class from superclass in top-level nested class. 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0002/icls00502m0002.html - POSITIVE TEST
+
+	Test case:
+[/* Ident: @(#)icls00502m0002.java generated from: @(#)icls00502m.jmpp 1.3 01/03/29 */
+/* Copyright 7/30/01 Sun Microsystems, Inc.  All Rights Reserved */
+
+package javasoft.sqe.tests.lang.icls005.icls00502m0002;
+import java.io.PrintStream;
+
+public class icls00502m0002 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	public static class Z {int i = 6;}
+}
+]
+
+	javac 1.4 compiles this code properly.
+	javac 1.3 and Eclipse compile fail.
+	javac 1.3 reports:
+icls00502m0002.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0002.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0002.Y and hides class in outer class
+ javasoft.sqe.tests.lang.icls005.icls00502m0002.icls00502m0002.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0002.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0002.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0002.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0002.icls00502m0002.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+2 errors
+
+	We report:
+----------
+1. ERROR in icls00502m0002.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0002.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+53	# : 1GK7BGP  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - static class from outer and protected static class from superclass in top-level nested class
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/ICLS/icls005/icls00502m0001/icls00502m0001.html - POSITIVE TEST
+Test case:
+[
+package javasoft.sqe.tests.lang.icls005.icls00502m0001;
+import java.io.PrintStream;
+
+public class icls00502m0001 {
+	public static void main(String[] argv) {
+		System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+	}
+
+	static class Z {int i  = 7;}
+	static class NC extends Y {
+		Z z = new Z();
+		int j = z.i;
+	}
+
+	public static int run(String argv[],PrintStream out) {
+		int k = new NC().j;
+		if ( k == 6 )
+			return 0/*STATUS_PASSED*/;
+		out.println("failed: "+k);
+		return 2/*STATUS_FAILED*/;
+	}
+}
+
+class Y {
+	protected static class Z {int i = 6;}
+}
+]
+	
+	We failed with:
+----------
+1. ERROR in icls00502m0001.java (at line 14)
+        Z z = new Z();
+        ^
+The field type Z is defined in an inherited type and an enclosing scope
+----------
+2. ERROR in icls00502m0001.java (at line 15)
+        int j = z.i;
+                ^^^
+z cannot be resolved
+----------
+NOTES:
+
+OT (17/09/2001 10:50:26 AM)
+	javac 1.3 fails this test as well.
+icls00502m0001.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0001.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0001.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0001.icls00502m0001.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                ^
+icls00502m0001.java:14: javasoft.sqe.tests.lang.icls005.icls00502m0001.Y.Z is inherited from javasoft.sqe.tests.lang.icls005.icls00502m0001.Y and hides class in outer class 
+javasoft.sqe.tests.lang.icls005.icls00502m0001.icls00502m0001.  An explicit 'this' qualifier must be used to select the desired instance.
+                Z z = new Z();
+                          ^
+
+
+====================------------------------------------------------------------
+54	# : 1GK7B5L  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - checked exception in variable initializer of anonymous class 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/EXCP/excp013/excp01306/excp01306.html - POSITIVE TEST
+
+	We failed to compile the following code:
+[import java.io.PrintStream;
+
+public class excp01306 {
+ 
+    public static void main( String args[] ) {
+        System.exit( run(args, System.out) + 95/*STATUS_TEMP*/ ); 
+    }
+    public static int run( String args[], PrintStream out ) {
+        boolean flag = false;
+
+        try {
+            int i = new Object() {
+                int inst_var = ini( 1, "ini" );
+                int ini(int par, String m) throws Exception { 
+                    if (par == 1) {
+                        throw new Exception(m);
+                    }
+                    return 2;
+                }
+            }.inst_var;
+        } catch (Exception e) {
+            flag = true;
+        } 
+        if (flag)
+            return 0 /*STATUS_PASSED*/;
+        return 2 /*STATUS_FAILED*/;
+    }
+}]
+	
+----------
+1. ERROR in excp01306.java (at line 13)
+        int inst_var = ini( 1, "ini" );
+                       ^^^^^^^^^^^^^^^
+Exception java.lang.Exception thrown within an initializer must be handled locally
+----------
+
+	javac 1.4 compiles this code correctly.
+
+NOTES:
+
+OT (17/09/2001 10:48:39 AM)
+	javac 1.3 fails as well.
+excp01306.java:13: unreported exception java.lang.Exception; must be caught or declared to be thrown
+                int inst_var = ini( 1, "ini" );
+                               ^
+1 error
+
+OT (17/09/2001 6:15:57 PM)
+	I found this on the Bug parage web page:
+http://developer.java.sun.com/developer/bugParade/bugs/4030341.html
+									Bug Id 
+                                            4030341
+                                     Votes 
+                                            0
+                                  Synopsis 
+                                            Checked exceptions in anonymous instance initializers not processed correctly.
+                                  Category 
+                                            java:compiler
+                         Reported Against 
+                                            1.1
+                             Release Fixed 
+                                             
+                                     State 
+                                            Closed, duplicate of 4054256
+                             Related Bugs 
+                                            4054256
+                              Submit Date 
+                                            Feb 05, 1997 
+                                Description 
+                                            The inner classes white paper says that a checked exception may be raised
+                                            in an instance initializer if all constructors declare a throw for it,
+                                            and that the automatically generated constructor for an anonymous class
+                                            automatically throws the correct exceptions, so that any exception can be
+                                            raised in the body of an anonymous class.
+                                            <p>
+                                            The compiler produces several errors if this is attempted.  Here is an example:
+                                            <pre>
+                                                    // this is JCK 1.1 test innr088
+                                                    class InitExceptionBug0 {
+                                                        void f() throws InstantiationException {
+                                                            new Object() {
+                                                                {
+                                                                    throw new InstantiationException("test");
+                                                                }
+                                                            };
+                                                        }
+                                                    }
+                                            </pre>
+
+
+
+
+                                            The inner classes white paper says that a checked exception may be raised
+                                            in an instance initializer if all constructors declare a throw for it,
+                                            and that the automatically generated constructor for an anonymous class
+                                            automatically throws the correct exceptions, so that any exception can be
+                                            raised in the body of an anonymous class.
+
+                                            The compiler produces several errors if this is attempted.  Here is an example:
+                                                    // this is JCK 1.1 test innr088
+                                                    class InitExceptionBug0 {
+                                                        void f() throws InstantiationException {
+                                                            new Object() {
+                                                                {
+                                                                    throw new InstantiationException("test");
+                                                                }
+                                                            };
+                                                        }
+                                                    }
+
+                                            The compiler output looks like this:
+
+                                            InitExceptionBug0.java:4: Statement not reached.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:4: Constructor invocation must be the first thing in a
+                                            method.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:6: Exception java.lang.InstantiationException can't be
+                                            thrown in initializer.
+                                                            throw new InstantiationException("test");
+                                                            ^
+                                            3 errors
+
+
+
+                              Workaround 
+                                            Don't throw exceptions from instance initializers.  This makes certain
+                                            applications of anonymous classes as "do blocks" extremely awkward.
+
+
+                                Evaluation 
+                                            (Couldn't have said it better myself. :-)
+                                            ---
+                                            See also 4054256.
+                                            xxxxx@xxxxx 1997-05-29
+
+
+Bug Id 
+                                            4054256
+                                     Votes 
+                                            0
+                                  Synopsis 
+                                            instance initializers should be able to throw exceptions
+                                  Category 
+                                            java:compiler
+                         Reported Against 
+                                            1.1.1, 1.2alpha
+                             Release Fixed 
+                                            merlin, merlin-beta
+                                     State 
+                                            Closed, fixed
+                             Related Bugs 
+                                            4030341, 4052099, 4210130
+                              Submit Date 
+                                            May 23, 1997 
+                                Description 
+
+
+
+
+                                            An instance initializer is allowed to throw a checked
+                                            exception if that exception type is declared in the throws list of every
+                                            constructor.  Thus the following code is legal:
+
+                                            class B
+                                            {
+                                                    class C
+                                                    {
+                                                            C () throws Throwable
+                                                            {
+                                                            }
+
+                                                            {
+                                                            int j = 5;
+                                                            if (j == 6)
+                                                            throw new Throwable(); // thrown by constructor
+                                                            }
+                                                    }
+                                            }
+
+                                            However javac rejects this.
+
+                                            Also note that initializers in anonymous classes may throw ANY checked
+                                            exception type.
+
+
+                                            Copied from 4030341, closed as duplicate, by xxxxx@xxxxx 1998-01-27:
+
+                                            The inner classes white paper says that a checked exception may be raised
+                                            in an instance initializer if all constructors declare a throw for it,
+                                            and that the automatically generated constructor for an anonymous class
+                                            automatically throws the correct exceptions, so that any exception can be
+                                            raised in the body of an anonymous class.
+
+                                            The compiler produces several errors if this is attempted.  Here is an example:
+                                                    // this is JCK 1.1 test innr088
+                                                    class InitExceptionBug0 {
+                                                        void f() throws InstantiationException {
+                                                            new Object() {
+                                                                {
+                                                                    throw new InstantiationException("test");
+                                                                }
+                                                            };
+                                                        }
+                                                    }
+
+                                            The compiler output looks like this:
+
+                                            InitExceptionBug0.java:4: Statement not reached.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:4: Constructor invocation must be the first thing in a
+                                            method.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:6: Exception java.lang.InstantiationException can't be
+                                            thrown in initializer.
+                                                            throw new InstantiationException("test");
+                                                            ^
+                                            3 errors
+
+
+
+
+
+
+                              Workaround 
+
+
+
+
+                                            No.
+
+
+                                Evaluation 
+                                            Verified behavior under 1.2alpha.
+                                            Roly's analysis sounds right.  See also 4030341.
+
+                                            xxxxx@xxxxx 1997-05-29
+
+                                            See also 4102541, which I suspect has the same underlying cause.
+
+                                            xxxxx@xxxxx 1998-01-27
+
+
+                         Your Comments &
+                             Work-arounds
+
+                                                Include a link with my name & email    
+
+                                            FRI JUL 14 04:49 P.M. 2000
+                                            jryingst
+
+                                            This bug seems to still be present in SDK 1.2.2 and 1.3.0 
+                                            as well.  I don't know when the private release which 
+                                            allegedly fixes this will become public, but I'm wondering 
+                                            if it hasn't just been forgotten?
+
+	See also http://java.sun.com/products/jdk/1.1/knownbugs/compiler.html.
+4030341
+          The inner classes white paper says that a checked exception may be raised in an instance initializer if all constructors declare a throw for it, and that the automatically
+          generated constructor for an anonymous class automatically throws the correct exceptions, so that any exception can be raised in the body of an anonymous class. 
+
+          The compiler produces several errors if this is attempted. Here is an example: 
+
+                  // this is JCK 1.1 test innr088
+                  class InitExceptionBug0 {
+                      void f() throws InstantiationException {
+                          new Object() {
+                              {
+                                  throw new InstantiationException("test");
+                              }
+                          };
+                      }
+                  }
+
+
+====================------------------------------------------------------------
+55	# : 1GK2BLM  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+POSITIVE TESTS
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg034/dasg03401/dasg03401.html: dasg03401 - definitely assigned value after the boolean operator ? : when true 
+    http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg035/dasg03501/dasg03501.html: dasg03501 - definitely assigned value after the boolean operator ? : when false 
+
+Test cases:
+[public class dasg03401 {
+    static boolean t = true;
+    static void errorAlert() {
+    }
+	
+    public void foo() {
+		boolean b1, b2;
+		boolean r = false;
+		boolean f = false;
+		boolean t = true;
+
+		if ((t && (b1 = t)) ? t : t && (b1 = f))
+			r = b1; 
+		if ((t || (b2 = f)) ? t && (b2 = t) : f)
+			r = b2; 
+    }
+}]
+[public class dasg03501 {
+    static boolean t = true;
+    static void errorAlert() {
+    }
+	
+    public void foo() {
+		boolean b1, b2, b3, b4;
+		boolean r = false;
+		boolean f = false;
+		boolean t = true;
+
+		if ((t && (b1 = t)) ? f : t || (b1 = f));
+		else
+			r = b1; 
+		if ((t || (b2 = f)) ? f || (b2 = f) : t);
+		else
+			r = b2; 
+	}
+}]
+NOTES:
+OT (14/09/2001 5:39:27 PM)
+	We failed with:
+----------
+1. ERROR in dasg03401.java (at line 13)
+        r = b1;
+            ^^
+The local variable b1 may not have been initialized
+----------
+2. ERROR in dasg03401.java (at line 15)
+        r = b2;
+            ^^
+The local variable b2 may not have been initialized
+----------
+
+----------
+1. ERROR in dasg03501.java (at line 14)
+        r = b1;
+            ^^
+The local variable b1 may not have been initialized
+----------
+2. ERROR in dasg03501.java (at line 17)
+        r = b2;
+            ^^
+The local variable b2 may not have been initialized
+----------
+
+}
+	
+	javac 1.3 fails the first case with:
+dasg03401.java:13: variable b1 might not have been initialized
+                        r = b1;
+                            ^
+dasg03401.java:15: variable b2 might not have been initialized
+                        r = b2;
+                            ^
+2 errors
+
+	javac 1.3 fails the second case with:
+dasg03501.java:14: variable b1 might not have been initialized
+                        r = b1;
+                            ^
+dasg03501.java:17: variable b2 might not have been initialized
+                        r = b2;
+                            ^
+2 errors
+
+
+====================------------------------------------------------------------
+56	# : 1GK2B6D  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value before the second operand of the boolean operator &&
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg009/dasg00903/dasg00903.html - POSITIVE TEST
+	Test case:
+[public class dasg00903 {
+    static boolean t = true;
+    static void errorAlert(String msg) {
+    }
+	
+    public void foo() {
+	    int i3;                                                     // case #3
+	    final int i7;                                               // case #7
+
+	    if ((t && false) && (i7 == 0))                              // case #7
+		errorAlert("case #7 error");
+    }
+}]
+
+NOTES:
+
+OT (14/09/2001 5:32:58 PM)
+	We reject it with:
+1. ERROR in dasg00903.java (at line 10)
+        if ((t && false) && (i7 == 0))                              // case #7
+                             ^^
+The local variable i7 may not have been initialized
+----------
+	javac 1.4 accepts this code. javac 1.3 accepts this code as well.
+
+
+====================------------------------------------------------------------
+57	# : 1GK2AWS  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - illegal method declaration for interface
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/INTF/intf046/intf04601/intf04601.html - NEGATIVE
+
+Test case:
+[interface intf04601i {
+    int equals(Object obj);
+}]
+NOTES:
+OT (14/09/2001 5:23:29 PM)
+	Java rejects it with this error:
+
+intf04601i.java:2: equals(java.lang.Object) in intf04601i cannot override equals(java.lang.Object) in java.lang.Object; attempting to use incompatible return type
+found   : int
+required: boolean
+    int equals(Object obj);
+        ^
+1 error
+
+OT(14/09/2001 5:24:23 PM)
+	I think this is related to 1GFVU2V: ITPJCORE:ALL - JDOM - IDomNode redefines clone() with different signature
+	javac 1.3 fails as well.
+
+
+====================------------------------------------------------------------
+58	# : 1GK2AOF  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+    http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg159/dasg15901m3/dasg15901m3.html: dasg15901m3 - assigned variable before finally block after return statement 
+    http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg159/dasg15901m5/dasg15901m5.html: dasg15901m5 - assigned variable before finally block after break statement 
+    http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg159/dasg15901m6/dasg15901m6.html: dasg15901m6 - assigned variable before finally block after continue statement 
+Test cases: 
+[public class dasg15901m3 {
+	public void foo() {
+		int c = 0;
+		int a = 0;
+		final int a1;
+
+		do {
+		M:	try {
+				if (a == 1) {
+					a1 = 2;
+					return;
+				}
+				if (a == 2) {
+					throw new Exception();
+				}
+				if (a == 3) {
+					break M;
+				}
+				if (a == 4) {
+					continue;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} catch (Throwable e) {
+				e.printStackTrace();
+			} finally {
+				c = (a1=7) + 1;
+			};
+		} while ( false );
+	}
+}
+]
+[public class dasg15901m5 {
+	public void foo() {
+		int c = 0;
+		int a = 0;
+		final int a1;
+
+		do {
+		M:	try {
+				if (a == 1) {
+					return;
+				}
+				if (a == 2) {
+					throw new Exception();
+				}
+				if (a == 3) {
+					a1 = 4;
+					break M;
+				}
+				if (a == 4) {
+					continue;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} catch (Throwable e) {
+				e.printStackTrace();
+			} finally {
+				c = (a1=7) + 1;
+			};
+		} while ( false );
+	}
+}
+]
+[public class dasg15901m6 {
+	public void foo() {
+		int c = 0;
+		int a = 0;
+		final int a1;
+
+		do {
+		M:	try {
+				if (a == 1) {
+					return;
+				}
+				if (a == 2) {
+					throw new Exception();
+				}
+				if (a == 3) {
+					break M;
+				}
+				if (a == 4) {
+					a1 = 5;
+					continue;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} catch (Throwable e) {
+				e.printStackTrace();
+			} finally {
+				c = (a1=7) + 1;
+			};
+		} while ( false );
+	}
+}
+]
+
+NOTES:
+
+OT(14/09/2001 5:20:12 PM)
+	All these tests are negative tests. We compile all of them. Javac 1.4 rejects all of them. 
+	javac 1.3 fails as well.
+
+
+====================------------------------------------------------------------
+59	# : 1GK2AHX  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg156/dasg15601m3/dasg15601m3.html: dasg15601m3 - assigned variable before catch block after return statement 
+    http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg156/dasg15601m5/dasg15601m5.html: dasg15601m5 - assigned variable before catch block after break statement 
+    http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg156/dasg15601m6/dasg15601m6.html: dasg15601m6 - assigned variable before catch block after continue statement
+
+	Test case:
+[public class dasg15601m3 {
+	public void foo() {
+		int c = 0;
+		int a = 0;
+		final int a1;
+
+		do {
+		M:	try {
+				if (a == 1) {
+					a1 = 2;
+					return;
+				}
+				if (a == 2) {
+					throw new Exception();
+				}
+				if (a == 3) {
+					break M;
+				}
+				if (a == 4) {
+					continue;
+				}
+			} catch (Exception e) {
+				c = (a1=6) + 1;
+			};
+		} while ( false );
+	}
+}
+]
+
+NOTES:
+OT (14/09/2001 5:13:39 PM)
+	javac 1.4 reports:
+dasg15601m3.java:23: variable a1 might already have been assigned to
+                                c = (a1=6) + 1;
+                                     ^
+OT (14/09/2001 5:15:08 PM)
+	Other test cases corresponding to other PRs:
+[public class dasg15601m5 {
+	public void foo() {
+		int c = 0;
+		int a = 0;
+		final int a1;
+
+		do {
+		M:	try {
+				if (a == 1) {
+					return;
+				}
+				if (a == 2) {
+					throw new Exception();
+				}
+				if (a == 3) {
+					a1 = 4;
+					break M;
+				}
+				if (a == 4) {
+					continue;
+				}
+			} catch (Exception e) {
+				c = (a1=6) + 1;
+			};
+		} while ( false );
+
+	}
+}
+]
+[public class dasg15601m6 {
+	public void foo() {
+		int c = 0;
+		int a = 0;
+		final int a1;
+
+		do {
+		M:	try {
+				if (a == 1) {
+					return;
+				}
+				if (a == 2) {
+					throw new Exception();
+				}
+				if (a == 3) {
+					break M;
+				}
+				if (a == 4) {
+					a1 = 5;
+					continue;
+				}
+			} catch (Exception e) {
+				c = (a1=6) + 1;
+			};
+		} while ( false );
+	}
+}
+]
+
+	javac 1.3 fails as well.
+
+
+====================------------------------------------------------------------
+60	# : 1GK2A45  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true 
+
+PRODUCT VERSION:
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg129/dasg12903/dasg12903.html - NEGATIVE TEST
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg130/dasg13003/dasg13003.html
+
+	The case is very similar to 1GK29Q8.
+[public class dasg12903 {
+    public void foo() {
+        final int a2;
+        boolean b;
+
+        b = true || (a2=6)<7;
+        a2 = 7;
+    }
+}]
+
+	(14/09/2001 5:06:56 PM)
+
+NOTES:
+OT (14/09/2001 5:07:01 PM)
+	javac 1.4 returns:
+dasg12903.java:7: variable a2 might already have been assigned to
+        a2 = 7;
+
+OT (14/09/2001 5:08:08 PM)
+	Other test case: (test dasg13003).
+[public class dasg12903 {
+    public void foo() {
+        final int a2;
+        boolean b;
+
+        b = false && (a2=6)>7;
+        a2 = 7;
+    }
+}
+]
+	javac 1.3 fails as well.
+dasg12903.java:7: variable a2 might already have been assigned to
+        a2 = 7;
+        ^
+1 error
+
+
+====================------------------------------------------------------------
+61	# : 1GK29Q8  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
+
+PRODUCT VERSION:
+
+
+DESCRIPTION:
+	http://www.ott.oti.com/uvm/OTIIBM/numbat/Testing/JCK-14/tests/lang/DASG/dasg002/dasg00209/dasg00209.html NEGATIVE TESTS
+	The test case is quite simple:
+
+[public class dasg00209 {
+    final boolean b;
+    {
+	if (false && (b = false)) ;
+    }
+    dasg00209() {
+	if (true && (b = false)) ;
+    }
+}
+]
+
+NOTES:
+
+OT (14/09/2001 4:59:11 PM)
+	I guess we consider that in the first statement 	if (false && (b = false)) ; b was not initialized. Then the second statement is valid.
+	javac 1.4 reports:
+dasg00209.java:7: variable b might already have been assigned to
+        if (true && (b = false)) ;
+                     ^
+	javac 1.3 fails with the same error, but the error message is a little bit wrong:
+dasg00209.java:1: variable b might not have been initialized
+public class dasg00209 {
+       ^
+1 error
+
+
+====================------------------------------------------------------------
+62	# : 1GHW0G1  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Philippe Mulet
+OWNER    : Philippe Mulet				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Philippe Mulet
+
+TITLE    : ITPJCORE:WINNT - JCK 1.4  - illegal simple name imports
+
+PRODUCT VERSION:
+0.9
+
+DESCRIPTION:
+
+When moving to 1.4 (http://java.sun.com/j2se/1.4/compatibility.html)
+
+The compiler now rejects import statements that import a type from the unnamed namespace. Previous versions of the compiler would accept such import
+          declarations, even though they were arguably not allowed by the language (because the type name appearing in the import clause is not in scope). The
+          specification is being clarified to state clearly that you cannot have a simple name in an import statement, nor can you import from the unnamed namespace. 
+
+          To summarize, the syntax 
+
+               import SimpleName;
+
+          is no longer legal. Nor is the syntax 
+
+               import ClassInUnnamedNamespace.Nested;
+
+          which would import a nested class from the unnamed namespace. To fix such problems in your code, move all of the classes from the unnamed namespace into a
+          named namespace. 
+
+NOTES:
+
+OT (9/14/2001 1:54:59 PM)
+	From http://developer.java.sun.com/developer/bugParade/bugs/4361575.html
+
+                                                       The compiler now correctly scopes import declarations.
+
+                                                       Among other effects of this change, the compiler now rejects import
+                                                       statements that import a type from the unnamed namespace. The compiler
+                                                       used to accept such import declarations before, but they were arguably
+                                                       not allowed by the language (because the type name appearing in the
+                                                       import clause is not in scope). Rather than try to rationalize the
+                                                       specification with the compiler's behavior, the compiler has been
+                                                       brought into line with the specification, and the specification is
+                                                       being clarified to outright say that you can't have a simple name in an import
+                                                       statement, nor can you import from the unnamed namespace. There were
+                                                       ample warnings in the language specification warning against importing
+                                                       names from the unnamed namespace into a named namespace. Those warnings are
+                                                       no longer necessary, as it is outright illegal.
+
+                                                       This is likely to break lots of code, but virtually all of it is
+                                                       example code rather than production code.
+
+                                                       To summarize, the syntax
+
+                                                               import SimpleName;
+
+                                                       is no longer legal. Nor is the syntax
+
+                                                               import ClassInUnnamedNamespace.Nested;
+
+                                                       which would import a nested class from the unnamed namespace.
+
+                                                       To fix such problems in your code, move all of the classes from the
+                                                       unnamed namespace into a named namespace.
+
+                                                       xxxxx@xxxxx 2001-02-05
+
+
+
+
+                                                       --- Top.java ---
+
+                                                       public class Top {
+                                                         public class Inner {}
+                                                       }
+
+                                                       --- Bottom1.java ---
+
+                                                       import Top;
+
+                                                       public class Bottom1 {}
+
+                                                       --- Bottom2.java ---
+
+                                                       import Top.*;
+
+                                                       public class Bottom2 { }
+
+                                                       --- Bottom3.java ---
+
+                                                       import Top.Inner;
+
+                                                       public class Bottom3 { }
+
+                                                       ---------------------
+
+                                                       % javac Bottom.*
+
+                                                       Bottom2.java:1: package Top does not exist
+                                                       import Top.*;
+                                                       ^
+                                                       Bottom3.java:1: cannot resolve symbol
+                                                       symbol  : class Inner
+                                                       location: package Top
+                                                       import Top.Inner;
+                                                                  ^
+                                                       2 errors
+
+                                                       -----------------------
+
+                                                       According to JLS2e 6.3, the scope of the declaration of class Top
+                                                       is all type declarations in the package to which it belongs, in this
+                                                       case, an unnamed package including Bottom1, Bottom2, and Bottom3 as
+                                                       well.
+
+                                                       As a result, Bottom1.java is in error, as the declaration
+                                                       'import Top;' cannot be resolved.  The compiler fails to report
+                                                       this error.
+
+                                                       In Bottom2.java, an analogous error is detected properly.
+
+                                                       In Bottom3.java, it appears that the compiler correctly assumes
+                                                       that the qualified name must begin with a package name, as a type name
+                                                       cannot be resolved as the first component.  However, the diagnostic
+                                                       given is quite confusing, as it points to the claimed nonexistence of
+                                                       a package member when in fact it is the package itself that is missing.
+
+                                                       Note that 1.3.0 reports no errors for any of these examples.  The problem
+                                                       here is that recent fixes in the Merlin development builds aimed at addressing
+                                                       conformance issues with import declarations are incomplete and/or erroneous.
+
+                                                       xxxxx@xxxxx 2000-08-10
+
+OT (14/09/2001 5:26:26 PM)
+	JCKs tests related to this problem:
+		lang/NAME/name072/name07201/name07201.html: name07201 - importing of unnamed package class 
+	    lang/NAME/name072/name07202/name07202.html: name07202 - mporting of unnamed package interface 
+	    lang/PKGS/pkgs010/pkgs01002/pkgs01002.html: pkgs01002 - unnamed and named package compilation units 
+
+
+====================------------------------------------------------------------
+63	# : 1GHW0DF  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Philippe Mulet
+OWNER    : Philippe Mulet				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Philippe Mulet
+
+TITLE    : ITPJCORE:WINNT - JCK 1.4 - target is now 1.2
+
+PRODUCT VERSION:
+0.9
+
+DESCRIPTION:
+
+When moving to 1.4 (http://java.sun.com/j2se/1.4/compatibility.html)
+
+9.As of J2SDK 1.4.0, the javac bytecode compiler uses "-target 1.2" by default as opposed to the previous "-target 1.1" behavior. See the reference page for the javac
+     compiler for descriptions of these behaviors. One of the changes involved in targeting 1.2 is that the compiler no longer generates and inserts method declarations into
+     class files when the class inherits unimplemented methods from interfaces. These inserted methods, like all other non-private methods, are included in the default
+     serialVersionUID computation. As a result, if you define an abstract serializable class which directly implements an interface but does not implement one or more of its
+     methods, then its default serialVersionUID value will vary depending on whether it is compiled with the J2SDK 1.4 version of javac or a previous javac. 
+
+     For background information on these methods inserted by earlier versions of javac, see bug 4043008. 
+
+NOTES:
+
+
+
+
+====================------------------------------------------------------------
+64	# : 1GHW0AZ  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Philippe Mulet
+OWNER    : Philippe Mulet				
+EDITOR   : Olivier Thomann  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Philippe Mulet
+
+TITLE    : ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
+
+PRODUCT VERSION:
+0.9
+
+DESCRIPTION:
+
+When moving to 1.4, need to tune the flow analysis for empty statements (http://java.sun.com/j2se/1.4/compatibility.html)
+
+8.The Javac bytecode compiler in J2SE 1.4.0 is more strict than in previous versions in enforcing compliance with the Java Language Specification. The new compiler
+     may not compile existing code that does not strictly conform to the Java Language Specification, even though that code may have compiled with earlier versions of the
+     compiler. 
+
+     The following are some examples of situations in which the J2SE 1.4.0 compiler is stricter. 
+          The compiler now detects unreachable empty statements as required by the language specification. Here are two examples of fairly common cases that the
+          compiler now detects and rejects.: 
+
+               return 0;/* exit success */;
+
+          and 
+
+               {
+                   return f();
+               } catch (Whatever e) {
+                   throw new Whatever2();
+               };
+
+          Note the extra semicolon in both cases, which the compiler now correctly regards as unreachable empty statements. In addition, some automatically generated
+          source code may generate unreachable empty statements. 
+
+NOTES:
+
+PM (8/3/2001 4:40:23 PM)
+	Will need to add empty statement parse nodes.
+
+
+====================------------------------------------------------------------
+65	# : 1FL4T1Q  COMPONENT  : ITPJCORE - Java IDE Core
+CREATOR  : Olivier Thomann
+OWNER    : Olivier Thomann				
+EDITOR   : Philippe Mulet  
+SEVERITY : 0 - Information Exchange
+CUSTOMER : INTERNAL    
+CONTACT  : Olivier Thomann
+
+TITLE    : LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump
+
+PRODUCT VERSION:
+	LF320.1
+
+DESCRIPTION:
+	Thes test case is:
+[import java.io.PrintStream;
+
+public class X {
+    public static int i,j;
+    public static long l;
+
+    public static void main(String argv[]) {
+	System.exit(run(argv, System.out) + 95/*STATUS_TEMP*/);
+    }
+    
+    public static int run(String argv[], PrintStream out) {
+	byte b = 0;
+	while ( b < 4 ) {
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+	    i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;i*=l+j;
+    	    b++;
+	}
+	if (b == 4 && i == 0) return 0/*STATUS_PASSED*/;
+	return 2/*STATUS_FAILED*/;
+    }
+}
+]
+
+	We should generate some goto_w instead of goto bytecodes. 
+	This was a problem of javac 1.2.2. It is fixed in javac 1.3.
+	Jikes 1.06 has exactly the same bug.
+	This is a serious problem, because the method is not bigger than 64K.
+	(11/5/99 4:13:10 PM)
+
+NOTES:
+
+	OT (11/5/99 4:13:30 PM)
+		It is related with the problem 1FJHGVF: LFCOM:WIN98 - 64kb method should be a configurable problem.
+
+	Philippe (11/5/99 4:20:27 PM)
+		No action for now. But we will need to fix it at some point.
+
+	OT (1/18/00 2:41:08 PM)
+		This could be manage with the following strategy:
+		1) Start the code generation without using goto_w
+		2) If case of problem (a goto should be a goto_w), restart the whole code generation replacing all gotos with goto_w.
+		3) Then if we want to optimize this code we could make some bytecode walking to change a goto_w to be a goto if it is possible. Multiple passes can be done 
+		as long as there are changes in the bytecodes.
+		4) The idea is that changing a goto_w to a goto can only reduce the size of the bytecodes. I cannot add bytecodes.
+
+	OT (4/18/00 11:43:21 AM)
+		This test is now excluded, but we still have a bug.
+
+	PM (7/25/2001 1:49:20 PM)
+		Still we should add support.
+
+	OT (27/08/2001 11:52:41 AM)
+		The problem is not only to convert goto to goto_w, but we should also convert the if_..... bytecodes. These bytecodes have no wide equivalent. So we need to 
+		reverse the condition and generate three gotos and one of them will be a goto_w. Right now the code stream doesn't have the support for these operations.
+
+	OT (14/09/2001 1:53:56 PM)
+		In wide mode instead of trying to reverse the condition we can try to implement a macroexpansion of the same condition with extra-gotos to jump over the block. This 
+		simply requires the code stream to have a "wide" mode. If this is necessary, we restart the code gen at the beginning of the guilty method. Throwing an exception should
+		be good enough to do that. This is the way we use to generate problem method.
+
+	PM (9/14/2001 8:53:24 PM)
+		ifne <wide_target> would become:
+				ifne <11>
+				gotow <l2>
+		l1		gotow <wide_target>
+		l2     ...
+
+		Note that we could also explore reversing condition (by switching trueLabel with falseLabel, but this is probably not worth the effort).
+		
+

@@ -68,6 +68,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		astPtr--;
 		astLengthPtr--;
+
+		// mark fields and initializer with local type mark if needed
+		markFieldsWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected void consumeClassDeclaration() {
@@ -88,6 +91,7 @@ protected void consumeClassHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -165,6 +169,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -274,7 +279,8 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 		for (int i = 0; i < varCount; i++){
 			finallyBlock.statements[i] = new Assignment(
 				new SingleNameReference(CharOperation.concat(LOCAL_VAR_PREFIX, this.evaluationContext.localVariableNames[i]), position),
-				new SingleNameReference(this.evaluationContext.localVariableNames[i], position));
+				new SingleNameReference(this.evaluationContext.localVariableNames[i], position),
+				(int) position);
 		}
 		tryStatement.finallyBlock = finallyBlock;
 
@@ -562,7 +568,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 					identifierStack[identifierPtr], 
 					identifierPositionStack[identifierPtr--],
 					this.evaluationContext); 
-			ref.bits &= ~NameReference.RestrictiveFlagMASK;
+			ref.bits &= ~AstNode.RestrictiveFlagMASK;
 			ref.bits |= LOCAL | FIELD;
 			return ref;
 		}
@@ -581,7 +587,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 				(int) identifierPositionStack[identifierPtr + length],
 				evaluationContext); // sourceEnd
-		ref.bits &= ~NameReference.RestrictiveFlagMASK;
+		ref.bits &= ~AstNode.RestrictiveFlagMASK;
 		ref.bits |= LOCAL | FIELD;
 		return ref;
 	} else {

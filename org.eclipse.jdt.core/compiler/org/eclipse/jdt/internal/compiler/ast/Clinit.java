@@ -82,6 +82,45 @@ public class Clinit extends AbstractMethodDeclaration {
 		}
 		try {
 			clinitOffset = classFile.contentsOffset;
+			this.generateCode(classScope, classFile, clinitOffset);
+		} catch (AbortMethod e) {
+			// should never occur
+			// the clinit referenceContext is the type declaration
+			// All clinit problems will be reported against the type: AbortType instead of AbortMethod
+			// reset the contentsOffset to the value before generating the clinit code
+			// decrement the number of method info as well.
+			// This is done in the addProblemMethod and addProblemConstructor for other
+			// cases.
+			if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+				// a branch target required a goto_w, restart code gen in wide mode.
+				try {
+					if (statements != null) {
+						for (int i = 0, max = statements.length; i < max; i++)
+							statements[i].resetStateForCodeGeneration();
+					}
+					classFile.contentsOffset = clinitOffset;
+					classFile.methodCount--;
+					classFile.codeStream.wideMode = true; // request wide mode 
+					this.generateCode(classScope, classFile, clinitOffset); // restart method generation
+				} catch(AbortMethod e2) {
+					classFile.contentsOffset = clinitOffset;
+					classFile.methodCount--;
+				}
+			} else {
+				// produce a problem method accounting for this fatal error
+				classFile.contentsOffset = clinitOffset;
+				classFile.methodCount--;
+			}
+		}
+	}
+	
+	/**
+	 * Bytecode generation for a <clinit> method
+	 *
+	 * @param classScope org.eclipse.jdt.internal.compiler.lookup.ClassScope
+	 * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
+	 */
+	private void generateCode(ClassScope classScope, ClassFile classFile, int clinitOffset) {
 			ConstantPool constantPool = classFile.constantPool;
 			int constantPoolOffset = constantPool.currentOffset;
 			int constantPoolIndex = constantPool.currentIndex;
@@ -145,18 +184,8 @@ public class Clinit extends AbstractMethodDeclaration {
 				codeStream.recordPositionsFrom(0, declaringType);
 				classFile.completeCodeAttributeForClinit(codeAttributeOffset);
 			}
-		} catch (AbortMethod e) {
-			// should never occur
-			// the clinit referenceContext is the type declaration
-			// All clinit problems will be reported against the type: AbortType instead of AbortMethod
-			// reset the contentsOffset to the value before generating the clinit code
-			// decrement the number of method info as well.
-			// This is done in the addProblemMethod and addProblemConstructor for other
-			// cases.
-			classFile.contentsOffset = clinitOffset;
-			classFile.methodCount--;
-		}
 	}
+
 
 	public boolean isClinit() {
 		return true;

@@ -10,7 +10,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class Argument extends LocalDeclaration {
 public Argument(char[] name , long posNom , TypeReference tr , int modifiers){
-	super(null,name, (int) (posNom >>> 32), (int) (posNom & 0xFFFFFFFFL));
+	super(null,name, (int) (posNom >>> 32), (int) posNom);
 	this.modifiers = modifiers;
 	type = tr;
 }

@@ -4,7 +4,7 @@ package org.eclipse.jdt.internal.codeassist;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.util.Locale;
+import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -58,7 +58,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
  *		set of options used to configure the code assist engine.
  */
 
-public SelectionEngine(ISearchableNameEnvironment nameEnvironment, ISelectionRequestor requestor, ConfigurableOption[] settings) {
+public SelectionEngine(ISearchableNameEnvironment nameEnvironment, ISelectionRequestor requestor, Map settings) {
 	this.requestor = requestor;
 	this.nameEnvironment = nameEnvironment;
 

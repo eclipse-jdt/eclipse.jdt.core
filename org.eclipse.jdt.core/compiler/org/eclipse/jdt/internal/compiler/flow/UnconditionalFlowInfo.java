@@ -124,7 +124,7 @@ public boolean complainIfUnreachable(Statement statement, BlockScope scope) {
 
 	boolean isDeadEnd;
 	if ((isDeadEnd = (this == DeadEnd)) || isFakeReachable) {
-		statement.bits &= ~Statement.IsReachableMASK;
+		statement.bits &= ~AstNode.IsReachableMASK;
 		/* EXTRA REFERENCE RECORDING
 		statement.recordUnreachableReferences(scope.referenceType()); // scopes cannot have an enclosingMethod slot since there are class scopes
 		*/
@@ -233,7 +233,7 @@ final private boolean isPotentiallyAssigned(int position) {
  */
 final public boolean isPotentiallyAssigned(FieldBinding field) {
 	// We do not want to complain in unreachable code
-	if (this == DeadEnd)
+	if ((this == DeadEnd) || (this.isFakeReachable))
 		return false;
 	return isPotentiallyAssigned(field.id); 
 }

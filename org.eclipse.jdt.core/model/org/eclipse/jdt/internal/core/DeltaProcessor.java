@@ -181,9 +181,11 @@ public static void checkProjectPropertyFileUpdate(IResourceDelta delta, IJavaEle
 								project.saveClasspath();
 							} catch(JavaModelException e){
 							}
-							break;						// might consider to regenerate the file (accidental deletion?)
+							break;
+						case IResourceDelta.CHANGED :	
+							if ((delta.getFlags() & IResourceDelta.CONTENT) == 0) break; // only consider content change
 						case IResourceDelta.ADDED :	
-						case IResourceDelta.CHANGED :	// check if any actual difference
+							// check if any actual difference
 							IPath oldOutputLocation = null;
 							try {
 								oldOutputLocation = project.getOutputLocation();
@@ -269,7 +271,7 @@ protected void closeAffectedElements(IResourceDelta delta) {
 					case IResourceDelta.ADDED:
 						break;
 					case IResourceDelta.CHANGED:
-						if ((flags & IResourceDelta.CONTENT) > 1) {
+						if ((flags & IResourceDelta.CONTENT) != 0) {
 							try {
 								element.close();
 							} catch(JavaModelException e){
@@ -767,11 +769,11 @@ protected void traverseDelta(IResourceDelta delta, Openable parentElement) {
 					elementRemoved(element, delta);
 					break;
 				case IResourceDelta.CHANGED:
-					if ((flags & IResourceDelta.CONTENT) > 1) {
+					if ((flags & IResourceDelta.CONTENT) != 0) {
 						contentChanged(element, delta);
 						break;
 					}
-					if ((flags & IResourceDelta.OPEN) > 1) {
+					if ((flags & IResourceDelta.OPEN) != 0) {
 						res = delta.getResource();
 						if (isOpen(res)) {
 							elementOpened(element, delta);
@@ -867,8 +869,10 @@ protected void updateIndex(Openable element, IResourceDelta delta){
 			IFile file = (IFile)delta.getResource();
 			String extension;
 			switch (delta.getKind()) {
-				case IResourceDelta.ADDED:
 				case IResourceDelta.CHANGED:
+					// no need to index if the content has not changed
+					if ((delta.getFlags() & IResourceDelta.CONTENT) == 0) break;
+				case IResourceDelta.ADDED:
 					if (file.isLocal(IResource.DEPTH_ZERO)) indexManager.add(file);
 					break;
 				case IResourceDelta.REMOVED:

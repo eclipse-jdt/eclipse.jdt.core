@@ -21,7 +21,7 @@ public class VariablesEvaluator extends Evaluator implements EvaluationConstants
 /**
  * Creates a new global variables evaluator.
  */
-VariablesEvaluator(EvaluationContext context, INameEnvironment environment, ConfigurableOption[] options, IRequestor requestor, IProblemFactory problemFactory) {
+VariablesEvaluator(EvaluationContext context, INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) {
 	super(context, environment, options, requestor, problemFactory);
 }
 /**
