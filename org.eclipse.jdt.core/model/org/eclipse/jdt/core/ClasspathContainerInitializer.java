@@ -60,8 +60,21 @@ public abstract class ClasspathContainerInitializer {
      * the second segment can be used as an additional hint when performing the resolution.
      * <p>
      * The initializer is invoked if a container path needs to be resolved for a given project, and no
-     * value for it was recorded so far. The implementation of the initializer can set the corresponding 
-     * container using <code>JavaCore#setClasspathContainer</code>.
+     * value for it was recorded so far. The implementation of the initializer would typically set the 
+     * corresponding container using <code>JavaCore#setClasspathContainer</code>.
+     * <p>
+     * A container initialization can be indirectly performed while attempting to resolve a project
+     * classpath using <code>IJavaProject#getResolvedClasspath(</code>; or directly when using
+     * <code>JavaCore#getClasspathContainer</code>. During the initialization process, any attempt
+     * to further obtain the same container will simply return <code>null</code> so as to avoid an
+     * infinite regression of initializations.
+     * <p>
+     * A container initialization may also occur indirectly when setting a project classpath, as the operation
+     * needs to resolve the classpath for validation purpose. While the operation is in progress, a referenced 
+     * container initializer may be invoked. If the initializer further tries to access the referring project classpath, 
+     * it will not see the new assigned classpath until the operation has completed. Note that once the Java 
+     * change notification occurs (at the end of the operation), the model has been updated, and the project 
+     * classpath can be queried normally.
      * <p>
      * @param containerPath a two-segment path (ID/hint) identifying the container that needs 
      * 	to be resolved
