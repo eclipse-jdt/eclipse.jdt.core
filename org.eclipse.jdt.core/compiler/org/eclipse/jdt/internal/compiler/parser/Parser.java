@@ -2526,7 +2526,7 @@ protected void consumeMethodHeaderThrowsClause() {
 		md.thrownExceptions = new TypeReference[length], 
 		0, 
 		length);
-	md.sourceEnd = 	md.thrownExceptions[length-1].sourceEnd;
+	md.sourceEnd = md.thrownExceptions[length-1].sourceEnd;
 	md.bodyStart = md.thrownExceptions[length-1].sourceEnd + 1;
 	listLength = 0; // reset listLength after having read all thrown exceptions	
 	// recovery
