@@ -60,6 +60,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
+		if (false) {
+			Suite suite = new Suite(BatchASTCreationTests.class.getName());
+			suite.addTest(new BatchASTCreationTests("test006"));
+			return suite;
+		}
 		return new Suite(BatchASTCreationTests.class);
 	}
 	
@@ -145,7 +150,17 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			});
 			TestASTRequestor requestor = new TestASTRequestor(workingCopies);
 			createASTs(requestor);
-			assertEquals("Unexpected number of ASTs", 2, requestor.asts.size());
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
 		} finally {
 			discardWorkingCopies(workingCopies);
 		}
@@ -171,7 +186,17 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			TestASTRequestor requestor = new TestASTRequestor(workingCopies);
 			resolveASTs(requestor);
 			
-			assertEquals("Unexpected number of ASTs", 2, requestor.asts.size());
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
 			
 			// compare the bindings coming from the 2 ASTs
 			Type superX = (Type) findNode((CompilationUnit) requestor.asts.get(0), markerInfos[0]);
@@ -213,7 +238,24 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			
 			TestASTRequestor requestor = new TestASTRequestor(workingCopyBatches);
 			createASTs(requestor);
-			assertEquals("Unexpected number of ASTs", 3, requestor.asts.size());
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Z {\n" + 
+				"  Object foo(){\n" + 
+				"    return new X();\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
 		} finally {
 			discardWorkingCopies(workingCopyBatches);
 		}
@@ -250,7 +292,24 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			
 			TestASTRequestor requestor = new TestASTRequestor(workingCopyBatches);
 			resolveASTs(requestor);
-			assertEquals("Unexpected number of ASTs", 3, requestor.asts.size());
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Z {\n" + 
+				"  Object foo(){\n" + 
+				"    return new X();\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
 			
 			// compare the bindings coming from the first AST and the last AST
 			TypeDeclaration typeX = (TypeDeclaration) findNode((CompilationUnit) requestor.asts.get(0), firstMarkerInfos[0]);
@@ -263,4 +322,86 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		}
 	}
 	
+	/*
+	 * Ensure that ASTs that are required by original source but were not asked for are not handled.
+	 */
+	public void _test005() throws CoreException {
+		ICompilationUnit[] workingCopies = null;
+		ICompilationUnit[] otherWorkingCopies = null;
+		try {
+			workingCopies = createWorkingCopies(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X extends Y {\n" +
+				"}",
+			});
+			otherWorkingCopies = createWorkingCopies(new String[] {
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"}",
+			});
+			TestASTRequestor requestor = new TestASTRequestor(workingCopies);
+			resolveASTs(requestor);
+			
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
+		} finally {
+			discardWorkingCopies(workingCopies);
+			discardWorkingCopies(otherWorkingCopies);
+		}
+	}
+	
+	/*
+	 * Test the creation of 2 batches of ASTs (first batch refers to CU in second batch) with resolving.
+	 */
+	public void _test006() throws CoreException {
+		ICompilationUnit[][] workingCopyBatches = new ICompilationUnit[2][];
+		try {
+			MarkerInfo[] firstMarkerInfos = createMarkerInfos(new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X extends /*start*/Y/*end*/ {\n" +
+				"}",
+			});
+			workingCopyBatches[0] = createWorkingCopies(firstMarkerInfos);
+			MarkerInfo[] secondMarkerInfos = createMarkerInfos(new String[] {
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"/*start*/public class Y {\n" +
+				"}/*end*/",
+			});
+			workingCopyBatches[1] = createWorkingCopies(secondMarkerInfos);
+			
+			TestASTRequestor requestor = new TestASTRequestor(workingCopyBatches);
+			resolveASTs(requestor);
+			assertASTNodesEqual(
+				"package p1;\n" + 
+				"public class X extends Y {\n" + 
+				"}\n" + 
+				"\n" + 
+				"package p1;\n" + 
+				"public class Y {\n" + 
+				"}\n" + 
+				"\n",
+				requestor.asts
+			);
+			
+			// compare the bindings coming from the first AST and the last AST
+			Type superX = (Type) findNode((CompilationUnit) requestor.asts.get(0), firstMarkerInfos[0]);
+			TypeDeclaration typeY = (TypeDeclaration) findNode((CompilationUnit) requestor.asts.get(1), secondMarkerInfos[0]);
+			IBinding superXBinding = superX.resolveBinding();
+			IBinding typeYBinding = typeY.resolveBinding();
+			assertTrue("Super of X and Y should be the same", superXBinding == typeYBinding);
+		} finally {
+			discardWorkingCopies(workingCopyBatches);
+		}
+	}
+	
+
 }
