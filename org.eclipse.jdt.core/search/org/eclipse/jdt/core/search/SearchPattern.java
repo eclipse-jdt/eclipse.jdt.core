@@ -249,7 +249,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		return null;
 	}
 	/**
-	 * Field pattern are formed by [declaringType.]name[type]
+	 * Field pattern are formed by [declaringType.]name[ type]
 	 * e.g. java.lang.String.serialVersionUID long
 	 *		field*
 	 */
