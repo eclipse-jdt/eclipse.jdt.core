@@ -1683,6 +1683,27 @@ public void test049() {
 		"Cannot make a static reference to the non-static method format(Date) from the type DateFormat\n" + 
 		"----------\n");
 }
+// 
+public void test050() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //---------------------------
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String argv[]) {\n" + 
+			"    	X.Y.Z.foo();\n" + 
+			"    }\n" + 
+			"    static class Y {\n" + 
+			"    	static class Z {\n" + 
+			"    		static void foo() {\n" + 
+			"    			System.out.println(\"SUCCESS\");\n" + 
+			"    		}\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }

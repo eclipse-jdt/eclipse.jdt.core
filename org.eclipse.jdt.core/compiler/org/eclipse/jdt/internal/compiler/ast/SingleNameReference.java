@@ -301,11 +301,16 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		} else {
 			switch (bits & RestrictiveFlagMASK) {
 				case Binding.FIELD : // reading a field
-					FieldBinding fieldBinding;
-					if (valueRequired) {
-						if (!(fieldBinding = (FieldBinding) this.codegenBinding).isConstantValue()) { // directly use inlined value for constant fields
-							boolean isStatic;
-							if (!(isStatic = fieldBinding.isStatic())) {
+					FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
+					if (fieldBinding.isConstantValue()) {
+						// directly use inlined value for constant fields
+						if (valueRequired) {
+							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
+						}
+					} else {
+						if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+							boolean isStatic = fieldBinding.isStatic();
+							if (!isStatic) {
 								if ((bits & DepthMASK) != 0) {
 									ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
 									Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
@@ -324,10 +329,20 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							} else {
 								codeStream.invokestatic(syntheticAccessors[READ]);
 							}
-							if (this.genericCast != null) codeStream.checkcast(this.genericCast);
-							codeStream.generateImplicitConversion(implicitConversion);
-					} else { // directly use the inlined value
-							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
+							if (valueRequired) {
+								if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+								codeStream.generateImplicitConversion(implicitConversion);
+							} else {
+								// could occur if !valueRequired but compliance >= 1.4
+								switch (fieldBinding.type.id) {
+									case T_long :
+									case T_double :
+										codeStream.pop2();
+										break;
+									default :
+										codeStream.pop();
+								}
+							}							
 						}
 					}
 					break;

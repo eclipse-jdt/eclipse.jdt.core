@@ -192,9 +192,18 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 		} else {
 			boolean isStatic = this.codegenBinding.isStatic();
-			receiver.generateCode(currentScope, codeStream, !isStatic);
-			if (valueRequired) {
-				if (!this.codegenBinding.isConstantValue()) {
+			if (this.codegenBinding.isConstantValue()) {
+				receiver.generateCode(currentScope, codeStream, !isStatic);
+				if (!isStatic){
+					codeStream.invokeObjectGetClass();
+					codeStream.pop();
+				}
+				if (valueRequired) {
+					codeStream.generateConstant(this.codegenBinding.constant(), implicitConversion);
+				}
+			} else {
+				receiver.generateCode(currentScope, codeStream, !isStatic);
+				if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
 					if (this.codegenBinding.declaringClass == null) { // array length
 						codeStream.arraylength();
 					} else {
@@ -207,20 +216,26 @@ public class FieldReference extends Reference implements InvocationSite {
 						} else {
 							codeStream.invokestatic(syntheticAccessors[READ]);
 						}
+						if (valueRequired) {
+							if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+							codeStream.generateImplicitConversion(implicitConversion);
+						} else {
+							// could occur if !valueRequired but compliance >= 1.4
+							switch (this.codegenBinding.type.id) {
+								case T_long :
+								case T_double :
+									codeStream.pop2();
+									break;
+								default :
+									codeStream.pop();
+							}
+						}
 					}
-					if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
-					codeStream.generateImplicitConversion(implicitConversion);
 				} else {
-					if (!isStatic) {
+					if (!isStatic){
 						codeStream.invokeObjectGetClass(); // perform null check
 						codeStream.pop();
 					}
-					codeStream.generateConstant(this.codegenBinding.constant(), implicitConversion);
-				}
-			} else {
-				if (!isStatic){
-					codeStream.invokeObjectGetClass(); // perform null check
-					codeStream.pop();
 				}
 			}
 		}

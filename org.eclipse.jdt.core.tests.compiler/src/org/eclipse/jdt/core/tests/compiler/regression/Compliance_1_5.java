@@ -3300,6 +3300,36 @@ public void test096() {
 		},
 		"");
 }
+public void test097() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String argv[]) {\n" + 
+			"    	int cst = X1.CST;\n" + 
+			"        X2.Root.foo();\n" + 
+			"    }\n" + 
+			"    static void foo() {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X1 {\n" + 
+			"    static {\n" + 
+			"		System.out.print(\"[X1]\");\n" + 
+			"    }\n" + 
+			"    public static final int CST = 12;\n" + 
+			"    static X Root = null;\n" + 
+			"}\n" + 
+			"class X2 {\n" + 
+			"    static {\n" + 
+			"		System.out.print(\"[X2]\");\n" + 
+			"    }\n" + 
+			"    public final int CST = 12;\n" + 
+			"    static X Root = null;\n" + 
+			"}\n"
+		},
+		"[X2]");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }
