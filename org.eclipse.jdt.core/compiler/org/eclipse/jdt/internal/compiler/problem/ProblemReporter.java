@@ -614,6 +614,7 @@ public int computeSeverity(int problemId){
 		// Annotation implicit IDs for deprecatedType(...)
 		case IProblem.Annotation | IProblem.UsingDeprecatedType:
 		// Annotation implicit IDs for invalidField(...)
+		case IProblem.Annotation | IProblem.UndefinedField:
 		case IProblem.Annotation | IProblem.NotVisibleField:
 		case IProblem.Annotation | IProblem.AmbiguousField:
 		// Annotation implicit IDs for invalidMethod(...)
