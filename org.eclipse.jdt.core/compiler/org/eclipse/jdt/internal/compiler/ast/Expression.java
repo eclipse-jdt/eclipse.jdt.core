@@ -467,9 +467,8 @@ public abstract class Expression extends Statement {
 			return;
 		if (this.implicitConversion != 0) return; // already set independantly
 
-
 		// it is possible for a Byte to be unboxed to a byte & then converted to an int
-		// but it is not possible either for a byte to become Byte & then assigned to an Integer,
+		// but it is not possible for a byte to become Byte & then assigned to an Integer,
 		// or to become an int before boxed into an Integer
 		if (runtimeTimeType.isBaseType()) {
 			if (!compileTimeType.isBaseType()) {
@@ -765,11 +764,13 @@ public abstract class Expression extends Statement {
 		if (expressionType == null) return null;
 		if (expressionType == expectedType) return expressionType;
 		
-		if (scope.isBoxingCompatibleWith(expressionType, expectedType)) {
-			this.computeConversion(scope, expectedType, expressionType);
-		} else if (!expressionType.isCompatibleWith(expectedType)) {
-			scope.problemReporter().typeMismatchError(expressionType, expectedType, this);
-			return null;
+		if (!expressionType.isCompatibleWith(expectedType)) {
+			if (scope.isBoxingCompatibleWith(expressionType, expectedType)) {
+				this.computeConversion(scope, expectedType, expressionType);
+			} else {
+				scope.problemReporter().typeMismatchError(expressionType, expectedType, this);
+				return null;
+			}
 		}
 		return expressionType;
 	}
