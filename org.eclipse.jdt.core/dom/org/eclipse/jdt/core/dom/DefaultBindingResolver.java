@@ -291,7 +291,7 @@ class DefaultBindingResolver extends BindingResolver {
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) this.newAstToOldAst.get(variable);
 		if (abstractVariableDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) this.newAstToOldAst.get(variable);
+			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) abstractVariableDeclaration;
 			return this.getVariableBinding(fieldDeclaration.binding);
 		}
 		return this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding);
