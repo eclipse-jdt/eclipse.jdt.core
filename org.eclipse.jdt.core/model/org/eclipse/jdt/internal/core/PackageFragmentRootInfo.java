@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * The element info for <code>PackageFragmentRoot</code>s.
@@ -74,7 +75,7 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 					if (Util.isValidClassFileName(fileName)) 
 						continue nextResource;
 					// ignore .zip or .jar file on classpath
-					if (Util.isArchiveFileName(fileName) && isClasspathEntry(member.getFullPath(), classpath)) 
+					if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(fileName) && isClasspathEntry(member.getFullPath(), classpath)) 
 						continue nextResource;
 					break;
 

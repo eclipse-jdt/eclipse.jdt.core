@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * @see ICompilationUnit
@@ -806,7 +807,7 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
  * @see ICompilationUnit#getWorkingCopy(IProgressMonitor)
  */
 public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
-	return getWorkingCopy(new DefaultWorkingCopyOwner(), null/*no problem requestor*/, monitor);
+	return getWorkingCopy(new WorkingCopyOwner() {/*non shared working copy*/}, null/*no problem requestor*/, monitor);
 }
 /**
  * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)

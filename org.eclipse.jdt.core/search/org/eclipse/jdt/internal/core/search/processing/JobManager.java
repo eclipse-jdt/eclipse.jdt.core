@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.search.processing;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.internal.core.search.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class JobManager implements Runnable {
 
@@ -357,7 +357,7 @@ public abstract class JobManager implements Runnable {
 		} catch (RuntimeException e) {
 			if (this.processingThread != null) { // if not shutting down
 				// log exception
-				org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
+				Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
 				
 				// keep job manager alive
 				this.discardJobs(null);
@@ -368,7 +368,7 @@ public abstract class JobManager implements Runnable {
 		} catch (Error e) {
 			if (this.processingThread != null && !(e instanceof ThreadDeath)) {
 				// log exception
-				org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
+				Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
 				
 				// keep job manager alive
 				this.discardJobs(null);

@@ -14,7 +14,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 import java.io.*;
@@ -178,7 +177,7 @@ void removePackage(IResourceDelta sourceDelta) {
 			return;
 		case IResource.FILE :
 			IPath typeLocatorPath = resource.getProjectRelativePath();
-			if (Util.isJavaFileName(typeLocatorPath.lastSegment()))
+			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(typeLocatorPath.lastSegment()))
 				removeLocator(typeLocatorPath.toString());
 	}
 }

@@ -18,9 +18,9 @@ import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Util;
 
 class AddFolderToIndex extends IndexRequest {
 	IPath folderPath;
@@ -57,7 +57,7 @@ class AddFolderToIndex extends IndexRequest {
 					public boolean visit(IResourceProxy proxy) /* throws CoreException */{
 						switch(proxy.getType()) {
 							case IResource.FILE :
-								if (Util.isJavaFileName(proxy.getName())) {
+								if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 									IResource resource = proxy.requestResource();
 									if (pattern == null || !Util.isExcluded(resource, pattern))
 										indexManager.addSource((IFile)resource, container);

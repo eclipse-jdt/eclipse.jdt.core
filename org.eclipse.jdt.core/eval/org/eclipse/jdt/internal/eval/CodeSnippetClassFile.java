@@ -60,7 +60,11 @@ public CodeSnippetClassFile(
 	constantPoolOffset = headerOffset;
 	headerOffset += 2;
 	constantPool = new CodeSnippetConstantPool(this);
-	int accessFlags = aType.getAccessFlags() | AccSuper;
+	int accessFlags = aType.getAccessFlags();
+	
+	if (aType.isClass()) {
+		accessFlags |= AccSuper;
+	}
 	if (aType.isNestedType()) {
 		if (aType.isStatic()) {
 			// clear Acc_Static

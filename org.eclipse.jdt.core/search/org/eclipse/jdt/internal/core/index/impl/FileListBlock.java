@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.eclipse.jdt.internal.core.util.Util;
+
 public class FileListBlock extends Block {
 
 	protected int offset= 0;

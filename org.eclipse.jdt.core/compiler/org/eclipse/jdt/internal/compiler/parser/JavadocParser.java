@@ -187,18 +187,6 @@ public class JavadocParser {
 		}
 	}
 
-	private TypeDeclaration getParserStackLastTypeDeclaration() {
-		ASTNode[] stack = this.sourceParser.astStack;
-		int ptr = this.sourceParser.astPtr;
-		while (ptr >=0) {
-			if (stack[ptr] instanceof TypeDeclaration) {
-				return (TypeDeclaration) stack[ptr];
-			}
-			ptr--;
-		}
-		return null;
-	}
-
 	/*
 	 * Parse argument in @see tag method reference
 	 */
@@ -403,16 +391,11 @@ public class JavadocParser {
 		// Get type ref
 		TypeReference typeRef = receiver;
 		if (typeRef == null) {
-			TypeDeclaration typeDecl = getParserStackLastTypeDeclaration();
-			char[] name = null;
-			if (typeDecl == null) {
-				name = this.sourceParser.compilationUnit.compilationResult.compilationUnit.getMainTypeName();
-			} else {
-				name = typeDecl.name;
+			char[] name = this.sourceParser.compilationUnit.compilationResult.compilationUnit.getMainTypeName();
+			if (name == null) {
+				throw new InvalidInputException();
 			}
-			if (name != null) {
-				typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
-			}
+			typeRef = new JavadocSingleTypeReference(name, 0, 0, 0);
 		}
 		
 		// Get member identifier
@@ -561,6 +544,7 @@ public class JavadocParser {
 	 */
 	private Expression parseReference() throws InvalidInputException {
 		TypeReference typeRef = null;
+		Expression reference = null;
 		nextToken : while (this.index < this.scanner.eofPosition) {
 			int token = readToken();
 			switch (token) {
@@ -573,7 +557,8 @@ public class JavadocParser {
 							if (readToken() == TerminalTokens.TokenNameEOF) {
 								return null;
 							}
-						} catch (InvalidInputException e) {// Do nothing as we want to underline from the beginning of the string
+						} catch (InvalidInputException e) {
+							// Do nothing as we want to underline from the beginning of the string
 						}
 					}
 					this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd - 1);
@@ -589,7 +574,8 @@ public class JavadocParser {
 								if (readToken() == TerminalTokens.TokenNameEOF) {
 									return null;
 								}
-							} catch (InvalidInputException e) {// Do nothing as we want to underline from the beginning of the href
+							} catch (InvalidInputException e) {
+								// Do nothing as we want to underline from the beginning of the href
 							}
 						}
 						this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd - 1);
@@ -598,7 +584,10 @@ public class JavadocParser {
 				case TerminalTokens.TokenNameERROR :
 					consumeToken();
 					if (this.scanner.currentCharacter == '#') { // @see ...#member
-						return parseMember(typeRef);
+						reference = parseMember(typeRef);
+						if (reference == null) {
+							return null;
+						}
 					}
 					break nextToken;
 				case TerminalTokens.TokenNameIdentifier :
@@ -606,14 +595,31 @@ public class JavadocParser {
 						typeRef = parseQualifiedName(true);
 						break;
 					}
+					break nextToken;
 				default :
 					break nextToken;
 			}
 		}
-		if (typeRef == null) {
+		
+		// Verify that we got a reference
+		if (reference == null) reference = typeRef;
+		if (reference == null) {
 			this.sourceParser.problemReporter().javadocMissingSeeReference(this.tagSourceStart, this.tagSourceEnd);
+			return null;
 		}
-		return typeRef;
+		
+		// Verify that we're at line end
+		int start = this.scanner.getCurrentTokenStartPosition();
+		try {
+			int token = readTokenAndConsume();
+			if (token != TerminalTokens.TokenNameLPAREN) {
+				return reference;
+			}
+		} catch (InvalidInputException e) {
+			// Do nothing as we report an error after
+		}
+		this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd - 1);
+		return null;
 	}
 	
 	/*
@@ -625,10 +631,9 @@ public class JavadocParser {
 					scanner.getCurrentTokenEndPosition(),
 					scanner.getRawTokenSourceEnd());
 		} else {
-			this.sourceParser.problemReporter().javadocInvalidReturnTag(
+			this.sourceParser.problemReporter().javadocDuplicateReturnTag(
 					scanner.getCurrentTokenStartPosition(),
-					scanner.getCurrentTokenEndPosition(),
-					false);
+					scanner.getCurrentTokenEndPosition());
 		}
 	}
 

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Reconcile a working copy and signal the changes through a delta.

@@ -36,16 +36,16 @@ public class CheckDebugAttributes extends Task {
 		}
 		try {
 			boolean hasDebugAttributes = false;
-			if (org.eclipse.jdt.internal.core.Util.isArchiveFileName(this.file)) {
+			if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(this.file)) {
 				ZipFile jarFile = new ZipFile(this.file);
 				for (Enumeration entries = jarFile.entries(); !hasDebugAttributes && entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
-					if (org.eclipse.jdt.internal.core.Util.isClassFileName(entry.getName())) {
+					if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entry.getName())) {
 						IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, entry.getName(), IClassFileReader.ALL);
 						hasDebugAttributes = checkClassFile(classFileReader);
 					}
 				}
-			} else if (org.eclipse.jdt.internal.core.Util.isClassFileName(this.file)) {
+			} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(this.file)) {
 				IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, IClassFileReader.ALL);
 				hasDebugAttributes = checkClassFile(classFileReader);
 			} else {

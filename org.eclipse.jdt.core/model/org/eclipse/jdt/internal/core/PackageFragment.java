@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * @see IPackageFragment
@@ -166,7 +167,7 @@ public boolean equals(Object o) {
  * @exception IllegalArgumentExcpetion if the name does not end with ".class"
  */
 public IClassFile getClassFile(String classFileName) {
-	if (!Util.isClassFileName(classFileName)) {
+	if (!org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(classFileName)) {
 		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
 	}
 	return new ClassFile(this, classFileName);
@@ -193,8 +194,8 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @exception IllegalArgumentExcpetion if the name does not end with ".java"
  */
 public ICompilationUnit getCompilationUnit(String cuName) {
-	if (!Util.isJavaFileName(cuName)) {
-		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
+	if (!org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(cuName)) {
+		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
 	}
 	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
 }

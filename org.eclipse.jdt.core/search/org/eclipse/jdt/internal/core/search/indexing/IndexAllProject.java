@@ -26,12 +26,12 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexAllProject extends IndexRequest {
 	IProject project;
@@ -107,7 +107,7 @@ public class IndexAllProject extends IndexRequest {
 										if (isCancelled) return false;
 										switch(proxy.getType()) {
 											case IResource.FILE :
-												if (Util.isJavaFileName(proxy.getName())) {
+												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 													IResource resource = proxy.requestResource();
 													if (resource.getLocation() != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
 														String name = new IFileDocument((IFile) resource).getName();
@@ -134,7 +134,7 @@ public class IndexAllProject extends IndexRequest {
 										if (isCancelled) return false;
 										switch(proxy.getType()) {
 											case IResource.FILE :
-												if (Util.isJavaFileName(proxy.getName())) {
+												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 													IResource resource = proxy.requestResource();
 													IPath path = resource.getLocation();
 													if (path != null && (patterns == null || !Util.isExcluded(resource, patterns))) {

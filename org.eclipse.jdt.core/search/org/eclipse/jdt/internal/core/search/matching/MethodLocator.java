@@ -95,9 +95,8 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 
 protected int matchContainer() {
 	if (this.pattern.findReferences) {
-		if (this.pattern.findDeclarations)
-			return CLASS_CONTAINER | METHOD_CONTAINER | FIELD_CONTAINER;
-		return METHOD_CONTAINER | FIELD_CONTAINER;
+		// need to look almost everywhere to find in javadocs
+		return CLASS_CONTAINER | METHOD_CONTAINER | FIELD_CONTAINER;
 	}
 	return CLASS_CONTAINER;
 }

@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.core.index.impl;
 
 import java.io.UTFDataFormatException;
 
+import org.eclipse.jdt.internal.core.util.Util;
+
 /**
  * Uses prefix coding on words, and gamma coding of document numbers differences.
  */

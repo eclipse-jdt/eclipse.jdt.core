@@ -15,8 +15,10 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class JavadocAllocationExpression extends AllocationExpression {
-	public int tagSourceStart, tagSourceEnd;
 
+	public int tagSourceStart, tagSourceEnd;
+	public boolean superAccess = false;
+	
 	public JavadocAllocationExpression(long pos) {
 		this.sourceStart = (int) (pos >>> 32);
 		this.sourceEnd = (int) pos;
@@ -30,19 +32,11 @@ public class JavadocAllocationExpression extends AllocationExpression {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		constant = NotAConstant;
-		if (this.type == null) {
-			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
-			this.resolvedType = sourceTypeBinding;
-			this.type = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
+		if (scope.kind == Scope.CLASS_SCOPE) {
+			this.resolvedType = type.resolveType((ClassScope)scope);
+		} else {
+			this.resolvedType = type.resolveType((BlockScope)scope);
 		}
-		else {
-			if (scope.kind == Scope.CLASS_SCOPE) {
-				this.resolvedType = type.resolveType((ClassScope)scope);
-			} else {
-				this.resolvedType = type.resolveType((BlockScope)scope);
-			}
-		}
-		// will check for null after args are resolved
 
 		// buffering the arguments' types
 		TypeBinding[] argumentTypes = NoParameters;
@@ -62,11 +56,15 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				}
 			}
 			if (argHasError) {
-				return this.resolvedType;
+				return null;
 			}
 		}
-		if (this.resolvedType == null)
+
+		// check resolved type
+		if (this.resolvedType == null) {
 			return null;
+		}
+		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.resolvedType);
 
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
@@ -93,6 +91,13 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		}
 
 		return allocationType;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
+	 */
+	public boolean isSuperAccess() {
+		return this.superAccess;
 	}
 
 	/* (non-Javadoc)

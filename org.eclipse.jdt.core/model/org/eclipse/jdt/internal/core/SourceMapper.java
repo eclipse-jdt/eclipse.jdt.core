@@ -899,7 +899,7 @@ public class SourceMapper
 				IResource res = folder.findMember(fullName);
 				if (res instanceof IFile) {
 					try {
-						source = org.eclipse.jdt.internal.core.Util.getResourceContentsAsCharArray((IFile)res, this.encoding);
+						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res, this.encoding);
 					} catch (JavaModelException e) {
 						// ignore
 					}

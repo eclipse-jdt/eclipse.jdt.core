@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class JavadocMessageSend extends MessageSend {
 
 	public int tagSourceStart, tagSourceEnd;
+	public boolean superAccess = false;
 
 	public JavadocMessageSend(char[] name, long pos) {
 		this.selector = name;
@@ -36,22 +37,13 @@ public class JavadocMessageSend extends MessageSend {
 	private TypeBinding internalResolveType(Scope scope) {
 		// Answer the signature return type
 		// Base type promotion
-
 		constant = NotAConstant;
 		if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-		if (this.receiver == null) {
-			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
-			this.receiverType = sourceTypeBinding;
-			this.receiver = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
+		if (scope.kind == Scope.CLASS_SCOPE) {
+			this.receiverType = receiver.resolveType((ClassScope)scope);
+		} else {
+			this.receiverType = receiver.resolveType((BlockScope)scope);
 		}
-		else {
-			if (scope.kind == Scope.CLASS_SCOPE) {
-				this.receiverType = receiver.resolveType((ClassScope)scope);
-			} else {
-				this.receiverType = receiver.resolveType((BlockScope)scope);
-			}
-		}
-		this.qualifyingType = this.receiverType;
 
 		// will check for null after args are resolved
 		TypeBinding[] argumentTypes = NoParameters;
@@ -78,9 +70,13 @@ public class JavadocMessageSend extends MessageSend {
 				return null;
 			}
 		}
+
+		// check receiver type
 		if (this.receiverType == null) {
 			return null;
 		}
+		this.qualifyingType = this.receiverType;
+		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.receiverType);
 
 		// base type cannot receive any message
 		if (this.receiverType.isBaseType()) {
@@ -121,7 +117,7 @@ public class JavadocMessageSend extends MessageSend {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
 	 */
 	public boolean isSuperAccess() {
-		return false;
+		return this.superAccess;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){

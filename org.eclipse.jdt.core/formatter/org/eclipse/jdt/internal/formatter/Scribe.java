@@ -186,27 +186,44 @@ public class Scribe {
 	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, boolean adjust){
 		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
 	}
+
+	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust){
+		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, continuationIndent, adjust);
+	}
 	
 	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
-		return createAlignment(name, mode, tieBreakRule, count, sourceRestart, false);
+		return createAlignment(name, mode, tieBreakRule, count, sourceRestart, this.formatter.preferences.continuation_indentation, false);
 	}
 
-	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart, boolean adjust){
-		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart);
+	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart, int continuationIndent, boolean adjust){
+		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart, continuationIndent);
 		// adjust break indentation
 		if (adjust && this.memberAlignment != null) {
 			Alignment current = this.memberAlignment;
 			while (current.enclosing != null) {
 				current = current.enclosing;
 			}
-			switch(current.chunkKind) {
-				case Alignment.CHUNK_METHOD :
-				case Alignment.CHUNK_TYPE :
-					alignment.breakIndentationLevel = this.indentationLevel + (this.useTab ? this.formatter.preferences.continuation_indentation : this.tabSize);
-					break;
-				case Alignment.CHUNK_FIELD :
-					alignment.breakIndentationLevel = current.originalIndentationLevel + (this.useTab ? this.formatter.preferences.continuation_indentation : this.tabSize);
-					break;
+			if (current.mode != Alignment.M_NO_ALIGNMENT) {
+				final int indentSize = this.useTab ? 1 : this.tabSize;
+				switch(current.chunkKind) {
+					case Alignment.CHUNK_METHOD :
+					case Alignment.CHUNK_TYPE :
+						if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+							alignment.breakIndentationLevel = this.indentationLevel + indentSize;
+						} else {
+							alignment.breakIndentationLevel = this.indentationLevel + continuationIndent * indentSize;
+						}
+						alignment.update();
+						break;
+					case Alignment.CHUNK_FIELD :
+						if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+							alignment.breakIndentationLevel = current.originalIndentationLevel + indentSize;
+						} else {
+							alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * indentSize;
+						}
+						alignment.update();
+						break;
+				}
 			}
 		}
 		return alignment; 
@@ -933,6 +950,7 @@ public class Scribe {
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasWhitespaces = false;
 			boolean hasComment = false;
+			boolean hasLineComment = false;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNameWHITESPACE :
@@ -952,7 +970,18 @@ public class Scribe {
 									count++;
 							}
 						}
-						if (count >= 1) {
+						if (hasLineComment) {
+							if (count >= 1) {
+								currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+								this.preserveEmptyLines(count, currentTokenStartPosition);
+								addDeleteEdit(currentTokenStartPosition, this.scanner.getCurrentTokenEndPosition());
+								this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
+								return;
+							} else {
+								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+								return;
+							}
+						} else if (count >= 1) {
 							if (hasComment) {
 								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
@@ -970,8 +999,8 @@ public class Scribe {
 						}
 						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
-						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-						return;
+						hasLineComment = true;
+						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 						if (hasWhitespaces) {
 							space(this.scanner.getCurrentTokenStartPosition());
@@ -1038,7 +1067,7 @@ public class Scribe {
 	}
 
 	public void setLineSeparatorAndIdentationLevel(DefaultCodeFormatterOptions preferences) {
-		this.lineSeparator = preferences.line_delimiter;
+		this.lineSeparator = preferences.line_separator;
 		if (this.useTab) {
 			this.indentationLevel = preferences.initial_indentation_level;
 		} else {

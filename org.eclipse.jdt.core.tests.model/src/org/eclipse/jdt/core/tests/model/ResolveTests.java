@@ -20,6 +20,11 @@ public class ResolveTests extends AbstractJavaModelTests {
 
 
 public static Test suite() {
+	if (false) {
+		TestSuite suite = new Suite(ResolveTests.class.getName());
+		suite.addTest(new ResolveTests("testLocalNameForClassFile"));
+		return suite;
+	}
 	return new Suite(ResolveTests.class);
 }
 
@@ -916,7 +921,7 @@ public void testUnicode() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47177
  */
-public void _testLocalNameForClassFile() throws JavaModelException {
+public void testLocalNameForClassFile() throws JavaModelException {
 	IClassFile cu = getClassFile("Resolve", "test47177.jar", "", "ResolveLocalName.class");
 
 	//Resolve a local declaration name

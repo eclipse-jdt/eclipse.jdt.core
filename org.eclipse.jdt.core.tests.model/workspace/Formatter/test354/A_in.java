@@ -1,1 +1,3 @@
-scope.problemReporter(enclosingInstance, enclosingInstanceType, inheritedBinding.declaringClass.enclosingType()).typeMismatchErrorActualTypeExpectedType();
+public class A {
+	public void foo() {;;;}
+}

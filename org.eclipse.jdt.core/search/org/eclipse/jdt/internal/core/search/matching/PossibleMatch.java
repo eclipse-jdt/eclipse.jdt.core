@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class PossibleMatch implements ICompilationUnit {
 
@@ -73,12 +74,17 @@ public char[] getContents() {
 	}
 	return null;
 }
+/**
+ * The exact openable file name. In particular, will be the originating .class file for binary openable with attached
+ * source.
+ * @see PackageReferenceLocator#isDeclaringPackageFragment(IPackageFragment, ReferenceBinding)
+ */
 public char[] getFileName() {
-	return this.openable.getPath().toString().toCharArray();
+	return this.openable.getElementName().toCharArray();
 }
 public char[] getMainTypeName() {
-	return null; // cannot know the main type name without opening .java or .class file
-	                  // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32182
+	// The file is no longer opened to get its name => remove fix for bug 32182
+	return this.compoundName[this.compoundName.length-1];
 }
 public char[][] getPackageName() {
 	int length = this.compoundName.length;

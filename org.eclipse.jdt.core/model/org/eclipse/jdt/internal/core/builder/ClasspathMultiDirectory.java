@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 
 class ClasspathMultiDirectory extends ClasspathDirectory {
 

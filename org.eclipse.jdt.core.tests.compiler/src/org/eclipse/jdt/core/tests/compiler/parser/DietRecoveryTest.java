@@ -6044,4 +6044,102 @@ public void test108() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+public void test109() {
+	String s = 
+		"public class X {\n" +
+		"	Object o = new Object() {\n" +
+		"		void foo() {\n" +
+		"			try {\n" +
+		"			} catch(Exception e) {\n" +
+		"				e.\n" +
+		"			}\n" +
+		"		}\n" +
+		"	};\n" +
+		"}";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  Object o;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  Object o;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"public class X {\n" + 
+		"  Object o;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
+public void test110() {
+	String s = 
+		"public class X {\n" +
+		"	void bar(){\n" +
+		"		#\n" +
+		"		class Inner {\n" +
+		"			void foo() {\n" +
+		"				try {\n" +
+		"				} catch(Exception e) {\n" +
+		"					e.\n" +
+		"				}\n" +
+		"			}\n" +
+		"		}\n" +
+		"	}\n" +
+		"}";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
 }

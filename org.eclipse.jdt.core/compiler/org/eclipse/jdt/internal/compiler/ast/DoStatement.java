@@ -90,7 +90,7 @@ public class DoStatement extends Statement {
 				loopingContext.initsOnBreak, 
 				isConditionOptimizedTrue, 
 				flowInfo.initsWhenFalse(), 
-				isConditionOptimizedFalse, 
+				false, // never consider opt false case for DO loop, since break can always occur (47776)
 				!isConditionTrue /*do{}while(true); unreachable(); */);
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;

@@ -6,5 +6,7 @@
     <classpathentry kind="lib" path="MyJar.jar"/>
     <classpathentry kind="lib" path="test20631.jar" sourcepath="/JavaSearch/test20631.zip" rootpath=""/>
     <classpathentry kind="lib" path="test24741.jar" sourcepath="/JavaSearch/test24741.jar" rootpath=""/>
+    <classpathentry kind="lib" path="test47909.jar" sourcepath="/JavaSearch/test47909.jar" rootpath=""/>
+    <classpathentry kind="lib" path="test47989.jar" sourcepath="/JavaSearch/test47989.jar" rootpath=""/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

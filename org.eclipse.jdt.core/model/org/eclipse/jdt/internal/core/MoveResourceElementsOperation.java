@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This operation moves resources (package fragments and compilation units) from their current

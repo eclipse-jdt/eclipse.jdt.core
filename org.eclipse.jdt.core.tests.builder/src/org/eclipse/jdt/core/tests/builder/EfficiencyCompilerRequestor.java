@@ -14,7 +14,7 @@ import java.util.Vector;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IDebugRequestor;
-import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class EfficiencyCompilerRequestor implements IDebugRequestor {
 	private boolean isActive = false;

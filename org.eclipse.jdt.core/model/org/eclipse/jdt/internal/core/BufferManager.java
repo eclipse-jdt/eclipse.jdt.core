@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.IOpenable;
  * The buffer manager manages the set of open buffers.
  * It implements an LRU cache of buffers.
  */
-public class BufferManager implements org.eclipse.jdt.core.IBufferFactory {
+public class BufferManager {
 
 	protected static BufferManager DEFAULT_BUFFER_MANAGER;
 	protected static boolean VERBOSE;
@@ -33,6 +33,15 @@ public class BufferManager implements org.eclipse.jdt.core.IBufferFactory {
 	 * in the table is the identical buffer.
 	 */
 	protected OverflowingLRUCache openBuffers = new BufferCache(60);
+	
+	/**
+	 * @deprecated
+	 */
+	protected org.eclipse.jdt.core.IBufferFactory defaultBufferFactory = new org.eclipse.jdt.core.IBufferFactory() {
+		public IBuffer createBuffer(IOpenable owner) {
+			return BufferManager.this.createBuffer(owner);
+		}
+	};
 
 /**
  * Adds a buffer to the table of open buffers.
@@ -47,9 +56,6 @@ protected void addBuffer(IBuffer buffer) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
-/**
- * @see IBufferFactory#createBuffer(IOpenable)
- */
 public IBuffer createBuffer(IOpenable owner) {
 	IJavaElement element = (IJavaElement)owner;
 	IResource resource = element.getResource();
@@ -59,7 +65,6 @@ public IBuffer createBuffer(IOpenable owner) {
 			owner, 
 			element.isReadOnly());
 }
-
 /**
  * Returns the open buffer associated with the given owner,
  * or <code>null</code> if the owner does not have an open
@@ -82,7 +87,7 @@ public synchronized static BufferManager getDefaultBufferManager() {
  * @deprecated
  */
 public org.eclipse.jdt.core.IBufferFactory getDefaultBufferFactory() {
-	return this;
+	return this.defaultBufferFactory;
 }
 /**
  * Returns an enumeration of all open buffers.
@@ -98,7 +103,6 @@ public Enumeration getOpenBuffers() {
 		return openBuffers.elements();
 	}
 }
-
 
 /**
  * Removes a buffer from the table of open buffers.

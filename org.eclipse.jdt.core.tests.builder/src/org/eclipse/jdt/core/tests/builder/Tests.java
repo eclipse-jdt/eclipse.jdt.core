@@ -124,8 +124,8 @@ public class Tests extends TestCase {
 	 */
 	protected void expectingCompiledClasses(String[] expected) {
 		String[] actual = debugRequestor.getCompiledClasses();
-		org.eclipse.jdt.internal.core.Util.sort(actual);
-		org.eclipse.jdt.internal.core.Util.sort(expected);
+		org.eclipse.jdt.internal.core.util.Util.sort(actual);
+		org.eclipse.jdt.internal.core.util.Util.sort(expected);
 		expectingCompiling(actual, expected, "unexpected recompiled units"); //$NON-NLS-1$
 	}
 

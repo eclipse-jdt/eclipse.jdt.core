@@ -183,32 +183,60 @@ class BinaryExpressionFragmentBuilder
 			switch((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 				case OperatorIds.PLUS :
 					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
-						return true;
-					} else {
-						return false;
+						binaryExpression.right.traverse(this, scope);
 					}
+					return false;
 				case OperatorIds.MINUS :
 					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameMINUS));
-						return true;
-					} else {
-						return false;
+						binaryExpression.right.traverse(this, scope);
 					}
+					return false;
+				case OperatorIds.MULTIPLY :
+					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameMULTIPLY));
+						binaryExpression.right.traverse(this, scope);
+					}
+					return false;
+				case OperatorIds.REMAINDER :
+					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameREMAINDER));
+						binaryExpression.right.traverse(this, scope);
+					}
+					return false;
+				case OperatorIds.XOR :
+					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameXOR));
+						binaryExpression.right.traverse(this, scope);
+					}
+					return false;
+				case OperatorIds.DIVIDE :
+					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameDIVIDE));
+						binaryExpression.right.traverse(this, scope);
+					}
+					return false;
 				case OperatorIds.OR :
 					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameOR));
-						return true;
-					} else {
-						return false;
+						binaryExpression.right.traverse(this, scope);
 					}
+					return false;
 				case OperatorIds.AND :
 					if (buildFragments(binaryExpression)) {
+						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameAND));
-						return true;
-					} else {
-						return false;
+						binaryExpression.right.traverse(this, scope);
 					}
+					return false;
 				default:
 					this.addRealFragment(binaryExpression);
 			}

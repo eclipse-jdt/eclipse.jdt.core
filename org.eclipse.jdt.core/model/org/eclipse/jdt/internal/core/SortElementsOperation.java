@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.builder.ProblemFactory;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This operation is used to sort elements in a compilation unit according to

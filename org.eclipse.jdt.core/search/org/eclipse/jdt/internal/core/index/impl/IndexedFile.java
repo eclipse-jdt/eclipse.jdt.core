@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.core.index.IQueryResult;
  */
 
 public class IndexedFile implements IQueryResult {
-	protected String path;
+	public String path;
 	protected int fileNumber;
 
 	public IndexedFile(String path, int fileNum) {

@@ -122,9 +122,23 @@ public void checkComment() {
 			} else if (reference instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
 				patternLocator.match(fieldRef, nodeSet);
+				if (fieldRef.receiver instanceof TypeReference) {
+					TypeReference typeRef = (TypeReference) fieldRef.receiver;
+					patternLocator.match(typeRef, nodeSet);
+				}
 			} else if (reference instanceof JavadocMessageSend) {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				patternLocator.match(messageSend, nodeSet);
+				if (messageSend.receiver instanceof TypeReference) {
+					TypeReference typeRef = (TypeReference) messageSend.receiver;
+					patternLocator.match(typeRef, nodeSet);
+				}
+			} else if (reference instanceof JavadocAllocationExpression) {
+				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
+				patternLocator.match(constructor, nodeSet);
+				if (constructor.type != null) {
+					patternLocator.match(constructor.type, nodeSet);
+				}
 			}
 		}
 	}

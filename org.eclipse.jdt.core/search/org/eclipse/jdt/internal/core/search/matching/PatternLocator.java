@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public abstract class PatternLocator implements ISearchPattern, IIndexConstants {
+public abstract class PatternLocator implements IIndexConstants {
 
 protected int matchMode;
 protected boolean isCaseSensitive;

@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
-import org.eclipse.jdt.internal.core.search.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This input is used for reading indexes saved using a BlocksIndexOutput.

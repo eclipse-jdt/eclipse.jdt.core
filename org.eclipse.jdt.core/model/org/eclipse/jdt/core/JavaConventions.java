@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
-import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Provides methods for checking Java-specific conventions such as name syntax.
@@ -127,7 +127,7 @@ public final class JavaConventions {
 		if (name == null) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"), null); //$NON-NLS-1$
 		}
-		if (!Util.isJavaFileName(name)) {
+		if (!org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name)) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 		}
 		String identifier;
@@ -169,7 +169,7 @@ public final class JavaConventions {
 		if (name == null) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.nullName"), null); //$NON-NLS-1$
 		}
-		if (!Util.isClassFileName(name)) {
+		if (!org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
 		}
 		String identifier;
@@ -392,7 +392,8 @@ public final class JavaConventions {
 	 *      <ul><li> A source folder can coincidate with its own output location, in which case this output can then contain library archives. 
 	 *                     However, a specific output location cannot coincidate with any library or a distinct source folder than the one referring to it. </li> 
 	 *              <li> A source/library folder can be nested in any source folder as long as the nested folder is excluded from the enclosing one. </li>
-	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself. </li>
+	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself, or if the output
+	 * 					location is excluded from the source folder.
 	 *      </ul>
 	 * </ul>
 	 * 

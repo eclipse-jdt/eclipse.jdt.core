@@ -39,6 +39,7 @@ public class InternalScannerTest extends AbstractRegressionTest {
 		try {
 			token = scanner.getNextToken();
 		} catch (InvalidInputException e) {
+			// ignore
 		}
 		assertEquals("Wrong token type", TerminalTokens.TokenNameEOF, token);
 		assertEquals("Wrong comment start", 0,  scanner.commentStarts[0]);

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.jdt.internal.core.index.IDocument;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This index stores the document names in an <code>ObjectVector</code>, and the words in

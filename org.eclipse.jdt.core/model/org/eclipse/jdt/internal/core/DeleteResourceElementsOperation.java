@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This operation deletes a collection of resources and all of their children.
@@ -77,7 +78,7 @@ private void deletePackageFragment(IPackageFragment frag)
 		boolean isEmpty = true;
 		for (int i = 0, length = remainingFiles.length; i < length; i++) {
 			IResource file = remainingFiles[i];
-			if (file instanceof IFile && Util.isClassFileName(file.getName())) {
+			if (file instanceof IFile && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(file.getName())) {
 				this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
 			} else {
 				isEmpty = false;

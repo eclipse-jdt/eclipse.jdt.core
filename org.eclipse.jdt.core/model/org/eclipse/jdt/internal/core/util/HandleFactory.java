@@ -54,8 +54,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Creates java element handles.
@@ -138,7 +138,7 @@ public class HandleFactory {
 				this.packageHandles.put(packageName, pkgFragment);
 			}
 			String simpleName= resourcePath.substring(lastSlash + 1);
-			if (org.eclipse.jdt.internal.core.Util.isJavaFileName(simpleName)) {
+			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;
 			} else {
@@ -181,7 +181,7 @@ public class HandleFactory {
 				currentElement = 
 					((IType)currentElement).getMethod(
 						currentElement.getElementName(), 
-						org.eclipse.jdt.internal.core.Util.typeParameterSignatures(node));
+						Util.typeParameterSignatures(node));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
@@ -247,14 +247,18 @@ public class HandleFactory {
 				return true;
 			}
 			public void endVisit(TypeDeclaration node, ClassScope scope) {
-				currentElement = currentElement.getParent();
+				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
+					currentElement = ((IType)currentElement).getDeclaringType();
+				} else {
+					currentElement = currentElement.getParent();
+				}
 			}
 
 			public boolean visit(MethodDeclaration node, ClassScope scope) {
 				currentElement = 
 					((IType)currentElement).getMethod(
 						new String(node.selector), 
-						org.eclipse.jdt.internal.core.Util.typeParameterSignatures(node));
+						Util.typeParameterSignatures(node));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
@@ -409,7 +413,7 @@ public class HandleFactory {
 			int index = 0;
 			for (int i = 0; i < length; i++) {
 				IPath path = enclosingProjectsAndJars[i];
-				if (!org.eclipse.jdt.internal.core.Util.isArchiveFileName(path.lastSegment())) {
+				if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())) {
 					projects[index++] = this.javaModel.getJavaProject(path.segment(0));
 				}
 			}
@@ -474,7 +478,7 @@ public class HandleFactory {
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
 					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
-					if (root.getPath().isPrefixOf(path) && !org.eclipse.jdt.internal.core.Util.isExcluded(path, root.fullExclusionPatternChars())) {
+					if (root.getPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullExclusionPatternChars())) {
 						return root;
 					}
 				}

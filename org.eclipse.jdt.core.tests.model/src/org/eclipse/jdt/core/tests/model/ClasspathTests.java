@@ -125,14 +125,14 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 }
 
 protected void sortMarkers(IMarker[] markers) {
-	org.eclipse.jdt.internal.core.Util.Comparer comparer = new org.eclipse.jdt.internal.core.Util.Comparer() {
+	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
 		public int compare(Object a, Object b) {
 			IMarker markerA = (IMarker)a;
 			IMarker markerB = (IMarker)b;
 			return markerA.getAttribute(IMarker.MESSAGE, "").compareTo(markerB.getAttribute(IMarker.MESSAGE, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	};
-	org.eclipse.jdt.internal.core.Util.sort(markers, comparer);
+	org.eclipse.jdt.internal.core.util.Util.sort(markers, comparer);
 }
 public static Test suite() {
 
@@ -1305,6 +1305,118 @@ public void testClasspathValidation27() throws CoreException {
 	}
 }
 
+/**
+ * Checks it is legal for an output folder to be an excluded subfolder of some source folder
+ */
+public void testClasspathValidation28() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[]{ new Path("output/") }, new Path("/P/src/output"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertTrue(
+			"Source folder 'src' in project P should be allowed to output to excluded source subfolder 'src/output'.",
+			status.isOK());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Checks it is illegal for an output folder to be a subfolder of some source folder
+ */
+public void testClasspathValidation29() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], new Path("/P/src/output"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Cannot nest output folder 'P/src/output' inside 'P/src'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Checks it is illegal for a nested output folder (sitting inside excluded range of source folder) to be enclosing another source folder
+ */
+public void testClasspathValidation30() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src1"), new IPath[]{new Path("bin/")}, new Path("/P/src1/bin"));
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src1/bin/src2"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Cannot nest 'P/src1/bin/src2' inside output folder 'P/src1/bin'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Checks it is illegal for a nested output folder (sitting inside excluded range of source folder) to be nested in another source folder
+ */
+public void testClasspathValidation31() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src1"), new IPath[]{new Path("src2/")}, new Path("/P/src1/src2/bin"));
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src1/src2"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Cannot nest output folder 'P/src1/src2/bin' inside 'P/src1/src2'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
+/**
+ * Checks it is illegal for a nested output folder (sitting inside excluded range of source folder) to be coincidating with another source folder
+ */
+public void testClasspathValidation32() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src1"), new IPath[]{new Path("src2/")}, new Path("/P/src1/src2"));
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src1/src2"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Source folder 'src1' in project P cannot output to distinct source folder 'src1/src2'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
 /**
  * Setting the classpath with two entries specifying the same path
  * should fail.

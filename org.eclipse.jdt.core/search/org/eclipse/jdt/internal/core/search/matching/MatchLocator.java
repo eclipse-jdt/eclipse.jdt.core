@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class MatchLocator implements ITypeRequestor {
 
@@ -921,14 +922,18 @@ protected void purgeMethodStatements(TypeDeclaration type, boolean checkEachMeth
 	AbstractMethodDeclaration[] methods = type.methods;
 	if (methods != null) {
 		if (checkEachMethod) {
-			for (int j = 0, k = methods.length; j < k; j++) {
+			for (int j = 0, length = methods.length; j < length; j++) {
 				AbstractMethodDeclaration method = methods[j];
-				if (!this.currentPossibleMatch.nodeSet.hasPossibleNodes(method.declarationSourceStart, method.declarationSourceEnd))
+				if (!this.currentPossibleMatch.nodeSet.hasPossibleNodes(method.declarationSourceStart, method.declarationSourceEnd)) {
 					method.statements = null;
+					method.javadoc = null;
+				}
 			}
 		} else {
-			for (int j = 0, k = methods.length; j < k; j++)
+			for (int j = 0, length = methods.length; j < length; j++) {
 				methods[j].statements = null;
+				methods[j].javadoc = null;
+			}
 		}
 	}
 
@@ -944,7 +949,7 @@ protected void reduceParseTree(CompilationUnitDeclaration unit) {
 	// remove statements from methods that have no possible matching nodes
 	TypeDeclaration[] types = unit.types;
 	for (int i = 0, l = types.length; i < l; i++)
-		purgeMethodStatements(types[i], true);
+		purgeMethodStatements(types[i], true); 
 }
 protected void report(int sourceStart, int sourceEnd, IJavaElement element, int accuracy) throws CoreException {
 	if (element != null && this.scope.encloses(element)) {
@@ -1264,8 +1269,26 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	if (accuracy > -1)
 		report(type.sourceStart, type.sourceEnd, enclosingElement, accuracy);
 
-	// super types
 	boolean matchedClassContainer = (this.matchContainer & PatternLocator.CLASS_CONTAINER) != 0;
+
+	// javadoc
+	if (type.javadoc != null) {
+		ASTNode[] nodes = nodeSet.matchingNodes(type.declarationSourceStart, type.sourceStart);
+		if (nodes != null) {
+			if (!matchedClassContainer) {
+				for (int i = 0, l = nodes.length; i < l; i++)
+					nodeSet.matchingNodes.removeKey(nodes[i]);
+			} else {
+				for (int i = 0, l = nodes.length; i < l; i++) {
+					ASTNode node = nodes[i];
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+				}
+			}
+		}
+	}
+	
+	// super types
 	if ((type.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
 		TypeReference superType =type.allocation.type;
 		if (superType != null) {
