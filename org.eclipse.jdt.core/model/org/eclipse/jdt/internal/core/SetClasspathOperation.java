@@ -419,8 +419,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 						AccessRestriction newRestriction = newEntry.getImportRestriction();
 						if (index != i) { // entry has been moved
 							needToUpdateDependents |= (oldRestriction != null || newRestriction != null); // there's an access restriction, this may change combination
+						} else if (oldRestriction == null) {
+							needToUpdateDependents |= newRestriction != null; // access restriction was added
 						} else {
-							needToUpdateDependents |= !oldRestriction.equals(newRestriction); // access restriction has changed
+							needToUpdateDependents |= !oldRestriction.equals(newRestriction); // access restriction has changed or has been removed
 						}
 					}
 					this.needCycleCheck |= (oldEntry.isExported() != newEntry.isExported());
