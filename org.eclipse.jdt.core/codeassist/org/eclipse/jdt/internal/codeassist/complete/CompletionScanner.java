@@ -208,7 +208,7 @@ public int getNextToken() throws InvalidInputException {
 					// compute end of empty identifier.
 					// if the empty identifier is at the start of a next token the end of
 					// empty identifier is the end of the next token (eg. "<empty token>next").
-				 	while(getNextCharAsJavaIdentifierPart()) {}
+				 	while(getNextCharAsJavaIdentifierPart());
 				 	endOfEmptyToken = currentPosition - 1;
 					currentPosition = startPosition; // for being detected as empty free identifier
 					return TokenNameIdentifier;
@@ -684,6 +684,7 @@ public int getNextToken() throws InvalidInputException {
 		}
 	} //-----------------end switch while try--------------------
 	catch (IndexOutOfBoundsException e) {
+		// eof reached
 	}
 	/* might be completing at very end of file (e.g. behind a dot) */
 	if (completionIdentifier == null && 

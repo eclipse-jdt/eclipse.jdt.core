@@ -56,6 +56,7 @@ public char[] getContents() {
 	try {
 		return Util.getFileCharContent(new File(new String(fileName)), encoding);
 	} catch (IOException e) {
+		// assume no content then
 	}
 	return CharOperation.NO_CHAR;
 }

@@ -213,6 +213,7 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 					requestor.acceptError(marker);
 				} catch(CoreException e){
+					// ignore
 				}
 			}
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {

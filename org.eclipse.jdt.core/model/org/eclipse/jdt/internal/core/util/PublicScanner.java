@@ -1605,7 +1605,8 @@ public final void jumpOverMethodBody() {
 										}
 									}
 							} catch (IndexOutOfBoundsException e) {
-							} //an eof will them be generated
+								//an eof will them be generated
+							}
 							break;
 						}
 						if (test > 0) { //traditional and annotation comment

@@ -71,7 +71,11 @@ public boolean isPackage(String qualifiedPackageName) {
 }
 public void reset() {
 	if (zipFile != null && closeZipFileAtEnd) {
-		try { zipFile.close(); } catch(IOException e) {}
+		try { 
+			zipFile.close(); 
+		} catch(IOException e) {
+			// ignore
+		}
 	}
 	this.packageCache = null;
 }

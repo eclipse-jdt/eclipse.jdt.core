@@ -393,10 +393,11 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				if (optionValue.length() == 0){
 					this.defaultEncoding = null;
 				} else {
-					try { // ignore unsupported encoding
+					try { 
 						new InputStreamReader(new ByteArrayInputStream(new byte[0]), optionValue);
 						this.defaultEncoding = optionValue;
 					} catch(UnsupportedEncodingException e){
+//						// ignore unsupported encoding
 					}
 				}
 				continue;
@@ -407,6 +408,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 					int val = Integer.parseInt(optionValue);
 					if (val >= 0) this.maxProblemsPerUnit = val;
 				} catch(NumberFormatException e){
+					// ignore ill-formatted limit
 				}				
 				continue;
 			}

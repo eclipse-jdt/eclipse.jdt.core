@@ -46,7 +46,9 @@ public static IMarker[] getProblemsFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists())
 			return resource.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {} // assume there are no problems
+	} catch (CoreException e) {
+		// assume there are no problems
+	}
 	return new IMarker[0];
 }
 
@@ -54,7 +56,9 @@ public static IMarker[] getTasksFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists())
 			return resource.findMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {} // assume there are no tasks
+	} catch (CoreException e) {
+		// assume there are no tasks
+	}
 	return new IMarker[0];
 }
 
@@ -66,14 +70,18 @@ public static void removeProblemsFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists())
 			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {} // assume there were no problems
+	} catch (CoreException e) {
+		// assume there were no problems
+	}
 }
 
 public static void removeTasksFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists())
 			resource.deleteMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {} // assume there were no problems
+	} catch (CoreException e) {
+		// assume there were no problems
+	}
 }
 
 public static void removeProblemsAndTasksFor(IResource resource) {
@@ -82,7 +90,9 @@ public static void removeProblemsAndTasksFor(IResource resource) {
 			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 			resource.deleteMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
 		}
-	} catch (CoreException e) {} // assume there were no problems
+	} catch (CoreException e) {
+		// assume there were no problems
+	}
 }
 
 public static State readState(IProject project, DataInputStream in) throws IOException {
