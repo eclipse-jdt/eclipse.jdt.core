@@ -2742,12 +2742,26 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see IClasspathContainer
 	 * @since 2.0
 	 */
-	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
+	public static void setClasspathContainer(final IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
 
 		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
 	
 		if (monitor != null && monitor.isCanceled()) return;
 	
+		if (JavaModelManager.CP_RESOLVE_VERBOSE){
+			System.out.println("CPContainer SET  - setting container: ["+containerPath+"] for projects: {" //$NON-NLS-1$ //$NON-NLS-2$
+				+ (Util.toString(affectedProjects, 
+						new Util.Displayable(){ 
+							public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+						}))
+				+ "} with values: " //$NON-NLS-1$
+				+ (Util.toString(respectiveContainers, 
+						new Util.Displayable(){ 
+							public String displayString(Object o) { return ((IClasspathContainer) o).getDescription(); }
+						}))
+					);
+		}
+
 		final int projectLength = affectedProjects.length;
 		final IJavaProject[] modifiedProjects;
 		System.arraycopy(affectedProjects, 0, modifiedProjects = new IJavaProject[projectLength], 0, projectLength);
@@ -2816,6 +2830,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						JavaProject affectedProject = (JavaProject)modifiedProjects[i];
 						if (affectedProject == null) continue; // was filtered out
 						
+						if (JavaModelManager.CP_RESOLVE_VERBOSE){
+							System.out.println("CPContainer SET  - updating affected project: ["+affectedProject.getElementName()+"] due to setting container: " + containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+						}
+
 						// force a refresh of the affected project (will compute deltas)
 						affectedProject.setRawClasspath(
 								affectedProject.getRawClasspath(),
@@ -2831,7 +2849,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			monitor);
 		} catch(CoreException e) {
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPContainer INIT - FAILED DUE TO EXCEPTION: "+containerPath); //$NON-NLS-1$
+				System.out.println("CPContainer SET  - FAILED DUE TO EXCEPTION: "+containerPath); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 			if (e instanceof JavaModelException) {
@@ -3046,6 +3064,11 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 		if (monitor != null && monitor.isCanceled()) return;
 		
+		if (JavaModelManager.CP_RESOLVE_VERBOSE){
+			System.out.println("CPVariable SET  - setting variables: {" + Util.toString(variableNames)  //$NON-NLS-1$
+				+ "} with values: " + Util.toString(variablePaths)); //$NON-NLS-1$
+		}
+
 		int varLength = variableNames.length;
 		
 		// gather classpath information for updating
@@ -3091,7 +3114,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 		
 		if (monitor != null && monitor.isCanceled()) return;
-	
+
 		if (model != null) {
 			IJavaProject[] projects = model.getJavaProjects();
 			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
@@ -3127,6 +3150,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		for (int i = 0; i < varLength; i++){
 			JavaModelManager.variablePut(variableNames[i], variablePaths[i]);
 		}
+		final String[] dbgVariableNames = variableNames;
 				
 		// update affected project classpaths
 		if (!affectedProjects.isEmpty()) {
@@ -3141,6 +3165,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								if (monitor != null && monitor.isCanceled()) return;
 			
 								JavaProject project = (JavaProject) projectsToUpdate.next();
+
+								if (JavaModelManager.CP_RESOLVE_VERBOSE){
+									System.out.println("CPVariable SET  - updating affected project: ["+project.getElementName()+"] due to setting variables: "+ Util.toString(dbgVariableNames)); //$NON-NLS-1$ //$NON-NLS-2$
+								}
 								
 								project
 									.setRawClasspath(
@@ -3156,6 +3184,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					},
 					monitor);
 			} catch (CoreException e) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE){
+					System.out.println("CPVariable SET  - FAILED DUE TO EXCEPTION: "+Util.toString(dbgVariableNames)); //$NON-NLS-1$
+					e.printStackTrace();
+				}
 				if (e instanceof JavaModelException) {
 					throw (JavaModelException)e;
 				} else {
