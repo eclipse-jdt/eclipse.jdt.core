@@ -144,11 +144,23 @@ public class HierarchyScope extends AbstractSearchScope {
 				return false;
 			}
 		}
+		IType type = null;
 		if (element instanceof IType) {
-			return fHierarchy.contains((IType) element);
+			type = (IType) element;
 		} else if (element instanceof IMember) {
-			return fHierarchy.contains(((IMember) element).getDeclaringType());
+			type = ((IMember) element).getDeclaringType();
 		}
+		if (type != null) {
+			if (fHierarchy.contains(type)) {
+				return true;
+			} else {
+				// be flexible: look at original element (see bug 14106 Declarations in Hierarchy does not find declarations in hierarchy)
+				IType original;
+				if ((original = (IType)type.getCompilationUnit().getOriginal(type)) != null) {
+					return fHierarchy.contains(original);
+				}
+			}
+		} 
 		return false;
 	}
 	/* (non-Javadoc)
