@@ -23,13 +23,12 @@ public SimpleLookupTable() {
 }
 
 public SimpleLookupTable(int size) {
+	if (size < 7) size = 7;
 	this.elementSize = 0;
-	this.threshold = size; // size represents the expected number of elements
-	int extraRoom = (int) (size * 1.75f);
-	if (this.threshold == extraRoom)
-		extraRoom++;
-	this.keyTable = new Object[extraRoom];
-	this.valueTable = new Object[extraRoom];
+	this.threshold = size + 1; // size is the expected number of elements
+	int tableLength = 2 * size + 1;
+	this.keyTable = new Object[tableLength];
+	this.valueTable = new Object[tableLength];
 }
 
 public Object clone() throws CloneNotSupportedException {
@@ -105,6 +104,7 @@ public void removeValue(Object valueToRemove) {
 	for (int i = 0, l = valueTable.length; i < l; i++) {
 		Object value = valueTable[i];
 		if (value != null && value.equals(valueToRemove)) {
+			elementSize--;
 			keyTable[i] = null;
 			valueTable[i] = null;
 			rehash = true;
@@ -115,8 +115,7 @@ public void removeValue(Object valueToRemove) {
 }
 
 private void rehash() {
-	SimpleLookupTable newLookupTable = new SimpleLookupTable(elementSize * 2);
-	// double the number of expected elements
+	SimpleLookupTable newLookupTable = new SimpleLookupTable(elementSize);
 	Object currentKey;
 	for (int i = keyTable.length; --i >= 0;)
 		if ((currentKey = keyTable[i]) != null)
@@ -124,6 +123,7 @@ private void rehash() {
 
 	this.keyTable = newLookupTable.keyTable;
 	this.valueTable = newLookupTable.valueTable;
+	this.elementSize = newLookupTable.elementSize;
 	this.threshold = newLookupTable.threshold;
 }
 
