@@ -1184,13 +1184,13 @@ public void setAssistIdentifier(char[] assistIdent){
  * Stores the labels left on the identifier stack if they have not been stored yet.
  */
 private void storeLabelsIfNeeded() {
-	int counter = this.labelCounterPtr >= 0 ? this.labelCounterStack[this.labelCounterPtr] : 0;
-	if (this.labels == null && this.identifierPtr >= 0) {
-		this.labels = new char[counter][];
-		System.arraycopy(this.identifierStack, this.identifierPtr - counter + 1, this.labels, 0, counter);
-	}
-	this.identifierPtr -= counter;
-	this.identifierLengthPtr -= counter; // labels have not been concatenated yet
+//	int counter = this.labelCounterPtr >= 0 ? this.labelCounterStack[this.labelCounterPtr] : 0;
+//	if (this.labels == null && this.identifierPtr >= 0) {
+//		this.labels = new char[counter][];
+//		System.arraycopy(this.identifierStack, this.identifierPtr - counter + 1, this.labels, 0, counter);
+//	}
+//	this.identifierPtr -= counter;
+//	this.identifierLengthPtr -= counter; // labels have not been concatenated yet
 }
 /*
  * Update recovery state based on current parser/scanner state
