@@ -382,6 +382,51 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	public static final int METHOD_NAME_REFERENCE = 12;
 	
 	/**
+	 * Completion is a reference to annotation's attribute.
+	 * This kind of completion might occur in a context like
+	 * <code>"@Annot(attr^=value)"</code> and complete it to
+	 * <code>"@Annot(attribute^=value)"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the annotation that declares the attribute that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags of the attribute that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the attribute that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the attribute's type (as opposed to the
+	 * signature of the type in which the referenced attribute
+	 * is declared)
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * @since 3.1
+	 */
+	public static final int ANNOTATION_ATTRIBUTE_REF = 13;
+	
+	/**
+	 * First valid completion kind.
+	 * 
+	 * @since 3.1
+	 */
+	protected static final int FIRST_KIND = ANONYMOUS_CLASS_DECLARATION;
+	
+	/**
+	 * Last valid completion kind.
+	 * 
+	 * @since 3.1
+	 */
+	protected static final int LAST_KIND = ANNOTATION_ATTRIBUTE_REF;
+	
+	/**
 	 * Kind of completion request.
 	 */
 	private int completionKind;
@@ -516,8 +561,8 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * @param completionLocation original offset of code completion request
 	 */
 	CompletionProposal(int kind, int completionLocation) {
-		if ((kind < CompletionProposal.ANONYMOUS_CLASS_DECLARATION)
-				|| (kind > CompletionProposal.METHOD_NAME_REFERENCE)) {
+		if ((kind < CompletionProposal.FIRST_KIND)
+				|| (kind > CompletionProposal.LAST_KIND)) {
 			throw new IllegalArgumentException();
 		}
 		if (this.completion == null || completionLocation < 0) {
@@ -776,6 +821,8 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * <ul>
+	 *  <li><code>ANNOTATION_ATTRIBUT_REF</code> - type signature
+	 * of the annotation that declares the attribute that is referenced</li>
 	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - type signature
 	 * of the type that is being subclassed or implemented</li>
 	 * 	<li><code>FIELD_REF</code> - type signature
@@ -876,6 +923,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * <ul>
+	 *  <li><code>ANNOTATION_ATTRIBUT_REF</code> - the name of the attribute</li>
 	 * 	<li><code>FIELD_REF</code> - the name of the field</li>
 	 * 	<li><code>KEYWORD</code> - the keyword</li>
 	 * 	<li><code>LABEL_REF</code> - the name of the label</li>
@@ -924,6 +972,8 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * <ul>
+	 * <li><code>ANNOTATION_ATTRIBUT_REF</code> - the type signature
+	 * of the referenced attribute's type</li>
 	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - method signature
 	 * of the constructor that is being invoked</li>
 	 * 	<li><code>FIELD_REF</code> - the type signature
@@ -1226,6 +1276,8 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * <ul>
+	 * <li><code>ANNOTATION_ATTRIBUT_REF</code> - modifier flags
+	 * of the attribute that is referenced; 
 	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - modifier flags
 	 * of the constructor that is referenced</li>
 	 * 	<li><code>FIELD_REF</code> - modifier flags

@@ -78,8 +78,8 @@ public abstract class CompletionRequestor {
 	 * @see CompletionProposal#getKind()
 	 */
 	public final boolean isIgnored(int completionProposalKind) {
-		if (completionProposalKind < CompletionProposal.ANONYMOUS_CLASS_DECLARATION
-			|| completionProposalKind > CompletionProposal.METHOD_NAME_REFERENCE) {
+		if (completionProposalKind < CompletionProposal.FIRST_KIND
+			|| completionProposalKind > CompletionProposal.LAST_KIND) {
 				throw new IllegalArgumentException();
 		}
 		return 0 != (this.ignoreSet & (1 << completionProposalKind));
@@ -97,8 +97,8 @@ public abstract class CompletionRequestor {
 	 * @see CompletionProposal#getKind()
 	 */
 	public final void setIgnored(int completionProposalKind, boolean ignore) {
-		if (completionProposalKind < CompletionProposal.ANONYMOUS_CLASS_DECLARATION
-			|| completionProposalKind > CompletionProposal.METHOD_NAME_REFERENCE) {
+		if (completionProposalKind < CompletionProposal.FIRST_KIND
+			|| completionProposalKind > CompletionProposal.LAST_KIND) {
 				throw new IllegalArgumentException();
 		}
 		if (ignore) {
