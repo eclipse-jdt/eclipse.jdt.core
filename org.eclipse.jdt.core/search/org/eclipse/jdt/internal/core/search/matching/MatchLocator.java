@@ -1053,7 +1053,8 @@ public SearchMatch newPackageReferenceMatch(
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return new PackageReferenceMatch(enclosingElement, accuracy, offset, length, participant, resource);
+	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
+	return new PackageReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
 public SearchMatch newTypeReferenceMatch(

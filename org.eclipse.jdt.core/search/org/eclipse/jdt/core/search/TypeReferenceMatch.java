@@ -24,28 +24,20 @@ import org.eclipse.jdt.core.IJavaElement;
  */
 public class TypeReferenceMatch extends SearchMatch {
 
-	private boolean insideDocComment;
-
 	/**
 	 * Creates a new type reference match.
 	 * 
 	 * @param enclosingElement the inner-most enclosing member that references this type
-	 * @param accuracy one of A_ACCURATE or A_INACCURATE
+	 * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
 	 * @param offset the offset the match starts at, or -1 if unknown
 	 * @param length the length of the match, or -1 if unknown
-	 * @param insideDocComment whether the match is inside a doc comment
+	 * @param insideDocComment <code>true</code> if this search match is inside a doc
+	 * comment, and <code>false</code> otherwise
 	 * @param participant the search participant that created the match
 	 * @param resource the resource of the element
 	 */
 	public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy,	int offset, int length, boolean insideDocComment, SearchParticipant participant, IResource resource) {
 		super(enclosingElement, accuracy, offset, length, participant, resource);
-		this.insideDocComment = insideDocComment;
-	}
-	
-	/**
-	 * @see org.eclipse.jdt.core.search.SearchMatch#isInsideDocComment()
-	 */
-	public final boolean isInsideDocComment() {
-		return this.insideDocComment;
+		setInsideDocComment(insideDocComment);
 	}
 }

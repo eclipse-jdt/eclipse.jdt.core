@@ -43,10 +43,19 @@ Eclipse SDK 3.0RC1 Build - ?th May 2004 - 3.0 RELEASE CANDIDATE 1
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>API improvements in org.eclipse.jdt.core.search.SearchMatch class hierarchy:
+<ul>
+<li>add setters for all SearchMatch properties</li>
+<li>add insideDocComment argument to PackageReferenceMatch constructor (for 
+being consistent with other refs)</li>
+</ul>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62697">62697</a> for more details.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=63756">63756</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62697">62697</a>
+Need to know if a package reference match is in Javadoc or in Code
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=63756">63756</a>
 multiple builds early
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=63077">63077</a>
 IllegalArgumentException in Openable.codeSelect 
