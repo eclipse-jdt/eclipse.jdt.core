@@ -40,21 +40,12 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	class CommentMapperASTVisitor extends ASTVisitor {
 		CompilationUnit compilationUnit;
 		int nodesCount = 0;
-		int extendedStartPositions = 0;
-		int extendedEndPositions = 0;
 
 		public CommentMapperASTVisitor(CompilationUnit unit) {
 			this.compilationUnit = unit;
 		}
 		protected boolean visitNode(ASTNode node) {
-			// get node positions and extended positions
-			int nodeStart = node.getStartPosition();
-			int nodeEnd = node.getLength() - 1 - nodeStart;
-			int extendedStart = this.compilationUnit.getExtendedStartPosition(node);
-			int extendedEnd = this.compilationUnit.getExtendedLength(node) - 1 - extendedStart;
 			// update counters
-			if (extendedStart < nodeStart) this.extendedStartPositions++;
-			if (extendedEnd > nodeEnd) this.extendedEndPositions++;
 			this.nodesCount++;
 			return true;
 		}
@@ -251,28 +242,6 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		public boolean visit(WhileStatement node) {
 			return visitNode(node);
 		}
-		/* since 3.0 */
-		public boolean visit(BlockComment node) {
-			return visitNode(node);
-		}
-		public boolean visit(LineComment node) {
-			return visitNode(node);
-		}
-		public boolean visit(MemberRef node) {
-			return visitNode(node);
-		}
-		public boolean visit(MethodRef node) {
-			return visitNode(node);
-		}
-		public boolean visit(MethodRefParameter node) {
-			return visitNode(node);
-		}
-		public boolean visit(TagElement node) {
-			return visitNode(node);
-		}
-		public boolean visit(TextElement node) {
-			return visitNode(node);
-		}
 		public void endVisit(AnonymousClassDeclaration node) {
 			endVisitNode(node);
 		}
@@ -459,31 +428,11 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		public void endVisit(WhileStatement node) {
 			endVisitNode(node);
 		}
-		/* since 3.0 */
-		public void endVisit(BlockComment node) {
-			endVisitNode(node);
-		}
-		public void endVisit(LineComment node) {
-			endVisitNode(node);
-		}
-		public void endVisit(MemberRef node) {
-			endVisitNode(node);
-		}
-		public void endVisit(MethodRef node) {
-			endVisitNode(node);
-		}
-		public void endVisit(MethodRefParameter node) {
-			endVisitNode(node);
-		}
-		public void endVisit(TagElement node) {
-			endVisitNode(node);
-		}
-		public void endVisit(TextElement node) {
-			endVisitNode(node);
-		}
 	}
 
-	private void runAstCreation(int astLevel) throws JavaModelException {
+
+	// Do NOT forget that tests must start with "testPerf"
+	public void testPerfDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("AST Creation", Dimension.CPU_TIME);
 		int allExtendedStartPositions = 0;
 		int allExtendedEndPositions = 0;
@@ -515,18 +464,13 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 				for (int ptr=0; ptr<length; ptr++) {
 					ICompilationUnit unit = unitsArray[ptr];
 					unitsArray[ptr] = null; // release memory handle
-					ASTParser parser = ASTParser.newParser(astLevel);
-					parser.setSource(unit);
-					parser.setResolveBindings(false);
-					ASTNode result = parser.createAST(null);
+					ASTNode result = AST.parseCompilationUnit(unit, false);
 					assertEquals("Wrong type for node"+result, result.getNodeType(), ASTNode.COMPILATION_UNIT);
 					compilationUnits[ptr] = (CompilationUnit) result;
 				}
 				for (int ptr=0; ptr<length; ptr++) {
 					CommentMapperASTVisitor visitor = new CommentMapperASTVisitor(compilationUnits[ptr]);
 					compilationUnits[ptr].accept(visitor);
-					allExtendedStartPositions += visitor.extendedStartPositions;
-					allExtendedEndPositions += visitor.extendedEndPositions;
 					allNodesCount += visitor.nodesCount;
 				}
 			}
@@ -541,16 +485,6 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		System.out.println("DOM/AST creation performance test statistics:");
 		NumberFormat intFormat = NumberFormat.getIntegerInstance();
 		System.out.println("  - "+intFormat.format(allNodesCount)+" nodes have been parsed.");
-		System.out.println("  - "+intFormat.format(allExtendedStartPositions)+" nodes have extended start position.");
-		System.out.println("  - "+intFormat.format(allExtendedEndPositions)+" nodes have extended end position.");
 		System.out.println("-------------------------------------\n");
-	}
-
-	// Do NOT forget that tests must start with "testPerf"
-	public void testPerfDomAstCreationJLS2() throws JavaModelException {
-		runAstCreation(AST.JLS2);
-	}
-	public void testPerfDomAstCreationJLS3() throws JavaModelException {
-		runAstCreation(AST.JLS3);
 	}
 }

@@ -45,10 +45,10 @@ public class BuildBatchCompilerTest extends FullSourceWorkspaceTests {
 		tagAsSummary("Build jdt-core/compiler using batch compiler", Dimension.CPU_TIME);
 		
 		// Compile 10 times
-		Main.compile(sources + " -1.4 -g -preserveAllLocals -enableJavadoc -nowarn -d " + bins + " -log " + logs); //$NON-NLS-1$ //$NON-NLS-2$
+		Main.compile(sources + " -1.4 -g -preserveAllLocals -nowarn -d " + bins + " -log " + logs); //$NON-NLS-1$ //$NON-NLS-2$
 		for (int i = 0; i < 10; i++) {
 			startMeasuring();
-			Main.compile(sources + " -1.4 -g -preserveAllLocals -enableJavadoc -nowarn -d " + bins + " -log " + logs); //$NON-NLS-1$ //$NON-NLS-2$
+			Main.compile(sources + " -1.4 -g -preserveAllLocals -nowarn -d " + bins + " -log " + logs); //$NON-NLS-1$ //$NON-NLS-2$
 			stopMeasuring();
 			cleanupDirectory(new File(bins));
 		}

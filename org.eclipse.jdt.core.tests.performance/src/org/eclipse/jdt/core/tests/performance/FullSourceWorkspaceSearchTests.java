@@ -15,8 +15,11 @@ import java.text.NumberFormat;
 
 import junit.framework.*;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -29,6 +32,7 @@ import org.eclipse.test.performance.Dimension;
 public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
 	
 	static int[] REFERENCES = new int[4];
+	static int ALL_TYPES_NAMES = 0;
 	private static int COUNT = 0;
 	private static IJavaSearchScope SEARCH_SCOPE;
 
@@ -70,36 +74,46 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			System.out.println("  - "+intFormat.format(REFERENCES[1])+" field references found.");
 			System.out.println("  - "+intFormat.format(REFERENCES[2])+" method references found.");
 			System.out.println("  - "+intFormat.format(REFERENCES[3])+" constructor references found.");
+			System.out.println("  - "+intFormat.format(ALL_TYPES_NAMES)+" all types names.");
 			System.out.println("-------------------------------------\n");
 		}
 	}
 	/**
 	 * Simple search result collector: only count matches.
 	 */
-	class JavaSearchResultCollector extends SearchRequestor {
+	class JavaSearchResultCollector implements IJavaSearchResultCollector {
 		int count = 0;
-		public void acceptSearchMatch(SearchMatch match) throws CoreException {
+		public void aboutToStart() {
+		}
+		public void accept(IResource resource, int start, int end, IJavaElement element, int accuracy) {
+			this.count++;
+		}
+		public void done() {
+		}
+		public IProgressMonitor getProgressMonitor() {
+			return null;
+		}
+	}
+	public static class TypeNameRequestor implements ITypeNameRequestor {
+		int count = 0;
+		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
+			this.count++;
+		}
+		public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
 			this.count++;
 		}
 	}
-	
+
 	protected JavaSearchResultCollector resultCollector;
 
-	protected void search(String patternString, int searchFor, int limitTo, SearchRequestor requestor) throws CoreException {
-		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
-			? SearchPattern.R_PATTERN_MATCH
-			: SearchPattern.R_EXACT_MATCH;
-		SearchPattern pattern = SearchPattern.createPattern(
+	protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
+		new SearchEngine().search(
+			ResourcesPlugin.getWorkspace(), 
 			patternString, 
 			searchFor,
-			limitTo, 
-			matchMode | SearchPattern.R_CASE_SENSITIVE);
-		new SearchEngine().search(
-			pattern,
-			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			SEARCH_SCOPE,
-			requestor,
-			null);
+			limitTo,
+			SEARCH_SCOPE, 
+			this.resultCollector);
 	}
 
 	/* (non-Javadoc)
@@ -124,8 +138,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			/**
 			 * Ensures that this job is ready to run.
 			 */
-			public void ensureReadyToRun() {
+			public boolean isReadyToRun() {
 				// always ready to do nothing
+				return true;
 			}
 			/**
 			 * Execute the current job, answer whether it was successful.
@@ -155,8 +170,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 //			"IResource", 5886 macthes: fails needs ?
 			"JavaCore", // 2145 m	atches
 			TYPE,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
+			ALL_OCCURRENCES);
 		stopMeasuring();
 		commitMeasurements();
 		assertPerformance();
@@ -169,8 +183,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		search(
 			"FILE", 
 			FIELD,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
+			ALL_OCCURRENCES);
 		stopMeasuring();
 		commitMeasurements();
 		assertPerformance();
@@ -183,8 +196,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		search(
 			"equals", 
 			METHOD,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
+			ALL_OCCURRENCES);
 		stopMeasuring();
 		commitMeasurements();
 		assertPerformance();
@@ -197,12 +209,32 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		search(
 			"String", 
 			CONSTRUCTOR,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
+			ALL_OCCURRENCES);
 		stopMeasuring();
 		commitMeasurements();
 		assertPerformance();
 		// store counter
 		REFERENCES[3] = this.resultCollector.count;
+	}
+	public void testPerfSearchAllTypeNames() throws CoreException {
+		tagAsSummary("Search All Type Names", Dimension.CPU_TIME);
+		TypeNameRequestor requestor = new TypeNameRequestor();
+		startMeasuring();
+		new SearchEngine().searchAllTypeNames(
+			ResourcesPlugin.getWorkspace(),
+			null,
+			null,
+			PATTERN_MATCH,
+			CASE_INSENSITIVE,
+			IJavaSearchConstants.TYPE,
+			SEARCH_SCOPE, 
+			requestor,
+			WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		stopMeasuring();
+		commitMeasurements();
+		assertPerformance();
+		// store counter
+		ALL_TYPES_NAMES = requestor.count;
 	}
 }

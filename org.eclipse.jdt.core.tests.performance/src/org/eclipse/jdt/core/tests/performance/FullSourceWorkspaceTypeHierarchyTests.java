@@ -12,7 +12,10 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.text.NumberFormat;
 import junit.framework.*;
+
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.test.performance.Dimension;
@@ -67,10 +70,17 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	/**
 	 * Simple search result collector: only count matches.
 	 */
-	class JavaSearchResultCollector extends SearchRequestor {
+	class JavaSearchResultCollector implements IJavaSearchResultCollector {
 		int count = 0;
-		public void acceptSearchMatch(SearchMatch match) throws CoreException {
+		public void aboutToStart() {
+		}
+		public void accept(IResource resource, int start, int end, IJavaElement element, int accuracy) {
 			this.count++;
+		}
+		public void done() {
+		}
+		public IProgressMonitor getProgressMonitor() {
+			return null;
 		}
 	}
 	

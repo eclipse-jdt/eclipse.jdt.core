@@ -13,6 +13,10 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.*;
 import java.net.URL;
 import java.security.CodeSource;
+import java.util.List;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
@@ -51,6 +55,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 public AbstractJavaModelTests(String name) {
 	super(name);
 }
+public static Test buildTestSuite(Class evaluationTestClass) {
+	return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
+}
+
+public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
+	TestSuite suite = new Suite(suiteName==null?evaluationTestClass.getName():suiteName);
+	List tests = buildTestsList(evaluationTestClass);
+	for (int index=0, size=tests.size(); index<size; index++) {
+		suite.addTest((Test)tests.get(index));
+	}
+	return suite;
+}
+
 protected void addJavaNature(String projectName) throws CoreException {
 	IProject project = getWorkspaceRoot().getProject(projectName);
 	IProjectDescription description = project.getDescription();
