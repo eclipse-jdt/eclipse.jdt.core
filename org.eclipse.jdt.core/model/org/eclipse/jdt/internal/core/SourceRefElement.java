@@ -72,13 +72,13 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
  */
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	Openable openableParent = (Openable)getOpenableParent();
-	if (openableParent != null) {
-		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
-		if (openableParentInfo == null) {
-			openableParent.generateInfos(openableParent.createElementInfo(), newElements, null);
-		} else {
-			throw newNotPresentException();
-		}
+	if (openableParent == null) return;
+
+	JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
+	if (openableParentInfo == null) {
+		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
+	} else {
+		throw newNotPresentException();
 	}
 }
 /**

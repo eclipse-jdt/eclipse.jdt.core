@@ -228,7 +228,10 @@ public void testGetSourceAttachmentPath() throws JavaModelException {
  */
 public void testGetSourceRange() throws JavaModelException {
 	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
-	assertTrue("Class file source range not correct", cf.getSourceRange().getOffset() == 0 && cf.getSourceRange().getLength() != 0);
+	ISourceRange sourceRange = cf.getSourceRange();
+	assertTrue("Class file should have associated source range", sourceRange != null);
+	assertEquals("Unexpected offset", 0, sourceRange.getOffset());
+	assertEquals("Unexpected length", 100, sourceRange.getLength());
 }
 /**
  * Ensures that a source range exists for the (inner) class file that has
@@ -236,7 +239,10 @@ public void testGetSourceRange() throws JavaModelException {
  */
 public void testGetSourceRangeInnerClass() throws JavaModelException {
 	IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A$Inner.class");
-	assertTrue("Inner Class file source range not correct", cf.getSourceRange().getOffset() == 0 && cf.getSourceRange().getLength() != 0);
+	ISourceRange sourceRange = cf.getSourceRange();
+	assertTrue("Inner class file should have associated source range", sourceRange != null);
+	assertEquals("Unexpected offset", 0, sourceRange.getOffset());
+	assertEquals("Unexpected length", 100, sourceRange.getLength());
 }
 /**
  * Ensures that a source folder can be attached to a lib folder.
