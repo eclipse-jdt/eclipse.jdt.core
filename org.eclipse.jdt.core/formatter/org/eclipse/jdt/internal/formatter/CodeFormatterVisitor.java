@@ -2384,13 +2384,20 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 * Package declaration
 		 */
 		if (compilationUnitDeclaration.currentPackage != null) {
-			this.scribe.printComment();
-			// OPTION
-			// dump the package keyword
-			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
-			if (blankLinesBeforePackage > 0) {
-				this.scribe.printEmptyLines(blankLinesBeforePackage - 1);
+			if (hasComments()) {
+				this.scribe.printComment();
+				// add a fake new line to add potential blank lines
+				int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
+				if (blankLinesBeforePackage > 0) {
+					this.scribe.printEmptyLines(blankLinesBeforePackage);
+				}
+			} else {
+				int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
+				if (blankLinesBeforePackage > 0) {
+					this.scribe.printEmptyLines(blankLinesBeforePackage - 1);
+				}
 			}
+			// dump the package keyword
 			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);
 			this.scribe.space();
 			this.scribe.printQualifiedReference(compilationUnitDeclaration.currentPackage.sourceEnd);

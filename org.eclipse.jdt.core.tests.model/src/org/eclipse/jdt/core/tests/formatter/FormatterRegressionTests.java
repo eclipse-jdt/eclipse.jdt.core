@@ -70,8 +70,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test447"));  //$NON-NLS-1$
-			suite.addTest(new FormatterRegressionTests("test451"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test405"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -141,7 +140,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 //			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 			if (!result.equals(result2)) {
-				assertEquals("Different reformatting", result2, result);
+				assertEquals("Different reformatting", result, result2);
 			}
 		}
 		if (DefaultCodeFormatter.DEBUG){
@@ -5451,5 +5450,17 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		int start = input.indexOf("private");
 		int end = input.indexOf(";");
 		runTest(input, output, codeFormatter, CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
+	 */
+	public void test452() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE, "2");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE, "2");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test452", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
