@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class SingleMemberAnnotation extends Annotation {
 	
 	public Expression memberValue;
-	public MethodBinding memberBinding;
+	public MethodBinding memberBinding; // unique member method binding
 
 	public SingleMemberAnnotation(TypeReference type, int sourceStart) {
 		this.type = type;
