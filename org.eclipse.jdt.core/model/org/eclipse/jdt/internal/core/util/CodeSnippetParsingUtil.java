@@ -46,11 +46,11 @@ public class CodeSnippetParsingUtil {
 		}
 		return new RecordedParsingInformation(problems, compilationResult.lineSeparatorPositions, parser.getCommentsPositions());
 	}
-	
+
 	public ASTNode[] parseClassBodyDeclarations(char[] source, Map settings, boolean recordParsingInformation) {
 		return parseClassBodyDeclarations(source, 0, source.length, settings, recordParsingInformation);
-	}
-	
+	}	
+
 	public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -80,7 +80,6 @@ public class CodeSnippetParsingUtil {
 	}
 
 	public CompilationUnitDeclaration parseCompilationUnit(char[] source, Map settings, boolean recordParsingInformation) {
-		
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}

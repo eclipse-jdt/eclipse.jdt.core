@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
+import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
 import org.eclipse.text.edits.MultiTextEdit;
@@ -61,8 +63,11 @@ public class Scribe {
 	private int textRegionEnd;
 	private int textRegionStart;
 	public boolean useTab;
+	
+	private int[] lineEnds;
+	private int[][] commentPositions;
 
-	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length) {
+	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
 			if (assertModeSetting == null) {
@@ -80,7 +85,14 @@ public class Scribe {
 		this.fillingSpace = formatter.preferences.filling_space;
 		setLineSeparatorAndIdentationLevel(formatter.preferences);
 		this.textRegionStart = offset;
-		this.textRegionEnd = offset + length - 1; 
+		this.textRegionEnd = offset + length - 1;
+		if (codeSnippetParsingUtil != null) {
+			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
+			if (information != null) {
+				this.lineEnds = information.lineEnds;
+				this.commentPositions = information.commentPositions;
+			}
+		}
 		reset();
 	}
 	

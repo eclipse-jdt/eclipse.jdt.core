@@ -112,7 +112,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length, this.codeSnippetParsingUtil);
 		
 		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
@@ -149,8 +149,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
-		
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length, this.codeSnippetParsingUtil);
 		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
 
@@ -162,7 +161,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length, this.codeSnippetParsingUtil);
 		
 		TextEdit textEdit = this.newCodeFormatter.format(source, expression);
 		return textEdit;
@@ -176,7 +175,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length, this.codeSnippetParsingUtil);
 		
 		return  this.newCodeFormatter.format(source, constructorDeclaration);
 	}
