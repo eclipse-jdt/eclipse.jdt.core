@@ -48,6 +48,15 @@ public class CorrectionEngine implements ProblemIrritants, ProblemReasons {
 	 * 
 	 * @return void
 	 *      correction results are answered through a requestor.
+	 * 
+	 * @param marker
+	 * 		the marker which describe the problem to correct.
+	 * 
+	 * @param targetUnit
+	 * 		replace the compilation unit given by the marker. Ignored if null.
+	 * 
+	 * @param positionOffset
+	 * 		the offset of position given by the marker.
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
 	 * @since 2.0 
