@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
+/**
+ * This class is a collection of helper methods.
+ */
 public final class CharOperation {
 
 	/**
@@ -23,15 +26,28 @@ public final class CharOperation {
 	public static final char[][] NO_CHAR_CHAR = new char[0][];
 
 	/**
-	 * Return a new array with appending the suffix character at the end of the array.
-	 * For example:
-	 * 1) array = { 'a', 'b' }
+	 * Returns a new array with appending the suffix character at the end of the array.
+	 * <br>
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    array = { 'a', 'b' }
 	 *    suffix = 'c'
 	 *    => result = { 'a', 'b' , 'c' }
-	 * 2) array = null
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = null
 	 *    suffix = 'c'
 	 *    => result = { 'c' }
-	 * 	 * @param array the array that is concanated with the suffix character	 * @param suffix the suffix character	 * @return the new array	 */
+	 * </pre></li>
+	 * </ol>
+	 * 
+	 * @param array the array that is concanated with the suffix character
+	 * @param suffix the suffix character
+	 * @return the new array
+	 */
 	public static final char[] append(char[] array, char suffix) {
 		if (array == null)
 			return new char[] { suffix };
@@ -45,20 +61,40 @@ public final class CharOperation {
 	 * Returns the concatenation of the two arrays. It returns null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
 	 * If the second array is null, then the first array is returned.
+	 * <br>
+	 * <br>
 	 * For example:
-	 * 1) first = null
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
 	 *    second = null
 	 *    => result = null
-	 * 2) first = { { ' a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { ' a' } }
 	 *    second = null
 	 *    => result = { { ' a' } }
-	 * 3) first = null
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = null
 	 *    second = { { ' a' } }
 	 *    => result = { { ' a' } }
-	 * 4) first = { { ' b' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { ' b' } }
 	 *    second = { { ' a' } }
 	 *    => result = { { ' b' }, { ' a' } }
-	 * 	 * @param first the first array to concatenate	 * @param second the second array to concatenate	 * @return the concatenation of the two arrays, or null if the two arrays are null.	 */
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param first the first array to concatenate
+	 * @param second the second array to concatenate
+	 * @return the concatenation of the two arrays, or null if the two arrays are null.
+	 */
 	public static final char[][] arrayConcat(char[][] first, char[][] second) {
 		if (first == null)
 			return second;
@@ -72,23 +108,34 @@ public final class CharOperation {
 		System.arraycopy(second, 0, result, length1, length2);
 		return result;
 	}
-	
+
 	/**
 	 * Returns a new array adding the second array at the end of first array.
 	 * It returns null if the first and second are null.
 	 * If the first array is null, then a new array char[][] is created with second.
 	 * If the second array is null, then the first array is returned.
-	 * 
+	 * <br>
+	 * <br>
 	 * For example:
-	 * 1) first = null
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
 	 *    second = { 'a' }
 	 *    => result = { { ' a' } }
-	 * 2) first = { { ' a' } }
+	 * </pre>
+	 * <li><pre>
+	 *    first = { { ' a' } }
 	 *    second = null
 	 *    => result = { { ' a' } }
-	 * 3) first = { { ' a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { { ' a' } }
 	 *    second = { ' b' }
 	 *    => result = { { ' a' } , { ' b' } }
+	 * </pre>
+	 * </li>
+	 * </ol>
 	 * 
 	 * @param first the first array to concatenate
 	 * @param second the array to add at the end of the first array
@@ -106,22 +153,34 @@ public final class CharOperation {
 		result[length] = second;
 		return result;
 	}
-	
+
 	/**
 	 * Returns the concatenation of the two arrays. It returns null if the two arrays are null.
 	 * If the first array is null, then the second array is returned.
 	 * If the second array is null, then the first array is returned.
-	 * 
+	 * <br>
+	 * <br>
 	 * For example:
-	 * 1) first = null
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
 	 *    second = { 'a' }
 	 *    => result = { ' a' }
-	 * 2) first = { ' a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { ' a' }
 	 *    second = null
 	 *    => result = { ' a' }
-	 * 3) first = { ' a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { ' a' }
 	 *    second = { ' b' }
 	 *    => result = { ' a' , ' b' }
+	 * </pre>
+	 * </li>
+	 * </ol>
 	 * 
 	 * @param first the first array to concatenate
 	 * @param second the second array to concatenate
@@ -140,34 +199,52 @@ public final class CharOperation {
 		System.arraycopy(second, 0, result, length1, length2);
 		return result;
 	}
-	
+
 	/**
 	 * Returns the concatenation of the three arrays. It returns null if the three arrays are null.
 	 * If first is null, it returns the concatenation of second and third.
 	 * If second is null, it returns the concatenation of first and third.
 	 * If third is null, it returns the concatenation of first and second.
-	 * 
+	 * <br>
+	 * <br>
 	 * For example:
-	 * 1) first = null
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
 	 *    second = { 'a' }
 	 *    third = { 'b' }
 	 *    => result = { ' a', 'b' }
-	 * 2) first = { 'a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
 	 *    second = null
 	 *    third = { 'b' }
 	 *    => result = { ' a', 'b' }
-	 * 3) first = { 'a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
 	 *    second = { 'b' }
 	 *    third = null
 	 *    => result = { ' a', 'b' }
-	 * 4) first = null
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = null
 	 *    second = null
 	 *    third = null
 	 *    => result = null
-	 * 5) first = { 'a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
 	 *    second = { 'b' }
 	 *    third = { 'c' }
 	 *    => result = { 'a', 'b', 'c' }
+	 * </pre>
+	 * </li>
+	 * </ol>
 	 * 
 	 * @param first the first array to concatenate
 	 * @param second the second array to concatenate
@@ -195,6 +272,45 @@ public final class CharOperation {
 		System.arraycopy(third, 0, result, length1 + length2, length3);
 		return result;
 	}
+
+	/**
+	 * Returns the concatenation of the two arrays inserting the separator character between the two arrays.
+	 * It returns null if the two arrays are null.
+	 * If the first array is null, then the second array is returned.
+	 * If the second array is null, then the first array is returned.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = { 'a' }
+	 *    separator = '/'
+	 *    => result = { ' a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { ' a' }
+	 *    second = null
+	 *    separator = '/'
+	 *    => result = { ' a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { ' a' }
+	 *    second = { ' b' }
+	 *    separator = '/'
+	 *    => result = { ' a' , '/', 'b' }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param first the first array to concatenate
+	 * @param second the second array to concatenate
+	 * @param separator the character to insert
+	 * @return the concatenation of the two arrays inserting the separator character 
+	 * between the two arrays , or null if the two arrays are null.
+	 */
 	public static final char[] concat(
 		char[] first,
 		char[] second,
@@ -217,6 +333,47 @@ public final class CharOperation {
 		System.arraycopy(second, 0, result, length1 + 1, length2);
 		return result;
 	}
+
+	/**
+	 * Returns the concatenation of the three arrays inserting the sep1 character between the 
+	 * two arrays and sep2 between the last two.
+	 * It returns null if the three arrays are null.
+	 * If the first array is null, then it returns the concatenation of second and third inserting
+	 * the sep2 character between them.
+	 * If the second array is null, then the first array is returned.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = { 'a' }
+	 *    separator = '/'
+	 *    => result = { ' a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { ' a' }
+	 *    second = null
+	 *    separator = '/'
+	 *    => result = { ' a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { ' a' }
+	 *    second = { ' b' }
+	 *    separator = '/'
+	 *    => result = { ' a' , '/', 'b' }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param first the first array to concatenate
+	 * @param second the second array to concatenate
+	 * @param separator the character to insert
+	 * @return the concatenation of the two arrays inserting the separator character 
+	 * between the two arrays , or null if the two arrays are null.
+	 */
 	public static final char[] concat(
 		char[] first,
 		char sep1,
@@ -241,6 +398,35 @@ public final class CharOperation {
 		System.arraycopy(third, 0, result, length1 + length2 + 2, length3);
 		return result;
 	}
+
+	/**
+	 * Returns a new array with prepending the prefix character and appending the suffix 
+	 * character at the end of the array. If array is null, it returns a new array containing the 
+	 * prefix and the suffix characters.
+	 * <br>
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    prefix = 'a'
+	 *    array = { 'b' }
+	 *    suffix = 'c'
+	 *    => result = { 'a', 'b' , 'c' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    prefix = 'a'
+	 *    array = null
+	 *    suffix = 'c'
+	 *    => result = { 'a', 'c' }
+	 * </pre></li>
+	 * </ol>
+	 * 
+	 * @param prefix the prefix character
+	 * @param array the array that is concanated with the prefix and suffix characters
+	 * @param suffix the suffix character
+	 * @return the new array
+	 */
 	public static final char[] concat(char prefix, char[] array, char suffix) {
 		if (array == null)
 			return new char[] { prefix, suffix };
@@ -553,8 +739,13 @@ public final class CharOperation {
 		return -1;
 	}
 	/**
-	 * Answer the last portion of a name given a separator
-	 * e.g. lastSegment("java.lang.Object".toCharArray(),'.') --> Object
+	 * Answers the last portion of a name given a separator.
+	 * <br>
+	 * <br>
+	 * For example,
+	 * <pre>
+	 * 	lastSegment("java.lang.Object".toCharArray(),'.') --> Object
+	 * </pre>
 	 */
 	final static public char[] lastSegment(char[] array, char separator) {
 		int pos = lastIndexOf(separator, array);
