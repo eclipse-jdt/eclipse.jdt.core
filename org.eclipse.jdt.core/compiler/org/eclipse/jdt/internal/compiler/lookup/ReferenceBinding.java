@@ -458,19 +458,6 @@ public boolean isCompatibleWith(TypeBinding right) {
 	if (!(right instanceof ReferenceBinding))
 		return false;
 
-	// check compatibility with type variable (must be compatible with variable bounds
-	if (right instanceof TypeVariableBinding) {
-	    TypeVariableBinding typeVariable = (TypeVariableBinding) right;
-	    ReferenceBinding variableSuperclass = typeVariable.superclass;
-	    if (variableSuperclass.id != T_Object && !isCompatibleWith(variableSuperclass))
-	        return false;
-	    ReferenceBinding[] variableSuperinterfaces = typeVariable.superInterfaces;
-	    for (int i = 0, length = variableSuperinterfaces.length; i < length; i++) {
-	        if (!isCompatibleWith(variableSuperinterfaces[i]))
-	                return false;
-	    }
-	    return true;
-	}
 	ReferenceBinding referenceBinding = (ReferenceBinding) right;
 	if (referenceBinding.isInterface())
 		return implementsInterface(referenceBinding, true);
@@ -589,6 +576,11 @@ public char[] qualifiedSourceName() {
 	if (isMemberType())
 		return CharOperation.concat(enclosingType().qualifiedSourceName(), sourceName(), '.');
 	return sourceName();
+}
+
+// TODO (philippe) Is #rawType() actually needed ?
+public ReferenceBinding rawType() {
+    return this;
 }
 
 public char[] readableName() /*java.lang.Object,  p.X<T> */ {

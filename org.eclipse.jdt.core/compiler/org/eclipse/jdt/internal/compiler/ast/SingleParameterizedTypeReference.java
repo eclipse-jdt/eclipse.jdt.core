@@ -98,7 +98,7 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		    TypeBinding argType = argTypes[j];
 		    if (argType == null) {
 		        argHasError = true;
-		    } else if (!argType.isCompatibleWith(typeVariables[j])) {
+		    } else if (!typeVariables[j].boundCheck(argType)) {
 		        argHasError = true;
 				scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, this.typeArguments[j]);
 		    }

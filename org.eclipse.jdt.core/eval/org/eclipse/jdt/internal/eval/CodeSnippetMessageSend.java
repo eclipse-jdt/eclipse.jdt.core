@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SubstitutedMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -164,8 +164,8 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 	if (!flowInfo.isReachable()) return;
 
-	if (this.binding instanceof SubstitutedMethodBinding) {
-	    SubstitutedMethodBinding substitutedMethod = (SubstitutedMethodBinding) this.binding;
+	if (this.binding instanceof ParameterizedMethodBinding) {
+	    ParameterizedMethodBinding substitutedMethod = (ParameterizedMethodBinding) this.binding;
 	    this.codegenBinding = substitutedMethod.originalMethod;
 	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;

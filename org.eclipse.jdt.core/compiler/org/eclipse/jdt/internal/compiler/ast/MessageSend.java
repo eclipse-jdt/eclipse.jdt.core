@@ -125,9 +125,11 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 	if (!flowInfo.isReachable()) return;
 
-	if (this.binding instanceof SubstitutedMethodBinding) {
-	    SubstitutedMethodBinding substitutedMethod = (SubstitutedMethodBinding) this.binding;
+	// if method from parameterized type got found, use the original method at codegen time
+	if (this.binding instanceof ParameterizedMethodBinding) {
+	    ParameterizedMethodBinding substitutedMethod = (ParameterizedMethodBinding) this.binding;
 	    this.codegenBinding = substitutedMethod.originalMethod;
+	    // extra cast needed if method return type was type variable
 	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
 	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
 	        if (variableReturnType.firstBound != substitutedMethod.returnType) { // no need for extra cast if same as first bound anyway

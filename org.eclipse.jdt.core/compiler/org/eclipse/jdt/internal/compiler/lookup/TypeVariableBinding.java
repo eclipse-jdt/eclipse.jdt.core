@@ -35,6 +35,24 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.rank = rank;
 		this.tagBits |= UseTypeVariable;
 	}
+
+	/**
+	 * Returns true if the argument type satisfies all bounds of the type parameter
+	 */
+	public boolean boundCheck(TypeBinding argumentType) {
+		if (!(argumentType instanceof ReferenceBinding))
+			return false;
+		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(this.superclass)) {
+		    return false;
+		}
+	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+	        if (!argumentType.isCompatibleWith(this.superInterfaces[i])) {
+				return false;
+	        }
+	    }
+	    return true;
+    }
+
 	public char[] constantPoolName() { /* java/lang/Object */ 
 	    if (this.firstBound != null) {
 			return this.firstBound.constantPoolName();
@@ -66,6 +84,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}	
+
 	/**
 	 * Returns true if the type was declared as a type variable
 	 */

@@ -200,9 +200,10 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	if (receiverType instanceof ArrayBinding)
 		return false;
 	ReferenceBinding type = (ReferenceBinding) receiverType;
+	ReferenceBinding declaringType = declaringClass;
 	PackageBinding declaringPackage = declaringClass.fPackage;
 	do {
-		if (declaringClass == type) return true;
+		if (declaringType == type) return true;
 		if (declaringPackage != type.fPackage) return false;
 	} while ((type = type.superclass()) != null);
 	return false;

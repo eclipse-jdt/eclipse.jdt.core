@@ -69,16 +69,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#canBeInstantiated()
 	 */
 	public boolean canBeInstantiated() {
-
-		if (this.type == null) return false;		
-		return this.type.canBeInstantiated();
+		return this.type.canBeInstantiated(); // erasure
 	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#computeId()
 	 */
 	public void computeId() {
-
 		this.id = NoId;		
 	}
 
@@ -264,13 +261,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(ReferenceBinding)
-	 */
-	public boolean isSuperclassOf(ReferenceBinding referenceTypeBinding) {
-		return this.type.isSuperclassOf(referenceTypeBinding);
-	}
-	
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()
 	 */
 	public ReferenceBinding[] memberTypes() {
@@ -286,19 +276,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 			return this.methods;
 	
 	    MethodBinding[] originalMethods = this.type.methods();
-	    MethodBinding[] substitutedMethods = originalMethods;
-	    for (int i = 0, length = originalMethods.length; i < length; i++) {
+	    int length = originalMethods.length;
+	    MethodBinding[] substitutedMethods = new MethodBinding[length];
+	    for (int i = 0; i < length; i++) {
 	        MethodBinding originalMethod = originalMethods[i];
-	        if ((originalMethod.modifiers & AccUseTypeVariable) != 0) {
-	            if (substitutedMethods == originalMethods) {
-	                substitutedMethods = new MethodBinding[length];
-	                System.arraycopy(originalMethods, 0, substitutedMethods, 0, i);
-	            }
-	            // TODO (philippe) should only create new method if substitution did actually occur
-	            substitutedMethods[i] = new SubstitutedMethodBinding(originalMethod, this);
-	        } else if (originalMethods != substitutedMethods) {
-	            substitutedMethods[i] = originalMethod;
-	        }
+	        // substitute all methods, so as to get updated declaring class at least
+            substitutedMethods[i] = new ParameterizedMethodBinding(this, originalMethod);
 	    }
 		modifiers ^= AccUnresolved;
 	    return this.methods = substitutedMethods;
@@ -311,6 +294,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		return this.type.qualifiedSourceName();
 	}
 
+	public ReferenceBinding rawType() {
+	    return this.type.rawType(); // erasure
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
 	 */
@@ -353,7 +340,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
 	 */
 	public char[] signature() {
-		return this.type.signature();
+		return this.type.signature();  // erasure
 	}
 
 	/**
@@ -413,6 +400,28 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
     }
 	
 	/**
+	 * Returns an array of types, where original types got substituted using the receiver
+	 * parameterized type. Only allocate an array if anything is different.
+	 */
+	public ReferenceBinding[] substitute(ReferenceBinding[] originalTypes) {
+	    ReferenceBinding[] substitutedTypes = originalTypes;
+	    for (int i = 0, length = originalTypes.length; i < length; i++) {
+	        ReferenceBinding originalType = originalTypes[i];
+	        ReferenceBinding substitutedParameter = (ReferenceBinding)this.substitute(originalType);
+	        if (substitutedParameter != originalType) {
+	            if (substitutedTypes == originalTypes) {
+	                substitutedTypes = new ReferenceBinding[length];
+	                System.arraycopy(originalTypes, 0, substitutedTypes, 0, i);
+	            }
+	            substitutedTypes[i] = substitutedParameter;
+	        } else if (substitutedTypes != originalTypes) {
+	            substitutedTypes[i] = originalType;
+	        }
+	    }
+	    return substitutedTypes;
+    }
+
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superclass()
 	 */
 	public ReferenceBinding superclass() {
@@ -427,7 +436,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
 	 */
 	public ReferenceBinding[] superInterfaces() {
-		return this.type.superInterfaces();
+	    if (this.superInterfaces == null) {
+	    	this.superInterfaces = substitute(this.type.superInterfaces());
+	    }
+		return this.superInterfaces;
 	}
 
 	/**
