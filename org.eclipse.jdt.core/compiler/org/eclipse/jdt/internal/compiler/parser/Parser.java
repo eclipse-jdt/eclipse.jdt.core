@@ -4914,8 +4914,12 @@ public int[] getJavaDocPositions() {
 			return; //work already done ...
 
 		//real parse of the method....
-		this.scanner.setSource(
-			unit.compilationResult.compilationUnit.getContents());
+		char[] contents = unit.compilationResult.compilationUnit.getContents();
+		this.scanner.setSource(contents);
+		this.scanner.setLineEnds(unit.compilationResult.lineSeparatorPositions);
+		if (this.annotationParser.checkAnnotation) {
+			this.annotationParser.scanner.setSource(contents);
+		}
 		if (unit.types != null) {
 			for (int i = unit.types.length; --i >= 0;)
 				unit.types[i].parseMethod(this, unit);

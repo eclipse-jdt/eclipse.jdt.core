@@ -521,7 +521,12 @@ protected void getMethodBodies(CompilationUnitDeclaration unit) {
 	}
 
 	try {
+		char[] contents = unit.compilationResult.compilationUnit.getContents();
 		this.parser.scanner.setSource(unit.compilationResult.compilationUnit.getContents());
+		this.parser.scanner.setLineEnds(unit.compilationResult.lineSeparatorPositions);
+		if (this.parser.annotationParser.checkAnnotation) {
+			this.parser.annotationParser.scanner.setSource(contents);
+		}
 		this.parser.nodeSet = this.currentPossibleMatch.nodeSet;
 		this.parser.parseBodies(unit);
 	} finally {
