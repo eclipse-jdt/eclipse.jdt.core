@@ -1121,6 +1121,70 @@ public void test047() {
 		"The operator += is undefined for the argument type(s) T, String\n" + 
 		"----------\n");
 }
+// javac disagrees with us here, but issues a ClassCastException when running it
+// TODO (philippe) need to reassess the behavior of this test 
+public void test048() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    private T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<String>(\"OUTER\").bar();\n" + 
+			"    }\n" + 
+			"    void bar() {\n" + 
+			"        new X<X>(this) {\n" + 
+			"            void run() {\n" + 
+			"                new Object() {\n" + 
+			"                    void run() {\n" + 
+			"                        X x = t;\n" + 
+			"				        System.out.println(x);\n" + 
+			"                    }\n" + 
+			"                }.run();\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	X x = t;\n" + 
+		"	  ^\n" + 
+		"Type mismatch: cannot convert from T to X\n" + 
+		"----------\n");
+}
+public void test049() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    public T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<String>(\"OUTER\").bar();\n" + 
+			"    }\n" + 
+			"    void bar() {\n" + 
+			"        new X<X>(this) {\n" + 
+			"            void run() {\n" + 
+			"                new Object() {\n" + 
+			"                    void run() {\n" + 
+			"                        X x = t;\n" + 
+			"				        System.out.println(\"SUCCESS:\"+x);\n" + 
+			"                    }\n" + 
+			"                }.run();\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
