@@ -28,8 +28,8 @@ import java.util.List;
  * <pre>
  * ClassInstanceCreation:
  *        [ Expression <b>.</b> ]
- *            [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
- *            <b>new</b> Type <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *            <b>new</b> [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
+ *            Type <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  *            [ AnonymousClassDeclaration ]
  * </pre>
  * <p>
