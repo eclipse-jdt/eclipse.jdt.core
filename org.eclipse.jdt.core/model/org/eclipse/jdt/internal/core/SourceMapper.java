@@ -912,7 +912,6 @@ public class SourceMapper
 				IResource res = folder.findMember(fullName);
 				if (res instanceof IFile) {
 					try {
-//						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res, this.encoding);
 						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
 					} catch (JavaModelException e) {
 						// ignore
@@ -1115,9 +1114,10 @@ public class SourceMapper
 			}
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			parser = new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse);
+			IJavaElement javaElement = this.fType.getCompilationUnit();
+			if (javaElement == null) javaElement = this.fType.getParent();
 			parser.parseCompilationUnit(
-//				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, encoding),
-				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, this.fType.getParent()),
+				new BasicCompilationUnit(contents, null, type.getElementName() + SUFFIX_STRING_java, javaElement),
 				doFullParse);
 			if (elementToFind != null) {
 				ISourceRange range = this.getNameRange(elementToFind);
