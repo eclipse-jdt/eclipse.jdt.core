@@ -538,7 +538,7 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		if (!hasUnsavedChanges())
 			return;
 		byte[] bytes = getContents().getBytes();
-		BufferedInputStream stream = new BufferedInputStream(new ByteArrayInputStream(bytes));
+		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
 		// use a platform operation to update the resource contents
 		try {

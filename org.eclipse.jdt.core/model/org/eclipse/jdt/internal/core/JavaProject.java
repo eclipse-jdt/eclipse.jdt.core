@@ -1949,7 +1949,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 
 		String propertyName = computeSharedPropertyFileName(key);
 		IFile rscFile = getProject().getFile(propertyName);
-		InputStream input = new BufferedInputStream(new ByteArrayInputStream(value.getBytes()));
+		InputStream input = new ByteArrayInputStream(value.getBytes());
 		// update the resource content
 		if (rscFile.exists()) {
 			rscFile.setContents(input, true, false, null);
