@@ -46,7 +46,7 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 					String simpleTypeName = new String(types[0].name);
 					IPackageFragment parent = (IPackageFragment)openable.getParent();
 					org.eclipse.jdt.core.IClassFile classFile = 
-						parent.getClassFile(simpleTypeName + ".class");
+						parent.getClassFile(simpleTypeName + ".class"); //$NON-NLS-1$
 					if (classFile.exists()) {
 						this.openable = (Openable)classFile;
 					} 

@@ -590,7 +590,8 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 		case IJavaElement.TYPE :
 			IType type = (IType) element;
 			String packageName = type.getPackageFragment().getElementName();
-			String fullyQualifiedName = packageName + "." + type.getTypeQualifiedName(); // NB: if default package, the fully qualified name as to be ".X" so that createTypePattern(String) creates a pattern with the NO_CHAR qualification
+			String fullyQualifiedName = packageName + "." + type.getTypeQualifiedName(); //$NON-NLS-1$
+			// NB: if default package, the fully qualified name as to be ".X" so that createTypePattern(String) creates a pattern with the NO_CHAR qualification
 			searchPattern = createTypePattern(fullyQualifiedName, limitTo);
 			break;
 		case IJavaElement.PACKAGE_DECLARATION :
@@ -1032,7 +1033,7 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 	char[] qualifiedPackageName = type.qualifiedPackageName();
 	char[] qualifiedSourceName = 
 		type instanceof LocalTypeBinding ?
-			CharOperation.concat("1".toCharArray(), type.qualifiedSourceName(), '.') :
+			CharOperation.concat("1".toCharArray(), type.qualifiedSourceName(), '.') : //$NON-NLS-1$
 			type.qualifiedSourceName();
 	if (this.matchesType(
 			simpleNamePattern, 

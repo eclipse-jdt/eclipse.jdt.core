@@ -13,8 +13,7 @@ public class AssistOptions {
 	 * Option IDs
 	 */
 	public static final String OPTION_PerformVisibilityCheck =
-		"org.eclipse.jdt.core.codeComplete.visibilityCheck";
-	//$NON-NLS-1$
+		"org.eclipse.jdt.core.codeComplete.visibilityCheck"; 	//$NON-NLS-1$
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
 

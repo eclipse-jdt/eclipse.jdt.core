@@ -569,7 +569,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	 * Standalone options
 	 */
 	if (versionIDRequired) {
-		out.println(Main.bind("configure.version",Main.bind("compiler.version"))); //$NON-NLS-1$
+		out.println(Main.bind("configure.version",Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$
 		out.println();
 		proceed = false;
 		return;
@@ -790,7 +790,7 @@ protected void performCompilation() throws InvalidInputException {
 	batchCompiler.compile(getCompilationUnits());
 }
 private void printUsage() {
-	out.println(Main.bind("misc.usage",Main.bind("compiler.version"))); //$NON-NLS-1$
+	out.println(Main.bind("misc.usage",Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$
 	out.flush();
 }
 

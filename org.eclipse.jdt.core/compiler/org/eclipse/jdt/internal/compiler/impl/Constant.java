@@ -61,20 +61,20 @@ public final Constant castTo(int conversionToTargetType){
 //	    case (T_long<<4)+T_undefined  	 : return NotAConstant ;   
 	    case (T_long<<4)+T_byte  		 : return Constant.fromValue((long)this.byteValue()); 
 	    case (T_long<<4)+T_long  		 : return this ; 
-	    case (T_long<<4)+T_short  		 : return Constant.fromValue((long)this.shortValue()); ; 
+	    case (T_long<<4)+T_short  		 : return Constant.fromValue((long)this.shortValue()); 
 //	    case (T_long<<4)+T_void  		 : return NotAConstant ;   
 //	    case (T_long<<4)+T_String  		 : return NotAConstant ;   
 //	    case (T_long<<4)+T_Object  		 : return NotAConstant ;   
-	    case (T_long<<4)+T_double  		 : return Constant.fromValue((long)this.doubleValue()); ;   
-	    case (T_long<<4)+T_float  		 : return Constant.fromValue((long)this.floatValue()); ;   
+	    case (T_long<<4)+T_double  		 : return Constant.fromValue((long)this.doubleValue());   
+	    case (T_long<<4)+T_float  		 : return Constant.fromValue((long)this.floatValue());  
 //	    case (T_long<<4)+T_boolean  	 : return NotAConstant ;   
-	    case (T_long<<4)+T_char  		 : return Constant.fromValue((long)this.charValue()); ;  
-	    case (T_long<<4)+T_int  		 : return Constant.fromValue((long)this.intValue()); ;  
+	    case (T_long<<4)+T_char  		 : return Constant.fromValue((long)this.charValue()); 
+	    case (T_long<<4)+T_int  		 : return Constant.fromValue((long)this.intValue()); 
 //	    case (T_long<<4)+T_null  		 : return NotAConstant ;   
 
 //	    case (T_short<<4)+T_undefined  	 : return NotAConstant ;   
-	    case (T_short<<4)+T_byte  		 : return Constant.fromValue((short)this.byteValue()); ; 
-	    case (T_short<<4)+T_long  		 : return Constant.fromValue((short)this.longValue()); ;  
+	    case (T_short<<4)+T_byte  		 : return Constant.fromValue((short)this.byteValue());
+	    case (T_short<<4)+T_long  		 : return Constant.fromValue((short)this.longValue()); 
 	    case (T_short<<4)+T_short  		 : return this ;  
 //	    case (T_short<<4)+T_void  		 : return NotAConstant ;   
 //	    case (T_short<<4)+T_String  	 : return NotAConstant ;   
