@@ -787,9 +787,10 @@ public class ClassScope extends Scope {
 		if (superType.isMemberType()) {
 			ReferenceBinding current = superType.enclosingType();
 			do {
-				if (sourceType == current) {
+				if (current.isHierarchyBeingConnected()) {
 					problemReporter().hierarchyCircularity(sourceType, current, reference);
 					sourceType.tagBits |= HierarchyHasProblems;
+					current.tagBits |= HierarchyHasProblems;
 					return true;
 				}
 			} while ((current = current.enclosingType()) != null);
