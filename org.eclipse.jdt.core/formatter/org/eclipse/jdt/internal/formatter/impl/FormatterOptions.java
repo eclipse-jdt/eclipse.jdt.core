@@ -165,7 +165,7 @@ public void setOption(ConfigurableOption setting) {
 	}else if(optionID.equals(OPTION_ClearAllBlankLines)){
 		setClearAllBlankLinesMode(setting.getValueIndex() == 0);
 	}else if(optionID.equals(OPTION_InsertNewLineBetweenElseAndIf)){
-		setCompactElseIfMode(setting.getValueIndex() == 0);
+		setCompactElseIfMode(setting.getValueIndex() == 1);
 	}else if(optionID.equals(OPTION_InsertNewLineInEmptyBlock)){
 		setNewLineInEmptyBlockMode(setting.getValueIndex() == 0);
 	}else if(optionID.equals(OPTION_SplitLineExceedingLength)){
