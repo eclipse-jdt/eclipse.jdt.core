@@ -42,11 +42,31 @@ Eclipse SDK 3.0M4 Build - ?th September 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Part of the new support for local and anonymous types in the Java model has been released. 
+	<p>
+	This includes:
+	<ul>
+	<li>local and anonymous types are shown in the Outline view and the Package Explorer view</li>
+	<li>Java element deltas for these types are notified</li>
+	<li>handles on these types can be created (see <code>IMember.getType(String, int)</code>)</li>
+	<li><code>getChildren()</code> on a method, a field or an initializer returns the local or anonymous types defined in this element</li>
+	<li>mementos for these handles are supported</li>
+	<li>open on selection (F3) in a Java editor goes to the local type definition</li>
+	</ul>
+	<p>
+	This doesn't yet include:
+	<ul>
+	<li>type hierarchy on these types</li>
+	<li>search on these types</li>
+	<li>anonymous/local binary types</li>
+	</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38931">38931</a>
 org.eclipse.jdt.internal.corext.dom.NodeFinder needed in API 
+
 
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
