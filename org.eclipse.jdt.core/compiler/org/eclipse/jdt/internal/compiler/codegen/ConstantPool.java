@@ -1909,9 +1909,10 @@ public int literalIndexForJavaLangAssertionErrorConstructor(int typeBindingID) {
 				writeU2(nameAndTypeIndex);
 			}
 			break;
-		case T_Object :
-		case T_String :
-		case T_null :
+		//case T_Object :
+		//case T_String :
+		//case T_null :
+		default : 
 			if ((index = wellKnownMethods[ASSERTIONERROR_CONSTR_OBJECT_METHOD]) == 0) {
 				classIndex = literalIndexForJavaLangAssertionError();
 				if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[CONSTR_OBJECT_METHOD_NAME_AND_TYPE]) == 0) {

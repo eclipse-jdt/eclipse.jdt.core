@@ -76,7 +76,6 @@ public class AssertStatement extends Statement {
 		}
 		int pc = codeStream.position;
 	
-		//  codegen here
 		if (this.assertionSyntheticFieldBinding != null) {
 			Label assertionActivationLabel = new Label(codeStream);
 			codeStream.getstatic(this.assertionSyntheticFieldBinding);
