@@ -1021,10 +1021,14 @@ public void reconcile(
 	try {
 		// set the units to look inside only for problem detection purpose (40322)
 		if (forceProblemDetection) {
-			lookup = ((JavaProject)getJavaProject()).getNameLookup();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ICompilationUnit[] workingCopies = manager.getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
-			lookup.setUnitsToLookInside(workingCopies);
+			try {
+				lookup = ((JavaProject)getJavaProject()).getNameLookup();
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+				ICompilationUnit[] workingCopies = manager.getWorkingCopies(workingCopyOwner, true/*add primary WCs*/);
+				lookup.setUnitsToLookInside(workingCopies);
+			} catch(JavaModelException e) {
+				// simple project may not find its namelookup, simply ignore working copies (41583)
+			}
 		}			
 		// reconcile
 		ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
