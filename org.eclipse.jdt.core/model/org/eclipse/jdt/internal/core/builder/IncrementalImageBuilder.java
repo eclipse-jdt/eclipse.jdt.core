@@ -31,6 +31,7 @@ protected ArrayList previousLocations;
 protected ArrayList typeNames;
 protected ArrayList qualifiedStrings;
 protected ArrayList simpleStrings;
+protected ArrayList secondaryTypesToRemove;
 
 public static int MaxCompileLoop = 5; // perform a full build if it takes more than ? incremental compile loops
 
@@ -105,6 +106,12 @@ public boolean build(SimpleLookupTable deltas) {
 			notifier.setProgressPerCompilationUnit(increment / allSourceFiles.length);
 			increment = increment / 2;
 			compile(allSourceFiles, initialTypeStrings);
+			if (secondaryTypesToRemove != null) { // delayed deleting secondary types until the end of the compile loop
+				for (int i = 0, length = secondaryTypesToRemove.size(); i < length; i++)
+					removeClassFile((IPath) secondaryTypesToRemove.get(i));
+				this.secondaryTypesToRemove = null;
+				this.previousLocations = null; // cannot optimize recompile case when a secondary type is deleted
+			}
 			addAffectedSourceFiles();
 		}
 	} catch (AbortIncrementalBuildException e) {
@@ -429,7 +436,9 @@ protected void finishedWith(String sourceLocation, CompilationResult result, cha
 
 		if (packagePath == null)
 			packagePath = new Path(extractTypeNameFrom(sourceLocation)).removeLastSegments(1);
-		removeClassFile(packagePath.append(new String(previous)));
+		if (secondaryTypesToRemove == null)
+			this.secondaryTypesToRemove = new ArrayList();
+		secondaryTypesToRemove.add(packagePath.append(new String(previous)));
 	}
 	super.finishedWith(sourceLocation, result, mainTypeName, definedTypeNames, duplicateTypeNames);
 }
