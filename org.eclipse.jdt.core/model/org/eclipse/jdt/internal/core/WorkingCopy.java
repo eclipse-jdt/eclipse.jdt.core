@@ -256,7 +256,7 @@ public boolean isWorkingCopy() {
  * 	or if this is a working copy being opened after it has been destroyed.
  */
 public void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
-	if (this.useCount == 0) {
+	if (this.useCount == 0) { // was destroyed
 		throw newNotPresentException();
 	} else {
 		super.open(pm, buffer);

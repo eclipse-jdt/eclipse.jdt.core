@@ -408,6 +408,7 @@ public void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
 		runOperation(new MoveElementsOperation(elements, containers, force), elements, siblings, renamings, monitor);
 	}
 }
+
 /**
  * @see IJavaModel
  */
