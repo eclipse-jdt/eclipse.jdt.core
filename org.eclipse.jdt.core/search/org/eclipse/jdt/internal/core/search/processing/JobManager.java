@@ -138,6 +138,7 @@ public abstract class JobManager implements Runnable {
 		enabled = true;
 		if (VERBOSE)
 			JobManager.verbose("ENABLING  background indexing"); //$NON-NLS-1$
+		this.notifyAll(); // wake up the background thread if it is waiting			
 	}
 	public boolean isEnabled() {
 		return enabled;
