@@ -1206,20 +1206,31 @@ public class JavaModelManager implements ISaveParticipant {
 		this.containerInitializationInProgress.set(allContainerPaths);
 		
 		// initialize all containers
-		Set keys = allContainerPaths.keySet();
-		int length = keys.size();
-		IJavaProject[] javaProjects = new IJavaProject[length]; // clone as the following will have a side effect
-		keys.toArray(javaProjects);
-		for (int i = 0; i < length; i++) {
-			IJavaProject javaProject = javaProjects[i];
-			HashSet pathSet = (HashSet) allContainerPaths.get(javaProject);
-			if (pathSet == null) continue;
-			int length2 = pathSet.size();
-			IPath[] paths = new IPath[length2];
-			pathSet.toArray(paths); // clone as the following will have a side effect
-			for (int j = 0; j < length2; j++) {
-				IPath path = paths[j];
-				initializeContainer(javaProject, path);
+		boolean ok = false;
+		try {
+			Set keys = allContainerPaths.keySet();
+			int length = keys.size();
+			IJavaProject[] javaProjects = new IJavaProject[length]; // clone as the following will have a side effect
+			keys.toArray(javaProjects);
+			for (int i = 0; i < length; i++) {
+				IJavaProject javaProject = javaProjects[i];
+				HashSet pathSet = (HashSet) allContainerPaths.get(javaProject);
+				if (pathSet == null) continue;
+				int length2 = pathSet.size();
+				IPath[] paths = new IPath[length2];
+				pathSet.toArray(paths); // clone as the following will have a side effect
+				for (int j = 0; j < length2; j++) {
+					IPath path = paths[j];
+					initializeContainer(javaProject, path);
+				}
+			}
+			ok = true;
+		} finally {
+			if (!ok) { 
+				// if we're being traversed by an exception, ensure that that containers are 
+				// no longer marked as initialization in progress
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=66437)
+				this.containerInitializationInProgress.set(null);
 			}
 		}
 		
