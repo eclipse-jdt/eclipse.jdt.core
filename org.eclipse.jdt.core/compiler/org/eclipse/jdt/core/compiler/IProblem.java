@@ -742,4 +742,12 @@ public interface IProblem {
 	int AnnotationMissing = JavadocMissing;
 	/**@deprecated */
 	int AnnotationMessagePrefix = JavadocMessagePrefix;
+	
+	/**
+	 * Generics
+	 */
+	/** @since 3.0 */
+	int DuplicateTypeVariable = Internal + 500;
+	/** @since 3.0 */
+	int CannotUseTypeVariable = Internal +501;
 }
