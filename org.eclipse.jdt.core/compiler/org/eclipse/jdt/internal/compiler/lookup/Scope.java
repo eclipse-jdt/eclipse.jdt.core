@@ -918,7 +918,7 @@ public abstract class Scope
 								object);
 			            break;
 			        case 'g': 
-			            if (CharOperation.equals(selector, GETCLASS) && environment().options.sourceLevel >= 1.5) {
+			            if (CharOperation.equals(selector, GETCLASS) && environment().options.sourceLevel >= JDK1_5) {
 							return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
 			            }
 			            break;
