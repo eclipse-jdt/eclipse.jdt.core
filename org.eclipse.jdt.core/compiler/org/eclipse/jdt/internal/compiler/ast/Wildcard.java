@@ -49,8 +49,7 @@ public class Wildcard extends SingleTypeReference {
 		        boundType = scope.getJavaLangObject();
 	        }
 	    }
-	    WildcardBinding wildcard = scope.environment().createWildcard(boundType, this.kind);
-	    wildcard.fPackage = genericType.fPackage;
+	    WildcardBinding wildcard = scope.environment().createWildcard(boundType, genericType.fPackage, this.kind);
 	    return this.resolvedType = wildcard;
 	}
 	

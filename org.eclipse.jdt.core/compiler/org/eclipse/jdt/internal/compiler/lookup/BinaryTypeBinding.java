@@ -519,9 +519,9 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
  */
 public boolean isEquivalentTo(TypeBinding otherType) {
     if (this == otherType) return true;
-    return this.typeVariables != NoTypeVariables 
-    				&& otherType.isRawType() && otherType.erasure() == this;
- }
+    if (this.typeVariables == NoTypeVariables) return false;
+    return otherType.isRawType() && otherType.erasure() == this;
+}
 public boolean isGenericType() {
     return this.typeVariables != NoTypeVariables;
 }

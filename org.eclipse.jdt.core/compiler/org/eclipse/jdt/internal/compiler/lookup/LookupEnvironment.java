@@ -13,11 +13,10 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -399,17 +398,17 @@ public RawTypeBinding createRawType(ReferenceBinding genericType) {
 	return cachedInfo;
 }
 
-public WildcardBinding createWildcard(TypeBinding bound, int kind) {
-    
+public WildcardBinding createWildcard(TypeBinding bound, PackageBinding itsPackage, int kind) {
 	// cached info is array of already created wildcard types for this type bound
 	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(bound);
 	if (cachedInfo == null) {
-	    cachedInfo = new WildcardBinding[3]; 
+	    cachedInfo = new WildcardBinding[3];
 	    this.uniqueWildcardBindings.put(bound, cachedInfo);
 	}
-	WildcardBinding wildcard;
-	if ((wildcard = cachedInfo[kind]) == null) {
+	WildcardBinding wildcard = cachedInfo[kind];
+	if (wildcard == null) {
 	    cachedInfo[kind] = wildcard = new WildcardBinding(bound, kind, this);
+	    wildcard.fPackage = itsPackage;
 	}
 	return wildcard;
 }
@@ -630,66 +629,62 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 				if (CharOperation.equals(enclosingVariables[i].sourceName, wrapper.signature, varStart, varEnd))
 					return dimension == 0 ? (TypeBinding) enclosingVariables[i] : createArrayType(enclosingVariables[i], dimension);
 		} while ((enclosingType = enclosingType.enclosingType()) != null);
-		throw new Error(Util.bind("error.undefinedTypeVariable", new String(CharOperation.subarray(wrapper.signature, varStart, varEnd)))); //$NON-NLS-1$
-	} // TODO (kent) improve error reporting, cannot throw an Error here
+		throw new AbortCompilation(
+			this.unitBeingCompleted.compilationResult,
+			new IllegalAccessError(Util.bind("error.undefinedTypeVariable", new String(CharOperation.subarray(wrapper.signature, varStart, varEnd))))); //$NON-NLS-1$
+	}
 
 	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd());
 	if (wrapper.end != wrapper.bracket)
 		return dimension == 0 ? type : createArrayType(type, dimension);
+	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
+	ReferenceBinding actualType = (ReferenceBinding) type;
 
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	int rank = 0;
 	do {
-		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, type, rank++));
+		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, actualType, rank++));
 	} while (wrapper.signature[wrapper.start] != '>');
 	wrapper.start += 2; // skip '>' and ';'
 	TypeBinding[] typeArguments = new TypeBinding[args.size()];
 	args.toArray(typeArguments);
-	// TODO (kent) what if ill-formed signatures occur ? need to protect against non reference binding 'type'
-	ParameterizedTypeBinding parameterizedType = createParameterizedType((ReferenceBinding) type, typeArguments);
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments);
 	// TODO (kent) must perform bound check so as to avoid constructing unsound parameterized type (no protection afterwards)
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
 }
-TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, TypeBinding genericType, int rank) {
+TypeBinding getTypeFromVariantTypeSignature(
+	SignatureWrapper wrapper,
+	TypeVariableBinding[] staticVariables,
+	ReferenceBinding enclosingType,
+	ReferenceBinding genericType,
+	int rank) {
 	// VariantTypeSignature = '-' TypeSignature
 	//   or '+' TypeSignature
 	//   or TypeSignature
 	//   or '*'
-    WildcardBinding wildcard = null;
-    
 	switch (wrapper.signature[wrapper.start]) {
 		case '-' :
 			// ? super aType
 			wrapper.start++;
 			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			wildcard = createWildcard(bound, Wildcard.SUPER);
-			break;
+			return createWildcard(bound, genericType.getPackage(), Wildcard.SUPER);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
 			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			wildcard = createWildcard(bound, Wildcard.EXTENDS);
-			break;
+			return createWildcard(bound, genericType.getPackage(), Wildcard.EXTENDS);
 		case '*' :
 			// ? - when constructing the wildcard binding, record the matching type variable so as to reach its firstBound lazily later on.
 			wrapper.start++;
-			bound = null;
-			if (genericType instanceof ReferenceBinding) {
-			    ReferenceBinding refType = (ReferenceBinding) genericType;
-			    TypeVariableBinding[] typeVariables = refType.typeVariables();
-			    if (rank < typeVariables.length) {
-			        bound = typeVariables[rank];
-			    }
-			}
-			if (bound == null) bound = getType(JAVA_LANG_OBJECT); // TODO (kent) error scenario to report 
-			wildcard = createWildcard(bound, Wildcard.UNBOUND);
+			TypeVariableBinding[] typeVariables = genericType.typeVariables();
+			if (rank < typeVariables.length)
+				return createWildcard(typeVariables[rank], genericType.getPackage(), Wildcard.UNBOUND);
+			throw new AbortCompilation(
+				this.unitBeingCompleted.compilationResult,
+				new IncompatibleClassChangeError(Util.bind("error.missingBound", enclosingType.debugName(), genericType.debugName()))); //$NON-NLS-1$
+		default :
+			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 	}
-	if (wildcard != null) {
-	    wildcard.fPackage = genericType.getPackage();
-	    return wildcard;
-	    
-	}
-	return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 }
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
