@@ -179,7 +179,7 @@ public String getSignature() throws JavaModelException {
 public int hashCode() {
    int hash = super.hashCode();
 	for (int i = 0, length = fParameterTypes.length; i < length; i++) {
-	    hash = Util.combineHashCodes(fParameterTypes[i].hashCode(), hash);
+	    hash = Util.combineHashCodes(hash, fParameterTypes[i].hashCode());
 	}
 	return hash;
 }

@@ -250,7 +250,7 @@ public String getSignature() throws JavaModelException {
 public int hashCode() {
    int hash = super.hashCode();
 	for (int i = 0, length = parameterTypes.length; i < length; i++) {
-	    hash = Util.combineHashCodes(parameterTypes[i].hashCode(), hash);
+	    hash = Util.combineHashCodes(hash, parameterTypes[i].hashCode());
 	}
 	return hash;
 }
