@@ -2,7 +2,7 @@
 <project name="org.eclipse.jdt.core" default="export" basedir="..">
 	<target name="init">
 		<tstamp/>
-		<property name="destdir" value="../../../../plugin-export" />
+		<property name="destdir" value="../../plugin-update" />
 		<property name="dest"  value="${destdir}/org.eclipse.jdt.core" />
 	</target>
 
