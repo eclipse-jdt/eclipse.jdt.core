@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.DecodingFlag;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -54,11 +53,6 @@ public class Disassembler implements IClassFileDisassembler {
 	private static final char[] ANY_EXCEPTION = Util.bind("classfileformat.anyexceptionhandler").toCharArray();	 //$NON-NLS-1$
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	
-	private static final int ERROR = 0;
-	private static final int SINGLE_FILE = 1;
-	private static final int INSIDE_ZIP_FILE = 2;
-	private static final int ZIP_FILE = 3;
-
 	/**
 	 * Disassemble the class file reader.
 	 */
@@ -807,68 +801,4 @@ public class Disassembler implements IClassFileDisassembler {
 			buffer.append(' ');
 		}
 	}	 
-	public static void main(String[] args) {
-		int mode = ERROR;
-		if (args.length == 1) {
-			File file = new File(args[0]);
-			String fileName = file.getName().toLowerCase();
-			if (fileName.endsWith(".class")) { //$NON-NLS-1$
-				mode = SINGLE_FILE;
-			} else if (fileName.endsWith(".zip") //$NON-NLS-1$
-						|| fileName.endsWith(".jar")) { //$NON-NLS-1$
-				mode = ZIP_FILE;
-			}
-		} else if (args.length == 2) {
-			File file = new File(args[0]);
-			String fileName = file.getName().toLowerCase();
-			if (fileName.endsWith(".zip") //$NON-NLS-1$
-				|| fileName.endsWith(".jar")) { //$NON-NLS-1$
-				mode = INSIDE_ZIP_FILE;
-			}
-		}
-		
-		if (mode == ERROR) {
-			System.out.println("Wrong usage"); //$NON-NLS-1$
-			return;
-		}
-		try {
-			Disassembler disassembler = new Disassembler();
-			String output = null;
-			switch(mode) {
-				case SINGLE_FILE :
-					output = disassembler.disassembleSingleFile(args[0]);
-					break;
-				case INSIDE_ZIP_FILE :
-					output = disassembler.disassembleInsideZipFile(args[0], args[1]);
-					break;
-				case ZIP_FILE :
-					output = disassembler.disassembleZipFile(args[0]);
-					break;
-			}
-			if (output != null) {
-				System.out.println(output);	
-			}
-		} catch(IOException e) {
-		}
-	}
-
-	private String disassembleSingleFile(String fileName) throws IOException {
-		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(fileName, DecodingFlag.ALL);
-		return disassemble(classFileReader, System.getProperty("line.separator")); //$NON-NLS-1$
-	}
-	
-	private String disassembleInsideZipFile(String fileName, String zipEntryName) {
-		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(fileName, zipEntryName, DecodingFlag.ALL);
-		return disassemble(classFileReader, System.getProperty("line.separator")); //$NON-NLS-1$
-	}
-	
-	private String disassembleZipFile(String zipFileName) throws IOException {
-		ZipFile zipFile = new ZipFile(zipFileName);
-		Enumeration enumeration = zipFile.entries();
-		while (enumeration.hasMoreElements()) {
-			ZipEntry zipEntry = (ZipEntry) enumeration.nextElement();
-			disassembleInsideZipFile(zipFileName, zipEntry.getName());
-		}
-		return null;
-	}
 }

@@ -19,6 +19,40 @@ package org.eclipse.jdt.core.util;
 public interface IClassFileDisassembler {
 
 	/**
+	 * This value should be used to read completely each part of a .class file.
+	 */
+	int ALL 					= 0xFFFF;
+	
+	/**
+	 * This value should be used to read only the constant pool entries of a .class file.
+	 */
+	int CONSTANT_POOL 			= 0x0001;
+
+	/**
+	 * This value should be used to read the constant pool entries and 
+	 * the method infos of a .class file.
+	 */
+	int METHOD_INFOS 			= 0x0003;
+
+	/**
+	 * This value should be used to read the constant pool entries and 
+	 * the field infos of a .class file.
+	 */
+	int FIELD_INFOS 			= 0x0005;
+
+	/**
+	 * This value should be used to read the constant pool entries and 
+	 * the super interface names of a .class file.
+	 */
+	int SUPER_INTERFACES 		= 0x0009;
+
+	/**
+	 * This value should be used to read the constant pool entries and 
+	 * the attributes of a .class file.
+	 */
+	int CLASSFILE_ATTRIBUTES 	= 0x0011;
+
+	/**
 	 * Answers back the disassembled string of the IClassFileReader.
 	 * This is an output quite similar to the javap tool.
 	 * 
