@@ -266,6 +266,52 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	/*
+	 * Ensures that getPrimaryElement() on an element of a non-primary working copy returns 
+	 * an element ofthe primary compilation unit.
+	 */
+	public void testGetPrimaryElement1() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+			IJavaElement element = workingCopy.getType("X");
+
+			assertEquals("Unexpected element", cu.getType("X"), element.getPrimaryElement());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
+	 * Ensures that getPrimaryElement() on an element of primary working copy returns the same handle.
+	 */
+	public void testGetPrimaryElement2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getCompilationUnit("P/X.java");
+			workingCopy.becomeWorkingCopy(null, null);
+			IJavaElement element = workingCopy.getType("X");
+
+			assertEquals("Unexpected element", element, element.getPrimaryElement());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
+	/*
+	 * Ensures that getPrimaryElement() on an package fragment returns the same handle.
+	 */
+	public void testGetPrimaryElement3() throws CoreException {
+		IPackageFragment pkg = getPackage("P");
+		assertEquals("Unexpected element", pkg, pkg.getPrimaryElement());
+	}
+
+	/*
 	 * Ensures that getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
 	 * returns the same working copy if called twice with the same working copy owner.
 	 */
