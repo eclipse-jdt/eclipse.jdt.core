@@ -897,6 +897,21 @@ public void test036() {
 		"SUCCESS");
 }			
 			
+public void test037() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <E extends Cloneable, T extends Thread & Cloneable> {\n" + 
+			"	void foo(E e){}\n" + 
+			"	void foo(T t){}\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"		 System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n" ,
+		},
+		"SUCCESS");
+}	
+
 //public void test028() {
 //	this.runConformTest(
 //		new String[] {
