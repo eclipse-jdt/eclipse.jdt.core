@@ -57,6 +57,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -2185,6 +2186,13 @@ public final class JavaCore extends Plugin {
 		optionNames.add(CORE_ENCODING);
 		
 		// Formatter settings
+		Map codeFormatterOptionsMap = new DefaultCodeFormatterOptions().getMap(); // code formatter defaults
+		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String optionName = (String) entry.getKey();
+			preferences.setDefault(optionName, (String)entry.getValue());
+			optionNames.add(optionName);
+		}		
 		preferences.setDefault(FORMATTER_NEWLINE_OPENING_BRACE, DO_NOT_INSERT); 
 		optionNames.add(FORMATTER_NEWLINE_OPENING_BRACE);
 

@@ -158,20 +158,33 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	private Map options;
 	
 	public DefaultCodeFormatter() {
-		this(DefaultCodeFormatterOptions.getDefault(), JavaCore.getOptions());
+		this(DefaultCodeFormatterOptions.getDefault(), null);
 	}
 
 	public DefaultCodeFormatter(Map options) {
-		this(DefaultCodeFormatterOptions.getDefault(), options == null ? JavaCore.getOptions() : options);
+		this(null, options);
 	}
 	
 	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences) {
-		this(preferences, JavaCore.getOptions());
+		this(preferences, null);
 	}
 
 	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences, Map options) {
-		this.preferences = preferences;
+		if (options == null) {
+			options = JavaCore.getOptions();
+		}
 		this.options = options;
+		if (options != null) {
+			this.preferences = new DefaultCodeFormatterOptions(options);
+			if (preferences != null) {
+				this.preferences.set(preferences.getMap());
+			}
+		} else {
+			this.preferences = DefaultCodeFormatterOptions.getDefault();
+			if (preferences != null) {
+				this.preferences.set(preferences.getMap());
+			}
+		}
 	}
 
 	/**
@@ -243,7 +256,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
@@ -300,7 +313,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
@@ -311,7 +324,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return this.newCodeFormatter.format(source, expression);
 	}
@@ -322,7 +335,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
 		return  this.newCodeFormatter.format(source, constructorDeclaration);
 	}

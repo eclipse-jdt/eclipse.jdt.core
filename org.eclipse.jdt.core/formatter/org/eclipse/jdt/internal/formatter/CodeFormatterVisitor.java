@@ -179,7 +179,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 		}
 		
-//		convertOldOptionsToPreferences(settings, preferences);
 		this.preferences = preferences;
 		this.scribe = new Scribe(this, settings, offset, length);
 	}
