@@ -494,9 +494,6 @@ private boolean isWorthBuilding() throws CoreException {
 				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
 					+ " was not built"); //$NON-NLS-1$
 
-			// remove all existing class files... causes all dependent projects to do the same
-			new BatchImageBuilder(this).scrubOutputFolder();
-
 			removeProblemsFor(currentProject); // make this the only problem for this project
 			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.prereqProjectWasNotBuilt", p.getName())); //$NON-NLS-1$
