@@ -1675,18 +1675,19 @@ public class BinaryExpression extends OperatorExpression {
 		int rightTypeID = rightType.id;
 
 		// autoboxing support
-		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		LookupEnvironment env = scope.environment();
+		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
 		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
 			if (!leftType.isBaseType() && rightTypeID != T_JavaLangString) {
-				int unboxedID = scope.computeBoxingType(leftType).id;
+				int unboxedID = env.computeBoxingType(leftType).id;
 				if (unboxedID != leftTypeID) {
 					leftTypeID = unboxedID;
 					unboxedLeft = true;
 				}
 			}
 			if (!rightType.isBaseType() && leftTypeID != T_JavaLangString) {
-				int unboxedID = scope.computeBoxingType(rightType).id;
+				int unboxedID = env.computeBoxingType(rightType).id;
 				if (unboxedID != rightTypeID) {
 					rightTypeID = unboxedID;
 					unboxedRight = true;

@@ -222,7 +222,8 @@ public abstract class Expression extends Statement {
 	
 		// identity conversion cannot be performed upfront, due to side-effects
 		// like constant propagation
-		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		LookupEnvironment env = scope.environment();
+		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
 		if (castType.isBaseType()) {
 			if (expressionType.isBaseType()) {
 				if (expressionType == castType) {
@@ -246,7 +247,7 @@ public abstract class Expression extends Statement {
 					
 				}
 			} else if (use15specifics) { // unboxing - only exact match is allowed
-				if (scope.computeBoxingType(expressionType) == castType) {
+				if (env.computeBoxingType(expressionType) == castType) {
 					// TODO (philippe) could tagAsUnnecessaryCast(scope, castType);  
 					return true;
 				}
@@ -254,7 +255,7 @@ public abstract class Expression extends Statement {
 			reportIllegalCast(scope, castType, expressionType);
 			return false;
 		} else if (use15specifics && expressionType.isBaseType()) { // boxing - only exact match is allowed
-			if (scope.computeBoxingType(castType) == expressionType) {
+			if (env.computeBoxingType(castType) == expressionType) {
 				// TODO (philippe) could tagAsUnnecessaryCast(scope, castType);  
 				return true;
 			}
@@ -482,14 +483,14 @@ public abstract class Expression extends Statement {
 		// or to become an int before boxed into an Integer
 		if (runtimeTimeType.isBaseType()) {
 			if (!compileTimeType.isBaseType()) {
-				compileTimeType = scope.computeBoxingType(compileTimeType);
+				compileTimeType = scope.environment().computeBoxingType(compileTimeType);
 				this.implicitConversion = UNBOXING;
 			}
 		} else {
 			if (compileTimeType.isBaseType()) {
-				TypeBinding boxedType = scope.computeBoxingType(compileTimeType);
+				TypeBinding boxedType = scope.environment().computeBoxingType(compileTimeType);
 				this.implicitConversion = BOXING | (compileTimeType.id << 4) | compileTimeType.id; // use primitive type only in implicitConversion
-				compileTimeType =boxedType;
+				compileTimeType = boxedType;
 				return;
 			}
 		}

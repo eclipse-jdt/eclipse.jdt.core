@@ -323,7 +323,7 @@ public class ForeachStatement extends Statement {
 				int compileTimeTypeID = this.arrayElementTypeID;
 				if (elementType.isBaseType()) {
 					if (!collectionElementType.isBaseType()) {
-						compileTimeTypeID = scope.computeBoxingType(collectionElementType).id;
+						compileTimeTypeID = scope.environment().computeBoxingType(collectionElementType).id;
 						this.elementVariableImplicitWidening = UNBOXING;
 						if (elementType.isBaseType()) {
 							this.elementVariableImplicitWidening |= (elementType.id << 4) + compileTimeTypeID;
@@ -333,7 +333,7 @@ public class ForeachStatement extends Statement {
 					}
 				} else {
 					if (collectionElementType.isBaseType()) {
-						int boxedID = scope.computeBoxingType(collectionElementType).id;
+						int boxedID = scope.environment().computeBoxingType(collectionElementType).id;
 						this.elementVariableImplicitWidening = BOXING | (compileTimeTypeID << 4) | compileTimeTypeID; // use primitive type in implicit conversion
 						compileTimeTypeID = boxedID;
 					}

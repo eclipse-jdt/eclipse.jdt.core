@@ -278,7 +278,8 @@ public class ConditionalExpression extends OperatorExpression {
 	public TypeBinding resolveType(BlockScope scope) {
 		// specs p.368
 		constant = NotAConstant;
-		boolean use15specifics = scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5;
+		LookupEnvironment env = scope.environment();
+		boolean use15specifics = env.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding conditionType = condition.resolveTypeExpecting(scope, BooleanBinding);
 		
 		if (valueIfTrue instanceof CastExpression) valueIfTrue.bits |= IgnoreNeedForCastCheckMASK; // will check later on
@@ -295,10 +296,10 @@ public class ConditionalExpression extends OperatorExpression {
 		if (use15specifics) {
 			if (valueIfTrueType.isBaseType()) {
 				if (!valueIfFalseType.isBaseType()) {
-					valueIfFalseType = scope.computeBoxingType(valueIfFalseType);
+					valueIfFalseType = env.computeBoxingType(valueIfFalseType);
 				}
 			} else if (valueIfFalseType.isBaseType()) {
-				valueIfTrueType = scope.computeBoxingType(valueIfTrueType);
+				valueIfTrueType = env.computeBoxingType(valueIfTrueType);
 			}
 		}
 		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible

@@ -418,12 +418,13 @@ public class EqualExpression extends BinaryExpression {
 		}
 	
 		// autoboxing support
-		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		LookupEnvironment env = scope.environment();
+		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
 		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
 			if (leftType.isBaseType()) {
 				if (!rightType.isBaseType()) {
-					TypeBinding unboxedType = scope.computeBoxingType(rightType);
+					TypeBinding unboxedType = env.computeBoxingType(rightType);
 					if (unboxedType != rightType) {
 						rightType = unboxedType;
 						unboxedRight = true;
@@ -431,7 +432,7 @@ public class EqualExpression extends BinaryExpression {
 				}
 			} else {
 				if (rightType.isBaseType()) {
-					TypeBinding unboxedType = scope.computeBoxingType(leftType);
+					TypeBinding unboxedType = env.computeBoxingType(leftType);
 					if (unboxedType != leftType) {
 						leftType = unboxedType;
 						unboxedLeft = true;

@@ -107,18 +107,19 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		int expressionID = expressionType.id;
 		
 		// autoboxing support
-		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		LookupEnvironment env = scope.environment();
+		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
 		boolean unboxedLhs = false, unboxedExpression = false;
 		if (use15specifics) {
 			if (!lhsType.isBaseType() && expressionID != T_JavaLangString) {
-				int unboxedID = scope.computeBoxingType(lhsType).id;
+				int unboxedID = env.computeBoxingType(lhsType).id;
 				if (unboxedID != lhsID) {
 					lhsID = unboxedID;
 					unboxedLhs = true;
 				}
 			}
 			if (!expressionType.isBaseType() && lhsID != T_JavaLangString) {
-				int unboxedID = scope.computeBoxingType(expressionType).id;
+				int unboxedID = env.computeBoxingType(expressionType).id;
 				if (unboxedID != expressionID) {
 					expressionID = unboxedID;
 					unboxedExpression = true;

@@ -251,6 +251,67 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 		parsedUnit.scope.buildFieldsAndMethods();
 	this.unitBeingCompleted = null;
 }
+public TypeBinding computeBoxingType(TypeBinding type) {
+	TypeBinding boxedType;
+	switch (type.id) {
+		case TypeIds.T_JavaLangBoolean :
+			return BooleanBinding;
+		case TypeIds.T_JavaLangByte :
+			return ByteBinding;
+		case TypeIds.T_JavaLangCharacter :
+			return CharBinding;
+		case TypeIds.T_JavaLangShort :
+			return ShortBinding;
+		case TypeIds.T_JavaLangDouble :
+			return DoubleBinding;
+		case TypeIds.T_JavaLangFloat :
+			return FloatBinding;
+		case TypeIds.T_JavaLangInteger :
+			return IntBinding;
+		case TypeIds.T_JavaLangLong :
+			return LongBinding;
+		case TypeIds.T_JavaLangVoid :
+			return VoidBinding;
+
+		case TypeIds.T_int :
+			boxedType = getType(JAVA_LANG_INTEGER);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, NotFound);				
+		case TypeIds.T_byte :
+			boxedType = getType(JAVA_LANG_BYTE);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_BYTE, NotFound);				
+		case TypeIds.T_short :
+			boxedType = getType(JAVA_LANG_SHORT);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_SHORT, NotFound);				
+		case TypeIds.T_char :
+			boxedType = getType(JAVA_LANG_CHARACTER);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, NotFound);				
+		case TypeIds.T_long :
+			boxedType = getType(JAVA_LANG_LONG);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_LONG, NotFound);				
+		case TypeIds.T_float :
+			boxedType = getType(JAVA_LANG_FLOAT);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, NotFound);				
+		case TypeIds.T_double :
+			boxedType = getType(JAVA_LANG_DOUBLE);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, NotFound);				
+		case TypeIds.T_boolean :
+			boxedType = getType(JAVA_LANG_BOOLEAN);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
+		case TypeIds.T_void :
+			boxedType = getType(JAVA_LANG_VOID);
+			if (boxedType != null) return boxedType;
+			return new ProblemReferenceBinding(	JAVA_LANG_VOID, NotFound);				
+	}
+	return type;
+}	
 private PackageBinding computePackageFrom(char[][] constantPoolName) {
 	if (constantPoolName.length == 1)
 		return defaultPackage;
@@ -787,9 +848,15 @@ TypeBinding getTypeFromVariantTypeSignature(
 			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 	}
 }
+public boolean isBoxingCompatibleWith(TypeBinding left, TypeBinding right) {
+	if (options.sourceLevel < ClassFileConstants.JDK1_5 || left.isBaseType() == right.isBaseType())
+		return false;
+
+	TypeBinding convertedType = computeBoxingType(left);
+	return convertedType == right || convertedType.isCompatibleWith(right);
+}
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
-
 boolean isPackage(char[][] compoundName, char[] name) {
 	if (compoundName == null || compoundName.length == 0)
 		return nameEnvironment.isPackage(null, name);

@@ -214,11 +214,12 @@ public class UnaryExpression extends OperatorExpression {
 		}
 		int expressionTypeID = expressionType.id;
 		// autoboxing support
-		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		LookupEnvironment env = scope.environment();
+		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
 		boolean unboxedExpression = false;
 		if (use15specifics) {
 			if (!expressionType.isBaseType()) {
-				int unboxedID = scope.computeBoxingType(expressionType).id;
+				int unboxedID = env.computeBoxingType(expressionType).id;
 				if (unboxedID != expressionTypeID) {
 					expressionTypeID = unboxedID;
 					unboxedExpression = true;

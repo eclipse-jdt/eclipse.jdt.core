@@ -205,68 +205,6 @@ public abstract class Scope
 		return (CompilationUnitScope) lastScope;
 	}
 
-	public TypeBinding computeBoxingType(TypeBinding type) {
-		TypeBinding boxedType;
-		switch (type.id) {
-			case T_JavaLangBoolean :
-				return BooleanBinding;
-			case T_JavaLangByte :
-				return ByteBinding;
-			case T_JavaLangCharacter :
-				return CharBinding;
-			case T_JavaLangShort :
-				return ShortBinding;
-			case T_JavaLangDouble :
-				return DoubleBinding;
-			case T_JavaLangFloat :
-				return FloatBinding;
-			case T_JavaLangInteger :
-				return IntBinding;
-			case T_JavaLangLong :
-				return LongBinding;
-			case T_JavaLangVoid :
-				return VoidBinding;
-
-			case T_int :
-				boxedType = environment().getType(JAVA_LANG_INTEGER);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, NotFound);				
-			case T_byte :
-				boxedType = environment().getType(JAVA_LANG_BYTE);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_BYTE, NotFound);				
-			case T_short :
-				boxedType = environment().getType(JAVA_LANG_SHORT);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_SHORT, NotFound);				
-			case T_char :
-				boxedType = environment().getType(JAVA_LANG_CHARACTER);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, NotFound);				
-			case T_long :
-				boxedType = environment().getType(JAVA_LANG_LONG);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_LONG, NotFound);				
-			case T_float :
-				boxedType = environment().getType(JAVA_LANG_FLOAT);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, NotFound);				
-			case T_double :
-				boxedType = environment().getType(JAVA_LANG_DOUBLE);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, NotFound);				
-			case T_boolean :
-				boxedType = environment().getType(JAVA_LANG_BOOLEAN);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
-			case T_void :
-				boxedType = environment().getType(JAVA_LANG_VOID);
-				if (boxedType != null) return boxedType;
-				return new ProblemReferenceBinding(	JAVA_LANG_VOID, NotFound);				
-		}
-		return type;
-	}	
-
 	/**
 	 * Internal use only
 	 * Given a method, returns null if arguments cannot be converted to parameters.
@@ -2472,11 +2410,8 @@ public abstract class Scope
 		return trimmedResult;
 	}
 
-	public boolean isBoxingCompatibleWith(TypeBinding type, TypeBinding otherType) {
-		if (environment().options.sourceLevel < JDK1_5) 
-			return false;
-		return type.isBaseType() != otherType.isBaseType()
-			&& computeBoxingType(type).isCompatibleWith(otherType);
+	public boolean isBoxingCompatibleWith(TypeBinding left, TypeBinding right) {
+		return left.isBaseType() != right.isBaseType() && environment().isBoxingCompatibleWith(left, right);
 	}
 
 	/* Answer true if the scope is nested inside a given field declaration.
