@@ -105,6 +105,10 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	boolean computeProblems = JavaProject.hasJavaNature(project.getProject()) && perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
 	IProblemFactory problemFactory = new DefaultProblemFactory();
 	Map options = project.getOptions(true);
+	if (!computeProblems) {
+		// disable task tags checking to speed up parsing
+		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
+	}
 	boolean createAST = info instanceof ASTHolderCUInfo;
 	SourceElementParser parser = new SourceElementParser(
 		requestor, 

@@ -169,8 +169,11 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 
 		SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside);
 		this.nameLookup = searchableEnvironment.nameLookup;
+		Map options = project.getOptions(true);
+		// disable task tags to speed up parsing
+		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 		this.hierarchyResolver = 
-			new HierarchyResolver(searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
+			new HierarchyResolver(searchableEnvironment, options, this, new DefaultProblemFactory());
 		if (focusType != null) {
 			Member declaringMember = ((Member)focusType).getOuterMostLocalContext();
 			if (declaringMember == null) {
