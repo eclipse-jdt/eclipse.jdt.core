@@ -140,7 +140,7 @@ public class ArrayAllocationExpression extends Expression {
 				scope.problemReporter().mustDefineDimensionsOrInitializer(this);
 			}
 			// allow new List<?>[5] - only check for generic array when no initializer, since also checked inside initializer resolution
-			if (referenceType != null && (referenceType.isBoundParameterizedType() || referenceType.isGenericType() || referenceType.isTypeVariable())) {
+			if (referenceType != null && !referenceType.isReifiable()) {
 			    scope.problemReporter().illegalGenericArray(referenceType, this);
 			}
 		} else if (explicitDimIndex >= 0) {

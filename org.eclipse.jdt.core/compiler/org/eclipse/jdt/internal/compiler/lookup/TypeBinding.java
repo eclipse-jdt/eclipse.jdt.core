@@ -214,6 +214,15 @@ public boolean isParameterizedType() {
     return false;
 }
 	
+public boolean isPartOfRawType() {
+	TypeBinding current = this;
+	do {
+		if (current.isRawType())
+			return true;
+	} while ((current = current.enclosingType()) != null);
+    return false;
+}
+
 /**
  * Returns true if the two types are statically known to be different at compile-time,
  * e.g. a type variable is not probably known to be distinct from another type
@@ -266,13 +275,26 @@ public boolean isRawType() {
     return false;
 }
 
-public boolean isPartOfRawType() {
-	TypeBinding current = this;
-	do {
-		if (current.isRawType())
+/**
+ * JLS(3) 4.7
+ */
+public boolean isReifiable() {
+	
+	TypeBinding leafType = leafComponentType();
+	switch(leafType.bindingType()) {
+		
+		case Binding.TYPE_PARAMETER :
+		case Binding.WILDCARD_TYPE :
+		case Binding.GENERIC_TYPE :
+			return false;
+			
+		case Binding.PARAMETERIZED_TYPE :
+			return !isBoundParameterizedType();
+			
+		case Binding.RAW_TYPE :
+		default :
 			return true;
-	} while ((current = current.enclosingType()) != null);
-    return false;
+	}
 }
 
 // JLS3: 4.5.1.1
