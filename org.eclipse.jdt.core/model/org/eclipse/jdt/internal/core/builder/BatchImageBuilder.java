@@ -83,19 +83,34 @@ protected void cleanOutputFolders() throws CoreException {
 	ArrayList visited = new ArrayList(sourceLocations.length);
 	next : for (int i = 0, l = sourceLocations.length; i < l; i++) {
 		ClasspathMultiDirectory sourceLocation = sourceLocations[i];
-		if (deleteAll && sourceLocation.hasIndependentOutputFolder) {
+		if (sourceLocation.hasIndependentOutputFolder) {
 			IContainer outputFolder = sourceLocation.binaryFolder;
 			if (visited.contains(outputFolder)) continue next;
 			visited.add(outputFolder);
-			IResource[] members = outputFolder.members(); 
-			for (int j = 0, m = members.length; j < m; j++)
-				members[j].delete(IResource.FORCE, null);
-			copyExtraResourcesBack(sourceLocation);
+			if (deleteAll) {
+				IResource[] members = outputFolder.members(); 
+				for (int ii = 0, ll = members.length; ii < ll; ii++)
+					members[ii].delete(IResource.FORCE, null);
+			} else {
+				outputFolder.accept(
+					new IResourceVisitor() {
+						public boolean visit(IResource resource) throws CoreException {
+							if (resource.getType() == IResource.FILE) {
+								if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
+									resource.delete(IResource.FORCE, null);
+								return false;
+							}
+							return true;
+						}
+					}
+				);
+			}
+			copyExtraResourcesBack(sourceLocation, deleteAll);
 		} else {
 			final char[][] exclusionPatterns =
 				sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder)
 					? sourceLocation.exclusionPatterns
-					: null; // ignore exclusionPatterns if output folder != source folder
+					: null; // ignore exclusionPatterns if output folder == another source folder... not this one
 			sourceLocation.binaryFolder.accept(
 				new IResourceVisitor() {
 					public boolean visit(IResource resource) throws CoreException {
@@ -115,7 +130,7 @@ protected void cleanOutputFolders() throws CoreException {
 	}
 }
 
-protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation) throws CoreException {
+protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, final boolean deletedAll) throws CoreException {
 	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
 	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
@@ -137,11 +152,14 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation) th
 						IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
 						IResource copiedResource = outputFolder.getFile(partialPath);
 						if (copiedResource.exists()) {
-							createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
-						} else {
-							resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
-							copiedResource.setDerived(true);
+							if (deletedAll) {
+								createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
+								return false;
+							}
+							copiedResource.delete(IResource.FORCE, null); // last one wins
 						}
+						resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
+						copiedResource.setDerived(true);
 						return false;
 					case IResource.FOLDER :
 						if (resource.equals(outputFolder)) return false;
