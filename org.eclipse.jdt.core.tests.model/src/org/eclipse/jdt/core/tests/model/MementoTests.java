@@ -150,6 +150,15 @@ public void testCompilationUnitMemento() throws JavaModelException {
 /**
  * Tests that an import declaration can be persisted and restored using its memento.
  */
+public void testImportContainerMemento() throws JavaModelException {
+	IImportContainer importContainer = getCompilationUnit("/P/src/p/X.java").getImportContainer();
+	assertMemento(
+		"=P/src<p{X.java#",
+		importContainer);
+}
+/**
+ * Tests that an import declaration can be persisted and restored using its memento.
+ */
 public void testImportDeclarationMemento() throws JavaModelException {
 	IImportDeclaration importDecl = getCompilationUnit("/P/src/p/X.java").getImport("java.io.Serializable");
 	assertMemento(
