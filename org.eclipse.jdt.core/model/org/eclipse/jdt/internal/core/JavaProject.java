@@ -113,7 +113,9 @@ public class JavaProject
 		}
 
 		// if not external path, return original path
-		if (ResourcesPlugin.getWorkspace().getRoot().findMember(externalPath) != null) {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		if (workspace == null) return externalPath; // protection during shutdown (30487)
+		if (workspace.getRoot().findMember(externalPath) != null) {
 //			if (JavaModelManager.VERBOSE) {
 //				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)"); //$NON-NLS-1$
 //			}
