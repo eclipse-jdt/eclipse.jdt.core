@@ -134,7 +134,10 @@ public class FieldReference extends Reference implements InvocationSite {
 			if (originalBinding != this.binding) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-			        this.genericCast = originalBinding.type.genericCast(scope.boxing(runtimeTimeType)); // runtimeType could be base type in boxing case
+			    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
+			    		? compileTimeType  // unboxing: checkcast before conversion
+			    		: runtimeTimeType;
+			        this.genericCast = originalBinding.type.genericCast(targetType);
 			    }
 			}
 		} 	

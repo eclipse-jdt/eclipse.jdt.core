@@ -10843,7 +10843,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78008
-	public void _test409() {
+	public void test409() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -13170,7 +13170,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X {\n" + 
 				"    public static void main(String[] args) {\n" + 
 				"        Foo<?> f1 = new Foo<Integer>();\n" + 
-				"        Foo<?> f2 = new Foo<String>();\n" + 
 				"        f1.bar = f1.bar;\n" + 
 				"    }\n" + 
 				"    static class Foo<T> {\n" + 

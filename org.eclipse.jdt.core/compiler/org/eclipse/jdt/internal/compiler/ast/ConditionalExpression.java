@@ -294,11 +294,11 @@ public class ConditionalExpression extends OperatorExpression {
 		TypeBinding valueIfTrueType = originalValueIfTrueType;
 		TypeBinding valueIfFalseType = originalValueIfFalseType;
 		if (use15specifics) {
-			TypeBinding unboxedLeftType = valueIfTrueType.isBaseType() ? valueIfTrueType : env.computeBoxingType(valueIfTrueType);
-			TypeBinding unboxedRightType = valueIfFalseType.isBaseType() ? valueIfFalseType : env.computeBoxingType(valueIfFalseType);
-			if (unboxedLeftType.isNumericType() && unboxedRightType.isNumericType()) {
-				valueIfTrueType = unboxedLeftType;
-				valueIfFalseType = unboxedRightType;
+			TypeBinding unboxedIfTrueType = valueIfTrueType.isBaseType() ? valueIfTrueType : env.computeBoxingType(valueIfTrueType);
+			TypeBinding unboxedIfFalseType = valueIfFalseType.isBaseType() ? valueIfFalseType : env.computeBoxingType(valueIfFalseType);
+			if (unboxedIfTrueType.isNumericType() && unboxedIfFalseType.isNumericType()) {
+				valueIfTrueType = unboxedIfTrueType;
+				valueIfFalseType = unboxedIfFalseType;
 			} else if (valueIfTrueType.isBaseType()) {
 				if ((valueIfTrueType == NullBinding) == valueIfFalseType.isBaseType()) {  // bool ? null : 12 --> Integer
 					valueIfFalseType = env.computeBoxingType(valueIfFalseType);

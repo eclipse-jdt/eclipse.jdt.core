@@ -281,7 +281,10 @@ public class QualifiedNameReference extends NameReference {
 			if (originalBinding != field) {
 			    // extra cast needed if method return type has type variable
 			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_JavaLangObject) {
-			    	setGenericCast(length,originalBinding.type.genericCast(scope.boxing(runtimeTimeType))); // runtimeType could be base type in boxing case
+			    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
+			    		? compileTimeType  // unboxing: checkcast before conversion
+			    		: runtimeTimeType;
+			    	setGenericCast(length,originalBinding.type.genericCast(targetType));
 			    }
 			} 	
 		}
