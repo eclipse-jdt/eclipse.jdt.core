@@ -1523,7 +1523,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_after_imports = 1;
 		this.blank_lines_after_package = 1;
 		this.blank_lines_before_field = 1;
-		this.blank_lines_before_first_class_body_declaration = 1;
+		this.blank_lines_before_first_class_body_declaration = 0;
 		this.blank_lines_before_imports = 1;
 		this.blank_lines_before_member_type = 1;
 		this.blank_lines_before_method = 1;
@@ -1654,10 +1654,10 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_between_empty_parens_in_method_declaration = false;
 		this.insert_space_between_empty_parens_in_method_invocation = false;
 		this.compact_else_if = true;
-		this.keep_guardian_clause_on_one_line = true;
+		this.keep_guardian_clause_on_one_line = false;
 		this.keep_else_statement_on_same_line = false;
 		this.keep_empty_array_initializer_on_one_line = false;
-		this.keep_simple_if_on_one_line = true;
+		this.keep_simple_if_on_one_line = false;
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = true;

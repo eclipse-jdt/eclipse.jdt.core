@@ -2393,7 +2393,7 @@ public final class JavaCore extends Plugin {
 		optionNames.add(CORE_ENCODING);
 		
 		// Formatter settings
-		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getDefaultSettings(); // code formatter defaults
+		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getJavaConventionsSettings(); // code formatter defaults
 		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
 			Map.Entry entry = (Map.Entry) iter.next();
 			String optionName = (String) entry.getKey();

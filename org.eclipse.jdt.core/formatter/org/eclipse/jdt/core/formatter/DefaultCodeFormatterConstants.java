@@ -2159,20 +2159,6 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE = JavaCore.PLUGIN_ID + ".formatter.number_of_empty_lines_to_preserve";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to specify whether or not user line breaks should be preserved
-	 *     - option id:         "org.eclipse.jdt.core.formatter.preserve_user_linebreaks"
-	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           FALSE
-	 * </pre>
-	 * @see #TRUE
-	 * @see #FALSE
-	 * @since 3.0
-	 * @deprecated Will be removed
-	 */
-	public static final String FORMATTER_PRESERVE_USER_LINEBREAKS = JavaCore.PLUGIN_ID + ".formatter.preserve_user_linebreaks";//$NON-NLS-1$
-
-	/**
-	 * <pre>
 	 * FORMATTER / Option to specify whether or not empty statement should be on a new line
 	 *     - option id:         "org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line"
 	 *     - possible values:   { TRUE, FALSE }
@@ -2218,20 +2204,19 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_TAB_SIZE = JavaCore.PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
 
 	/**
-	 * <p>Returns the default settings.</p>
+	 * Returns the formatter settings that most closely approximate
+	 * the default formatter settings of Eclipse version 2.1.
 	 * 
-	 * <p>This is subject to change before 3.0.</p>
-	 * @return the default settings
+	 * @return the Eclipse 2.1 settings
 	 * @since 3.0
 	 */
-	public static Map getDefaultSettings() {
+	public static Map getEclipse21Settings() {
 		return DefaultCodeFormatterOptions.getDefaultSettings().getMap();
 	}
 
 	/**
-	 * <p>Returns the settings according to the Java conventions.</p>
+	 * Returns the settings according to the Java conventions.
 	 * 
-	 * <p>This is subject to change before 3.0.</p>
 	 * @return the settings according to the Java conventions
 	 * @since 3.0
 	 */
@@ -2239,25 +2224,6 @@ public class DefaultCodeFormatterConstants {
 		return DefaultCodeFormatterOptions.getJavaConventionsSettings().getMap();
 	}
 
-	/**
-	 * @deprecated use getForceWrapping(String value) instead
-	 * @param options the given options
-	 * @param key the given key
-	 * @return true if the given options is force, false otherwise
-	 */
-	public static boolean getForceWrapping(Map options, String key) {
-		Object option = options.get(key);
-		if (option != null) {
-			try {
-				int existingValue = Integer.parseInt((String) option);
-				return (existingValue & Alignment.M_FORCE) != 0;
-			} catch (NumberFormatException e) {
-				// nothing to do
-			}
-		}
-		return false;
-	}
-	
 	/**
 	 * <p>Return the force value of the given alignment value.
 	 * The given alignment value should be created using the <code>createAlignmentValue(boolean, int, int)</code>
@@ -2280,31 +2246,6 @@ public class DefaultCodeFormatterConstants {
 		} catch (NumberFormatException e) {
 			throw WRONG_ARGUMENT;
 		}
-	}
-
-	/**
-	 * @deprecated use getIndentStyle(String value) instead
-	 * @param options the given options
-	 * @param key the given key
-	 * @return the indent style
-	 */
-	public static int getIndentStyle(Map options, String key) {
-		Object option = options.get(key);
-		if (option != null) {
-			try {
-				int existingValue = Integer.parseInt((String) option);
-				if ((existingValue & Alignment.M_INDENT_BY_ONE) != 0) {
-					return INDENT_BY_ONE;
-				} else if ((existingValue & Alignment.M_INDENT_ON_COLUMN) != 0) {
-					return INDENT_ON_COLUMN;
-				} else {
-					return INDENT_DEFAULT;
-				}
-			} catch (NumberFormatException e) {
-				// nothing to do
-			}
-		}
-		return INDENT_DEFAULT;
 	}
 	
 	/**
@@ -2336,37 +2277,6 @@ public class DefaultCodeFormatterConstants {
 			throw WRONG_ARGUMENT;
 		}
 	}
-	
-	/**
-	 * @deprecated Use getWrappingStyle(String value) instead
-	 * @param options the given options
-	 * @param key the given key
-	 * @return the wrapping style
-	 */
-	public static int getWrappingStyle(Map options, String key) {
-		Object option = options.get(key);
-		if (option != null) {
-			try {
-				int existingValue = Integer.parseInt((String) option) & Alignment.SPLIT_MASK;
-				switch(existingValue) {
-					case Alignment.M_COMPACT_SPLIT :
-						return WRAP_COMPACT;
-					case Alignment.M_COMPACT_FIRST_BREAK_SPLIT :
-						return WRAP_COMPACT_FIRST_BREAK;
-					case Alignment.M_NEXT_PER_LINE_SPLIT :
-						return WRAP_NEXT_PER_LINE;
-					case Alignment.M_NEXT_SHIFTED_SPLIT :
-						return WRAP_NEXT_SHIFTED;
-					case Alignment.M_ONE_PER_LINE_SPLIT :
-						return WRAP_ONE_PER_LINE;
-				}
-			} catch (NumberFormatException e) {
-				// nothing to do
-			}
-		}
-		return WRAP_NO_SPLIT;
-	}
-	
 	/**
 	 * <p>Return the wrapping style of the given alignment value.
 	 * The given alignment value should be created using the <code>createAlignmentValue(boolean, int, int)</code>
@@ -2401,33 +2311,6 @@ public class DefaultCodeFormatterConstants {
 			}
 		} catch (NumberFormatException e) {
 			throw WRONG_ARGUMENT;
-		}
-	}
-	
-	/**
-	 * @deprecated Use setIndentStyle(String value, int indentStyle) instead
-	 * @param options the given options
-	 * @param key the given key
-	 * @param indentStyle the given indent style
-	 */
-	public static void setIndentStyle(Map options, String key, int indentStyle) {
-		Object option = options.get(key);
-		if (option != null) {
-			try {
-				int existingValue = Integer.parseInt((String) options.get(key));
-				// clear existing indent bits
-				existingValue &= ~(Alignment.M_INDENT_BY_ONE | Alignment.M_INDENT_ON_COLUMN);
-				switch(indentStyle) {
-					case INDENT_BY_ONE :
-						existingValue |= Alignment.M_INDENT_BY_ONE;
-						break;
-					case INDENT_ON_COLUMN :
-						existingValue |= Alignment.M_INDENT_ON_COLUMN;
-				}
-				options.put(key, String.valueOf(existingValue));
-			} catch (NumberFormatException e) {
-				// nothing to do
-			}
 		}
 	}
 	
@@ -2477,29 +2360,6 @@ public class DefaultCodeFormatterConstants {
 		}
 	}
 	/**
-	 * @deprecated Use setForceWrapping(String value, boolean force) instead
-	 * @param options the given options
-	 * @param key the given key
-	 * @param forceSplit the given force style
-	 */
-	public static void setForceWrapping(Map options, String key, boolean forceSplit) {
-		Object option = options.get(key);
-		if (option != null) {
-			try {
-				int existingValue = Integer.parseInt((String) option);
-				// clear existing force bit
-				existingValue &= ~Alignment.M_FORCE;
-				if (forceSplit) {
-					existingValue |= Alignment.M_FORCE;
-				}
-				options.put(key, String.valueOf(existingValue));
-			} catch (NumberFormatException e) {
-				// nothing to do
-			}
-		}
-	}
-
-	/**
 	 * <p>Set the force value of the given alignment value and return the new value.
 	 * The given alignment value should be created using the <code>createAlignmentValue(boolean, int, int)</code>
 	 * API.
@@ -2528,44 +2388,6 @@ public class DefaultCodeFormatterConstants {
 			throw WRONG_ARGUMENT;
 		}		
 	}
-	
-	/**
-	 * @deprecated use setWrappingStyle(String value, int wrappingStyle) instead
-	 * @param options the given options
-	 * @param key the given key
-	 * @param splitStyle the given split style
-	 */
-	public static void setWrappingStyle(Map options, String key, int splitStyle) {
-		Object option = options.get(key);
-		if (option != null) {
-			try {
-				int existingValue = Integer.parseInt((String) option);
-				// clear existing split bits
-				existingValue &= ~(Alignment.SPLIT_MASK);
-				switch(splitStyle) {
-					case WRAP_COMPACT :
-						existingValue |= Alignment.M_COMPACT_SPLIT;
-						break;
-					case WRAP_COMPACT_FIRST_BREAK :
-						existingValue |= Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
-						break;
-					case WRAP_NEXT_PER_LINE :
-						existingValue |= Alignment.M_NEXT_PER_LINE_SPLIT;
-						break;
-					case WRAP_NEXT_SHIFTED :
-						existingValue |= Alignment.M_NEXT_SHIFTED_SPLIT;
-						break;
-					case WRAP_ONE_PER_LINE :
-						existingValue |= Alignment.M_ONE_PER_LINE_SPLIT;
-						break;
-				}
-				options.put(key, String.valueOf(existingValue));
-			} catch (NumberFormatException e) {
-				// nothing to do
-			}
-		}
-	}	
-	
 	/**
 	 * <p>Set the wrapping style of the given alignment value and return the new value.
 	 * The given value should be created using the <code>createAlignmentValue(boolean, int, int)</code>
@@ -2668,413 +2490,4 @@ public class DefaultCodeFormatterConstants {
 		}
 		return String.valueOf(alignmentValue);
 	}
-	/*
-	 * All deprecated fields
-	 */
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.method_declaration_arguments_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION instead
-	 */
-	public static final String FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.message_send_arguments_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION instead
-	 */
-	public static final String FORMATTER_MESSAGE_SEND_SELECTOR_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.message_send_selector_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION instead
-	 */
-	public static final String FORMATTER_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.qualified_allocation_expression_arguments_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_SUPERCLASS_IN_TYPE_DECLARATION instead
-	 */
-	public static final String FORMATTER_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.type_declaration_superclass_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION instead
-	 */
-	public static final String FORMATTER_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.type_declaration_superinterfaces_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_METHOD_THROWS_CLAUSE_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.method_throws_clause_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION instead
-	 */
-	public static final String FORMATTER_CONDITIONAL_EXPRESSION_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.conditional_expression_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ALLOCATION_EXPRESSION instead
-	 */
-	public static final String FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT  = JavaCore.PLUGIN_ID + ".formatter.allocation_expression_arguments_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_COMPACT_IF instead
-	 */
-	public static final String FORMATTER_COMPACT_IF_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.compact_if_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER instead
-	 */
-	public static final String FORMATTER_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.array_initializer_expressions_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION instead
-	 */
-	public static final String FORMATTER_BINARY_EXPRESSION_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.binary_expression_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_EXPLICIT_CONSTRUCTOR_CALL instead
-	 */
-	public static final String FORMATTER_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.explicit_constructor_arguments_alignment";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION instead
-	 */
-	public static final String FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.anonymous_type_declaration_brace_position";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_BRACE_POSITION_FOR_ARRAY_INITIALIZER instead
-	 */
-	public static final String FORMATTER_ARRAY_INITIALIZER_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.array_initializer_brace_position";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_BRACE_POSITION_FOR_BLOCK instead
-	 */
-	public static final String FORMATTER_BLOCK_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.block_brace_position";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_METHOD_DECLARATION_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.method_declaration_brace_position";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION instead
-	 */
-	public static final String FORMATTER_TYPE_DECLARATION_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.type_declaration_brace_position";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_BRACE_POSITION_FOR_SWITCH instead
-	 */
-	public static final String FORMATTER_SWITCH_BRACE_POSITION = JavaCore.PLUGIN_ID + ".formatter.switch_brace_position";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_PARAMETERS insted
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_constructor_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated use FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_INVOCATION_ARGUMENTS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MESSAGESEND_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_messagesend_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_OPEN_PAREN_IN_PARENTHESIZED_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_open_paren_in_parenthesized_expression"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_INVOCATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_MESSAGE_SEND = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_opening_paren_in_message_send"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_INVOCATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_MESSAGE_SEND = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_paren_in_message_send"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_PARAMETERS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_constructor_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_INVOCATION_ARGUMENTS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MESSAGESEND_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_messagesend_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_INVOCATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_MESSAGE_SEND = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_message_send";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_paren";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_FIRST_ARGUMENT = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_first_argument";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_between_empty_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_INVOCATION and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_INVOCATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_WITHIN_MESSAGE_SEND = JavaCore.PLUGIN_ID + ".formatter.insert_space_within_message_send";	//$NON-NLS-1$
-	/**
-	 * @deprecated use FORMATTER_INSERT_SPACE_AFTER_CLOSING_BRACE_IN_BLOCK instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_block_close_brace";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ANONYMOUS_TYPE_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_anonymous_type_open_brace"; 	//$NON-NLS-1$
-	/**
-	 * @deprecated use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_BLOCK instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_block_open_brace";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_CATCH instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_CATCH_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_catch_expression";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_CONSTRUCTOR_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_constructor_declaration_open_paren";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_FIRST_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_first_initializer";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_FOR instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_FOR_PAREN = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_for_paren";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_IF instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_IF_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_if_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_method_declaration_open_paren";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_METHOD_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_method_open_brace";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHESIZED_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_open_paren_in_parenthesized_expression"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SWITCH instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_SWITCH_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_switch_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_SWITCH instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_switch_open_brace";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SYNCHRONIZED instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_synchronized_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_TYPE_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_type_open_brace";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_WHILE instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_WHILE_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_while_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_REFERENCE and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACKET_IN_ARRAY_REFERENCE instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE = JavaCore.PLUGIN_ID + ".formatter.insert_space_between_brackets_in_array_reference";//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_BRACES_IN_ARRAY_INITIALIZER instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.insert_space_between_empty_array_initializer";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_INVOCATION
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_MESSAGESEND_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_between_empty_messagesend_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CATCH and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CATCH instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_IN_CATCH_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.insert_space_in_catch_expression";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_FOR and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_FOR instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_IN_FOR_PARENS = JavaCore.PLUGIN_ID + ".formatter.insert_space_in_for_parens";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_IF and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_IF instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_IN_IF_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_in_if_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SWITCH and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SWITCH instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_IN_SWITCH_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_in_switch_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SYNCHRONIZED and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SYNCHRONIZED instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_IN_SYNCHRONIZED_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_in_synchronized_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_WHILE and FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_WHILE instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_IN_WHILE_CONDITION = JavaCore.PLUGIN_ID + ".formatter.insert_space_in_while_condition";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_REFERENCE instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_bracket_in_array_reference";//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_TYPE_REFERENCE instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_bracket_in_array_type_reference";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATORS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_assignment_operators";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_assignment_operators"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_KEEP_GUARDIAN_CLAUSE_ON_ONE_LINE instead
-	 */
-	public static final String FORMATTER_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE = JavaCore.PLUGIN_ID + ".formatter.format_guardian_clause_on_one_line";	//$NON-NLS-1$
-
-	
-	/**
-	 * @deprecated Use FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER instead
-	 */
-	public static final String FORMATTER_ARRAY_INITIALIZER_CONTINUATION_INDENTATION = JavaCore.PLUGIN_ID + ".formatter.array_initializer_continuation_indentation";	//$NON-NLS-1$
-	
-	/**
-	 * @deprecated Use FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS instead
-	 */
-	public static final String FORMATTER_TYPE_MEMBER_ALIGNMENT = JavaCore.PLUGIN_ID + ".formatter.type_member_alignment";	 //$NON-NLS-1$
-	/** 
-	 * <table BORDER COLS=4 WIDTH="100%" >
-	 * <tr><td>#fragment1A</td>            <td>#fragment2A</td>       <td>#fragment3A</td>  <td>#very-long-fragment4A</td></tr>
-	 * <tr><td>#fragment1B</td>            <td>#long-fragment2B</td>  <td>#fragment3B</td>  <td>#fragment4B</td></tr>
-	 * <tr><td>#very-long-fragment1C</td>  <td>#fragment2C</td>       <td>#fragment3C</td>  <td>#fragment4C</td></tr>
-	 * </table>
-	 * @deprecated Removed
-	 */
-	public static final String FORMATTER_MULTICOLUMN = "256"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_DECLARATION_THROWS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_THROWS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_method_throws"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_DECLARATION_THROWS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_THROWS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_method_throws";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_DECLARATION_PARAMETERS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_method_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_DECLARATION_PARAMETERS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_method_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CONSTRUCTOR_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CONSTRUCTOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_paren_in_constructor";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_CONSTRUCTOR_DECLARATION instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_CONSTRUCTOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_brace_in_constructor";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICIT_CONSTRUCTOR_CALL_ARGUMENTS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_explicitconstructorcall_arguments"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICIT_CONSTRUCTOR_CALL_ARGUMENTS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_explicitconstructorcall_arguments";	//$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_THROWS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_constructor_throws"; //$NON-NLS-1$
-	/**
-	 * @deprecated Use FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS instead
-	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_constructor_throws";	//$NON-NLS-1$
-	/**
-	 * if bit set, then alignment will be non-optional (default is optional)
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_ALIGNMENT_FORCE = "1";//$NON-NLS-1$
-
-	/** foobar(<ul>
-	 * <li>    #fragment1, #fragment2,  </li>
-	 * <li>     #fragment5, #fragment4, </li>
-	 * </ul>
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_COMPACT_FIRST_BREAK_SPLIT = "32";//$NON-NLS-1$
-	/** foobar(#fragment1, #fragment2, <ul>
-	 *  <li>    #fragment3, #fragment4 </li>
-	 * </ul>
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_COMPACT_SPLIT = "16";//$NON-NLS-1$
-	/**
-	 * if bit set, broken fragments will be indented one level below current (not using continuation indentation)
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_INDENT_BY_ONE = "4";//$NON-NLS-1$
-	/**
-	 * if bit set, broken fragments will be aligned on current location column (default is to break at current indentation level)
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_INDENT_ON_COLUMN = "2";//$NON-NLS-1$
-	/** foobar(#fragment1, <ul>
-	 * <li>      #fragment2,  </li>
-	 * <li>      #fragment3 </li>
-	 * <li>      #fragment4,  </li>
-	 * </ul>
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_NEXT_PER_LINE_SPLIT = "80"; //$NON-NLS-1$
-	/** 
-	 * foobar(<ul>
-	 * <li>     #fragment1,  </li>
-	 * <li>        #fragment2,  </li>
-	 * <li>        #fragment3 </li>
-	 * <li>        #fragment4,  </li>
-	 * </ul>
-	 * @deprecated Use the API method to set alignments
-	 */ 
-	public static final String FORMATTER_NEXT_SHIFTED_SPLIT = "64";//$NON-NLS-1$
-
-	/**
-	 * Use to disable line wrapping/splitting
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_NO_ALIGNMENT = "0";//$NON-NLS-1$
-
-	/** foobar(<ul>
-	 * <li>     #fragment1,  </li>
-	 * <li>     #fragment2,  </li>
-	 * <li>     #fragment3 </li>
-	 * <li>     #fragment4,  </li>
-	 * </ul>
-	 * @deprecated Use the API method to set alignments
-	 */
-	public static final String FORMATTER_ONE_PER_LINE_SPLIT = "48";//$NON-NLS-1$
-	/**
-	 * <pre>
-	 * FORMATTER / Option to indent statements inside a block
-	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_block_statements"
-	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           TRUE
-	 * </pre>
-	 * @see #TRUE
-	 * @see #FALSE
-	 * @deprecated Use FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BODY and FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK instead
-	 * @since 3.0
-	 */
-	public static final String FORMATTER_INDENT_BLOCK_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.indent_block_statements"; //$NON-NLS-1$
-	/**
-	 * <pre>
-	 * FORMATTER / Option to specify whether or not unnecessary semicolon should be removed
-	 *     - option id:         "org.eclipse.jdt.core.formatter.remove_unnecessary_semicolon"
-	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           FALSE
-	 * </pre>
-	 * @see #TRUE
-	 * @see #FALSE
-	 * @deprecated Will be removed.
-	 * @since 3.0
-	 */
-	public static final String FORMATTER_REMOVE_UNNECESSARY_SEMICOLON = JavaCore.PLUGIN_ID + ".formatter.remove_unnecessary_semicolon";	//$NON-NLS-1$
-	/**
-	 * <pre>
-	 * FORMATTER / Option to insert a new line in control statements
-	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_in_control_statements"
-	 *     - possible values:   { INSERT, DO_NOT_INSERT }
-	 *     - default:           DO_NOT_INSERT
-	 * </pre>
-	 * @see JavaCore#INSERT
-	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.0
-	 * @deprecated Will be removed before M9 please use the specific FORMATTER_INSERT_NEW_LINE_IN_XX_STATEMENT where XX represents the specific statement
-	 */
-	public static final String FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_control_statements";	//$NON-NLS-1$
 }

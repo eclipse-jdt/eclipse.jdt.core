@@ -36,7 +36,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private CodeSnippetParsingUtil codeSnippetParsingUtil;
 	
 	public DefaultCodeFormatter() {
-		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings()), null);
+		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings()), null);
 	}
 	
 	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences) {
@@ -49,7 +49,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			this.preferences = new DefaultCodeFormatterOptions(options);
 		} else {
 			this.options = JavaCore.getOptions();
-			this.preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
+			this.preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
 		}
 		this.defaultCompilerOptions = getDefaultCompilerOptions();
 		if (defaultCodeFormatterOptions != null) {

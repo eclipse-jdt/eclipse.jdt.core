@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.formatter;
 import org.eclipse.text.edits.TextEdit;
 
 /**
- * Specification for a generic source code formatter. This is still subject to change.
+ * Specification for a generic source code formatter.
  * 
  * @since 3.0
  */
