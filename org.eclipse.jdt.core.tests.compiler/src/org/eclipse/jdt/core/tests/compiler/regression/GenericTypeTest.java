@@ -7133,8 +7133,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Cannot refer to the type parameter T as a supertype\n" + 
 			"----------\n");
 	}
-	// TODO (philippe) we fail to create the member type Entry properly - it has no type args
-	public void _test258() {
+	public void test258() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7142,7 +7141,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    static abstract class M<K,V> implements Entry<K,V> {}\n" + 
 				"}\n"
 			},
-			"SUCCESS");
+			"");
 	}
 	// 70767 - NPE compiling code with explicit constructor invocation
 	public void test259() {
@@ -7161,4 +7160,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"");
 	}
+	public void test260() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <E> {\n" + 
+				"	class MX <F> {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XC<G> extends X<G> {\n" + 
+				"	class MXC<H> extends MX<H> {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}	
 }

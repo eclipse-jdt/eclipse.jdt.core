@@ -1115,7 +1115,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 		while (accessFields.hasNext()) {
 			field = (FieldBinding) accessFields.next();
 			if (CharOperation.prefixEquals(SyntheticArgumentBinding.EnclosingInstancePrefix, field.name)
-				&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
+				&& ((ReferenceBinding) field.type).findSuperTypeErasingTo(targetEnclosingType) != null)
 					return field;
 		}
 	}

@@ -637,7 +637,7 @@ public class BlockScope extends Scope {
 
 		// use 'this' if possible
 		if (!currentMethodScope.isConstructorCall && !currentMethodScope.isStatic) {
-			if (sourceType == targetEnclosingType || (!onlyExactMatch && targetEnclosingType.isSuperclassOf(sourceType))) {
+			if (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeErasingTo(targetEnclosingType) != null)) {
 				return EmulationPathToImplicitThis; // implicit this is good enough
 			}
 		}
@@ -657,7 +657,7 @@ public class BlockScope extends Scope {
 				// reject allocation and super constructor call
 				if (ignoreEnclosingArgInConstructorCall 
 						&& currentMethodScope.isConstructorCall 
-						&& (sourceType == targetEnclosingType || (!onlyExactMatch && targetEnclosingType.isSuperclassOf(sourceType)))) {
+						&& (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeErasingTo(targetEnclosingType) != null))) {
 					return NoEnclosingInstanceInConstructorCall;
 				}
 				return new Object[] { syntheticArg };
@@ -694,7 +694,7 @@ public class BlockScope extends Scope {
 
 				//done?
 				if (currentType == targetEnclosingType
-					|| (!onlyExactMatch && targetEnclosingType.isSuperclassOf(currentType)))	break;
+					|| (!onlyExactMatch && currentType.findSuperTypeErasingTo(targetEnclosingType) != null))	break;
 
 				if (currentMethodScope != null) {
 					currentMethodScope = currentMethodScope.enclosingMethodScope();
@@ -718,7 +718,7 @@ public class BlockScope extends Scope {
 				currentType = currentEnclosingType;
 			}
 			if (currentType == targetEnclosingType
-				|| (!onlyExactMatch && targetEnclosingType.isSuperclassOf(currentType))) {
+				|| (!onlyExactMatch && currentType.findSuperTypeErasingTo(targetEnclosingType) != null)) {
 				return path;
 			}
 		}
