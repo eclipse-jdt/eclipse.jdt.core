@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.core.builder;
  */
 
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
@@ -58,6 +59,7 @@ public char[] getContents() {
 			System.arraycopy(contents, 0, (contents = new char[len]), 0, len);		
 		return contents;
 	} catch (FileNotFoundException e) {
+		throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
 	} catch (IOException e) {
 		if (reader != null) {
 			try {
@@ -65,8 +67,8 @@ public char[] getContents() {
 			} catch(IOException ioe) {
 			}
 		}
-	};
-	return new char[0];
+		throw new AbortCompilation(true, new MissingSourceFileException(new String(fileName)));
+	}
 }
 
 public char[] getFileName() {
