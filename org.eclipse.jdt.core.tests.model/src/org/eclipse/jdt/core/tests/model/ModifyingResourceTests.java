@@ -75,7 +75,7 @@ protected void assertDeltas(String message, String expected) {
 	}
 	String actual = buffer.toString();
 	if (!expected.equals(actual)){
-	 	System.out.println(Util.displayString(actual, 2));
+	 	System.out.println(Util.displayString(actual, 3));
 	}
 	assertEquals(
 		message,

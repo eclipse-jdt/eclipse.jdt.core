@@ -32,12 +32,18 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 
 	protected void executeOperation() throws JavaModelException {
 		
-		// delete resource
 		IPackageFragmentRoot root = (IPackageFragmentRoot)this.getElementToProcess();
 		IClasspathEntry rootEntry = root.getRawClasspathEntry();
+
+		// update classpath if needed
+		if (this.updateClasspath) {
+			updateReferingProjectClasspaths(rootEntry.getPath());
+		}
+		
+		// delete resource
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
 		IResource rootResource = root.getResource();
-		if (root.getKind() == IPackageFragmentRoot.K_BINARY || exclusionPatterns == null) {
+		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
 				rootResource.delete(this.updateFlags, fMonitor);
 			} catch (CoreException e) {
@@ -71,11 +77,6 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 			}
 		}
 		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
-		
-		// update classpath if needed
-		if (this.updateClasspath) {
-			updateReferingProjectClasspaths(rootEntry.getPath());
-		}
 	}
 
 
@@ -97,7 +98,7 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 					if (newClasspath == null) {
 						newClasspath = new IClasspathEntry[cpLength-1];
 						System.arraycopy(classpath, 0, newClasspath, 0, j);
-						newCPIndex = 0;
+						newCPIndex = j;
 					}
 				} else if (newClasspath != null) {
 					newClasspath[newCPIndex++] = entry;
@@ -122,9 +123,6 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 		}
 		if (root.isExternal()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE_TYPE, root.getPath().toOSString());
-		}
-		if (root.isReadOnly()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, root);
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}

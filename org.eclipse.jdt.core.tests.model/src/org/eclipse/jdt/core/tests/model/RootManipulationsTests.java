@@ -258,6 +258,37 @@ public void testCopySourceFolder4() throws CoreException {
 	}
 }
 /*
+ * Ensure that deleting a jar package fragment root triggers the right delta
+ * and that the model is up-to-date.
+ */
+public void testDeleteJarFile1() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, new String[] {"/P/myLib.jar"}, "bin");
+		this.createFile("/P/myLib.jar", "");
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/myLib.jar");
+		this.startDeltas();
+		root.delete(IResource.NONE, true, null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	/P/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
+			"	ResourceDelta(/P/myLib.jar)[-]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
  * Ensure that a simple delete of a source root triggers the right delta
  * and that the model is up-to-date.
  */
@@ -366,14 +397,14 @@ public void testMoveSourceFolder1() throws CoreException {
 		// TODO: (jerome) Improve deltas (it should really only show root deltas)
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
-			"	ResourceDelta(/P2/.classpath)[*]\n" + 
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/.project)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]"
+			"	ResourceDelta(/P1/src)[-]\n" + 
+			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"	src[+]: {}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P1\n" + 
@@ -416,14 +447,14 @@ public void testMoveSourceFolder2() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN}\n" + 
-			"	src2[+]: {}\n" + 
-			"	ResourceDelta(/P2/.classpath)[*]\n" + 
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/.project)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]"
+			"	ResourceDelta(/P1/src)[-]\n" + 
+			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"	src2[+]: {}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		
 		assertJavaProject(
@@ -475,14 +506,14 @@ public void testMoveSourceFolder3() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN}\n" + 
-			"	src1[+]: {}\n" + 
-			"	ResourceDelta(/P2/.classpath)[*]\n" + 
 			"P1[*]: {CHILDREN}\n" + 
 			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/.project)[*]\n" + 
-			"	ResourceDelta(/P1/src1)[*]"
+			"	ResourceDelta(/P1/src1)[*]\n" + 
+			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"	src1[+]: {}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		
 		assertJavaProject(
@@ -526,14 +557,14 @@ public void testMoveSourceFolder4() throws CoreException {
 		root.move(new Path("/P2/src"), IResource.NONE, true, sibling, null);
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
-			"	ResourceDelta(/P2/.classpath)[*]\n" + 
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/.project)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]"
+			"	ResourceDelta(/P1/src)[-]\n" + 
+			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"	src[+]: {}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P1\n" + 
@@ -573,14 +604,14 @@ public void testMoveSourceFolder5() throws CoreException {
 		root.move(new Path("/P2/src"), IResource.NONE, true, sibling, null);
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
-			"	ResourceDelta(/P2/.classpath)[*]\n" + 
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/.project)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]"
+			"	ResourceDelta(/P1/src)[-]\n" + 
+			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"	src[+]: {}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P1\n" + 
@@ -619,14 +650,14 @@ public void testMoveSourceFolder6() throws CoreException {
 		root.move(new Path("/P2/src"), IResource.NONE, true, null, null);
 		assertDeltas(
 			"Unexpected delta",
-			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
-			"	ResourceDelta(/P2/.classpath)[*]\n" + 
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/.project)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]"
+			"	ResourceDelta(/P1/src)[-]\n" + 
+			"P2[*]: {CHILDREN | CONTENT}\n" + 
+			"	src[+]: {}\n" + 
+			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P1\n" + 

@@ -165,7 +165,6 @@ public interface IPackageFragmentRoot
 	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> A <code>CoreException</code> occurred while deleting the resource
 	 * <li> This root is external (INVALID_RESOURCE_TYPE)
-	 * <li> This root is read-only (READ_ONLY) 
 	 * </ul>
 	 * @see IResource#delete
 	 * @since 2.1
@@ -304,7 +303,6 @@ public interface IPackageFragmentRoot
 	 * <li> The same classpath entry already exists on the destination project's classpath 
 	 *        (NAME_COLLISION) and <code>updateFlags</code> has not been specified 
 	 * 	  as <code>FORCE</code>
-	 * <li> This root is read-only (READ_ONLY) 
 	 * </ul>
 	 * @see IResource#move
 	 * @since 2.1

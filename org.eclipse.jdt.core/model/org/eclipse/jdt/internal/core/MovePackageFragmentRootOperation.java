@@ -32,13 +32,20 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 	}
 	protected void executeOperation() throws JavaModelException {
 		
-		// move resource
 		IPackageFragmentRoot root = (IPackageFragmentRoot)this.getElementToProcess();
 		IClasspathEntry rootEntry = root.getRawClasspathEntry();
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+
+		// update classpath if needed
+		if (this.updateClasspath) {
+			updateDestProjectClasspath(rootEntry, workspaceRoot);
+			updateReferingProjectClasspaths(rootEntry.getPath());
+		}
+		
+		// move resource
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
 		IResource rootResource = root.getResource();
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		if (root.getKind() == IPackageFragmentRoot.K_BINARY || exclusionPatterns == null) {
+		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
 				rootResource.move(this.destination, this.updateFlags, fMonitor);
 			} catch (CoreException e) {
@@ -82,12 +89,6 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 			}
 		}
 		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
-		
-		// update classpath if needed
-		if (this.updateClasspath) {
-			updateDestProjectClasspath(rootEntry, workspaceRoot);
-			updateReferingProjectClasspaths(rootEntry.getPath());
-		}
 	}
 	/*
 	 * Renames the classpath entries equal to the given path in all Java projects.
@@ -114,16 +115,5 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 				project.setRawClasspath(newClasspath, fMonitor);
 			}
 		}
-	}
-	public IJavaModelStatus verify() {
-		IJavaModelStatus status = super.verify();
-		if (!status.isOK()) {
-			return status;
-		}
-		IJavaElement root = this.getElementToProcess();
-		if (root.isReadOnly()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, root);
-		}
-		return JavaModelStatus.VERIFIED_OK;
 	}
 }
