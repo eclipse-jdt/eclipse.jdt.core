@@ -779,5 +779,7 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocInternalTypeNameProvided = Javadoc + Internal + 507;
 	/** @since 3.0 */
+	int JavadocInheritedNameHidesEnclosingTypeName = Javadoc + Internal + 508;
+	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 509;
 }

@@ -2403,6 +2403,9 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 			case InternalNameProvided :
 				id = IProblem.JavadocInternalTypeNameProvided;
 				break;
+			case InheritedNameHidesEnclosingName :
+				id = IProblem.JavadocInheritedNameHidesEnclosingTypeName;
+			break;
 			case NoError : // 0
 			default :
 				needImplementation(); // want to fail to see why we were here...
