@@ -187,7 +187,6 @@ public class TryStatement extends SubRoutineStatement {
 	 * returnAddress is only allocated if jsr is allowed
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
@@ -298,9 +297,7 @@ public class TryStatement extends SubRoutineStatement {
 					}
 				}
 			}
-			if (finallyMode != FINALLY_SUBROUTINE || this.subRoutineStartLabel == null) {
-				this.exitAnyExceptionHandler();
-			}
+			this.exitAnyExceptionHandler();
 			// extra handler for trailing natural exit (will be fixed up later on when natural exit is generated below)
 			ExceptionLabel naturalExitExceptionHandler = 
 				finallyMode == FINALLY_SUBROUTINE && requiresNaturalExit ? new ExceptionLabel(codeStream, null) : null;
@@ -319,36 +316,38 @@ public class TryStatement extends SubRoutineStatement {
 
 				codeStream.incrStackSize(1);
 				switch(finallyMode) {
-					
 					case FINALLY_SUBROUTINE :
 						codeStream.store(anyExceptionVariable, false);
 						codeStream.jsr(subRoutineStartLabel);
-						this.exitAnyExceptionHandler();
+						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
+						int position = codeStream.position;						
 						codeStream.load(anyExceptionVariable);
 						codeStream.athrow();
+						codeStream.recordPositionsFrom(position, finallyBlock.sourceEnd);
 						subRoutineStartLabel.place();
 						codeStream.incrStackSize(1);
+						position = codeStream.position;	
 						codeStream.store(returnAddressVariable, false);
-						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
+						codeStream.recordPositionsFrom(position, finallyBlock.sourceStart);
 						finallyBlock.generateCode(scope, codeStream);
-						int position = codeStream.position;
+						position = codeStream.position;
 						codeStream.ret(returnAddressVariable.resolvedPosition);
-						codeStream.updateLastRecordedEndPC(position);
+//						codeStream.updateLastRecordedEndPC(position);
 						codeStream.recordPositionsFrom(
 							position,
 							finallyBlock.sourceEnd);
 						// the ret bytecode is part of the subroutine
 						break;
-						
 					case FINALLY_MUST_BE_INLINED :
 						codeStream.store(anyExceptionVariable, false);
+						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
 						this.finallyBlock.generateCode(currentScope, codeStream);
+						position = codeStream.position;
 						codeStream.load(anyExceptionVariable);
 						codeStream.athrow();
 						subRoutineStartLabel.place();
-						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
+						codeStream.recordPositionsFrom(position, finallyBlock.sourceEnd);
 						break;
-						
 					case FINALLY_DOES_NOT_COMPLETE :
 						codeStream.pop();
 						subRoutineStartLabel.place();
@@ -360,18 +359,16 @@ public class TryStatement extends SubRoutineStatement {
 				naturalExitLabel.place();
 				if (requiresNaturalExit) {
 					switch(finallyMode) {
-
 						case FINALLY_SUBROUTINE :
-							int position = codeStream.position;					
+							int position = codeStream.position;
 							// fix up natural exit handler
 							naturalExitExceptionHandler.placeStart();
 							codeStream.jsr(subRoutineStartLabel);
 							naturalExitExceptionHandler.placeEnd();
 							codeStream.recordPositionsFrom(
 								position,
-								finallyBlock.sourceStart);					
+								finallyBlock.sourceEnd);	
 							break;
-						
 						case FINALLY_MUST_BE_INLINED :
 							// May loose some local variable initializations : affecting the local variable attributes
 							// needed since any exception handler got inlined subroutine
@@ -381,7 +378,6 @@ public class TryStatement extends SubRoutineStatement {
 							// entire sequence for finally is associated to finally block
 							finallyBlock.generateCode(scope, codeStream);
 							break;
-						
 						case FINALLY_DOES_NOT_COMPLETE :
 							break;
 					}
