@@ -10,8 +10,12 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -40,6 +44,7 @@ import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.ImportContainer;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.Region;
@@ -125,6 +130,11 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	 */
 	IJavaSearchScope scope;
 
+/**
+ * Creates an empty TypeHierarchy
+ */
+public TypeHierarchy() throws JavaModelException {
+}
 /**
  * Creates a TypeHierarchy on the given type.
  */
@@ -1320,5 +1330,352 @@ protected void worked(int work) {
 		checkCanceled();
 	}
 }
+static final byte VERSION = 0x0000;
+// SEPARATOR
+static final byte SEPARATOR1 = '\n';//0x0000;
+static final byte SEPARATOR2 = ',';//0x0001;
+static final byte SEPARATOR3 = '>';//0x0002;
+static final byte SEPARATOR4 = '\r';//0x0003;
+// general info
+static final byte COMPUTE_SUBTYPES = 0x0001;
 
+// type info
+static final byte CLASS = 0x0000;
+static final byte INTERFACE = 0x0001;
+static final byte COMPUTED_FOR = 0x0002;
+static final byte ROOT = 0x0004;
+
+// cst
+static final byte[] NO_FLAGS = new byte[]{};
+
+/**
+ * @see ITypeHierarchy
+ */
+public void store(OutputStream output, IProgressMonitor monitor) throws JavaModelException {
+	try {
+		// compute types in hierarchy
+		Hashtable hashtable = new Hashtable();
+		Hashtable hashtable2 = new Hashtable();
+		int count = 0;
+		
+		if(type != null) {
+			Integer index = new Integer(count++);
+			hashtable.put(type, index);
+			hashtable2.put(index, type);
+		}
+		Object[] types = classToSuperclass.keySet().toArray();
+		for (int i = 0; i < types.length; i++) {
+			if(hashtable.get(types[i]) == null) {
+				Integer index = new Integer(count++);
+				hashtable.put(types[i], index);
+				hashtable2.put(index, types[i]);
+			}
+		}
+		types = classToSuperclass.values().toArray();
+		for (int i = 0; i < types.length; i++) {
+			if(hashtable.get(types[i]) == null) {
+				Integer index = new Integer(count++);
+				hashtable.put(types[i], index);
+				hashtable2.put(index, types[i]);
+			}
+		}
+		types = typeToSuperInterfaces.keySet().toArray();
+		for (int i = 0; i < types.length; i++) {
+			if(hashtable.get(types[i]) == null) {
+				Integer index = new Integer(count++);
+				hashtable.put(types[i], index);
+				hashtable2.put(index, types[i]);
+			}
+		}
+		Object[] tabTypes = typeToSuperInterfaces.values().toArray();
+		for (int i = 0; i < types.length; i++) {
+			types = (Object[])tabTypes[i];
+			for (int j = 0; j < types.length; j++) {
+				if(hashtable.get(types[j]) == null) {
+					Integer index = new Integer(count++);
+					hashtable.put(types[j], index);
+					hashtable2.put(index, types[j]);
+				}
+			}
+			
+		}
+		
+		// save version of the hierarchy format
+		output.write(VERSION);
+		
+		// save general info
+		byte generalInfo = 0;
+		if(computeSubtypes) {
+			generalInfo |= COMPUTE_SUBTYPES;
+		}
+		output.write(generalInfo);
+		
+		// save missing types
+		for (int i = 0; i < missingTypes.size(); i++) {
+			if(i != 0) {
+				output.write(SEPARATOR2);
+			}
+			output.write(((String)missingTypes.get(i)).getBytes());
+			
+		}
+		output.write(SEPARATOR1);
+		
+		// save types
+		for (int i = 0; i < count ; i++) {
+			IType t = (IType)hashtable2.get(new Integer(i));
+			
+			// n bytes
+			output.write(t.getHandleIdentifier().getBytes());
+			output.write(SEPARATOR4);
+			output.write(flagsToBytes((Integer)typeFlags.get(t)));
+			output.write(SEPARATOR4);
+			byte info = CLASS;
+			if(type != null && type.equals(t)) {
+				info |= COMPUTED_FOR;
+			}
+			if(interfaces.contains(t)) {
+				info |= INTERFACE;
+			}
+			if(rootClasses.contains(t)) {
+				info |= ROOT;
+			}
+			output.write(info);
+		}
+		output.write(SEPARATOR1);
+		
+		// save superclasses
+		types = classToSuperclass.keySet().toArray();
+		for (int i = 0; i < types.length; i++) {
+			IJavaElement key = (IJavaElement)types[i];
+			IJavaElement value = (IJavaElement)classToSuperclass.get(key);
+			
+			output.write(((Integer)hashtable.get(key)).toString().getBytes());
+			output.write('>');
+			output.write(((Integer)hashtable.get(value)).toString().getBytes());
+			output.write(SEPARATOR1);
+		}
+		output.write(SEPARATOR1);
+		
+		// save superinterfaces
+		types = typeToSuperInterfaces.keySet().toArray();
+		for (int i = 0; i < types.length; i++) {
+			IJavaElement key = (IJavaElement)types[i];
+			IJavaElement[] values = (IJavaElement[])typeToSuperInterfaces.get(key);
+			
+			if(values.length > 0) {
+				output.write(((Integer)hashtable.get(key)).toString().getBytes());
+				output.write(SEPARATOR3);
+				for (int j = 0; j < values.length; j++) {
+					IJavaElement value = values[j];
+					if(j != 0) output.write(SEPARATOR2);
+					output.write(((Integer)hashtable.get(value)).toString().getBytes());
+				}
+				output.write(SEPARATOR1);
+			}
+		}
+		output.write(SEPARATOR1);
+	} catch(IOException e) {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+	}
+}
+/**
+ * 
+ */
+public static ITypeHierarchy load(IType type, InputStream input, IJavaSearchScope scope) throws JavaModelException {
+	try {
+		TypeHierarchy typeHierarchy = new TypeHierarchy();
+		typeHierarchy.initialize(1);
+		typeHierarchy.scope = scope;
+		
+		IType[] types = new IType[10];
+		int typeCount = 0;
+		
+		byte version = (byte)input.read();
+	
+		if(version != VERSION) {
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+		}
+		byte generalInfo = (byte)input.read();
+		if((generalInfo & COMPUTE_SUBTYPES) != 0) {
+			typeHierarchy.computeSubtypes = true;
+		}
+		
+		byte b;
+		byte[] bytes;
+		
+		int length = 0;
+		bytes = new byte[10];
+		
+		// read missing type
+		do {
+			b = (byte)input.read();
+			
+			if(bytes.length == length) {
+				System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);;
+			}
+	
+			if(b == SEPARATOR1 || b == SEPARATOR2) {
+				System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);;
+				typeHierarchy.missingTypes.add(new String(bytes));
+				length = 0;
+			} else {
+				bytes[length++] = b;
+			}
+		} while(b != SEPARATOR1);
+		
+		// read types
+		int count = 0;
+		while((b = (byte)input.read()) != SEPARATOR1) {
+			bytes = new byte[10];
+			length = 1;
+			bytes[0]=(byte)b;
+			
+			// read type memento
+			while((b = (byte)input.read()) != SEPARATOR4){
+				if(bytes.length == length) {
+					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
+				}
+				bytes[length++]=(byte)b;
+			}
+			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			IType element = (IType)JavaCore.create(new String(bytes));
+			
+			if(types.length == typeCount) {
+				System.arraycopy(types, 0, types = new IType[typeCount * 2], 0, typeCount);
+			}
+			types[count++] = element;
+			
+			// read flags
+			bytes = new byte[10];
+			length = 0;
+			while((b = (byte)input.read()) != SEPARATOR4){
+				if(bytes.length == length) {
+					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
+				}
+				bytes[length++]=(byte)b;
+			}
+			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			
+			Integer flags = bytesToFlags(bytes);
+			if(flags != null) {
+				typeHierarchy.cacheFlags(element, flags.intValue());
+			}
+			
+			// read info
+			byte info = (byte)input.read();
+			
+			
+			if((info & INTERFACE) != 0) {
+				typeHierarchy.addInterface(element);
+			}
+			if((info & COMPUTED_FOR) != 0) {
+				if(!element.equals(type)) {
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR)); 
+				}
+				typeHierarchy.type = element;
+			}
+			if((info & ROOT) != 0) {
+				typeHierarchy.addRootClass(element);
+			}
+		}
+		
+		// read super class
+		while((b = (byte)input.read()) != SEPARATOR1) {
+			bytes = new byte[10];
+			length = 1;
+			bytes[0]=(byte)b;
+			
+			// read type
+			while((b = (byte)input.read()) != SEPARATOR3){
+				if(bytes.length == length) {
+					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
+				}
+				bytes[length++]=(byte)b;
+			}
+			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			int subClass = new Integer(new String(bytes)).intValue();
+			
+			// read super type
+			bytes = new byte[10];
+			length = 0;
+			while((b = (byte)input.read()) != SEPARATOR1){
+				if(bytes.length == length) {
+					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
+				}
+				bytes[length++]=(byte)b;
+			}
+			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			int superClass = new Integer(new String(bytes)).intValue();
+			
+			typeHierarchy.cacheSuperclass(
+				types[subClass],
+				types[superClass]);
+		}
+		
+		// read super interface
+		while((b = (byte)input.read()) != SEPARATOR1) {
+			bytes = new byte[10];
+			length = 1;
+			bytes[0]=(byte)b;
+			
+			// read type
+			while((b = (byte)input.read()) != SEPARATOR3){
+				if(bytes.length == length) {
+					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
+				}
+				bytes[length++]=(byte)b;
+			}
+			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			int subClass = new Integer(new String(bytes)).intValue();
+			
+			// read super interface
+			bytes = new byte[10];
+			length = 0;
+			while((b = (byte)input.read()) != SEPARATOR1){
+				if(bytes.length == length) {
+					System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
+				}
+				bytes[length++]=(byte)b;
+			}
+			System.arraycopy(bytes, 0, bytes = new byte[length], 0, length);
+			IType[] superInterfaces = new IType[(bytes.length / 2) + 1];
+			int interfaceCount = 0;
+			
+			int j = 0;
+			byte[] b2;
+			for (int i = 0; i < bytes.length; i++) {
+				if(bytes[i] == SEPARATOR2){
+					b2 = new byte[i - j];
+					System.arraycopy(bytes, j, b2, 0, i - j);
+					j = i + 1;
+					superInterfaces[interfaceCount++] = types[new Integer(new String(b2)).intValue()];
+				}
+			}
+			b2 = new byte[bytes.length - j];
+			System.arraycopy(bytes, j, b2, 0, bytes.length - j);
+			superInterfaces[interfaceCount++] = types[new Integer(new String(b2)).intValue()];
+			
+			typeHierarchy.cacheSuperInterfaces(
+				types[subClass],
+				superInterfaces);
+		}
+		return typeHierarchy;
+	} catch(IOException e){
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+	}
+}
+private static byte[] flagsToBytes(Integer flags){
+	if(flags != null) {
+		return flags.toString().getBytes();
+	} else {
+		return NO_FLAGS;
+	}
+}
+private static Integer bytesToFlags(byte[] bytes){
+	if(bytes != null && bytes.length > 0) {
+		return new Integer(new String(bytes));
+	} else {
+		return null;
+	}
+}
 }

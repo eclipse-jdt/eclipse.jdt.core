@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.io.InputStream;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -473,7 +475,19 @@ public interface IType extends IMember, IParent {
 	 * @since 2.0
 	 */
 	boolean isMember() throws JavaModelException;
-
+	/**
+	 * Load an ITypeHierarchy from an input stream. The type hierarchy has been stored by ITypeHierachy#store(OutputStream).
+	 * 
+	 * @param project the given project
+	 * @param input stream where hierarchy will be read
+	 * @param monitor the given progress monitor
+	 * @return the stored hierarchy
+	 * @exception JavaModelException if the type is not the focus of the hierarchy or 
+	 *		if unable to read the input stream
+	 * @see ITypeHierachy#store(OutputStream)
+	 * @since 2.1
+	 */
+	ITypeHierarchy loadTypeHierachy(IJavaProject project, InputStream input, IProgressMonitor monitor) throws JavaModelException;
 	/**
 	 * Creates and returns a type hierarchy for this type containing
 	 * this type and all of its supertypes.

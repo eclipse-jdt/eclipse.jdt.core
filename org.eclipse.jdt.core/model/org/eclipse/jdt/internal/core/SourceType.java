@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +24,7 @@ import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 
 /**
  * Handle for a source type. Info object is a SourceTypeElementInfo.
@@ -325,7 +327,15 @@ public boolean isLocal() throws JavaModelException {
 public boolean isMember() throws JavaModelException {
 	return getDeclaringType() != null;
 }
-
+/**
+ * @see IType
+ */
+public ITypeHierarchy loadTypeHierachy(IJavaProject project, InputStream input, IProgressMonitor monitor) throws JavaModelException {
+	return TypeHierarchy.load(
+		this,
+		input,
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {project}));
+}
 /**
  * @see IType
  */

@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,6 +19,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 
 /**
  * Parent is an IClassFile.
@@ -423,6 +425,15 @@ public boolean isLocal() throws JavaModelException {
 public boolean isMember() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getRawInfo();
 	return info.isMember();
+}
+/**
+ * @see IType
+ */
+public ITypeHierarchy loadTypeHierachy(IJavaProject project, InputStream input, IProgressMonitor monitor) throws JavaModelException {
+	return TypeHierarchy.load(
+		this,
+		input,
+		SearchEngine.createJavaSearchScope(new IJavaElement[] {project}));
 }
 /**
  * @see IType#newSupertypeHierarchy(IProgressMonitor monitor)

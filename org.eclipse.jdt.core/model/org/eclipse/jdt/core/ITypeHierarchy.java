@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.io.OutputStream;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -274,4 +276,14 @@ void refresh(IProgressMonitor monitor) throws JavaModelException;
  * @param listener the listener
  */
 void removeTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener);
+/**
+ * Store the type hierachy in an output stream.
+ * 
+ * @param outputStream output stream where the hierarchy will be stored
+ * @param monitor the given progress monitor
+ * @exception JavaModelException if unable to write in the ouput stream
+ * @see IType#loadTypeHierachy(IJavaProject, InputStream, IProgressMonitor)
+ * @since 2.1
+ */
+void store(OutputStream outputStream, IProgressMonitor monitor) throws JavaModelException;
 }
