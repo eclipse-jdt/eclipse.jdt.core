@@ -5038,11 +5038,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	} else 	if (t instanceof T) {\n" + 
 			"	       	    ^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object since generic type information will be erased at runtime\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
-			"	} else if (t instanceof X) {\n" + 
-			"	           ^^^^^^^^^^^^^^\n" + 
-			"Incompatible conditional operand types T and X\n" + 
 			"----------\n",
 			null,
 			true,
@@ -5221,7 +5216,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"4. WARNING in X.java (at line 27)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast to type Hashtable<String,Integer> for expression of type Z3\n" + 
+			"Unsafe type operation: The cast from Z3 to parameterized type Hashtable<String,Integer> will not check conformance of type arguments at runtime\n" + 
 			"----------\n",
 			null,
 			true,
@@ -6312,25 +6307,25 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                       ^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: The cast from List to parameterized type List<X> will not check conformance of type arguments at runtime\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
-			"	                       ^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast to type List<X> for expression of type List\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 5)\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
 			"	void m0() { List<X> l = list(); } // unsafe conversion\n" + 
 			"	                        ^^^^^^\n" + 
 			"Unsafe type operation: Should not convert expression of raw type List to type List<X>. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 6)\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
 			"	void m1() { for (X a : list()); } // type mismatch\n" + 
 			"	                       ^^^^^^\n" + 
 			"Type mismatch: cannot convert from element type Object to X\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 7)\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
 			"	void m2() { for (Iterator<X> i = list().iterator(); i.hasNext();); }  // unsafe conversion\n" + 
 			"	                                 ^^^^^^^^^^^^^^^^^\n" + 
 			"Unsafe type operation: Should not convert expression of raw type Iterator to type Iterator<X>. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 8)\n" + 
+			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
+			"	                                          ^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from Collection to parameterized type List<X> will not check conformance of type arguments at runtime\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
@@ -6340,7 +6335,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"7. WARNING in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
 			"	                                    ^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast to type Collection<X> for expression of type List\n" + 
+			"Unsafe type operation: The cast from List to parameterized type Collection<X> will not check conformance of type arguments at runtime\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
@@ -7176,4 +7171,119 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"");
 	}	
+	public void test261() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E> {\n" + 
+				"	void foo(){\n" + 
+				"		X<Integer> xi = (X<Integer>) new X<String>();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	X<Integer> xi = (X<Integer>) new X<String>();\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from X<String> to X<Integer>\n" + 
+			"----------\n");
+	}		
+	public void test262() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E,F> {\n" + 
+				"	void foo(){\n" + 
+				"		X<E,String> xe = (X<E,String>) new X<String,String>();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X<E,String> xe = (X<E,String>) new X<String,String>();\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from X<String,String> to parameterized type X<E,String> will not check conformance of type arguments at runtime\n" + 
+			"----------\n");
+	}			
+	public void test263() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E,F> {\n" + 
+				"	void foo(){\n" + 
+				"		XC<E,String> xe = (XC<E,String>) new X<String,String>();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class XC<G,H> extends X<G,H> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	XC<E,String> xe = (XC<E,String>) new X<String,String>();\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from X<String,String> to parameterized type XC<E,String> will not check conformance of type arguments at runtime\n" + 
+			"----------\n");
+	}
+	public void test264() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E,F> {\n" + 
+				"	void foo(){\n" + 
+				"		XC<E,String> xe = (XC<E,String>) new X<String,Integer>();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class XC<G,H> extends X<G,H> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	XC<E,String> xe = (XC<E,String>) new X<String,Integer>();\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from X<String,Integer> to XC<E,String>\n" + 
+			"----------\n");
+	}		
+	public void test265() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E> {\n" + 
+				"	<U> void foo(){\n" + 
+				"			XC<U> xcu = (XC<U>) new X<E>();\n" + 
+				"			XC<U> xcu1 = (XC<?>) new X<E>();			\n" + 
+				"			XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class XC<G> extends X<G> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	XC<U> xcu = (XC<U>) new X<E>();\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from X<E> to parameterized type XC<U> will not check conformance of type arguments at runtime\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	XC<U> xcu1 = (XC<?>) new X<E>();			\n" + 
+			"	      ^^^^\n" + 
+			"Type mismatch: cannot convert from XC<?> to XC<U>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unsafe type operation: The cast from X<E> to parameterized type XC<? extends X> will not check conformance of type arguments at runtime\n" + 
+			"----------\n");
+	}		
+	public void test266() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <E> {\n" + 
+				"	void bar() {\n" + 
+				"		X<? extends E> xe = new X<E>();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
 }

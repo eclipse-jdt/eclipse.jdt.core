@@ -645,7 +645,31 @@ public boolean isEquivalentTo(TypeBinding otherType) {
     if (otherType.isWildcard()) // wildcard
 		return ((WildcardBinding) otherType).boundCheck(this);
     if (this.typeVariables == NoTypeVariables) return false;
-    if (otherType.isRawType())
+    if (otherType.isParameterizedType()) {
+        if ((otherType.tagBits & HasWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+        	return false; // should have been identical
+        ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
+        if (this != otherParamType.type) 
+            return false;
+        ReferenceBinding enclosing = enclosingType();
+        if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
+            return false;
+        int length = this.typeVariables == null ? 0 : this.typeVariables.length;
+        TypeBinding[] otherArguments = otherParamType.arguments;
+        int otherLength = otherArguments == null ? 0 : otherArguments.length;
+        if (otherLength != length) 
+            return false;
+        // argument must be identical, only equivalence is allowed if wildcard other type
+        for (int i = 0; i < length; i++) {
+        	TypeBinding argument = this.typeVariables[i];
+        	TypeBinding otherArgument = otherArguments[i];
+			if (!(argument == otherArgument
+					|| (otherArgument.isWildcard()) && argument.isEquivalentTo(otherArgument))) {
+				return false;
+			}
+        }
+        return true;
+    } else if (otherType.isRawType())
         return otherType.erasure() == this;
 	return false;
 }

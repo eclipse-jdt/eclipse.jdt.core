@@ -150,6 +150,40 @@ public boolean isParameterizedType() {
 }
 	
 /**
+ * Returns true if the two types are statically known to be different at compile-time,
+ * e.g. a type variable is not probably known to be distinct from another type
+ */
+public boolean isProvablyDistinctFrom(TypeBinding otherType) {
+	if (this == otherType) return false;
+	if (this.isTypeVariable()) return false;
+	if (this.isWildcard()) return false;
+	if (otherType.isTypeVariable()) return false;
+	if (otherType.isWildcard()) return false;
+	if (this.isParameterizedType()) {
+		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
+		if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure())) return true;
+		if (otherType.isGenericType()) return false;
+		if (otherType.isRawType()) return false;
+		if (otherType.isParameterizedType()) {
+			TypeBinding[] arguments = parameterizedType.arguments;
+			if (arguments == null) return false;
+			ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
+			TypeBinding[] otherArguments = otherParameterizedType. arguments;
+			if (otherArguments == null) return false;
+			for (int i = 0, length = arguments.length; i < length; i++) {
+				if (arguments[i].isProvablyDistinctFrom(otherArguments[i])) return true;
+			}
+			return false;
+		}
+	} else if (this.isRawType()) {
+		return this.erasure().isProvablyDistinctFrom(otherType.erasure());
+	} else if (this.isGenericType()) {
+		return this != otherType.erasure();
+	}
+	return this != otherType;
+}
+
+/**
  * Returns true if the type was declared as a type variable
  */
 public boolean isTypeVariable() {

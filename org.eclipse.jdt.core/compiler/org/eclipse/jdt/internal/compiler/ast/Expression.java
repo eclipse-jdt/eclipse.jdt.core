@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -199,6 +200,219 @@ public abstract class Expression extends Statement {
 		return analyseCode(currentScope, flowContext, flowInfo);
 	}
 
+	/**
+	 * Returns false if cast is not legal. 
+	 */
+	public final boolean checkCastTypesCompatibility(
+		BlockScope scope,
+		TypeBinding castType,
+		TypeBinding expressionType,
+		Expression expression) {
+	
+		// see specifications 5.5
+		// handle errors and process constant when needed
+	
+		// if either one of the type is null ==>
+		// some error has been already reported some where ==>
+		// we then do not report an obvious-cascade-error.
+	
+		if (castType == null || expressionType == null) return true;
+	
+		// identity conversion cannot be performed upfront, due to side-effects
+		// like constant propagation
+				
+		if (castType.isBaseType()) {
+			if (expressionType.isBaseType()) {
+				if (expressionType == castType) {
+					if (expression != null) {
+						this.constant = expression.constant; //use the same constant
+					}
+					tagAsUnnecessaryCast(scope, castType);
+					return true;
+				}
+				boolean necessary = false;
+				if (expressionType.isCompatibleWith(castType)
+						|| (necessary = BaseTypeBinding.isNarrowing(castType.id, expressionType.id))) {
+					if (expression != null) {
+						expression.implicitConversion = (castType.id << 4) + expressionType.id;
+						if (expression.constant != Constant.NotAConstant) {
+							constant = expression.constant.castTo(expression.implicitConversion);
+						}
+					}
+					if (!necessary) tagAsUnnecessaryCast(scope, castType);
+					return true;
+					
+				}
+			}
+			reportIllegalCast(scope, castType, expressionType);
+			return false;
+		}
+	
+		//-----------cast to something which is NOT a base type--------------------------	
+		if (expressionType == NullBinding) {
+			tagAsUnnecessaryCast(scope, castType);
+			return true; //null is compatible with every thing
+		}
+		if (expressionType.isBaseType()) {
+			reportIllegalCast(scope, castType, expressionType);
+			return false;
+		}
+	
+		if (expressionType.isArrayType()) {
+			if (castType == expressionType) {
+				tagAsUnnecessaryCast(scope, castType);
+				return true; // identity conversion
+			}
+	
+			if (castType.isArrayType()) {
+				//------- (castType.isArray) expressionType.isArray -----------
+				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType();
+				if (exprElementType.isBaseType()) {
+					// <---stop the recursion------- 
+					if (((ArrayBinding) castType).elementsType() == exprElementType) {
+						tagAsNeedCheckCast();
+						return true;
+					} else {
+						reportIllegalCast(scope, castType, expressionType);
+						return false;
+					}
+				}
+				// recursively on the elements...
+				return checkCastTypesCompatibility(
+					scope,
+					((ArrayBinding) castType).elementsType(),
+					exprElementType,
+					expression);
+			} else if (
+				castType.isClass()) {
+				//------(castType.isClass) expressionType.isArray ---------------	
+				if (castType.id == T_Object) {
+					tagAsUnnecessaryCast(scope, castType);
+					return true;
+				}
+			} else { //------- (castType.isInterface) expressionType.isArray -----------
+				if (castType.id == T_JavaLangCloneable || castType.id == T_JavaIoSerializable) {
+					tagAsNeedCheckCast();
+					return true;
+				}
+			}
+			reportIllegalCast(scope, castType, expressionType);
+			return false;
+		}
+	
+		if (expressionType.isClass()) {
+			if (castType.isArrayType()) {
+				// ---- (castType.isArray) expressionType.isClass -------
+				if (expressionType.id == T_Object) { // potential runtime error
+					tagAsNeedCheckCast();
+					return true;
+				}
+			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
+				
+				ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+				if (match != null) {
+					if (expression != null && castType.id == T_String) this.constant = expression.constant; // (String) cst is still a constant
+					return checkUnsafeCast(scope, castType, expressionType, match, false);
+				}
+				match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+				if (match != null) {
+					tagAsNeedCheckCast();
+					return checkUnsafeCast(scope, castType, expressionType, match, true);
+				}
+			} else { // ----- (castType.isInterface) expressionType.isClass -------  
+
+				ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+				if (match != null) {
+					return checkUnsafeCast(scope, castType, expressionType, match, false);
+				}
+				// a subclass may implement the interface ==> no check at compile time
+				if (!((ReferenceBinding) expressionType).isFinal()) {
+					tagAsNeedCheckCast();
+					match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+					if (match != null) {
+						return checkUnsafeCast(scope, castType, expressionType, match, true);
+					}
+					return true;
+				}
+				// no subclass for expressionType, thus compile-time check is valid
+			}
+			reportIllegalCast(scope, castType, expressionType);
+			return false;
+		}
+	
+		//	if (expressionType.isInterface()) { cannot be anything else
+		if (castType.isArrayType()) {
+			// ----- (castType.isArray) expressionType.isInterface ------
+			if (expressionType.id == T_JavaLangCloneable
+					|| expressionType.id == T_JavaIoSerializable) {// potential runtime error
+				tagAsNeedCheckCast();
+				return true;
+			} else {
+				reportIllegalCast(scope, castType, expressionType);
+				return false;
+			}
+		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
+
+			if (castType.id == T_Object) { // no runtime error
+				tagAsUnnecessaryCast(scope, castType);
+				return true;
+			}
+			if (((ReferenceBinding) castType).isFinal()) {
+				// no subclass for castType, thus compile-time check is valid
+				ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+				if (match == null) {
+					// potential runtime error
+					reportIllegalCast(scope, castType, expressionType);
+					return false;
+				}				
+			}
+		} else { // ----- (castType.isInterface) expressionType.isInterface -------
+
+			ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+			if (match != null) {
+				return checkUnsafeCast(scope, castType, expressionType, match, false);
+			}
+			
+			match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+			if (match != null) {
+				tagAsNeedCheckCast();
+				return checkUnsafeCast(scope, castType, expressionType, match, true);
+			}  else {
+				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
+				MethodBinding[] expressionTypeMethods =
+					((ReferenceBinding) expressionType).methods();
+				int exprMethodsLength = expressionTypeMethods.length;
+				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++)
+					for (int j = 0; j < exprMethodsLength; j++) {
+						if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
+								&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
+								&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
+							reportIllegalCast(scope, castType, expressionType);
+							return false;
+
+						}
+					}
+			}
+		}
+		tagAsNeedCheckCast();
+		return true;
+	}	
+	
+	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
+		if (match == castType) {
+			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
+			return true;
+		}
+		if (castType.isBoundParameterizedType() || castType.isGenericType()) {
+			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType)) {
+				reportIllegalCast(scope, castType, expressionType);
+				return false; 
+			}
+		}
+		if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
+		return true;
+	}
+	
 	/**
 	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
 	 * Also check unsafe type operations.
@@ -444,6 +658,10 @@ public abstract class Expression extends Statement {
 		return print(indent, output).append(";"); //$NON-NLS-1$
 	}
 
+	public void reportIllegalCast(Scope scope, TypeBinding castType, TypeBinding expressionType) {
+		// do nothing by default
+	}
+	
 	public void resolve(BlockScope scope) {
 		// drops the returning expression's type whatever the type is.
 
@@ -485,6 +703,14 @@ public abstract class Expression extends Statement {
 	 */
 	public void setExpectedType(TypeBinding expectedType) {
 	    // do nothing by default
+	}
+
+	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
+	    // do nothing by default
+	}
+	
+	public void tagAsNeedCheckCast() {
+	    // do nothing by default		
 	}
 	
 	public Expression toTypeReference() {
