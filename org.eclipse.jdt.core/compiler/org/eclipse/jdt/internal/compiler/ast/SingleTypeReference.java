@@ -57,6 +57,7 @@ public class SingleTypeReference extends TypeReference {
 
 		ReferenceBinding memberType = scope.getMemberType(token, enclosingType);
 		if (!memberType.isValidBinding()) {
+			this.resolvedType = memberType;
 			scope.problemReporter().invalidEnclosingType(this, memberType, enclosingType);
 			return null;
 		}
