@@ -46,7 +46,7 @@ public class NormalAnnotation extends Annotation {
 		if (super.internalResolveType(annotationType, scope) == null)
 			return null;
 		
-		checkMemberValues(this.memberValuePairs, scope);
+		checkMemberValues(this.memberValuePairs == null ? NoValuePairs : this.memberValuePairs, scope);
 		return this.resolvedType;
 	}
 	

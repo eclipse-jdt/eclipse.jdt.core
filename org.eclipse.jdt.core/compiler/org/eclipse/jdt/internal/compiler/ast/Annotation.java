@@ -22,6 +22,8 @@ public abstract class Annotation extends Expression {
 	public TypeReference type;
 	public int declarationSourceEnd;
 	
+	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append('@');
 		this.type.printExpression(0, output);

@@ -11,8 +11,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class MarkerAnnotation extends Annotation {
 	
-	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
-	
 	public MarkerAnnotation(TypeReference type, int sourceStart) {
 		this.type = type;
 		this.sourceStart = sourceStart;
