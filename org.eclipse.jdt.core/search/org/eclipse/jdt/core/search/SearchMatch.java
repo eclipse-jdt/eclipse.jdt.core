@@ -165,6 +165,7 @@ public class SearchMatch {
 
 	/**
 	 * Returns whether match element is compatible with searched pattern or not.
+	 * Note that equivalent matches are also erasure ones.
 	 * 
 	 * @return <code>true</code> if match element is compatible 
 	 * 				<code>false</code> otherwise
@@ -184,12 +185,12 @@ public class SearchMatch {
 	 * @since 3.1
 	 */
 	public final boolean isErasure() {
-//		return this.accuracy == A_ACCURATE && (this.rule & SearchPattern.R_ERASURE_MATCH) != 0;
 		return (this.rule & SearchPattern.R_ERASURE_MATCH) != 0;
 	}
 
 	/**
 	 * Returns whether element matches exactly searched pattern or not.
+	 * Note that exact matches are also erasure and equivalent ones.
 	 * 
 	 * @return <code>true</code> if match is exact
 	 * 				<code>false</code> otherwise
