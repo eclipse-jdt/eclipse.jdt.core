@@ -326,12 +326,14 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 		current = current.enclosingType();
 	return current;
 }
+
 public int fieldCount() {
 	return fields().length;
 }
 public FieldBinding[] fields() {
 	return NoFields;
 }
+
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
@@ -378,6 +380,7 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 			return typeVariables[i];
 	return null;
 }
+
 /* Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
@@ -455,6 +458,19 @@ public boolean isCompatibleWith(TypeBinding right) {
 	if (!(right instanceof ReferenceBinding))
 		return false;
 
+	// check compatibility with type variable (must be compatible with variable bounds
+	if (right instanceof TypeVariableBinding) {
+	    TypeVariableBinding typeVariable = (TypeVariableBinding) right;
+	    ReferenceBinding variableSuperclass = typeVariable.superclass;
+	    if (variableSuperclass.id != T_Object && !isCompatibleWith(variableSuperclass))
+	        return false;
+	    ReferenceBinding[] variableSuperinterfaces = typeVariable.superInterfaces;
+	    for (int i = 0, length = variableSuperinterfaces.length; i < length; i++) {
+	        if (!isCompatibleWith(variableSuperinterfaces[i]))
+	                return false;
+	    }
+	    return true;
+	}
 	ReferenceBinding referenceBinding = (ReferenceBinding) right;
 	if (referenceBinding.isInterface())
 		return implementsInterface(referenceBinding, true);
@@ -492,6 +508,7 @@ public final boolean isMemberType() {
 public final boolean isNestedType() {
 	return (tagBits & IsNestedType) != 0;
 }
+
 /* Answer true if the receiver has private visibility
 */
 
@@ -541,12 +558,14 @@ public boolean isSuperclassOf(ReferenceBinding type) {
 
 	return false;
 }
+
 /**
  * Returns true if the type was declared as a type variable
  */
 public boolean isTypeVariable() {
     return false;
 }
+
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
 
@@ -572,16 +591,46 @@ public char[] qualifiedSourceName() {
 	return sourceName();
 }
 
-public char[] readableName() /*java.lang.Object*/ {
-	if (isMemberType())
-		return CharOperation.concat(enclosingType().readableName(), sourceName, '.');
-	return CharOperation.concatWith(compoundName, '.');
+public char[] readableName() /*java.lang.Object,  p.X<T> */ {
+    char[] readableName;
+	if (isMemberType()) {
+		readableName = CharOperation.concat(enclosingType().readableName(), sourceName, '.');
+	} else {
+		readableName = CharOperation.concatWith(compoundName, '.');
+	}
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(readableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].readableName());
+	    }
+	    nameBuffer.append('>');
+	    readableName = nameBuffer.toString().toCharArray();
+	}
+	return readableName;
 }
 
 public char[] shortReadableName() /*Object*/ {
-	if (isMemberType())
-		return CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
-	return sourceName;
+    char[] shortReadableName;
+	if (isMemberType()) {
+		shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
+	} else {
+		shortReadableName = this.sourceName;
+	}
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(shortReadableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].shortReadableName());
+	    }
+	    nameBuffer.append('>');
+	    shortReadableName = nameBuffer.toString().toCharArray();
+	}
+	return shortReadableName;
 }
 
 /* Answer the receiver's signature.
@@ -616,9 +665,11 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }
+
 public TypeVariableBinding[] typeVariables() {
 	return NoTypeVariables;
 }
+
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();
 }

@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * Syntactic representation of a reference to a generic type.
@@ -21,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class SingleParameterizedTypeReference extends ArrayTypeReference {
 
 	public TypeReference[] typeArguments;
+	private boolean didResolve = false;
 	
 	public SingleParameterizedTypeReference(char[] name, TypeReference[] typeArguments, int dim, long pos){
 		super(name, dim, pos);
@@ -35,22 +38,12 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		return this;
 	}
 
-	public TypeBinding getTypeBinding(Scope scope) {
-		if (this.resolvedType != null) return resolvedType;
-		int paramCount = this.typeArguments.length;
-		TypeBinding[] typeArgumentBindings = new TypeBinding[paramCount];
-		for (int i = 0; i < paramCount; i++){
-			typeArgumentBindings[i] = this.typeArguments[i].getTypeBinding(scope);
-		}
-		TypeBinding type = scope.getType(token);
-		// per construction, can only be a ReferenceBinding
-		ReferenceBinding rawType = (ReferenceBinding) type;
-		this.resolvedType = scope.createParameterizedType(rawType, typeArgumentBindings);
-		if (this.dimensions > 0){
-			this.resolvedType = scope.createArray(this.resolvedType, dimensions);
-		}
-		return this.resolvedType;
-	}
+	/* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
+     */
+    public TypeBinding getTypeBinding(Scope scope) {
+        return null; // not supported here - combined with resolveType(...)
+    }	
 
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		output.append(token);
@@ -67,4 +60,59 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		}
 		return output;
 	}
+	
+	public TypeBinding resolveType(BlockScope scope) {
+		// handle the error here
+		this.constant = NotAConstant;
+		if (this.didResolve) { // is a shared type reference which was already resolved
+			if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
+				return null; // already reported error
+			}
+			return this.resolvedType;
+		} 
+	    this.didResolve = true;
+		ReferenceBinding currentType = null;
+		TypeBinding type = scope.getType(token);
+		if (!(type.isValidBinding())) {
+			reportInvalidType(scope);
+			return null;
+		}
+		currentType = (ReferenceBinding) type;
+	    // check generic and arity
+		TypeVariableBinding[] typeVariables = currentType.typeVariables();
+		int argLength = this.typeArguments.length;
+		TypeBinding[] argTypes = new TypeBinding[argLength];
+		for (int j = 0; j < argLength; j++) {
+		    argTypes[j] = this.typeArguments[j].resolveType(scope);
+		}
+		if (typeVariables == NoTypeVariables) { // check generic
+				scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
+				return null;
+		} else if (argLength != typeVariables.length) { // check arity
+				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
+				return null;
+		}			
+		// check argument type compatibility
+		boolean argHasError = false;
+		for (int j = 0; j < argLength; j++) {
+		    if (!argTypes[j].isCompatibleWith(typeVariables[j])) {
+		        argHasError = true;
+				scope.problemReporter().typeMismatchError(argTypes[j], typeVariables[j], currentType, this.typeArguments[j]);
+		    }
+		}
+		if (argHasError) return null;
+		currentType = scope.createParameterizedType(currentType, argTypes);
+		this.resolvedType = currentType;
+		if (isTypeUseDeprecated(this.resolvedType, scope)) {
+			reportDeprecatedType(scope);
+		}		
+		// array type ?
+		if (this.dimensions > 0) {
+			if (dimensions > 255) {
+				scope.problemReporter().tooManyDimensions(this);
+			}
+			this.resolvedType = scope.createArray(currentType, dimensions);
+		}
+		return this.resolvedType;
+	}	
 }

@@ -399,11 +399,11 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if ("java.lang.String".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangString());
 		} else if ("java.lang.StringBuffer".equals(name)) {//$NON-NLS-1$
-			return this.getTypeBinding(this.scope.getType(JAVA_LANG_STRINGBUFFER));
+			return this.getTypeBinding(this.scope.getType(JAVA_LANG_STRINGBUFFER, 3));
 		} else if ("java.lang.Throwable".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangThrowable());
 		} else if ("java.lang.Exception".equals(name)) {//$NON-NLS-1$
-			return this.getTypeBinding(this.scope.getType(JAVA_LANG_EXCEPTION));
+			return this.getTypeBinding(this.scope.getType(JAVA_LANG_EXCEPTION, 3));
 		} else if ("java.lang.RuntimeException".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangRuntimeException());
 		} else if ("java.lang.Error".equals(name)) {//$NON-NLS-1$

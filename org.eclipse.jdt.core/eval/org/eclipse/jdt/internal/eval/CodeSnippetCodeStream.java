@@ -97,7 +97,7 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 	this.invokeClassForName();
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS), 1));
+	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -153,7 +153,7 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	this.ldc(String.valueOf(methodBinding.selector));
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS), 1));
+	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -222,7 +222,7 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 	}
-	TypeBinding wrapperType = this.methodDeclaration.scope.getType(wrapperTypeCompoundName);
+	TypeBinding wrapperType = this.methodDeclaration.scope.getType(wrapperTypeCompoundName, wrapperTypeCompoundName.length);
 	new_(wrapperType);
 	if (valueType.id == T_long || valueType.id == T_double) {
 		dup_x2();

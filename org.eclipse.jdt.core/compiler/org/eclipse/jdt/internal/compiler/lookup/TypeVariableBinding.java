@@ -68,13 +68,14 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}	
+	
 	/**
 	 * Returns true if the type was declared as a type variable
 	 */
 	public boolean isTypeVariable() {
 	    return true;
 	}
-	
+
 	public ReferenceBinding superclass() {
 		return superclass;
 	}

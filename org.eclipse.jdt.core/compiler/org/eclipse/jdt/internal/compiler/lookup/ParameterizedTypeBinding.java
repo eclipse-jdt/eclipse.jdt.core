@@ -16,7 +16,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 public class ParameterizedTypeBinding extends ReferenceBinding {
 
 	public ReferenceBinding type; 
-	public TypeBinding[] typeArguments;
+	public TypeBinding[] arguments;
 	public LookupEnvironment environment; // TODO is back pointer actually needed in long term ?
 	public char[] genericTypeSignature;
 	
@@ -25,7 +25,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.type = type;
 		this.fPackage = type.fPackage;
 		this.fileName = type.fileName;
-		this.typeArguments = typeArguments;
+		this.arguments = typeArguments;
 		this.tagBits = type.tagBits | IsParameterizedType;
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
 	}
@@ -124,8 +124,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 	    StringBuffer sig = new StringBuffer(10);
 	    sig.append(this.type.genericTypeSignature()).append('<');
-	    for (int i = 0, length = this.typeArguments.length; i < length; i++) {
-	        sig.append(this.typeArguments[i].genericTypeSignature());
+	    for (int i = 0, length = this.arguments.length; i < length; i++) {
+	        sig.append(this.arguments[i].genericTypeSignature());
 	    }
 	    sig.append(">;"); //$NON-NLS-1$
 		return this.genericTypeSignature = sig.toString().toCharArray();
@@ -296,9 +296,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		StringBuffer buffer = new StringBuffer(10);
 		buffer.append(this.type);
 		buffer.append('<');
-		for (int i = 0; i < this.typeArguments.length; i++){
+		for (int i = 0; i < this.arguments.length; i++){
 			if (i > 0) buffer.append(',');
-			buffer.append(this.typeArguments[i]);
+			buffer.append(this.arguments[i]);
 		}
 		buffer.append('>');
 		return buffer.toString();

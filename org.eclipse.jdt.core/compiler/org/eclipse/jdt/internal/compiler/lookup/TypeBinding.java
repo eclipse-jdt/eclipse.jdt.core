@@ -73,6 +73,7 @@ public boolean isClass() {
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 public abstract boolean isCompatibleWith(TypeBinding right);
+
 public final boolean isGeneric() {
 	return (tagBits & IsGenericType) != 0;
 }

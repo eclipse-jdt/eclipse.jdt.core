@@ -29,7 +29,8 @@ public interface TypeConstants {
 	final char[] CharArray_JAVA_IO_OBJECTINPUTSTREAM = "java.io.ObjectInputStream".toCharArray(); //$NON-NLS-1$
 	final char[] CharArray_JAVA_IO_OBJECTOUTPUTSTREAM = "java.io.ObjectOutputStream".toCharArray(); //$NON-NLS-1$
 	final char[] CharArray_JAVA_IO_OBJECTSTREAMFIELD = "java.io.ObjectStreamField".toCharArray(); //$NON-NLS-1$
-	
+	final char[] ANONYM_PREFIX = "new ".toCharArray(); //$NON-NLS-1$
+	final char[] ANONYM_SUFFIX = "(){}".toCharArray(); //$NON-NLS-1$
 	
 	// Constant compound names
 	final char[][] JAVA_LANG = {JAVA, LANG};

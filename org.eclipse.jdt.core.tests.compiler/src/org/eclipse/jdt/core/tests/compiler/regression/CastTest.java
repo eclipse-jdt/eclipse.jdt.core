@@ -527,7 +527,7 @@ public void test014() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	boolean b = new Cloneable() {} instanceof Cloneable;\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type <anonymous implementation of Cloneable> is already an instance of type Cloneable\n" + 
+		"The expression of type new Cloneable(){} is already an instance of type Cloneable\n" + 
 		"----------\n",
 		null,
 		true,

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.compiler.lookup;
 public class ProblemReferenceBinding extends ReferenceBinding {
 	public ReferenceBinding original;
 	private int problemReason;
+	public ReferenceBinding alternateMatch;
+	
 // NOTE: must only answer the subset of the name related to the problem
 
 public ProblemReferenceBinding(char[][] compoundName, int problemReason) {

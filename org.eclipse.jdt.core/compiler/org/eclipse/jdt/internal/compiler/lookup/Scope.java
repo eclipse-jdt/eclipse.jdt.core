@@ -93,15 +93,15 @@ public abstract class Scope
 			return new ArrayBinding(type, dimension);
 	}
 	
-	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType, TypeBinding[] parameters) {
+	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType, TypeBinding[] arguments) {
 		valid: {
 			if (!rawType.isValidBinding()) break valid;
-			for (int i = 0, max = parameters.length; i < max; i++){
-				if (!parameters[i].isValidBinding()) break valid;
+			for (int i = 0, max = arguments.length; i < max; i++){
+				if (!arguments[i].isValidBinding()) break valid;
 			}
-			return environment().createParameterizedType(rawType, parameters);
+			return environment().createParameterizedType(rawType, arguments);
 		}
-		return new ParameterizedTypeBinding(rawType, parameters, environment());
+		return new ParameterizedTypeBinding(rawType, arguments, environment());
 	}
 	
 	public final ClassScope enclosingClassScope() {
@@ -1245,8 +1245,7 @@ public abstract class Scope
 	* NOTE: If a problem binding is returned, senders should extract the compound name
 	* from the binding & not assume the problem applies to the entire compoundName.
 	*/
-	public final TypeBinding getType(char[][] compoundName) {
-		int typeNameLength = compoundName.length;
+	public final TypeBinding getType(char[][] compoundName, int typeNameLength) {
 		if (typeNameLength == 1) {
 			// Would like to remove this test and require senders to specially handle base types
 			TypeBinding binding = getBaseType(compoundName[0]);

@@ -36,7 +36,7 @@ public class QualifiedTypeReference extends TypeReference {
 		
 		if (this.resolvedType != null)
 			return this.resolvedType;
-		return scope.getType(tokens);
+		return scope.getType(this.tokens, this.tokens.length);
 	}
 	
 	public char[][] getTypeName(){

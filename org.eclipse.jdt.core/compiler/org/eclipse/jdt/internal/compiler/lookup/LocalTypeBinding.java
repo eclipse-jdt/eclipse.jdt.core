@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 public final class LocalTypeBinding extends NestedTypeBinding {
 	final static char[] LocalTypePrefix = { '$', 'L', 'o', 'c', 'a', 'l', '$' };
@@ -80,30 +79,56 @@ ArrayBinding createArrayType(int dimensionCount) {
 	return localArrayBindings[length] = new ArrayBinding(this, dimensionCount);
 }
 
-public char[] readableName() {
+public char[] readableName() /*java.lang.Object,  p.X<T> */ {
+    char[] readableName;
 	if (isAnonymousType()) {
 		if (superInterfaces == NoSuperInterfaces)
-			return ("<"+Util.bind("binding.subclass",new String(superclass.readableName())) + ">").toCharArray(); //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			readableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superclass.readableName(), TypeConstants.ANONYM_SUFFIX);
 		else
-			return ("<"+Util.bind("binding.implementation",new String(superInterfaces[0].readableName())) + ">").toCharArray();			 //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			readableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superInterfaces[0].readableName(), TypeConstants.ANONYM_SUFFIX);
 	} else if (isMemberType()) {
-		return CharOperation.concat(enclosingType().readableName(), sourceName, '.');
+		readableName = CharOperation.concat(enclosingType().readableName(), this.sourceName, '.');
 	} else {
-		return sourceName;
+		readableName = this.sourceName;
+	}    
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(readableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].readableName());
+	    }
+	    nameBuffer.append('>');
+	    readableName = nameBuffer.toString().toCharArray();
 	}
+	return readableName;
 }
 
-public char[] shortReadableName() {
+public char[] shortReadableName() /*Object*/ {
+    char[] shortReadableName;
 	if (isAnonymousType()) {
 		if (superInterfaces == NoSuperInterfaces)
-			return ("<"+Util.bind("binding.subclass",new String(superclass.shortReadableName())) + ">").toCharArray(); //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			shortReadableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superclass.shortReadableName(), TypeConstants.ANONYM_SUFFIX);
 		else
-			return ("<"+Util.bind("binding.implementation",new String(superInterfaces[0].shortReadableName())) + ">").toCharArray();			 //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			shortReadableName = CharOperation.concat(TypeConstants.ANONYM_PREFIX, superInterfaces[0].shortReadableName(), TypeConstants.ANONYM_SUFFIX);
 	} else if (isMemberType()) {
-		return CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
+		shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
 	} else {
-		return sourceName;
+		shortReadableName = sourceName;
 	}
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(shortReadableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].shortReadableName());
+	    }
+	    nameBuffer.append('>');
+	    shortReadableName = nameBuffer.toString().toCharArray();
+	}
+	return shortReadableName;
 }
 
 // Record that the type is a local member type
@@ -117,11 +142,10 @@ public void setConstantPoolName(char[] computedConstantPoolName) /* java/lang/Ob
 
 public char[] sourceName() {
 	if (isAnonymousType()) {
-		//return readableName();
 		if (superInterfaces == NoSuperInterfaces)
-			return ("<"+Util.bind("binding.subclass",new String(superclass.sourceName())) + ">").toCharArray(); //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			return CharOperation.concat(TypeConstants.ANONYM_PREFIX, superclass.sourceName(), TypeConstants.ANONYM_SUFFIX);
 		else
-			return ("<"+Util.bind("binding.implementation",new String(superInterfaces[0].sourceName())) + ">").toCharArray();			 //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
+			return CharOperation.concat(TypeConstants.ANONYM_PREFIX, superInterfaces[0].sourceName(), TypeConstants.ANONYM_SUFFIX);
 			
 	} else
 		return sourceName;

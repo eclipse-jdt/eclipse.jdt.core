@@ -356,7 +356,7 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType
 		nextCachedType : 
 			// iterate existing parameterized for reusing one with same type arguments if any
 			for (int i = 0, max = cachedInfo.length; i < max; i++){
-				TypeBinding[] cachedArguments = cachedInfo[i].typeArguments;
+				TypeBinding[] cachedArguments = cachedInfo[i].arguments;
 				int cachedArgLength = cachedArguments.length;
 				if (argLength == cachedArgLength){
 					for (int j = 0; j < cachedArgLength; j++){
