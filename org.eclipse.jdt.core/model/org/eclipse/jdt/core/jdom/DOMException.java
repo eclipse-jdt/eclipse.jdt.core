@@ -15,6 +15,10 @@ package org.eclipse.jdt.core.jdom;
  * performed, or when an attempt is made to access/set an attribute of a
  * JDOM node that source indexes cannot be determined for (in case the source
  * was syntactically incorrect).
+ * 
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
 public class DOMException extends RuntimeException {
 /**
