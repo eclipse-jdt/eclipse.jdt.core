@@ -170,3 +170,7 @@ PRs Closed in this Release
 1FRKC3T: ITPJCORE:ALL - JM - Incremental Reconciler 
 1FRK6S7: ITPJCORE:ALL - JM - hook for builder to get/put binary types 
 1FPCMAN: ITPJCORE:ALL - JM - Validating Save Operation 
+1GFBCOU: ITPJCORE:WINNT - CodeCompletion - Code assist fails in a method with an incorrect return type
+1GF1VHY: ITPJCORE:ALL - JM - validateFieldName/PackageName should warn if uppercase
+1GEMNE8: ITPJCORE:WIN2000 - JM - JDT DeltaProcessor is very eager
+1FVXJPZ: ITPJCORE:WIN2000 - minor- review error messages
