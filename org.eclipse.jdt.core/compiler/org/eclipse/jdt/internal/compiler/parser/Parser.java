@@ -4717,11 +4717,11 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	return typeRef.copyDims(dim);
 }
 protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
-	return new FieldDeclaration(null, name, sourceStart, sourceEnd); // TODO: (olivier) why don't we persist the initialization expression?
+	return new FieldDeclaration(initialization, name, sourceStart, sourceEnd);
 }
 
 protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
-	return new LocalDeclaration(null, name, sourceStart, sourceEnd); // TODO: (olivier) why don't we persist the initialization expression?
+	return new LocalDeclaration(initialization, name, sourceStart, sourceEnd);
 }
 
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult) {

@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Stack;
 
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -113,10 +112,6 @@ public void acceptLineSeparatorPositions(int[] positions) {
 		}
 	}
 }
-/**
- * Does nothing.
- */
-public void acceptProblem(IProblem problem) {} //TODO: (olivier) unused?
 /**
  * Adds the given node to the current enclosing scope, building the JDOM
  * tree. Nodes are only added to an enclosing scope when a compilation unit or type

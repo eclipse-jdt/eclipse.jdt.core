@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.jdom;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -25,6 +26,12 @@ import org.eclipse.jdt.internal.core.util.CharArrayOps;
  * A DOM builder that uses the SourceElementParser
  */
 public class SimpleDOMBuilder extends AbstractDOMBuilder implements ISourceElementRequestor {
+
+/**
+ * Does nothing.
+ */
+public void acceptProblem(IProblem problem) {
+}
 
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
 	int[] sourceRange = {declarationStart, declarationEnd};
