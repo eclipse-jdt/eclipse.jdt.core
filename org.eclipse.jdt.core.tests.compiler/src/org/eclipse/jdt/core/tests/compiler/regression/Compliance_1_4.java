@@ -1412,6 +1412,50 @@ public void test38() {
 		true,
 		customOptions);
 }
+/*
+ * unreachable empty statement/block are diagnosed in 1.3
+ */
+public void test39() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"	public static void main(String[] args){	\n"+
+			"		for (;null != null;);	\n"+
+			"		for (;null != null;){}	\n"+
+			"		for (;false;);	\n"+
+			"		for (;false;){}	\n"+
+			"		while (false);	\n"+
+			"		while (false){}	\n"+
+			"		if (false) {} else {}	\n"+
+			"		if (false) ; else ;			\n"+
+			"		System.out.println(\"FAILED\");	\n" +
+			"	}	\n"+
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	for (;false;);	\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	for (;false;){}	\n" + 
+		"	             ^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	while (false);	\n" + 
+		"	             ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	while (false){}	\n" + 
+		"	             ^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

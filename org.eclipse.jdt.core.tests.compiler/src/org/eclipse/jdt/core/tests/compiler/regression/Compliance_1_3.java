@@ -1448,6 +1448,30 @@ public void test38() {
 		customOptions);
 }
 
+/*
+ * unreachable empty statement/block not diagnosed in 1.3
+ */
+public void test39() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"	public static void main(String[] args){	\n"+
+			"		for (;null != null;);	\n"+
+			"		for (;null != null;){}	\n"+
+			"		for (;false;);	\n"+
+			"		for (;false;){}	\n"+
+			"		while (false);	\n"+
+			"		while (false){}	\n"+
+			"		if (false) {} else {}	\n"+
+			"		if (false) ; else ;			\n"+
+			"		System.out.println(\"SUCCESS\");	\n" +
+			"	}	\n"+
+			"}	\n",
+		},
+		"SUCCESS");
+}
+
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
