@@ -1,1 +1,0 @@
-public class CompletionSuperType5 implements CompletionSuperInterface2.Inner
