@@ -43,6 +43,117 @@ Eclipse SDK 3.0M7 Build - ?th January 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Major renaming of constants in the code formatter. See <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49908">49908</a>.
+The old constants have been deprecated and will be removed before M7. So we encourage you to save your code formatter preferences if
+you modified the default settings. The UI will provide an automatic conversion to the new options.
+</li>
+<li>Added API for alignment options in the code formatter.  See <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49968">49968</a>.
+</li>
+<li>Added API on <code>org.eclipse.jdt.core.dom.AST</code> to parse an expression or statements or class body declarations without requiring the parsing
+of the whole compilation unit. This is still subject to change before 3.0.
+<pre>
+	/**
+	 * Parses the given source between the bounds specified by the given offset (inclusive)
+	 * and the given length and creates and returns a corresponding abstract syntax tree.
+	 * 
+	 * The root node of the new AST depends on the given kind.
+	 * - <code>org.eclipse.jdt.core.dom.AST.K_CLASS_BODY_DECLARATIONS</code>: The root node is an instance of
+	 * <code>org.eclipse.jdt.core.dom.TypeDeclaration</code>. The type declaration itself doesn't contain any information.
+	 * It is simply used to return all class body declarations inside the bodyDeclaratins() collection.
+	 * - <code>org.eclipse.jdt.core.dom.AST.K_STATEMENTS</code>: The root node is an instance of
+	 * <code>org.eclipse.jdt.core.dom.Block</code>. The block itself doesn't contain any information.
+	 * It is simply used to return all the statements.
+	 * - <code>org.eclipse.jdt.core.dom.AST.K_EXPRESSION</code>: The root node is an instance of a subclass of
+	 * <code>org.eclipse.jdt.core.dom.Expression</code>.
+	 *  
+	 * Each node in the subtree carries source range(s) information relating back
+	 * to positions in the given source (the given source itself
+	 * is not remembered with the AST). 
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including compilation units and the various body declarations); the
+	 * specification for these node type spells out the details.
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * 
+	 * This method does not compute binding information; all <code>resolveBinding</code>
+	 * methods applied to nodes of the resulting AST return <code>null</code>.
+	 * 
+	 * <code>null</code> is returned:
+	 * 1. If a syntax error is detected while parsing,
+	 * 2. If the given source doesn't correspond to the given kind.
+	 *  
+	 * @param kind the given kind to parse
+	 * @param source the string to be parsed
+	 * @param offset the given offset
+	 * @param length the given length
+	 * @param options the given options. If null, <code>JavaCore.getOptions()</code> is used.
+	 * 
+	 * @return ASTNode
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
+	 * @see AST#K_CLASS_BODY_DECLARATIONS
+	 * @see AST#K_EXPRESSION
+	 * @see AST#K_STATEMENTS
+	 * @see JavaCore#getOptions()
+	 * @since 3.0
+	 */
+	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options);
+</pre>
+</li>
+<li>Added API on <code>org.eclipse.jdt.core.dom.AST</code> to parse a compilation unit and specify
+the set of options to use. This is still subject to change before 3.0. The previous API was directly
+using <code>JavaCore.getOptions()</code>. This could be problematic in case you want to parse assert
+statements.
+<pre>
+	/**
+	 * Parses the given string as a Java compilation unit and creates and 
+	 * returns a corresponding abstract syntax tree.
+	 * 
+	 * The given options are used to find out the compiler options to use while parsing.
+	 * This could implies the settings for the assertion support. See the <code>JavaCore.getOptions()</code>
+	 * methods for further details.
+	 * 
+	 * 
+	 * The returned compilation unit node is the root node of a new AST.
+	 * Each node in the subtree carries source range(s) information relating back
+	 * to positions in the given source string (the given source string itself
+	 * is not remembered with the AST). 
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including compilation units and the various body declarations); the
+	 * specification for these node type spells out the details.
+	 * Source ranges nest properly: the source range for a child is always
+	 * within the source range of its parent, and the source ranges of sibling
+	 * nodes never overlap.
+	 * If a syntax error is detected while parsing, the relevant node(s) of the
+	 * tree will be flagged as <code>MALFORMED</code>.
+	 * 
+	 * 
+	 * This method does not compute binding information; all <code>resolveBinding</code>
+	 * methods applied to nodes of the resulting AST return <code>null</code>.
+	 * 
+	 * 
+	 * @param source the string to be parsed as a Java compilation unit
+	 * @param options options to use while parsing the file. If null, <code>JavaCore.getOptions()</code> is used.
+	 * @return CompilationUnit
+	 * @see ASTNode#getFlags()
+	 * @see ASTNode#MALFORMED
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
+	 * @see JavaCore#getOptions()
+	 * @since 3.0
+	 */
+	public static CompilationUnit parseCompilationUnit(char[] source, Map options);
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

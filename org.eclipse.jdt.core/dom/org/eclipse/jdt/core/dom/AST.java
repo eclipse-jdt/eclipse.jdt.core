@@ -238,8 +238,8 @@ public final class AST {
 	 * </p>
 	 * <p><code>null</code> is returned:
 	 * <ol>
-	 * <li>If a syntax error is detected while parsing</li>
-	 * <li>If the given source doesn't correspond to the given kind</li>
+	 * <li>If a syntax error is detected while parsing,</li>
+	 * <li>If the given source doesn't correspond to the given kind.</li>
 	 * </ol>
 	 * </p>
 	 * 
@@ -906,22 +906,7 @@ public final class AST {
 	 * @see ASTNode#getLength()
 	 */
 	public static CompilationUnit parseCompilationUnit(char[] source) {
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilationUnitDeclaration compilationUnitDeclaration = 
-			CompilationUnitResolver.parse(source, JavaCore.getOptions()); // no better custom options
-
-		ASTConverter converter = new ASTConverter(JavaCore.getOptions(), false);
-		AST ast = new AST();
-		ast.setBindingResolver(new BindingResolver());
-		converter.setAST(ast);
-				
-		CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
-		
-		// line end table should be extracted from scanner
-		cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
-		return cu;
+		return parseCompilationUnit(source, null);
 	}
 
 	/**
