@@ -64,7 +64,7 @@ public static boolean isOverlappingRoots(IPath rootPath1, IPath rootPath2) {
  * from the given id.
  * Returns <code>null</code> if the id was not valid.
  */
-private static char[] scannedIdentifier(String id) {
+private static synchronized char[] scannedIdentifier(String id) {
 	if (id == null) {
 		return null;
 	}
