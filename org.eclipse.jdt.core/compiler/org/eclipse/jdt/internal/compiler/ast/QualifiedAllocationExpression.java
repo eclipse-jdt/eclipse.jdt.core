@@ -162,7 +162,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (!flowInfo.isReachable()) return;
 		ReferenceBinding allocatedTypeErasure = (ReferenceBinding) binding.declaringClass.erasure();
 
-		// perform some emulation work in case there is some and we are inside a local type only
+		// perform some extra emulation work in case there is some and we are inside a local type only
 		if (allocatedTypeErasure.isNestedType()
 			&& currentScope.enclosingSourceType().isLocalType()) {
 
