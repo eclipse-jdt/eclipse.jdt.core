@@ -29,16 +29,16 @@ What's new in this drop</h2>
 	a builder running after the Java builder will be able to query the Java model with respect to the changes introduced through Java model
 	operations (except for index queries). This was never guaranteed in 1.0, but indirectly occurred due to the fact that the previous Java
 	builder implementation did force to refresh the Java model while building. </li>
-	<li>Added new type of classpath entry (<code>CPE_CONTAINER</code>), (see proposal here) so as to better encapsulate client defined libraries.
+	<li>Classpath Container Enhancement (also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/org.eclipse.jdt.core/notes/r2.0/classpath%20container/classpathContainer.html">notes</a>):
+	<br>Added new type of classpath entry (<code>CPE_CONTAINER</code>), (see proposal here) so as to better encapsulate client defined libraries.
 	Typically, VM installs would use classpath containers instead of classpath variables (<code>JRE_LIB</code>) so as to better describe the corresponding
 	set of libraries (including extension dirs) to be placed on the build path. 
 	<p>New APIs added to reflect this addition:
 	<ul>
 	<li><code>JavaCore#newContainerEntry(IPath containerPath)</code></li>
 	<li><code>JavaCore#newContainerEntry(IPath containerPath, boolean isExported)</code></li>
-	<li><code>JavaCore#classpathContainerChanged(IPath containerPath, IJavaProject project) </code></li>
+	<li><code>JavaCore#classpathContainerChanged(IPath containerPath, IJavaElement scope) </code></li>
 	<li><code>ClasspathContainerResolver </code></li>
-	<li><code>IJavaProject#getResolvedClasspathContainer(IPath containerPath) </code></li>
 	</ul>
 	</li>
 </ul>
