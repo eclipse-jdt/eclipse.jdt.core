@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -1143,6 +1144,42 @@ public class DeltaProcessor implements IResourceChangeListener {
 	}
 
 	/*
+	 * Returns whether a given delta contains some information relevant to the JavaModel,
+	 * in particular it will not consider SYNC or MARKER only deltas.
+	 */
+	public boolean isAffectedBy(IResourceDelta delta){
+		
+		if (delta != null) {
+			class FoundRelevantDeltaException extends CoreException {
+				FoundRelevantDeltaException() {
+					super(null);
+				}
+			}
+			try {
+				delta.accept(new IResourceDeltaVisitor() {
+					public boolean visit(IResourceDelta delta) throws CoreException {
+						switch (delta.getKind()){
+							case IResourceDelta.ADDED :
+							case IResourceDelta.REMOVED :
+								throw new FoundRelevantDeltaException();
+							case IResourceDelta.CHANGED :
+								// if any flag is set but SYNC or MARKER, this delta should be considered
+								if ((delta.getFlags() & ~(IResourceDelta.SYNC | IResourceDelta.MARKERS)) != 0) {
+									throw new FoundRelevantDeltaException();
+								}
+						}
+						return true;
+					}
+				});
+			} catch(FoundRelevantDeltaException e) {
+				return true;
+			} catch(CoreException e) { // ignore delta if not able to traverse
+			}
+		}
+		return false;
+	}
+	
+	/*
 	 * Returns whether the given resource is in one of the given output folders and if
 	 * it is filtered out from this output folder.
 	 */
@@ -1639,7 +1676,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					return;
 					
 				case IResourceChangeEvent.PRE_AUTO_BUILD :
-					if(delta != null) {
+					if(isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
 						this.checkProjectsBeingAddedOrRemoved(delta);
 						
 						// update the classpath related markers
@@ -1663,30 +1700,25 @@ public class DeltaProcessor implements IResourceChangeListener {
 					break;
 					
 				case IResourceChangeEvent.POST_CHANGE :
-					try {
-						boolean hasExternalJarToRefresh = false;
-						if (this.refreshedElements != null) {
-							try {
-								hasExternalJarToRefresh = createExternalArchiveDelta(null);
-							} catch (JavaModelException e) {
-								e.printStackTrace();
+					if (isAffectedBy(delta)) {
+						try {
+							if (this.refreshedElements != null) {
+								try {
+									createExternalArchiveDelta(null);
+								} catch (JavaModelException e) {
+									e.printStackTrace();
+								}
 							}
-						}
-						if (delta != null) {
 							IJavaElementDelta translatedDelta = this.processResourceDelta(delta);
 							if (translatedDelta != null) { 
 								this.manager.registerJavaModelDelta(translatedDelta);
 							}
 							this.manager.fire(null, ElementChangedEvent.POST_CHANGE);
-						} else {
-							if (hasExternalJarToRefresh) {
-								this.manager.fire(null, ElementChangedEvent.POST_CHANGE);
-							}
+						} finally {
+							// workaround for bug 15168 circular errors not reported 
+							this.manager.javaProjectsCache = null;
+							this.removedRoots = null;
 						}
-					} finally {
-						// workaround for bug 15168 circular errors not reported 
-						this.manager.javaProjectsCache = null;
-						this.removedRoots = null;
 					}
 			}
 		}

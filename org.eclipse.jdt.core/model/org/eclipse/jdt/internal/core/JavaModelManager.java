@@ -476,6 +476,7 @@ public class JavaModelManager implements ISaveParticipant {
 
 	/**
 	 * Table from IProject to PerProjectInfo.
+	 * NOTE: this object itself is used as a lock to synchronize creation/removal of per project infos
 	 */
 	protected Map perProjectInfo = new HashMap(5);
 	
@@ -935,13 +936,15 @@ public class JavaModelManager implements ISaveParticipant {
 	/*
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
-	public synchronized PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
-		PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
-		if (info == null && create) {
-			info= new PerProjectInfo(project);
-			perProjectInfo.put(project, info);
+	public PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
+		synchronized(perProjectInfo) { // use the perProjectInfo collection as its own lock
+			PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
+			if (info == null && create) {
+				info= new PerProjectInfo(project);
+				perProjectInfo.put(project, info);
+			}
+			return info;
 		}
-		return info;
 	}	
 	
 	/*
@@ -1232,7 +1235,6 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public void prepareToSave(ISaveContext context) throws CoreException {
 	}
-	
 	protected void putInfo(IJavaElement element, Object info) {
 		this.cache.putInfo(element, info);
 	}
@@ -1367,10 +1369,12 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	public void removePerProjectInfo(JavaProject javaProject) {
-		IProject project = javaProject.getProject();
-		PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
-		if (info != null) {
-			perProjectInfo.remove(project);
+		synchronized(perProjectInfo) { // use the perProjectInfo collection as its own lock
+			IProject project = javaProject.getProject();
+			PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
+			if (info != null) {
+				perProjectInfo.remove(project);
+			}
 		}
 	}
 

@@ -81,20 +81,20 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 		Object value = newElements.get(key);
 		JavaModelManager.getJavaModelManager().putInfo(key, value);
 	}
+	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
+	// to be flushed. Might lead to performance issues.
+	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
+	JavaModelManager.getJavaModelManager().putInfo(this, info);	
+
 	// problem detection 
 	if (monitor != null && monitor.isCanceled()) return;
 
 	IProblemRequestor problemRequestor = this.getProblemRequestor();
 	if (problemRequestor != null && problemRequestor.isActive()){
 		problemRequestor.beginReporting();
-		CompilationUnitProblemFinder.process(this, problemRequestor, monitor);
+		CompilationUnitProblemFinder.process(this, problemRequestor, monitor); // TODO: is the JavaModel lock taken here ? Can run client code
 		problemRequestor.endReporting();
 	}
-	
-	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
-	// to be flushed. Might lead to performance issues.
-	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
-	JavaModelManager.getJavaModelManager().putInfo(this, info);	
 }
 
 /**
