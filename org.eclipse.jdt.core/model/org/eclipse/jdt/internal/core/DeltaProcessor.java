@@ -97,10 +97,12 @@ public class DeltaProcessor {
 		char[][] exclusionPatterns;
 		IJavaProject project;
 		IPath rootPath;
-		RootInfo(IJavaProject project, IPath rootPath, char[][] exclusionPatterns) {
+		int entryKind;
+		RootInfo(IJavaProject project, IPath rootPath, char[][] exclusionPatterns, int entryKind) {
 			this.project = project;
 			this.rootPath = rootPath;
 			this.exclusionPatterns = exclusionPatterns;
+			this.entryKind = entryKind;
 		}
 		boolean isRootOfProject(IPath path) {
 			return this.rootPath.equals(path) && this.project.getProject().getFullPath().isPrefixOf(path);
@@ -2293,14 +2295,10 @@ public class DeltaProcessor {
 						} else {
 							pkg = (IPackageFragment)element;
 						}
-						boolean isSource;
-						try {
-							IClasspathEntry entry = ((IPackageFragmentRoot)pkg.getParent()).getRawClasspathEntry();
-							isSource = entry.getEntryKind() == IClasspathEntry.CPE_SOURCE;
-						} catch (JavaModelException e) {
-							// project does not exist: cannot happen
-							isSource = false;
-						}
+						RootInfo rootInfo = rootInfo(pkg.getParent().getPath(), delta.getKind());
+						boolean isSource = 
+							rootInfo == null // if null, defaults to source
+							|| rootInfo.entryKind == IClasspathEntry.CPE_SOURCE;
 						IResourceDelta[] children = delta.getAffectedChildren();
 						for (int i = 0, length = children.length; i < length; i++) {
 							IResourceDelta child = children[i];

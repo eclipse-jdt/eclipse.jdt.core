@@ -147,14 +147,14 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					// root path
 					IPath path = entry.getPath();
 					if (newRoots.get(path) == null) {
-						newRoots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars()));
+						newRoots.put(path, new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
 					} else {
 						ArrayList rootList = (ArrayList)newOtherRoots.get(path);
 						if (rootList == null) {
 							rootList = new ArrayList();
 							newOtherRoots.put(path, rootList);
 						}
-						rootList.add(new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars()));
+						rootList.add(new DeltaProcessor.RootInfo(project, path, ((ClasspathEntry)entry).fullExclusionPatternChars(), entry.getEntryKind()));
 					}
 					
 					// source attachment path
