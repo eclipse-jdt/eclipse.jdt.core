@@ -125,11 +125,23 @@ class VariableBinding implements IVariableBinding {
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
 		VariableDeclaration localVar = (VariableDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
 		if (localVar == null) return null;
-		int nameStart =  localVar.getStartPosition();
-		int nameLength = localVar.getLength();
-		VariableDeclarationStatement statement = (VariableDeclarationStatement) localVar.getParent();
-		int sourceStart = statement.getStartPosition();
-		int sourceLength = statement.getLength();
+		int nameStart;
+		int nameLength;
+		int sourceStart;
+		int sourceLength;
+		if (localVar instanceof SingleVariableDeclaration) {
+			sourceStart = localVar.getStartPosition();
+			sourceLength = localVar.getLength();
+			SimpleName simpleName = ((SingleVariableDeclaration) localVar).getName();
+			nameStart = simpleName.getStartPosition();
+			nameLength = simpleName.getLength();
+		} else {
+			nameStart =  localVar.getStartPosition();
+			nameLength = localVar.getLength();
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) localVar.getParent();
+			sourceStart = statement.getStartPosition();
+			sourceLength = statement.getLength();
+		}
 		char[] typeSig = this.binding.type.genericTypeSignature();
 		return new LocalVariable(method, localVar.getName().getIdentifier(), sourceStart, sourceStart+sourceLength-1, nameStart, nameStart+nameLength-1, new String(typeSig));
 	}
