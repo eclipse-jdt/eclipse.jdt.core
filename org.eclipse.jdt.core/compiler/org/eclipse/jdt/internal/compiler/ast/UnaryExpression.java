@@ -216,14 +216,9 @@ public class UnaryExpression extends OperatorExpression {
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
 		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
-		boolean unboxedExpression = false;
 		if (use15specifics) {
 			if (!expressionType.isBaseType()) {
-				int unboxedID = env.computeBoxingType(expressionType).id;
-				if (unboxedID != expressionTypeID) {
-					expressionTypeID = unboxedID;
-					unboxedExpression = true;
-				}
+				expressionTypeID = env.computeBoxingType(expressionType).id;
 			}
 		}		
 		if (expressionTypeID > 15) {
@@ -249,7 +244,7 @@ public class UnaryExpression extends OperatorExpression {
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
 		int operatorSignature = OperatorSignatures[tableId][(expressionTypeID << 4) + expressionTypeID];
-		this.expression.implicitConversion = (unboxedExpression ? UNBOXING : 0) | (operatorSignature >>> 12);
+		this.expression.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 16) & 0x0000F), expressionType);
 		this.bits |= operatorSignature & 0xF;
 		switch (operatorSignature & 0xF) { // only switch on possible result type.....
 			case T_boolean :
