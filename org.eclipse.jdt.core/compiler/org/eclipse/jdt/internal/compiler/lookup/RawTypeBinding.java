@@ -46,18 +46,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		nameBuffer.append(this.type.sourceName()).append("#RAW"); //$NON-NLS-1$
 	    return nameBuffer.toString();		
 	}	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#enclosingType()
-	 */
-	public ReferenceBinding enclosingType() {
-	    if (this.enclosingType == null) { 
-	    	ReferenceBinding enclosing = this.type.enclosingType();
-	    	if (enclosing != null) {
-	    		this.enclosingType = this.environment.createRawType(enclosing, null); 
-	    	}
-	    }
-	    return this.enclosingType;
-	}	
+
 	/**
 	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;

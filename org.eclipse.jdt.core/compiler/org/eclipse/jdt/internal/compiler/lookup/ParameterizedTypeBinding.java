@@ -106,9 +106,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#enclosingType()
 	 */
 	public ReferenceBinding enclosingType() {
-	    if (this.enclosingType == null) { // if not positionned, use default
-			this.enclosingType = this.type.enclosingType();
-	    }
+		if (this.isMemberType() && this.enclosingType == null) {
+			ReferenceBinding originalEnclosing = this.type.enclosingType();
+			this.enclosingType = originalEnclosing.isGenericType()
+													? this.environment.createRawType(originalEnclosing, null) // TODO (need to propagate in depth on enclosing type)
+													: originalEnclosing;
+		}
 	    return this.enclosingType;
 	}
 
