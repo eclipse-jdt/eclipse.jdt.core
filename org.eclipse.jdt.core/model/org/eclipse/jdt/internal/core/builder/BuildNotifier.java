@@ -171,10 +171,9 @@ public void subTask(String message) {
 }
 
 protected void updateProblemCounts(IProblem[] newProblems) {
-	for (int i = 0, newSize = newProblems.length; i < newSize; ++i) {
-		if (newProblems[i].getID() == IProblem.Task) continue;
-		if (newProblems[i].isError()) newErrorCount++; else newWarningCount++;
-	}
+	for (int i = 0, newSize = newProblems.length; i < newSize; ++i)
+		if (newProblems[i].getID() != IProblem.Task)
+			if (newProblems[i].isError()) newErrorCount++; else newWarningCount++;
 }
 
 /**

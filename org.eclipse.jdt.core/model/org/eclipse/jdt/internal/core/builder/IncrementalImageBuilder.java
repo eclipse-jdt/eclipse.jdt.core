@@ -494,14 +494,13 @@ protected void updateProblemsFor(String sourceLocation, CompilationResult result
 	IResource resource = resourceForLocation(sourceLocation);
 	IMarker[] markers = JavaBuilder.getProblemsFor(resource);
 	IProblem[] problems = result.getProblems();
-	int problemCount = 0;
-	if (problems != null){
-		for (int i = 0; i < problems.length; i++){
-			if (problems[i].getID() != IProblem.Task) problemCount++;
-		}
+	boolean hasNoProblems = problems == null;
+	foundProblem : if (!hasNoProblems) {
+		for (int i = 0, length = problems.length; i < length; i++)
+			if (problems[i].getID() != IProblem.Task) break foundProblem;
+		hasNoProblems = true;
 	}
-	if (problemCount == 0)
-		if (markers.length == 0) return;
+	if (hasNoProblems && markers.length == 0) return;
 
 	notifier.updateProblemCounts(markers, problems);
 	JavaBuilder.removeProblemsFor(resource);
