@@ -21,7 +21,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblemFactory implements IProblemFactory {
 
-
+	public static final int MAX_MESSAGES = 500;
+	
 	public String[] messageTemplates;
 	private Locale locale;
 	private static String[] DEFAULT_LOCALE_TEMPLATES;
@@ -95,8 +96,7 @@ public Locale getLocale() {
 }
 public final String getLocalizedMessage(int id, String[] problemArguments) {
 	StringBuffer output = new StringBuffer(80);
-	String message = 
-		messageTemplates[(id & IProblem.IgnoreCategoriesMask)]; 
+	String message = messageTemplates[id & IProblem.IgnoreCategoriesMask]; 
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
 			+ (id & IProblem.IgnoreCategoriesMask)
@@ -160,7 +160,7 @@ public static String[] loadMessageTemplates(Locale loc) {
 		System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + loc); //$NON-NLS-1$//$NON-NLS-2$
 		throw e;
 	}
-	String[] templates = new String[500];
+	String[] templates = new String[MAX_MESSAGES];
 	for (int i = 0, max = templates.length; i < max; i++) {
 		try {
 			templates[i] = bundle.getString(String.valueOf(i));

@@ -1635,31 +1635,30 @@ public void invalidExpressionAsStatement(Expression expression){
 		expression.sourceEnd);
 }
 public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
-	int severity = Error;
-	int flag = IProblem.UndefinedField;
+	int id = IProblem.UndefinedField;
 	FieldBinding field = fieldRef.binding;
 	switch (field.problemId()) {
 		case NotFound :
-			flag = IProblem.UndefinedField;
+			id = IProblem.UndefinedField;
 /* also need to check that the searchedType is the receiver type
 			if (searchedType.isHierarchyInconsistent())
 				severity = SecondaryError;
 */
 			break;
 		case NotVisible :
-			flag = IProblem.NotVisibleField;
+			id = IProblem.NotVisibleField;
 			break;
 		case Ambiguous :
-			flag = IProblem.AmbiguousField;
+			id = IProblem.AmbiguousField;
 			break;
 		case NonStaticReferenceInStaticContext :
-			flag = IProblem.NonStaticFieldFromStaticInvocation;
+			id = IProblem.NonStaticFieldFromStaticInvocation;
 			break;
 		case NonStaticReferenceInConstructorInvocation :
-			flag = IProblem.InstanceFieldDuringConstructorInvocation;
+			id = IProblem.InstanceFieldDuringConstructorInvocation;
 			break;
 		case InheritedNameHidesEnclosingName :
-			flag = IProblem.InheritedFieldHidesEnclosingName;
+			id = IProblem.InheritedFieldHidesEnclosingName;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
@@ -1678,10 +1677,9 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 
 	String[] arguments = new String[] {new String(field.readableName())};
 	this.handle(
-		flag,
+		id,
 		arguments,
 		arguments,
-		severity,
 		fieldRef.sourceStart,
 		fieldRef.sourceEnd);
 }
