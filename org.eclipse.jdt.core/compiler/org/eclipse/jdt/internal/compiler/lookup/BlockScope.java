@@ -946,7 +946,7 @@ public class BlockScope extends Scope {
 		if (visibleIndex == 0)
 			return new ProblemMethodBinding(
 				ConstructorDeclaration.ConstantPoolName,
-				argumentTypes,
+				compatible[0].parameters,
 				NotVisible);
 		return mostSpecificClassMethodBinding(visible, visibleIndex);
 	}
@@ -1190,14 +1190,14 @@ public class BlockScope extends Scope {
 										return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
 									}
 									// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
-									fuzzyProblem = new ProblemMethodBinding(selector, argumentTypes, InheritedNameHidesEnclosingName);
+									fuzzyProblem = new ProblemMethodBinding(selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
 
 								} else if (!methodBinding.canBeSeenBy(receiverType, invocationSite, classScope)) {
 									// using <classScope> instead of <this> for visibility check does grant all access to innerclass
 									fuzzyProblem =
 										new ProblemMethodBinding(
 											selector,
-											argumentTypes,
+											methodBinding.parameters,
 											methodBinding.declaringClass,
 											NotVisible);
 								}
@@ -1339,7 +1339,7 @@ public class BlockScope extends Scope {
 			if (!methodBinding.canBeSeenBy(currentType, invocationSite, this))
 				return new ProblemMethodBinding(
 					selector,
-					argumentTypes,
+					methodBinding.parameters,
 					methodBinding.declaringClass,
 					NotVisible);
 		}
