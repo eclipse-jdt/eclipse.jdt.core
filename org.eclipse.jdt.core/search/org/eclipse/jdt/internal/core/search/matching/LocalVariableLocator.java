@@ -19,79 +19,67 @@ import org.eclipse.jdt.internal.core.LocalVariable;
 
 public class LocalVariableLocator extends VariableLocator {
 
-	public LocalVariableLocator(LocalVariablePattern pattern) {
-		super(pattern);
-	}
+public LocalVariableLocator(LocalVariablePattern pattern) {
+	super(pattern);
+}
+public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
+	int referencesLevel = IMPOSSIBLE_MATCH;
+	if (this.pattern.findReferences)
+		// must be a write only access with an initializer
+		if (this.pattern.writeAccess && !this.pattern.readAccess && node.initialization != null)
+			if (matchesName(this.pattern.name, node.name))
+				referencesLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
-	public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
-		int referencesLevel = IMPOSSIBLE_MATCH;
-		if (this.pattern.findReferences)
-			// must be a write only access with an initializer
-			if (this.pattern.writeAccess && !this.pattern.readAccess && node.initialization != null)
-				if (matchesName(this.pattern.name, node.name))
-					referencesLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-	
-		int declarationsLevel = IMPOSSIBLE_MATCH;
-		if (this.pattern.findDeclarations)
-			if (matchesName(this.pattern.name, node.name)) {
-				if (node.declarationSourceStart == getLocalVariable().declarationSourceStart)
-					declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-			}
-	
-		return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
-	}
+	int declarationsLevel = IMPOSSIBLE_MATCH;
+	if (this.pattern.findDeclarations)
+		if (matchesName(this.pattern.name, node.name))
+			if (node.declarationSourceStart == getLocalVariable().declarationSourceStart)
+				declarationsLevel = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
-	private LocalVariable getLocalVariable() {
-		return ((LocalVariablePattern) this.pattern).localVariable;
+	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
+}
+private LocalVariable getLocalVariable() {
+	return ((LocalVariablePattern) this.pattern).localVariable;
+}
+protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	if (reference instanceof SingleNameReference) {
+		locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
+	} else if (reference instanceof QualifiedNameReference) {
+		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
+		long sourcePosition = qNameRef.sourcePositions[0];
+		locator.report(sourcePosition, sourcePosition, element, accuracy);
+	} else if (reference instanceof LocalDeclaration) {
+		LocalVariable localVariable = getLocalVariable();
+		locator.report(localVariable.nameStart, localVariable.nameEnd, localVariable, accuracy);
 	}
+}
+protected int matchContainer() {
+	return METHOD_CONTAINER;
+}
+protected int matchLocalVariable(LocalVariableBinding variable, boolean matchName) {
+	if (variable == null) return INACCURATE_MATCH;
 
-	protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-		if (reference instanceof SingleNameReference) {
-			locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
-		} else if (reference instanceof QualifiedNameReference) {
-			QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
-			long sourcePosition = qNameRef.sourcePositions[0];
-			int sourceStart = (int) (sourcePosition >>> 32);
-			int sourceEnd = (int) sourcePosition;
-			locator.report(sourceStart, sourceEnd, element, accuracy);
-		} else if (reference instanceof LocalDeclaration) {
-			LocalVariable localVariable = getLocalVariable();
-			locator.report(localVariable.nameStart, localVariable.nameEnd, localVariable, accuracy);
-		}
-	}
+	if (matchName && !matchesName(this.pattern.name, variable.readableName())) return IMPOSSIBLE_MATCH;
 
-	protected int matchContainer() {
-		return METHOD_CONTAINER;
-	}
+	return variable.declaration.declarationSourceStart == getLocalVariable().declarationSourceStart
+		? ACCURATE_MATCH
+		: IMPOSSIBLE_MATCH;
+}
+public int resolveLevel(AstNode possiblelMatchingNode) {
+	if (this.pattern.findReferences)
+		if (possiblelMatchingNode instanceof NameReference)
+			return resolveLevel((NameReference) possiblelMatchingNode);
+	if (possiblelMatchingNode instanceof LocalDeclaration)
+		return matchLocalVariable(((LocalDeclaration) possiblelMatchingNode).binding, true);
+	return IMPOSSIBLE_MATCH;
+}
+public int resolveLevel(Binding binding) {
+	if (binding == null) return INACCURATE_MATCH;
+	if (!(binding instanceof LocalVariableBinding)) return IMPOSSIBLE_MATCH;
 
-	protected int matchLocalVariable(LocalVariableBinding variable, boolean matchName) {
-		if (variable == null) return INACCURATE_MATCH;
-	
-		if (matchName && !matchesName(this.pattern.name, variable.readableName())) return IMPOSSIBLE_MATCH;
-	
-		if (variable.declaration.declarationSourceStart != getLocalVariable().declarationSourceStart)
-			return IMPOSSIBLE_MATCH;
-		return ACCURATE_MATCH;
-	}
-
-	public int resolveLevel(AstNode possiblelMatchingNode) {
-		if (this.pattern.findReferences) {
-			if (possiblelMatchingNode instanceof NameReference)
-				return resolveLevel((NameReference) possiblelMatchingNode);
-		}
-		if (possiblelMatchingNode instanceof LocalDeclaration)
-			return matchLocalVariable(((LocalDeclaration) possiblelMatchingNode).binding, true);
-		return IMPOSSIBLE_MATCH;
-	}
-	
-	public int resolveLevel(Binding binding) {
-		if (binding == null) return INACCURATE_MATCH;
-		if (!(binding instanceof LocalVariableBinding)) return IMPOSSIBLE_MATCH;
-	
-		return matchLocalVariable((LocalVariableBinding) binding, true);
-	}
-
-	protected int resolveLevel(NameReference nameRef) {
-		return resolveLevel(nameRef.binding);
-	}
+	return matchLocalVariable((LocalVariableBinding) binding, true);
+}
+protected int resolveLevel(NameReference nameRef) {
+	return resolveLevel(nameRef.binding);
+}
 }

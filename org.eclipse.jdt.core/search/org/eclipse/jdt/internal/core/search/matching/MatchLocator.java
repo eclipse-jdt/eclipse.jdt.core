@@ -924,7 +924,7 @@ protected void report(IResource resource, int sourceStart, int sourceEnd, IJavaE
 		this.resultCollectorTime += System.currentTimeMillis()-start;
 }
 protected void report(long start, long end, IJavaElement element, int accuracy) throws CoreException {
-	report((int) (start >> 32), (int) (end & 0xFFFFF), element, accuracy); // extract the start and end from the encoded long positions
+	report((int) (start >>> 32), (int) end, element, accuracy); // extract the start and end from the encoded long positions
 }
 /**
  * Finds the accurate positions of the sequence of tokens given by qualifiedName

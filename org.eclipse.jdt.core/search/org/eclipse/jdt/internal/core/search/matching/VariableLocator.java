@@ -12,69 +12,64 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 
-
 public class VariableLocator extends PatternLocator {
-	protected VariablePattern pattern;
 
-	public VariableLocator(VariablePattern pattern) {
-		super(pattern);
-	
-		this.pattern = pattern;
-	}
+protected VariablePattern pattern;
 
-	public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Assignment
-		if (this.pattern.writeAccess) {
-			if (this.pattern.readAccess) return IMPOSSIBLE_MATCH; // already checked the lhs in match(Reference...) before we reached here
-	
-			if (node instanceof Assignment) {
-				Expression lhs = ((Assignment) node).lhs;
-				if (lhs instanceof Reference)
-					return matchReference((Reference) lhs, nodeSet, true);
-			}
-		} else if (this.pattern.readAccess) {
-			if (node instanceof Assignment && !(node instanceof CompoundAssignment)) {
-				// the lhs of a simple assignment may be added in match(Reference...) before we reach here
-				// for example, the fieldRef to 'this.x' in the statement this.x = x; is not considered a readAccess
-				Expression lhs = ((Assignment) node).lhs;
-				nodeSet.removePossibleMatch(lhs);
-				nodeSet.removeTrustedMatch(lhs);
-			}
+public VariableLocator(VariablePattern pattern) {
+	super(pattern);
+
+	this.pattern = pattern;
+}
+public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Assignment
+	if (this.pattern.writeAccess) {
+		if (this.pattern.readAccess) return IMPOSSIBLE_MATCH; // already checked the lhs in match(Reference...) before we reached here
+
+		if (node instanceof Assignment) {
+			Expression lhs = ((Assignment) node).lhs;
+			if (lhs instanceof Reference)
+				return matchReference((Reference) lhs, nodeSet, true);
 		}
-		return IMPOSSIBLE_MATCH;
+	} else if (this.pattern.readAccess) {
+		if (node instanceof Assignment && !(node instanceof CompoundAssignment)) {
+			// the lhs of a simple assignment may be added in match(Reference...) before we reach here
+			// for example, the fieldRef to 'this.x' in the statement this.x = x; is not considered a readAccess
+			Expression lhs = ((Assignment) node).lhs;
+			nodeSet.removePossibleMatch(lhs);
+			nodeSet.removeTrustedMatch(lhs);
+		}
 	}
-
-	public int match(Reference node, MatchingNodeSet nodeSet) { // interested in FieldReference, NameReference & its subtypes
-		if (this.pattern.readAccess)
-			return matchReference(node, nodeSet, false);
-	
-		return IMPOSSIBLE_MATCH;
-	}
-
-	protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
-		if (node instanceof NameReference) {
-			if (this.pattern.name == null) {
-				return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-			} else if (node instanceof SingleNameReference) {
-				if (matchesName(this.pattern.name, ((SingleNameReference) node).token))
+	return IMPOSSIBLE_MATCH;
+}
+public int match(Reference node, MatchingNodeSet nodeSet) { // interested in NameReference & its subtypes
+	return this.pattern.readAccess
+		? matchReference(node, nodeSet, false)
+		: IMPOSSIBLE_MATCH;
+}
+protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
+	if (node instanceof NameReference) {
+		if (this.pattern.name == null) {
+			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		} else if (node instanceof SingleNameReference) {
+			if (matchesName(this.pattern.name, ((SingleNameReference) node).token))
+				return nodeSet.addMatch(node, POSSIBLE_MATCH);
+		} else {
+			QualifiedNameReference qNameRef = (QualifiedNameReference) node;
+			char[][] tokens = qNameRef.tokens;
+			if (writeOnlyAccess) {
+				// in the case of the assigment of a qualified name reference, the match must be on the last token
+				if (matchesName(this.pattern.name, tokens[tokens.length-1]))
 					return nodeSet.addMatch(node, POSSIBLE_MATCH);
 			} else {
-				QualifiedNameReference qNameRef = (QualifiedNameReference) node;
-				char[][] tokens = qNameRef.tokens;
-				if (writeOnlyAccess) {
-					// in the case of the assigment of a qualified name reference, the match must be on the last token
-					if (matchesName(this.pattern.name, tokens[tokens.length-1]))
+				for (int i = 0, max = tokens.length; i < max; i++)
+					if (matchesName(this.pattern.name, tokens[i]))
 						return nodeSet.addMatch(node, POSSIBLE_MATCH);
-				} else {
-					for (int i = 0, max = tokens.length; i < max; i++)
-						if (matchesName(this.pattern.name, tokens[i]))
-							return nodeSet.addMatch(node, POSSIBLE_MATCH);
-				}
 			}
 		}
-		return IMPOSSIBLE_MATCH;
 	}
-
-	public String toString() {
-		return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
-	}
+	return IMPOSSIBLE_MATCH;
+}
+public String toString() {
+	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
+}
 }

@@ -129,7 +129,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	} else if (this.pattern.findReferences && reference instanceof MessageSend) {
 		// message ref are starting at the selector start
 		locator.report(
-			(int) (((MessageSend) reference).nameSourcePosition >> 32),
+			(int) (((MessageSend) reference).nameSourcePosition >>> 32),
 			reference.sourceEnd,
 			element,
 			accuracy);
