@@ -435,8 +435,12 @@ private int decodeElementValueForJavaLangAnnotationTarget(int offset) {
 		case '[' :
 			int numberOfValues = u2At(readOffset);
 			readOffset += 2;
-			for (int i = 0; i < numberOfValues; i++) {
-				readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
+			if (numberOfValues == 0) {
+				this.tagBits |= TagBits.AnnotationTarget;
+			} else {
+				for (int i = 0; i < numberOfValues; i++) {
+					readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
+				}
 			}
 			break;
 	}
