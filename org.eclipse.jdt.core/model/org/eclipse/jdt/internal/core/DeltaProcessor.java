@@ -1090,6 +1090,9 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						return IJavaElement.COMPILATION_UNIT;
 					} else if (Util.isValidClassFileName(fileName)) {
 						return IJavaElement.CLASS_FILE;
+					} else if (this.roots.get(res.getFullPath()) != null) {
+						// case of proj=src=bin and resource is a jar file on the classpath
+						return IJavaElement.PACKAGE_FRAGMENT_ROOT;
 					} else {
 						return -1;
 					}
