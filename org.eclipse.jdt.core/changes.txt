@@ -113,7 +113,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
-  3175  	JCK1.3a - ICLS - Comparing current instance against enclosing instance inside of anonymous class. (1GLDSBS)  
+  3175      JCK1.3a - ICLS - Comparing current instance against enclosing instance inside of anonymous class. (1GLDSBS)  
   1GLBOJZ:  ITPJCORE:WIN2000 - UnaryExpression doesn't store expression type in bit mask
   1GDS7IP:  ITPJCORE:WIN2000 - VerifyError related to a local index computation
   1GLABQ7: ITPJCORE:WIN2000 - JavaCore.create(String) throws an unexpected exception
@@ -122,6 +122,7 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3176      JCK1.3a - STMT - Single declaration in try block (1GLDSH9)  
   1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for nested types
   
 
