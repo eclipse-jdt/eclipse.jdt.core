@@ -27,6 +27,11 @@ public class NumberLiteral extends Expression {
 	private String tokenValue = "0";//$NON-NLS-1$
 
 	/**
+	 * Hold a pointer to the ast used to create the node
+	 */
+	private AST ast;
+
+	/**
 	 * Creates a new unparented number literal node owned by the given AST.
 	 * By default, the number literal is the token "<code>0</code>".
 	 * <p>
@@ -37,6 +42,7 @@ public class NumberLiteral extends Expression {
 	 */
 	NumberLiteral(AST ast) {
 		super(ast);
+		this.ast = ast;
 	}
 
 	/* (omit javadoc for this method)
@@ -91,7 +97,7 @@ public class NumberLiteral extends Expression {
 		modifying();
 		// FIXME - check the token more thoroughly
 		// ideally, scan it to ensure that it is legal
-		Scanner scanner = new Scanner();
+		Scanner scanner = this.ast.scanner;
 		char[] source = token.toCharArray();
 		scanner.setSourceBuffer(source);
 		scanner.resetTo(0, source.length);
@@ -112,11 +118,11 @@ public class NumberLiteral extends Expression {
 						case Scanner.TokenNameLongLiteral:
 							break;
 						default:
-							throw new IllegalArgumentException("Not a literal type");
+							throw new IllegalArgumentException();
 					}
 					break;		
 				default:
-					throw new IllegalArgumentException("Not a literal type");
+					throw new IllegalArgumentException();
 			}
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();

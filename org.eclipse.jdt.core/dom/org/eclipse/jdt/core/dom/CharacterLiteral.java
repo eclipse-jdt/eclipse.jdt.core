@@ -40,6 +40,11 @@ public class CharacterLiteral extends Expression {
 	private String escapedValue = "\'X\'";//$NON-NLS-1$
 
 	/**
+	 * Hold a pointer to the ast used to create the node
+	 */
+	private AST ast;
+	
+	/**
 	 * Creates a new unparented character literal node owned by the given AST.
 	 * By default, the character literal denotes an unspecified character.
 	 * <p>
@@ -50,6 +55,7 @@ public class CharacterLiteral extends Expression {
 	 */
 	CharacterLiteral(AST ast) {
 		super(ast);
+		this.ast = ast;
 	}
 
 	/* (omit javadoc for this method)
@@ -109,7 +115,7 @@ public class CharacterLiteral extends Expression {
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = new Scanner();
+		Scanner scanner = this.ast.scanner;
 		char[] source = value.toCharArray();
 		scanner.setSourceBuffer(source);
 		scanner.resetTo(0, source.length);
@@ -119,7 +125,7 @@ public class CharacterLiteral extends Expression {
 				case Scanner.TokenNameCharacterLiteral:
 					break;
 				default:
-					throw new IllegalArgumentException("Not a character literal");
+					throw new IllegalArgumentException();
 			}
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();

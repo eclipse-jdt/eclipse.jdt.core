@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -66,9 +67,15 @@ public final class AST {
 	private long modCount = 0;
 	
 	/**
+	 * Java Scanner used to validate preconditions for the creation of specific nodes
+	 * like CharacterLiteral, NumberLiteral, StringLiteral or SimpleName.
+	 */
+	Scanner scanner;
+	/**
 	 * Creates a new, empty abstract syntax tree.
 	 */
 	public AST() {
+		this.scanner = new Scanner();
 	}
 		
 	/**

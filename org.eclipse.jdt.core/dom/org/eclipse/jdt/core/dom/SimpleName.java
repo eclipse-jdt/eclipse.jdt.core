@@ -42,7 +42,13 @@ public class SimpleName extends Name {
 	 * The identifier; defaults to a unspecified, legal Java identifier.
 	 */
 	private String identifier = MISSING_IDENTIFIER;
+
+	/**
+	 * Hold a pointer to the ast used to create the node
+	 */
+	private static Scanner scanner = new Scanner();
 	
+
 	/**
 	 * Creates a new AST node for a simple name owned by the given AST.
 	 * The new node has an unspecified, legal Java identifier.
@@ -172,8 +178,8 @@ public class SimpleName extends Name {
 	public static boolean isJavaIdentifier(String identifier) {
 		// FIXME
 		// assert won't be considered as a keyword
-		Scanner scanner = new Scanner();
 		char[] source = identifier.toCharArray();
+		// the scanner is already initialized
 		scanner.setSourceBuffer(source);
 		scanner.resetTo(0, source.length);
 		try {
@@ -181,7 +187,6 @@ public class SimpleName extends Name {
 			switch(tokenType) {
 				case Scanner.TokenNameIdentifier:
 					return true;
-				default:
 			}
 		} catch(InvalidInputException e) {
 		}
