@@ -162,9 +162,6 @@ public boolean isEmpty() {
 private AstNode[] matchingNodes(int start, int end) {
 	return this.nodesInRange(start, end, this.matchingNodes);
 }
-public boolean needsResolve() {
-	return this.potentialMatchingNodes.size() > 0;
-}
 /**
  * Returns the matching nodes that are in the given range in the source order.
  */
