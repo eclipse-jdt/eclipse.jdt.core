@@ -298,7 +298,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					scanner.startPosition <= selectionStart &&
 					selectionStart <= scanner.currentPosition) {
 					lastIdentifierStart = scanner.startPosition;
-					lastIdentifierEnd = scanner.currentPosition;
+					lastIdentifierEnd = scanner.currentPosition - 1;
 					lastIdentifier = scanner.getCurrentTokenSource();
 				}
 			} while (token != TerminalSymbols.TokenNameEOF);
