@@ -2318,6 +2318,46 @@ public void test070() {
 		null); // no special vm args		
 }
 
+/*
+ * 43429 - AbstractMethodError calling clone() at runtime when using Eclipse compiler
+ */
+public void test071() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //================================
+			"public class X {\n" + 
+			"	public interface Copyable extends Cloneable {\n" + 
+			"		public Object clone() throws CloneNotSupportedException;\n" + 
+			"	}\n" + 
+			"	public interface TestIf extends Copyable {\n" + 
+			"	}\n" + 
+			"	public static class ClassA implements Copyable {\n" + 
+			"		public Object clone() throws CloneNotSupportedException {\n" + 
+			"			return super.clone();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static class ClassB implements TestIf {\n" + 
+			"		public Object clone() throws CloneNotSupportedException {\n" + 
+			"			return super.clone();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		Copyable o1 = new ClassA();\n" + 
+			"		ClassB o2 = new ClassB();\n" + 
+			"		TestIf o3 = o2;\n" + 
+			"		Object clonedObject;\n" + 
+			"		clonedObject = o1.clone();\n" + 
+			"		clonedObject = o2.clone();\n" + 
+			"		// The following line fails at runtime with AbstractMethodError when\n" + 
+			"		// compiled with Eclipse\n" + 
+			"		clonedObject = o3.clone();\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
