@@ -45,17 +45,17 @@ public abstract class CodeFormatter {
 	public static final int K_COMPILATION_UNIT = 0x08;
 
 	/**
-	 * Kind used to format single-line comments
+	 * Kind used to format a single-line comment
 	 * @since 3.1
 	 */
 	public static final int K_SINGLE_LINE_COMMENT = 0x10;
 	/**
-	 * Kind used to format multi-line comments
+	 * Kind used to format a multi-line comment
 	 * @since 3.1
 	 */
 	public static final int K_MULTI_LINE_COMMENT = 0x20;
 	/**
-	 * Kind used to format a Javadoc comments
+	 * Kind used to format a Javadoc comment
 	 * @since 3.1
 	 */
 	public static final int K_JAVA_DOC = 0x40;
