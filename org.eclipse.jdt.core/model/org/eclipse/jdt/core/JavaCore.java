@@ -1214,7 +1214,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:			"1.3"
 	 * 
 	 * COMPILER / Setting Compliance Level
-	 *    Select the compliance level for the compiler.
+	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
+	 *    should not go beyond "1.3" level.
 	 *     - option id:			"org.eclipse.jdt.core.compiler.compliance"
 	 *     - possible values:	{ "1.3", "1.4" }
 	 *     - default:			"1.3"
