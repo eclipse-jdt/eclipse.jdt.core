@@ -1886,8 +1886,7 @@ protected void consumeEnterAnonymousClassBody() {
 	listLength = 0; // will be updated when reading super-interfaces
 	// recovery
 	if (currentElement != null){ 
-		lastCheckPoint = anonymousType.bodyStart;
-		// the recoveryTokenCheck will deal with the open brace		
+		lastCheckPoint = anonymousType.bodyStart;		
 		currentElement = currentElement.add(anonymousType, 0);
 		currentToken = 0; // opening brace already taken into account
 		lastIgnoredToken = -1;
