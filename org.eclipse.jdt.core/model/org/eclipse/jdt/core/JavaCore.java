@@ -280,6 +280,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_PREDICATE_THROWING_EXCEPTION = PLUGIN_ID + ".compiler.problem.predicateThrowingException"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
@@ -1491,6 +1497,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * COMPILER / Reporting Superfluous Semicolon
 	 *    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Reporting Predicate Declaring Thrown Exceptions
+	 *    When enabled, the compiler will issue an error or a warning when a boolean method declaration 
+	 *    (aka predicate) is specifying a clause for thrown exceptions. Usually, predicates should only return
+	 *    a boolean value and not raise exceptions.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.predicateThrowingException"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
