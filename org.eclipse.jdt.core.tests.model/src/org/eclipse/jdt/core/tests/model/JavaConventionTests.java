@@ -156,6 +156,8 @@ public void testValidPackageName() {
 	assertTrue("package name not recognized as invalid4", !JavaConventions.validatePackageName(null).isOK());
 	assertTrue("package name not recognized as unconventional1", JavaConventions.validatePackageName("Java.lang").getSeverity() == IStatus.WARNING);
 	assertTrue("package name not recognized as valid2", JavaConventions.validatePackageName("java.Lang").isOK());
+	assertTrue("package name not recognized as invalid5", JavaConventions.validatePackageName("Test.sample&plugin").getSeverity() == IStatus.ERROR);
+	assertTrue("package name not recognized as unconventional2", JavaConventions.validatePackageName("Test.sample").getSeverity() == IStatus.WARNING);
 }
 /**
  * @see JavaNamingConventions
