@@ -1,5 +1,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -702,6 +706,81 @@ public void test022() {
 			"}	\n"
 		},
 		"SUCCESS");
+}
+
+public void test023() { 
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			throw new BX();\n" + 
+			"		} catch(BX e) {\n" + 
+			"		} catch(AX e) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"} \n" + 
+			"class AX extends Exception {}\n" + 
+			"class BX extends AX {}\n"		
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	} catch(AX e) {\n" + 
+		"	        ^^\n" + 
+		"Unreachable catch block for AX. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+ /*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=21203
+ * NPE in ExceptionFlowContext
+ */
+public void test024() {
+	
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnreachableCode, CompilerOptions.IGNORE);
+	
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;	\n" +
+			"public class X {	\n" +
+			"	public void myMethod() {	\n" +
+			"	    System.out.println(\"starting\");	\n" +
+			"	    try {	\n" +
+			"	        if (true) throw new LookupException();	\n" +
+			"	    } catch(DataException de) {	\n" +
+			"	       	System.out.println(\"DataException occurred\");	\n" +
+			"	    } catch(LookupException le) {	\n" +
+			"	       	System.out.println(\"LookupException occurred\");	\n" +
+			"	    } catch(Throwable t) {	\n" +
+			"	       	System.out.println(\"Throwable occurred\");	\n" +
+			"	    }	\n" +
+			"	    System.out.println(\"SUCCESS\");	\n" +
+			"	}	\n" +
+			"}	\n" +
+			"class DataException extends Throwable {	\n" +
+			"} 	\n" +
+			"class LookupException extends DataException {	\n" +
+			"}	\n" 
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 9)\n" + 
+		"	} catch(LookupException le) {	\n" + 
+		"	        ^^^^^^^^^^^^^^^\n" + 
+		"Unreachable catch block for LookupException. It is already handled by the catch block for DataException\n" + 
+		"----------\n",
+		null, // custom libs
+		true, // should flush bin output
+		//null, // vm arguments
+		customOptions // custom options
+	);
 }
 
 public static Class testClass() {

@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -9,6 +10,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class CastTest extends AbstractRegressionTest {
 	
@@ -79,7 +81,721 @@ public void test001() {
 	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 }
 
+public void test002() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		// standard expressions\n" + 
+			"		String s = (String) null;	// UNnecessary\n" + 
+			"		String t = (String) \"hello\";	// UNnecessary\n" + 
+			"		float f = (float) 12;			// UNnecessary\n" + 
+			"		int i = (int)12.0;				//   necessary\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	String s = (String) null;	// UNnecessary\n" + 
+		"	           ^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	String t = (String) \"hello\";	// UNnecessary\n" + 
+		"	           ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	float f = (float) 12;			// UNnecessary\n" + 
+		"	          ^^^^^^^^^^\n" + 
+		"Unnecessary cast to type float for expression of type int\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test003() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		// message sends		\n" + 
+			"		foo((Object) \"hello\");		//   necessary\n" + 
+			"		foo((String) \"hello\");			// UNnecessary\n" + 
+			"		foo((Object) null);			//   necessary\n" + 
+			"		foo((String) null);				// UNnecessary but keep as useful documentation \n" + 
+			"	}\n" + 
+			"	static void foo(String s) {\n" + 
+			"		System.out.println(\"foo(String):\"+s);\n" + 
+			"	}\n" + 
+			"	static void foo(Object o) {\n" + 
+			"		System.out.println(\"foo(Object):\"+o);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	foo((String) \"hello\");			// UNnecessary\n" + 
+		"	    ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test004() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		// constructors\n" + 
+			"		new X((Object) \"hello\");	//   necessary\n" + 
+			"		new X((String) \"hello\");	// UNnecessary\n" + 
+			"		new X((Object) null);		//   necessary\n" + 
+			"		new X((String) null);		// UNnecessary but keep as useful documentation\n" + 
+			"	}\n" + 
+			"	X(){}\n" + 
+			"	X(String s){\n" + 
+			"		System.out.println(\"new X(String):\"+s);\n" + 
+			"	}\n" + 
+			"	X(Object o){\n" + 
+			"		System.out.println(\"new X(Object):\"+o);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	new X((String) \"hello\");	// UNnecessary\n" + 
+		"	      ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test005() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		// qualified allocations\n" + 
+			"		new X().new XM3((Object) \"hello\");	//   necessary\n" + 
+			"		new X().new XM3((String) \"hello\");	// UNnecessary\n" + 
+			"		new X().new XM3((Object) null);		//   necessary\n" + 
+			"		new X().new XM3((String) null);		// UNnecessary but keep as useful documentation\n" + 
+			"		new X().new XM3((Object) \"hello\"){};	//   necessary\n" + 
+			"		new X().new XM3((String) \"hello\"){};	// UNnecessary\n" + 
+			"		new X().new XM3((Object) null){};		//   necessary\n" + 
+			"		new X().new XM3((String) null){};		// UNnecessary but keep as useful documentation\n" + 
+			"	}\n" + 
+			"	X(){}\n" + 
+			"	static class XM1 extends X {}\n" + 
+			"	static class XM2 extends X {}\n" + 
+			"	class XM3 {\n" + 
+			"		XM3(String s){\n" + 
+			"			System.out.println(\"new XM3(String):\"+s);\n" + 
+			"		}\n" + 
+			"		XM3(Object o){\n" + 
+			"			System.out.println(\"new XM3(Object):\"+o);\n" + 
+			"		}\n" + 
+			"	}	\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	new X().new XM3((String) \"hello\");	// UNnecessary\n" + 
+		"	                ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	new X().new XM3((String) \"hello\"){};	// UNnecessary\n" + 
+		"	                ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void _test006() { // TODO (philippe) add support to conditional expression for unnecessary cast
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		// ternary operator\n" + 
+			"		String s = null, t = null;	\n" +
+			"		X x0 = s == t\n" + 
+			"			? (X)new XM1()			// UNnecessary\n" + 
+			"			: new X();\n" + 
+			"		X x1 = s == t \n" + 
+			"			? (X)new XM1()			//   necessary\n" + 
+			"			: new XM2();\n" + 
+			"		X x2 = s == t \n" + 
+			"			? new XM1()\n" + 
+			"			: (X)new XM2();			//   necessary\n" + 
+			"		X x3 = s == t \n" + 
+			"			? (X)new XM1()			//   necessary\n" + 
+			"			: (X)new XM2();			//   necessary\n" + 
+			"	}\n" + 
+			"	X(){}\n" + 
+			"	static class XM1 extends X {}\n" + 
+			"	static class XM2 extends X {}\n" + 
+			"}\n"
+		},
+		"x",
+		null,
+		true,
+		customOptions);
+}
 
+public void test007() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X(){}\n" + 
+			"	class XM3 {\n" + 
+			"		XM3(String s){\n" + 
+			"			System.out.println(\"new XM3(String):\"+s);\n" + 
+			"		}\n" + 
+			"		XM3(Object o){\n" + 
+			"			System.out.println(\"new XM3(Object):\"+o);\n" + 
+			"		}\n" + 
+			"	}	\n" + 
+			"	\n" + 
+			"	class XM4 extends XM3 {\n" + 
+			"		XM4(String s){\n" + 
+			"			super((Object) s); // necessary\n" + 
+			"			System.out.println(\"new XM4(String):\"+s);\n" + 
+			"		}\n" + 
+			"		XM4(Object o){\n" + 
+			"			super((String) o); // necessary\n" + 
+			"			System.out.println(\"new XM4(Object):\"+o);\n" + 
+			"		}\n" + 
+			"		XM4(Thread t){\n" + 
+			"			super((Object) t); // UNnecessary\n" + 
+			"			System.out.println(\"new XM4(Thread):\"+t);\n" + 
+			"		}\n" + 
+			"		XM4(){\n" + 
+			"			super((String)null); // UNnecessary but keep as useful documentation\n" + 
+			"			System.out.println(\"new XM4():\");\n" + 
+			"		}\n" + 
+			"		XM4(int i){\n" + 
+			"			super((Object)null); // necessary\n" + 
+			"			System.out.println(\"new XM4():\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 22)\n" + 
+		"	super((Object) t); // UNnecessary\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"Unnecessary cast to type Object for expression of type Thread. It is already compatible with the argument type Object\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+public void test008() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean b1 = new XM1() instanceof X; // UNnecessary\n" + 
+			"		boolean b2 = new X() instanceof XM1; // necessary\n" + 
+			"		boolean b3 = null instanceof X; // UNnecessary\n" + 
+			"	}\n" + 
+			"	static class XM1 extends X {}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	boolean b1 = new XM1() instanceof X; // UNnecessary\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The expression of type X.XM1 is already an instance of type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	boolean b3 = null instanceof X; // UNnecessary\n" + 
+		"	             ^^^^^^^^^^^^^^^^^\n" + 
+		"The expression of type null is already an instance of type X\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+public void test009() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean b1 = ((X) new XM1()) == new X(); // UNnecessary\n" + 
+			"		boolean b2 = ((X) new XM1()) == new XM2(); // necessary\n" + 
+			"		boolean b3 = ((X) null) == new X(); // UNnecessary\n" + 
+			"	}\n" + 
+			"	static class XM1 extends X {}\n" + 
+			"	static class XM2 extends X {}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	boolean b1 = ((X) new XM1()) == new X(); // UNnecessary\n" + 
+		"	             ^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type X for expression of type X.XM1\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	boolean b3 = ((X) null) == new X(); // UNnecessary\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"Unnecessary cast to type X for expression of type null\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+public void test010() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		long l1 = ((long) 1) + 2L; // UNnecessary\n" + 
+			"		long l2 = ((long)1) + 2; // necessary\n" + 
+			"		long l3 = 0;" + 
+			"		l3 += (long)12; // UNnecessary\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	long l1 = ((long) 1) + 2L; // UNnecessary\n" + 
+		"	          ^^^^^^^^^^\n" + 
+		"Unnecessary cast to type long for expression of type int. It is already compatible with the argument type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	long l3 = 0;		l3 += (long)12; // UNnecessary\n" + 
+		"	            		      ^^^^^^^^\n" + 
+		"Unnecessary cast to type long for expression of type int\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+public void test011() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s1 = ((long) 1) + \"hello\"; // necessary\n" + 
+			"		String s2 = ((String)\"hello\") + 2; // UNnecessary\n" + 
+			"		String s3 = ((String)null) + null; // necessary\n" + 
+			"		String s4 = ((int) (byte)1) + \"hello\"; // necessary\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	String s2 = ((String)\"hello\") + 2; // UNnecessary\n" + 
+		"	            ^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test012() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		// message sends		\n" + 
+			"		X x = new YM1();	\n" +
+			"		foo((X) x);			// UNnecessary\n" + 
+			"		foo((XM1) x);	// UNnecessary\n" + 
+			"		foo((YM1) x);	// necessary \n" + 
+			"	}\n" + 
+			"	static void foo(X x) {}\n" + 
+			"	static void foo(YM1 ym1) {}\n" + 
+			"  static class XM1 extends X {}\n" +
+			"  static class YM1 extends XM1 {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	foo((X) x);			// UNnecessary\n" + 
+		"	    ^^^^^\n" + 
+		"Unnecessary cast to type X for expression of type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	foo((XM1) x);	// UNnecessary\n" + 
+		"	    ^^^^^^^\n" + 
+		"Unnecessary cast to type X.XM1 for expression of type X. It is already compatible with the argument type X\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=42289
+public void test013() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int a = 0, b = 1;\n" + 
+			"		long d;\n" + 
+			"		d = (long)a; 				// unnecessary\n" + 
+			"		d = (long)a + b; 		// necessary \n" + 
+			"		d = d + a + (long)b; 	// unnecessary\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	d = (long)a; 				// unnecessary\n" + 
+		"	    ^^^^^^^\n" + 
+		"Unnecessary cast to type long for expression of type int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	d = d + a + (long)b; 	// unnecessary\n" + 
+		"	            ^^^^^^^\n" + 
+		"Unnecessary cast to type long for expression of type int. It is already compatible with the argument type long\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+// 39925 - Unnecessary instanceof checking leads to a NullPointerException
+public void test014() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	boolean b = new Cloneable() {} instanceof Cloneable;\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	boolean b = new Cloneable() {} instanceof Cloneable;\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The expression of type <anonymous implementation of Cloneable> is already an instance of type Cloneable\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+// narrowing cast on base types may change value, thus necessary
+public void test015() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {	\n" +
+			"    int lineCount = 10; \n" +
+			"    long time = 1000; \n" +
+			"    double linePerSeconds1 = ((int) (lineCount * 10000.0 / time)) / 10.0; // necessary \n" +
+			"    double linePerSeconds2 = ((double) (lineCount * 10000.0 / time)) / 10.0; // UNnecessary \n" +
+			"  } \n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	double linePerSeconds2 = ((double) (lineCount * 10000.0 / time)) / 10.0; // UNnecessary \n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type double for expression of type double\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+// narrowing cast on base types may change value, thus necessary
+public void test016() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {	\n" +
+			"    int lineCount = 10; \n" +
+			"    long time = 1000; \n" +
+			"    print((int) (lineCount * 10000.0 / time)); // necessary \n" +
+			"    print((double) (lineCount * 10000.0 / time)); // UNnecessary \n" +
+			"  } \n" +
+			"  void print(double d) {}  \n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	print((double) (lineCount * 10000.0 / time)); // UNnecessary \n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type double for expression of type double\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+//fault tolerance (40288)
+public void test017() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void bar() {\n" + 
+			"		foo((X) this);\n" + 
+			"		foo((X) zork());\n" + // unbound #zork() should not cause NPE
+			"	}\n" + 
+			"	void foo(X x) {\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	foo((X) this);\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Unnecessary cast to type X for expression of type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	foo((X) zork());\n" + 
+		"	        ^^^^\n" + 
+		"The method zork() is undefined for the type X\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+//fault tolerance (40423)
+public void test018() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" +
+			"	static Y[] foo(int[] tab) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X extends Y {\n" + 
+			"	Y[] bar() {\n" +
+			"		return (Y[]) Y.foo(new double[] {});\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	return (Y[]) Y.foo(new double[] {});\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type Y[] for expression of type Y[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return (Y[]) Y.foo(new double[] {});\n" + 
+		"	               ^^^\n" + 
+		"The method foo(int[]) in the type Y is not applicable for the arguments (double[])\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+//fault tolerance (40288)
+public void tes019() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void bar() {\n" + 
+			"		X x1 =(X) this;\n" + 
+			"		X x2 = (X) zork();\n" + // unbound #zork() should not cause NPE
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X x1 =(X) this;\n" + 
+		"	      ^^^^^^^^\n" + 
+		"Unnecessary cast to type X for expression of type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	X x2 = (X) zork();\n" + 
+		"	           ^^^^\n" + 
+		"The method zork() is undefined for the type X\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+//fault tolerance 
+public void test020() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void bar() {\n" +
+			"		long l = (long)zork() + 2;\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	long l = (long)zork() + 2;\n" + 
+		"	               ^^^^\n" + 
+		"The method zork() is undefined for the type X\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+// unnecessary cast diagnosis should also consider receiver type (40572)
+public void test021() { 
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" + 
+			"public class A {\n" + 
+			"	public class Member1 {}\n" + 
+			"	public class Member2 {}\n" + 
+			"	class Member3 {}\n" + 
+			"   public static class Member4 {\n" +
+			"	   public static class M4Member {}\n" + 
+			"   }\n" +
+			"}\n",
+			"p2/B.java",
+			"package p2;\n" + 
+			"import p1.A;\n" +
+			"public class B extends A {\n" + 
+			"	public class Member1 {}\n" + 
+			"}\n",
+			"p1/C.java",
+			"package p1;\n" + 
+			"import p2.B;\n" +
+			"public class C extends B {\n" + 
+			"	void baz(B b) {\n" + 
+			"		((A)b).new Member1(); // necessary since would bind to B.Member instead\n" +
+			"		((A)b).new Member2(); // UNnecessary\n" +
+			"		((A)b).new Member3(); // necessary since visibility issue\n" +
+			"		((A)b).new Member4().new M4Member(); // fault tolerance\n" +
+			"		((A)zork()).new Member1(); // fault-tolerance\n" +
+			"		// anonymous\n"+
+			"		((A)b).new Member1(){}; // necessary since would bind to B.Member instead\n" +
+			"		((A)b).new Member2(){}; // UNnecessary\n" +
+			"		((A)b).new Member3(){}; // necessary since visibility issue\n" +
+			"		((A)b).new Member4().new M4Member(){}; // fault tolerance\n" +
+			"		((A)zork()).new Member1(){}; // fault-tolerance\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\C.java (at line 6)\n" + 
+		"	((A)b).new Member2(); // UNnecessary\n" + 
+		"	^^^^^^\n" + 
+		"Unnecessary cast to type A for expression of type B\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\C.java (at line 8)\n" + 
+		"	((A)b).new Member4().new M4Member(); // fault tolerance\n" + 
+		"	^^^^^^\n" + 
+		"Unnecessary cast to type A for expression of type B\n" + 
+		"----------\n" + 
+		"3. ERROR in p1\\C.java (at line 9)\n" + 
+		"	((A)zork()).new Member1(); // fault-tolerance\n" + 
+		"	    ^^^^\n" + 
+		"The method zork() is undefined for the type C\n" + 
+		"----------\n" + 
+		"4. ERROR in p1\\C.java (at line 12)\n" + 
+		"	((A)b).new Member2(){}; // UNnecessary\n" + 
+		"	^^^^^^\n" + 
+		"Unnecessary cast to type A for expression of type B\n" + 
+		"----------\n" + 
+		"5. ERROR in p1\\C.java (at line 14)\n" + 
+		"	((A)b).new Member4().new M4Member(){}; // fault tolerance\n" + 
+		"	^^^^^^\n" + 
+		"Unnecessary cast to type A for expression of type B\n" + 
+		"----------\n" + 
+		"6. ERROR in p1\\C.java (at line 15)\n" + 
+		"	((A)zork()).new Member1(){}; // fault-tolerance\n" + 
+		"	    ^^^^\n" + 
+		"The method zork() is undefined for the type C\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+// unnecessary cast diagnosis should tolerate array receiver type (40752)
+public void test022() { 
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"  void foo(java.util.Map map){ \n" +
+			"    int[] fillPattern = new int[0]; \n" +
+			"    if (fillPattern.equals((int[])map.get(\"x\"))) { \n" +
+			"    }  \n" +
+			"  } \n"+
+			"} \n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (fillPattern.equals((int[])map.get(\"x\"))) { \n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type int[] for expression of type Object. It is already compatible with the argument type Object\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+		
 public static Class testClass() {
 	return CastTest.class;
 }

@@ -146,6 +146,36 @@ public void test006() {
 		"}\n",
 	});
 }
+
+public void test007() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"class X {\n" + 
+			"  void v() {\n" + 
+			"    switch (1) {\n" + 
+			"      case (int) (1.0 / 0.0) :\n" + 
+			"        break;\n" + 
+			"      case (int) (2.0 / 0.0) :\n" + 
+			"        break;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 5)\n" + 
+		"	case (int) (1.0 / 0.0) :\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate case\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 7)\n" + 
+		"	case (int) (2.0 / 0.0) :\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate case\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }

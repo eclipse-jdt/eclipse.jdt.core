@@ -1084,6 +1084,380 @@ public void test031() {
 		"SUCCESS"); // expected output
 }
 
+/**
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=29211
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=29213
+ */
+public void test032() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //--------------------------------
+			"public class X {\n" + 
+			"	public static void main(String[] arguments) {\n" + 
+			"		System.out.println(p.Bar.array[0].length);\n" + 
+			"		System.out.println(p.Bar.array.length);\n" + 
+			"		System.out.println(p.Bar.array[0].foo());\n" + 
+			"	}\n" + 
+			"}\n",
+			"p/Bar.java", //----------------------------
+			"package p;\n" + 
+			"public class Bar {\n" + 
+			"	public static Z[] array;\n" + 
+			"}\n" + 
+			"class Z {\n" + 
+			"	public String foo(){ \n" + 
+			"		return \"\";\n" + 
+			"	}\n" + 
+			"}\n" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(p.Bar.array[0].length);\n" + 
+		"	                   ^^^^^^^^^^^^^^\n" + 
+		"The type Z is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(p.Bar.array.length);\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^\n" + 
+		"The type Z is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	System.out.println(p.Bar.array[0].foo());\n" + 
+		"	                   ^^^^^^^^^^^^^^\n" + 
+		"The type Z is not visible\n" + 
+		"----------\n");
+}
+
+// 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+public void test033() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //==================================
+			"package p;	\n" +
+			"public abstract class X {	\n" +
+			"	abstract void foo();	\n" +
+			"}	\n",
+			"q/Y.java", //==================================
+			"package q;	\n" +
+			"public class Y extends p.X {	\n" +
+			"	void foo(){}	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in q\\Y.java (at line 2)\n" + 
+		"	public class Y extends p.X {	\n" + 
+		"	             ^\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Y. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n" + 
+		"2. WARNING in q\\Y.java (at line 3)\n" + 
+		"	void foo(){}	\n" + 
+		"	     ^^^^^\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"----------\n");
+}
+
+// 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+public void test034() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //==================================
+			"package p;	\n" +
+			"public abstract class X {	\n" +
+			"	abstract void foo();	\n" +
+			"}	\n",
+			"q/Y.java", //==================================
+			"package q;	\n" +
+			"public abstract class Y extends p.X {	\n" +
+			"	void foo(){}	\n" +
+			"}	\n" +
+			"class Z extends Y {	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. WARNING in q\\Y.java (at line 3)\n" + 
+		"	void foo(){}	\n" + 
+		"	     ^^^^^\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"----------\n" + 
+		"2. ERROR in q\\Y.java (at line 5)\n" + 
+		"	class Z extends Y {	\n" + 
+		"	      ^\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n"
+);
+}
+
+// 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+public void test035() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //==================================
+			"package p;	\n" +
+			"public abstract class X {	\n" +
+			"	abstract void foo();	\n" +
+			"	abstract void bar();	\n" +
+			"}	\n",
+			"p/Y.java", //==================================
+			"package p;	\n" +
+			"public abstract class Y extends X {	\n" +
+			"	void foo(){};	\n" +
+			"}	\n",
+			"q/Z.java", //==================================
+			"package q;	\n" +
+			"class Z extends p.Y {	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in q\\Z.java (at line 2)\n" + 
+		"	class Z extends p.Y {	\n" + 
+		"	      ^\n" + 
+		"This class must implement the inherited abstract method X.bar(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n");
+}
+// 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+public void test036() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //==================================
+			"package p;	\n" +
+			"public abstract class X {	\n" +
+			"	abstract void foo();	\n" +
+			"	public interface I {	\n" +
+			"		void foo();	\n" +
+			"	}	\n" +
+			"}	\n",
+			"q/Y.java", //==================================
+			"package q;	\n" +
+			"public abstract class Y extends p.X {	\n" +
+			"	void foo(){}	\n" +
+			"}	\n" +
+			"class Z extends Y implements p.X.I {	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. WARNING in q\\Y.java (at line 3)\n" + 
+		"	void foo(){}	\n" + 
+		"	     ^^^^^\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"----------\n" + 
+		"2. ERROR in q\\Y.java (at line 5)\n" + 
+		"	class Z extends Y implements p.X.I {	\n" + 
+		"	      ^\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n" + // TODO: (philippe) should not have following error due to default abstract?
+		"3. ERROR in q\\Y.java (at line 5)\n" + 
+		"	class Z extends Y implements p.X.I {	\n" + 
+		"	      ^\n" + 
+		"The inherited method Y.foo() cannot hide the public abstract method in X.I\n" + 
+		"----------\n");
+}
+// 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+public void test037() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //==================================
+			"package p;	\n" +
+			"public abstract class X {	\n" +
+			"	abstract void foo();	\n" +
+			"	void bar(){}	\n" +
+			"}	\n",
+			"q/Y.java", //==================================
+			"package q;	\n" +
+			"public abstract class Y extends p.X {	\n" +
+			"	void foo(){}	//warn \n" +
+			"	void bar(){}	//warn \n" +
+			"}	\n" +
+			"class Z extends Y {	\n" +
+			"	void bar(){}	//nowarn \n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. WARNING in q\\Y.java (at line 3)\n" + 
+		"	void foo(){}	//warn \n" + 
+		"	     ^^^^^\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"----------\n" + 
+		"2. WARNING in q\\Y.java (at line 4)\n" + 
+		"	void bar(){}	//warn \n" + 
+		"	     ^^^^^\n" + 
+		"The method Y.bar() does not override the inherited method from X since it is private to a different package.\n" + 
+		"----------\n" + 
+		"3. ERROR in q\\Y.java (at line 6)\n" + 
+		"	class Z extends Y {	\n" + 
+		"	      ^\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n");
+}
+// 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
+public void test038() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //==================================
+			"package p;	\n" +
+			"public abstract class X {	\n" +
+			"	abstract void foo();	\n" +
+			"}	\n",
+			"q/Y.java", //==================================
+			"package q;	\n" +
+			"public abstract class Y extends p.X {	\n" +
+			"	void foo(){}	//warn \n" +
+			"}	\n" +
+			"class Z extends Y {	\n" +
+			"	void foo(){}	//error \n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. WARNING in q\\Y.java (at line 3)\n" + 
+		"	void foo(){}	//warn \n" + 
+		"	     ^^^^^\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"----------\n" + 
+		"2. ERROR in q\\Y.java (at line 5)\n" + 
+		"	class Z extends Y {	\n" + 
+		"	      ^\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n");
+}
+
+// 31198 - regression after 30805 - Abstract non-visible method diagnosis fooled by intermediate declarations
+public void test039() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //==================================
+			"package p;	\n" +
+			"public abstract class X {	\n" +
+			"	abstract void foo();	\n" + // should not complain about this one in Z, since it has a visible implementation
+			"	abstract void bar();	\n" +
+			"}	\n",
+			"p/Y.java", //==================================
+			"package p;	\n" +
+			"public abstract class Y extends X {	\n" +
+			"	public void foo(){};	\n" +
+			"}	\n",
+			"q/Z.java", //==================================
+			"package q;	\n" +
+			"class Z extends p.Y {	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in q\\Z.java (at line 2)\n" + 
+		"	class Z extends p.Y {	\n" + 
+		"	      ^\n" + 
+		"This class must implement the inherited abstract method X.bar(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n");
+}
+
+/*
+ * 31398 - non-visible abstract method fooling method verification - should not complain about foo() or bar()
+ */
+public void test040() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //================================
+			"package p;	\n" +
+			"public class X extends q.Y.Member {	\n" +
+			"		void baz(){}	\n" + // doesn't hide Y.baz()
+			"}	\n",
+			"q/Y.java", //================================
+			"package q;	\n" +
+			"public abstract class Y {	\n" +
+			"	abstract void foo();	\n" +
+			"	abstract void bar();	\n" +
+			"	abstract void baz();	\n" +
+			"	public static abstract class Member extends Y {	\n" +
+			"		public void foo() {}	\n" + 
+			"		void bar(){}	\n" +
+			"	}	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 2)\n" + 
+		"	public class X extends q.Y.Member {	\n" + 
+		"	             ^\n" + 
+		"This class must implement the inherited abstract method Y.baz(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\X.java (at line 3)\n" + 
+		"	void baz(){}	\n" + 
+		"	     ^^^^^\n" + 
+		"The method X.baz() does not override the inherited method from Y since it is private to a different package.\n" + 
+		"----------\n");
+}
+
+/*
+ * 31450 - non-visible abstract method fooling method verification - should not complain about foo() 
+ */
+public void test041() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //================================
+			"package p;	\n" +
+			"public class X extends q.Y.Member {	\n" +
+			"	public void foo() {}	\n" +
+			"	public static class M extends X {}	\n" +
+			"}	\n",
+			"q/Y.java", //================================
+			"package q;	\n" +
+			"public abstract class Y {	\n" +
+			"	abstract void foo();	\n" +
+			"	abstract void bar();	\n" +
+			"	public static abstract class Member extends Y {	\n" +
+			"		protected abstract void foo();	\n" + // takes precedence over inherited abstract Y.foo()
+			"	}	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 2)\n" + 
+		"	public class X extends q.Y.Member {	\n" + 
+		"	             ^\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 4)\n" + 
+		"	public static class M extends X {}	\n" + 
+		"	                    ^\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from M. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n");
+}
+
+/*
+ * 31450 - non-visible abstract method fooling method verification - should not complain about foo() 
+ */
+public void test042() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java", //================================
+			"package p;	\n" +
+			"public class X extends q.Y.Member {	\n" +
+			"	public void foo() {}	\n" +
+			"	public static class M extends X {}	\n" +
+			"}	\n",
+			"q/Y.java", //================================
+			"package q;	\n" +
+			"public abstract class Y {	\n" +
+			"	abstract void foo();	\n" +
+			"	abstract void bar();	\n" +
+			"	public static abstract class Member extends Y {	\n" +
+			"		void foo(){}	\n" + 
+			"	}	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 2)\n" + 
+		"	public class X extends q.Y.Member {	\n" + 
+		"	             ^\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\X.java (at line 3)\n" + 
+		"	public void foo() {}	\n" + 
+		"	            ^^^^^\n" + 
+		"The method X.foo() does not override the inherited method from Y.Member since it is private to a different package.\n" + 
+		"----------\n" + 
+		"3. ERROR in p\\X.java (at line 4)\n" + 
+		"	public static class M extends X {}	\n" + 
+		"	                    ^\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from M. Either make the type abstract or make the inherited method visible.\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return LookupTest.class;
 }
