@@ -48,11 +48,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test431"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test432"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -4920,4 +4920,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test431", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49351
+	 */
+	public void test432() {
+		DecodeCodeFormatterPreferences.decodeCodeFormatterOptions("e:/downloads/Formatter_settings_bug49298.xml");
+	}	
 }
