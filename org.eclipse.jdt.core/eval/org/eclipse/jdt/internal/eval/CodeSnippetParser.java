@@ -641,12 +641,12 @@ private void recordLastStatementIfNeeded() {
 		this.lastStatement = this.scanner.startPosition;
 	}
 }
-protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
+protected void reportSyntaxError(int act, int currentKind, int state) {
 	if (!this.diet) {
 		this.scanner.initialPosition = this.codeSnippetStart; // for correct bracket match diagnosis
 		this.scanner.eofPosition = this.codeSnippetEnd + 1; // stop after expression 
 	}
-	super.reportSyntaxError(act, currentKind, stateStackTop);
+	super.reportSyntaxError(act, currentKind, state);
 }
 /*
  * A syntax error was detected. If a method is being parsed, records the number of errors and
