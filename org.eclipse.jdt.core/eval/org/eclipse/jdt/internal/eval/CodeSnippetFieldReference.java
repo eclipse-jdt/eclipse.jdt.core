@@ -288,7 +288,17 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowIn
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-	if (binding.declaringClass != this.receiverType
+	if (delegateThis != null) {
+		if (binding.declaringClass != this.delegateThis.type
+			&& binding.declaringClass != null
+			&& binding.constant == NotAConstant
+			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
+					&& !binding.isStatic()
+					&& binding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+				|| !binding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(binding, (ReferenceBinding)this.delegateThis.type);
+		}
+	} else if (binding.declaringClass != this.receiverType
 		&& !this.receiverType.isArrayType()
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant
@@ -309,7 +319,17 @@ public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowI
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-	if (binding.declaringClass != this.receiverType
+	if (delegateThis != null) {
+		if (binding.declaringClass != this.delegateThis.type
+			&& binding.declaringClass != null
+			&& binding.constant == NotAConstant
+			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
+					&& !binding.isStatic()
+					&& binding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+				|| !binding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(binding, (ReferenceBinding)this.delegateThis.type);
+		}
+	} else if (binding.declaringClass != this.receiverType
 		&& !this.receiverType.isArrayType()
 		&& binding.declaringClass != null // array.length
 		&& binding.constant == NotAConstant

@@ -550,19 +550,19 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 			}
 	}
 }
-	public void _manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+
+	if (this.delegateThis == null) {
+		super.manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
+		return;
+	}
 	
-		if (this.delegateThis == null) {
-			super.manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
-			return;
-		}
-		
-		if (!flowInfo.isReachable()) return;
-		//If inlinable field, forget the access emulation, the code gen will directly target it
-		if (constant != NotAConstant)
-			return;
-		if ((bits & FIELD) != 0) {
-			FieldBinding fieldBinding = (FieldBinding) binding;
+	if (!flowInfo.isReachable()) return;
+	//If inlinable field, forget the access emulation, the code gen will directly target it
+	if (constant != NotAConstant)
+		return;
+	if ((bits & FIELD) != 0) {
+		FieldBinding fieldBinding = (FieldBinding) binding;
 //			if (((bits & DepthMASK) != 0)
 //				&& (fieldBinding.isPrivate() // private access
 //					|| (fieldBinding.isProtected() // implicit protected access
@@ -577,21 +577,60 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 //				currentScope.problemReporter().needToEmulateFieldReadAccess(fieldBinding, this);
 //				return;
 //			}
-			// if the binding declaring class is not visible, need special action
-			// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-			// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-			// and not from Object or implicit static field access.	
-			if (fieldBinding.declaringClass != this.delegateThis.type
-				&& fieldBinding.declaringClass != null
-				&& fieldBinding.constant == NotAConstant
-				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
-						&& !fieldBinding.isStatic()
-						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
-					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.delegateThis.type);
-			}
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static field access.	
+		if (fieldBinding.declaringClass != this.delegateThis.type
+			&& fieldBinding.declaringClass != null
+			&& fieldBinding.constant == NotAConstant
+			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
+					&& !fieldBinding.isStatic()
+					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.delegateThis.type);
 		}
 	}
+}
+public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+
+	if (this.delegateThis == null) {
+		super.manageSyntheticWriteAccessIfNecessary(currentScope, flowInfo);
+		return;
+	}
+
+	if (!flowInfo.isReachable()) return;
+	if ((bits & FIELD) != 0) {
+		FieldBinding fieldBinding = (FieldBinding) binding;
+//		if (((bits & DepthMASK) != 0) 
+//			&& (fieldBinding.isPrivate() // private access
+//				|| (fieldBinding.isProtected() // implicit protected access
+//						&& fieldBinding.declaringClass.getPackage() 
+//							!= currentScope.enclosingSourceType().getPackage()))) {
+//			if (syntheticAccessors == null)
+//				syntheticAccessors = new MethodBinding[2];
+//			syntheticAccessors[WRITE] = 
+//				((SourceTypeBinding)currentScope.enclosingSourceType().
+//					enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).
+//						addSyntheticMethod(fieldBinding, false);
+//			currentScope.problemReporter().needToEmulateFieldWriteAccess(fieldBinding, this);
+//			return;
+//		}
+		// if the binding declaring class is not visible, need special action
+		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
+		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
+		// and not from Object or implicit static field access.	
+		if (fieldBinding.declaringClass != this.delegateThis.type
+			&& fieldBinding.declaringClass != null
+			&& fieldBinding.constant == NotAConstant
+			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
+					&& !fieldBinding.isStatic()
+					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.delegateThis.type);
+		}
+	}
+}
 /**
  * Normal field binding did not work, try to bind to a field of the delegate receiver.
  */
