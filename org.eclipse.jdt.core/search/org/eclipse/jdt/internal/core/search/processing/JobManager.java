@@ -342,42 +342,38 @@ public abstract class JobManager implements Runnable {
 		try {
 			while (this.processingThread != null) {
 				try {
-					IJob job;
-					synchronized (this) {
-						// handle shutdown case when notifyAll came before the wait but after the while loop was entered
-						if (this.processingThread == null) continue;
-
-						if ((job = currentJob()) == null) {
-							if (idlingStart < 0)
-								idlingStart = System.currentTimeMillis();
-							notifyIdle(System.currentTimeMillis() - idlingStart);
-							this.wait(); // wait until a new job is posted (or reenabled:38901)
-							Thread.sleep(500); // delay before processing the new job, allow some time for the active thread to finish
-							continue;
-						} else {
-							idlingStart = -1;
-						}
-					}
-					if (VERBOSE) {
-						JobManager.verbose(awaitingJobsCount() + " awaiting jobs"); //$NON-NLS-1$
-						JobManager.verbose("STARTING background job - " + job); //$NON-NLS-1$
-					}
-					try {
-						executing = true;
-						/*boolean status = */job.execute(null);
-						//if (status == FAILED) request(job);
-					} finally {
-						executing = false;
+					IJob job = currentJob();
+					if (job != null) {
+						idlingStart = -1;
 						if (VERBOSE) {
-							JobManager.verbose("FINISHED background job - " + job); //$NON-NLS-1$
+							JobManager.verbose(awaitingJobsCount() + " awaiting jobs"); //$NON-NLS-1$
+							JobManager.verbose("STARTING background job - " + job); //$NON-NLS-1$
 						}
-						moveToNextJob();
-						if (this.awaitingClients == 0) {
-							Thread.sleep(50);
+						try {
+							executing = true;
+							/*boolean status = */job.execute(null);
+							//if (status == FAILED) request(job);
+						} finally {
+							executing = false;
+							if (VERBOSE)
+								JobManager.verbose("FINISHED background job - " + job); //$NON-NLS-1$
+							moveToNextJob();
+							if (this.awaitingClients == 0)
+								Thread.sleep(50);
 						}
+					} else {
+						if (idlingStart < 0)
+							idlingStart = System.currentTimeMillis();
+						notifyIdle(System.currentTimeMillis() - idlingStart);
+
+						synchronized (this) {
+							// handle shutdown case when notifyAll was sent between the while loop condition and here
+							if (this.processingThread == null) continue;
+							this.wait(); // wait until a new job is posted (or reenabled:38901)
+						}
+						Thread.sleep(500); // delay before processing the new job, allow some time for the active thread to finish
 					}
-				} catch (InterruptedException e) { // background indexing was interrupted
-				}
+				} catch (InterruptedException ignored) {} // background indexing was interrupted
 			}
 		} catch (RuntimeException e) {
 			if (this.processingThread != null) { // if not shutting down
