@@ -1899,7 +1899,7 @@ public class JavaProject
 					// exclusion patterns (optional)
 					String exclusion = cpeElement.getAttribute("excluding"); //$NON-NLS-1$ 
 					IPath[] exclusionPatterns = ClasspathEntry.NO_EXCLUSION_PATTERNS;
-					if (!exclusion.equals("")) {
+					if (!exclusion.equals("")) { //$NON-NLS-1$ 
 						char[][] patterns = CharOperation.splitOn('|', exclusion.toCharArray());
 						int patternCount;
 						if ((patternCount  = patterns.length) > 0) {
@@ -2334,6 +2334,10 @@ public class JavaProject
 		InputStream inputStream = new ByteArrayInputStream(value.getBytes());
 		// update the resource content
 		if (rscFile.exists()) {
+			if (rscFile.isReadOnly()) {
+				// provide opportunity to checkout read-only .classpath file (23984)
+				ResourcesPlugin.getWorkspace().validateEdit(new IFile[]{rscFile}, null);
+			}
 			rscFile.setContents(inputStream, IResource.FORCE, null);
 		} else {
 			rscFile.create(inputStream, IResource.FORCE, null);
