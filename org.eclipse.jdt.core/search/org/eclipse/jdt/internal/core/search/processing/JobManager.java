@@ -199,8 +199,12 @@ public abstract class JobManager implements Runnable {
 						subProgress.beginTask("", totalWork); //$NON-NLS-1$
 						concurrentJobWork = concurrentJobWork / 2;
 					}
+					int currentPriority = this.thread.getPriority();;
 					try {
 						synchronized(this) {
+							if (this.thread != null) {
+								this.thread.setPriority(Thread.currentThread().getPriority());
+							}
 							this.awaitingClients++;
 						}
 						while ((awaitingWork = awaitingJobsCount()) > 0) {
@@ -226,6 +230,9 @@ public abstract class JobManager implements Runnable {
 					} finally {
 						synchronized(this) {
 							this.awaitingClients--;
+							if (this.thread != null) {
+								this.thread.setPriority(currentPriority);
+							}
 						}
 					}
 					if (subProgress != null) {
@@ -273,6 +280,7 @@ public abstract class JobManager implements Runnable {
 			/* initiate background processing */
 			thread = new Thread(this, this.processName());
 			thread.setDaemon(true);
+			thread.setPriority(Thread.NORM_PRIORITY-1);
 			thread.start();
 		}
 	}

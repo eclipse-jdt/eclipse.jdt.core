@@ -16,6 +16,10 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+	<li>Priority of the background indexer has been lowered so that
+	    it doesn't interfer with other threads (e.g. when switching JRE
+	    the indexing will not start before the switch has completed)
+	</li>
 	<li>Revised Classpath Container proposal (also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/org.eclipse.jdt.core/notes/r2.0/classpath%20container/classpathContainer.html">notes</a>):
 	<ul>
 	<li><code>classpathContainerChanged()</code> got replaced with setter method <code>JavaCore.setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer respectiveContainers) </code></li>
