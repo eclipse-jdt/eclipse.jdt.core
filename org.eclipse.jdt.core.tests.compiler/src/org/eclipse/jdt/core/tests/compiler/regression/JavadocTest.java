@@ -81,16 +81,12 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	public static Test suiteForComplianceLevel(String level, Class testClass) {
 		TestSuite suite = new TestSuite(level);
 		try {
-			// Javadoc ENABLED
-			String support = CompilerOptions.DISABLED;
+			// Default is Javadoc ENABLED
 			if (DOC_COMMENT_SUPPORT == null) {
 				suite.addTest(suiteForJavadocSupport(level, testClass, CompilerOptions.ENABLED));
 			} else {
-				support =  DOC_COMMENT_SUPPORT;
+				suite.addTest(suiteForJavadocSupport(level, testClass, DOC_COMMENT_SUPPORT));
 			}
-
-			// Javadoc DISABLED
-			suite.addTest(suiteForJavadocSupport(level, testClass, support));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
