@@ -686,7 +686,7 @@ public class ASTParser {
 							PackageFragment packageFragment = (PackageFragment) this.classFileSource.getParent();
 							BinaryType type = (BinaryType) this.classFileSource.getType();
 							IBinaryType binaryType = (IBinaryType) type.getElementInfo();
-							String fileName = type.sourceFileName(binaryType);
+							String fileName = new String(binaryType.getFileName()); // file name is used to recreate the Java element, so it has to be the .class file name
 							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileName, this.project);
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element

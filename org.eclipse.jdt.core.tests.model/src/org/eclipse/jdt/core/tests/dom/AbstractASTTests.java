@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -112,6 +113,32 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			"Unexpected binding keys",
 			expected,
 			actual);
+	}
+
+	/*
+	 * Builds an AST from the info source (which is assumed to be the source attached to the given class file), 
+	 * and returns the AST node that was delimited by the astStart and astEnd of the marker info.
+	 */
+	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile, boolean reportErrors) throws JavaModelException {
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(classFile);
+		parser.setResolveBindings(true);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		
+		if (reportErrors) {
+			StringBuffer buffer = new StringBuffer();
+			IProblem[] problems = unit.getProblems();
+			for (int i = 0, length = problems.length; i < length; i++)
+				Util.appendProblem(buffer, problems[i], markerInfo.source.toCharArray(), i+1);
+			if (buffer.length() > 0)
+				System.err.println(buffer.toString());
+		}
+
+		return findNode(unit, markerInfo);
+	}
+
+	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile) throws JavaModelException {
+		return buildAST(markerInfo, classFile, true);
 	}
 
 	/*

@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.ClassFile;
 
 /**
@@ -311,14 +312,15 @@ class TypeBinding implements ITypeBinding {
 			referenceBinding = (ReferenceBinding) this.binding.erasure();
 		else
 			referenceBinding = (ReferenceBinding) this.binding;
-		if (referenceBinding.isBinaryBinding()) {
-			ClassFile classFile = (ClassFile) getClassFile(referenceBinding.getFileName());
+		char[] fileName = referenceBinding.getFileName();
+		if (Util.isClassFileName(fileName)) {
+			ClassFile classFile = (ClassFile) getClassFile(fileName);
 			if (classFile == null) return null;
 			return classFile.getType();
 		}
 		if (referenceBinding.isLocalType() || referenceBinding.isAnonymousType()) {
 			// local or anonymous type
-			ICompilationUnit cu = getCompilationUnit(referenceBinding.getFileName());
+			ICompilationUnit cu = getCompilationUnit(fileName);
 			if (cu == null) return null;
 			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
 			DefaultBindingResolver bindingResolver = (DefaultBindingResolver) this.resolver;
@@ -349,7 +351,7 @@ class TypeBinding implements ITypeBinding {
 			ITypeBinding declaringTypeBinding = getDeclaringClass();
 			if (declaringTypeBinding == null) {
 				// top level type
-				ICompilationUnit cu = getCompilationUnit(referenceBinding.getFileName());
+				ICompilationUnit cu = getCompilationUnit(fileName);
 				if (cu == null) return null;
 				return cu.getType(new String(referenceBinding.sourceName()));
 			} else {

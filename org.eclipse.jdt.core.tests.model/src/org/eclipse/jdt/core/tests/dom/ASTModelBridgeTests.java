@@ -47,7 +47,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB,JCL15_SRC"}, "", "1.5");
 		this.workingCopy = getCompilationUnit("/P/X.java").getWorkingCopy(
 			new WorkingCopyOwner() {}, 
 			new IProblemRequestor() {
@@ -193,6 +193,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				otherWorkingCopy.discardWorkingCopy();
 		}
 	}
+	
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */
@@ -211,6 +212,27 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertElementEquals(
 			"Unexpected Java element",
 			"<anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in <project root> [in P]]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a type coming from a class file is correct.
+	 */
+	public void testBinaryType() throws JavaModelException {
+		IClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "String.class");
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStart = source.indexOf("public");
+		markerInfo.astEnd = source.lastIndexOf('}') + 1;
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
