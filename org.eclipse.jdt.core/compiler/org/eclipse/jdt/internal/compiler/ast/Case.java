@@ -69,7 +69,7 @@ public class Case extends Statement {
 			return null;
 		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchType))
 			return constantExpression.constant;
-		if (Scope.areTypesCompatible(caseType, switchType))
+		if (caseType.isCompatibleWith(switchType))
 			return constantExpression.constant;
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 			constantExpression,

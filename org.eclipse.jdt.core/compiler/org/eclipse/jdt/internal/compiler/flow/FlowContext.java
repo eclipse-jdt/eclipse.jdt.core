@@ -132,8 +132,8 @@ public class FlowContext implements TypeConstants {
 					for (int i = 0; i < raisedCount; i++) {
 						TypeBinding raisedException;
 						if ((raisedException = raisedExceptions[i]) != null) {
-							if (Scope.areTypesCompatible(raisedException, scope.getJavaLangRuntimeException())
-								|| Scope.areTypesCompatible(raisedException, scope.getJavaLangError())) {
+							if (raisedException.isCompatibleWith(scope.getJavaLangRuntimeException())
+								|| raisedException.isCompatibleWith(scope.getJavaLangError())) {
 								remainingCount--;
 								raisedExceptions[i] = null;
 							}
@@ -231,8 +231,8 @@ public class FlowContext implements TypeConstants {
 				}
 				// method treatment for unchecked exceptions
 				if (exceptionContext.isMethodContext) {
-					if (Scope.areTypesCompatible(raisedException, scope.getJavaLangRuntimeException())
-						|| Scope.areTypesCompatible(raisedException, scope.getJavaLangError()))
+					if (raisedException.isCompatibleWith(scope.getJavaLangRuntimeException())
+						|| raisedException.isCompatibleWith(scope.getJavaLangError()))
 						return;
 						
 					// anonymous constructors are allowed to throw any exceptions (their thrown exceptions

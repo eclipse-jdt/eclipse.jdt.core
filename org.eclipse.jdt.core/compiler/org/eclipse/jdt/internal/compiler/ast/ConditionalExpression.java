@@ -344,13 +344,13 @@ public class ConditionalExpression extends OperatorExpression {
 				valueIfFalseType);
 			return null;
 		}
-		if (Scope.areTypesCompatible(valueIfFalseType, valueIfTrueType)) {
+		if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
 			valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
 			valueIfFalse.implicitWidening(valueIfTrueType, valueIfFalseType);
 			this.resolvedType = valueIfTrueType;
 			return valueIfTrueType;
 		}
-		if (Scope.areTypesCompatible(valueIfTrueType, valueIfFalseType)) {
+		if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
 			valueIfTrue.implicitWidening(valueIfFalseType, valueIfTrueType);
 			valueIfFalse.implicitWidening(valueIfFalseType, valueIfFalseType);
 			this.resolvedType = valueIfFalseType;

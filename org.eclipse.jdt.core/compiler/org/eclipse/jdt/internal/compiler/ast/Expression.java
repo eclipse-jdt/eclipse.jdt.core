@@ -441,16 +441,17 @@ public abstract class Expression extends Statement {
 
 	public TypeBinding resolveTypeExpecting(
 		BlockScope scope,
-		TypeBinding expectedTb) {
+		TypeBinding expectedType) {
 
-		TypeBinding thisTb = this.resolveType(scope);
-		if (thisTb == null)
-			return null;
-		if (!Scope.areTypesCompatible(thisTb, expectedTb)) {
-			scope.problemReporter().typeMismatchError(thisTb, expectedTb, this);
+		TypeBinding expressionType = this.resolveType(scope);
+		if (expressionType == null) return null;
+		if (expressionType == expectedType) return expressionType;
+		
+		if (!expressionType.isCompatibleWith(expectedType)) {
+			scope.problemReporter().typeMismatchError(expressionType, expectedType, this);
 			return null;
 		}
-		return thisTb;
+		return expressionType;
 	}
 
 	public String toString(int tab) {

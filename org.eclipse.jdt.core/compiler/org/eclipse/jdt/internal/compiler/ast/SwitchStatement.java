@@ -209,9 +209,8 @@ public class SwitchStatement extends Statement {
 		if (testType == null)
 			return;
 		testExpression.implicitWidening(testType, testType);
-		if (!(testExpression
-			.isConstantValueOfTypeAssignableToType(testType, IntBinding))) {
-			if (!Scope.areTypesCompatible(testType, IntBinding)) {
+		if (!(testExpression.isConstantValueOfTypeAssignableToType(testType, IntBinding))) {
+			if (!testType.isCompatibleWith(IntBinding)) {
 				upperScope.problemReporter().incorrectSwitchType(testExpression, testType);
 				return;
 			}

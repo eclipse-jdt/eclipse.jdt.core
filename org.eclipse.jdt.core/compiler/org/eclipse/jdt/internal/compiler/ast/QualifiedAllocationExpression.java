@@ -243,7 +243,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 			// The enclosing instance must be compatible with the innermost enclosing type
 			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
-			if (Scope.areTypesCompatible(enclosingInstanceType, expectedType))
+			if (enclosingInstanceType.isCompatibleWith(expectedType))
 				return receiverType;
 			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 				this.enclosingInstance,
@@ -301,10 +301,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			return null;
 		}
 		if (enclosingInstance != null) {
-			if (!Scope
-				.areTypesCompatible(
-					enclosingInstanceType,
-					inheritedBinding.declaringClass.enclosingType())) {
+			if (!enclosingInstanceType.isCompatibleWith(inheritedBinding.declaringClass.enclosingType())) {
 				scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 					enclosingInstance,
 					enclosingInstanceType,

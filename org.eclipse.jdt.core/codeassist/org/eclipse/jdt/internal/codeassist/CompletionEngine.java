@@ -985,7 +985,7 @@ public final class CompletionEngine
 						continue next;
 					for (int a = minArgLength; --a >= 0;)
 						if (argTypes[a] != null) // can be null if it could not be resolved properly
-							if (!Scope.areTypesCompatible(argTypes[a], constructor.parameters[a]))
+							if (!argTypes[a].isCompatibleWith(constructor.parameters[a]))
 								continue next;
 	
 					char[][] parameterPackageNames = new char[paramLength][];
@@ -1720,7 +1720,7 @@ public final class CompletionEngine
 
 			for (int a = minArgLength; --a >= 0;){
 				if (argTypes[a] != null){ // can be null if it could not be resolved properly
-					if (!Scope.areTypesCompatible(argTypes[a], method.parameters[a])) {
+					if (!argTypes[a].isCompatibleWith(method.parameters[a])) {
 						continue next;
 					}
 				}
@@ -1874,11 +1874,11 @@ public final class CompletionEngine
 					return R_EXACT_EXPECTED_TYPE;
 				}
 				if((expectedTypesFilter & SUBTYPE) != 0
-					&& Scope.areTypesCompatible(proposalType, expectedTypes[i])) {
+					&& proposalType.isCompatibleWith(expectedTypes[i])) {
 						return R_EXPECTED_TYPE;
 				}
 				if((expectedTypesFilter & SUPERTYPE) != 0
-					&& Scope.areTypesCompatible(expectedTypes[i], proposalType)) {
+					&& expectedTypes[i].isCompatibleWith(proposalType)) {
 					return R_EXPECTED_TYPE;
 				}
 			}
@@ -2856,7 +2856,7 @@ public final class CompletionEngine
 			for (int j = 0; j < length; j++) {
 				Expression argument = arguments[j];
 				TypeBinding argType = argument.resolvedType;
-				if(argType != null && !Scope.areTypesCompatible(argType, parameters[j]))
+				if(argType != null && !argType.isCompatibleWith(parameters[j]))
 					continue nextMethod;
 			}
 			
@@ -2962,7 +2962,7 @@ public final class CompletionEngine
 			for (int j = 0; j < length; j++) {
 				Expression argument = arguments[j];
 				TypeBinding argType = argument.resolvedType;
-				if(argType != null && !Scope.areTypesCompatible(argType, parameters[j]))
+				if(argType != null && !argType.isCompatibleWith(parameters[j]))
 					continue nextMethod;
 			}
 				

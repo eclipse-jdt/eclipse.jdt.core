@@ -64,7 +64,7 @@ public PackageBinding getPackage() {
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 
-boolean isCompatibleWith(TypeBinding right) {
+public boolean isCompatibleWith(TypeBinding right) {
 	if (this == right)
 		return true;
 

@@ -66,7 +66,7 @@ public boolean isClass() {
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 	
-abstract boolean isCompatibleWith(TypeBinding right);
+public abstract boolean isCompatibleWith(TypeBinding right);
 /* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
 */
 

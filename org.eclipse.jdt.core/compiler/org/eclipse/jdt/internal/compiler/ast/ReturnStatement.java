@@ -223,7 +223,7 @@ public void resolve(BlockScope scope) {
 		scope.problemReporter().attemptToReturnVoidValue(this);
 		return;
 	}
-	if (methodType != null && Scope.areTypesCompatible(expressionType, methodType)) {
+	if (methodType != null && expressionType.isCompatibleWith(methodType)) {
 		expression.implicitWidening(methodType, expressionType);
 		return;
 	}

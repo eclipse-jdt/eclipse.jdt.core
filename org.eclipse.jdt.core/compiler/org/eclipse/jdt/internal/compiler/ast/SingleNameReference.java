@@ -254,6 +254,14 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 				}
 				return;
 			}
+			// 26903, need extra cast to store null in array local var	
+			if (localBinding.type.isArrayType() 
+				&& (assignment.expression.resolvedType == NullBinding	// arrayLoc = null
+					|| ((assignment.expression instanceof CastExpression)	// arrayLoc = (type[])null
+						&& (((CastExpression)assignment.expression).innermostCastedExpression().resolvedType == NullBinding)))){
+				codeStream.checkcast(localBinding.type); 
+			}
+			
 			// normal local assignment (since cannot store in outer local which are final locations)
 			codeStream.store(localBinding, valueRequired);
 			if ((bits & FirstAssignmentToLocalMASK) != 0) { // for local variable debug attributes
@@ -652,14 +660,15 @@ public TypeBinding resolveType(BlockScope scope) {
 			case VARIABLE : // =========only variable============
 			case VARIABLE | TYPE : //====both variable and type============
 				if (binding instanceof VariableBinding) {
-					VariableBinding vb = (VariableBinding) binding;
+					VariableBinding variable = (VariableBinding) binding;
 					if (binding instanceof LocalVariableBinding) {
 						bits &= ~RestrictiveFlagMASK;  // clear bits
 						bits |= LOCAL;
-						constant = vb.constant;
-						if ((!vb.isFinal()) && ((bits & DepthMASK) != 0))
-							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)vb, this);
-						return this.resolvedType = vb.type;
+						constant = variable.constant;
+						if ((!variable.isFinal()) && ((bits & DepthMASK) != 0)) {
+							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
+						}
+						return this.resolvedType = variable.type;
 					}
 					// a field
 					return this.resolvedType = checkFieldAccess(scope);
