@@ -33,12 +33,15 @@ int buildNumber;
 int lastStructuralBuildNumber;
 SimpleLookupTable structuralBuildNumbers;
 
+private String[] knownPackageNames; // of the form "p1/p2"
+
 static final byte VERSION = 0x0003;
 
 State() {
 }
 
 protected State(JavaBuilder javaBuilder) {
+	this.knownPackageNames = null;
 	this.javaProjectName = javaBuilder.currentProject.getName();
 	this.classpathLocations = javaBuilder.classpath;
 	this.outputLocationString = javaBuilder.outputFolder.getLocation().toString();
@@ -52,6 +55,7 @@ protected State(JavaBuilder javaBuilder) {
 
 void copyFrom(State lastState) {
 	try {
+		this.knownPackageNames = null;
 		this.references = (SimpleLookupTable) lastState.references.clone();
 		this.typeLocations = (SimpleLookupTable) lastState.typeLocations.clone();
 		this.buildNumber = lastState.buildNumber + 1;
@@ -89,6 +93,32 @@ boolean isDuplicateLocation(String qualifiedName, String location) {
 	return existingLocation != null && !existingLocation.equals(location);
 }
 
+boolean isKnownPackage(String qualifiedPackageName) {
+	if (knownPackageNames == null) {
+		ArrayList names = new ArrayList(typeLocations.elementSize);
+		Object[] keyTable = typeLocations.keyTable;
+		for (int i = 0, l = keyTable.length; i < l; i++) {
+			if (keyTable[i] != null) {
+				String packageName = (String) keyTable[i];
+				int last = packageName.lastIndexOf('/');
+				if (last > 0)
+					packageName = packageName.substring(0, last);
+				while (packageName != null && !names.contains(packageName)) {
+					names.add(packageName);
+					last = packageName.lastIndexOf('/');
+					packageName = last == -1 ? null : packageName.substring(0, last);
+				}
+			}
+		}
+		knownPackageNames = new String[names.size()];
+		names.toArray(knownPackageNames);
+	}
+	for (int i = 0, length = knownPackageNames.length; i < length; i++)
+		if (knownPackageNames[i].equals(qualifiedPackageName))
+			return true;
+	return false;
+}
+
 boolean isStructurallyChanged(IProject prereqProject, State prereqState) {
 	Object o = structuralBuildNumbers.get(prereqProject.getName());
 	if (prereqState != null) {
@@ -99,6 +129,7 @@ boolean isStructurallyChanged(IProject prereqProject, State prereqState) {
 }
 
 void locationForType(String qualifiedName, String location) {
+	this.knownPackageNames = null;
 	typeLocations.put(qualifiedName, location);
 }
 
@@ -117,6 +148,7 @@ void recordLastStructuralChanges(IProject prereqProject, int prereqBuildNumber) 
 }
 
 void remove(String locationToRemove) {
+	this.knownPackageNames = null;
 	references.removeKey(locationToRemove);
 	typeLocations.removeValue(locationToRemove);
 }
@@ -134,6 +166,11 @@ void removePackage(IResourceDelta sourceDelta) {
 			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(location.getFileExtension()))
 				remove(location.toString());
 	}
+}
+
+void removeTypeLocation(String locationToRemove) {
+	this.knownPackageNames = null;
+	typeLocations.removeKey(locationToRemove);
 }
 
 static State read(DataInputStream in) throws IOException {

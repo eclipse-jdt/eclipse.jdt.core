@@ -212,11 +212,30 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 			switch (binaryDelta.getKind()) {
 				case IResourceDelta.ADDED :
 				case IResourceDelta.REMOVED :
-					IPath packagePath = location.removeFirstSegments(segmentCount).makeRelative();
-					if (JavaBuilder.DEBUG)
-						System.out.println("Add dependents of added/removed package " + packagePath); //$NON-NLS-1$
-					addDependentsOf(packagePath, false);
-					return;
+					IPath packagePath = location.removeFirstSegments(segmentCount).makeRelative().setDevice(null);
+					String packageName = packagePath.toString();
+					if (binaryDelta.getKind() == IResourceDelta.ADDED) {
+						// see if any known source file is from the same package... classpath already includes new package
+						if (!newState.isKnownPackage(packageName)) {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Add dependents of added package " + packageName); //$NON-NLS-1$
+							addDependentsOf(packagePath, false);
+							return;
+						}
+						if (JavaBuilder.DEBUG)
+							System.out.println("Skipped dependents of added package " + packageName); //$NON-NLS-1$
+					} else {
+						// see if the package still exists on the classpath
+						if (!nameEnvironment.isPackage(packageName)) {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Add dependents of removed package " + packageName); //$NON-NLS-1$
+							addDependentsOf(packagePath, false);
+							return;
+						}
+						if (JavaBuilder.DEBUG)
+							System.out.println("Skipped dependents of removed package " + packageName); //$NON-NLS-1$
+					}
+					// fall thru & traverse the sub-packages and .class files
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = binaryDelta.getAffectedChildren();
 					for (int i = 0, length = children.length; i < length; i++)
@@ -225,7 +244,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 			return;
 		case IResource.FILE :
 			if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(location.getFileExtension())) {
-				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension().makeRelative();
+				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension().makeRelative().setDevice(null);
 				switch (binaryDelta.getKind()) {
 					case IResourceDelta.ADDED :
 					case IResourceDelta.REMOVED :
@@ -271,7 +290,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 		case IResource.FOLDER :
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
-					IPath addedPackagePath = location.removeFirstSegments(segmentCount).makeRelative();
+					IPath addedPackagePath = location.removeFirstSegments(segmentCount).makeRelative().setDevice(null);
 					getOutputFolder(addedPackagePath); // ensure package exists in the output folder
 					// add dependents even when the package thinks it exists to be on the safe side
 					if (JavaBuilder.DEBUG)
@@ -284,7 +303,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 						findSourceFiles(children[i], segmentCount);
 					return;
 				case IResourceDelta.REMOVED :
-					IPath removedPackagePath = location.removeFirstSegments(segmentCount).makeRelative();
+					IPath removedPackagePath = location.removeFirstSegments(segmentCount).makeRelative().setDevice(null);
 					for (int i = 0, length = sourceFolders.length; i < length; i++) {
 						if (sourceFolders[i].findMember(removedPackagePath) != null) {
 							// only a package fragment was removed, same as removing multiple source files
@@ -308,18 +327,18 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 		case IResource.FILE :
 			String extension = location.getFileExtension();
 			if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
-				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension().makeRelative();
+				IPath typePath = location.removeFirstSegments(segmentCount).removeFileExtension().makeRelative().setDevice(null);
 				String sourceLocation = location.toString();
 				switch (sourceDelta.getKind()) {
 					case IResourceDelta.ADDED :
 						if (JavaBuilder.DEBUG)
-							System.out.println("Compile this added source file " + location); //$NON-NLS-1$
+							System.out.println("Compile this added source file " + sourceLocation); //$NON-NLS-1$
 						locations.add(sourceLocation);
-						String typeName = typePath.setDevice(null).toString();
+						String typeName = typePath.toString();
 						typeNames.add(typeName);
 						if (!newState.isDuplicateLocation(typeName, sourceLocation)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)
-								System.out.println("Add dependents of added source file " + typePath); //$NON-NLS-1$
+								System.out.println("Add dependents of added source file " + typeName); //$NON-NLS-1$
 							addDependentsOf(typePath, true);
 						}
 						return;
@@ -338,9 +357,9 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 						if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0)
 							return; // skip it since it really isn't changed
 						if (JavaBuilder.DEBUG)
-							System.out.println("Compile this changed source file " + location); //$NON-NLS-1$
+							System.out.println("Compile this changed source file " + sourceLocation); //$NON-NLS-1$
 						locations.add(sourceLocation);
-						typeNames.add(typePath.setDevice(null).toString());
+						typeNames.add(typePath.toString());
 				}
 				return;
 			} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
@@ -410,7 +429,7 @@ protected void finishedWith(String sourceLocation, CompilationResult result, cha
 
 protected void removeClassFile(IPath typePath) throws CoreException {
 	if (typePath.lastSegment().indexOf('$') == -1) { // is not a nested type
-		newState.typeLocations.removeKey(typePath.toString());
+		newState.removeTypeLocation(typePath.toString());
 		// add dependents even when the type thinks it does not exist to be on the safe side
 		if (JavaBuilder.DEBUG)
 			System.out.println("Add dependents of removed type " + typePath); //$NON-NLS-1$

@@ -276,7 +276,7 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 					projects.add(p);
 			}
 		}
-		if (includeBinaryPrerequisites){
+		if (includeBinaryPrerequisites) {
 			// some binary resources on the class path can come from projects that are not included in the project references
 			if (binaryResources != null) {
 				Object[] keyTable = binaryResources.keyTable;
@@ -385,7 +385,6 @@ private void initializeBuilder() throws CoreException {
 }
 
 private boolean isWorthBuilding() throws CoreException {
-	
 	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH));
 	if (abortBuilds) {
 		IMarker[] markers =

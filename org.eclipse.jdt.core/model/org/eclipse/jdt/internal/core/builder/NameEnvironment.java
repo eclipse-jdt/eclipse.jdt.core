@@ -33,6 +33,7 @@ ClasspathMultiDirectory[] sourceLocations;
 public NameEnvironment(ClasspathLocation[] classpathLocations) {
 	this.classpathLocations = classpathLocations;
 	splitLocations();
+	setNames(new String[0], new String[0]);
 }
 
 public NameEnvironment(IJavaProject javaProject) {
@@ -47,6 +48,7 @@ public NameEnvironment(IJavaProject javaProject) {
 		this.classpathLocations = new ClasspathLocation[0];
 	}
 	splitLocations();
+	setNames(new String[0], new String[0]);
 }
 
 /* Some examples of resolved class path entries.
@@ -224,7 +226,10 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 }
 
 public boolean isPackage(char[][] compoundName, char[] packageName) {
-	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, '/'));
+	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')));
+}
+
+public boolean isPackage(String qualifiedPackageName) {
 	if (sourceLocations != null && sourceLocations[0].isPackage(qualifiedPackageName)) // looks in common output folder
 		return true;
 	for (int i = 0, length = binaryLocations.length; i < length; i++)
