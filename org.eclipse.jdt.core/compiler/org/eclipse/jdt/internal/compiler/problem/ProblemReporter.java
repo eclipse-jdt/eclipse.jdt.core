@@ -119,72 +119,6 @@ public void alreadyDefinedLabel(char[] labelName, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void annotationMissingParamTag(Argument param) {
-	String[] arguments = new String[] {String.valueOf(param.name)};
-	this.handle(
-		IProblem.AnnotationMissingParamTag,
-		arguments,
-		arguments,
-		param.sourceStart,
-		param.sourceEnd);
-}
-public void annotationInvalidParamName(AnnotationSingleNameReference param, boolean duplicated) {
-	String[] arguments = new String[] {String.valueOf(param.token)};
-	this.handle(
-		duplicated?IProblem.AnnotationDuplicateParamName:IProblem.AnnotationInvalidParamName,
-		arguments,
-		arguments,
-		param.sourceStart,
-		param.sourceEnd);
-}
-public void annotationInvalidReturnTag(int sourceStart, int sourceEnd, boolean missing){
-	this.handle(
-		missing?IProblem.AnnotationMissingReturnTag:IProblem.AnnotationDuplicateReturnTag,
-		NoArgument,
-		NoArgument,
-		sourceStart,
-		sourceEnd);
-}
-public void annotationInvalidSeeReference(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.AnnotationInvalidSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.AnnotationInvalidSeeArgs, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.AnnotationInvalidSeeHref, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationInvalidThrowsClass(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.AnnotationInvalidThrowsClass, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationInvalidThrowsClassName(TypeReference typeReference, boolean duplicated) {
-	String[] arguments = new String[] {String.valueOf(typeReference.resolvedType.sourceName())};
-	this.handle(
-		duplicated?IProblem.AnnotationDuplicateThrowsClassName:IProblem.AnnotationInvalidThrowsClassName,
-		arguments,
-		arguments,
-		typeReference.sourceStart,
-		typeReference.sourceEnd);
-}
-public void annotationMissing(int sourceStart, int sourceEnd){
-	this.handle(IProblem.AnnotationMissing, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationMissingParamName(int sourceStart, int sourceEnd){
-	this.handle(IProblem.AnnotationMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationMissingSeeReference(int sourceStart, int sourceEnd){
-	this.handle(IProblem.AnnotationMissingSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationMissingThrowsClassName(int sourceStart, int sourceEnd){
-	this.handle(IProblem.AnnotationMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
-public void annotationMissingThrowsTag(TypeReference typeRef){
-	String[] arguments = new String[]{String.valueOf(typeRef.resolvedType.sourceName())};
-	this.handle(IProblem.AnnotationMissingThrowsTag, arguments, arguments, typeRef.sourceStart, typeRef.sourceEnd);
-}
-public void annotationUnexpectedTag(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.AnnotationUnexpectedTag, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
 		IProblem.AnonymousClassCannotExtendFinalClass,
@@ -588,49 +522,52 @@ public int computeSeverity(int problemId){
 		case IProblem.UnqualifiedFieldAccess:
 			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
 
-		// Annotation implicit IDs for deprecatedField(...)
-		case IProblem.Annotation | IProblem.UsingDeprecatedField:
-		// Annotation implicit IDs for deprecatedMethod(...)
-		case IProblem.Annotation | IProblem.UsingDeprecatedConstructor:
-		case IProblem.Annotation | IProblem.UsingDeprecatedMethod:
-		// Annotation implicit IDs for deprecatedType(...)
-		case IProblem.Annotation | IProblem.UsingDeprecatedType:
-		// Annotation implicit IDs for invalidField(...)
-		case IProblem.Annotation | IProblem.UndefinedField:
-		case IProblem.Annotation | IProblem.NotVisibleField:
-		case IProblem.Annotation | IProblem.AmbiguousField:
-		// Annotation implicit IDs for invalidMethod(...)
-		case IProblem.Annotation | IProblem.UndefinedMethod:
-		case IProblem.Annotation | IProblem.NotVisibleMethod:
-		case IProblem.Annotation | IProblem.ParameterMismatch:
-		// Annotation implicit IDs for invalidType(...)
-		case IProblem.Annotation | IProblem.UndefinedType:
-		case IProblem.Annotation | IProblem.NotVisibleType:
-		// Annotation implicit IDs for errorNoMethodFor(...)
-		case IProblem.Annotation | IProblem.NoMessageSendOnArrayType:
-		case IProblem.Annotation | IProblem.NoMessageSendOnBaseType:
-		// Annotation explicit IDs
-		case IProblem.AnnotationUnexpectedTag:
-		case IProblem.AnnotationMissingParamTag:
-		case IProblem.AnnotationMissingParamName:
-		case IProblem.AnnotationDuplicateParamName:
-		case IProblem.AnnotationInvalidParamName:
-		case IProblem.AnnotationMissingReturnTag:
-		case IProblem.AnnotationDuplicateReturnTag:
-		case IProblem.AnnotationMissingThrowsTag:
-		case IProblem.AnnotationMissingThrowsClassName:
-		case IProblem.AnnotationInvalidThrowsClass:
-		case IProblem.AnnotationDuplicateThrowsClassName:
-		case IProblem.AnnotationInvalidThrowsClassName:
-		case IProblem.AnnotationMissingSeeReference:
-		case IProblem.AnnotationInvalidSeeReference:
-		case IProblem.AnnotationInvalidSeeHref:
-		case IProblem.AnnotationInvalidSeeArgs:
-			return this.options.getSeverity(CompilerOptions.InvalidAnnotation);
+		// Javadoc implicit IDs for deprecatedField(...)
+		case IProblem.Javadoc | IProblem.UsingDeprecatedField:
+		// Javadoc implicit IDs for deprecatedMethod(...)
+		case IProblem.Javadoc | IProblem.UsingDeprecatedConstructor:
+		case IProblem.Javadoc | IProblem.UsingDeprecatedMethod:
+		// Javadoc implicit IDs for deprecatedType(...)
+		case IProblem.Javadoc | IProblem.UsingDeprecatedType:
+		// Javadoc implicit IDs for invalidField(...)
+		case IProblem.Javadoc | IProblem.UndefinedField:
+		case IProblem.Javadoc | IProblem.NotVisibleField:
+		case IProblem.Javadoc | IProblem.AmbiguousField:
+		// Javadoc implicit IDs for invalidConstructor(...)
+		case IProblem.Javadoc | IProblem.UndefinedConstructor:
+		case IProblem.Javadoc | IProblem.NotVisibleConstructor:
+		// Javadoc implicit IDs for invalidMethod(...)
+		case IProblem.Javadoc | IProblem.UndefinedMethod:
+		case IProblem.Javadoc | IProblem.NotVisibleMethod:
+		case IProblem.Javadoc | IProblem.ParameterMismatch:
+		// Javadoc implicit IDs for invalidType(...)
+		case IProblem.Javadoc | IProblem.UndefinedType:
+		case IProblem.Javadoc | IProblem.NotVisibleType:
+		// Javadoc implicit IDs for errorNoMethodFor(...)
+		case IProblem.Javadoc | IProblem.NoMessageSendOnArrayType:
+		case IProblem.Javadoc | IProblem.NoMessageSendOnBaseType:
+		// Javadoc explicit IDs
+		case IProblem.JavadocUnexpectedTag:
+		case IProblem.JavadocMissingParamTag:
+		case IProblem.JavadocMissingParamName:
+		case IProblem.JavadocDuplicateParamName:
+		case IProblem.JavadocInvalidParamName:
+		case IProblem.JavadocMissingReturnTag:
+		case IProblem.JavadocDuplicateReturnTag:
+		case IProblem.JavadocMissingThrowsTag:
+		case IProblem.JavadocMissingThrowsClassName:
+		case IProblem.JavadocInvalidThrowsClass:
+		case IProblem.JavadocDuplicateThrowsClassName:
+		case IProblem.JavadocInvalidThrowsClassName:
+		case IProblem.JavadocMissingSeeReference:
+		case IProblem.JavadocInvalidSeeReference:
+		case IProblem.JavadocInvalidSeeHref:
+		case IProblem.JavadocInvalidSeeArgs:
+			return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
 
-		case IProblem.AnnotationMissing:
-			if (!this.options.reportMissingAnnotation) return Ignore;
-			return this.options.getSeverity(CompilerOptions.InvalidAnnotation);
+		case IProblem.JavadocMissing:
+			if (!this.options.reportMissingJavadoc) return Ignore;
+			return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
 
 		// by default problems are errors.
 		default:
@@ -710,8 +647,8 @@ public void constantOutOfRange(Literal literal, TypeBinding literalType) {
 }
 public void deprecatedField(FieldBinding field, AstNode location) {
 	int id = IProblem.UsingDeprecatedField;
-	if ((location.bits & AstNode.InsideAnnotation) != 0) {
-		id |= IProblem.Annotation;
+	if ((location.bits & AstNode.InsideJavadoc) != 0) {
+		id |= IProblem.Javadoc;
 	}
 	this.handle(
 		id,
@@ -723,8 +660,8 @@ public void deprecatedField(FieldBinding field, AstNode location) {
 public void deprecatedMethod(MethodBinding method, AstNode location) {
 	if (method.isConstructor()) {
 		int id = IProblem.UsingDeprecatedConstructor;
-		if ((location.bits & AstNode.InsideAnnotation) != 0) {
-			id |= IProblem.Annotation;
+		if ((location.bits & AstNode.InsideJavadoc) != 0) {
+			id |= IProblem.Javadoc;
 		}
 		this.handle(
 			id,
@@ -734,8 +671,8 @@ public void deprecatedMethod(MethodBinding method, AstNode location) {
 			location.sourceEnd);
 	} else {
 		int id = IProblem.UsingDeprecatedMethod;
-		if ((location.bits & AstNode.InsideAnnotation) != 0) {
-			id |= IProblem.Annotation;
+		if ((location.bits & AstNode.InsideJavadoc) != 0) {
+			id |= IProblem.Javadoc;
 		}
 		this.handle(
 			id,
@@ -748,8 +685,8 @@ public void deprecatedMethod(MethodBinding method, AstNode location) {
 public void deprecatedType(TypeBinding type, AstNode location) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	int id = IProblem.UsingDeprecatedType;
-	if ((location.bits & AstNode.InsideAnnotation) != 0) {
-		id |= IProblem.Annotation;
+	if ((location.bits & AstNode.InsideJavadoc) != 0) {
+		id |= IProblem.Javadoc;
 	}
 	this.handle(
 		id,
@@ -908,8 +845,8 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 	}
 
 	int id = recType.isArrayType() ? IProblem.NoMessageSendOnArrayType : IProblem.NoMessageSendOnBaseType;
-	if ((messageSend.bits & AstNode.InsideAnnotation) != 0) {
-		id |= IProblem.Annotation;
+	if ((messageSend.bits & AstNode.InsideJavadoc) != 0) {
+		id |= IProblem.Javadoc;
 	}
 	this.handle(
 		id,
@@ -1636,33 +1573,33 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 		(statement instanceof ExplicitConstructorCall)
 			&& (((ExplicitConstructorCall) statement).accessMode == ExplicitConstructorCall.ImplicitSuper);
 
-	int flag = IProblem.UndefinedConstructor; //default...
+	int id = IProblem.UndefinedConstructor; //default...
 	switch (targetConstructor.problemId()) {
 		case NotFound :
 			if (insideDefaultConstructor){
-				flag = IProblem.UndefinedConstructorInDefaultConstructor;
+				id = IProblem.UndefinedConstructorInDefaultConstructor;
 			} else if (insideImplicitConstructorCall){
-				flag = IProblem.UndefinedConstructorInImplicitConstructorCall;
+				id = IProblem.UndefinedConstructorInImplicitConstructorCall;
 			} else {
-				flag = IProblem.UndefinedConstructor;
+				id = IProblem.UndefinedConstructor;
 			}
 			break;
 		case NotVisible :
 			if (insideDefaultConstructor){
-				flag = IProblem.NotVisibleConstructorInDefaultConstructor;
+				id = IProblem.NotVisibleConstructorInDefaultConstructor;
 			} else if (insideImplicitConstructorCall){
-				flag = IProblem.NotVisibleConstructorInImplicitConstructorCall;
+				id = IProblem.NotVisibleConstructorInImplicitConstructorCall;
 			} else {
-				flag = IProblem.NotVisibleConstructor;
+				id = IProblem.NotVisibleConstructor;
 			}
 			break;
 		case Ambiguous :
 			if (insideDefaultConstructor){
-				flag = IProblem.AmbiguousConstructorInDefaultConstructor;
+				id = IProblem.AmbiguousConstructorInDefaultConstructor;
 			} else if (insideImplicitConstructorCall){
-				flag = IProblem.AmbiguousConstructorInImplicitConstructorCall;
+				id = IProblem.AmbiguousConstructorInImplicitConstructorCall;
 			} else {
-				flag = IProblem.AmbiguousConstructor;
+				id = IProblem.AmbiguousConstructor;
 			}
 			break;
 		case NoError : // 0
@@ -1671,9 +1608,11 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			break;
 	}
 
-	
+	if ((statement.bits & AstNode.InsideJavadoc) != 0) {
+		id |= IProblem.Javadoc;
+	}
 	this.handle(
-		flag,
+		id,
 		new String[] {new String(targetConstructor.declaringClass.readableName()), parametersAsString(targetConstructor)},
 		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), parametersAsShortString(targetConstructor)},
 		statement.sourceStart,
@@ -1763,7 +1702,7 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
-				IProblem.NotVisibleType, // cannot occur in annotations
+				IProblem.NotVisibleType, // cannot occur in javadoc comments
 				new String[] {new String(searchedType.leafComponentType().readableName())},
 				new String[] {new String(searchedType.leafComponentType().shortReadableName())},
 				fieldRef.receiver.sourceStart,
@@ -1777,8 +1716,8 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 	}
 
 	String[] arguments = new String[] {new String(field.readableName())};
-	if ((fieldRef.bits & AstNode.InsideAnnotation) != 0) {
-		id |= IProblem.Annotation;
+	if ((fieldRef.bits & AstNode.InsideJavadoc) != 0) {
+		id |= IProblem.Javadoc;
 	}
 	this.handle(
 		id,
@@ -1931,7 +1870,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
-				IProblem.NotVisibleType,	// cannot occur in annotations
+				IProblem.NotVisibleType,	// cannot occur in javadoc comments
 				new String[] {new String(method.declaringClass.leafComponentType().readableName())},
 				new String[] {new String(method.declaringClass.leafComponentType().shortReadableName())},
 				messageSend.receiver.sourceStart,
@@ -1956,8 +1895,8 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 					parameterTypeShortNames = parameterTypeNames;
 				}
 				id = IProblem.ParameterMismatch;
-				if ((messageSend.bits & AstNode.InsideAnnotation) != 0) {
-					id |= IProblem.Annotation;
+				if ((messageSend.bits & AstNode.InsideJavadoc) != 0) {
+					id |= IProblem.Javadoc;
 				}
 				this.handle(
 					id,
@@ -1979,8 +1918,8 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 		}
 	}
 
-	if ((messageSend.bits & AstNode.InsideAnnotation) != 0) {
-		id |= IProblem.Annotation;
+	if ((messageSend.bits & AstNode.InsideJavadoc) != 0) {
+		id |= IProblem.Javadoc;
 	}
 	this.handle(
 		id,
@@ -2143,8 +2082,8 @@ public void invalidType(AstNode location, TypeBinding type) {
 			break;
 	}
 
-	if ((location.bits & AstNode.InsideAnnotation) != 0) {
-		id |= IProblem.Annotation;
+	if ((location.bits & AstNode.InsideJavadoc) != 0) {
+		id |= IProblem.Javadoc;
 	}
 	this.handle(
 		id,
@@ -2187,6 +2126,72 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		AbortCompilation | Error,
 		compUnitDecl == null ? 0 : compUnitDecl.sourceStart,
 		compUnitDecl == null ? 1 : compUnitDecl.sourceEnd);
+}
+public void javadocInvalidParamName(JavadocSingleNameReference param, boolean duplicated) {
+	String[] arguments = new String[] {String.valueOf(param.token)};
+	this.handle(
+			duplicated?IProblem.JavadocDuplicateParamName:IProblem.JavadocInvalidParamName,
+					  arguments,
+					  arguments,
+					  param.sourceStart,
+					  param.sourceEnd);
+}
+public void javadocInvalidReturnTag(int sourceStart, int sourceEnd, boolean missing){
+	this.handle(
+			missing?IProblem.JavadocMissingReturnTag:IProblem.JavadocDuplicateReturnTag,
+				   NoArgument,
+				   NoArgument,
+				   sourceStart,
+				   sourceEnd);
+}
+public void javadocInvalidSeeReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidSeeArgs, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidSeeHref, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidThrowsClass(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidThrowsClass, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidThrowsClassName(TypeReference typeReference, boolean duplicated) {
+	String[] arguments = new String[] {String.valueOf(typeReference.resolvedType.sourceName())};
+	this.handle(
+			duplicated?IProblem.JavadocDuplicateThrowsClassName:IProblem.JavadocInvalidThrowsClassName,
+					  arguments,
+					  arguments,
+					  typeReference.sourceStart,
+					  typeReference.sourceEnd);
+}
+public void javadocMissing(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocMissing, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocMissingParamName(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocMissingParamTag(Argument param) {
+	String[] arguments = new String[] {String.valueOf(param.name)};
+	this.handle(
+			IProblem.JavadocMissingParamTag,
+			arguments,
+			arguments,
+			param.sourceStart,
+			param.sourceEnd);
+}
+public void javadocMissingSeeReference(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocMissingSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocMissingThrowsTag(TypeReference typeRef){
+	String[] arguments = new String[]{String.valueOf(typeRef.resolvedType.sourceName())};
+	this.handle(IProblem.JavadocMissingThrowsTag, arguments, arguments, typeRef.sourceStart, typeRef.sourceEnd);
+}
+public void javadocUnexpectedTag(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocUnexpectedTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, boolean  isSpecialArgHidingField) {
 	if (hiddenVariable instanceof LocalVariableBinding) {
