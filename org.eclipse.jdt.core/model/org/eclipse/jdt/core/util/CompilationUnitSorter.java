@@ -56,7 +56,7 @@ import org.eclipse.jdt.internal.core.SortElementsOperation;
  * <li>its superclass if it is specified in the source code</li>
  * <li>its superinterfaces</li>
  * <li>its modifier</li>
- * <li>its SOURCE START property</li>
+ * <li>its RELATIVE_ORDER property</li>
  * </ul>
  * </td>
  * </tr>
@@ -64,7 +64,7 @@ import org.eclipse.jdt.internal.core.SortElementsOperation;
  * <td>org.eclipse.jdt.core.dom.Initializer</td>
  * <td><ul>
  * <li>its modifier</li>
- * <li>its SOURCE START property</li>
+ * <li>its RELATIVE_ORDER property</li>
  * </ul>
  * </td>
  * </tr>
@@ -73,8 +73,8 @@ import org.eclipse.jdt.internal.core.SortElementsOperation;
  * <td><ul>
  * <li>its modifier</li>
  * <li>its type</li>
- * <li>its variable declaration fragments (name only, they don't have a SOURCE_START property set)</li>
- * <li>its SOURCE START property</li>
+ * <li>its variable declaration fragments (name only, they don't have a RELATIVE_ORDER property set)</li>
+ * <li>its RELATIVE_ORDER property</li>
  * </ul>
  * </td>
  * </tr>
@@ -87,7 +87,7 @@ import org.eclipse.jdt.internal.core.SortElementsOperation;
  * <li>its name (the name is the class name for a constructor)</li>
  * <li>its arguments (name and type)</li>
  * <li>its thrown exceptions</li>
- * <li>its SOURCE START property</li>
+ * <li>its RELATIVE_ORDER property</li>
  * </ul>
  * </td>
  * </tr>
@@ -271,8 +271,8 @@ public class CompilationUnitSorter {
 					return compare;
 				}
 			}
-			int sourceStart1 = ((Integer) node1.getProperty(CompilationUnitSorter.SOURCE_START)).intValue();
-			int sourceStart2 = ((Integer) node2.getProperty(CompilationUnitSorter.SOURCE_START)).intValue();
+			int sourceStart1 = ((Integer) node1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+			int sourceStart2 = ((Integer) node2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
 			return sourceStart1 - sourceStart2;
 		}
 
@@ -295,7 +295,7 @@ public class CompilationUnitSorter {
 					FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 					return ((VariableDeclarationFragment) fieldDeclaration.fragments().get(0)).getName().getIdentifier();
 				case ASTNode.INITIALIZER :
-					return ((Integer) node.getProperty(CompilationUnitSorter.SOURCE_START)).toString();
+					return ((Integer) node.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).toString();
 				case ASTNode.TYPE_DECLARATION :
 					TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 					return typeDeclaration.getName().getIdentifier();
@@ -341,26 +341,82 @@ public class CompilationUnitSorter {
 	 * is created before node b, then this property for node a will be lower than the same property for
 	 * node b. To be brief, this property should be used if the syntactical order matters.
 	 * <pre>
-	 * 		(Integer) astNode.getProperty(CompilationUnitSorter.SOURCE_START)
+	 * 		(Integer) astNode.getProperty(CompilationUnitSorter.RELATIVE_ORDER)
 	 * </pre>
 	 * 
 	 * @since 2.1
 	 */
-	public static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
+	public static final String RELATIVE_ORDER = "relativeOrder"; //$NON-NLS-1$
 
 	/**
-	 * This method is used to sort elements within a compilation unit.
-	 * 
-	 * @param compilationUnits compilation units to process
-	 * @param positions positions to map
+	 * Reorders the declarations in this compilation unit according to the given
+	 * comparator.
+	 * <p>
+	 * The <code>compare</code> method of the given comparator is passed pairs
+	 * of AST body declarations (subclasses of <code>BodyDeclaration</code>) 
+	 * representing body declarations at the same level. The comparator is
+	 * called on body declarations of nested classes, including anonymous and
+	 * local classes, but always at the same level.
+	 * </p>
+	 * <p>
+	 * The <code>positions</code> array contains character-based source
+	 * positions within the source code for the compilation unit. As the
+	 * declarations are rearranged, the positions in this array are updated to
+	 * reflect the corresponding position in the modified source code.
+	 * </p>
+	 * <p>
+	 * Clients cannot rely on the AST nodes being properly parented nor on their
+	 * usual source ranges. The starting position of the source range for each
+	 * body declaration is available as the <code>RELATIVE_ORDER</code> property
+	 * of the body declaration passed to the comparator.
+	 * </p>
+	 * <p>
+	 * <code>DefaultJavaElementComparator</code> is a standard implementation of
+	 * a comparator.
+	 * <ul>
+	 * <li>static fields, arranged alphabetically by name and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>static initializers in order of appearance</li>
+	 * <li>instance fields, arranged alphabetically by name and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>instance initializers in order of appearance</li>
+	 * <li>type declarations, arranged alphabetically by name and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>constructors, arranged by parameter order and access modifier
+	 * (public, protected, private, default)</li>
+	 * <li>methods, arranged by alphabetically by name and parameter order and 
+	 * access modifier (public, protected, private, default)</li>
+	 * </p>
+	 *
+	 * @param compilationUnit the compilation unit
+	 * @param positions an array of increasing positions to map. These are
+	 * character-based source positions inside the original source, for which
+	 * corresponding positions in the modified source will be computed (so as to
+	 * relocate elements associated with the original source). It updates the
+	 * positions array with updated positions. If set to <code>null</code>, then
+	 * no positions are mapped.
 	 * @param comparator the comparator to use for the sorting
-	 * @param monitor the given progress monitor
+	 * @param monitor the progress monitor to notify, or <code>null</code> if
+	 * none
+	 * @exception JavaModelException if the compilation unit could not be sorted.
+	 * Reasons include:
+	 * <ul>
+	 * <li> The given compilation unit does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> The given compilation unit is not a working copy</li>
+	 * <li> A <code>CoreException</code> occurred while updating the underlying
+	 * resource
+	 * </ul>
 	 * @exception CoreException a Core exception is thrown if the supplied compilation unit is <code>null</code></li>,
 	 * the supplied compilation unit is not an instance of IWorkingCopy
-	 * 
+	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
+	 * @see #RELATIVE_ORDER
+	 * @see #DefaultJavaElementComparator
 	 * @since 2.1
+	 * TODO: (olivier) Should throw JavaModelException rather than CoreException
 	 */
 	public static void sort(ICompilationUnit compilationUnit, int[] positions, Comparator comparator, IProgressMonitor monitor) throws CoreException {
+	    // TODO: (olivier) Should throw IllegalArgumentException if compilationUnit == null
+	    // TODO: (olivier) Should throw IllegalArgumentException if comparator == null
 		if (comparator == null || compilationUnit == null) {
 			return;
 		}

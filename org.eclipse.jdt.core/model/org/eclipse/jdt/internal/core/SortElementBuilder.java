@@ -266,7 +266,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			methodDeclaration.setConstructor(false);
 			methodDeclaration.setModifiers(this.modifiers);
 			methodDeclaration.setName(ast.newSimpleName(new String(this.name)));
-			methodDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			methodDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));
 			// set parameter names and types
 			if (this.parametersNames != null) {
 				setParameters(methodDeclaration, this.parametersNames, this.parametersTypes);
@@ -327,7 +327,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			methodDeclaration.setConstructor(true);
 			methodDeclaration.setModifiers(this.modifiers);
 			methodDeclaration.setName(ast.newSimpleName(new String(this.name)));
-			methodDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			methodDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));
 			// set parameter names and types
 			if (this.parametersNames != null) {
 				setParameters(methodDeclaration, this.parametersNames, this.parametersTypes);
@@ -395,7 +395,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				fieldDeclaration.setType(newType(currentFieldType));
 			}
 			fieldDeclaration.setModifiers(this.modifiers);
-			fieldDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			fieldDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));
 			return fieldDeclaration;
 		}
 		/**
@@ -571,7 +571,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			} else {
 				fieldDeclaration.setType(newType(currentFieldType));
 			}
-			fieldDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			fieldDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));
 			fieldDeclaration.setModifiers(this.modifiers);
 			return fieldDeclaration;
 		}
@@ -639,7 +639,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		ASTNode convert() {
 			Initializer initializer = ast.newInitializer();
 			initializer.setModifiers(this.modifiers);
-			initializer.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			initializer.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));
 			return initializer;
 		}
 		/**
@@ -759,7 +759,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 					typeDeclaration.superInterfaces().add(interfaceName);
 				}
 			}
-			typeDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));				
+			typeDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));				
 			return typeDeclaration;
 		}			
 	}
@@ -855,7 +855,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 					typeDeclaration.superInterfaces().add(interfaceName);
 				}
 			}
-			typeDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));				
+			typeDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));				
 			return typeDeclaration;
 		}			
 	}
