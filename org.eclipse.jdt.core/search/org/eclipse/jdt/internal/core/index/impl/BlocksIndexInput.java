@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -357,7 +358,7 @@ public class BlocksIndexInput extends IndexInput {
 		setFirstFile();
 		while (hasMoreFiles()) {
 			IndexedFile file= getCurrentFile();
-			if (file.getPath().indexOf(word) != -1)
+			if (word == null || file.getPath().indexOf(word) != -1)
 				matches.add(file.getPath());
 			moveToNextFile();
 		}

@@ -56,7 +56,7 @@ public class IndexBinaryFolder extends IndexRequest {
 			monitor.enterRead(); // ask permission to read
 			saveIfNecessary(index, monitor);
 
-			String[] paths = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
+			String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
 			int max = paths == null ? 0 : paths.length;
 			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 			final String OK = "OK"; //$NON-NLS-1$

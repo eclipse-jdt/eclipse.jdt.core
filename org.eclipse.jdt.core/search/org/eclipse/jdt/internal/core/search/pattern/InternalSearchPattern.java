@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;

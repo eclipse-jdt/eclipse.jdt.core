@@ -114,7 +114,7 @@ class AddJarFileToIndex extends IndexRequest {
 					JobManager.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 
-				String[] paths = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
+				String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
 				int max = paths == null ? 0 : paths.length;
 				if (max != 0) {
 					/* check integrity of the existing index file

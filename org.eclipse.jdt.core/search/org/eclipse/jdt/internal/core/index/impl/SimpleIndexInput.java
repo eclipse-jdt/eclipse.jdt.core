@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.internal.core.index.EntryResult;
 
 /**
  * A simpleIndexInput is an input on an in memory Index. 
@@ -149,7 +150,7 @@ public class SimpleIndexInput extends IndexInput {
 		ArrayList matches= new ArrayList();
 		while (hasMoreFiles()) {
 			IndexedFile file= getCurrentFile();
-			if (file.getPath().indexOf(word) != -1)
+			if (word == null || file.getPath().indexOf(word) != -1)
 				matches.add(file.getPath());
 			moveToNextFile();
 		}

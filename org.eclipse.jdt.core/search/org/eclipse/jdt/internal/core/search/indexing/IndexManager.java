@@ -210,7 +210,8 @@ public ReadWriteMonitor getMonitorFor(Index index){
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexPath) throws IOException {
 	try {
 		searchDocument.index = index;
-		index.indexDocument(searchDocument, searchParticipant, indexPath);
+		((org.eclipse.jdt.internal.core.index.impl.IndexImpl) index).indexDocument(searchDocument, searchParticipant, indexPath);
+// to be replaced by
 //		searchParticipant.indexDocument(searchDocument, indexPath);
 	} finally {
 		searchDocument.index = null;

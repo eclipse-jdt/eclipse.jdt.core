@@ -15,7 +15,7 @@ import java.util.*;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.index.*;
 
 /**
  * An Index is used to create an index on the disk, and to make queries. It uses a set of 
@@ -113,24 +113,28 @@ public class IndexImpl extends Index {
 //		removedInAdds= new HashMap(11);
 //		removedInOld= new HashMap(11);
 //	}
+	protected String getDocumentName(int number) {
+		// to be supplied by the new Index
+		return null;
+	}
 	public File getIndexFile() {
 		return indexFile;
 	}
 	/**
 	 * Returns the path corresponding to a given document number
 	 */
-	public String getPath(int documentNumber) throws IOException {
-		//save();
-		IndexInput input= new BlocksIndexInput(indexFile);
-		try {
-			input.open();
-			IndexedFile file = input.getIndexedFile(documentNumber);
-			if (file == null) return null;
-			return file.getPath();
-		} finally {
-			input.close();
-		}		
-	}
+//	public String getPath(int documentNumber) throws IOException {
+//		//save();
+//		IndexInput input= new BlocksIndexInput(indexFile);
+//		try {
+//			input.open();
+//			IndexedFile file = input.getIndexedFile(documentNumber);
+//			if (file == null) return null;
+//			return file.getPath();
+//		} finally {
+//			input.close();
+//		}		
+//	}
 	/**
 	 * see IIndex.hasChanged
 	 */
@@ -230,25 +234,29 @@ public class IndexImpl extends Index {
 			state= MERGED;
 		}
 	}
-	public String[] query(String word) throws IOException {
-		//save();
-		IndexInput input= new BlocksIndexInput(indexFile);
-		try {
-			return input.query(word);
-		} finally {
-			input.close();
-		}
+	public EntryResult[] query(char[][] categories, char[] key, int matchRule) {
+		// to be supplied by the new Index
+		return new EntryResult[0];
 	}
-	public EntryResult[] queryEntries(char[] prefix) throws IOException {
-		//save();
-		IndexInput input= new BlocksIndexInput(indexFile);
-		try {
-			return input.queryEntriesPrefixedBy(prefix);
-		} finally {
-			input.close();
-		}
-	}
-	public String[] queryInDocumentNames(String word) throws IOException {
+//	public String[] query(String word) throws IOException {
+//		//save();
+//		IndexInput input= new BlocksIndexInput(indexFile);
+//		try {
+//			return input.query(word);
+//		} finally {
+//			input.close();
+//		}
+//	}
+//	public EntryResult[] queryEntries(char[] prefix) throws IOException {
+//		//save();
+//		IndexInput input= new BlocksIndexInput(indexFile);
+//		try {
+//			return input.queryEntriesPrefixedBy(prefix);
+//		} finally {
+//			input.close();
+//		}
+//	}
+	public String[] queryDocumentNames(String word) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {
@@ -257,15 +265,15 @@ public class IndexImpl extends Index {
 			input.close();
 		}
 	}
-	public String[] queryPrefix(char[] prefix) throws IOException {
-		//save();
-		IndexInput input= new BlocksIndexInput(indexFile);
-		try {
-			return input.queryFilesReferringToPrefix(prefix);
-		} finally {
-			input.close();
-		}
-	}
+//	public String[] queryPrefix(char[] prefix) throws IOException {
+//		//save();
+//		IndexInput input= new BlocksIndexInput(indexFile);
+//		try {
+//			return input.queryFilesReferringToPrefix(prefix);
+//		} finally {
+//			input.close();
+//		}
+//	}
 	public void remove(String documentName) {
 		IndexedFile file= addsIndex.getIndexedFile(documentName);
 		if (file != null) {

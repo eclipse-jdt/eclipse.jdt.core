@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.core.index.impl;
+package org.eclipse.jdt.internal.core.index;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 

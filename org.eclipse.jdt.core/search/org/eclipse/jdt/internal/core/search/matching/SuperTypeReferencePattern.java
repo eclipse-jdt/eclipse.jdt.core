@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
 

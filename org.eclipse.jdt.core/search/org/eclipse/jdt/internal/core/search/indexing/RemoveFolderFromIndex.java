@@ -43,7 +43,7 @@ class RemoveFolderFromIndex extends IndexRequest {
 
 		try {
 			monitor.enterRead(); // ask permission to read
-			String[] paths = index.queryInDocumentNames(this.folderPath.toString());
+			String[] paths = index.queryDocumentNames(this.folderPath.toString());
 			// all file names belonging to the folder or its subfolders and that are not excluded (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32607)
 			for (int i = 0, max = paths == null ? 0 : paths.length; i < max; i++) {
 				String documentPath = paths[i];

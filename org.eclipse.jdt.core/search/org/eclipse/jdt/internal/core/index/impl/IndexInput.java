@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.IOException;
 
 import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.internal.core.index.EntryResult;
 
 
 /**
