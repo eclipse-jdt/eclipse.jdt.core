@@ -205,7 +205,7 @@ public class ParameterizedType extends Type {
 	
 	/**
 	 * @since 3.0
-	 * @deprecated Replaced by getType(), which returns a Type
+	 * deprecated Replaced by getType(), which returns a Type
 	 * TODO (jeem) - Remove before M9
 	 */ 
 	public Name getName() {

@@ -15,15 +15,28 @@ import java.util.List;
 
 /**
  * Alternate constructor invocation statement AST node type.
- *
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * ConstructorInvocation:
  *		<b>this</b> <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b> <b>;</b>
+ * </pre>
+ * For 3.0 (corresponding to JLS3), type arguments are added:
+ * <pre>
+ * ConstructorInvocation:
+ *      [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
+ *		      <b>this</b> <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b> <b>;</b>
  * </pre>
  * 
  * @since 2.0
  */
 public class ConstructorInvocation extends Statement {
+	
+	/**
+	 * The "typeArguments" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(ConstructorInvocation.class, "typeArguments", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
 	 * The "arguments" structural property of this node type.
@@ -36,13 +49,27 @@ public class ConstructorInvocation extends Statement {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
+	 * @since 3.0
 	 */
-	private static final List PROPERTY_DESCRIPTORS;
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
 		createPropertyList(ConstructorInvocation.class);
 		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(ConstructorInvocation.class);
+		addProperty(TYPE_ARGUMENTS_PROPERTY);
+		addProperty(ARGUMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
 	}
 
 	/**
@@ -57,9 +84,21 @@ public class ConstructorInvocation extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS;
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
 	}
 			
+	/**
+	 * The type arguments (element type: <code>Type</code>). 
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
+	 * @since 3.0
+	 */
+	private ASTNode.NodeList typeArguments = null;
+
 	/**
 	 * The list of argument expressions (element type: 
 	 * <code>Expression</code>). Defaults to an empty list.
@@ -75,6 +114,9 @@ public class ConstructorInvocation extends Statement {
 	 */
 	ConstructorInvocation(AST ast) {
 		super(ast);	
+		if (ast.apiLevel >= AST.LEVEL_3_0) {
+			this.typeArguments = new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -90,6 +132,9 @@ public class ConstructorInvocation extends Statement {
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == ARGUMENTS_PROPERTY) {
 			return arguments();
+		}
+		if (property == TYPE_ARGUMENTS_PROPERTY) {
+			return typeArguments();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -109,6 +154,9 @@ public class ConstructorInvocation extends Statement {
 		ConstructorInvocation result = new ConstructorInvocation(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.copyLeadingComment(this);
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+			result.typeArguments().addAll(ASTNode.copySubtrees(target, typeArguments()));
+		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
 		return result;
 	}
@@ -127,9 +175,36 @@ public class ConstructorInvocation extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.typeArguments);
+			}
 			acceptChildren(visitor, this.arguments);
 		}
 		visitor.endVisit(this);
+	}
+	
+	/**
+	 * Returns the live ordered list of type arguments of this constructor
+	 * invocation (added in 3.0 API).
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of type arguments
+	 *    (element type: <code>Type</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public List typeArguments() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.typeArguments == null) {
+			unsupportedIn2();
+		}
+		return this.typeArguments;
 	}
 	
 	/**
@@ -163,7 +238,7 @@ public class ConstructorInvocation extends Statement {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE + 2 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -172,7 +247,8 @@ public class ConstructorInvocation extends Statement {
 	int treeSize() {
 		return 
 			memSize()
-			+ this.arguments.listSize();
+			+ (this.typeArguments == null ? 0 : this.typeArguments.listSize())
+			+ (this.arguments == null ? 0 : this.arguments.listSize());
 	}
 }
 

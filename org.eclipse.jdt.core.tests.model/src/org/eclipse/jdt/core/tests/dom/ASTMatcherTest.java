@@ -749,8 +749,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			x1.setName(N1);
 		} else {
-			x1.typeParameters().add(TP1);
-			x1.setType(PT1);
+			x1.typeArguments().add(PT1);
+			x1.setType(T1);
 		}
 		x1.setAnonymousClassDeclaration(ACD1);
 		basicMatch(x1);
@@ -773,6 +773,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testConstructorInvocation() {
 		ConstructorInvocation x1 = ast.newConstructorInvocation();
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
 		basicMatch(x1);
@@ -951,6 +954,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodInvocation() {
 		MethodInvocation x1 = ast.newMethodInvocation();
 		x1.setExpression(N1);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.setName(N2);
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
@@ -1028,6 +1034,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = ast.newSuperConstructorInvocation();
 		x1.setExpression(N1);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
 		basicMatch(x1);
@@ -1041,6 +1050,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperMethodInvocation() {
 		SuperMethodInvocation x1 = ast.newSuperMethodInvocation();
 		x1.setQualifier(N1);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.typeArguments().add(PT1);
+		}
 		x1.setName(N2);
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
