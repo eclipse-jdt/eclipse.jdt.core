@@ -924,7 +924,7 @@ public void test037() {
 		"SUCCESS");
 }	
 
-// TODO (philippe) assignment of x fails
+// TODO (kent) reenable once ambiguity is detected
 public void _test038() {
 	this.runNegativeTest(
 		new String[] {

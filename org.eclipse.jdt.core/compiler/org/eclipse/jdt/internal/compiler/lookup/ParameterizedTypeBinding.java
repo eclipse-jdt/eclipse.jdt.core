@@ -301,13 +301,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isCompatibleWith(TypeBinding)
-	 */
-	public boolean isCompatibleWith(TypeBinding right) {
-		return this.type.isCompatibleWith(right);
-	}
-
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()
 	 */
 	public ReferenceBinding[] memberTypes() {
