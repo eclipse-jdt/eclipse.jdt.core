@@ -487,6 +487,13 @@ public class Util {
 			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS, value);
 		} else if (DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS.equals(key)) {
 			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS, value);
+		} else if ("org.eclipse.jdt.core.formatter.insert_space_after_comma__in_superinterfaces".equals(key)) { //$NON-NLS-1$
+			// TODO remove after M7
+			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES, value);
+		} else if ("org.eclipse.jdt.core.formatter.insert_space_before_comma__in_superinterfaces".equals(key)) { //$NON-NLS-1$
+			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, value);
+		} else if ("org.eclipse.jdt.core.formatter.insert_space_between_empty_arguments_in_method_invocation".equals(key)) { //$NON-NLS-1$
+			options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_INVOCATION, value);
 		}
 	}
 	
@@ -915,6 +922,13 @@ public class Util {
 			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS);
 		} else if (DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS.equals(key)) {
 			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_DECLARATION_THROWS);
+		} else if ("org.eclipse.jdt.core.formatter.insert_space_after_comma__in_superinterfaces".equals(key)) { //$NON-NLS-1$
+			// TODO remove after M7
+			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES);
+		} else if ("org.eclipse.jdt.core.formatter.insert_space_before_comma__in_superinterfaces".equals(key)) { //$NON-NLS-1$
+			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES);
+		} else if ("org.eclipse.jdt.core.formatter.insert_space_between_empty_arguments_in_method_invocation".equals(key)) { //$NON-NLS-1$
+			value = preferences.getString(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_INVOCATION);
 		}
 		if (value != null) {
 			return value.trim();

@@ -401,67 +401,163 @@ public class DefaultCodeFormatterOptions {
 	public void set(Map settings) {
 		final Object alignmentForArgumentsInAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ALLOCATION_EXPRESSION);
 		if (alignmentForArgumentsInAllocationExpressionOption != null) {
-			this.alignment_for_arguments_in_allocation_expression = Integer.parseInt((String) alignmentForArgumentsInAllocationExpressionOption);
+			try {
+				this.alignment_for_arguments_in_allocation_expression = Integer.parseInt((String) alignmentForArgumentsInAllocationExpressionOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForArgumentsInExplicitConstructorCallOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_EXPLICIT_CONSTRUCTOR_CALL);
 		if (alignmentForArgumentsInExplicitConstructorCallOption != null) {
-			this.alignment_for_arguments_in_explicit_constructor_call = Integer.parseInt((String) alignmentForArgumentsInExplicitConstructorCallOption);
+			try {
+				this.alignment_for_arguments_in_explicit_constructor_call = Integer.parseInt((String) alignmentForArgumentsInExplicitConstructorCallOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForArgumentsInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION);
 		if (alignmentForArgumentsInMethodInvocationOption != null) {
-			this.alignment_for_arguments_in_method_invocation = Integer.parseInt((String) alignmentForArgumentsInMethodInvocationOption);
+			try {
+				this.alignment_for_arguments_in_method_invocation = Integer.parseInt((String) alignmentForArgumentsInMethodInvocationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForArgumentsInQualifiedAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION);
 		if (alignmentForArgumentsInQualifiedAllocationExpressionOption != null) {
-			this.alignment_for_arguments_in_qualified_allocation_expression = Integer.parseInt((String) alignmentForArgumentsInQualifiedAllocationExpressionOption);
+			try {
+				this.alignment_for_arguments_in_qualified_allocation_expression = Integer.parseInt((String) alignmentForArgumentsInQualifiedAllocationExpressionOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForBinaryExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION);
 		if (alignmentForBinaryExpressionOption != null) {
-			this.alignment_for_binary_expression = Integer.parseInt((String) alignmentForBinaryExpressionOption);
+			try {
+				this.alignment_for_binary_expression = Integer.parseInt((String) alignmentForBinaryExpressionOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_binary_expression =  Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_binary_expression =  Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForCompactIfOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_IF);
 		if (alignmentForCompactIfOption != null) {
-			this.alignment_for_compact_if = Integer.parseInt((String) alignmentForCompactIfOption);
+			try {
+				this.alignment_for_compact_if = Integer.parseInt((String) alignmentForCompactIfOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
+			} catch (ClassCastException e) {
+				this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
+			}
 		}
 		final Object alignmentForConditionalExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION);
 		if (alignmentForConditionalExpressionOption != null) {
-			this.alignment_for_conditional_expression = Integer.parseInt((String) alignmentForConditionalExpressionOption);
+			try {
+				this.alignment_for_conditional_expression = Integer.parseInt((String) alignmentForConditionalExpressionOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
+			}
 		}
 		final Object alignmentForExpressionsInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER);
 		if (alignmentForExpressionsInArrayInitializerOption != null) {
-			this.alignment_for_expressions_in_array_initializer = Integer.parseInt((String) alignmentForExpressionsInArrayInitializerOption);
+			try {
+				this.alignment_for_expressions_in_array_initializer = Integer.parseInt((String) alignmentForExpressionsInArrayInitializerOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForMultipleFieldsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_MULTIPLE_FIELDS);
 		if (alignmentForMultipleFieldsOption != null) {
-			this.alignment_for_multiple_fields = Integer.parseInt((String) alignmentForMultipleFieldsOption);
+			try {
+				this.alignment_for_multiple_fields = Integer.parseInt((String) alignmentForMultipleFieldsOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForParametersInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION);
 		if (alignmentForParametersInConstructorDeclarationOption != null) {
-			this.alignment_for_parameters_in_constructor_declaration = Integer.parseInt((String) alignmentForParametersInConstructorDeclarationOption);
+			try {
+				this.alignment_for_parameters_in_constructor_declaration = Integer.parseInt((String) alignmentForParametersInConstructorDeclarationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForParametersInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION);
 		if (alignmentForParametersInMethodDeclarationOption != null) {
-			this.alignment_for_parameters_in_method_declaration = Integer.parseInt((String) alignmentForParametersInMethodDeclarationOption);
+			try {
+				this.alignment_for_parameters_in_method_declaration = Integer.parseInt((String) alignmentForParametersInMethodDeclarationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+			} catch(ClassCastException e) {
+				this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForSelectorInMethodInvocationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION);
 		if (alignmentForSelectorInMethodInvocationOption != null) {
-			this.alignment_for_selector_in_method_invocation = Integer.parseInt((String) alignmentForSelectorInMethodInvocationOption);
+			try {
+				this.alignment_for_selector_in_method_invocation = Integer.parseInt((String) alignmentForSelectorInMethodInvocationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+			} catch(ClassCastException e) {
+				this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForSuperclassInTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERCLASS_IN_TYPE_DECLARATION);
 		if (alignmentForSuperclassInTypeDeclarationOption != null) {
-			this.alignment_for_superclass_in_type_declaration = Integer.parseInt((String) alignmentForSuperclassInTypeDeclarationOption);
+			try {
+				this.alignment_for_superclass_in_type_declaration = Integer.parseInt((String) alignmentForSuperclassInTypeDeclarationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_superclass_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+			} catch(ClassCastException e) {
+				this.alignment_for_superclass_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+			}
 		}
 		final Object alignmentForSuperinterfacesInTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION);
 		if (alignmentForSuperinterfacesInTypeDeclarationOption != null) {
-			this.alignment_for_superinterfaces_in_type_declaration = Integer.parseInt((String) alignmentForSuperinterfacesInTypeDeclarationOption);
+			try {
+				this.alignment_for_superinterfaces_in_type_declaration = Integer.parseInt((String) alignmentForSuperinterfacesInTypeDeclarationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+			} catch(ClassCastException e) {
+				this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+			}
 		}
 		final Object alignmentForThrowsClauseInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_CONSTRUCTOR_DECLARATION);
 		if (alignmentForThrowsClauseInConstructorDeclarationOption != null) {
-			this.alignment_for_throws_clause_in_constructor_declaration = Integer.parseInt((String) alignmentForThrowsClauseInConstructorDeclarationOption);
+			try {
+				this.alignment_for_throws_clause_in_constructor_declaration = Integer.parseInt((String) alignmentForThrowsClauseInConstructorDeclarationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+			} catch(ClassCastException e) {
+				this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignmentForThrowsClauseInMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION);
 		if (alignmentForThrowsClauseInMethodDeclarationOption != null) {
-			this.alignment_for_throws_clause_in_method_declaration = Integer.parseInt((String) alignmentForThrowsClauseInMethodDeclarationOption);
+			try {
+				this.alignment_for_throws_clause_in_method_declaration = Integer.parseInt((String) alignmentForThrowsClauseInMethodDeclarationOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+			} catch(ClassCastException e) {
+				this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+			}
 		}
 		final Object alignTypeMembersOnColumnsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS);
 		if (alignTypeMembersOnColumnsOption != null) {
@@ -469,83 +565,189 @@ public class DefaultCodeFormatterOptions {
 		}
 		final Object bracePositionForAnonymousTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION);
 		if (bracePositionForAnonymousTypeDeclarationOption != null) {
-			this.brace_position_for_anonymous_type_declaration = (String) bracePositionForAnonymousTypeDeclarationOption;
+			try {
+				this.brace_position_for_anonymous_type_declaration = (String) bracePositionForAnonymousTypeDeclarationOption;
+			} catch(ClassCastException e) {
+				this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
 		}
 		final Object bracePositionForArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ARRAY_INITIALIZER);
 		if (bracePositionForArrayInitializerOption != null) {
-			this.brace_position_for_array_initializer = (String) bracePositionForArrayInitializerOption;
+			try {
+				this.brace_position_for_array_initializer = (String) bracePositionForArrayInitializerOption;
+			} catch(ClassCastException e) {
+				this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
 		}
 		final Object bracePositionForBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK);
 		if (bracePositionForBlockOption != null) {
-			this.brace_position_for_block = (String) bracePositionForBlockOption;
+			try {
+				this.brace_position_for_block = (String) bracePositionForBlockOption;
+			} catch(ClassCastException e) {
+				this.brace_position_for_block = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
 		}
 		final Object bracePositionForConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_CONSTRUCTOR_DECLARATION);
 		if (bracePositionForConstructorDeclarationOption != null) {
-			this.brace_position_for_constructor_declaration = (String) bracePositionForConstructorDeclarationOption;
+			try {
+				this.brace_position_for_constructor_declaration = (String) bracePositionForConstructorDeclarationOption;
+			} catch(ClassCastException e) {
+				this.brace_position_for_constructor_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
 		}
 		final Object bracePositionForMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION);
 		if (bracePositionForMethodDeclarationOption != null) {
-			this.brace_position_for_method_declaration = (String) bracePositionForMethodDeclarationOption;
-		}
-		final Object bracePositionForTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION);
-		if (bracePositionForTypeDeclarationOption != null) {
-			this.brace_position_for_type_declaration = (String) bracePositionForTypeDeclarationOption;
+			try {
+				this.brace_position_for_method_declaration = (String) bracePositionForMethodDeclarationOption;
+			} catch(ClassCastException e) {
+				this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
 		}
 		final Object bracePositionForSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH);
 		if (bracePositionForSwitchOption != null) {
-			this.brace_position_for_switch = (String) bracePositionForSwitchOption;
+			try {
+				this.brace_position_for_switch = (String) bracePositionForSwitchOption;
+			} catch(ClassCastException e) {
+				this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
+		}
+		final Object bracePositionForTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION);
+		if (bracePositionForTypeDeclarationOption != null) {
+			try {
+				this.brace_position_for_type_declaration = (String) bracePositionForTypeDeclarationOption;
+			} catch(ClassCastException e) {
+				this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+			}
 		}
 		final Object continuationIndentationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION);
 		if (continuationIndentationOption != null) {
-			this.continuation_indentation = Integer.parseInt((String) continuationIndentationOption);
+			try {
+				this.continuation_indentation = Integer.parseInt((String) continuationIndentationOption);
+			} catch (NumberFormatException e) {
+				this.continuation_indentation = 2;
+			} catch(ClassCastException e) {
+				this.continuation_indentation = 2;
+			}
 		}
 		final Object continuationIndentationForArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER);
 		if (continuationIndentationForArrayInitializerOption != null) {
-			this.continuation_indentation_for_array_initializer = Integer.parseInt((String) continuationIndentationForArrayInitializerOption);
+			try {
+				this.continuation_indentation_for_array_initializer = Integer.parseInt((String) continuationIndentationForArrayInitializerOption);
+			} catch (NumberFormatException e) {
+				this.continuation_indentation_for_array_initializer = 2;
+			} catch(ClassCastException e) {
+				this.continuation_indentation_for_array_initializer = 2;
+			}
 		}
 		final Object blankLinesAfterImportsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS);
 		if (blankLinesAfterImportsOption != null) {
-			this.blank_lines_after_imports = Integer.parseInt((String) blankLinesAfterImportsOption);
+			try {
+				this.blank_lines_after_imports = Integer.parseInt((String) blankLinesAfterImportsOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_after_imports = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_after_imports = 0;
+			}
 		}
 		final Object blankLinesAfterPackageOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE);
 		if (blankLinesAfterPackageOption != null) {
-			this.blank_lines_after_package = Integer.parseInt((String) blankLinesAfterPackageOption);
+			try {
+				this.blank_lines_after_package = Integer.parseInt((String) blankLinesAfterPackageOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_after_package = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_after_package = 0;
+			}
 		}
 		final Object blankLinesBeforeFieldOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIELD);
 		if (blankLinesBeforeFieldOption != null) {
-			this.blank_lines_before_field = Integer.parseInt((String) blankLinesBeforeFieldOption);
+			try {
+				this.blank_lines_before_field = Integer.parseInt((String) blankLinesBeforeFieldOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_before_field = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_before_field = 0;
+			}
 		}
 		final Object blankLinesBeforeFirstClassBodyDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIRST_CLASS_BODY_DECLARATION);
 		if (blankLinesBeforeFirstClassBodyDeclarationOption != null) {
-			this.blank_lines_before_first_class_body_declaration = Integer.parseInt((String) blankLinesBeforeFirstClassBodyDeclarationOption);
+			try {
+				this.blank_lines_before_first_class_body_declaration = Integer.parseInt((String) blankLinesBeforeFirstClassBodyDeclarationOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_before_first_class_body_declaration = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_before_first_class_body_declaration = 0;
+			}
 		}
 		final Object blankLinesBeforeImportsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_IMPORTS);
 		if (blankLinesBeforeImportsOption != null) {
-			this.blank_lines_before_imports = Integer.parseInt((String) blankLinesBeforeImportsOption);
+			try {
+				this.blank_lines_before_imports = Integer.parseInt((String) blankLinesBeforeImportsOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_before_imports = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_before_imports = 0;
+			}
 		}
 		final Object blankLinesBeforeMemberTypeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_MEMBER_TYPE);
 		if (blankLinesBeforeMemberTypeOption != null) {
-			this.blank_lines_before_member_type = Integer.parseInt((String) blankLinesBeforeMemberTypeOption);
+			try {
+				this.blank_lines_before_member_type = Integer.parseInt((String) blankLinesBeforeMemberTypeOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_before_member_type = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_before_member_type = 0;
+			}
 		}
 		final Object blankLinesBeforeMethodOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD);
 		if (blankLinesBeforeMethodOption != null) {
-			this.blank_lines_before_method = Integer.parseInt((String) blankLinesBeforeMethodOption);
+			try {
+				this.blank_lines_before_method = Integer.parseInt((String) blankLinesBeforeMethodOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_before_method = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_before_method = 0;
+			}
 		}
 		final Object blankLinesBeforeNewChunkOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_NEW_CHUNK);
 		if (blankLinesBeforeNewChunkOption != null) {
-			this.blank_lines_before_new_chunk = Integer.parseInt((String) blankLinesBeforeNewChunkOption);
+			try {
+				this.blank_lines_before_new_chunk = Integer.parseInt((String) blankLinesBeforeNewChunkOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_before_new_chunk = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_before_new_chunk = 0;
+			}
 		}
 		final Object blankLinesBeforePackageOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE);
 		if (blankLinesBeforePackageOption != null) {
-			this.blank_lines_before_package = Integer.parseInt((String) blankLinesBeforePackageOption);
+			try {
+				this.blank_lines_before_package = Integer.parseInt((String) blankLinesBeforePackageOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_before_package = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_before_package = 0;
+			}
 		}
 		final Object blankLinesBetweenTypeDeclarationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS);
 		if (blankLinesBetweenTypeDeclarationsOption != null) {
-			this.blank_lines_between_type_declarations = Integer.parseInt((String) blankLinesBetweenTypeDeclarationsOption);
+			try {
+				this.blank_lines_between_type_declarations = Integer.parseInt((String) blankLinesBetweenTypeDeclarationsOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_between_type_declarations = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_between_type_declarations = 0;
+			}
 		}
 		final Object blankLinesAtBeginningOfMethodBodyOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AT_BEGINNING_OF_METHOD_BODY);
 		if (blankLinesAtBeginningOfMethodBodyOption != null) {
-			this.blank_lines_at_beginning_of_method_body = Integer.parseInt((String) blankLinesAtBeginningOfMethodBodyOption);
+			try {
+				this.blank_lines_at_beginning_of_method_body = Integer.parseInt((String) blankLinesAtBeginningOfMethodBodyOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_at_beginning_of_method_body = 0;
+			} catch(ClassCastException e) {
+				this.blank_lines_at_beginning_of_method_body = 0;
+			}
 		}
 		final Object indentBlockStatementsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BLOCK_STATEMENTS);
 		if (indentBlockStatementsOption != null) {
@@ -1037,7 +1239,13 @@ public class DefaultCodeFormatterOptions {
 		}
 		final Object numberOfEmptyLinesToPreserveOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE);
 		if (numberOfEmptyLinesToPreserveOption != null) {
-			this.number_of_empty_lines_to_preserve = Integer.parseInt((String) numberOfEmptyLinesToPreserveOption);
+			try {
+				this.number_of_empty_lines_to_preserve = Integer.parseInt((String) numberOfEmptyLinesToPreserveOption);
+			} catch (NumberFormatException e) {
+				this.number_of_empty_lines_to_preserve = 0;
+			} catch(ClassCastException e) {
+				this.number_of_empty_lines_to_preserve = 0;
+			}
 		}
 		final Object preserveUserLinebreaksOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_USER_LINEBREAKS);
 		if (preserveUserLinebreaksOption != null) {
@@ -1053,15 +1261,31 @@ public class DefaultCodeFormatterOptions {
 		}
 		final Object tabSizeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE);
 		if (tabSizeOption != null) {
-			this.tab_size = Integer.parseInt((String) tabSizeOption);
+			try {
+				this.tab_size = Integer.parseInt((String) tabSizeOption);
+			} catch (NumberFormatException e) {
+				this.tab_size = 4;
+			} catch(ClassCastException e) {
+				this.tab_size = 4;
+			}
 		}
 		final Object fillingSpaceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE);
 		if (fillingSpaceOption != null) {
-			this.filling_space = ((String) fillingSpaceOption).charAt(0);
+			try {
+				this.filling_space = ((String) fillingSpaceOption).charAt(0);
+			} catch(ClassCastException e) {
+				this.filling_space = ' ';
+			}
 		}
 		final Object pageWidthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT);
 		if (pageWidthOption != null) {
-			this.page_width = Integer.parseInt((String) pageWidthOption);
+			try {
+				this.page_width = Integer.parseInt((String) pageWidthOption);
+			} catch (NumberFormatException e) {
+				this.page_width = 80;
+			} catch(ClassCastException e) {
+				this.page_width = 80;
+			}
 		}
 		final Object useTabOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR);
 		if (useTabOption != null) {
