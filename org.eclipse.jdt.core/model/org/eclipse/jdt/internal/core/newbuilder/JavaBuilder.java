@@ -31,7 +31,7 @@ BuildNotifier notifier;
 public static final String JavaExtension = "java"; //$NON-NLS-1$
 public static final String ClassExtension = "class"; //$NON-NLS-1$
 
-public static final boolean DEBUG = false;
+public static boolean DEBUG = false;
 
 public JavaBuilder() {
 }

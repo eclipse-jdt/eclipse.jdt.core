@@ -4,3 +4,4 @@ org.eclipse.jdt.core/debug/compiler=true
 org.eclipse.jdt.core/debug/javamodel=true
 org.eclipse.jdt.core/debug/javadelta=true
 org.eclipse.jdt.core/debug/hierarchy=true
+org.eclipse.jdt.core/debug/builder=true
