@@ -18,27 +18,15 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class DeclarationOfReferencedTypesPattern extends TypeReferencePattern {
-	HashSet knownTypes;
-	IJavaElement enclosingElement;
+
+protected HashSet knownTypes;
+protected IJavaElement enclosingElement;
+
 public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
 	super(null, null, PATTERN_MATCH, false);
 	this.enclosingElement = enclosingElement;
@@ -59,12 +47,11 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	if (element == null) return;
 
 	while (binding instanceof ReferenceBinding) {
-		ReferenceBinding typeBinding = (ReferenceBinding)binding;
+		ReferenceBinding typeBinding = (ReferenceBinding) binding;
 		this.reportDeclaration(typeBinding, 1, locator);
 		binding = typeBinding.enclosingType();
 	}
 }
-
 /**
  * @see SearchPattern#matchReportReference
  */
@@ -81,12 +68,12 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	int maxType = -1;
 	TypeBinding typeBinding = null;
 	if (reference instanceof TypeReference) {
-		typeBinding = ((TypeReference)reference).resolvedType;
+		typeBinding = ((TypeReference) reference).resolvedType;
 		maxType = Integer.MAX_VALUE;
 	} else if (reference instanceof QualifiedNameReference) {
-		QualifiedNameReference qNameRef = (QualifiedNameReference)reference;
+		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		Binding binding = qNameRef.binding;
-		maxType = qNameRef.tokens.length-1;
+		maxType = qNameRef.tokens.length - 1;
 		switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 			case BindingIds.FIELD : // reading a field
 				typeBinding = qNameRef.actualReceiverType;
@@ -108,14 +95,13 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				break;
 		}
 	} else if (reference instanceof SingleNameReference) {
-		typeBinding = (TypeBinding)((SingleNameReference)reference).binding;
+		typeBinding = (TypeBinding)((SingleNameReference) reference).binding;
 		maxType = 1;
 	}
 	
 	if (typeBinding == null || typeBinding instanceof BaseTypeBinding) return;
-	if (typeBinding instanceof ArrayBinding) {
-		typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
-	}
+	if (typeBinding instanceof ArrayBinding)
+		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 	this.reportDeclaration(typeBinding, maxType, locator);
 }
 private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocator locator) throws CoreException {
@@ -125,17 +111,16 @@ private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocato
 	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
 	if (isBinary) {
-		if (resource == null) {
+		if (resource == null)
 			resource = type.getJavaProject().getProject();
-		}
-		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
+		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile) type.getClassFile(), resource);
 	}
 	while (maxType >= 0 && type != null) {
 		if (!this.knownTypes.contains(type)) {
 			if (isBinary) {
 				locator.reportBinaryMatch(resource, type, info, IJavaSearchResultCollector.EXACT_MATCH);
 			} else {
-				ClassScope scope = ((SourceTypeBinding)typeBinding).scope;
+				ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
 				if (scope != null) {
 					TypeDeclaration typeDecl = scope.referenceContext;
 					locator.report(resource, typeDecl.sourceStart, typeDecl.sourceEnd, type, IJavaSearchResultCollector.EXACT_MATCH);
@@ -143,11 +128,7 @@ private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocato
 			}
 			this.knownTypes.add(type);
 		}
-		if (typeBinding instanceof BinaryTypeBinding) {
-			typeBinding = ((BinaryTypeBinding)typeBinding).enclosingType();
-		} else {
-			typeBinding = ((SourceTypeBinding)typeBinding).enclosingType();
-		}
+		typeBinding = ((ReferenceBinding) typeBinding).enclosingType();
 		IJavaElement parent = type.getParent();
 		if (parent instanceof IType) {
 			type = (IType)parent;
