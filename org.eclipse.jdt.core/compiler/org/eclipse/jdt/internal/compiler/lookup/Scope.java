@@ -206,7 +206,7 @@ public abstract class Scope
 			return null; // know it has no member types (nor inherited member types)
 
 		SourceTypeBinding enclosingSourceType = enclosingSourceType();
-		compilationUnitScope().recordReference(enclosingType.compoundName, typeName);
+		compilationUnitScope().recordReference(enclosingType, typeName);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
@@ -369,7 +369,7 @@ public abstract class Scope
 
 		SourceTypeBinding enclosingSourceType = enclosingSourceType();
 		PackageBinding currentPackage = getCurrentPackage();
-		compilationUnitScope().recordReference(enclosingType.compoundName, typeName);
+		compilationUnitScope().recordReference(enclosingType, typeName);
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
 			compilationUnitScope().recordTypeReference(memberType); // to record supertypes
@@ -406,7 +406,7 @@ public abstract class Scope
 			if ((currentType = currentType.superclass()) == null)
 				break;
 
-			compilationUnitScope().recordReference(currentType.compoundName, typeName);
+			compilationUnitScope().recordReference(currentType, typeName);
 			if ((memberType = currentType.getMemberType(typeName)) != null) {
 				compilationUnitScope().recordTypeReference(memberType); // to record supertypes
 				keepLooking = false;
@@ -432,7 +432,7 @@ public abstract class Scope
 					if ((anInterface.tagBits & InterfaceVisited) == 0) {
 						// if interface as not already been visited
 						anInterface.tagBits |= InterfaceVisited;
-						compilationUnitScope().recordReference(anInterface.compoundName, typeName);
+						compilationUnitScope().recordReference(anInterface, typeName);
 						if ((memberType = anInterface.getMemberType(typeName)) != null) {
 							compilationUnitScope().recordTypeReference(memberType); // to record supertypes
 							if (visibleMemberType == null) {
