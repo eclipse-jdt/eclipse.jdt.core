@@ -185,7 +185,11 @@ public char[][] getInterfaceNames() {
  * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
  */
 public int getKind() {
-	if ((this.flags & IConstants.AccInterface) != 0) return IGenericType.INTERFACE;
+	if ((this.flags & IConstants.AccInterface) != 0) {
+		if ((this.flags & IConstants.AccAnnotation) != 0)
+			return IGenericType.ANNOTATION_TYPE;
+		return IGenericType.INTERFACE;
+	}
 	if ((this.flags & IConstants.AccEnum) != 0) return IGenericType.ENUM;
 	return IGenericType.CLASS;
 }
