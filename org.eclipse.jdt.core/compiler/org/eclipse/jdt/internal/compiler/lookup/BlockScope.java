@@ -15,7 +15,6 @@ public class BlockScope extends Scope {
 	// Local variable management
 	public LocalVariableBinding[] locals;
 	public int localIndex; // position for next variable
-	public int analysisIndex; // for setting flow-analysis id
 	public int startIndex;	// start position in this scope - for ordering scopes vs. variables
 	public int offset; // for variable allocation throughout scopes
 	public int maxOffset; // for variable allocation throughout scopes
