@@ -262,6 +262,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (expression instanceof CastExpression) {
 			org.eclipse.jdt.internal.compiler.ast.CastExpression castExpression = (org.eclipse.jdt.internal.compiler.ast.CastExpression) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(castExpression.castTb);
+		} else if (expression instanceof StringLiteral) {
+			org.eclipse.jdt.internal.compiler.ast.StringLiteral stringLiteral = (org.eclipse.jdt.internal.compiler.ast.StringLiteral) this.newAstToOldAst.get(expression);
+			return this.getTypeBinding(stringLiteral.literalType(this.retrieveEnclosingScope(expression)));
 		} else if (expression instanceof TypeLiteral) {
 			ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(classLiteralAccess.targetType);
@@ -498,7 +501,12 @@ class DefaultBindingResolver extends BindingResolver {
 					return null;
 				} else {
 					if (indexInQualifiedName == indexOfFirstFieldBinding) {
-						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
+						Binding binding = qualifiedNameReference.binding;
+						if (binding != null && binding.isValidBinding()) {
+							return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);				
+						} else {
+							return null;
+						}
 					} else {
 						return this.getVariableBinding(qualifiedNameReference.otherBindings[otherBindingLength - index - 1]);				
 					}
@@ -533,7 +541,12 @@ class DefaultBindingResolver extends BindingResolver {
 				return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
 			} else {
 				// this is a variable or a field
-				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding);				
+				Binding binding = singleNameReference.binding;
+				if (binding != null && binding.isValidBinding()) {
+					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);				
+				} else {
+					return null;
+				}
 			}
 		} else if (node instanceof QualifiedSuperReference) {
 			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
