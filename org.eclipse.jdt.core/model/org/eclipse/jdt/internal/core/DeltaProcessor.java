@@ -2104,39 +2104,41 @@ public class DeltaProcessor {
 		
 		// read .classpath files that have changed, and create markers if format is wrong
 		updateClasspathMarkers(delta, affectedProjects, preferredClasspaths, preferredOutputs); 
-
+	
 		if (!affectedProjects.isEmpty()) {
 			try {
-				IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-				IProject[] projects = workspaceRoot.getProjects();
-				int length = projects.length;
-				for (int i = 0; i < length; i++){
-					IProject project = projects[i];
-					JavaProject javaProject = (JavaProject)JavaCore.create(project);
-					if (preferredClasspaths.get(javaProject) == null) { // not already updated
-						try {
-							IPath projectPath = project.getFullPath();
-							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true); // allowed to reuse model cache
-							for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
-								IClasspathEntry entry = classpath[j];
-								switch (entry.getEntryKind()) {
-									case IClasspathEntry.CPE_PROJECT:
-										if (affectedProjects.contains(entry.getPath())) {
-											javaProject.updateClasspathMarkers(null, null);
-										}
-										break;
-									case IClasspathEntry.CPE_LIBRARY:
-										IPath entryPath = entry.getPath();
-										IPath libProjectPath = entryPath.removeLastSegments(entryPath.segmentCount()-1);
-										if (!libProjectPath.equals(projectPath) // if library contained in another project
-												&& affectedProjects.contains(libProjectPath)) {
-											javaProject.updateClasspathMarkers(null, null);
-										}
-										break;
+				if (!ResourcesPlugin.getWorkspace().isAutoBuilding()) {
+					IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+					IProject[] projects = workspaceRoot.getProjects();
+					int length = projects.length;
+					for (int i = 0; i < length; i++){
+						IProject project = projects[i];
+						JavaProject javaProject = (JavaProject)JavaCore.create(project);
+						if (preferredClasspaths.get(javaProject) == null) { // not already updated
+							try {
+								IPath projectPath = project.getFullPath();
+								IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true); // allowed to reuse model cache
+								for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
+									IClasspathEntry entry = classpath[j];
+									switch (entry.getEntryKind()) {
+										case IClasspathEntry.CPE_PROJECT:
+											if (affectedProjects.contains(entry.getPath())) {
+												javaProject.updateClasspathMarkers(null, null);
+											}
+											break;
+										case IClasspathEntry.CPE_LIBRARY:
+											IPath entryPath = entry.getPath();
+											IPath libProjectPath = entryPath.removeLastSegments(entryPath.segmentCount()-1);
+											if (!libProjectPath.equals(projectPath) // if library contained in another project
+													&& affectedProjects.contains(libProjectPath)) {
+												javaProject.updateClasspathMarkers(null, null);
+											}
+											break;
+									}
 								}
+							} catch(JavaModelException e) {
+									// project no longer exists
 							}
-						} catch(JavaModelException e) {
-								// project no longer exists
 						}
 					}
 				}
