@@ -903,6 +903,8 @@ public interface IProblem {
 	int IncorrectArityForParameterizedConstructor = TypeRelated + 554;
 	/** @since 3.1 */
 	int ParameterizedConstructorArgumentTypeMismatch = TypeRelated + 555;
+	/** @since 3.1 */
+	int InvalidParameterizedExceptionType = TypeRelated + 556;
 	
 	/**
 	 * Foreach

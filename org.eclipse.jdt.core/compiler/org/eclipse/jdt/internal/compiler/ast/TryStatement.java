@@ -516,17 +516,21 @@ public class TryStatement extends SubRoutineStatement {
 		if (this.catchBlocks != null) {
 			int length = this.catchArguments.length;
 			TypeBinding[] argumentTypes = new TypeBinding[length];
+			boolean catchHasError = false;
 			for (int i = 0; i < length; i++) {
 				BlockScope catchScope = new BlockScope(scope);
 				if (finallyScope != null){
 					finallyScope.shiftScopes[i+1] = catchScope;
 				}
 				// side effect on catchScope in resolveForCatch(..)
-				if ((argumentTypes[i] = catchArguments[i].resolveForCatch(catchScope)) == null)
-					return;
+				if ((argumentTypes[i] = catchArguments[i].resolveForCatch(catchScope)) == null) {
+					catchHasError = true;
+				}
 				catchBlocks[i].resolveUsing(catchScope);
 			}
-
+			if (catchHasError) {
+				return;
+			}
 			// Verify that the catch clause are ordered in the right way:
 			// more specialized first.
 			this.caughtExceptionTypes = new ReferenceBinding[length];

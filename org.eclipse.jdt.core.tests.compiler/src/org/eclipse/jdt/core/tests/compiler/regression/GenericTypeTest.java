@@ -5705,4 +5705,57 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"");
 	}			
+	// 63590 - disallow parameterized type in catch/throws clause
+	public void test207() {
+		this.runNegativeTest(
+			new String[] {
+				"Alpha.java",
+				"public class Alpha<T> extends RuntimeException {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Object() {\n" + 
+				"			public void m() throws Alpha<String> {\n" + 
+				"				System.out.println(\"SUCCESS\");\n" + 
+				"			}\n" + 
+				"		}.m();\n" + 
+				"	}\n" + 
+				"}\n", 			
+			},
+			"----------\n" + 
+			"1. ERROR in Alpha.java (at line 4)\r\n" + 
+			"	public void m() throws Alpha<String> {\r\n" + 
+			"	                       ^^^^^\n" + 
+			"Cannot use the parameterized type Alpha<String> either in catch block or throws clause\n" + 
+			"----------\n");
+	}			
+	// 63590 - disallow parameterized type in catch/throws clause
+	public void test208() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> extends RuntimeException {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			throw new X<String>();\n" + 
+				"		} catch(X<String> e) {\n" + 
+				"			System.out.println(\"X<String>\");\n" + 
+				"		} catch(X<X<String>> e) {\n" + 
+				"			System.out.println(\"X<X<String>>\");\n" + 
+				"		} catch(RuntimeException e) {\n" + 
+				"			System.out.println(\"RuntimeException\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n", 			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	} catch(X<String> e) {\n" + 
+			"	                  ^\n" + 
+			"Cannot use the parameterized type X<String> either in catch block or throws clause\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	} catch(X<X<String>> e) {\n" + 
+			"	                     ^\n" + 
+			"Cannot use the parameterized type X<X<String>> either in catch block or throws clause\n" + 
+			"----------\n");
+	}		
 }

@@ -814,6 +814,10 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			if (resolvedExceptionType == null) {
 				continue;
 			}
+			if (resolvedExceptionType.isGenericType() || resolvedExceptionType.isParameterizedType()) {
+				methodDecl.scope.problemReporter().invalidParameterizedExceptionType(resolvedExceptionType, exceptionTypes[i]);
+				continue;
+			}
 			if (throwable != resolvedExceptionType && !throwable.isSuperclassOf(resolvedExceptionType)) {
 				methodDecl.scope.problemReporter().cannotThrowType(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
 				continue;

@@ -1843,6 +1843,14 @@ public void invalidEnclosingType(Expression expression, TypeBinding type, Refere
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void invalidParameterizedExceptionType(TypeBinding exceptionType, ASTNode location) {
+	this.handle(
+		IProblem.InvalidParameterizedExceptionType,
+		new String[] {new String(exceptionType.readableName())},
+		new String[] {new String(exceptionType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void invalidExpressionAsStatement(Expression expression){
 	this.handle(
 		IProblem.InvalidExpressionAsStatement,
