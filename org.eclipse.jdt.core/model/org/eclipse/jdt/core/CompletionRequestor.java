@@ -98,7 +98,7 @@ public abstract class CompletionRequestor {
 	 */
 	public final void setIgnored(int completionProposalKind, boolean ignore) {
 		if (completionProposalKind < CompletionProposal.ANONYMOUS_CLASS_DECLARATION
-			|| completionProposalKind > CompletionProposal.VARIABLE_DECLARATION) {
+			|| completionProposalKind > CompletionProposal.METHOD_NAME_REFERENCE) {
 				throw new IllegalArgumentException();
 		}
 		if (ignore) {
