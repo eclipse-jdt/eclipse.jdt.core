@@ -225,7 +225,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 
 	protected ISchedulingRule getSchedulingRule() {
 		// returns the folder corresponding to the package of the cu
-		return getParentElement().getResource();
+		return getParentElement().getSchedulingRule();
 	}
 	/**
 	 * Sets the default position in which to create the new type

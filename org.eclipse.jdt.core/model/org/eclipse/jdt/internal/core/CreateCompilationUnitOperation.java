@@ -133,7 +133,7 @@ protected ICompilationUnit getCompilationUnit() {
 }
 protected ISchedulingRule getSchedulingRule() {
 	// returns the folder corresponding to the package of the cu to create
-	return getParentElement().getResource();
+	return getParentElement().getSchedulingRule();
 }
 /**
  * Possible failures: <ul>

@@ -170,7 +170,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	}
 	protected ISchedulingRule getSchedulingRule() {
 		// returns the folder corresponding to the package of the cu to commit
-		return getElementToProcess().getParent().getResource();
+		return getElementToProcess().getParent().getSchedulingRule();
 	}
 	/**
 	 * Possible failures: <ul>
