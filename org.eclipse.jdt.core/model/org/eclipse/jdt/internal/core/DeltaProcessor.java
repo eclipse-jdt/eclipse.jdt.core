@@ -2211,7 +2211,7 @@ public class DeltaProcessor {
 				if (element == null) {
 					// resource might be containing shared roots (see bug 19058)
 					this.state.updateRoots(deltaRes.getFullPath(), delta, this);
-					return false;
+					return rootInfo != null && rootInfo.inclusionPatterns != null;
 				}
 				updateIndex(element, delta);
 				elementAdded(element, delta, rootInfo);
@@ -2222,7 +2222,7 @@ public class DeltaProcessor {
 				if (element == null) {
 					// resource might be containing shared roots (see bug 19058)
 					this.state.updateRoots(deltaRes.getFullPath(), delta, this);
-					return false;
+					return rootInfo != null && rootInfo.inclusionPatterns != null;
 				}
 				updateIndex(element, delta);
 				elementRemoved(element, delta, rootInfo);

@@ -99,8 +99,8 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 /**
  * Resolve the class.
  */
-public void acceptClass(char[] packageName, char[] className, boolean needQualification) {
-	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, needQualification);
+public void acceptClass(char[] packageName, char[] className, boolean needQualification, boolean isDeclaration, int start, int end) {
+	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, needQualification, isDeclaration, start, end);
 }
 /**
  * @see ISelectionRequestor#acceptError
@@ -111,17 +111,45 @@ public void acceptError(IProblem error) {
 /**
  * Resolve the field.
  */
-public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {
-	IType type= resolveType(declaringTypePackageName, declaringTypeName,
-		NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-	if (type != null) {
-		IField field= type.getField(new String(name));
-		if (field.exists()) {
-			addElement(field);
-			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept field("); //$NON-NLS-1$
-				System.out.print(field.toString());
-				System.out.println(")"); //$NON-NLS-1$
+public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, boolean isDeclaration, int start, int end) {
+	if(isDeclaration) {
+		IType type= resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+				start, end);
+		if(type != null) {
+			try {
+				IField[] fields = type.getFields();
+				for (int i = 0; i < fields.length; i++) {
+					IField field = fields[i];
+					ISourceRange range = field.getNameRange();
+					if(range.getOffset() <= start
+							&& range.getOffset() + range.getLength() >= end
+							&& field.getElementName().equals(new String(name))) {
+						addElement(fields[i]);
+						if(SelectionEngine.DEBUG){
+							System.out.print("SELECTION - accept field("); //$NON-NLS-1$
+							System.out.print(field.toString());
+							System.out.println(")"); //$NON-NLS-1$
+						}
+						return; // only one method is possible
+					}
+				}
+			} catch (JavaModelException e) {
+				return; 
+			}
+		}
+	} else {
+		IType type= resolveType(declaringTypePackageName, declaringTypeName,
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+		if (type != null) {
+			IField field= type.getField(new String(name));
+			if (field.exists()) {
+				addElement(field);
+				if(SelectionEngine.DEBUG){
+					System.out.print("SELECTION - accept field("); //$NON-NLS-1$
+					System.out.print(field.toString());
+					System.out.println(")"); //$NON-NLS-1$
+				}
 			}
 		}
 	}
@@ -129,8 +157,8 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 /**
  * Resolve the interface
  */
-public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification) {
-	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, needQualification);
+public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification, boolean isDeclaration, int start, int end) {
+	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, needQualification, isDeclaration, start, end);
 }
 public void acceptLocalField(SourceTypeBinding typeBinding, char[] name, CompilationUnitDeclaration parsedUnit) {
 	IType type = (IType)this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
@@ -173,7 +201,7 @@ public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, ch
 			
 			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
 		} else {
-			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, isDeclaration, start, end);
+			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
 		}
 	}
 }
@@ -203,34 +231,44 @@ public void acceptLocalVariable(LocalVariableBinding binding, CompilationUnitDec
  * Resolve the method
  */
 public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, boolean isDeclaration, int start, int end) {
-	IType type= resolveType(declaringTypePackageName, declaringTypeName,
-		NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-	// fix for 1FWFT6Q
-	if (type != null) {
-		if (type.isBinary()) {
-			
-			// need to add a paramater for constructor in binary type
-			IType declaringDeclaringType = type.getDeclaringType();
-			
-			boolean isStatic = false;
-			try {
-				isStatic = Flags.isStatic(type.getFlags());
-			} catch (JavaModelException e) {
-				// isStatic == false
-			}
-			
-			if(declaringDeclaringType != null && isConstructor	&& !isStatic) {
-				int length = parameterPackageNames.length;
-				System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
-				System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);
+	if(isDeclaration) {
+		IType type = resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
+				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES,
+				start, end);
+		
+		if(type != null) {
+			this.acceptMethodDeclaration(type, selector, start, end);
+		}
+	} else {
+		IType type = resolveType(declaringTypePackageName, declaringTypeName,
+			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+		// fix for 1FWFT6Q
+		if (type != null) {
+			if (type.isBinary()) {
 				
-				parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
-				parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
+				// need to add a paramater for constructor in binary type
+				IType declaringDeclaringType = type.getDeclaringType();
+				
+				boolean isStatic = false;
+				try {
+					isStatic = Flags.isStatic(type.getFlags());
+				} catch (JavaModelException e) {
+					// isStatic == false
+				}
+				
+				if(declaringDeclaringType != null && isConstructor	&& !isStatic) {
+					int length = parameterPackageNames.length;
+					System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
+					System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);
+					
+					parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
+					parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
+				}
+				
+				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
+			} else {
+				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
 			}
-			
-			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
-		} else {
-			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, isDeclaration, start, end);
 		}
 	}
 }
@@ -255,21 +293,15 @@ public void acceptPackage(char[] packageName) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isDeclaration, int start, int end) {
+protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames) {
 	String name = new String(selector);
 	IMethod[] methods = null;
 	try {
 		methods = type.getMethods();
 		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].getElementName().equals(name) && methods[i].getParameterTypes().length == parameterTypeNames.length) {
-				if(isDeclaration) {
-					ISourceRange range = methods[i].getNameRange();
-					if(range.getOffset() <= start && range.getOffset() + range.getLength() >= end) {
-						addElement(methods[i]);
-					}
-				} else {
-					addElement(methods[i]);
-				}
+			if (methods[i].getElementName().equals(name)
+					&& methods[i].getParameterTypes().length == parameterTypeNames.length) {
+				addElement(methods[i]);
 			}
 		}
 	} catch (JavaModelException e) {
@@ -326,11 +358,49 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 	}
 	
 }
+protected void acceptMethodDeclaration(IType type, char[] selector, int start, int end) {
+	String name = new String(selector);
+	IMethod[] methods = null;
+	try {
+		methods = type.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			ISourceRange range = methods[i].getNameRange();
+			if(range.getOffset() <= start
+					&& range.getOffset() + range.getLength() >= end
+					&& methods[i].getElementName().equals(name)) {
+				addElement(methods[i]);
+				if(SelectionEngine.DEBUG){
+					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+					System.out.print(this.elements[0].toString());
+					System.out.println(")"); //$NON-NLS-1$
+				}
+				return; // only one method is possible
+			}
+		}
+	} catch (JavaModelException e) {
+		return; 
+	}
+
+	// no match was actually found
+	addElement(type);
+	if(SelectionEngine.DEBUG){
+		System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+		System.out.print(type.toString());
+		System.out.println(")"); //$NON-NLS-1$
+	}
+	return;
+}
 /**
  * Resolve the type, adding to the resolved elements.
  */
-protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, boolean needQualification) {
-	IType type= resolveType(packageName, typeName, acceptFlags);
+protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, boolean needQualification, boolean isDeclaration, int start, int end) {
+	IType type = null;
+	if(isDeclaration) {
+		type = resolveTypeByLocation(packageName, typeName, acceptFlags, start, end);
+	} else {
+		type = resolveType(packageName, typeName, acceptFlags);
+	}
+	
 	if (type != null) {
 		addElement(type);
 		if(SelectionEngine.DEBUG){
@@ -339,7 +409,6 @@ protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, 
 			System.out.println(")"); //$NON-NLS-1$
 		}
 	} 
-	
 }
 /*
  * Adds the given element to the list of resolved elements.
@@ -379,6 +448,86 @@ protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags
 					type = wc.getType(new String(compoundName[0]));
 					for (int i = 1, length = compoundName.length; i < length; i++) {
 						type = type.getType(new String(compoundName[i]));
+					}
+				}
+				
+				if(type != null && !type.exists()) {
+					type = null;
+				}
+			}
+		}catch (JavaModelException e) {
+			type = null;
+		}
+	}
+
+	if(type == null) {
+		IPackageFragment[] pkgs = this.nameLookup.findPackageFragments(
+			(packageName == null || packageName.length == 0) ? IPackageFragment.DEFAULT_PACKAGE_NAME : new String(packageName), 
+			false);
+		// iterate type lookup in each package fragment
+		for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
+			type= this.nameLookup.findType(new String(typeName), pkgs[i], false, acceptFlags);
+			if (type != null) break;	
+		}
+		if (type == null) {
+			String pName= IPackageFragment.DEFAULT_PACKAGE_NAME;
+			if (packageName != null) {
+				pName = new String(packageName);
+			}
+			if (this.openable != null && this.openable.getParent().getElementName().equals(pName)) {
+				// look inside the type in which we are resolving in
+				String tName= new String(typeName);
+				tName = tName.replace('.','$');
+				IType[] allTypes= null;
+				try {
+					ArrayList list = this.openable.getChildrenOfType(IJavaElement.TYPE);
+					allTypes = new IType[list.size()];
+					list.toArray(allTypes);
+				} catch (JavaModelException e) {
+					return null;
+				}
+				for (int i= 0; i < allTypes.length; i++) {
+					if (allTypes[i].getTypeQualifiedName().equals(tName)) {
+						return allTypes[i];
+					}
+				}
+			}
+		}
+	}
+	return type;
+}
+protected IType resolveTypeByLocation(char[] packageName, char[] typeName, int acceptFlags, int start, int end) {
+
+	IType type= null;
+	
+	// TODO (david) post 3.0 should remove isOpen check, and investigate reusing ICompilationUnit#getElementAt. may need to optimize #getElementAt to remove recursions
+	if (this.openable instanceof CompilationUnit && ((CompilationUnit)this.openable).isOpen()) {
+		CompilationUnit wc = (CompilationUnit) this.openable;
+		try {
+			if(((packageName == null || packageName.length == 0) && wc.getPackageDeclarations().length == 0) ||
+				(!(packageName == null || packageName.length == 0) && wc.getPackageDeclaration(new String(packageName)).exists())) {
+					
+				char[][] compoundName = CharOperation.splitOn('.', typeName);
+				if(compoundName.length > 0) {
+					
+					IType[] tTypes = wc.getTypes();
+					int i = 0;
+					int depth = 0;
+					done : while(i < tTypes.length) {
+						ISourceRange range = tTypes[i].getSourceRange();
+						if(range.getOffset() <= start
+								&& range.getOffset() + range.getLength() >= end
+								&& tTypes[i].getElementName().equals(new String(compoundName[depth]))) {
+							if(depth == compoundName.length - 1) {
+								type = tTypes[i];
+								break done;
+							}
+							tTypes = tTypes[i].getTypes();
+							i = 0;
+							depth++;
+							continue done;
+						}
+						i++;
 					}
 				}
 				
