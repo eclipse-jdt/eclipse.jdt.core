@@ -780,8 +780,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a new line at the end of the current file
-	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_at_end_of_file"
+	 * FORMATTER / Option to insert a new line at the end of the current file if missing
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_at_end_of_file_if_missing"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
 	 * </pre>
@@ -789,7 +789,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.1
 	 */
-	public static final String FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_at_end_of_file";//$NON-NLS-1$
+	public static final String FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_at_end_of_file_if_missing";//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a new line before the catch keyword in try statement

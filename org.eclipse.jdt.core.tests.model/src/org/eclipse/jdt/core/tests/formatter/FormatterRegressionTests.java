@@ -6654,7 +6654,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_guardian_clause_on_one_line = true;
 		preferences.use_tab = true;
 		preferences.compact_else_if = true;
-		preferences.insert_new_line_at_end_of_file = true;
+		preferences.insert_new_line_at_end_of_file_if_missing = true;
 		preferences.number_of_empty_lines_to_preserve = 0;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter,"test509", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
@@ -6670,7 +6670,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_guardian_clause_on_one_line = true;
 		preferences.use_tab = true;
 		preferences.compact_else_if = true;
-		preferences.insert_new_line_at_end_of_file = false;
+		preferences.insert_new_line_at_end_of_file_if_missing = false;
 		preferences.number_of_empty_lines_to_preserve = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter,"test510", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
@@ -6686,7 +6686,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_guardian_clause_on_one_line = true;
 		preferences.use_tab = true;
 		preferences.compact_else_if = true;
-		preferences.insert_new_line_at_end_of_file = false;
+		preferences.insert_new_line_at_end_of_file_if_missing = false;
 		preferences.number_of_empty_lines_to_preserve = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter,"test511", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
@@ -6702,7 +6702,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_guardian_clause_on_one_line = true;
 		preferences.use_tab = true;
 		preferences.compact_else_if = true;
-		preferences.insert_new_line_at_end_of_file = true;
+		preferences.insert_new_line_at_end_of_file_if_missing = true;
 		preferences.number_of_empty_lines_to_preserve = 1;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter,"test512", "A.java");//$NON-NLS-1$ //$NON-NLS-2$

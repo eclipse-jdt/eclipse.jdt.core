@@ -863,7 +863,7 @@ public class Scribe {
 						this.print(currentTokenSource, this.formatter.preferences.insert_space_before_semicolon);
 						break;
 					case TerminalTokens.TokenNameEOF :
-						if (count >= 1 || this.formatter.preferences.insert_new_line_at_end_of_file) {
+						if (count >= 1 || this.formatter.preferences.insert_new_line_at_end_of_file_if_missing) {
 							this.printNewLine(this.scannerEndPosition);
 						}
 						return;

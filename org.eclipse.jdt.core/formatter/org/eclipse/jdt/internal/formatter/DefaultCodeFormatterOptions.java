@@ -93,7 +93,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean indent_switchstatements_compare_to_switch;
 	
 	public boolean insert_new_line_after_opening_brace_in_array_initializer;
-	public boolean insert_new_line_at_end_of_file;
+	public boolean insert_new_line_at_end_of_file_if_missing;
 	public boolean insert_new_line_before_catch_in_try_statement;
 	public boolean insert_new_line_before_closing_brace_in_array_initializer;
 	public boolean insert_new_line_before_else_in_if_statement;
@@ -339,7 +339,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, this.indent_switchstatements_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, this.indent_switchstatements_compare_to_switch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE, this.insert_new_line_at_end_of_file ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, this.insert_new_line_at_end_of_file_if_missing ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CATCH_IN_TRY_STATEMENT, this.insert_new_line_before_catch_in_try_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_before_closing_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_ELSE_IN_IF_STATEMENT, this.insert_new_line_before_else_in_if_statement? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -954,9 +954,9 @@ public class DefaultCodeFormatterOptions {
 		if (insertNewLineAfterOpeningBraceInArrayInitializerOption != null) {
 			this.insert_new_line_after_opening_brace_in_array_initializer = JavaCore.INSERT.equals(insertNewLineAfterOpeningBraceInArrayInitializerOption);
 		}
-		final Object insertNewLineAtEndOfFileOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE);
-		if (insertNewLineAtEndOfFileOption != null) {
-			this.insert_new_line_at_end_of_file = JavaCore.INSERT.equals(insertNewLineAtEndOfFileOption);
+		final Object insertNewLineAtEndOfFileIfMissingOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING);
+		if (insertNewLineAtEndOfFileIfMissingOption != null) {
+			this.insert_new_line_at_end_of_file_if_missing = JavaCore.INSERT.equals(insertNewLineAtEndOfFileIfMissingOption);
 		}
 		final Object insertNewLineBeforeCatchInTryStatementOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CATCH_IN_TRY_STATEMENT);
 		if (insertNewLineBeforeCatchInTryStatementOption != null) {
@@ -1719,7 +1719,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = true;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;
-		this.insert_new_line_at_end_of_file = false;
+		this.insert_new_line_at_end_of_file_if_missing = false;
 		this.insert_new_line_before_catch_in_try_statement = false;
 		this.insert_new_line_before_closing_brace_in_array_initializer = false;
 		this.insert_new_line_before_else_in_if_statement = false;
@@ -1946,7 +1946,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = false;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;
-		this.insert_new_line_at_end_of_file = false;
+		this.insert_new_line_at_end_of_file_if_missing = false;
 		this.insert_new_line_before_catch_in_try_statement = false;
 		this.insert_new_line_before_closing_brace_in_array_initializer = false;
 		this.insert_new_line_before_else_in_if_statement = false;
