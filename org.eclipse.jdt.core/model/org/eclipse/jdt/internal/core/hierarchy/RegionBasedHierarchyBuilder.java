@@ -159,7 +159,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 		try {
 			ArrayList types = new ArrayList();
 			IJavaElement[] roots =
-				((RegionBasedTypeHierarchy) this.hierarchy).fRegion.getElements();
+				((RegionBasedTypeHierarchy) this.hierarchy).region.getElements();
 			int length = roots.length;
 			if (monitor != null) monitor.beginTask("", length); //$NON-NLS-1$
 			for (int i = 0; i <length; i++) {

@@ -45,7 +45,6 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.ImportContainer;
 import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
@@ -130,29 +129,10 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	protected Region packageRegion = null;
 
 	/**
-	 * A region describing the package fragment roots considered by this
-	 * hierarchy. Null if not activated.
-	 */
-	protected Region rootRegion = null;
-	
-	/**
 	 * A region describing the projects considered by this
 	 * hierarchy. Null if not activated.
 	 */
 	protected Region projectRegion = null;
-
-	/**
-	 * A boolean indicating if this hierarchy is actively tracking changes
-	 * in the Java Model.
-	 */
-	protected boolean isActivated = false;
-
-	/**
-	 * A boolean indicating if the hierarchy exists
-	 *
-	 * fix for 1FW67PA
-	 */
-	protected boolean exists = true;
 	
 	/**
 	 * Whether this hierarchy should contains subtypes.
@@ -163,6 +143,11 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	 * The scope this hierarchy should restrain itsef in.
 	 */
 	IJavaSearchScope scope;
+	
+	/*
+	 * Whether this hierarchy needs refresh
+	 */
+	protected boolean needsRefresh = true;
 
 /**
  * Creates an empty TypeHierarchy
@@ -186,15 +171,10 @@ public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaSearchSc
 	this.scope = scope;
 }
 /**
- * Activates this hierarchy for change listeners
+ * Initializes the file, package and project regions
  */
-protected void activate() {
+protected void initializeRegions() {
 
-	// determine my file, package, root, & project regions.
-	this.files = new HashMap(5);
-	this.projectRegion = new Region();
-	this.packageRegion = new Region();
-	this.rootRegion = new Region();
 	IType[] types = getAllTypes();
 	for (int i = 0; i < types.length; i++) {
 		IType type = types[i];
@@ -204,15 +184,12 @@ protected void activate() {
 		}
 		IPackageFragment pkg = type.getPackageFragment();
 		this.packageRegion.add(pkg);
-		this.rootRegion.add(pkg.getParent());
 		IJavaProject declaringProject = type.getJavaProject();
 		if (declaringProject != null) {
 			this.projectRegion.add(declaringProject);
 		}
 		checkCanceled();
 	}
-	JavaCore.addElementChangedListener(this);
-	this.isActivated = true;
 }
 /**
  * Adds all of the elements in the collection to the list if the
@@ -256,17 +233,20 @@ protected void addSubtype(IType type, IType subtype) {
 /**
  * @see ITypeHierarchy
  */
-public void addTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener) {
-	if (this.changeListeners == null) {
-		this.changeListeners = new ArrayList();
-		// fix for 1FW67PA
-		if (this.exists) {
-			activate();
-		}
+public synchronized void addTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener) {
+	ArrayList listeners = this.changeListeners;
+	if (listeners == null) {
+		this.changeListeners = listeners = new ArrayList();
 	}
+	
+	// register with JavaCore to get Java element delta on first listener added
+	if (listeners.size() == 0) {
+		JavaCore.addElementChangedListener(this);
+	}
+	
 	// add listener only if it is not already present
-	if (this.changeListeners.indexOf(listener) == -1) {
-		this.changeListeners.add(listener);
+	if (listeners.indexOf(listener) == -1) {
+		listeners.add(listener);
 	}
 }
 private static Integer bytesToFlags(byte[] bytes){
@@ -348,68 +328,25 @@ public boolean contains(IType type) {
 	return false;
 }
 /**
- * Deactivates this hierarchy for change listeners
- */
-protected void deactivate() {
-	JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(this);
-	this.files= null;
-	this.packageRegion= null;
-	this.rootRegion= null;
-	this.projectRegion= null;
-	this.changeListeners= null;
-	this.isActivated= false;
-}
-/**
- * Empties this hierarchy.
- *
- * fix for 1FW67PA
- */
-protected void destroy() {
-	this.exists = false;
-	this.classToSuperclass = new HashMap(1);
-	this.files = new HashMap(5);
-	this.interfaces = new ArrayList(0);
-	this.packageRegion = new Region();
-	this.projectRegion = new Region();
-	this.rootClasses = new TypeVector();
-	this.rootRegion = new Region();
-	this.typeToSubtypes = new HashMap(1);
-	this.typeFlags = new HashMap(1);
-	this.typeToSuperInterfaces = new HashMap(1);
-	this.missingTypes = new ArrayList(4);
-	JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(this);
-}
-/**
  * Determines if the change effects this hierarchy, and fires
  * change notification if required.
  */
 public void elementChanged(ElementChangedEvent event) {
-	// fix for 1FW67PA
-	if (this.exists && this.isActivated()) {
-		if (exists()) {
-			if (isAffected(event.getDelta())) {
-				fireChange();
-			}
-		} else {
-			destroy();
-			fireChange();
-		}
+	// type hierarchy change has already been fired
+	if (this.needsRefresh) return;
+	
+	if (isAffected(event.getDelta())) {
+		this.needsRefresh = true;
+		fireChange();
 	}
-
 }
 /**
  * @see ITypeHierarchy
- *
- * fix for 1FW67PA
  */
 public boolean exists() {
-	if (this.exists) {
-		this.exists = (this.focusType == null || (this.focusType != null && this.focusType.exists())) && this.javaProject().exists();
-		if (!this.exists) {
-			destroy();
-		}
-	}
-	return this.exists;
+	if (!this.needsRefresh) return true;
+	
+	return (this.focusType == null || this.focusType.exists()) && this.javaProject().exists();
 }
 /**
  * Notifies listeners that this hierarchy has changed and needs
@@ -417,7 +354,8 @@ public boolean exists() {
  * through the list.
  */
 protected void fireChange() {
-	if (this.changeListeners == null) {
+	ArrayList listeners = this.changeListeners;
+	if (listeners == null) {
 		return;
 	}
 	if (DEBUG) {
@@ -426,20 +364,18 @@ protected void fireChange() {
 			System.out.println("    for hierarchy focused on " + ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
 		}
 	}
-	ArrayList listeners= (ArrayList)this.changeListeners.clone();
+	// clone so that a listener cannot have a side-effect on this list when being notified
+	listeners = (ArrayList)listeners.clone();
 	for (int i= 0; i < listeners.size(); i++) {
 		final ITypeHierarchyChangedListener listener= (ITypeHierarchyChangedListener)listeners.get(i);
-		// ensure the listener is still a listener
-		if (this.changeListeners != null  && this.changeListeners.indexOf(listener) >= 0) {
-			Platform.run(new ISafeRunnable() {
-				public void handleException(Throwable exception) {
-					Util.log(exception, "Exception occurred in listener of Type hierarchy change notification"); //$NON-NLS-1$
-				}
-				public void run() throws Exception {
-					listener.typeHierarchyChanged(TypeHierarchy.this);
-				}
-			});
-		}
+		Platform.run(new ISafeRunnable() {
+			public void handleException(Throwable exception) {
+				Util.log(exception, "Exception occurred in listener of Type hierarchy change notification"); //$NON-NLS-1$
+			}
+			public void run() throws Exception {
+				listener.typeHierarchyChanged(TypeHierarchy.this);
+			}
+		});
 	}
 }
 private static byte[] flagsToBytes(Integer flags){
@@ -849,18 +785,15 @@ protected void initialize(int size) {
 	this.typeToSubtypes = new HashMap(smallSize);
 	this.typeToSuperInterfaces = new HashMap(smallSize);
 	this.typeFlags = new HashMap(smallSize);
-}
-/**
- * Returns true if this hierarchy is actively tracking changes
- * in the Java Model.
- */
-protected boolean isActivated() {
-	return this.isActivated;
+	
+	this.projectRegion = new Region();
+	this.packageRegion = new Region();
+	this.files = new HashMap(5);
 }
 /**
  * Returns true if the given delta could change this type hierarchy
  */
-public boolean isAffected(IJavaElementDelta delta) {
+public synchronized boolean isAffected(IJavaElementDelta delta) {
 	IJavaElement element= delta.getElement();
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
@@ -1322,14 +1255,11 @@ protected boolean packageRegionContainsSamePackageFragment(IJavaElement element)
 
 /**
  * @see ITypeHierarchy
+ * TODO: (jerome) should use a PerThreadObject to build the hierarchy instead of synchronizing
+ * (see also isAffected(IJavaElementDelta))
  */
-public void refresh(IProgressMonitor monitor) throws JavaModelException {
+public synchronized void refresh(IProgressMonitor monitor) throws JavaModelException {
 	try {
-		boolean reactivate = isActivated();
-		ArrayList listeners = this.changeListeners;
-		if (reactivate) {
-			deactivate();
-		}
 		this.progressMonitor = monitor;
 		if (monitor != null) {
 			if (this.focusType != null) {
@@ -1350,11 +1280,11 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 				System.out.println("  on type " + ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
 			}
 		}
+
 		compute();
-		if (reactivate) {
-			activate();
-			this.changeListeners = listeners;
-		}
+		initializeRegions();
+		this.needsRefresh = false;
+
 		if (DEBUG) {
 			if (this.computeSubtypes) {
 				System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1364,13 +1294,9 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 			System.out.println(this.toString());
 		}
 	} catch (JavaModelException e) {
-		this.progressMonitor = null;
 		throw e;
 	} catch (CoreException e) {
-		this.progressMonitor = null;
 		throw new JavaModelException(e);
-	} catch (OperationCanceledException oce) {
-		refreshCancelled(oce);
 	} finally {
 		if (monitor != null) {
 			monitor.done();
@@ -1378,26 +1304,20 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		this.progressMonitor = null;
 	}
 }
-/**
- * The refresh of this type hierarchy has been cancelled.
- * Cleanup the state of this now invalid type hierarchy.
- */
-protected void refreshCancelled(OperationCanceledException oce) throws JavaModelException {
-	destroy();
-	this.progressMonitor = null;
-	throw oce;
-}
 
 /**
  * @see ITypeHierarchy
  */
-public void removeTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener) {
-	if (this.changeListeners == null) {
+public synchronized void removeTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener) {
+	ArrayList listeners = this.changeListeners;
+	if (listeners == null) {
 		return;
 	}
-	this.changeListeners.remove(listener);
-	if (this.changeListeners.isEmpty()) {
-		deactivate();
+	listeners.remove(listener);
+
+	// deregister from JavaCore on last listener removed
+	if (listeners.isEmpty()) {
+		JavaCore.removeElementChangedListener(this);
 	}
 }
 /**

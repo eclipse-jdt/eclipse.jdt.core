@@ -272,6 +272,7 @@ public void testAddCompilationUnitInRegion() throws JavaModelException, CoreExce
 		} finally {
 			// cleanup	
 			deleteResource(newCU2.getUnderlyingResource());
+			h.refresh(null);
 			this.reset();
 		}
 	
@@ -293,6 +294,7 @@ public void testAddCompilationUnitInRegion() throws JavaModelException, CoreExce
 		} finally {
 			// cleanup	
 			deleteResource(newCU3.getUnderlyingResource());
+			h.refresh(null);
 			this.reset();
 		}
 	} finally {
@@ -659,17 +661,20 @@ public void testEditImportSourceType() throws JavaModelException, CoreException,
 		IImportDeclaration importDecl = cu.getImport("b.*");
 		importDecl.delete(false, null);
 		this.assertOneChange(h);
+		h.refresh(null);
 		
 		// remove all remaining import declarations
 		this.reset();
 		importDecl = cu.getImport("i.*");
 		importDecl.delete(false, null);
 		this.assertOneChange(h);
+		h.refresh(null);
 		
 		// add an import back in 
 		this.reset();
 		cu.createImport("b.B", null, null);
 		this.assertOneChange(h);
+		h.refresh(null);
 		
 		// add a second import back in 
 		this.reset();
@@ -828,6 +833,7 @@ public void testRemoveExternalPackageFragmentRoot() throws JavaModelException, C
 		IPackageFragmentRoot newRoot= getPackageFragmentRoot("TypeHierarchyNotification", "extra");
 		assertTrue("New root should now be visible", newRoot != null);
 		this.assertOneChange(h);
+		h.refresh(null);
 
 		// remove a classpath entry that does not impact the type hierarchy
 		this.reset();
