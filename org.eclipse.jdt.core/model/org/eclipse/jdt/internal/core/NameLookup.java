@@ -96,10 +96,26 @@ public class NameLookup implements SuffixConstants {
 		this.packageFragments = packageFragments;
 		if (workingCopies != null) {
 			this.unitsToLookInside = new HashMap();
+			HashSet visited = new HashSet();
 			for (int i = 0, length = workingCopies.length; i < length; i++) {
 				ICompilationUnit unitToLookInside = workingCopies[i];
 				ICompilationUnit original = unitToLookInside.getPrimary();
 				this.unitsToLookInside.put(original, unitToLookInside);
+				
+				PackageFragment pkg = (PackageFragment) unitToLookInside.getParent();
+				IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
+				if (visited.contains(root)) continue;
+				String[] pkgName = pkg.names;
+				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) packageFragments.get(pkgName);
+				if (roots == null) {
+					packageFragments.put(pkgName, new IPackageFragmentRoot[] {root});
+				} else {
+					int rootLength = roots.length;
+					System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
+					roots[rootLength] = root;
+					packageFragments.put(pkgName, roots);
+				}
+				visited.add(root);
 			}
 		}
 	}
@@ -642,7 +658,8 @@ public class NameLookup implements SuffixConstants {
 		try {
 			compilationUnits = pkg.getCompilationUnits();
 		} catch (JavaModelException npe) {
-			return; // the package is not present
+			// the package is not present
+			compilationUnits = new ICompilationUnit[0];
 		}
 
 		// replace with working copies to look inside
