@@ -1331,7 +1331,7 @@ public class JavaProject
 					IClasspathEntry[] containerEntries = container.getClasspathEntries();
 					if (containerEntries == null) break;
 
-					// container was bound, container entries could be variables
+					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 						IClasspathEntry containerRawEntry = containerEntries[j];
 						
@@ -1344,23 +1344,7 @@ public class JavaProject
 									IMarker.SEVERITY_ERROR,
 									false);
 						}
-						
-						// container entry is variable ?
-						if (containerRawEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE){
-							resolvedEntry = JavaCore.getResolvedClasspathEntry(containerRawEntry);
-							if (resolvedEntry == null) {
-								if (!ignoreUnresolvedEntry) {
-									throw new JavaModelException(
-										new JavaModelStatus(
-											IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND,
-											containerRawEntry.getPath().toString()));
-								}
-							} else {
-								resolvedEntries.add(resolvedEntry);
-							}
-						} else {
-							resolvedEntries.add(containerRawEntry);
-						}
+						resolvedEntries.add(containerRawEntry);
 					}
 					break;
 										

@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IPath;
  * Interface of a classpath container.
  * A classpath container provides a way to indirectly reference a set of classpath entries through
  * a classpath entry of kind <code>CPE_CONTAINER</code>. Typically, a classpath container can
- * be used to describe a complex library composed of multiple JARs, projects or classpath variables,
+ * be used to describe a complex library composed of multiple JARs or projects,
  * considering also that containers can map to different set of entries on each project, i.e. several 
  * projects can reference the same generic container path, but have each of them actually bound 
  * to a different container object.
@@ -26,9 +26,8 @@ import org.eclipse.core.runtime.IPath;
  * <ul>
  * <li> library entries (<code>CPE_LIBRARY</code>) </li>
  * <li> project entries (<code>CPE_PROJECT</code>) </li>
- * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
  * </ul>
- * In particular, a classpath container cannot reference further classpath containers.
+ * In particular, a classpath container can neither reference further classpath containers or classpath variables.
  * <p>
  * Classpath container values are persisted locally to the workspace, but are not preserved from a 
  * session to another. It is thus highly recommended to register a <code>ClasspathContainerInitializer</code> 
@@ -62,9 +61,8 @@ public interface IClasspathContainer {
 	 * <ul>
 	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
 	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
-	 * <li> variable entries (<code>CPE_VARIABLE</code>), note that these are not automatically resolved </li>
 	 * </ul>
-	 * A classpath container cannot reference further classpath containers.
+	 * A classpath container can neither reference further classpath containers or classpath variables.
 	 * 
 	 * @return IClasspathEntry[] - the classpath entries this container represents
 	 * @see IClasspathEntry

@@ -415,7 +415,6 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 			case IClasspathEntry.CPE_VARIABLE :
 				IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
 				if (resolvedEntry != null){
-					if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) hasSource = true;
 					// check if any source entries coincidates with binary output - in which case nesting inside output is legal
 					if (resolvedEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
 					resolvedEntries.add(resolvedEntry);
@@ -429,9 +428,9 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){
 							for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-								 resolvedEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
+								//resolvedEntry = JavaCore.getResolvedClasspathEntry(containerEntries[j]);
+								resolvedEntry = containerEntries[j];
 								if (resolvedEntry != null){
-									if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) hasSource = true;
 									// check if any source entries coincidates with binary output - in which case nesting inside output is legal
 									if (resolvedEntry.getPath().equals(outputLocation)) allowNestingInOutput = true;
 									resolvedEntries.add(resolvedEntry);
@@ -540,9 +539,11 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 						if (containerEntries != null){
 							for (int i = 0, length = containerEntries.length; i < length; i++){
 								IClasspathEntry containerEntry = containerEntries[i];
+								int kind = containerEntry == null ? 0 : containerEntry.getEntryKind();
 								if (containerEntry == null
-									|| containerEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE
-									|| containerEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
+									|| kind == IClasspathEntry.CPE_SOURCE
+									|| kind == IClasspathEntry.CPE_VARIABLE
+									|| kind == IClasspathEntry.CPE_CONTAINER){
 										return new JavaModelStatus(
 											IJavaModelStatusConstants.INVALID_CP_CONTAINER_ENTRY,
 											container.getPath().toString());
