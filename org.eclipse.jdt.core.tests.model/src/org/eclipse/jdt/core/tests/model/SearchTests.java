@@ -121,7 +121,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 		public void cancel() {
 		}
-		public void ensureReadyBeforeRun() {
+		public void ensureReadyToRun() {
 		}
 		public boolean execute(IProgressMonitor progress) {
 			this.startingSem.release();

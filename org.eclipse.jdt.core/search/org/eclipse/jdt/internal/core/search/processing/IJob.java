@@ -33,9 +33,9 @@ public interface IJob {
 	 */
 	public void cancel();
 	/**
-	 * Ensures that this job is ready before it runs.
+	 * Ensures that this job is ready to run.
 	 */
-	public void ensureReadyBeforeRun();
+	public void ensureReadyToRun();
 	/**
 	 * Execute the current job, answer whether it was successful.
 	 */

@@ -171,7 +171,7 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			JobManager.verbose("STARTING  concurrent job - " + searchJob); //$NON-NLS-1$
 
-		searchJob.ensureReadyBeforeRun();
+		searchJob.ensureReadyToRun();
 
 		int concurrentJobWork = 100;
 		if (progress != null)
@@ -267,7 +267,7 @@ public abstract class JobManager implements Runnable {
 	
 	public synchronized void request(IJob job) {
 
-		job.ensureReadyBeforeRun();
+		job.ensureReadyToRun();
 
 		// append the job to the list of ones to process later on
 		int size = this.awaitingJobs.length;

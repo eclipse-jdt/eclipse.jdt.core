@@ -48,7 +48,7 @@ public class PatternSearchJob implements IJob {
 	public void cancel() {
 		// search job is cancelled through progress 
 	}
-	public void ensureReadyBeforeRun() {
+	public void ensureReadyToRun() {
 		if (this.indexSelector == null) { // only check once. As long as this job is used, it will keep the same index picture
 			this.indexSelector = new IndexSelector(this.scope, this.pattern, this.indexManager);
 			this.indexSelector.getIndexes(); // will only cache answer if all indexes were available originally

@@ -32,7 +32,7 @@ public abstract class IndexRequest implements IJob {
 		this.manager.jobWasCancelled(this.indexPath);
 		this.isCancelled = true;
 	}
-	public void ensureReadyBeforeRun() {
+	public void ensureReadyToRun() {
 		// tag the index as inconsistent
 		this.manager.aboutToUpdateIndex(indexPath, updatedIndexState());
 	}
