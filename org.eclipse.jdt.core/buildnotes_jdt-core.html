@@ -131,29 +131,45 @@ Initial support for search on annotations has been implemented. Declarations or 
 However, it is not currently able to find annotation member (fields or methods). This should be done for next milestone.
 </li>
 <li>
-SearchPattern now accept a new flag for match rule: R_ERASURE_MATCH (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79790">79790</a>).<br>
-When this flag is set, search engine will found all types whose erasure matches the given pattern erasure. By default search engine will only find exact or
-compatible matches for generic or parameterized types.<br>
+SearchPattern now accept two new flags for match rule: R_ERASURE_MATCH and R_EQUIVALENT_MATCH (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79790">79790</a>).<br>
+<pre>
+	/**
+	 * Match rule: The search pattern matches search results as raw types or parameterized types with same erasure.
+	 * Example:
+	 * 	- pattern: List&lt;Exception&gt;
+	 * 	- match: List&lt;Object&gt;
+	 * Can be combined to all other match rules, e.g. {@link #R_CASE_SENSITIVE} | {@link #R_ERASURE_MATCH}
+	 * This rule is not activated by default, so raw types or parameterized types with same erasure will not be found
+	 * for pattern List&lt;String&gt;,
+	 * Note that with this pattern, the match selection will be only on the erasure even for parameterized types.
+	 * @since 3.1
+	 */
+	public static final int R_ERASURE_MATCH = 16;
+	/**
+	 * Match rule: The search pattern matches search results as raw types or parameterized types with equivalent type parameters.
+	 * Example:
+	 *  - pattern: <code>List&lt;Exception&gt;
+	 * 	- match:
+	 * 		+ List&lt;? extends Throwable&gt;
+	 * 		+ List&lt;? super RuntimeException&gt;
+	 * 		+ List&lt;?&gt;
+	 * Can be combined to all other match rules, e.g. {@link #R_CASE_SENSITIVE} | {@link #R_EQUIVALENT_MATCH}
+	 * This rule is not activated by default, so raw types or equivalent parameterized types will not be found
+	 * for pattern List&lt;String&gt;,
+	 * This mode is overridden by {@link  #R_ERASURE_MATCH} as erasure matches obviously include equivalent ones.
+	 * That means that pattern with rule set to {@link #R_EQUIVALENT_MATCH} | {@link  #R_ERASURE_MATCH}
+	 * will return same results than rule only set with {@link  #R_ERASURE_MATCH}.
+	 * @since 3.1
+	 */
+	public static final int R_EQUIVALENT_MATCH = 32;
+</pre>
 Added new API method to make this flag settable even while creating pattern using a IJavaElement:
 <ul>
 <li><code>SearchPattern#createPattern(IJavaElement element, int limitTo, int matchRule)</code></li>
 </ul>
 </li>
 <li>
-SearchMatch now has a rule field which shows the rule used while reporting the match.<br>
-This is initial implementation for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79866">79866</a> for following values:<br>
-<ul>
-<li>
-SearchMatch_A_COMPATIBLE: means that match and pattern are compatible.<br>
-Example: search pattern: <code>List&lt;Exception&gt;</code> and match: <code>List&lt;? extends Throwable&gt;</code> or <code>List&lt;? super RuntimeException&gt;</code> or <code>List&lt;?&gt;</code> etc...<br>
-Note this is always the case when either pattern or reference is a raw type
-</li>
-<li>
-SearchMatch_A_ERASURE: means that only erasure is common to match and pattern.<br>
-Example: search pattern: <code>List&lt;Exception&gt;</code> and match: <code>List&lt;Object&gt;</code><br>
-Note this is always the case when either pattern or reference is a raw type
-</li>
-</ul>
+SearchMatch now has a rule field which shows the rule used while reporting the match (initial implementation for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79866">79866</a>).<br>
 Added new API methods to access this field:
 <ul>
 <li><code>SearchMatch#getRule()</code><br></li>
