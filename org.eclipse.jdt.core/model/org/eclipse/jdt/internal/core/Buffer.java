@@ -135,8 +135,9 @@ public char[] getCharacters() {
  * @see IBuffer
  */
 public String getContents() {
-	if (this.contents == null) return null;
-	return new String(this.getCharacters());
+	char[] chars = this.getCharacters();
+	if (chars == null) return null;
+	return new String(chars);
 }
 /**
  * @see IBuffer

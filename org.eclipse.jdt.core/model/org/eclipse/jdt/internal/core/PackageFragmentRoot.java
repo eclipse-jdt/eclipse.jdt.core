@@ -183,14 +183,10 @@ public void delete(
  *
  * @see JavaElement
  */
-protected void closing(Object info) throws JavaModelException {
-	SourceMapper mapper= getSourceMapper();
-	if (mapper != null) {
-		mapper.close();
-	}
-	super.closing(info);
-}
-
+//protected void closing(Object info) throws JavaModelException { TODO remove after 2.1
+//	((PackageFragmentRootInfo) info).sourceMapper = null;
+//	super.closing(info);
+//}
 /**
  * Compute the package fragment children of this package fragment root.
  * 
