@@ -47,7 +47,6 @@ public class CompilationResult {
 	public ICompilationUnit compilationUnit;
 	private Map problemsMap;
 	private Map firstErrorsMap;
-	private HashSet duplicateProblems;
 	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
@@ -392,14 +391,6 @@ public class CompilationResult {
 		this.tasks[this.taskCount++] = newProblem;
 	}
 	
-	private static void swap(IProblem arr[], int i, int j) {
-
-		IProblem tmp;
-		tmp = arr[i];
-		arr[i] = arr[j];
-		arr[j] = tmp;
-	}
-
 	public CompilationResult tagAsAccepted(){
 
 		this.hasBeenAccepted = true;

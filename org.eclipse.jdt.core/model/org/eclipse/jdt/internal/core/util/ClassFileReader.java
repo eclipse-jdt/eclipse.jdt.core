@@ -52,7 +52,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	private int majorVersion;
 	private int minorVersion;
 	private int superclassNameIndex;
-	private int classIndex;
 	private int attributesCount;
 	private IClassFileAttribute[] attributes;
 	

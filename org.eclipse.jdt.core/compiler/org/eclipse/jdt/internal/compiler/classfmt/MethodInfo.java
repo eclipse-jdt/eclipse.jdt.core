@@ -22,10 +22,8 @@ public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Attrib
 	private int accessFlags;
 	private char[] name;
 	private char[] signature;
-	private int attributesCount;
 	private int attributeBytes;
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
-	private int decodeIndex;
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]

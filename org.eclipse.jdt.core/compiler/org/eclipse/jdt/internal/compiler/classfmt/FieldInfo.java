@@ -33,7 +33,6 @@ public class FieldInfo extends ClassFileStruct implements AttributeNamesConstant
 	private int accessFlags;
 	private char[] name;
 	private char[] signature;
-	private int attributesCount;
 	private int attributeBytes;
 	private Object wrappedConstantValue;
 /**

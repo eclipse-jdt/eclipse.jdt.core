@@ -20,7 +20,6 @@ public final class SourceType implements CompilerModifiers, IConstants {
 	private char[] fileName;
 	private SourcePackage packageName;
 	private SourceImport[] imports;
-	private int numberOfImports;
 	private char[] enclosingTypeName;
 	private char[] name;
 	private int nameSourceStart;

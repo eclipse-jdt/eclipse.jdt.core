@@ -15,8 +15,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ExtendedStringLiteral extends StringLiteral {
 
-	private static final int INIT_SIZE = 30;
-
 	/** 
 	 *  Build a string+char literal
 	 */
