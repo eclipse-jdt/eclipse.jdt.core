@@ -1117,12 +1117,12 @@ public void test30() {
 		"1. ERROR in p\\X.java (at line 5)\n" + 
 		"	new q.X2().bar(\"String\");	\n" + 
 		"	           ^^^\n" + 
-		"The method bar(String) from the type X2 is not visible\n" + 
+		"The method bar(Object) from the type X2 is not visible\n" + 
 		"----------\n" + 
 		"2. ERROR in p\\X.java (at line 6)\n" + 
 		"	new q.X2().barbar(\"String\");	\n" + 
 		"	           ^^^^^^\n" + 
-		"The method barbar(String) from the type X2 is not visible\n" + 
+		"The method barbar(Object) from the type X2 is not visible\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. WARNING in q\\X2.java (at line 5)\n" + 
@@ -1176,7 +1176,7 @@ public void test31() {
 		"1. ERROR in p\\X.java (at line 9)\n" + 
 		"	barbar(\"String\");	\n" + 
 		"	^^^^^^\n" + 
-		"The method barbar(String) from the type X2 is not visible\n" + 
+		"The method barbar(Object) from the type X2 is not visible\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. WARNING in q\\X2.java (at line 5)\n" + 
