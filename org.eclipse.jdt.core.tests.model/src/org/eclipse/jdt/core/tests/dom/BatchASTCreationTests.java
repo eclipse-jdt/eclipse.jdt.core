@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
@@ -79,7 +81,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test056"));
+			suite.addTest(new BatchASTCreationTests("test057"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -1087,7 +1089,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"Lp1/DoesNotExist;"});
 		assertBindingsEqual(
-				"", 
+				"<null>", 
 				bindings);
 	}
 	
@@ -1178,27 +1180,42 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=86967
+	 * Ensures that creating a binary member type binding returns the correct binding
+	 * (regression test for bug 86967 [1.5][dom] NPE in BindingKeyResolver for multi-level parameterized type binding)
 	 */
-	public void _test056() throws CoreException {
-		assertBindingCreated(
-			new String[] {
-				"/P/X.java",
-				"import java.util.HashMap;\n" + 
-				"import java.util.Iterator;\n" + 
-				"import java.util.Map;\n" + 
-				"import java.util.Set;\n" + 
-				"class X {\n" + 
-				"	void sets() {\n" + 
-				"		Map map= new HashMap();\n" + 
-				"		map.put(\"key\", new Integer(17));\n" + 
-				"		Set entrySet= map.entrySet();\n" + 
-				"		Iterator iter= entrySet.iterator();\n" + 
-				"		Map.Entry entry= (Map.Entry) iter.next();\n" + 
-				"	}\n" + 
-				"}",
-			},
-			"Ljava/util/Map$Entry<Ljava/util/Map<TK;TV;>;:TK;Ljava/util/Map<TK;TV;>;:TV;>;"
-		);
+	public void test056() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("BinaryProject", new String[0], new String[] {"JCL15_LIB"}, "", "1.5");
+			addLibrary(project, "lib.jar", "src.zip", new String[] {
+				"/BinaryProject/p/X.java",
+				"package p;\n" +
+				"public class X<K, V> {\n" +
+				"  public class Y<K1, V1> {\n" +
+				"  }\n" +
+				"}"
+			}, "1.5");
+			ITypeBinding[] bindings = createTypeBindings(new String[0], new String[] {
+				"Lp/X$Y<Lp/X<TK;TV;>;:TK;Lp/X<TK;TV;>;:TV;>;"
+			}, project);
+			assertBindingsEqual(
+				"Lp/X$Y<Lp/X<TK;TV;>;:TK;Lp/X<TK;TV;>;:TV;>;",
+				bindings);
+		} finally {
+			deleteProject("BinaryProject");
+		}
 	}
+
+	/*
+	 * Ensures that creating a missing binary member type binding doesn't throw a NPE
+	 * (regression test for bug 86967 [1.5][dom] NPE in BindingKeyResolver for multi-level parameterized type binding)
+	 */
+	public void test057() throws CoreException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {"Lp/Missing$Member;"});
+		assertBindingsEqual(
+			"<null>",
+			bindings);
+	}
+	
 }

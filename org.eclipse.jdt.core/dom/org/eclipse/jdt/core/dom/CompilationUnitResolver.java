@@ -682,12 +682,9 @@ class CompilationUnitResolver extends Compiler {
 				BindingKeyResolver keyResolver = (BindingKeyResolver) keys[j];
 				if (keyResolver == null) continue;
 				Binding compilerBinding = keyResolver.getCompilerBinding();
-				if (compilerBinding != null) {
-					IBinding binding = resolver.getBinding(compilerBinding);
-					if (binding != null)
-						// pass it to requestor
-						astRequestor.acceptBinding(((BindingKeyResolver) this.requestedKeys.valueTable[j]).getKey(), binding);
-				}
+				IBinding binding = compilerBinding == null ? null : resolver.getBinding(compilerBinding);
+				// pass it to requestor
+				astRequestor.acceptBinding(((BindingKeyResolver) this.requestedKeys.valueTable[j]).getKey(), binding);
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
