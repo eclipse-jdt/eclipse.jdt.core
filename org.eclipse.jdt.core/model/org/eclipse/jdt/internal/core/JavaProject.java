@@ -1358,7 +1358,7 @@ public class JavaProject
 						JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
 						false,
 						false);
-			}
+				}
 			}
 
 			switch (rawEntry.getEntryKind()){
