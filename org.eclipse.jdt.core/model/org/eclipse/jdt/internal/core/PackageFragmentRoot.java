@@ -250,8 +250,13 @@ protected void computeFolderChildren(IContainer folder, String prefix, ArrayList
 		throw new JavaModelException(e);
 	}
 }
-/*
- * @see org.eclipse.jdt.core.IPackageFragmentRoot#computeSourceAttachmentRootPath(IPath)
+/**
+ * Computes and returns the source attachment root path for the given source attachment path.
+ * Returns <code>null</code> if none could be found.
+ * 
+ * @param sourceAttachmentPath the given absolute path to the source archive or folder
+ * @return the computed source attachment root path or <code>null</cde> if none could be found
+ * @throws JavaModelException
  */
 public IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) throws JavaModelException {
 	IPath sourcePath = this.getSourceAttachmentPath();

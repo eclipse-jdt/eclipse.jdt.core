@@ -402,7 +402,7 @@ public IJavaProject getJavaProject() {
  * @see IJavaModel
  */
 public IJavaProject getJavaProject(String name) {
-	return new JavaProject(this.getWorkspace().getRoot().getProject(name), this);
+	return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(name), this);
 }
 /**
  * Returns the active Java project associated with the specified

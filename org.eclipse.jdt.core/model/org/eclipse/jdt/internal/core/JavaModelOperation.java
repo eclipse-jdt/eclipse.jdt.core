@@ -498,19 +498,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		}
 		return sub;
 	}
-	/**
-	 * Returns the <code>IWorkspace</code> this operation is working in, or
-	 * <code>null</code> if this operation has no elements to process.
-	 */
-	protected IWorkspace getWorkspace() {
-		if (fElementsToProcess != null && fElementsToProcess.length > 0) {
-			IJavaProject project = fElementsToProcess[0].getJavaProject();
-			if (project != null) {
-				return project.getJavaModel().getWorkspace();
-			}
-		}
-		return null;
-	}
+
 	/**
 	 * Returns whether this operation has performed any resource modifications.
 	 * Returns false if this operation has not been executed yet.

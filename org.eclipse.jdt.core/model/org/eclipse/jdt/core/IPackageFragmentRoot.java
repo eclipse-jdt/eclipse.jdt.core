@@ -108,17 +108,7 @@ public interface IPackageFragmentRoot
 	 */
 	void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor monitor)
 		throws JavaModelException;
-	/**
-	 * Computes and returns the source attachment root path for the given source attachment path.
-	 * Returns <code>null</code> if none could be found.
-	 * 
-	 * @param sourceAttachmentPath the given absolute path to the source archive or folder
-	 * @return the computed source attachment root path or <code>null</cde> if none could be found
-	 * @throws JavaModelException
-	 * @since 2.1
-	 */
-	IPath computeSourceAttachmentRootPath(IPath sourceAttachmentPath) 
-		throws JavaModelException;
+
 	/**
 	 * Copies the resource of this package fragment root to the destination path
 	 * as specified by <code>IResource.copy(IPath, int, IProgressMonitor)</code>

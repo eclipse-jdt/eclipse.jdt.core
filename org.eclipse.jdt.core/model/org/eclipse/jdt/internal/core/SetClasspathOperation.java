@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -182,7 +183,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaProject project =getProject();
 	
 		// see if this will cause any package fragments to be affected
-		IWorkspace workspace = getWorkspace();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IResource resource = null;
 		if (location != null) {
 			resource = workspace.getRoot().findMember(location);

@@ -394,7 +394,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 					} else if (isMove()) {
 						// we need to delete this resource if this operation wants to override existing resources
 						for (int i = 0, max = resources.length; i < max; i++) {
-							IResource destinationResource = getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
+							IResource destinationResource = ResourcesPlugin.getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
 							if (destinationResource != null) {
 								if (fForce) {
 									deleteResource(destinationResource, IResource.KEEP_HISTORY);
@@ -409,7 +409,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 					} else {
 						// we need to delete this resource if this operation wants to override existing resources
 						for (int i = 0, max = resources.length; i < max; i++) {
-							IResource destinationResource = getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
+							IResource destinationResource = ResourcesPlugin.getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
 							if (destinationResource != null) {
 								if (fForce) {
 									// we need to delete this resource if this operation wants to override existing resources

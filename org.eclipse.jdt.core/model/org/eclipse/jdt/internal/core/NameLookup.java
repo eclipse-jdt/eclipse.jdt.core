@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -123,7 +124,7 @@ public class NameLookup {
 	 * @throws JavaModelException if the <code>IJavaProject</code> has no classpath.
 	 */
 	private void configureFromProject(IJavaProject project) throws JavaModelException {
-		workspace= project.getJavaModel().getWorkspace();
+		workspace= ResourcesPlugin.getWorkspace();
 		fPackageFragmentRoots= ((JavaProject) project).getAllPackageFragmentRoots();
 		fPackageFragments= new HashMap();
 		IPackageFragment[] frags = this.getPackageFragmentsInRoots(fPackageFragmentRoots, project);
