@@ -391,10 +391,18 @@ class MethodBinding implements IMethodBinding {
 			&& ((ParameterizedGenericMethodBinding) this.binding).isRaw;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getErasure()
+	/**
+	 * @deprecated Use {@link #getGenericMethod()} instead.
 	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getErasure() {
+		return getGenericMethod();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getGenericMethod()
+	 */
+	public IMethodBinding getGenericMethod() {
 		return this.resolver.getMethodBinding(this.binding.original());
 	}
 	

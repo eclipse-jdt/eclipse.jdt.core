@@ -1438,9 +1438,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No type arguments", typeArguments);
 		assertEquals("Wrong size", 1, typeArguments.length);
 		assertEquals("Wrong qualified name", "java.lang.String", typeArguments[0].getQualifiedName());
-		IMethodBinding erasure = methodBinding.getErasure();
-		assertNotNull("No erasure", erasure);
-		assertFalse("Not a parameterized method", erasure.isParameterizedMethod());
+		IMethodBinding genericMethod = methodBinding.getGenericMethod();
+		assertNotNull("No generic method", genericMethod);
+		assertFalse("Not a parameterized method", genericMethod.isParameterizedMethod());
 	}
 	
 	/**
@@ -1871,8 +1871,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
 		assertEquals("Wrong qualified name", "test0065.X", typeBinding.getQualifiedName());
-		ITypeBinding erasure = typeBinding.getErasure();
-		assertEquals("Wrong qualified name", "test0065.X", erasure.getQualifiedName());
+		ITypeBinding genericType = typeBinding.getGenericType();
+		assertEquals("Wrong qualified name", "test0065.X", genericType.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Wrong node", ASTNode.RETURN_STATEMENT, node.getNodeType());
 		ReturnStatement returnStatement = (ReturnStatement) node;
@@ -2217,8 +2217,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"}",
 				workingCopy);
 			ITypeBinding binding = ((Type) node).resolveBinding();
-			ITypeBinding erasure = binding.getErasure();
-			assertFalse("Equals", binding.isEqualTo(erasure));
+			ITypeBinding genericType = binding.getGenericType();
+			assertFalse("Equals", binding.isEqualTo(genericType));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

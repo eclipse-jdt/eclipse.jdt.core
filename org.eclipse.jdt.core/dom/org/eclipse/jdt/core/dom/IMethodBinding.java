@@ -185,7 +185,7 @@ public interface IMethodBinding extends IBinding {
 	 * @return <code>true</code> if this method binding represents a 
 	 * an instance of a generic method corresponding to a parameterized
 	 * method reference, and <code>false</code> otherwise
-	 * @see #getErasure()
+	 * @see #getGenericMethod()
 	 * @see #getTypeArguments()
 	 * @since 3.1
 	 */
@@ -208,7 +208,7 @@ public interface IMethodBinding extends IBinding {
 	 *
 	 * @return the list of type bindings for the type arguments used to
 	 * instantiate the corrresponding generic method, or otherwise the empty list
-	 * @see #getErasure()
+	 * @see #getGenericMethod()
 	 * @see #isParameterizedMethod()
 	 * @see #isRawMethod()
 	 * @since 3.1
@@ -233,8 +233,31 @@ public interface IMethodBinding extends IBinding {
 	 *
 	 * @return the erasure method binding
 	 * @since 3.1
+	 * @deprecated Use {@link #getGenericMethod()} instead.
 	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getErasure();
+	
+	/**
+	 * Returns the generic method corresponding to this method binding.
+	 * Some bindings correspond to method declarations in the context of
+	 * a particular instance of a generic method. In those cases, this method
+	 * returns the generic method binding from which this method binding
+	 * was instantiated.
+	 * For other method bindings, this method returns the identical method binding.
+	 * Note that the resulting method binding will answer true to
+	 * {@link #isGenericMethod()} iff this method binding would return true
+	 * to either {@link #isGenericMethod()}, {@link #isParameterizedMethod()},
+	 * or {@link #isRawMethod()}.
+	 * <p>
+	 * Note: Support for new language features proposed for the upcoming 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return the generic method binding
+	 * @since 3.1
+	 */
+	public IMethodBinding getGenericMethod();
 	
 	/**
 	 * Returns whether this method binding represents an instance of
@@ -252,7 +275,7 @@ public interface IMethodBinding extends IBinding {
 	 * @return <code>true</code> if this method binding represents a 
 	 * an instance of a generic method corresponding to a raw
 	 * method reference, and <code>false</code> otherwise
-	 * @see #getErasure()
+	 * @see #getGenericMethod()
 	 * @see #getTypeArguments()
 	 * @since 3.1
 	 */

@@ -286,7 +286,7 @@ public interface ITypeBinding extends IBinding {
 	 * an instance of a generic type corresponding to a parameterized
 	 * type reference, and <code>false</code> otherwise
 	 * @see #getTypeArguments()
-	 * @see #getErasure()
+	 * @see #getGenericType()
 	 * @since 3.0
 	 */
 	public boolean isParameterizedType();
@@ -310,7 +310,7 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the list of type bindings for the type arguments used to
 	 * instantiate the corrresponding generic type, or otherwise the empty list
-	 * @see #getErasure()
+	 * @see #getGenericType()
 	 * @see #isGenericType()
 	 * @see #isParameterizedType()
 	 * @see #isRawType()
@@ -337,8 +337,32 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the erasure type binding
 	 * @since 3.0
+	 * @deprecated Use {@link #getGenericType()} instead.
 	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public ITypeBinding getErasure();
+	
+	/**
+	 * Returns the generic type corresponding to this type binding.
+	 * In the presense of generic types, some bindings correspond to
+	 * types declarations in the context of a particular instance of
+	 * the generic type. In those cases, this method returns
+	 * the generic type binding from which this type binding
+	 * was instantiated. For other type bindings, this method returns
+	 * the identical type binding.
+	 * Note that the resulting type binding will answer true to
+	 * {@link #isGenericType()} iff this type binding would return true
+	 * to either {@link #isGenericType()}, {@link #isParameterizedType()},
+	 * or {@link #isRawType()}.
+	 * <p>
+	 * Note: Support for new language features proposed for the upcoming 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return the generic type binding
+	 * @since 3.1
+	 */
+	public ITypeBinding getGenericType();
 	
 	/**
 	 * Returns whether this type binding represents an instance of
@@ -366,7 +390,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return <code>true</code> if this type binding represents a 
 	 * an instance of a generic type corresponding to a raw
 	 * type reference, and <code>false</code> otherwise
-	 * @see #getErasure()
+	 * @see #getGenericType()
 	 * @see #getTypeArguments()
 	 * @since 3.0
 	 */

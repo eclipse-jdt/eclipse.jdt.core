@@ -262,10 +262,18 @@ class TypeBinding implements ITypeBinding {
 		return resolver.getTypeBinding(arrayBinding.leafComponentType);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getErasure()
+	/**
+	 * @deprecated Use {@link #getGenericType()} instead.
 	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public ITypeBinding getErasure() {
+		return getGenericType();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getGenericType()
+	 */
+	public ITypeBinding getGenericType() {
 		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
 
@@ -443,7 +451,7 @@ class TypeBinding implements ITypeBinding {
 			return String.valueOf(buffer);
 		}
 		if (isRawType()) {
-			return getErasure().getName();
+			return getGenericType().getName();
 		}
 		if (isPrimitive() || isNullType()) {
 			BaseTypeBinding baseTypeBinding = (BaseTypeBinding) this.binding;
@@ -543,7 +551,7 @@ class TypeBinding implements ITypeBinding {
 			return String.valueOf(buffer);
 		}
 		if (isRawType()) {
-			return getErasure().getQualifiedName();
+			return getGenericType().getQualifiedName();
 		}
 		if (isArray()) {
 			ITypeBinding elementType = getElementType();
@@ -574,7 +582,7 @@ class TypeBinding implements ITypeBinding {
 		}
 		if (isParameterizedType()) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(getErasure().getQualifiedName());
+			buffer.append(getGenericType().getQualifiedName());
 			ITypeBinding[] typeArguments = getTypeArguments();
 			final int typeArgumentsLength = typeArguments.length;
 			if (typeArgumentsLength != 0) {
@@ -590,7 +598,7 @@ class TypeBinding implements ITypeBinding {
 			return String.valueOf(buffer);
 		}
 		if (isRawType()) {
-			return getErasure().getQualifiedName();
+			return getGenericType().getQualifiedName();
 		}
 		PackageBinding packageBinding = this.binding.getPackage();
 		
