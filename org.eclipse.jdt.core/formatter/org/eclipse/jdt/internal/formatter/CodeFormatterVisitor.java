@@ -2555,7 +2555,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		formatMethodArguments(
 			constructorDeclaration, 
-			this.preferences.insert_space_before_method_declaration_open_paren,
+			this.preferences.insert_space_before_constructor_declaration_open_paren,
 			this.preferences.insert_space_between_empty_arguments,
 			this.preferences.insert_space_before_closing_paren,
 			this.preferences.insert_space_before_first_argument,

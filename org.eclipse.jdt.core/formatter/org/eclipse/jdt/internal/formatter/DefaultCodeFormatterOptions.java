@@ -122,6 +122,7 @@ public class DefaultCodeFormatterOptions {
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_FIRST_ARGUMENT = false;
+	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_FIRST_INITIALIZER = false;
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_FOR_PAREN = true;	
 	public static final boolean DEFAULT_INSERT_SPACE_BEFORE_IF_CONDITION = true;
@@ -282,6 +283,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_comma_in_multiple_field_declarations;
 	public boolean insert_space_before_comma_in_multiple_local_declarations;
 	public boolean insert_space_before_comma_in_superinterfaces;
+	public boolean insert_space_before_constructor_declaration_open_paren;
 	public boolean insert_space_before_first_argument;
 	public boolean insert_space_before_first_initializer;
 	public boolean insert_space_before_for_paren;
@@ -447,6 +449,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_before_comma_in_multiple_field_declarations ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_before_comma_in_multiple_local_declarations ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, this.insert_space_before_comma_in_superinterfaces ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN, this.insert_space_before_constructor_declaration_open_paren ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_ARGUMENT, this.insert_space_before_first_argument ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_INITIALIZER, this.insert_space_before_first_initializer ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FOR_PAREN, this.insert_space_before_for_paren ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -878,6 +881,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeCommaInSuperinterfacesOption != null) {
 			this.insert_space_before_comma_in_superinterfaces = JavaCore.INSERT.equals(insertSpaceBeforeCommaInSuperinterfacesOption);
 		}
+		final Object insertSpaceBeforeConstructorDeclarationOpenParenOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN);
+		if (insertSpaceBeforeConstructorDeclarationOpenParenOption != null) {
+			this.insert_space_before_constructor_declaration_open_paren = JavaCore.INSERT.equals(insertSpaceBeforeConstructorDeclarationOpenParenOption);
+		}
 		final Object insertSpaceBeforeFirstArgumentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_ARGUMENT);
 		if (insertSpaceBeforeFirstArgumentOption != null) {
 			this.insert_space_before_first_argument = JavaCore.INSERT.equals(insertSpaceBeforeFirstArgumentOption);
@@ -1195,6 +1202,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_field_declarations = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS;
 		this.insert_space_before_comma_in_multiple_local_declarations = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS;
 		this.insert_space_before_comma_in_superinterfaces = DEFAULT_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES;
+		this.insert_space_before_constructor_declaration_open_paren = DEFAULT_INSERT_SPACE_BEFORE_CONSTRUCTOR_DECLARATION_OPEN_PAREN;
 		this.insert_space_before_first_argument = DEFAULT_INSERT_SPACE_BEFORE_FIRST_ARGUMENT;
 		this.insert_space_before_first_initializer = DEFAULT_INSERT_SPACE_BEFORE_FIRST_INITIALIZER;
 		this.insert_space_before_for_paren = DEFAULT_INSERT_SPACE_BEFORE_FOR_PAREN;
@@ -1344,6 +1352,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_field_declarations = false;
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
+		this.insert_space_before_constructor_declaration_open_paren = false;
 		this.insert_space_before_first_argument = false;
 		this.insert_space_before_first_initializer = false;
 		this.insert_space_before_for_paren = true;
