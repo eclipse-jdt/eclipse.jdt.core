@@ -308,23 +308,6 @@ class BindingResolver {
 	}
 	
 	/**
-	 * Resolves the loop variable of the given enhanced for statement and 
-	 * returns the binding for it.
-	 * <p>
-	 * The default implementation of this method returns <code>null</code>.
-	 * Subclasses may reimplement.
-	 * </p>
-	 * 
-	 * @param statement the enhanced for statement of interest
-	 * @return the binding for the loop variable for the given enhanced for
-	 *    statement, or <code>null</code> if no binding is available
-	 * @since 3.0
-	 */
-	IVariableBinding resolveVariable(EnhancedForStatement statement) {
-		return null;
-	}
-
-	/**
 	 * Resolves the given enum constant declaration and returns the binding for
 	 * the field.
 	 * <p>
