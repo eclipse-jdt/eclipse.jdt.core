@@ -116,9 +116,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * A list of IJavaElement used as a scope for external archives refresh during POST_CHANGE.
 	 * This is null if no refresh is needed.
 	 */
-	IJavaElement[] refreshedElements;
-	int refreshedElementsSize;
-
+	HashSet refreshedElements;
 	public static boolean VERBOSE = false;
 	
 	class OutputsInfo {
@@ -227,17 +225,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 */
 	public void addForRefresh(IJavaElement element) {
 		if (this.refreshedElements == null) {
-			this.refreshedElements = new IJavaElement[5];
-			this.refreshedElementsSize = 0;
-		} else if (refreshedElements.length == this.refreshedElementsSize) {
-			System.arraycopy(
-				this.refreshedElements, 
-				0, 
-				this.refreshedElements = new IJavaElement[this.refreshedElementsSize*2], 
-				0, 
-				this.refreshedElementsSize);
+			this.refreshedElements = new HashSet();
 		}
-		this.refreshedElements[this.refreshedElementsSize++] = element;
+		this.refreshedElements.add(element);
 	}
 	/*
 	 * Adds the given project and its dependents to the list of the projects
@@ -270,8 +260,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 */
 	public void checkExternalArchiveChanges(IJavaElement[] refreshedElements, IProgressMonitor monitor) throws JavaModelException {
 		try {
-			this.refreshedElements = refreshedElements;
-			this.refreshedElementsSize = refreshedElements.length;
+			for (int i = 0, length = refreshedElements.length; i < length; i++) {
+				this.addForRefresh(refreshedElements[i]);
+			}
 			boolean hasDelta = this.createExternalArchiveDelta(monitor);
 			if (monitor != null && monitor.isCanceled()) return; 
 			if (hasDelta){
@@ -298,6 +289,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * Returns whether at least on delta was created.
 	 */
 	public boolean createExternalArchiveDelta(IProgressMonitor monitor) throws JavaModelException {
+		
+		if (this.refreshedElements == null) return false;
 			
 		HashMap externalArchivesStatus = new HashMap();
 		boolean hasDelta = false;
@@ -305,8 +298,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 		// find JARs to refresh
 		HashSet archivePathsToRefresh = new HashSet();
 		try {
-			for (int i = 0; i < this.refreshedElementsSize; i++){
-				IJavaElement element = (IJavaElement)this.refreshedElements[i];
+			Iterator iterator = this.refreshedElements.iterator();
+			while (iterator.hasNext()) {
+				IJavaElement element = (IJavaElement)iterator.next();
 				switch(element.getElementType()){
 					case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 						archivePathsToRefresh.add(element.getPath());
@@ -334,7 +328,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 			}
 		} finally {
 			this.refreshedElements = null;
-			this.refreshedElementsSize = -1;
 		}
 		
 		// perform refresh

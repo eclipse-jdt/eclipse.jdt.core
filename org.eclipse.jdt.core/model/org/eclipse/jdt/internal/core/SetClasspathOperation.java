@@ -241,6 +241,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			if (this.newRawPath != ReuseClasspath){
 				updateClasspath();
 				project.updatePackageFragmentRoots();
+				JavaModelManager.getJavaModelManager().deltaProcessor.addForRefresh(project);
 			}
 
 		} catch(JavaModelException e){
