@@ -269,6 +269,7 @@ private void readModifierRelatedAttributes() {
 	for (int i = 0; i < attributesCount; i++) {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		// test added for obfuscated .class file. See 79772
 		if (attributeName.length != 0) {
 			switch(attributeName[0]) {
 				case 'D' :
