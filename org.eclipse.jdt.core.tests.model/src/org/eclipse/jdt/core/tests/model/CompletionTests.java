@@ -8082,6 +8082,7 @@ public void testCompletionCatchArgumentName2() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals(
+		"element:exception    completion:exception    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE)+"\n"+
 		"element:locException    completion:locException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 		

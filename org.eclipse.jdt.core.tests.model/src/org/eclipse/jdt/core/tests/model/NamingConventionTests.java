@@ -122,7 +122,9 @@ public void testSuggestFieldName003() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,fieldPrefixPreviousValue);
 	JavaCore.setOptions(options);
 	assertEquals(
+		"name\n" + //$NON-NLS-1$
 		"fName\n" + //$NON-NLS-1$
+		"oneName\n" + //$NON-NLS-1$
 		"fOneName", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -143,7 +145,9 @@ public void testSuggestFieldName004() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,fieldPrefixPreviousValue);
 	JavaCore.setOptions(options);
 	assertEquals(
+		"name\n" + //$NON-NLS-1$
 		"_name\n" + //$NON-NLS-1$
+		"oneName\n" + //$NON-NLS-1$
 		"_oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -167,7 +171,9 @@ public void testSuggestFieldName005() throws CoreException {
 	options.put(JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES,staticFieldPrefixPreviousValue);
 	JavaCore.setOptions(options);
 	assertEquals(
+		"name\n" + //$NON-NLS-1$
 		"fgName\n" + //$NON-NLS-1$
+		"oneName\n" + //$NON-NLS-1$
 		"fgOneName", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -191,7 +197,13 @@ public void testSuggestFieldName006() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,fieldSuffixPreviousValue);
 	JavaCore.setOptions(options);
 	assertEquals(
+		"name\n" + //$NON-NLS-1$
+		"namesuf\n" + //$NON-NLS-1$
+		"preName\n" + //$NON-NLS-1$
 		"preNamesuf\n" + //$NON-NLS-1$
+		"oneName\n" + //$NON-NLS-1$
+		"oneNamesuf\n" + //$NON-NLS-1$
+		"preOneName\n" + //$NON-NLS-1$
 		"preOneNamesuf", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -215,6 +227,9 @@ public void testSuggestFieldName007() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,fieldSuffixPreviousValue);
 	JavaCore.setOptions(options);
 	assertEquals(
+		"i\n" + //$NON-NLS-1$
+		"isuf\n" + //$NON-NLS-1$
+		"preI\n" + //$NON-NLS-1$
 		"preIsuf", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -252,7 +267,13 @@ public void testSuggestFieldName009() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,fieldSuffixPreviousValue);
 	JavaCore.setOptions(options);
 	assertEquals(
+		"name\n" + //$NON-NLS-1$
+		"namesuf\n" + //$NON-NLS-1$
+		"preName\n" + //$NON-NLS-1$
 		"preName2suf\n" + //$NON-NLS-1$
+		"oneName\n" + //$NON-NLS-1$
+		"oneNamesuf\n" + //$NON-NLS-1$
+		"preOneName\n" + //$NON-NLS-1$
 		"preOneNamesuf", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -276,7 +297,13 @@ public void testSuggestFieldName010() throws CoreException {
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,fieldSuffixPreviousValue);
 	JavaCore.setOptions(options);
 	assertEquals(
+		"names\n" + //$NON-NLS-1$
+		"namessuf\n" + //$NON-NLS-1$
+		"preNames\n" + //$NON-NLS-1$
 		"preNamessuf\n" + //$NON-NLS-1$
+		"oneNames\n" + //$NON-NLS-1$
+		"oneNamessuf\n" + //$NON-NLS-1$
+		"preOneNames\n" + //$NON-NLS-1$
 		"preOneNamessuf", //$NON-NLS-1$
 		toString(suggestions));
 }
