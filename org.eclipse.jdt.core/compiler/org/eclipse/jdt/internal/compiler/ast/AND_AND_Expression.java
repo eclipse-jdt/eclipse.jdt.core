@@ -42,7 +42,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// anything && FALSE
 			// whatever is on the left, we will fail, so the result must merge the left inits when answering
 			// initsWhenFalse. the initsWhenTrue are undetermined, since this path will be fake reachable...
-			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 			return mergedInfo;			
 		}

@@ -113,7 +113,9 @@ STREAM: 2.0
   
   What's new in this drop
   ================================================================================
-
+  * New AST node for empty statements (org.eclipse.jdt.internal.compiler.ast.EmptyStatement)
+  	i.e. 2 more APIs on the AST visitor.
+  	
   PRs Fixed in this Release
   ================================================================================
   1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
