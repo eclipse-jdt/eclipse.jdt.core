@@ -56,6 +56,7 @@ public class DefaultVariableInitializer implements VariablesInitializer.ITestIni
 public class DefaultContainerInitializer implements ContainerInitializer.ITestInitializer {
 	
 	Map containerValues;
+	CoreException exception;
 	
 	/*
 	 * values is [<project name>, <lib path>[,<lib path>]* ]*
@@ -91,11 +92,16 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 	}
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		if (containerValues == null) return;
-		JavaCore.setClasspathContainer(
-			containerPath, 
-			new IJavaProject[] {project},
-			new IClasspathContainer[] {(IClasspathContainer)containerValues.get(project.getElementName())}, 
-			null);
+		try {
+			JavaCore.setClasspathContainer(
+				containerPath, 
+				new IJavaProject[] {project},
+				new IClasspathContainer[] {(IClasspathContainer)containerValues.get(project.getElementName())}, 
+				null);
+		} catch (CoreException e) {
+			this.exception = e;
+			throw e;
+		}
 	}
 }
 	
@@ -184,9 +190,55 @@ public void testContainerInitializer3() throws CoreException {
 		this.deleteProject("P2");
 	}
 }
+/* Ensure that initializer is not callled when resource tree is locked.
+ * (regression test for bug 29585 Core Exception as resource tree is locked initializing classpath container)
+ */
+public void testContainerInitializer4() throws CoreException {
+	try {
+		this.createProject("P1");
+		this.createFile("/P1/lib.jar", "");
+		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"});
+		ContainerInitializer.setInitializer(initializer);
+		IJavaProject p2 = this.createJavaProject(
+				"P2", 
+				new String[] {""}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+				
+		// simulate state on startup (flush containers, and preserve their previous values)
+		JavaModelManager.PreviousSessionContainers = JavaModelManager.Containers;
+		JavaModelManager.Containers = new HashMap(5);
+		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		p2.close();
+		
+		startDeltas();
+		this.createFile("/P2/X.java", "public class X {}");
+		
+		assertEquals("Should not get exception", null, initializer.exception);
+		
+		assertDeltas(
+			"Unexpected delta on startup", 
+			"P2[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.java[+]: {}"
+		);
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
 public static Test suite() {
 	return new Suite(ClasspathInitializerTests.class);
 }
+protected void tearDown() throws Exception {
+	// Cleanup caches
+	JavaModelManager.Containers = new HashMap(5);
+	JavaModelManager.Variables = new HashMap(5);
+
+	super.tearDown();
+}
+
 public void testVariableInitializer1() throws CoreException {
 	try {
 		this.createProject("P1");
