@@ -99,7 +99,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 		    }
 			if (isClassScope)
-				if (((ClassScope) scope).detectCycle(currentType))
+				if (((ClassScope) scope).detectCycle(currentType, this))
 					return null;
 		    // check generic and arity
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();

@@ -1104,27 +1104,27 @@ public void hidingEnclosingType(TypeDeclaration typeDecl) {
 public void hierarchyCircularity(SourceTypeBinding sourceType, ReferenceBinding superType, TypeReference reference) {
 	int start = 0;
 	int end = 0;
-	String typeName = ""; //$NON-NLS-1$
-	String shortTypeName = ""; //$NON-NLS-1$
+	String typeName = new String(superType.readableName());
+	String shortTypeName = new String(superType.sourceName());
 
 	if (reference == null) {	// can only happen when java.lang.Object is busted
 		start = sourceType.sourceStart();
 		end = sourceType.sourceEnd();
-		typeName = new String(superType.readableName());
-		shortTypeName = new String(superType.sourceName());
 	} else {
 		start = reference.sourceStart;
 		end = reference.sourceEnd;
-		char[][] qName = reference.getTypeName();
-		typeName = CharOperation.toString(qName);
-		shortTypeName = new String(qName[qName.length-1]);
+		if (sourceType != superType) {
+			char[][] qName = reference.getTypeName();
+			typeName = CharOperation.toString(qName);
+			shortTypeName = new String(qName[qName.length-1]);
+		}
 	}
 
 	if (sourceType == superType)
 		this.handle(
 			IProblem.HierarchyCircularitySelfReference,
-			new String[] {new String(sourceType.sourceName()), typeName},
-			new String[] {new String(sourceType.sourceName()), shortTypeName},
+			new String[] {typeName},
+			new String[] {shortTypeName},
 			start,
 			end);
 	else

@@ -2854,7 +2854,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X<T> extends X {}\n" + 
 			"	                          ^\n" + 
-			"X causes a cycle - the type X cannot extend/implement itself or one of its own member types\n" + 
+			"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}
 	public void test097() {
@@ -2866,8 +2866,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X<T> extends X<String> {}\n" + 
-			"	             ^\n" + 
-			"X causes a cycle - the type X cannot extend/implement itself or one of its own member types\n" + 
+			"	                          ^\n" + 
+			"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 	}	
 	public void test098() {
@@ -3286,7 +3286,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");		
 	}		
 	// test member types
-	// TODO (kent) NPE during name lookup (fooled into detecting a cycle on X through T bound)
+	// TODO (philippe) Type mismatch b/w Thread & <T extends X.MX<Runnable>
 	public void _test112() {
 		this.runConformTest(
 			new String[] {

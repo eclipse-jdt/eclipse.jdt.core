@@ -1314,9 +1314,6 @@ public abstract class Scope
 					typeBinding,
 					NotVisible);
 
-		if (detectCycle(typeBinding))
-			return null; // detected cycle
-
 		while (currentIndex < typeNameLength) {
 			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
 			if (!typeBinding.isValidBinding()) {

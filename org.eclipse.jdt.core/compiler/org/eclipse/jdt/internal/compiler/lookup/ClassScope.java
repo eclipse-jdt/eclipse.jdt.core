@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ClassScope extends Scope {
 	public TypeDeclaration referenceContext;
+	private TypeReference superTypeReference;
 	
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(CLASS_SCOPE, parent);
@@ -871,9 +872,13 @@ public class ClassScope extends Scope {
 		return noProblems;
 	}
 
-	public boolean detectCycle(ReferenceBinding superType) {
-		if (referenceContext.binding.isHierarchyBeingConnected())
-			return detectCycle(referenceContext.binding, superType, null);
+	public boolean detectCycle(ReferenceBinding superType, TypeReference reference) {
+		if (reference == this.superTypeReference) // see findSuperType()
+			return detectCycle(referenceContext.binding, superType, reference);
+
+		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
+			// ensure if this is a source superclass that it has already been checked
+			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
 		return false;
 	}
 
@@ -886,6 +891,17 @@ public class ClassScope extends Scope {
 			problemReporter().hierarchyCircularity(sourceType, superType, reference);
 			sourceType.tagBits |= HierarchyHasProblems;
 			return true;
+		}
+
+		if (superType.isMemberType()) {
+			ReferenceBinding current = superType.enclosingType();
+			do {
+				if (sourceType == current) {
+					problemReporter().hierarchyCircularity(sourceType, current, reference);
+					sourceType.tagBits |= HierarchyHasProblems;
+					return true;
+				}
+			} while ((current = current.enclosingType()) != null);
 		}
 
 		if (superType.isBinaryBinding()) {
@@ -983,7 +999,9 @@ public class ClassScope extends Scope {
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
 		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
 		compilationUnitScope().recordQualifiedReference(typeReference.getTypeName());
+		this.superTypeReference = typeReference;
 		ReferenceBinding superType = (ReferenceBinding) typeReference.resolveSuperType(this);
+		this.superTypeReference = null;
 		if (superType == null) return null;
 
 		compilationUnitScope().recordTypeReference(superType); // to record supertypes
