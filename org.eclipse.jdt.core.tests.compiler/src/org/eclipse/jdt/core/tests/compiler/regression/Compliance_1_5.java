@@ -3409,6 +3409,20 @@ public void test099() {
 		"----------\n"
 	);
 }
+
+public void test100() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    int \\ud800\\udc05\\ud800\\udc04\\ud800\\udc03\\ud800\\udc02\\ud800\\udc01\\ud800\\udc00;\n" + 
+			"    void foo() {\n" + 
+			"        int \\ud800\\udc05\\ud800\\udc04\\ud800\\udc03\\ud800\\udc02\\ud800\\udc01\\ud800\\udc00;\n" + 
+			"    }\n" + 
+			"}\n"
+		}
+	);
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }

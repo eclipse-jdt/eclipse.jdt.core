@@ -42,14 +42,14 @@ protected Map getCompilerOptions() {
 public static Test suite() {
 	return buildTestSuite(testClass());
 }
+public static Class testClass() {
+	return Compliance_1_3.class;
+}
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
 static {
-	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_NAMES = new String[] { "Bug58069" };
-	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	TESTS_NUMBERS = new int[] { 78 };
-	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		TESTS_NUMBERS = new int[] { 78 };
 //		TESTS_RANGE = new int[] { 76, -1 };
 }
 /* (non-Javadoc)
@@ -3400,7 +3400,29 @@ public void test099() {
 		// no compile errors but generates ClassFormatError if run
 	);
 }
-public static Class testClass() {
-	return Compliance_1_3.class;
+
+public void test100() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    int \\ud800\\udc05\\ud800\\udc04\\ud800\\udc03\\ud800\\udc02\\ud800\\udc01\\ud800\\udc00;\n" + 
+			"    void foo() {\n" + 
+			"        int \\ud800\\udc05\\ud800\\udc04\\ud800\\udc03\\ud800\\udc02\\ud800\\udc01\\ud800\\udc00;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int \\ud800\\udc05\\ud800\\udc04\\ud800\\udc03\\ud800\\udc02\\ud800\\udc01\\ud800\\udc00;\n" + 
+		"	    ^^^^^^\n" + 
+		"Invalid unicode\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	int \\ud800\\udc05\\ud800\\udc04\\ud800\\udc03\\ud800\\udc02\\ud800\\udc01\\ud800\\udc00;\n" + 
+		"	    ^^^^^^\n" + 
+		"Invalid unicode\n" + 
+		"----------\n"
+	);
 }
 }
