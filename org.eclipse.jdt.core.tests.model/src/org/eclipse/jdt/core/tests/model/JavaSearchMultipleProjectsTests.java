@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
@@ -350,10 +352,10 @@ public void testPackageDeclaration() throws CoreException {
 	}
 }
 /**
- * Package reference with fragments in 2 different projects.
+ * Package reference with fragments in 2 different source projects.
  * (regression test for bug 47415 [Search] package references confused with multiple fragments)
  */
-public void testPackageReference() throws CoreException {
+public void testPackageReference1() throws CoreException {
 	try {
 		// setup project P1
 		IJavaProject p1 = createJavaProject("P1");
@@ -415,6 +417,38 @@ public void testPackageReference() throws CoreException {
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+/**
+ * Package reference with fragments in 2 different binary projects.
+ * (regression test for bug 47415 [Search] package references confused with multiple fragments)
+ */
+public void testPackageReference2() throws CoreException, IOException {
+	try {
+		// setup project JavaSearchMultipleProjects1
+		IJavaProject p1 = setUpJavaProject("JavaSearchMultipleProjects1");
+		
+		// setup project JavaSearchMultipleProjects2
+		IJavaProject p2 = setUpJavaProject("JavaSearchMultipleProjects2");
+				
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		IPackageFragment pkg = getPackage("/JavaSearchMultipleProjects1/lib/p");
+		new SearchEngine().search(
+			getWorkspace(), 
+			pkg,
+			REFERENCES, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"Unexpected package references",
+			"src/q/Z.java [p]\n" +
+			"src/q/Z.java q.Z.foo() -> void [p]\n" +
+			"src/q/Z.java q.Z.foo() -> void [p]",
+			resultCollector.toString());
+	} finally {
+		deleteProject("JavaSearchMultipleProjects1");
+		deleteProject("JavaSearchMultipleProjects2");
 	}
 }
 /**

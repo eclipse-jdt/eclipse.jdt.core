@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="src"/>
+    <classpathentry kind="src" path="/JavaSearchMultipleProjects1"/>
+    <classpathentry kind="var" path="JCL_LIB"/>
+    <classpathentry kind="lib" path="lib"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>
