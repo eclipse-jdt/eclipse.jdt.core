@@ -1849,13 +1849,13 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	                reportError(DELETION_CODE,
 	                            Parser.terminal_index[ERROR_SYMBOL],
 	                            locationStack[repair.stackPosition],
-	                            buffer[1]);
+	                            repair.recoveryOnNextStack ? buffer[1] : buffer[2]);
 	            }
 	            for (int i = 0; i < scopeStackTop; i++) {
 	                reportError(SCOPE_CODE,
 	                            -scopeIndex[i],
 	                            locationStack[scopePosition[i]],
-	                            buffer[1],
+	                            repair.recoveryOnNextStack ? buffer[1] : buffer[2],
 	                            Parser.non_terminal_index[Parser.scope_lhs[scopeIndex[i]]]);
 	            }
 	
@@ -1864,7 +1864,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	            reportError(SCOPE_CODE,
 	                        -scopeIndex[scopeStackTop],
 	                        locationStack[scopePosition[scopeStackTop]],
-	                        buffer[1],
+	                        repair.recoveryOnNextStack ? buffer[1] : buffer[2],
 	                        getNtermIndex(stack[stateStackTop],
 	                                      repair.symbol,
 	                                      repair.bufferPosition)

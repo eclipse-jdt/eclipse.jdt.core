@@ -407,4 +407,31 @@ public void test018() {
 		"----------\n"
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public void doit() {\n" + 
+			"		int[] foo = null;\n" + 
+			"		foo[0] = \n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	foo[0] = \n" + 
+		"	       ^\n" + 
+		"Syntax error, insert \"AssignmentOperator ArrayInitializer\" to complete ArrayInitializerAssignement\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	foo[0] = \n" + 
+		"	       ^\n" + 
+		"Syntax error, insert \";\" to complete Statement\n" + 
+		"----------\n"
+	);
+}
 }
