@@ -2228,8 +2228,7 @@ public void test057() {
 			"The constructor X<String>(String[]) is undefined\n" + 
 			"----------\n");
 	}	
-	// TODO (kent) investigate failures to resolve 'p' as a package
-	public void _test078() {
+	public void test078() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2249,6 +2248,7 @@ public void test057() {
 				"	}\n" + 
 				"}\n",
 				"p/A.java",
+				"package p;\n" +
 				"public class A<P> {\n" + 
 				"    protected P p;\n" + 
 				"    protected A(P p) {\n" + 
@@ -2262,7 +2262,33 @@ public void test057() {
 				"    }\n" + 
 				"}\n",
 			},
-			"visibility issues");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	A a = new A((A)null);\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"The constructor A(P) is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	a.print(x);\n" + 
+		"	  ^^^^^\n" + 
+		"The method print(P) from the type A is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	A<String> as = new A<String>(null);\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor A<String>(P) is not visible\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	as.print(\"hello\");\n" + 
+		"	   ^^^^^\n" + 
+		"The method print(P) from the type A<String> is not visible\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p\\A.java (at line 7)\n" + 
+		"	protected void print(P p) {\n" + 
+		"	                       ^\n" + 
+		"The parameter p is hiding a field from type A<P>\n" + 
+		"----------\n");
 	}	
 
 }

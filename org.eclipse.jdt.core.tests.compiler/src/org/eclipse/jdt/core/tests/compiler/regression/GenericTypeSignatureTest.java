@@ -524,7 +524,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B<-TT;>;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
 	}	
 
-	public void _test004() {
+	public void test004() {
 		final String[] testsSource = new String[] {
 			"X.java",
 			"public class X <T extends Object & p.B> extends p.A<T> {\n" + 
