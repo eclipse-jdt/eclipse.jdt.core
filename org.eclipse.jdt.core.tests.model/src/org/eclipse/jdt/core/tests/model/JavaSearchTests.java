@@ -311,7 +311,6 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 	
 public JavaSearchTests(String name) {
 	super(name);
-	this.tabs = 3;
 	this.displayName = true;
 }
 public static Test suite() {
@@ -321,7 +320,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX =  "testVarargs";
-//	TESTS_NAMES = new String[] { "testMethodReference05" };
+//	TESTS_NAMES = new String[] { "testConstructorReferenceBug77388" };
 //	TESTS_NUMBERS = new int[] { 1, 2, 3, 9, 11, 16 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 	}
@@ -638,6 +637,17 @@ public void testConstructorReferenceBug77093() throws CoreException {
 	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
 	assertSearchResults(
 		"src/b77093/X.java b77093.X() [this(new Z[10][])]",
+		resultCollector);
+}
+/**
+ * Regression test for bug 77388: [compiler] Reference to constructor includes space after closing parenthesis
+ */
+public void testConstructorReferenceBug77388() throws CoreException {
+	IType type = getCompilationUnit("JavaSearchBugs/src/b77388/Test.java").getType("Test");
+	IMethod method = type.getMethod("Test", new String[] {"I", "I"});
+	search(method, REFERENCES, getJavaSearchScopeBugs(), resultCollector);
+	assertSearchResults(
+		"src/b77388/Test.java void b77388.Test.run() [new Test(1, 2)]",
 		resultCollector);
 }
 /**

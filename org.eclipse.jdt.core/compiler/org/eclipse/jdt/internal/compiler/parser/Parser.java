@@ -1786,7 +1786,7 @@ protected void consumeClassBodyDeclarationsopt() {
 protected void consumeClassBodyopt() {
 	// ClassBodyopt ::= $empty
 	pushOnAstStack(null);
-	this.endPosition = this.scanner.startPosition - 1;
+	this.endPosition = this.rParenPos;
 }
 protected void consumeClassDeclaration() {
 	// ClassDeclaration ::= ClassHeader ClassBody
