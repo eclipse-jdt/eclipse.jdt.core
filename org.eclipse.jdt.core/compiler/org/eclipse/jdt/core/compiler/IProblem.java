@@ -830,6 +830,24 @@ public interface IProblem {
 	int ReferenceToForwardTypeVariable = TypeRelated + 528;
 
 	/**
+	 * 1.5 source level errors
+	 */
+	/** @since 3.0 */
+    int InvalidUsageOfTypeParameters = Syntax + Internal + 540;
+    /** @since 3.0 */
+    int InvalidUsageOfStaticImports = Syntax + Internal + 541;
+    /** @since 3.0 */
+    int InvalidUsageOfForeachStatements = Syntax + Internal + 542;
+    /** @since 3.0 */
+    int InvalidUsageOfTypeArguments = Syntax + Internal + 543;
+    /** @since 3.0 */
+    int InvalidUsageOfEnumDeclarations = Syntax + Internal + 544;
+    /** @since 3.0 */
+    int InvalidUsageOfVarargs = Syntax + Internal + 545;
+    /** @since 3.0 */
+    int InvalidUsageOfAnnotations = Syntax + Internal + 545;
+    
+	/**
 	 * Foreach
 	 */
 	/** @since 3.0 */	

@@ -3943,5 +3943,52 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBindi
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
-
+public void invalidUsageOfTypeParameters(TypeParameter firstTypeParameter, TypeParameter lastTypeParameter) {
+	this.handle(
+		IProblem.InvalidUsageOfTypeParameters,
+		new String[] {}, 
+		new String[] {}, 
+		firstTypeParameter.declarationSourceStart,
+		lastTypeParameter.declarationSourceEnd);
+}
+public void invalidUsageOfStaticImports(ImportReference staticImport) {
+	this.handle(
+		IProblem.InvalidUsageOfStaticImports,
+		new String[] {}, 
+		new String[] {}, 
+		staticImport.declarationSourceStart,
+		staticImport.declarationSourceEnd);
+}
+public void invalidUsageOfForeachStatements(ForeachStatement foreachStatement) {
+	this.handle(
+		IProblem.InvalidUsageOfForeachStatements,
+		new String[] {}, 
+		new String[] {}, 
+		foreachStatement.elementVariable.sourceStart,
+		foreachStatement.collection.sourceEnd);
+}
+public void invalidUsageOfTypeArguments(TypeReference firstTypeReference, TypeReference lastTypeReference) {
+	this.handle(
+		IProblem.InvalidUsageOfTypeArguments,
+		new String[] {}, 
+		new String[] {}, 
+		firstTypeReference.sourceStart,
+		lastTypeReference.sourceEnd);
+}
+public void invalidUsageOfEnumsDeclarations(EnumDeclaration enumDeclaration) {
+	this.handle(
+		IProblem.InvalidUsageOfEnumDeclarations,
+		new String[] {}, 
+		new String[] {}, 
+		enumDeclaration.modifiersSourceStart,
+		enumDeclaration.sourceEnd);
+}
+public void invalidUsageOfVarargs(Argument argument) {
+	this.handle(
+		IProblem.InvalidUsageOfVarargs,
+		new String[] {}, 
+		new String[] {}, 
+		argument.sourceStart,
+		argument.sourceEnd);
+}
 }

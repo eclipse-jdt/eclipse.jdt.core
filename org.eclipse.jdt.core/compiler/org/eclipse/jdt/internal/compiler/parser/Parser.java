@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -2268,13 +2269,18 @@ protected void consumeEnhancedForStatement(boolean hasModifiers) {
 		localDeclaration.modifiers = modifiersValue;
 	}
 	localDeclaration.type = type;
-	pushOnAstStack(
+	ForeachStatement iteratorForStatement =
 		new ForeachStatement(
 			localDeclaration,
 			collection,
 			statement, 
 			this.intStack[this.intPtr--], 
-			this.endStatementPosition)); 
+			this.endStatementPosition); 
+	pushOnAstStack(iteratorForStatement);
+		
+	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.problemReporter().invalidUsageOfForeachStatements(iteratorForStatement);
+	}
 }
 protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
@@ -2600,6 +2606,12 @@ protected void consumeEnumHeader() {
 	pushOnAstStack(enumDeclaration);
 
 	this.listLength = 0; // will be updated when reading super-interfaces
+	
+	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+		//TODO this code will be never run while 'enum' is an identfier in 1.3 scanner 
+		this.problemReporter().invalidUsageOfEnumsDeclarations(enumDeclaration);
+	}
+	
 	// recovery
 	if (this.currentElement != null){ 
 		this.lastCheckPoint = enumDeclaration.bodyStart;
@@ -2865,6 +2877,10 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	/* if incomplete method header, this.listLength counter will not have been reset,
 		indicating that some arguments are available on the stack */
 	this.listLength++; 	
+	
+	if(isVarArgs && options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.problemReporter().invalidUsageOfVarargs(arg);
+	}
 }
 protected void consumeFormalParameterList() {
 	// FormalParameterList ::= FormalParameterList ',' FormalParameter
@@ -3618,6 +3634,12 @@ protected void consumeOnlySynchronized() {
 	resetModifiers();
 }
 protected void consumeOnlyTypeArguments() {
+	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+		int length = this.genericsLengthStack[this.genericsLengthPtr];
+		this.problemReporter().invalidUsageOfTypeArguments(
+			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
+			(TypeReference)this.genericsStack[this.genericsPtr]);
+	}
 }
 protected void consumeOpenBlock() {
 	// OpenBlock ::= $empty
@@ -5370,6 +5392,10 @@ protected void consumeSingleStaticImportDeclarationName() {
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
+	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.problemReporter().invalidUsageOfStaticImports(impt);
+	}
+	
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
@@ -5733,6 +5759,10 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
 
+	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+		this.problemReporter().invalidUsageOfStaticImports(impt);
+	}
+	
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
@@ -6111,6 +6141,12 @@ protected void consumeTypeArgumentReferenceType2() {
 }
 protected void consumeTypeArguments() {
 	concatGenericsLists();
+	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+		int length = this.genericsLengthStack[this.genericsLengthPtr];
+		this.problemReporter().invalidUsageOfTypeArguments(
+			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
+			(TypeReference)this.genericsStack[this.genericsPtr]);
+	}
 }
 protected void consumeTypeDeclarations() {
 	// TypeDeclarations ::= TypeDeclarations TypeDeclaration
@@ -6214,6 +6250,12 @@ protected void consumeTypeParameterList1() {
 	concatGenericsLists();
 }
 protected void consumeTypeParameters() {
+	if(options.sourceLevel < ClassFileConstants.JDK1_5) {
+		int length = this.genericsLengthStack[this.genericsLengthPtr];
+		this.problemReporter().invalidUsageOfTypeParameters(
+			(TypeParameter) this.genericsStack[genericsPtr - length + 1],
+			(TypeParameter) this.genericsStack[genericsPtr]);
+	}
 }
 protected void consumeTypeParameterWithExtends() {
 	TypeParameter typeParameter = new TypeParameter();
@@ -7592,6 +7634,7 @@ called in order to remember (when needed) the consumed token */
 // (int)asr[asi(act)]
 // name[symbol_index[currentKind]]
 protected void parse() {
+	if(DEBUG) System.out.println("-- ENTER INSIDE PARSE METHOD --");  //$NON-NLS-1$
 	boolean isDietParse = this.diet;
 	int oldFirstToken = getFirstToken();
 	this.hasError = false;
@@ -7682,6 +7725,7 @@ protected void parse() {
 	if(this.reportSyntaxErrorIsRequired && this.hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}
+	if(DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 	parse(cd, unit, false);
