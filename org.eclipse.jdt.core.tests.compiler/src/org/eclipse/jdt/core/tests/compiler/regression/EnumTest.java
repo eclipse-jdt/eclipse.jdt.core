@@ -53,17 +53,18 @@ public class EnumTest extends AbstractComparisonTest {
 					"public class X {\n" + 
 					"    public static void main(String[] args) {\n" + 
 					"    	System.out.print(\"JDTCore team:\");\n" + 
-					"		T oldest = null;\n" +
-					"		int maxAge = Integer.MIN_VALUE;\n" +
-					"        for (T t : T.values()) {\n" + 
+					"    	T oldest = null;\n" +
+					"    	int maxAge = Integer.MIN_VALUE;\n" +
+					"    	for (T t : T.values()) {\n" + 
+					"            if (t == YODA) continue;// skip YODA\n" +
 					"            t.setRole(t.isManager());\n" + 
 					"			 if (t.age() > maxAge) {\n" +
-					"			    oldest = t;\n" +
-					"				maxAge = t.age();\n" +
+					"               oldest = t;\n" +
+					"               maxAge = t.age();\n" +
 					"            }\n" +
 					"            System.out.print(\" \"+ t + ':'+t.age()+':'+location(t)+':'+t.role);\n" + 
 					"        }\n" + 
-					"        System.out.println(\" WINNER is:\" + oldest);\n" +
+					"        System.out.println(\" WINNER is:\" + T.valueOf(oldest.name()));\n" +
 					"    }\n" + 
 					"\n" + 
 					"   private enum Location { SNZ, OTT }\n" + 
@@ -95,6 +96,7 @@ public class EnumTest extends AbstractComparisonTest {
 					"	JEROME(33),\n" + 
 					"	OLIVIER(35),\n" + 
 					"	KENT(40),\n" + 
+					"	YODA(41),\n" +
 					"	FREDERIC;\n" + 
 					"\n" + 
 					"   enum Role { M, D }\n" + 
@@ -102,7 +104,7 @@ public class EnumTest extends AbstractComparisonTest {
 					"   int age;\n" + 
 					"	Role role;\n" + 
 					"\n" + 
-					"	T() { this(41); }\n" + 
+					"	T() { this(YODA.age()); }\n" + 
 					"	T(int age) {\n" + 
 					"		this.age = age;\n" + 
 					"	}\n" + 
