@@ -30,12 +30,13 @@ public final class ObjectSet {
 	}
 
 	public boolean contains(Object element) {
-
-		int index = element.hashCode() % elementTable.length;
+		
+		int length = elementTable.length;
+		int index = (element.hashCode() & 0x7FFFFFFF) % length;
 		Object currentElement;
 		while ((currentElement = elementTable[index]) != null) {
 			if (currentElement.equals(element)) return true;
-			index = (index + 1) % elementTable.length;
+			index = (index + 1) % length;
 		}
 		return false;
 	}
@@ -43,7 +44,7 @@ public final class ObjectSet {
 	public boolean add(Object element) {
 
 		int length = this.elementTable.length;
-		int index = element.hashCode() % length;
+		int index = (element.hashCode() & 0x7FFFFFFF) % length;
 		Object currentElement;
 		while ((currentElement = this.elementTable[index]) != null) {
 			if (currentElement.equals(element)) return false;
@@ -58,6 +59,7 @@ public final class ObjectSet {
 	}
 
 	public void addAll(Object[] elements) {
+
 		for (int i = 0, length = elements.length; i < length; i++){
 			add(elements[i]);
 		}
@@ -102,7 +104,7 @@ public final class ObjectSet {
 
 		int hash = element.hashCode();
 		int length = this.elementTable.length;
-		int index = hash % length;
+		int index = (hash & 0x7FFFFFFF) % length;
 		Object currentElement;
 		while ((currentElement = elementTable[index]) != null) {
 			if (currentElement.equals(element)){
@@ -153,6 +155,7 @@ public final class ObjectSet {
 	}
 	
 	public String toString() {
+		
 		String s = "["; //$NON-NLS-1$
 		Object object;
 		int count = 0;
