@@ -405,7 +405,7 @@ public void testFailCopySourceFolder1() throws CoreException {
 		try {
 			root.copy(new Path("/P2/src"), IResource.NONE, IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH, null, null);
 		} catch (JavaModelException e) {
-			assertEquals("/P2/src already exists in target.", e.getMessage());
+			assertEquals("/P2/src already exists in target", e.getMessage());
 			return;
 		}
 		assertTrue("Should throw a JavaModelException", false);
@@ -429,7 +429,7 @@ public void testFailCopySourceFolder2() throws CoreException {
 		try {
 			root.copy(new Path("/P2/src"), IResource.NONE, IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH, null, null);
 		} catch (JavaModelException e) {
-			assertEquals("/P2/src already exists in target.", e.getMessage());
+			assertEquals("/P2/src already exists in target", e.getMessage());
 			return;
 		}
 		assertTrue("Should throw a JavaModelException", false);
