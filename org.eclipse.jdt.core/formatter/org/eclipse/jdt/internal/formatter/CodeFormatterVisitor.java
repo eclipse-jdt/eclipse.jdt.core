@@ -1088,8 +1088,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					}
 				} while (!okForArguments);
 				this.scribe.exitAlignment(argumentsAlignment, true);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
+			} else {
+				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments);
 			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
 			if (numberOfParens > 0) {
 				manageClosingParenthesizedExpression(currentMessageSend, numberOfParens);
 			}
@@ -1142,8 +1144,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							}
 						} while (!okForArguments);
 						this.scribe.exitAlignment(argumentsAlignment, true);
+						this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
+					} else {
+						this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments);
 					}
-					this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
 					if (numberOfParens > 0) {
 						manageClosingParenthesizedExpression(currentMessageSend, numberOfParens);
 					}
