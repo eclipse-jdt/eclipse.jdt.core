@@ -412,26 +412,20 @@ void recordReference(char[][] qualifiedName) {
 	if (qualifiedReferences == null) return; // we're not recording dependencies
 
 	int length = qualifiedName.length;
-	switch (length) {
-		case 0 : return;
-		case 1 :
-			recordSimpleReference(qualifiedName[0]);
-			return;
-		case 2 :
-			if (!qualifiedReferences.contains(qualifiedName))
-				qualifiedReferences.add(qualifiedName);
-
-			recordSimpleReference(qualifiedName[0]);
-			recordSimpleReference(qualifiedName[1]);
-			return;
-		default :
-			if (!qualifiedReferences.contains(qualifiedName))
-				qualifiedReferences.add(qualifiedName);
-
-			char[][] qName = new char[length - 1][];
-			System.arraycopy(qualifiedName, 0, qName, 0, length - 1);
-			recordReference(qName);
-			recordSimpleReference(qualifiedName[length - 1]);
+	if (length > 1) {
+		while (!qualifiedReferences.contains(qualifiedName)) {
+			qualifiedReferences.add(qualifiedName);
+			if (length == 2) {
+				recordSimpleReference(qualifiedName[0]);
+				recordSimpleReference(qualifiedName[1]);
+				return;
+			}
+			length--;
+			recordSimpleReference(qualifiedName[length]);
+			System.arraycopy(qualifiedName, 0, qualifiedName = new char[length][], 0, length);
+		}
+	} else if (length == 1) {
+		recordSimpleReference(qualifiedName[0]);
 	}
 }
 void recordReference(char[][] qualifiedEnclosingName, char[] simpleName) {
