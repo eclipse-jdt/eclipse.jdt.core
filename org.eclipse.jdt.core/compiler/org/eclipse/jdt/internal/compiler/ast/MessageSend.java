@@ -329,11 +329,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
 		}
 		// compute generic cast if necessary
-		TypeBinding expectedReceiverType = receiverType.erasure().isCompatibleWith(binding.declaringClass.erasure())
-			? receiverType
-			: binding.declaringClass;
-		receiver.computeConversion(scope, expectedReceiverType, receiverType);
-		if (expectedReceiverType != this.qualifyingType) this.qualifyingType = expectedReceiverType;
+		TypeBinding expectedQualifyingType = this.qualifyingType.erasure().isCompatibleWith(this.binding.declaringClass.erasure())
+			? this.qualifyingType
+			: this.binding.declaringClass;
+		receiver.computeConversion(scope, expectedQualifyingType, receiverType);
+		if (expectedQualifyingType != this.qualifyingType) this.qualifyingType = expectedQualifyingType;
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
 		if (!(receiver.isImplicitThis()
