@@ -988,9 +988,10 @@ public void rollback(ISaveContext context){
 	private void saveBuildState() throws CoreException {
 		ArrayList vStats= null; // lazy initialized
 		for (Iterator iter =  perProjectInfo.values().iterator(); iter.hasNext();) {
-			PerProjectInfo info= (PerProjectInfo) iter.next();
 			try {
-				saveState(info);
+				PerProjectInfo info = (PerProjectInfo) iter.next();
+				if (info.triedRead)
+					saveState(info);
 			} catch (CoreException e) {
 				if (vStats == null)
 					vStats= new ArrayList();
@@ -1007,7 +1008,8 @@ public void rollback(ISaveContext context){
 	 * Saves the built state for the project.
 	 */
 	private void saveState(PerProjectInfo info) throws CoreException {
-		if (VERBOSE) System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
+		if (VERBOSE)
+			System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
 		File file = getSerializationFile(info.project);
 		if (file == null) return;
 		long t = System.currentTimeMillis();
@@ -1036,9 +1038,10 @@ public void rollback(ISaveContext context){
 				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
 					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
 		}
-		t= System.currentTimeMillis() - t;
-		if (VERBOSE)
+		if (VERBOSE) {
+			t = System.currentTimeMillis() - t;
 			System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
+		}
 	}
 	public void saveVariables() throws CoreException {
 		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
