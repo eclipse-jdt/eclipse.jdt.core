@@ -121,6 +121,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GJL6EJ: ITPJCORE:WINNT - JavaConventions.validateClasspath: Compares against variable name
 
   PRs Closed in this Release
   ===============================================================================

@@ -328,17 +328,23 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 		return new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, outputLocation);
 	}
 
-		
-		
-	// check if any source entries coincidates with binary output - in which case nesting inside output is legal
 	boolean allowNestingInOutput = false;
 	boolean hasSource = false;
-	for (int i = 0 ; i < classpath.length; i++) {
-		if (classpath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE) hasSource = true;
-		if (classpath[i].getPath().equals(outputLocation)){
-			allowNestingInOutput = true;
-			break;
+	IClasspathEntry[] originalClasspath = classpath;
+	for (int i = 0, length = classpath.length ; i < length; i++) {
+		// basic entry validation, will abort in presence of unresolved variable
+		IJavaModelStatus status = validateClasspathEntry(javaProject, classpath[i], false);
+		if (!status.isOK()){
+			return status;
 		}
+		// use resolved variable
+		if (classpath[i].getEntryKind() == IClasspathEntry.CPE_VARIABLE){
+			if (classpath == originalClasspath) System.arraycopy(originalClasspath, 0, classpath = new IClasspathEntry[length], 0, length);
+			classpath[i] = JavaCore.getResolvedClasspathEntry(classpath[i]);
+		}
+		if (classpath[i].getEntryKind() == IClasspathEntry.CPE_SOURCE) hasSource = true;
+		// check if any source entries coincidates with binary output - in which case nesting inside output is legal
+		if (classpath[i].getPath().equals(outputLocation)) allowNestingInOutput = true;
 	}
 	if (!hasSource) allowNestingInOutput = true; // if no source, then allowed
 	
@@ -364,12 +370,12 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 		}
 		// prevent nesting output location inside entry
 		if (entryPath.isPrefixOf(outputLocation)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestSourceFolderInOutput",entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput",entryPath.toString(), outputLocation.toString())); //$NON-NLS-1$
 		}
 
 		// prevent nesting entry inside output location - when distinct from project or a source folder
 		if (!allowNestingInOutput && outputLocation.isPrefixOf(entryPath)) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOuputInSourceFolder", outputLocation.toString(), entryPath.toString())); //$NON-NLS-1$
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", outputLocation.toString(), entryPath.toString())); //$NON-NLS-1$
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;	
