@@ -15,7 +15,6 @@ import java.util.Hashtable;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
-import org.eclipse.jdt.internal.core.JavaModelStatus;
 
 import junit.framework.*;
 
