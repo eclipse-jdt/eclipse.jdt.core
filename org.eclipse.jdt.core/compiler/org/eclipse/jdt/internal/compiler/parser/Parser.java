@@ -5309,49 +5309,50 @@ protected void parse() {
 			}
 			if (resumeOnSyntaxError()) {
 				if (act == ERROR_ACTION) this.lastErrorEndPosition = errorPos;
-					act = START_STATE;
-					this.stateStackTop = -1;
-					this.currentToken = getFirstToken();
-					continue ProcessTerminals;
-				} else {
-					act = ERROR_ACTION;
-				}	break ProcessTerminals;
+				act = START_STATE;
+				this.stateStackTop = -1;
+				this.currentToken = getFirstToken();
+				continue ProcessTerminals;
 			}
-			if (act <= NUM_RULES)
-				this.stateStackTop--;
-			else
-				if (act > ERROR_ACTION) { /* shift-reduce */
-					consumeToken(this.currentToken);
-					if (this.currentElement != null) this.recoveryTokenCheck();
-					try{
-						this.currentToken = this.scanner.getNextToken();
-					} catch(InvalidInputException e){
-						if (!this.hasReportedError){
-							this.problemReporter().scannerError(this, e.getMessage());
-							this.hasReportedError = true;
-						}
-						this.lastCheckPoint = this.scanner.currentPosition;
-						this.restartRecovery = true;
-					}					
-					act -= ERROR_ACTION;
-				} else
-					if (act < ACCEPT_ACTION) { /* shift */
-						consumeToken(this.currentToken);
-						if (this.currentElement != null) this.recoveryTokenCheck();
-						try{
-							this.currentToken = this.scanner.getNextToken();
-						} catch(InvalidInputException e){
-							if (!this.hasReportedError){
-								this.problemReporter().scannerError(this, e.getMessage());
-								this.hasReportedError = true;
-							}
-							this.lastCheckPoint = this.scanner.currentPosition;
-							this.restartRecovery = true;
-						}					
-						continue ProcessTerminals;
-					} else
-						break ProcessTerminals;
+			act = ERROR_ACTION;
+			break ProcessTerminals;
+		}
+		if (act <= NUM_RULES) {
+			this.stateStackTop--;
 			
+		} else if (act > ERROR_ACTION) { /* shift-reduce */
+			consumeToken(this.currentToken);
+			if (this.currentElement != null) this.recoveryTokenCheck();
+			try {
+				this.currentToken = this.scanner.getNextToken();
+			} catch(InvalidInputException e){
+				if (!this.hasReportedError){
+					this.problemReporter().scannerError(this, e.getMessage());
+					this.hasReportedError = true;
+				}
+				this.lastCheckPoint = this.scanner.currentPosition;
+				this.restartRecovery = true;
+			}					
+			act -= ERROR_ACTION;
+			
+		} else {
+		    if (act < ACCEPT_ACTION) { /* shift */
+				consumeToken(this.currentToken);
+				if (this.currentElement != null) this.recoveryTokenCheck();
+				try{
+					this.currentToken = this.scanner.getNextToken();
+				} catch(InvalidInputException e){
+					if (!this.hasReportedError){
+						this.problemReporter().scannerError(this, e.getMessage());
+						this.hasReportedError = true;
+					}
+					this.lastCheckPoint = this.scanner.currentPosition;
+					this.restartRecovery = true;
+				}					
+				continue ProcessTerminals;
+			}
+			break ProcessTerminals;
+		}
 		ProcessNonTerminals : do { /* reduce */
 			consumeRule(act);
 			this.stateStackTop -= (rhs[act] - 1);
@@ -5360,7 +5361,7 @@ protected void parse() {
 	}
 	endParse(act);
 	
-	if(this.reportSyntaxErrorIsRequired && this.hasError) {
+	if (this.reportSyntaxErrorIsRequired && this.hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}
 }
@@ -5729,9 +5730,8 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 		this.astPtr -= astLength;
 		System.arraycopy(this.astStack, this.astPtr + 1, result, 0, astLength);
 		return result;
-	} else {
-		return null;
 	}
+	return null;
 }
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
 
