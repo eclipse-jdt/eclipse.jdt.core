@@ -49,8 +49,8 @@ synchronized public URL allocateAnonymousURL(byte[] bytes) throws IOException {
 		byte hasharray[] = java.security.MessageDigest.getInstance("SHA").digest(bytes); //$NON-NLS-1$
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < hasharray.length; i++) {
-			sb.append(Character.forDigit((int)((hasharray[i] >> 4) & 0x0F), 16));
-			sb.append(Character.forDigit((int)(hasharray[i] & 0x0F), 16));
+			sb.append(Character.forDigit((hasharray[i] >> 4) & 0x0F, 16));
+			sb.append(Character.forDigit(hasharray[i] & 0x0F, 16));
 		}
 		sb.append(".jnk"); //$NON-NLS-1$
 		String fileName = sb.toString();
@@ -104,6 +104,7 @@ synchronized public File getAnonymousFile() {
 			Thread.sleep(1);
 		} 
 		catch (InterruptedException e) {
+			// ignore
 		}
 		file = fileForName(getAnonymousFileName());
 	}

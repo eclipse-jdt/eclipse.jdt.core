@@ -1096,12 +1096,12 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 					pc+=3;
 					break;
 				case IOpcodeMnemonics.GOTO_W :
-					branchOffset = (int) i4At(this.classFileBytes, 1, pc);
+					branchOffset = i4At(this.classFileBytes, 1, pc);
 					visitor._goto_w(pc - this.codeOffset, branchOffset);
 					pc+=5;
 					break;
 				case IOpcodeMnemonics.JSR_W :
-					branchOffset = (int) i4At(this.classFileBytes, 1, pc);
+					branchOffset = i4At(this.classFileBytes, 1, pc);
 					visitor._jsr_w(pc - this.codeOffset, branchOffset);
 					pc+=5;
 					break;

@@ -47,8 +47,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	private IInnerClassesAttribute innerClassesAttribute;
 	private ISourceAttribute sourceFileAttribute;
 	private int classNameIndex;
-	private boolean isDeprecated;
-	private boolean isSynthetic;
 	private int majorVersion;
 	private int minorVersion;
 	private int superclassNameIndex;
@@ -243,7 +241,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						int utf8Offset = constantPoolOffsets[u2At(classFileBytes, readOffset, 0)];
 						char[] attributeName = utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
 						if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
-							this.isDeprecated = true;
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						} else if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
 							this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
@@ -252,7 +249,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 								this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
 								this.attributes[attributesIndex++] = this.sourceFileAttribute;
 						} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-								this.isSynthetic = true;
 								this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);

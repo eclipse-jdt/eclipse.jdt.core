@@ -39,13 +39,13 @@ public abstract class ClassFileStruct {
 	protected long i8At(byte[] reference, int relativeOffset, int structOffset) {
 		int position = relativeOffset + structOffset;
 		return (((long) (reference[position++] & 0xFF)) << 56)
-			+ (((long) (reference[position++] & 0xFF)) << 48)
-			+ (((long) (reference[position++] & 0xFF)) << 40)
-			+ (((long) (reference[position++] & 0xFF)) << 32)
-			+ (((long) (reference[position++] & 0xFF)) << 24)
-			+ (((long) (reference[position++] & 0xFF)) << 16)
-			+ (((long) (reference[position++] & 0xFF)) << 8)
-			+ ((long) (reference[position++] & 0xFF));
+						+ (((long) (reference[position++] & 0xFF)) << 48)
+						+ (((long) (reference[position++] & 0xFF)) << 40)
+						+ (((long) (reference[position++] & 0xFF)) << 32)
+						+ (((long) (reference[position++] & 0xFF)) << 24)
+						+ (((long) (reference[position++] & 0xFF)) << 16)
+						+ (((long) (reference[position++] & 0xFF)) << 8)
+						+ (reference[position++] & 0xFF);
 	}
 
 	protected int u1At(byte[] reference, int relativeOffset, int structOffset) {
