@@ -41,14 +41,19 @@ boolean areMethodsEqual(MethodBinding one, MethodBinding substituteTwo) {
 boolean areReturnTypesEqual(MethodBinding one, MethodBinding substituteTwo) {
 	if (one.returnType == substituteTwo.returnType) return true;
 
-	// check for methods from Object
-	if (one.declaringClass.id == TypeIds.T_JavaLangObject)
-		return substituteTwo.returnType.isCompatibleWith(one.returnType);
+	if (one.declaringClass.isClass()) {
+		if (one.declaringClass.id == TypeIds.T_JavaLangObject)
+			return substituteTwo.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
+		return one.returnType.isCompatibleWith(substituteTwo.returnType);
+	}
 
-	// methods from classes are always before methods from interfaces
-	if (one.declaringClass.isClass() || one.declaringClass.implementsInterface(substituteTwo.declaringClass, true))
+	// check for methods from Object, every interface inherits from Object
+	if (substituteTwo.declaringClass.id == TypeIds.T_JavaLangObject)
 		return one.returnType.isCompatibleWith(substituteTwo.returnType);
 
+	// both are interfaces, see if they're related
+	if (one.declaringClass.implementsInterface(substituteTwo.declaringClass, true))
+		return one.returnType.isCompatibleWith(substituteTwo.returnType);
 	if (substituteTwo.declaringClass.implementsInterface(one.declaringClass, true))
 		return substituteTwo.returnType.isCompatibleWith(one.returnType);
 

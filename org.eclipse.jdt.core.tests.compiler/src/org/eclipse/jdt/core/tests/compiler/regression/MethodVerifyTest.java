@@ -1519,4 +1519,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80743
+	public void test031() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X { long hashCode(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	interface X { long hashCode(); }\r\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"The return type is incompatible with Object.hashCode()\n" + 
+			"----------\n"
+			// hashCode() in X cannot override hashCode() in java.lang.Object; attempting to use incompatible return type
+		);
+	}
 }
