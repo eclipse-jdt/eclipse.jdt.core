@@ -258,8 +258,8 @@ public void setActualReceiverType(ReferenceBinding receiverType) {
 	this.qualifyingType = receiverType;
 }
 public void setDepth(int depth) {
+	bits &= ~DepthMASK; // flush previous depth if any
 	if (depth > 0) {
-		bits &= ~DepthMASK; // flush previous depth if any
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
 	}
 }
