@@ -157,7 +157,7 @@ public class VariableDeclarationStatement extends Statement {
 	 */
 	VariableDeclarationStatement(AST ast) {
 		super(ast);
-		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.LEVEL_3_0) {
 			this.modifiers = new ASTNode.NodeList(MODIFIERS2_PROPERTY);
 		}
 	}
@@ -230,10 +230,10 @@ public class VariableDeclarationStatement extends Statement {
 			new VariableDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.copyLeadingComment(this);
-		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 		}
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		}
 		result.setType((Type) getType().clone(target));
@@ -257,7 +257,7 @@ public class VariableDeclarationStatement extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getType());

@@ -142,7 +142,7 @@ public final class AST {
 	 * Level of AST API supported by this AST.
 	 * @since 3.0
 	 */
-	int API_LEVEL;
+	int apiLevel;
 	
 	/**
 	 * Internal modification count; initially 0; increases monotonically
@@ -180,7 +180,7 @@ public final class AST {
 			&& (level != AST.LEVEL_3_0)) {
 			throw new IllegalArgumentException();
 		}
-		this.API_LEVEL = level;
+		this.apiLevel = level;
 		// initialize a scanner
 		this.scanner = new Scanner(
 				true /*comment*/, 
@@ -331,7 +331,7 @@ public final class AST {
      * @since 3.0
 	 */
 	public int apiLevel() {
-		return this.API_LEVEL;	
+		return this.apiLevel;	
 	}
 
 	/**
@@ -727,8 +727,9 @@ public final class AST {
 			ASTNode result = c.createAST(null);
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
+			// convert ASTParser's complaints into old form
+			throw new IllegalArgumentException();
 		}
-		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -834,8 +835,9 @@ public final class AST {
 			ASTNode result = c.createAST(monitor);
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
+			// convert ASTParser's complaints into old form
+			throw new IllegalArgumentException();
 		}
-		throw new IllegalArgumentException();
 	}
 
 	/**
@@ -911,8 +913,9 @@ public final class AST {
 			ASTNode result = c.createAST(null);
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
+			// convert ASTParser's complaints into old form
+			throw new IllegalArgumentException();
 		}
-		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -965,8 +968,9 @@ public final class AST {
 			ASTNode result = c.createAST(monitor);
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
+			// convert ASTParser's complaints into old form
+			throw new IllegalArgumentException();
 		}
-		throw new IllegalArgumentException();
 	}
 			
 	/**
@@ -1381,8 +1385,9 @@ public final class AST {
 			ASTNode result = c.createAST(monitor);
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
+			// convert ASTParser's complaints into old form
+			throw new IllegalArgumentException();
 		}
-		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -1433,8 +1438,9 @@ public final class AST {
 			ASTNode result = c.createAST(monitor);
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
+			// convert ASTParser's complaints into old form
+			throw new IllegalArgumentException();
 		}
-		throw new IllegalArgumentException();
 	}
 	
 	/**
@@ -1532,7 +1538,7 @@ public final class AST {
 	 * @since 3.0
      */
 	void unsupportedIn2() {
-	  if (this.API_LEVEL == AST.LEVEL_2_0) {
+	  if (this.apiLevel == AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1545,7 +1551,7 @@ public final class AST {
 	 * @since 3.0
      */
 	void supportedOnlyIn2() {
-	  if (this.API_LEVEL != AST.LEVEL_2_0) {
+	  if (this.apiLevel != AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -2327,10 +2333,10 @@ public final class AST {
 	public TypeDeclarationStatement 
 			newTypeDeclarationStatement(AbstractTypeDeclaration decl) {
 		TypeDeclarationStatement result = new TypeDeclarationStatement(this);
-		if (this.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.apiLevel == AST.LEVEL_2_0) {
 			result.setTypeDeclaration((TypeDeclaration) decl);
 		}
-		if (this.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.apiLevel >= AST.LEVEL_3_0) {
 			result.setDeclaration(decl);
 		}
 		return result;

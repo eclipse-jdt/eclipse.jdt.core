@@ -1734,7 +1734,7 @@ public abstract class ASTNode {
 	 * @since 3.0
 	 */
 	public final List structuralPropertiesForType() {
-		return internalStructuralPropertiesForType(this.ast.API_LEVEL);
+		return internalStructuralPropertiesForType(this.ast.apiLevel);
 	}
 	
 	/**
@@ -1811,7 +1811,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void unsupportedIn2() {
-	  if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+	  if (this.ast.apiLevel == AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1824,7 +1824,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void supportedOnlyIn2() {
-	  if (this.ast.API_LEVEL != AST.LEVEL_2_0) {
+	  if (this.ast.apiLevel != AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}

@@ -175,7 +175,7 @@ public class Javadoc extends Comment {
 	ASTNode clone(AST target) {
 		Javadoc result = new Javadoc(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.LEVEL_2_0) {
 			result.setComment(getComment());
 		}
 		result.tags().addAll(ASTNode.copySubtrees(target, tags()));

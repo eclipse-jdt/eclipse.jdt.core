@@ -294,7 +294,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	MethodDeclaration(AST ast) {
 		super(ast);
-		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.LEVEL_3_0) {
 			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
 		}
 	}
@@ -451,12 +451,12 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 			result.setReturnType(
 					(Type) ASTNode.copySubtree(target, getReturnType()));
 		}
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 			result.typeParameters().addAll(
 					ASTNode.copySubtrees(target, typeParameters()));
@@ -491,7 +491,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+			if (this.ast.apiLevel == AST.LEVEL_2_0) {
 				acceptChild(visitor, getReturnType());
 			} else {
 				acceptChildren(visitor, this.modifiers);

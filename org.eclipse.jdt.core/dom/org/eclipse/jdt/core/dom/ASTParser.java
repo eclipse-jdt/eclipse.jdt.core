@@ -423,12 +423,13 @@ public class ASTParser {
 
 	/**
      * Sets the source code to be parsed.
+     * This method automatically sets the project (and compiler
+     * options) based on the given compilation unit, in a manner
+     * equivalent to <code>setProject(source.getJavaProject())</code>
      *
 	 * @param source the Java model compilation unit whose source code
      * is to be parsed, or <code>null</code> if none
-     * TODO (jim) add specs to say that this method also set the project with the
-     * source.getJavaProject() and the compiler options with this.project.getOptions()
-     */
+      */
 	public void setSource(ICompilationUnit source) {
 		this.compilationUnitSource = source;
 		// clear the others
@@ -442,11 +443,12 @@ public class ASTParser {
 	
 	/**
      * Sets the source code to be parsed.
+     * This method automatically sets the project (and compiler
+     * options) based on the given compilation unit, in a manner
+     * equivalent to <code>setProject(source.getJavaProject())</code>
      *
 	 * @param source the Java model class file whose corresponding source code
      * is to be parsed, or <code>null</code> if none
-     * TODO (jim) add specs to say that this method also set the project with the
-     * source.getJavaProject() and the compiler options with this.project.getOptions()
      */
 	public void setSource(IClassFile source) {
 		this.classFileSource = source;
@@ -514,15 +516,17 @@ public class ASTParser {
 	
 	/**
      * Sets the Java project used when resolving bindings.
-     * This setting is used in conjunction with <code>setSource(char[])</code>;
-     * it is ignored if the source code comes from
-     * <code>setSource(ICompilationUnit)</code>
-     * or <code>setSource(IClassFile)</code>.
+     * This method automatically sets the compiler
+     * options based on the given project:
+     * <pre>
+     * setCompilerOptions(project.getOptions(true));
+     * </pre>
+     * This setting is used in conjunction with <code>setSource(char[])</code>.
      * For the purposes of resolving bindings, types declared in the
 	 * source string will hide types by the same name available
      * through the classpath of the given project.
      * Defaults to none (<code>null</code>).
-     * TODO (jim) this also set the compiler options using project.getOptions(true).
+     * 
 	 * @param project the Java project used to resolve names, or 
 	 *    <code>null</code> if none
      */

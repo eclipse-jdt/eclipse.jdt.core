@@ -567,7 +567,7 @@ public class ASTMatcher {
 			return false;
 		}
 		ClassInstanceCreation o = (ClassInstanceCreation) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (!safeSubtreeMatch(node.getName(), o.getName())) {
 				return false;
@@ -894,7 +894,7 @@ public class ASTMatcher {
 			return false;
 		}
 		FieldDeclaration o = (FieldDeclaration) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
@@ -981,7 +981,7 @@ public class ASTMatcher {
 			return false;
 		}
 		ImportDeclaration o = (ImportDeclaration) other;
-		if (node.getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
 			if (node.isStatic() != o.isStatic()) {
 				return false;
 			}
@@ -1068,7 +1068,7 @@ public class ASTMatcher {
 			return false;
 		}
 		Initializer o = (Initializer) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
@@ -1129,7 +1129,7 @@ public class ASTMatcher {
 	 * @deprecated mark deprecated to hide deprecated usage
 	 */
 	private boolean compareDeprecatedComment(Javadoc first, Javadoc second) {
-		if (first.getAST().API_LEVEL == AST.LEVEL_2_0) {
+		if (first.getAST().apiLevel == AST.LEVEL_2_0) {
 			return safeEquals(first.getComment(), second.getComment());
 		} else {
 			return true;
@@ -1344,7 +1344,7 @@ public class ASTMatcher {
 			return false;
 		}
 		MethodDeclaration o = (MethodDeclaration) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
@@ -1521,7 +1521,7 @@ public class ASTMatcher {
 			return false;
 		}
 		PackageDeclaration o = (PackageDeclaration) other;
-		if (node.getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (node.getAST().apiLevel >= AST.LEVEL_3_0) {
 			if (!safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())) {
 				return false;
 			}
@@ -1828,7 +1828,7 @@ public class ASTMatcher {
 			return false;
 		}
 		SingleVariableDeclaration o = (SingleVariableDeclaration) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
@@ -2150,7 +2150,7 @@ public class ASTMatcher {
 			return false;
 		}
 		TypeDeclaration o = (TypeDeclaration) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
@@ -2276,7 +2276,7 @@ public class ASTMatcher {
 			return false;
 		}
 		VariableDeclarationExpression o = (VariableDeclarationExpression) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;
@@ -2338,7 +2338,7 @@ public class ASTMatcher {
 			return false;
 		}
 		VariableDeclarationStatement o = (VariableDeclarationStatement) other;
-		int level = node.getAST().API_LEVEL;
+		int level = node.getAST().apiLevel;
 		if (level == AST.LEVEL_2_0) {
 			if (node.getModifiers() != o.getModifiers()) {
 				return false;

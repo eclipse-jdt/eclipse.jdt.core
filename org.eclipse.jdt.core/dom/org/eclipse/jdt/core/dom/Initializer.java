@@ -214,10 +214,10 @@ public class Initializer extends BodyDeclaration {
 	ASTNode clone(AST target) {
 		Initializer result = new Initializer(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 		}
-		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		}
 		result.setJavadoc(
@@ -241,7 +241,7 @@ public class Initializer extends BodyDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			acceptChild(visitor, getJavadoc());
-			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getBody());
