@@ -33,11 +33,13 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.RecoveredBlock;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredElement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredField;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredInitializer;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredMethod;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
+import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -1079,12 +1081,17 @@ public void recoveryTokenCheck() {
 			super.recoveryTokenCheck();
 			if(currentElement != oldElement) {
 				if(oldElement instanceof RecoveredInitializer
-					|| oldElement instanceof RecoveredMethod) {
+					|| oldElement instanceof RecoveredMethod
+					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredInitializer)) {
 					popUntilElement(K_METHOD_DELIMITER);
 					popElement(K_METHOD_DELIMITER);
 				} else if(oldElement instanceof RecoveredType) {
 					popUntilElement(K_TYPE_DELIMITER);
-					popElement(K_TYPE_DELIMITER);
+					if(!(referenceContext instanceof CompilationUnitDeclaration) 
+							|| isIndirectlyInsideFieldInitialization()
+							|| currentElement instanceof RecoveredUnit) {
+						popElement(K_TYPE_DELIMITER);
+					}
 				}
 			}
 			break;

@@ -7864,4 +7864,97 @@ public void test0138(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=32061
+ */
+public void test0139(){
+	String str =
+		"public class X  {\n" + 
+		"    public void baz() {\n" + 
+		"    	new Object() {\n" + 
+		"            public void bar() {\n" + 
+		"            }\n" + 
+		"        };\n" +   
+		"    }\n" + 
+		"    private Object var = new Object() {\n" + 
+		"        public void foo(Object e) {\n" + 
+		"           e.\n" + 
+		"        }\n" + 
+		"    };\n" + 
+		"}";
+
+
+	String completeBehind = "e.";
+	int cursorLocation = str.indexOf("e.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:e.>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "e.";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  private Object var = new Object() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    public void foo(Object e) {\n" + 
+		"      <CompleteOnName:e.>;\n" + 
+		"    }\n" + 
+		"  };\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void baz() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=32061
+ */
+public void test0140(){
+	String str =
+		"public class X  {\n" + 
+		"    Object var1 = new Object() {};\n" + 
+		"    void bar() {\n" + 
+		"        new Object() {};\n" + 
+		"        bar();\n" + 
+		"    }\n" + 
+		"    Object var2 = new \n" + 
+		"}";
+
+
+	String completeBehind = "var2 = new ";
+	int cursorLocation = str.indexOf("var2 = new ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "Object var2 = new <CompleteOnType:>();";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  Object var1;\n" + 
+		"  Object var2 = new <CompleteOnType:>();\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
