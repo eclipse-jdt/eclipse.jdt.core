@@ -1014,9 +1014,7 @@ public class JavadocTestOptions extends JavadocTest {
 		for (int i=0; i<=visibility; i++) {
 			result.append(X_ResultForMissingTags[i]);
 		}
-		// TODO (frederic) see witrh jdt-ui whether we use ignore instead of report
-		//if (CompilerOptions.ENABLED.equals(reportMissingJavadocTagsOverriding)) {
-		if (CompilerOptions.DISABLED.equals(reportMissingJavadocTagsOverriding)) {
+		if (CompilerOptions.ENABLED.equals(reportMissingJavadocTagsOverriding)) {
 			result.append("----------\n");
 			result.append(Y_ResultForMissingTags[PUBLIC_VISIBILITY]);
 			if (visibility >= PROTECTED_VISIBILITY) {
@@ -1152,9 +1150,7 @@ public class JavadocTestOptions extends JavadocTest {
 		for (int i=0; i<=visibility; i++) {
 			result.append(X_ResultForMissingComments[i]);
 		}
-		// TODO (frederic) see witrh jdt-ui whether we use ignore instead of report
-		//if (CompilerOptions.ENABLED.equals(reportMissingJavadocCommentsOverriding)) {
-		if (CompilerOptions.DISABLED.equals(reportMissingJavadocCommentsOverriding)) {
+		if (CompilerOptions.ENABLED.equals(reportMissingJavadocCommentsOverriding)) {
 			result.append("----------\n");
 			result.append(Y_ResultForMissingComments[PUBLIC_VISIBILITY]);
 			if (visibility >= PROTECTED_VISIBILITY) {
@@ -1384,9 +1380,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorPublicOverriding() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.PUBLIC;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(PUBLIC_VISIBILITY));
 	}
 
@@ -1394,9 +1388,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorPublic() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.PUBLIC;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(PUBLIC_VISIBILITY));
 	}
 
@@ -1404,9 +1396,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorProtectedOverriding() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.PROTECTED;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(PROTECTED_VISIBILITY));
 	}
 
@@ -1414,9 +1404,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorProtected() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.PROTECTED;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(PROTECTED_VISIBILITY));
 	}
 
@@ -1424,9 +1412,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorPackageOverriding() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.DEFAULT;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(DEFAULT_VISIBILITY));
 	}
 
@@ -1434,9 +1420,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorPackage() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.DEFAULT;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(DEFAULT_VISIBILITY));
 	}
 
@@ -1444,9 +1428,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorPrivateOverriding() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(PRIVATE_VISIBILITY));
 	}
 
@@ -1454,9 +1436,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingTagsErrorPrivate() {
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocTagsVisibility = CompilerOptions.PRIVATE;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocTagsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocTagsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingTags, resultForMissingTags(PRIVATE_VISIBILITY));
 	}
 
@@ -1472,9 +1452,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorPublicOverriding() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(PUBLIC_VISIBILITY));
 	}
 
@@ -1482,9 +1460,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorPublic() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(PUBLIC_VISIBILITY));
 	}
 
@@ -1492,9 +1468,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorProtectedOverriding() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(PROTECTED_VISIBILITY));
 	}
 
@@ -1502,9 +1476,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorProtected() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(PROTECTED_VISIBILITY));
 	}
 
@@ -1512,9 +1484,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorPackageOverriding() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(DEFAULT_VISIBILITY));
 	}
 
@@ -1522,9 +1492,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorPackage() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(DEFAULT_VISIBILITY));
 	}
 
@@ -1532,9 +1500,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorPrivateOverriding() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(PRIVATE_VISIBILITY));
 	}
 
@@ -1542,9 +1508,7 @@ public class JavadocTestOptions extends JavadocTest {
 	public void testMissingCommentsErrorPrivate() {
 		reportMissingJavadocComments = CompilerOptions.ERROR;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
-		// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-		//reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
-		reportMissingJavadocCommentsOverriding = CompilerOptions.ENABLED;
+		reportMissingJavadocCommentsOverriding = CompilerOptions.DISABLED;
 		runNegativeTest(MissingComments, resultForMissingComments(PRIVATE_VISIBILITY));
 	}
 	

@@ -217,15 +217,11 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	// check missing javadoc tags
 	public int reportMissingJavadocTagsVisibility = AccPrivate; 
-	// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-	//public boolean reportMissingJavadocTagsOverriding = true;
-	public boolean reportMissingJavadocTagsOverriding = false;
+	public boolean reportMissingJavadocTagsOverriding = true;
 
 	// check missing javadoc comments
 	public int reportMissingJavadocCommentsVisibility = AccPublic; 
-	// TODO (frederic) see with jdt-ui whether we use ignore instead of report
-	//public boolean reportMissingJavadocCommentsOverriding = true; 
-	public boolean reportMissingJavadocCommentsOverriding = false; 
+	public boolean reportMissingJavadocCommentsOverriding = true; 
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -525,13 +521,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsOverriding)) != null) {
-			// TODO (frederic) see with jdt-ui whether we use ignore instead of report
 			if (ENABLED.equals(optionValue)) {
-				//this.reportMissingJavadocTagsOverriding = true;
-				this.reportMissingJavadocTagsOverriding = false;
-			} else if (DISABLED.equals(optionValue)) {
-				//this.reportMissingJavadocTagsOverriding = false;
 				this.reportMissingJavadocTagsOverriding = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportMissingJavadocTagsOverriding = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocComments)) != null) {
@@ -549,13 +542,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsOverriding)) != null) {
-			// TODO (frederic) see with jdt-ui whether we use ignore instead of report
 			if (ENABLED.equals(optionValue)) {
-				//this.reportMissingJavadocCommentsOverriding = true;
-				this.reportMissingJavadocCommentsOverriding = false;
-			} else if (DISABLED.equals(optionValue)) {
-				//this.reportMissingJavadocCommentsOverriding = false;
 				this.reportMissingJavadocCommentsOverriding = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportMissingJavadocCommentsOverriding = false;
 			}
 		}
 	}
