@@ -51,9 +51,9 @@ public class JavaSearchDocument extends SearchDocument {
 		}
 	}
 	public String getEncoding() {
-		IFile file = getFile();
-		if (file != null)
-			return JavaCore.create(file.getProject()).getOption(JavaCore.CORE_ENCODING, true);
+		IFile resource = getFile();
+		if (resource != null)
+			return JavaCore.create(resource.getProject()).getOption(JavaCore.CORE_ENCODING, true);
 		return JavaCore.getOption(JavaCore.CORE_ENCODING);
 	}
 	private IFile getFile() {
@@ -62,9 +62,9 @@ public class JavaSearchDocument extends SearchDocument {
 		return this.file;
 	}
 	private IPath getLocation() {
-		IFile file = getFile();
-		if (file != null)
-			return file.getLocation();
+		IFile resource = getFile();
+		if (resource != null)
+			return resource.getLocation();
 		return new Path(this.documentPath); // external file
 	}
 	public SearchParticipant getParticipant() {
