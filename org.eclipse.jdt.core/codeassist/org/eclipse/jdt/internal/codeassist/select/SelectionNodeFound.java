@@ -10,21 +10,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionNodeFound extends RuntimeException {
 	
+	public ASTNode node;
 	public Binding binding;
 	public boolean isDeclaration;
 	private static final long serialVersionUID = -7335444736618092295L; // backward compatible
 	
 public SelectionNodeFound() {
-	this(null, false); // we found a problem in the selection node
+	this(null, null, false); // we found a problem in the selection node
 }
-public SelectionNodeFound(Binding binding) {
-	this(binding, false);
+public SelectionNodeFound(ASTNode node, Binding binding) {
+	this(node, binding, false);
 }
-public SelectionNodeFound(Binding binding, boolean isDeclaration) {
+public SelectionNodeFound(ASTNode node, Binding binding, boolean isDeclaration) {
+	this.node = node;
 	this.binding = binding;
 	this.isDeclaration = isDeclaration;
 }

@@ -52,13 +52,13 @@ public TypeBinding resolveType(BlockScope scope) {
 					|| binding.problemId() == ProblemReasons.InheritedNameHidesEnclosingName
 					|| binding.problemId() == ProblemReasons.NonStaticReferenceInConstructorInvocation
 					|| binding.problemId() == ProblemReasons.NonStaticReferenceInStaticContext){
-				throw new SelectionNodeFound(binding);
+				throw new SelectionNodeFound(this, binding);
 			}
 			scope.problemReporter().invalidField(this, (FieldBinding) binding);
 		} else if (binding instanceof ProblemReferenceBinding) {
 			// tolerate some error cases
 			if (binding.problemId() == ProblemReasons.NotVisible){
-				throw new SelectionNodeFound(binding);
+				throw new SelectionNodeFound(this, binding);
 			}			
 			scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		} else {
@@ -67,7 +67,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		throw new SelectionNodeFound();
 	}
 
-	throw new SelectionNodeFound(binding);
+	throw new SelectionNodeFound(this, binding);
 }
 public StringBuffer printExpression(int indent, StringBuffer output) {
 	output.append("<SelectOnName:"); //$NON-NLS-1$

@@ -26,7 +26,7 @@ public class SelectionOnArgumentName extends Argument {
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
 		super.bind(scope, typeBinding, used);
-		throw new SelectionNodeFound(binding);
+		throw new SelectionNodeFound(this, binding);
 	}
 	
 	public StringBuffer print(int indent, StringBuffer output) {
@@ -45,6 +45,6 @@ public class SelectionOnArgumentName extends Argument {
 	public void resolve(BlockScope scope) {
 		
 		super.resolve(scope);
-		throw new SelectionNodeFound(binding);
+		throw new SelectionNodeFound(this, binding);
 	}
 }

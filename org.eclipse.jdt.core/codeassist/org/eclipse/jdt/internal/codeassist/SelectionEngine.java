@@ -135,10 +135,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 */
 	public void acceptClass(char[] packageName, char[] className, int modifiers, AccessRestriction accessRestriction) {
 		if (CharOperation.equals(className, this.selectedIdentifier)) {
-			if (this.qualifiedSelection != null
-				&& !CharOperation.equals(
-					this.qualifiedSelection,
-					CharOperation.concat(packageName, className, '.'))) {
+			if(!checkQualification(null, packageName, className)) {
 				return;
 			}
 			
@@ -186,10 +183,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		AccessRestriction accessRestriction) {
 
 		if (CharOperation.equals(interfaceName, this.selectedIdentifier)) {
-			if (this.qualifiedSelection != null
-				&& !CharOperation.equals(
-					this.qualifiedSelection,
-					CharOperation.concat(packageName, interfaceName, '.'))) {
+			if(!checkQualification(null, packageName, interfaceName)) {
 				return;
 			}
 			
@@ -266,7 +260,21 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.acceptedInterfacesCount = 0;
 		}
 	}
-
+	private boolean checkQualification(ASTNode node, char[] qualifiedPackageName, char[] qualifiedSourceName) {
+		if (this.qualifiedSelection != null) {
+			if(node != null && node instanceof QualifiedTypeReference) {
+				char[] tokens = CharOperation.concatWith(((QualifiedTypeReference) node).tokens, '.');
+				if(CharOperation.equals(tokens, this.qualifiedSelection)) {
+					return true;
+				}
+			}
+			
+			char[] qualifiedTypeName = CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
+			return CharOperation.equals(qualifiedTypeName, this.qualifiedSelection) ||
+					CharOperation.equals(qualifiedSourceName, this.qualifiedSelection);
+		}
+		return true;
+	}
 	private boolean checkSelection(
 		char[] source,
 		int selectionStart,
@@ -517,7 +525,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, e.isDeclaration);
+								selectFrom(e.node, e.binding, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -537,13 +545,21 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.requestor.acceptError(this.problem);
 			}
 		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D		
+			if(DEBUG) {
+				System.out.println("Exception caught by SelectionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
+			if(DEBUG) {
+				System.out.println("Exception caught by SelectionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
 		} finally {
 			reset();
 		}
 	}
 
-	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
+	private void selectFrom(ASTNode node, Binding binding, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
 		if(binding instanceof TypeVariableBinding) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
 			Binding enclosingElement = typeVariableBinding.declaringElement;
@@ -575,8 +591,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.acceptedAnswer = true;
 		} else if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
-			if (this.qualifiedSelection != null
-				&& !CharOperation.equals(this.qualifiedSelection, typeBinding.readableName())) {
+			if(!checkQualification(
+					node,
+					typeBinding.qualifiedPackageName(),
+					typeBinding.qualifiedSourceName())) {
 				return;
 			}
 			if (typeBinding.isInterface()) {
@@ -682,11 +700,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.acceptedAnswer = true;
 						} else {
 							// open on the type of the variable
-							selectFrom(((LocalVariableBinding) binding).type, parsedUnit, false);
+							selectFrom(null, ((LocalVariableBinding) binding).type, parsedUnit, false);
 						}
 					} else
 						if (binding instanceof ArrayBinding) {
-							selectFrom(((ArrayBinding) binding).leafComponentType, parsedUnit, false);
+							selectFrom(node, ((ArrayBinding) binding).leafComponentType, parsedUnit, false);
 							// open on the type of the array
 						} else
 							if (binding instanceof PackageBinding) {
@@ -713,10 +731,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 				if (constructorDeclaration.selector == assistIdentifier){
 					if (constructorDeclaration.binding != null) {
-						throw new SelectionNodeFound(constructorDeclaration.binding);
+						throw new SelectionNodeFound(constructorDeclaration, constructorDeclaration.binding);
 					} else {
 						if (constructorDeclaration.scope != null) {
-							throw new SelectionNodeFound(new MethodBinding(constructorDeclaration.modifiers, constructorDeclaration.selector, null, null, null, constructorDeclaration.scope.referenceType().binding));
+							throw new SelectionNodeFound(constructorDeclaration, new MethodBinding(constructorDeclaration.modifiers, constructorDeclaration.selector, null, null, null, constructorDeclaration.scope.referenceType().binding));
 						}
 					}
 				}
@@ -724,29 +742,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 				if (fieldDeclaration.name == assistIdentifier){
-					throw new SelectionNodeFound(fieldDeclaration.binding);
+					throw new SelectionNodeFound(fieldDeclaration, fieldDeclaration.binding);
 				}
 				return true;
 			}
 			public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope scope) {
 				if (localTypeDeclaration.name == assistIdentifier) {
-					throw new SelectionNodeFound(localTypeDeclaration.binding);
+					throw new SelectionNodeFound(localTypeDeclaration, localTypeDeclaration.binding);
 				}
 				return true;
 			}
 			public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
 				if (memberTypeDeclaration.name == assistIdentifier) {
-					throw new SelectionNodeFound(memberTypeDeclaration.binding);
+					throw new SelectionNodeFound(memberTypeDeclaration, memberTypeDeclaration.binding);
 				}
 				return true;
 			}
 			public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 				if (methodDeclaration.selector == assistIdentifier){
 					if (methodDeclaration.binding != null) {
-						throw new SelectionNodeFound(methodDeclaration.binding);
+						throw new SelectionNodeFound(methodDeclaration, methodDeclaration.binding);
 					} else {
 						if (methodDeclaration.scope != null) {
-							throw new SelectionNodeFound(new MethodBinding(methodDeclaration.modifiers, methodDeclaration.selector, null, null, null, methodDeclaration.scope.referenceType().binding));
+							throw new SelectionNodeFound(methodDeclaration, new MethodBinding(methodDeclaration.modifiers, methodDeclaration.selector, null, null, null, methodDeclaration.scope.referenceType().binding));
 						}
 					}
 				}
@@ -754,7 +772,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
 				if (typeDeclaration.name == assistIdentifier) {
-					throw new SelectionNodeFound(typeDeclaration.binding);
+					throw new SelectionNodeFound(typeDeclaration, typeDeclaration.binding);
 				}
 				return true;
 			}
@@ -859,7 +877,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, e.isDeclaration);
+								selectFrom(e.node, e.binding, parsedUnit, e.isDeclaration);
 							}
 						}
 					}

@@ -44,13 +44,13 @@ protected TypeBinding getTypeBinding(Scope scope) {
 	if (!binding.isValidBinding()) {
 			// tolerate some error cases
 			if (binding.problemId() == ProblemReasons.NotVisible){
-				throw new SelectionNodeFound(binding);
+				throw new SelectionNodeFound(this, binding);
 			}
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		throw new SelectionNodeFound();
 	}
 
-	throw new SelectionNodeFound(binding);
+	throw new SelectionNodeFound(this, binding);
 }
 public StringBuffer printExpression(int indent, StringBuffer output) {
 

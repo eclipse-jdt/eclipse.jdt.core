@@ -30,12 +30,12 @@ public class SelectionOnParameterizedQualifiedTypeReference extends Parameterize
 	
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 		super.resolveType(scope, checkBounds);
-		throw new SelectionNodeFound(this.resolvedType);
+		throw new SelectionNodeFound(this, this.resolvedType);
 	}
 	
 	public TypeBinding resolveType(ClassScope scope) {
 		super.resolveType(scope);
-		throw new SelectionNodeFound(this.resolvedType);
+		throw new SelectionNodeFound(this, this.resolvedType);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
