@@ -26,7 +26,7 @@ public CodeSnippetCompiler(
 		int codeSnippetEnd) {
 	super(environment, policy, settings, requestor, problemFactory);
 	this.parser = 
-		new CodeSnippetParser(problemReporter, evaluationContext, this.options.parseLiteralExpressionsAsConstants, codeSnippetStart, codeSnippetEnd);
+		new CodeSnippetParser(problemReporter, evaluationContext, this.options.parseLiteralExpressionsAsConstants, this.options.getAssertMode(), codeSnippetStart, codeSnippetEnd);
 	this.parseThreshold = 1; // fully parse only the code snippet compilation unit
 }
 }
