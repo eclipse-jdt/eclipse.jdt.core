@@ -50,6 +50,22 @@ Eclipse SDK 3.1M4 - ? November 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<!--
+<li> Added compiler support to flag inconsistent null checks (using interprocedural flow analysis)
+<pre>
+* COMPILER / Reporting Inconsistent null Checks
+*    When enabled, the compiler will issue an error or a warning whenever assumption were made on a variable
+*    with respect to holding null/non-null values, but the assumption is not followed in a consistent manner.
+*    Situations include:
+*         - if variable was assumed to be null and further used to access field or methods
+*         - if variable was assumed to be null or non-null and further tested for null cases.
+*         
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.inconsistentNullCheck"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
+-->
 <li>The internal Java model cache now adapts to the number of elements in the workspace. For example if a project
       has 1000 package fragment roots, the space limit of the cache of roots will increase to 1000. This size is reset to
       its default when the project is closed.
