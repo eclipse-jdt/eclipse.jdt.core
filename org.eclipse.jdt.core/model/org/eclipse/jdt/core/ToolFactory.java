@@ -235,7 +235,7 @@ public class ToolFactory {
 	 * can then be extracted using <code>IScanner#getLineEnds</code>
   	 * @return a scanner
 	 * 
-	 * @see IScanner
+	 * @see org.eclipse.jdt.core.compiler.IScanner
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator){
 

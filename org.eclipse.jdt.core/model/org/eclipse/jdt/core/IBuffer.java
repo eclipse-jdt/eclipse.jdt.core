@@ -225,7 +225,7 @@ public void replace(int position, int length, String text);
  * @exception JavaModelException if an error occurs writing the buffer
  *	to the underlying resource
  *
- * @see org.eclipse.core.resources.IFile#setContents(InputStream, boolean, boolean, IProgressMonitor)
+ * @see org.eclipse.core.resources.IFile#setContents(java.io.InputStream, boolean, boolean, org.eclipse.core.runtime.IProgressMonitor)
  */
 public void save(IProgressMonitor progress, boolean force) throws JavaModelException;
 /**

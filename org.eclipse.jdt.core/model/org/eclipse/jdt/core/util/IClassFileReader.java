@@ -14,6 +14,8 @@ package org.eclipse.jdt.core.util;
  * Description of a .class file. This class reifies the internal structure of a .class
  * file following the JVM specifications.
  *  
+ * This interface may be implemented by clients. 
+ * 
  * @since 2.0
  */
 public interface IClassFileReader {

@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.util;
 
 /**
  * Description of constant pool constants as described in the JVM specifications.
+ * 
+ * This interface is not intended to be implemented by clients. 
  *  
  * @since 2.0
  */

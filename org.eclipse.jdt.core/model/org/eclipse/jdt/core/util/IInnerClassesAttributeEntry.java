@@ -14,6 +14,8 @@ package org.eclipse.jdt.core.util;
  * Description of a inner class info as described in the JVM 
  * specifications.
  *  
+ * This interface may be implemented by clients. 
+ * 
  * @since 2.0
  */
 public interface IInnerClassesAttributeEntry {

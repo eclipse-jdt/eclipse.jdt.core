@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.util;
 /**
  * Description of a constant pool entry as described in the JVM specifications.
  * Its contents is initialized according to its kind.
+ * 
+ * This interface may be implemented by clients.
  *  
  * @since 2.0
  */

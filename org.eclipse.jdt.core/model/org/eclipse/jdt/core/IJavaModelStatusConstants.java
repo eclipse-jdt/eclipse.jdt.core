@@ -18,7 +18,7 @@ package org.eclipse.jdt.core;
  * </p>
  *
  * @see IJavaModelStatus
- * @see org.eclipse.core.runtime.IStatus#getCode
+ * @see org.eclipse.core.runtime.IStatus#getCode()
  */
 public interface IJavaModelStatusConstants {
 

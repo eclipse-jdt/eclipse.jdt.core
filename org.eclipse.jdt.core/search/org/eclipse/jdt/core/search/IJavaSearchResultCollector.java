@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 
 /**
- * A <code>IJavaSearchResultCollector<code> collects search results from a <code>search</code>
+ * A <code>IJavaSearchResultCollector</code> collects search results from a <code>search</code>
  * query to a <code>SearchEngine</code>. Clients must implement this interface and pass
  * an instance to the <code>search(...)</code> methods. When a search starts, the <code>aboutToStart()</code>
  * method is called, then 0 or more call to <code>accept(...)</code> are done, finally the
@@ -31,7 +31,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * The order of the results is unspecified. Clients must not rely on this order to display results, 
  * but they should sort these results (e.g. in a syntactical order).
  * <p>
- * The <code>IJavaSearchResultCollector<code> is also used to provide a progress monitor to the 
+ * The <code>IJavaSearchResultCollector</code> is also used to provide a progress monitor to the 
  * <code>SearchEngine</code>.
  * </p>
  * <p>

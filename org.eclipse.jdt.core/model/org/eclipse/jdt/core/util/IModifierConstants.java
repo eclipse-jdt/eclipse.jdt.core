@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.util;
 /**
  * Definition of the modifier constants as specified in the JVM specifications.
  *  
+ * This interface is not intended to be implemented by clients. 
+ * 
  * @since 2.0
  */
 public interface IModifierConstants {

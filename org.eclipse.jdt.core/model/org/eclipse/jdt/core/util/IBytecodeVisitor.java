@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.util;
 /**
  * Description of a Java opcodes visitor. This should be used to walk the opcodes
  * of a ICodeAttribute.
+ * 
+ * This interface is not intended to be implemented by clients. 
  *  
  * @since 2.0
  */

@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.util;
 /**
  * Description of each opcode mnemonic according to the JVM specifications.
  *  
+ * This interface is not intended to be implemented by clients. 
+ * 
  * @since 2.0
  */
 public interface IOpcodeMnemonics {

@@ -91,7 +91,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The presence of this nature on a project indicates that it is 
 	 * Java-capable.
 	 *
-	 * @see org.eclipse.core.resources.IProject#hasNature
+	 * @see org.eclipse.core.resources.IProject#hasNature(java.lang.String)
 	 */
 	public static final String NATURE_ID = PLUGIN_ID + ".javanature" ; //$NON-NLS-1$
 
@@ -105,12 +105,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_LOCAL_VARIABLE_ATTR = PLUGIN_ID + ".compiler.debug.localVariable"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber"; //$NON-NLS-1$
 	/**
@@ -683,9 +683,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <code>ClasspathContainerInitializer</code> for each referenced container 
 	 * (through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
 	 * <p>
-	 * @param containerPath - the name of the container, which needs to be resolved
-	 * @param project - a specific project in which the container is being resolved
-	 * @return IClasspathContainer - the corresponding classpath container or <code>null</code> if unable to find one.
+	 * @param containerPath the name of the container, which needs to be resolved
+	 * @param project a specific project in which the container is being resolved
+	 * @return the corresponding classpath container or <code>null</code> if unable to find one.
 	 * 
 	 * @exception JavaModelException if an exception occurred while resolving the container, or if the resolved container
 	 *   contains illegal entries (contains CPE_CONTAINER entries or null entries).	 
@@ -854,125 +854,125 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Note: more options might be added in further releases.
 	 * <pre>
 	 * RECOGNIZED OPTIONS:
-	 *  COMPILER / Generating Local Variable Debug Attribute
- 	 *    When generated, this attribute will enable local variable names 
-	 *    to be displayed in debugger, only in place where variables are 
-	 *    definitely assigned (.class file is then bigger)
-	 *     - option id:			"org.eclipse.jdt.core.compiler.debug.localVariable"
-	 *     - possible values:	{ "generate", "do not generate" }
-	 *     - default:			"generate"
+	 *	COMPILER / Generating Local Variable Debug Attribute
+ 	 *		When generated, this attribute will enable local variable names 
+	 *		to be displayed in debugger, only in place where variables are 
+	 *		definitely assigned (.class file is then bigger)
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.debug.localVariable"
+	 *     		- possible values:	{ "generate", "do not generate" }
+	 *     		- default:			"generate"
 	 *
-	 *  COMPILER / Generating Line Number Debug Attribute 
-	 *    When generated, this attribute will enable source code highlighting in debugger 
-	 *    (.class file is then bigger).
-	 *     - option id:			"org.eclipse.jdt.core.compiler.debug.lineNumber"
-	 *     - possible values:	{ "generate", "do not generate" }
-	 *     - default:			"generate"
+	 *	COMPILER / Generating Line Number Debug Attribute 
+	 *		When generated, this attribute will enable source code highlighting in debugger 
+	 *		(.class file is then bigger).
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.debug.lineNumber"
+	 *     		- possible values:	{ "generate", "do not generate" }
+	 *     		- default:			"generate"
 	 *		
-	 *  COMPILER / Generating Source Debug Attribute 
-	 *    When generated, this attribute will enable the debugger to present the 
-	 *    corresponding source code.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.debug.sourceFile"
-	 *     - possible values:	{ "generate", "do not generate" }
-	 *     - default:			"generate"
+	 *	COMPILER / Generating Source Debug Attribute 
+	 *		When generated, this attribute will enable the debugger to present the 
+	 *		corresponding source code.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.debug.sourceFile"
+	 *     		- possible values:	{ "generate", "do not generate" }
+	 *     		- default:			"generate"
 	 *		
-	 *  COMPILER / Preserving Unused Local Variables
-	 *    Unless requested to preserve unused local variables (i.e. never read), the 
-	 *    compiler will optimize them out, potentially altering debugging
-	 *     - option id:			"org.eclipse.jdt.core.compiler.codegen.unusedLocal"
-	 *     - possible values:	{ "preserve", "optimize out" }
-	 *     - default:			"preserve"
+	 *	COMPILER / Preserving Unused Local Variables
+	 *		Unless requested to preserve unused local variables (i.e. never read), the 
+	 *		compiler will optimize them out, potentially altering debugging
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.codegen.unusedLocal"
+	 *     		- possible values:	{ "preserve", "optimize out" }
+	 *     		- default:			"preserve"
 	 * 
-	 *  COMPILER / Defining Target Java Platform
-	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
-	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:	{ "1.1", "1.2", "1.3", "1.4" }
-	 *     - default:			"1.1"
+	 *	COMPILER / Defining Target Java Platform
+	 *		For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
+	 *		Note that "1.4" target require to toggle compliance mode to "1.4" too.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.codegen.targetPlatform"
+	 *     		- possible values:	{ "1.1", "1.2", "1.3", "1.4" }
+	 *     		- default:			"1.1"
 	 *
 	 *	COMPILER / Reporting Unreachable Code
-	 *    Unreachable code can optionally be reported as an error, warning or simply 
-	 *    ignored. The bytecode generation will always optimized it out.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unreachableCode"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"error"
+	 *		Unreachable code can optionally be reported as an error, warning or simply 
+	 *		ignored. The bytecode generation will always optimized it out.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.unreachableCode"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"error"
 	 *
 	 *	COMPILER / Reporting Invalid Import
-	 *    An import statement that cannot be resolved might optionally be reported 
-	 *    as an error, as a warning or ignored.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.invalidImport"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"error"
+	 *		An import statement that cannot be resolved might optionally be reported 
+	 *		as an error, as a warning or ignored.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.invalidImport"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"error"
 	 *
 	 *	COMPILER / Reporting Attempt to Override Package-Default Method
-	 *    A package default method is not visible in a different package, and thus 
-	 *    cannot be overridden. When enabling this option, the compiler will signal 
-	 *    such scenarii either as an error or a warning.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"warning"
+	 *		A package default method is not visible in a different package, and thus 
+	 *		cannot be overridden. When enabling this option, the compiler will signal 
+	 *		such scenarii either as an error or a warning.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"warning"
 	 *
-	 *  COMPILER / Reporting Method With Constructor Name
-	 *    Naming a method with a constructor name is generally considered poor 
-	 *    style programming. When enabling this option, the compiler will signal such 
-	 *    scenarii either as an error or a warning.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"warning"
+	 *	COMPILER / Reporting Method With Constructor Name
+	 *		Naming a method with a constructor name is generally considered poor 
+	 *		style programming. When enabling this option, the compiler will signal such 
+	 *		scenarii either as an error or a warning.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"warning"
 	 *
-	 *  COMPILER / Reporting Deprecation
-	 *    When enabled, the compiler will signal use of deprecated API either as an 
-	 *    error or a warning.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.deprecation"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"warning"
+	 *	COMPILER / Reporting Deprecation
+	 *		When enabled, the compiler will signal use of deprecated API either as an 
+	 *		error or a warning.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.deprecation"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"warning"
 	 *
 	 *	COMPILER / Reporting Hidden Catch Block
-	 *    Locally to a try statement, some catch blocks may hide others , e.g.
-	 *      try {	throw new java.io.CharConversionException();
-	 *      } catch (java.io.CharConversionException e) {
-	 *      } catch (java.io.IOException e) {}. 
-	 *    When enabling this option, the compiler will issue an error or a warning for hidden 
-	 *    catch blocks corresponding to checked exceptions
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"warning"
+	 *		Locally to a try statement, some catch blocks may hide others , e.g.
+	 *			try {	throw new java.io.CharConversionException();
+	 *			} catch (java.io.CharConversionException e) {
+	 *  	    } catch (java.io.IOException e) {}. 
+	 *		When enabling this option, the compiler will issue an error or a warning for hidden 
+	 *		catch blocks corresponding to checked exceptions
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"warning"
 	 *
-	 *  COMPILER / Reporting Unused Local
-	 *    When enabled, the compiler will issue an error or a warning for unused local 
-	 *    variables (i.e. variables never read from)
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unusedLocal"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"ignore"
+	 *	COMPILER / Reporting Unused Local
+	 *		When enabled, the compiler will issue an error or a warning for unused local 
+	 *		variables (i.e. variables never read from)
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.unusedLocal"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"ignore"
 	 *
 	 *	COMPILER / Reporting Unused Parameter
-	 *    When enabled, the compiler will issue an error or a warning for unused method 
-	 *    parameters (i.e. parameters never read from)
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unusedParameter"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"ignore"
+	 *		When enabled, the compiler will issue an error or a warning for unused method 
+	 *		parameters (i.e. parameters never read from)
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.unusedParameter"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"ignore"
 	 *
 	 *	COMPILER / Reporting Unused Import
-	 *    When enabled, the compiler will issue an error or a warning for unused import 
-	 *    reference 
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.unusedImport"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"ignore"
+	 *		When enabled, the compiler will issue an error or a warning for unused import 
+	 *		reference 
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.unusedImport"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"ignore"
 	 *
 	 *	COMPILER / Reporting Synthetic Access Emulation
-	 *    When enabled, the compiler will issue an error or a warning whenever it emulates 
-	 *    access to a non-accessible member of an enclosing type. Such access can have
-	 *    performance implications.
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"ignore"
+	 *		When enabled, the compiler will issue an error or a warning whenever it emulates 
+	 *		access to a non-accessible member of an enclosing type. Such access can have
+	 *		performance implications.
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"ignore"
 	 *
-	 * COMPILER / Reporting Non-Externalized String Literal
-	 *    When enabled, the compiler will issue an error or a warning for non externalized 
-	 *    String literal (i.e. non tagged with //$NON-NLS-<n>$). 
-	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"
-	 *     - possible values:	{ "error", "warning", "ignore" }
-	 *     - default:			"ignore"
+	 *	COMPILER / Reporting Non-Externalized String Literal
+	 *		When enabled, the compiler will issue an error or a warning for non externalized 
+	 *		String literal (i.e. non tagged with //$NON-NLS-<n>$). 
+	 *     		- option id:		"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"
+	 *     		- possible values:	{ "error", "warning", "ignore" }
+	 *     		- default:			"ignore"
 	 * 
 	 * COMPILER / Reporting Usage of 'assert' Identifier
 	 *    When enabled, the compiler will issue an error or a warning whenever 'assert' is 
@@ -1175,7 +1175,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
 	 * </p>
 	 * 
-	 * @param optionName - the String name of an option
+	 * @param optionName the name of an option
 	 * @return the String value of a given option
 	 * @see JavaCore#getDefaultOptions
 	 * @since 2.0
@@ -1538,6 +1538,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
 	 * <li> the remaining segments will be passed onto the initializer, and can be used as additional
 	 * 	hints during the initialization phase. </li>
+	 * </ul>
 	 * <p>
 	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
 	 * 
@@ -1555,7 +1556,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The resulting entry is not exported to dependent projects. This method is equivalent to
 	 * <code>newContainerEntry(-,false)</code>.
 	 * <p>
-	 * @param containerPath - the path identifying the container, it must be formed of two
+	 * @param containerPath the path identifying the container, it must be formed of two
 	 * 	segments
 	 * @return a new container classpath entry
 	 * 
@@ -1586,6 +1587,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
 	 * <li> the remaining segments will be passed onto the initializer, and can be used as additional
 	 * 	hints during the initialization phase. </li>
+	 * </ul>
 	 * <p>
 	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
 	 * 
@@ -1600,9 +1602,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Note that this operation does not attempt to validate classpath containers
 	 * or access the resources at the given paths.
 	 * <p>
-	 * @param containerPath - the path identifying the container, it must be formed of at least
+	 * @param containerPath the path identifying the container, it must be formed of at least
 	 * 	one segment (ID+hints)
-	 * @param isExported - a boolean indicating whether this entry is contributed to dependent
+	 * @param isExported a boolean indicating whether this entry is contributed to dependent
 	 *		projects in addition to the output location
 	 * @return a new container classpath entry
 	 * 
@@ -1824,7 +1826,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
-	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
 	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
 	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
 	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
@@ -1873,7 +1875,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
-	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
 	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
 	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
 	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
@@ -2238,7 +2240,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * De-registers the JavaModelManager as a resource changed listener and save participant.
 	 * <p>
-	 * @see Plugin#shutdown
+	 * @see org.eclipse.core.runtime.Plugin#shutdown()
 	 */
 	public void shutdown() {
 
@@ -2265,7 +2267,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Registers the JavaModelManager as a resource changed listener and save participant.
 	 * Starts the background indexing, and restore saved classpath variable values.
 	 * <p>
-	 * @see Plugin#startup
+	 * @see org.eclipse.core.runtime.Plugin#startup()
 	 */
 	public void startup() {
 		

@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.util;
 
 /**
  * Description of a code attribute as described in the JVM specifications.
+ * 
+ * This interface may be implemented by clients. 
  *  
  * @since 2.0
  */
