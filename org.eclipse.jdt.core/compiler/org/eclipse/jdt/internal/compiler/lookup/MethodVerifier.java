@@ -208,7 +208,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 		}
 	}
 	if (concreteMethod == null) {
-		if (this.type.isClass() && !this.type.isAbstract()) {
+		if (!this.type.isAbstract()) {
 			for (int i = length; --i >= 0;) {
 				if (mustImplementAbstractMethod(methods[i].declaringClass)) {
 					TypeDeclaration typeDeclaration = this.type.scope.referenceContext;

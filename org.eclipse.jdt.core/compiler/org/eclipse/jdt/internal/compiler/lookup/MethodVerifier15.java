@@ -36,7 +36,7 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	for (int i = 0; i < length; i++) {
 		if (!areTypesEqual(oneArgs[i], twoArgs[i])) {
 			// methods with raw parameters are considered equal to inherited methods with parameterized parameters for backwards compatibility
-			if (oneArgs[i].isRawType() && one.declaringClass.isClass() && oneArgs[i].isEquivalentTo(twoArgs[i]))
+			if (oneArgs[i].isRawType() && !one.declaringClass.isInterface() && oneArgs[i].isEquivalentTo(twoArgs[i]))
 				continue;
 			return false;
 		}
@@ -49,7 +49,7 @@ boolean areReturnTypesEqual(MethodBinding one, MethodBinding substituteTwo) {
 	// short is compatible with int, but as far as covariance is concerned, its not
 	if (one.returnType.isBaseType()) return false;
 
-	if (one.declaringClass.isClass()) {
+	if (!one.declaringClass.isInterface()) {
 		if (one.declaringClass.id == TypeIds.T_JavaLangObject)
 			return substituteTwo.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
 		return one.returnType.isCompatibleWith(substituteTwo.returnType);
@@ -398,10 +398,12 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
 }
 boolean mustImplementAbstractMethod(ReferenceBinding declaringClass) {
-	if (!super.mustImplementAbstractMethod(declaringClass)) return false;
-
-	if (!this.type.isEnum() || this.type.isAnonymousType()) return true; // want to test the actual enum type only
-	if (this.type.isAbstract()) return false; // is an enum that has since been tagged as abstract by the code below
+	if (!this.type.isEnum())
+		return super.mustImplementAbstractMethod(declaringClass);
+	if (this.type.isAnonymousType())
+		return true; // body of enum constant must implement any inherited abstract methods
+	if (this.type.isAbstract())
+		return false; // is an enum that has since been tagged as abstract by the code below
 
 	// enum type needs to implement abstract methods if one of its constants does not supply a body
 	TypeDeclaration typeDeclaration = this.type.scope.referenceContext;

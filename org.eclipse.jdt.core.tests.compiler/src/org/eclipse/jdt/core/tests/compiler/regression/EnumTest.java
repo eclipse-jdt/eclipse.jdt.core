@@ -2888,5 +2888,83 @@ public class EnumTest extends AbstractComparableTest {
 		if (index == -1) {
 			assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 		}
-	}		
+	}
+	public void test095() { // check missing abstract cases from multiple interfaces
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X implements I, J { \n" + 
+				"	ROUGE;\n" + 
+				"}\n" +
+				"interface I { void foo(); }\n" +
+				"interface J { void foo(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public enum X implements I, J { \n" + 
+			"	            ^\n" + 
+			"The type X must implement the inherited abstract method I.foo()\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X implements I, J { \n" + 
+				"	ROUGE;\n" + 
+				"	public void foo() {}\n" + 
+				"}\n" +
+				"interface I { void foo(int i); }\n" +
+				"interface J { void foo(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public enum X implements I, J { \n" + 
+			"	            ^\n" + 
+			"The type X must implement the inherited abstract method I.foo(int)\n" + 
+			"----------\n");
+	}
+	public void test096() { // check for raw vs. parameterized parameter types
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X implements I { \n" + 
+				"	ROUGE;\n" + 
+				"	public void foo(A a) {}\n" + 
+				"}\n" +
+				"interface I { void foo(A<String> a); }\n" +
+				"class A<T> {}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X implements I { \n" + 
+				"	ROUGE { public void foo(A a) {} }\n" +
+				"	;\n" + 
+				"}\n" +
+				"interface I { void foo(A<String> a); }\n" +
+				"class A<T> {}\n"
+			},
+			"");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X implements I { \n" + 
+				"	ROUGE;\n" + 
+				"	public void foo(A<String> a) {}\n" + 
+				"}\n" +
+				"interface I { void foo(A a); }\n" +
+				"class A<T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	public enum X implements I { \r\n" + 
+			"	            ^\n" + 
+			"The type X must implement the inherited abstract method I.foo(A)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\r\n" + 
+			"	public void foo(A<String> a) {}\r\n" + 
+			"	            ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(A<String>) of type X has the same erasure as foo(A) of type I but does not override it\n" + 
+			"----------\n");
+	}
 }
