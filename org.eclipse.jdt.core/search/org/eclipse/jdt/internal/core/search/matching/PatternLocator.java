@@ -489,6 +489,9 @@ protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
 	if (qualifiedPattern == null) return ACCURATE_MATCH;
 	if (type == null) return INACCURATE_MATCH;
 
+	// Type variable cannot be specified through pattern => this kind of binding cannot match it (see bug 79803)
+	if (type.isTypeVariable()) return IMPOSSIBLE_MATCH;
+
 	// NOTE: if case insensitive search then qualifiedPattern is assumed to be lowercase
 
 	char[] qualifiedPackageName = type.qualifiedPackageName();
