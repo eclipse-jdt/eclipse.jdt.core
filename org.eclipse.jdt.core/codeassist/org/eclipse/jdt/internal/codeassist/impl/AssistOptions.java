@@ -57,6 +57,7 @@ public class AssistOptions {
 	 * Initializing the assist options with default settings
 	 */
 	public AssistOptions() {
+		// Initializing the assist options with default settings
 	}
 
 	/** 

@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocationExpression {
 
 	public SelectionOnQualifiedAllocationExpression() {
+		// constructor without argument
 	}
 	
 	public SelectionOnQualifiedAllocationExpression(AnonymousLocalTypeDeclaration anonymous) {

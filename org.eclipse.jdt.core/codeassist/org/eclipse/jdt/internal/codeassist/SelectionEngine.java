@@ -223,6 +223,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *    The default package is represented by an empty array.
 	 */
 	public void acceptPackage(char[] packageName) {
+		// implementation of interface method
 	}
 
 	private void acceptQualifiedTypes() {
