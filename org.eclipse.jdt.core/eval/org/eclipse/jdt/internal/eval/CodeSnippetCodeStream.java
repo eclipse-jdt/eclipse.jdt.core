@@ -401,15 +401,4 @@ protected void invokeJavaLangReflectMethodInvoke() {
 	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangReflectMethodInvoke());
 	stackDepth-=2;
 }
-protected void invokeObjectGetClass() {
-	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
-	countLabels = 0;
-	try {
-		position++;
-		bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(OPC_invokevirtual);
-	}
-	writeUnsignedShort(((CodeSnippetConstantPool) constantPool).literalIndexForJavaLangObjectGetClass());
-}
 }

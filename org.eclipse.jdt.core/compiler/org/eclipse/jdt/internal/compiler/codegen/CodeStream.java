@@ -3044,6 +3044,19 @@ public void invokeObjectNewInstance() {
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangReflectConstructorNewInstance());
 }
+
+public void invokeObjectGetClass() {
+	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
+	countLabels = 0;
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = OPC_invokevirtual;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray(OPC_invokevirtual);
+	}
+	writeUnsignedShort(constantPool.literalIndexForJavaLangObjectGetClass());
+}
+
 final public void invokespecial(MethodBinding methodBinding) {
 	// initialized to 1 to take into account this  immediately
 	countLabels = 0;

@@ -81,4 +81,7 @@ public interface QualifiedNamesConstants {
 	char[] DesiredAssertionStatusSignature = "()Z".toCharArray(); //$NON-NLS-1$
 	char[] ShortConstrSignature = "(S)V".toCharArray(); //$NON-NLS-1$
 	char[] ByteConstrSignature = "(B)V".toCharArray(); //$NON-NLS-1$
+	char[] GetClass = "getClass".toCharArray(); //$NON-NLS-1$
+	char[] GetClassSignature = "()Ljava/lang/Class;".toCharArray(); //$NON-NLS-1$
+	
 }

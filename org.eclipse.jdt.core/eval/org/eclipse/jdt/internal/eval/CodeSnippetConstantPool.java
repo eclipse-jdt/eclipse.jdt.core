@@ -57,7 +57,6 @@ public class CodeSnippetConstantPool extends ConstantPool implements TypeConstan
 	final static char[] SET_BOOLEAN_METHOD_NAME = "setBoolean".toCharArray(); //$NON-NLS-1$
 	final static char[] SET_OBJECT_METHOD_NAME = "set".toCharArray(); //$NON-NLS-1$
 	final static char[] SET_SHORT_METHOD_NAME = "setShort".toCharArray(); //$NON-NLS-1$
-	final static char[] GETCLASS_OBJECT_METHOD_NAME = "getClass".toCharArray(); //$NON-NLS-1$
 	final static char[] SET_INT_METHOD_SIGNATURE = "(Ljava/lang/Object;I)V".toCharArray(); //$NON-NLS-1$
 	final static char[] SET_LONG_METHOD_SIGNATURE = "(Ljava/lang/Object;J)V".toCharArray(); //$NON-NLS-1$
 	final static char[] SET_DOUBLE_METHOD_SIGNATURE = "(Ljava/lang/Object;D)V".toCharArray(); //$NON-NLS-1$
@@ -70,7 +69,6 @@ public class CodeSnippetConstantPool extends ConstantPool implements TypeConstan
 	final static char[] GETDECLAREDMETHOD_NAME = "getDeclaredMethod".toCharArray(); //$NON-NLS-1$
 	final static char[] GETDECLAREDMETHOD_SIGNATURE = "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;".toCharArray(); //$NON-NLS-1$
 	final static char[] ARRAY_NEWINSTANCE_SIGNATURE = "(Ljava/lang/Class;[I)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
-	final static char[] GETCLASS_OBJECT_METHOD_SIGNATURE = "()Ljava/lang/Class;".toCharArray(); //$NON-NLS-1$
 	final static char[] INVOKE_METHOD_METHOD_NAME = "invoke".toCharArray(); //$NON-NLS-1$
 	final static char[] INVOKE_METHOD_METHOD_SIGNATURE = "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	final static char[] BYTEVALUE_BYTE_METHOD_NAME = "byteValue".toCharArray(); //$NON-NLS-1$
@@ -121,17 +119,16 @@ public class CodeSnippetConstantPool extends ConstantPool implements TypeConstan
 	final static int SET_SHORT_METHOD = 19;
 	final static int GETDECLAREDMETHOD_CLASS_METHOD = 20;
 	final static int NEWINSTANCE_ARRAY_METHOD = 21;
-	final static int GETCLASS_OBJECT_METHOD = 22;
-	final static int INVOKE_METHOD_METHOD = 23;
-	final static int BYTEVALUE_BYTE_METHOD = 24;
-	final static int SHORTVALUE_SHORT_METHOD = 25;
-	final static int DOUBLEVALUE_DOUBLE_METHOD = 26;
-	final static int FLOATVALUE_FLOAT_METHOD = 27;
-	final static int INTVALUE_INTEGER_METHOD = 28;
-	final static int CHARVALUE_CHARACTER_METHOD = 29;
-	final static int BOOLEANVALUE_BOOLEAN_METHOD = 30;
-	final static int LONGVALUE_LONG_METHOD = 31;
-	final static int GETDECLAREDCONSTRUCTOR_CLASS_METHOD = 32;
+	final static int INVOKE_METHOD_METHOD = 22;
+	final static int BYTEVALUE_BYTE_METHOD = 23;
+	final static int SHORTVALUE_SHORT_METHOD = 24;
+	final static int DOUBLEVALUE_DOUBLE_METHOD = 25;
+	final static int FLOATVALUE_FLOAT_METHOD = 26;
+	final static int INTVALUE_INTEGER_METHOD = 27;
+	final static int CHARVALUE_CHARACTER_METHOD = 28;
+	final static int BOOLEANVALUE_BOOLEAN_METHOD = 29;
+	final static int LONGVALUE_LONG_METHOD = 30;
+	final static int GETDECLAREDCONSTRUCTOR_CLASS_METHOD = 31;
 	
 	// predefined constant index for well known name and type for methods
 	final static int GETDECLAREDFIELD_CLASS_METHOD_NAME_AND_TYPE = 0;
@@ -156,21 +153,20 @@ public class CodeSnippetConstantPool extends ConstantPool implements TypeConstan
 	final static int SET_SHORT_METHOD_NAME_AND_TYPE = 19;
 	final static int GETDECLAREDMETHOD_CLASS_METHOD_NAME_AND_TYPE = 20;
 	final static int ARRAY_NEWINSTANCE_METHOD_NAME_AND_TYPE = 21;
-	final static int GETCLASS_OBJECT_METHOD_NAME_AND_TYPE = 22;
-	final static int INVOKE_METHOD_METHOD_NAME_AND_TYPE = 23;
-	final static int BYTEVALUE_BYTE_METHOD_NAME_AND_TYPE = 24;
-	final static int SHORTVALUE_SHORT_METHOD_NAME_AND_TYPE = 25;
-	final static int DOUBLEVALUE_DOUBLE_METHOD_NAME_AND_TYPE = 26;
-	final static int FLOATVALUE_FLOAT_METHOD_NAME_AND_TYPE = 27;
-	final static int INTVALUE_INTEGER_METHOD_NAME_AND_TYPE = 28;
-	final static int CHARVALUE_CHARACTER_METHOD_NAME_AND_TYPE = 29;
-	final static int BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE = 30;
-	final static int LONGVALUE_LONG_METHOD_NAME_AND_TYPE = 31;
-	final static int GETDECLAREDCONSTRUCTOR_CLASS_METHOD_NAME_AND_TYPE = 32;
+	final static int INVOKE_METHOD_METHOD_NAME_AND_TYPE = 22;
+	final static int BYTEVALUE_BYTE_METHOD_NAME_AND_TYPE = 23;
+	final static int SHORTVALUE_SHORT_METHOD_NAME_AND_TYPE = 24;
+	final static int DOUBLEVALUE_DOUBLE_METHOD_NAME_AND_TYPE = 25;
+	final static int FLOATVALUE_FLOAT_METHOD_NAME_AND_TYPE = 26;
+	final static int INTVALUE_INTEGER_METHOD_NAME_AND_TYPE = 27;
+	final static int CHARVALUE_CHARACTER_METHOD_NAME_AND_TYPE = 28;
+	final static int BOOLEANVALUE_BOOLEAN_METHOD_NAME_AND_TYPE = 29;
+	final static int LONGVALUE_LONG_METHOD_NAME_AND_TYPE = 30;
+	final static int GETDECLAREDCONSTRUCTOR_CLASS_METHOD_NAME_AND_TYPE = 31;
 	
 	int[] wellKnownTypes = new int[4];
-	int[] wellKnownMethods = new int[33];
-	int[] wellKnownMethodNameAndTypes = new int[33];	
+	int[] wellKnownMethods = new int[32];
+	int[] wellKnownMethodNameAndTypes = new int[32];	
 /**
  * CodeSnippetConstantPool constructor comment.
  * @param classFile org.eclipse.jdt.internal.compiler.ClassFile
@@ -217,11 +213,6 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 					&& CharOperation.equals(((ReferenceBinding) methodBinding.returnType).compoundName,JAVA_LANG_REFLECT_CONSTRUCTOR)) {
 						return GETDECLAREDCONSTRUCTOR_CLASS_METHOD_NAME_AND_TYPE;
 				}
-				if (methodBinding.parameters.length == 0
-					&& CharOperation.equals(methodBinding.selector, GETCLASS_OBJECT_METHOD_NAME)
-					&& methodBinding.returnType.id == T_JavaLangClass) {
-						return GETCLASS_OBJECT_METHOD_NAME_AND_TYPE;
-				}			
 				if (methodBinding.parameters.length == 1
 					&& methodBinding.parameters[0].id == T_Object) {
 						switch(methodBinding.returnType.id) {
@@ -460,11 +451,6 @@ public int indexOfWellKnownMethods(MethodBinding methodBinding) {
 					&& CharOperation.equals(methodBinding.selector, GETDECLAREDCONSTRUCTOR_NAME)) {
 						return GETDECLAREDCONSTRUCTOR_CLASS_METHOD;
 				}
-				if (methodBinding.declaringClass.id == T_JavaLangObject
-					&& methodBinding.parameters.length == 0
-					&& CharOperation.equals(methodBinding.selector, GETCLASS_OBJECT_METHOD_NAME)) {
-						return GETCLASS_OBJECT_METHOD;
-				}			
 				if (CharOperation.equals(methodBinding.declaringClass.compoundName, JAVA_LANG_REFLECT_FIELD)
 					&& methodBinding.parameters.length == 1
 					&& methodBinding.parameters[0].id == T_Object) {
@@ -1133,39 +1119,6 @@ public int literalIndexForJavaLangLongLongValue() {
 			writeU2(typeIndex);
 		}
 		index = wellKnownMethods[LONGVALUE_LONG_METHOD] = currentIndex++;
-		// Write the method ref constant into the constant pool
-		// First add the tag
-		writeU1(MethodRefTag);
-		// Then write the class index
-		writeU2(classIndex);
-		// The write the nameAndType index
-		writeU2(nameAndTypeIndex);
-	}
-	return index;
-}
-/**
- * This method returns the index into the constantPool corresponding to the 
- * method descriptor. It can be either an interface method reference constant
- * or a method reference constant.
- *
- * @return <CODE>int</CODE>
- */
-public int literalIndexForJavaLangObjectGetClass() {
-	int index;
-	int nameAndTypeIndex;
-	int classIndex;
-	// Looking into the method ref table
-	if ((index = wellKnownMethods[GETCLASS_OBJECT_METHOD]) == 0) {
-		classIndex = literalIndexForJavaLangObject();
-		if ((nameAndTypeIndex = wellKnownMethodNameAndTypes[GETCLASS_OBJECT_METHOD_NAME_AND_TYPE]) == 0) {
-			int nameIndex = literalIndex(GETCLASS_OBJECT_METHOD_NAME);
-			int typeIndex = literalIndex(GETCLASS_OBJECT_METHOD_SIGNATURE);
-			nameAndTypeIndex = wellKnownMethodNameAndTypes[GETCLASS_OBJECT_METHOD_NAME_AND_TYPE] = currentIndex++;
-			writeU1(NameAndTypeTag);
-			writeU2(nameIndex);
-			writeU2(typeIndex);
-		}
-		index = wellKnownMethods[GETCLASS_OBJECT_METHOD] = currentIndex++;
 		// Write the method ref constant into the constant pool
 		// First add the tag
 		writeU1(MethodRefTag);
