@@ -1252,6 +1252,7 @@ public class Util {
 		return toString(objects, 
 			new Displayable(){ 
 				public String displayString(Object o) { 
+					if (o == null) return "null"; //$NON-NLS-1$
 					return o.toString(); 
 				}
 			});
