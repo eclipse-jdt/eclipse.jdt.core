@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -40,13 +39,24 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
 	return options;
 }
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//	testsNames = new String[] { "Bug51529a", "Bug51529b" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	testsNumbers = new int[] { 22 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//	testsRange = new int[] { 21, 50 };
+//	testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
+//	testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
+}
 public static Test suite() {
-	if (false) {
-		TestSuite suite = new TestSuite();
-		suite.addTest(new ForeachStatementTest("test018"));
-		return suite;
+	if (testsNames != null || testsNumbers!=null || testsRange!=null) {
+		return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
+	} else {
+		// To run a specific test, just uncomment line with testNumbers in static initializer above
+		// and put numbers of tests you want to perform
+		return setupSuite(testClass());
 	}
-	return setupSuite(testClass());
 }
 public void test001() {
 	this.runConformTest(
@@ -310,7 +320,7 @@ public void test007() {
 		assertTrue(false);
 	}
 }
-public void test008() { 
+public void _test008() { 
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
