@@ -245,6 +245,9 @@ public class DefaultCodeFormatterConstants {
 		return DefaultCodeFormatterOptions.getJavaConventionsSettings().getMap();
 	}
 
+	/**
+	 * @deprecated use getForceWrapping(String value) instead
+	 */
 	public static boolean getForceWrapping(Map options, String key) {
 		Object option = options.get(key);
 		if (option != null) {
@@ -257,7 +260,23 @@ public class DefaultCodeFormatterConstants {
 		}
 		return false;
 	}
+	
+	public static boolean getForceWrapping(String value) {
+		if (value == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			int existingValue = Integer.parseInt(value);
+			return (existingValue & Alignment.M_FORCE) != 0;
+		} catch (NumberFormatException e) {
+			// nothing to do
+		}
+		return false;
+	}
 
+	/**
+	 * @deprecated use getIndentStyle(String value) instead
+	 */
 	public static int getIndentStyle(Map options, String key) {
 		Object option = options.get(key);
 		if (option != null) {
@@ -277,6 +296,28 @@ public class DefaultCodeFormatterConstants {
 		return INDENT_DEFAULT;
 	}
 	
+	public static int getIndentStyle(String value) {
+		if (value == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			int existingValue = Integer.parseInt(value);
+			if ((existingValue & Alignment.M_INDENT_BY_ONE) != 0) {
+				return INDENT_BY_ONE;
+			} else if ((existingValue & Alignment.M_INDENT_ON_COLUMN) != 0) {
+				return INDENT_ON_COLUMN;
+			} else {
+				return INDENT_DEFAULT;
+			}
+		} catch (NumberFormatException e) {
+			// nothing to do
+		}
+		return INDENT_DEFAULT;
+	}
+	
+	/**
+	 * @deprecated Use getWrappingStyle(String value) instead
+	 */
 	public static int getWrappingStyle(Map options, String key) {
 		Object option = options.get(key);
 		if (option != null) {
@@ -303,6 +344,35 @@ public class DefaultCodeFormatterConstants {
 		return WRAP_NO_SPLIT;
 	}
 	
+	public static int getWrappingStyle(String value) {
+		if (value == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			int existingValue = Integer.parseInt(value) & Alignment.SPLIT_MASK;
+			switch(existingValue) {
+				case Alignment.M_COMPACT_SPLIT :
+					return WRAP_COMPACT;
+				case Alignment.M_COMPACT_FIRST_BREAK_SPLIT :
+					return WRAP_COMPACT_FIRST_BREAK;
+				case Alignment.M_NEXT_PER_LINE_SPLIT :
+					return WRAP_NEXT_PER_LINE;
+				case Alignment.M_NEXT_SHIFTED_SPLIT :
+					return WRAP_NEXT_SHIFTED;
+				case Alignment.M_NO_ALIGNMENT :
+					return WRAP_NO_SPLIT;
+				case Alignment.M_ONE_PER_LINE_SPLIT :
+					return WRAP_ONE_PER_LINE;
+			}
+		} catch (NumberFormatException e) {
+			// nothing to do
+		}
+		return WRAP_NO_SPLIT;
+	}
+	
+	/**
+	 * @deprecated Use setIndentStyle(String value, int indentStyle) instead
+	 */
 	public static void setIndentStyle(Map options, String key, int indentStyle) {
 		Object option = options.get(key);
 		if (option != null) {
@@ -324,6 +394,30 @@ public class DefaultCodeFormatterConstants {
 		}
 	}
 	
+	public static String setIndentStyle(String value, int indentStyle) {
+		if (value == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			int existingValue = Integer.parseInt(value);
+			// clear existing indent bits
+			existingValue &= ~(Alignment.M_INDENT_BY_ONE | Alignment.M_INDENT_ON_COLUMN);
+			switch(indentStyle) {
+				case INDENT_BY_ONE :
+					existingValue |= Alignment.M_INDENT_BY_ONE;
+					break;
+				case INDENT_ON_COLUMN :
+					existingValue |= Alignment.M_INDENT_ON_COLUMN;
+			}
+			return String.valueOf(existingValue);
+		} catch (NumberFormatException e) {
+			// nothing to do
+		}
+		return null;
+	}
+	/**
+	 * @deprecated Use setForceWrapping(String value, boolean force) instead
+	 */
 	public static void setForceWrapping(Map options, String key, boolean forceSplit) {
 		Object option = options.get(key);
 		if (option != null) {
@@ -340,7 +434,27 @@ public class DefaultCodeFormatterConstants {
 			}
 		}
 	}
-
+	public static String setForceWrapping(String value, boolean force) {
+		if (value == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			int existingValue = Integer.parseInt(value);
+			// clear existing force bit
+			existingValue &= ~Alignment.M_FORCE;
+			if (force) {
+				existingValue |= Alignment.M_FORCE;
+			}
+			return String.valueOf(existingValue);
+		} catch (NumberFormatException e) {
+			// nothing to do
+		}
+		return null;
+	}
+	
+	/**
+	 * @deprecated use setWrappingStyle(String value, int wrappingStyle) instead
+	 */
 	public static void setWrappingStyle(Map options, String key, int splitStyle) {
 		Object option = options.get(key);
 		if (option != null) {
@@ -374,6 +488,46 @@ public class DefaultCodeFormatterConstants {
 			}
 		}
 	}	
+	
+	/**
+	 * Return a string that represents the new value 
+	 * @param value the given value
+	 * @param wrappingStyle the given style
+	 */
+	public static String setWrappingStyle(String value, int wrappingStyle) {
+		if (value == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			int existingValue = Integer.parseInt(value);
+			// clear existing split bits
+			existingValue &= ~(Alignment.SPLIT_MASK);
+			switch(wrappingStyle) {
+				case WRAP_COMPACT :
+					existingValue |= Alignment.M_COMPACT_SPLIT;
+					break;
+				case WRAP_COMPACT_FIRST_BREAK :
+					existingValue |= Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+					break;
+				case WRAP_NEXT_PER_LINE :
+					existingValue |= Alignment.M_NEXT_PER_LINE_SPLIT;
+					break;
+				case WRAP_NEXT_SHIFTED :
+					existingValue |= Alignment.M_NEXT_SHIFTED_SPLIT;
+					break;
+				case WRAP_NO_SPLIT :
+					existingValue = Alignment.M_NO_ALIGNMENT;
+					break;
+				case WRAP_ONE_PER_LINE :
+					existingValue |= Alignment.M_ONE_PER_LINE_SPLIT;
+					break;
+			}
+			return String.valueOf(existingValue);
+		} catch (NumberFormatException e) {
+			// nothing to do
+		}
+		return null;
+	}
 	
 	public static String createAlignmentValue(boolean forceSplit, int wrapStyle, int indentStyle) {
 		int alignmentValue = 0; 
