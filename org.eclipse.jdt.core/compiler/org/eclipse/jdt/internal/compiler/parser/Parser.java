@@ -7372,7 +7372,7 @@ public void recoveryTokenCheck() {
 			RecoveredElement newElement =
 				currentElement.updateOnClosingBrace(scanner.startPosition, scanner.currentPosition -1);
 				lastCheckPoint = scanner.currentPosition;
-				if (newElement != currentElement){
+			if (newElement != currentElement){
 				currentElement = newElement;
 			}
 		}
