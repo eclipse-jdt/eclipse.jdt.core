@@ -136,7 +136,7 @@ public class JavaProject
 					if(roots[j] instanceof JarPackageFragmentRoot){
 						JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) roots[j];
 						try {
-							jarRoot.getWorkspace().getRoot().setPersistentProperty(jarRoot.getSourceAttachmentPropertyName(), null); // loose info - will be recomputed
+							jarRoot.getWorkspace().getRoot().setPersistentProperty(jarRoot.getSourceAttachmentPropertyName(), null); // lose info - will be recomputed
 						} catch(CoreException ce){
 						}
 					}
