@@ -92,10 +92,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String COMPLETION_DEBUG = PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
 	private static final String SELECTION_DEBUG = PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	
-	
 	private static Map Variables = new HashMap(5);
+	private final static IPath InitializationInProgress = new Path("Initialization In Progress"); //$NON-NLS-1$
 	private static Hashtable Options = getDefaultOptions();
-	private static Map VariableInitializers = new HashMap(5);
 
 	/**
 	 * Creates the Java core plug-in.
@@ -276,13 +275,61 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #setClasspathVariable
 	 */
 	public static IPath getClasspathVariable(String variableName) {
+
 		IPath variablePath = (IPath) Variables.get(variableName);
+
+		if (variablePath == InitializationInProgress) return null; // break cycle
+		
 		if (variablePath == null){
-			initializeClasspathVariable(variableName);
-			variablePath = (IPath) Variables.get(variableName); // retry
+			ClasspathVariableInitializer initializer = getClasspathVariableInitializer(variableName);
+			if (initializer != null){
+				Variables.put(variableName, InitializationInProgress); // avoid initialization cycles
+				initializer.initialize(variableName);
+				variablePath = (IPath) Variables.get(variableName); // retry
+				if (JavaModelManager.VARIABLE_VERBOSE){
+					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath);
+				}
+			}
 		}
 		return variablePath;
 	}
+
+	/**
+ 	 * Retrieve the client classpath variable initializer for a given variable
+ 	 */
+	private static ClasspathVariableInitializer getClasspathVariableInitializer(String variable){
+		
+		Plugin jdtCorePlugin = JavaCore.getPlugin();
+		if (jdtCorePlugin == null) return null;
+
+		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(CPVAR_INIT_EXTPOINT_ID);
+		if (extension != null) {
+			IExtension[] extensions =  extension.getExtensions();
+			for(int i = 0; i < extensions.length; i++){
+				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+					IPluginDescriptor plugin = extension.getDeclaringPluginDescriptor();
+					if (plugin.isPluginActivated()) {
+						for(int j = 0; j < configElements.length; j++){
+							try {
+								String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
+								if (variable.equals(varAttribute)) {
+									if (JavaModelManager.VARIABLE_VERBOSE) {
+										System.out.println("CPVariable INIT - found initializer: "+variable+" --> " + configElements[j].getAttribute("class"));
+									}						
+									Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+									if (execExt instanceof ClasspathVariableInitializer){
+										return (ClasspathVariableInitializer)execExt;
+									}
+								}
+							} catch(CoreException e){
+							}
+						}
+					}
+			}	
+		}
+		return null;
+	}	
+	
 	/**
 	 * Returns the names of all known classpath variables.
 	 * <p>
@@ -419,11 +466,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							entry.isExported());
 				}
 			} else { // external binary folder
-				return JavaCore.newLibraryEntry(
-						resolvedPath,
-						getResolvedVariablePath(entry.getSourceAttachmentPath()),
-						getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-						entry.isExported());
+				if (resolvedPath.isAbsolute()){
+					return JavaCore.newLibraryEntry(
+							resolvedPath,
+							getResolvedVariablePath(entry.getSourceAttachmentPath()),
+							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+							entry.isExported());
+				}
 			}
 		}
 		return null;
@@ -453,35 +502,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		return resolvedPath;
 	}
 
-	/**
-	 * Perform variable initialization using client variable initializer
-	 * (see extension point org.eclipse.jdt.core.classpathVariableInitializer)
-	 */
-	private static void initializeClasspathVariable(String variable){
-
-		String[] info = (String[])VariableInitializers.get(variable);
-		if (info == null) return;
-
-		// only one attempt per variable
-		//VariableInitializers.remove(variableName);
-		
-		ClasspathVariableInitializer initializer = null;
-		try {
-			IPluginDescriptor desc = Platform.getPluginRegistry().getPluginDescriptor(info[0]);
-			Class initializerClass = desc.getPluginClassLoader().loadClass(info[1]);
-			
-			initializer = (ClasspathVariableInitializer)initializerClass.newInstance();
-			
-		} catch(InstantiationException e) {
-		} catch(IllegalAccessException e) {
-		} catch(ClassNotFoundException e) {
-		}
-		if (JavaModelManager.VARIABLE_VERBOSE) {
-			System.out.println("CPVariable INIT - execute initializer: "+variable+" --> " + info[1]);
-		}
-		initializer.initialize(variable);
-	}
-	
 	/**
 	 * Returns whether the given marker references the given Java element.
 	 * Used for markers which denote a Java element rather than a resource.
@@ -812,35 +832,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
- 	 * Retrieve the providers for classpath variable initializer. 
- 	 */
-	private static void registerClasspathVariableInitializers(){
-		Plugin plugin = JavaCore.getPlugin();
-		if (plugin == null)
-			return;
-
-		IExtensionPoint extension = plugin.getDescriptor().getExtensionPoint(CPVAR_INIT_EXTPOINT_ID);
-		if (extension != null) {
-			IExtension[] extensions =  extension.getExtensions();
-			for(int i = 0; i < extensions.length; i++){
-				String pluginID = extension.getDeclaringPluginDescriptor().getUniqueIdentifier();
-				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-				for(int j = 0; j < configElements.length; j++){
-					String variable = configElements[j].getAttribute("variable"); //$NON-NLS-1$
-					if (variable != null) {
-						String initializerClassName = configElements[j].getAttribute("class"); //$NON-NLS-1$
-
-						if (JavaModelManager.VARIABLE_VERBOSE) {
-							System.out.println("CPVariable INIT - register initializer: "+variable+" --> " + initializerClassName);
-						}						
-						VariableInitializers.put(variable, new String[]{ pluginID, initializerClassName });
-					}
-				}
-			}	
-		}
-	}	
-	
-	/**
 	 * Removed the given classpath variable. Does nothing if no value was
 	 * set for this classpath variable.
 	 * <p>
@@ -1036,7 +1027,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			workspace.addSaveParticipant(this, manager);
 			manager.loadVariables();
-			registerClasspathVariableInitializers();
 			
 		} catch (CoreException e) {
 		} catch (RuntimeException e) {
@@ -1075,7 +1065,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								affectedProjects.put(projects[i], ((JavaProject)projects[i]).getExpandedClasspath(true));
 								continue nextProject;
 							}
-						}
+						}//marche pas bien s
 					}
 				}
 			}
@@ -1301,6 +1291,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
 	 *     - default:			""
 	 * 
+	 * BUILDER / Abort  if Invalid Classpath
+	 *    Allow to toggle the builder to abort if the classpath is invalid
+	 *     - option id:			"org.eclipse.jdt.core.builder.invalidClasspath"
+	 *     - possible values:	{ "abort", "ignore" }
+	 *     - default:			"ignore"
+	 * 
 	 *	JAVACORE / Computing Project Build Order
 	 *    Indicate whether JavaCore should enforce the project build order to be based on
 	 *    the classpath prerequisite chain. When requesting to compute, this takes over
@@ -1422,6 +1418,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		// Builder settings
 		defaultOptions.put("org.eclipse.jdt.core.builder.resourceCopyExclusionFilter", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.builder.invalidClasspath", "ignore");  //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// JavaCore settings
 		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$

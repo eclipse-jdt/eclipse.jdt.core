@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.util.*;
@@ -1071,11 +1072,15 @@ public class JavaProject
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		// resolved path is cached on its info
 		JavaProjectElementInfo projectInfo = getJavaProjectElementInfo();
-		IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
-		if (infoPath != null) return infoPath;
-
+		
+		// reuse cache if not needing to refresh markers or checking bound variables
+		if (ignoreUnresolvedVariable && !generateMarkerOnError){
+			// resolved path is cached on its info
+			IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
+			if (infoPath != null) return infoPath;
+		}
+		
 		IClasspathEntry[] classpath = getRawClasspath();
 
 		if (generateMarkerOnError){
@@ -1097,7 +1102,9 @@ public class JavaProject
 				if (!status.isOK())
 					createClasspathProblemMarker(
 						status.getMessage(), 
-						IMarker.SEVERITY_WARNING,
+						JavaBuilder.IGNORE.equals(JavaCore.getOptions().get(JavaBuilder.OPTION_InvalidClasspath)) 
+							? IMarker.SEVERITY_WARNING
+							: IMarker.SEVERITY_ERROR,
 						false);
 			}
 

@@ -15,9 +15,18 @@ Eclipse SDK Build ? - ? February 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added JavaCore option to control Java builder behavior in presence of an invalid project classpath.
+	Allows to toggle the builder to abort if the classpath is invalid
+	<ul>
+	<li> option id:			"org.eclipse.jdt.core.builder.invalidClasspath"
+	 <li> possible values:	{ "abort", "ignore" }
+	 <li> default:			"ignore"
+	 </ul>
+</li>
 <li> Added extension point to jdtcore so as to allow client plugins to register classpath variable initializers.
-	Extension point is "org.eclipse.jdt.core.classpathVariableInitializer").
+  Extension point is "org.eclipse.jdt.core.classpathVariableInitializer").
   (also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/org.eclipse.jdt.core/notes/r2.0/variable%20init/uninit-classpath-vars.html">design notes</a>)
+  Note that each classpath variable, if unbound, will trigger its registered initializer exactly once. If unsuccessful, it will stay unbound.
 
 </li>
 <li> Added option to trace classpath variable initializations.
