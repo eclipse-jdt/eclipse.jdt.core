@@ -987,39 +987,52 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		final Expression[] arguments = messageSend.arguments;
 		if (arguments != null) {
-			int argumentLength = arguments.length;
-			Alignment argumentsAlignment = this.scribe.createAlignment(
-					"messageArguments", //$NON-NLS-1$
-					this.preferences.message_send_arguments_alignment,
-					argumentLength,
-					this.scribe.scanner.currentPosition);
-			this.scribe.enterAlignment(argumentsAlignment);
-			boolean ok = false;
-			do {
-				try {
-					if (this.preferences.insert_space_within_message_send) {
-						this.scribe.space();
-					}
-					for (int i = 0; i < argumentLength; i++) {
-						if (i > 0) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
-						}
-						this.scribe.alignFragment(argumentsAlignment, i);
-						if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
+			int argumentsLength = arguments.length;
+			if (argumentsLength > 1) {
+				Alignment argumentsAlignment = this.scribe.createAlignment(
+						"messageArguments", //$NON-NLS-1$
+						this.preferences.message_send_arguments_alignment,
+						argumentsLength,
+						this.scribe.scanner.currentPosition);
+				this.scribe.enterAlignment(argumentsAlignment);
+				boolean ok = false;
+				do {
+					try {
+						if (this.preferences.insert_space_within_message_send) {
 							this.scribe.space();
 						}
-						arguments[i].traverse(this, scope);
+						for (int i = 0; i < argumentsLength; i++) {
+							if (i > 0) {
+								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+							}
+							this.scribe.alignFragment(argumentsAlignment, i);
+							if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
+								this.scribe.space();
+							}
+							arguments[i].traverse(this, scope);
+						}
+						ok = true;
+					} catch (AlignmentException e) {
+						this.scribe.redoAlignment(e);
 					}
-					ok = true;
-				} catch (AlignmentException e) {
-					this.scribe.redoAlignment(e);
+				} while (!ok);
+				this.scribe.exitAlignment(argumentsAlignment, true);
+			} else {
+				if (this.preferences.insert_space_within_message_send) {
+						this.scribe.space();
 				}
-			} while (!ok);
-			this.scribe.exitAlignment(argumentsAlignment, true);
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
-		} else {
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments);
+				for (int i = 0; i < argumentsLength; i++) {
+					if (i > 0) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
+					}
+					if (i > 0 && this.preferences.insert_space_after_comma_in_messagesend_arguments) {
+						this.scribe.space();
+					}
+					arguments[i].traverse(this, scope);
+				}
+			}
 		}
+		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_arguments);
 	}
 
 	private void formatMethodArguments(
@@ -2897,7 +2910,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		CascadingMethodInvocationFragmentBuilder builder = buildFragments(messageSend, scope);
 		
-		if (builder.size() >= 3) {
+		if (builder.size() >= 3 && numberOfParens == 0) {
 			formatCascadingMessageSends(builder, scope);
 		} else {
 			Alignment messageAlignment = null;

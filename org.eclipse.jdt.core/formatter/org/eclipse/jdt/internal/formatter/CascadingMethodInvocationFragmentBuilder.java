@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.formatter;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
@@ -38,13 +39,18 @@ class CascadingMethodInvocationFragmentBuilder
 	 * @see org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(MessageSend messageSend, BlockScope scope) {
-		if (messageSend.receiver instanceof MessageSend) {
+		if ((messageSend.receiver.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT == 0) {
+			if (messageSend.receiver instanceof MessageSend) {
+				this.fragmentsList.add(0, messageSend);
+				messageSend.receiver.traverse(this, scope);
+				return false;
+			}
 			this.fragmentsList.add(0, messageSend);
-			messageSend.receiver.traverse(this, scope);
-			return false;
+			this.fragmentsList.add(1, messageSend);
+		} else {
+			this.fragmentsList.add(0, messageSend);
+			this.fragmentsList.add(1, messageSend);
 		}
-		this.fragmentsList.add(0, messageSend);
-		this.fragmentsList.add(1, messageSend);
 		return false;
 	}
 }
