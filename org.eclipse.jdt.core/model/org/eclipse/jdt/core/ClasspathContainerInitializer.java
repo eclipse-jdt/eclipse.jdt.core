@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IPath;
  * <p>
  * Clients should subclass this class to implement a specific classpath
  * container initializer. The subclass must have a public 0-argument
- * constructor and a concrete implementation of <code>resolve</code>.
+ * constructor and a concrete implementation of <code>initialize</code>.
  * <p>
  * Multiple classpath containers can be registered, each of them declares
  * the container ID they can handle, so as to narrow the set of containers they
