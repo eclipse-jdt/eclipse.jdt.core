@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -79,9 +80,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	protected String getPluginDirectoryPath() {
 		try {
-			return new File(Platform.resolve(Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL()).getFile()).getAbsolutePath();
+			URL platformURL = Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL();
+	
+			// TODO (jerome) last slash removal not needed after I20040120
+			String path = platformURL.getPath();
+			int length = path.length();
+			if (path.charAt(length-1) == '/') {
+				path = path.substring(0, length-1);
+				platformURL = new URL(platformURL.getProtocol(), platformURL.getHost(), path);
+			}
+			
+			return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
 		} catch (IOException e) {
-			//Error
+			e.printStackTrace();
 		}
 		return null;
 	}
