@@ -263,6 +263,7 @@ public interface IProblem {
 	int DuplicateFinalLocalInitialization = Internal + 57;
 	/** @since 2.1 */
 	int NonBlankFinalLocalAssignment = Internal + 58;
+	/** @since 3.0 */
 	int InvalidTypeForCollection = Internal + 59;
 	
 	int FinalOuterLocalAssignment = Internal + 60;

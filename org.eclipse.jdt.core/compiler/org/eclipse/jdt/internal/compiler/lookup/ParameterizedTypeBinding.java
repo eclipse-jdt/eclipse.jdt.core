@@ -54,8 +54,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public FieldBinding[] availableFields() {
 
-	    // TODO need to instantiate generic fields 
-		return this.type.availableFields();
+		return this.fields();
 	}
 
 	/**
@@ -63,8 +62,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public MethodBinding[] availableMethods() {
 
-	    // TODO need to instantiate generic methods
-		return this.type.availableMethods();
+		return this.methods();
 	}
 
 	/**
@@ -301,6 +299,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
+	 */
+	public boolean isParameterizedType() {
+	    return true;
+	}
+	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()
 	 */
 	public ReferenceBinding[] memberTypes() {
@@ -400,7 +405,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public TypeBinding substitute(TypeBinding originalType) {
 	    
 	    if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
-		    if (originalType instanceof TypeVariableBinding) {
+		    if (originalType.isTypeVariable()) {
 		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
 		        TypeVariableBinding[] typeVariables = this.type.typeVariables();
 		        int length = typeVariables.length;
@@ -408,7 +413,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
 		            return this.arguments[originalVariable.rank];
 		        }		        
-		    } else if (originalType instanceof ParameterizedTypeBinding) {
+		    } else if (originalType.isParameterizedType()) {
 		        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 		        TypeBinding[] originalArguments = originalParameterizedType.arguments;
 		        TypeBinding[] substitutedArguments = substitute(originalArguments);

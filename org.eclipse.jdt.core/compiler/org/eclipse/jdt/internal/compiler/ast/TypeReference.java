@@ -92,7 +92,7 @@ public boolean isTypeReference() {
 public TypeBinding resolveSuperType(ClassScope scope) {
 	if (resolveType(scope) == null) return null;
 
-	if (this.resolvedType instanceof TypeVariableBinding) {
+	if (this.resolvedType.isTypeVariable()) {
 		this.resolvedType = new ProblemReferenceBinding(getTypeName(), (ReferenceBinding) this.resolvedType, ProblemReasons.IllegalSuperTypeVariable);
 		reportInvalidType(scope);
 		return null;

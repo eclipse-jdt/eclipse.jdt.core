@@ -101,6 +101,13 @@ public final boolean isNumericType() {
 	}
 }
 /**
+ * Returns true if the type is parameterized, e.g. List<String>
+ */
+public boolean isParameterizedType() {
+    return false;
+}
+	
+/**
  * Returns true if the type was declared as a type variable
  */
 public boolean isTypeVariable() {

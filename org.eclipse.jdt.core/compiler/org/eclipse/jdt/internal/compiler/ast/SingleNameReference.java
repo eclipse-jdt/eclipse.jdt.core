@@ -553,7 +553,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		    this.codegenBinding = parameterizedField.originalField;
 		    FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
 		    // extra cast needed if field type was type variable
-		    if (fieldCodegenBinding.type instanceof TypeVariableBinding) {
+		    if (fieldCodegenBinding.type.isTypeVariable()) {
 		        TypeVariableBinding variableReturnType = (TypeVariableBinding) fieldCodegenBinding.type;
 		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
 				    this.genericCast = parameterizedField.type;
@@ -606,7 +606,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		    this.codegenBinding = parameterizedField.originalField;
 		    FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
 		    // extra cast needed if field type was type variable
-		    if (fieldCodegenBinding.type instanceof TypeVariableBinding) {
+		    if (fieldCodegenBinding.type.isTypeVariable()) {
 		        TypeVariableBinding variableReturnType = (TypeVariableBinding) fieldCodegenBinding.type;
 		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
 				    this.genericCast = parameterizedField.type;

@@ -376,7 +376,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
 		    this.codegenBinding = parameterizedField.originalField;
 		    // extra cast needed if field type was type variable
-		    if (this.codegenBinding.type instanceof TypeVariableBinding) {
+		    if (this.codegenBinding.type.isTypeVariable()) {
 		        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.type;
 		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
 				    this.genericCast = parameterizedField.type;
@@ -450,7 +450,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
 		    this.codegenBinding = parameterizedField.originalField;
 		    // extra cast needed if field type was type variable
-		    if (this.codegenBinding.type instanceof TypeVariableBinding) {
+		    if (this.codegenBinding.type.isTypeVariable()) {
 		        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.type;
 		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
 				    this.genericCast = parameterizedField.type;
