@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  * <p>
  * Clients may create instances of this class, which is not intended to be
  * subclassed.
+ * </p>
  * 
  * @see #parseCompilationUnit
  * @see ASTNode
@@ -73,36 +74,41 @@ public final class AST {
 	Scanner scanner;
 
 	/**
-	 * Creates a new, empty abstract syntax tree.
-	 * This AST uses the default JavaCore options to set up its source compatibility mode.
-	 * By default the source compatibility mode is 1.3.
-	 * See JavaCore#getDefaultOptions()
+	 * Creates a new, empty abstract syntax tree using default options.
+	 * 
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public AST() {
-		this.scanner = new Scanner();
+		this(JavaCore.getDefaultOptions());
 	}
 
 	/**
-	 * Creates a new, empty abstract syntax tree.
-	 * This AST uses options parameter to set up its source compatibility mode. The key used to 
-	 * retrieve that information is:
+	 * Creates a new, empty abstract syntax tree using the given options.
+	 * <p>
+	 * Following option keys are significant:
 	 * <ul>
-	 * <li>"org.eclipse.jdt.core.compiler.source"
+	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code> - 
+	 *    indicates source compatibility mode (as per <code>JavaCore</code>);
+	 *    <code>"1.3"</code> means the source code is as per JDK 1.3;
+	 *    <code>"1.4"</code> means the source code is as per JDK 1.4
+	 *    (<code>assert<code> is a keyword);
+	 *    additional legal values may be added later. </li>
 	 * </ul>
-	 * Its values can be:
-	 * <ul>
-	 * <li>"1.3"
-	 * <li>"1.4"
-	 * </ul>
-	 * @param options The options to use to set up this AST.
-	 * See JavaCore#getDefaultOptions()
+	 * Options other than the above are ignored.
+	 * </p>
+	 * 
+	 * @param options the table of options (key type: <code>String</code>;
+	 *    value type: <code>String</code>)
+	 * @see JavaCore#getDefaultOptions
 	 */
 	public AST(Map options) {
 		Object value = options.get("org.eclipse.jdt.core.compiler.source");
-		if ("1.4".equals(value)) {
-			this.scanner = new Scanner(false, false, false, true);
-		} else {
+		if ("1.3".equals(value)) {
+			// use a 1.3 scanner - treats assert as an identifier
 			this.scanner = new Scanner();
+		} else {
+			// use a 1.4 scanner - treats assert as an keyword
+			this.scanner = new Scanner(false, false, false, true);
 		}
 	}
 		

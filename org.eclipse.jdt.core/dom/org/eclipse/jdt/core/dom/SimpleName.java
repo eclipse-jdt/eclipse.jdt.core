@@ -98,13 +98,16 @@ public class SimpleName extends Name {
 	/**
 	 * Sets the identifier of this node to the given value.
 	 * The identifier should be legal according to the rules
-	 * of the Java language.
+	 * of the Java language. Note that keywords are not legal
+	 * identifiers.
 	 * <p>
-	 * [Issue: Include specification of legal Java identifier.]
+	 * Note that the list of keywords may depend on the version of the
+	 * language (determined when the AST object was created).
 	 * </p>
 	 * 
 	 * @param identifier the identifier of this node
 	 * @exception $precondition-violation:invalid-java-identifier$
+	 * @see AST#AST(java.util.Map)
 	 */ 
 	public void setIdentifier(String identifier) {
 		if (identifier == null) {
