@@ -1070,7 +1070,7 @@ public class Util {
 		}
 		IStatus status= new Status(
 			IStatus.ERROR, 
-			JavaCore.getPlugin().getDescriptor().getUniqueIdentifier(), 
+			JavaCore.PLUGIN_ID, 
 			IStatus.ERROR, 
 			message, 
 			e); 

@@ -2098,6 +2098,9 @@ public class JavaProject
 		return false;
 	}
 
+	private IPath getPluginWorkingLocation() {
+		return this.project.getWorkingLocation(JavaCore.PLUGIN_ID);
+	}	
 
 	/*
 	 * load preferences from a shareable format (VCM-wise)
@@ -2107,7 +2110,7 @@ public class JavaProject
 	 	Preferences preferences = new Preferences();
 	 	
 //		File prefFile = this.project.getLocation().append(PREF_FILENAME).toFile();
-		IPath projectMetaLocation = this.project.getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor());
+		IPath projectMetaLocation = getPluginWorkingLocation();
 		if (projectMetaLocation != null) {
 			File prefFile = projectMetaLocation.append(PREF_FILENAME).toFile();
 			if (prefFile.exists()) { // load preferences from file
@@ -2414,7 +2417,7 @@ public class JavaProject
 		// the preferences file is located in the plug-in's state area
 		// at a well-known name (.jprefs)
 //		File prefFile = this.project.getLocation().append(PREF_FILENAME).toFile();
-		File prefFile = this.project.getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor()).append(PREF_FILENAME).toFile();
+		File prefFile = getPluginWorkingLocation().append(PREF_FILENAME).toFile();
 		if (preferences.propertyNames().length == 0) {
 			// there are no preference settings
 			// rather than write an empty file, just delete any existing file

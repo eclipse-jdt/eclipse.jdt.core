@@ -920,7 +920,7 @@ public class JavaModelManager implements ISaveParticipant {
 		if (jdtCorePlugin == null) return null;
 
 		ArrayList variableList = new ArrayList(5);
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
@@ -945,7 +945,7 @@ public class JavaModelManager implements ISaveParticipant {
 		if (jdtCorePlugin == null) return null;
 
 		ArrayList containerIDList = new ArrayList(5);
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
@@ -966,8 +966,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	private File getSerializationFile(IProject project) {
 		if (!project.exists()) return null;
-		IPluginDescriptor descr= JavaCore.getJavaCore().getDescriptor();
-		IPath workingLocation= project.getPluginWorkingLocation(descr);
+		IPath workingLocation = project.getWorkingLocation(JavaCore.PLUGIN_ID);
 		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
 	}
 	
