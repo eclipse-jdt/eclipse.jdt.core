@@ -86,6 +86,12 @@ protected void addAffectedChild(JavaElementDelta child) {
 			fKind = CHANGED;
 			fChangeFlags |= F_CHILDREN;
 	}
+
+	// if a child delta is added to a compilation unit delta or below, 
+	// it's a fine grained delta
+	if (fChangedElement.getElementType() >= IJavaElement.COMPILATION_UNIT) {
+		this.fineGrained();
+	}
 	
 	if (fAffectedChildren.length == 0) {
 		fAffectedChildren = new IJavaElementDelta[] {child};
@@ -142,6 +148,11 @@ protected void addAffectedChild(JavaElementDelta child) {
 						return;
 				}
 				break;
+			default: 
+				// unknown -> existing child becomes the child with the existing child's flags
+				int flags = existingChild.getFlags();
+				fAffectedChildren[existingChildIndex] = child;
+				child.fChangeFlags |= flags;
 		}
 	}
 }
@@ -284,6 +295,12 @@ protected JavaElementDelta find(IJavaElement e) {
 		}
 	}
 	return null;
+}
+/**
+ * Mark this delta as a fine-grained delta.
+ */
+public void fineGrained() {
+	fChangeFlags |= F_FINE_GRAINED;
 }
 /**
  * @see IJavaElementDelta
@@ -621,6 +638,12 @@ public String toDebugString(int depth) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$
 		buffer.append("SUPER TYPES CHANGED"); //$NON-NLS-1$
+		prev = true;
+	}
+	if ((changeFlags & IJavaElementDelta.F_FINE_GRAINED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("FINE GRAINED"); //$NON-NLS-1$
 		prev = true;
 	}
 	buffer.append("}"); //$NON-NLS-1$

@@ -252,6 +252,13 @@ private void initialize() {
 	this.putOldPosition(this.javaElement, new ListItem(null, null));
 	this.putNewPosition(this.javaElement, new ListItem(null, null));
 	this.delta = new JavaElementDelta(javaElement);
+	
+	// if building a delta on a compilation unit or below, 
+	// it's a fine grained delta
+	if (javaElement.getElementType() >= IJavaElement.COMPILATION_UNIT) {
+		this.delta.fineGrained();
+	}
+	
 	this.added = new ArrayList(5);
 	this.removed = new ArrayList(5);
 }

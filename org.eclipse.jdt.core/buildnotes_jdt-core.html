@@ -15,6 +15,14 @@ Eclipse SDK Build 200203?? - ??th March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added flag <code>IJavaElementDelta.F_FINE_GRAINED</code> that indicates
+     that a fine-grained delta was computed for a given delta.
+     Clients can use this flag to find out if a compilation unit 
+     that have a <code>F_CONTENT</code> change should assume that there are 
+     no finer grained changes (<code>F_FINE_GRAINED</code> is set) or if 
+     finer grained changes were not considered (<code>F_FINE_GRAINED</code> 
+     is not set). 
+     </li>
 <li> Surfacing IProblem (<code>org.eclipse.jdt.core.compiler.IProblem</code>) 
 	<br>This allows some Java API to report failures in a lighter way than generating markers. Marker based API have been
 	deprecated (note that due to some deadlock in client code, some of these API did not even produce markers, e.g. reconciling). In addition to

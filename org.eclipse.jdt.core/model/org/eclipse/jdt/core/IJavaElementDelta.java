@@ -167,6 +167,13 @@ public interface IJavaElementDelta {
 	 * Change flag indicating that a source jar has been detached to a binary jar.
 	 */
 	public int F_SOURCEDETACHED = 0x2000;	
+	
+	/**
+	 * Change flag indicating that this is a fine-grained delta, i.e. an analysis down
+	 * to the members level was done to determine if there were structural changes to
+	 * members.
+	 */
+	public int F_FINE_GRAINED = 0x4000;
 /**
  * Returns deltas for the children that have been added.
  */

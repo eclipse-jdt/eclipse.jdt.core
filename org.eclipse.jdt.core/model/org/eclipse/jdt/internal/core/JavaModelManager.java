@@ -799,17 +799,24 @@ public void mergeDeltas() {
 	}
 	
 	Iterator deltas = fJavaModelDeltas.iterator();
-	JavaElementDelta rootDelta = new JavaElementDelta(getJavaModel());
+	IJavaElement javaModel = this.getJavaModel();
+	JavaElementDelta rootDelta = new JavaElementDelta(javaModel);
 	boolean insertedTree = false;
 	while (deltas.hasNext()) {
-		IJavaElementDelta delta = (IJavaElementDelta)deltas.next();
+		JavaElementDelta delta = (JavaElementDelta)deltas.next();
 		if (DeltaProcessor.VERBOSE) {
 			System.out.println(delta.toString());
 		}
-		IJavaElementDelta[] children = delta.getAffectedChildren();
-		for (int j = 0; j < children.length; j++) {
-			JavaElementDelta projectDelta = (JavaElementDelta) children[j];
-			rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
+		IJavaElement element = delta.getElement();
+		if (javaModel.equals(element)) {
+			IJavaElementDelta[] children = delta.getAffectedChildren();
+			for (int j = 0; j < children.length; j++) {
+				JavaElementDelta projectDelta = (JavaElementDelta) children[j];
+				rootDelta.insertDeltaTree(projectDelta.getElement(), projectDelta);
+				insertedTree = true;
+			}
+		} else {
+			rootDelta.insertDeltaTree(element, delta);
 			insertedTree = true;
 		}
 	}
