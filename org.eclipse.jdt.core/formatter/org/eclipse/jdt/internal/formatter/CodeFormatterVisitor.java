@@ -4102,7 +4102,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		TypeReference[][] typeArguments = parameterizedQualifiedTypeReference.typeArguments;
 		int length = typeArguments.length;
-		for (int i = 0; i < length - 1; i++) {
+		for (int i = 0; i < length; i++) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 			TypeReference[] typeArgument = typeArguments[i];			
 			if (typeArgument != null) {
@@ -4122,8 +4122,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				if (isClosingGenericToken()) {
 					this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
 				}
-			}			
-			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+			}
+			if (i < length - 1) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+			}
 		}
 		int dimensions = parameterizedQualifiedTypeReference.dimensions();
 		if (dimensions != 0) {
