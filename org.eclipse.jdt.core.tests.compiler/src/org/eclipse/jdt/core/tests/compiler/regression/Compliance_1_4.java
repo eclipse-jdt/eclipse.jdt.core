@@ -1490,6 +1490,71 @@ public void test40() {
 		"The interface X.Homonym cannot be the superclass of Y; a superclass must be a class\n" + 
 		"----------\n");
 }
+/*
+ * 30856 - 1.4 compliant mode should consider abstract method matches
+ */
+public void test41() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java", //================================
+			"package p;	\n" +
+			"public class X {	\n" +
+			"	void foo(int i, float f){}	\n" +
+			"	public static void main(String[] args) {	\n" +
+			"		q.Y y = new q.Y.Z();	\n" +
+			"		y.bar();	\n" +
+			"	}	\n" +
+			"}	\n",
+			"q/Y.java", //================================
+			"package q;	\n" +
+			"public abstract class Y extends p.X implements I {	\n" +
+			"	public void bar(){   foo(1, 2); }	\n" +
+			"	public static class Z extends Y {	\n" +
+			"		public void foo(float f, int i) {	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n" +
+			"interface I {	\n" +
+			"	void foo(float f, int i);	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
+/*
+ * variation - 30856 - 1.4 compliant mode should consider abstract method matches
+ */
+public void test42() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java", //================================
+			"package p;	\n" +
+			"public class X extends X0 {	\n" +
+			"	void foo(int i, float f){}	\n" +
+			"	public static void main(String[] args) {	\n" +
+			"		q.Y y = new q.Y.Z();	\n" +
+			"		y.bar();	\n" +
+			"	}	\n" +
+			"}	\n" +
+			"class X0 {	\n" +
+			"	void foo(int i, double d){}	\n" + // extra match
+			"}	\n",
+			"q/Y.java", //================================
+			"package q;	\n" +
+			"public abstract class Y extends p.X implements I {	\n" +
+			"	public void bar(){   foo(1, 2); }	\n" +
+			"	public static class Z extends Y {	\n" +
+			"		public void foo(float f, int i) {	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n" +
+			"interface I {	\n" +
+			"	void foo(float f, int i);	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
 
 public static Class testClass() {
 	return Compliance_1_4.class;
