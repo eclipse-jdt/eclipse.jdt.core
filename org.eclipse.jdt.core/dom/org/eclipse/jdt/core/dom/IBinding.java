@@ -33,7 +33,7 @@ public interface IBinding {
 	 * Kind constant (value 1) indicating a package binding.
 	 * Bindings of this kind can be safely cast to <code>IPackageBinding</code>.
 	 * 
-	 * @see #getKind
+	 * @see #getKind()
 	 * @see IPackageBinding
 	 */
 	public static final int PACKAGE = 1;
@@ -42,7 +42,7 @@ public interface IBinding {
 	 * Kind constant (value 2) indicating a type binding.
 	 * Bindings of this kind can be safely cast to <code>ITypeBinding</code>.
 	 * 
-	 * @see #getKind
+	 * @see #getKind()
 	 * @see ITypeBinding
 	 */
 	public static final int TYPE = 2;
@@ -51,7 +51,7 @@ public interface IBinding {
 	 * Kind constant (value 3) indicating a field or local variable binding.
 	 * Bindings of this kind can be safely cast to <code>IVariableBinding</code>.
 	 * 
-	 * @see #getKind
+	 * @see #getKind()
 	 * @see IVariableBinding
 	 */
 	public static final int VARIABLE = 3;
@@ -60,7 +60,7 @@ public interface IBinding {
 	 * Kind constant (value 4) indicating a method or constructor binding.
 	 * Bindings of this kind can be safely cast to <code>IMethodBinding</code>.
 	 * 
-	 * @see #getKind
+	 * @see #getKind()
 	 * @see IMethodBinding
 	 */
 	public static final int METHOD = 4;
@@ -119,7 +119,7 @@ public interface IBinding {
 	 * 
 	 * @return <code>true</code> if this binding is synthetic, and 
 	 *    <code>false</code> otherwise
-	 * @see IMethodBinding#isDefaultConstructor
+	 * @see IMethodBinding#isDefaultConstructor()
 	 */
 	public boolean isSynthetic();
 	
@@ -172,7 +172,7 @@ public interface IBinding {
 	 * not be different; in these cases, the client should compare bindings
 	 * via their binding keys (<code>getKey</code>) if available.
 	 * 
-	 * @see #getKey
+	 * @see #getKey()
 	 */
 	public boolean equals(Object obj);
 	
