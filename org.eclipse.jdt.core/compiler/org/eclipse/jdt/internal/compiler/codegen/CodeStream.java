@@ -26,7 +26,7 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public int stackMax; // Use Ints to keep from using extra bc when adding
 	public int stackDepth; // Use Ints to keep from using extra bc when adding
 	public int maxLocals;
-	public static final int max = 100; // Maximum size of the code array
+	public static final int MAXCODE = 100; // Maximum size of the code array
 	public static final int growFactor = 400;
 	public static final int LABELS_INCREMENT = 5;
 	public byte[] bCodeStream;
@@ -2832,11 +2832,11 @@ final public void ineg() {
 		resizeByteArray(OPC_ineg);
 	}
 }
-public void init(ClassFile classFile) {
-	this.classFile = classFile;
-	this.constantPool = classFile.constantPool;
-	this.bCodeStream = classFile.contents;
-	this.classFileOffset = classFile.contentsOffset;
+public void init(ClassFile targetClassFile) {
+	this.classFile = targetClassFile;
+	this.constantPool = targetClassFile.constantPool;
+	this.bCodeStream = targetClassFile.contents;
+	this.classFileOffset = targetClassFile.contentsOffset;
 	this.startingClassFileOffset = this.classFileOffset;
 	pcToSourceMapSize = 0;
 	lastEntryPC = 0;
@@ -3359,20 +3359,20 @@ public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariab
 	if (local.isArgument) {
 		return true;
 	}
-	int position = local.id + maxFieldCount;
+	int localPosition = local.id + maxFieldCount;
 	MethodScope methodScope = scope.methodScope();
 	// id is zero-based
-	if (position < UnconditionalFlowInfo.BitCacheSize) {
-		return (methodScope.definiteInits[initStateIndex] & (1L << position)) != 0; // use bits
+	if (localPosition < UnconditionalFlowInfo.BitCacheSize) {
+		return (methodScope.definiteInits[initStateIndex] & (1L << localPosition)) != 0; // use bits
 	}
 	// use extra vector
 	long[] extraInits = methodScope.extraDefiniteInits[initStateIndex];
 	if (extraInits == null)
 		return false; // if vector not yet allocated, then not initialized
 	int vectorIndex;
-	if ((vectorIndex = (position / UnconditionalFlowInfo.BitCacheSize) - 1) >= extraInits.length)
+	if ((vectorIndex = (localPosition / UnconditionalFlowInfo.BitCacheSize) - 1) >= extraInits.length)
 		return false; // if not enough room in vector, then not initialized 
-	return ((extraInits[vectorIndex]) & (1L << (position % UnconditionalFlowInfo.BitCacheSize))) != 0;
+	return ((extraInits[vectorIndex]) & (1L << (localPosition % UnconditionalFlowInfo.BitCacheSize))) != 0;
 }
 final public void ishl() {
 	countLabels = 0;
@@ -4893,18 +4893,18 @@ public final void removeNotDefinitelyAssignedVariables(Scope scope, int initStat
  * @param methodDeclaration org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
  * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
  */
-public void reset(AbstractMethodDeclaration methodDeclaration, ClassFile classFile) {
-	init(classFile);
-	this.methodDeclaration = methodDeclaration;
-	preserveUnusedLocals = methodDeclaration.scope.problemReporter().options.preserveAllLocalVariables;
-	initializeMaxLocals(methodDeclaration.binding);
+public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetClassFile) {
+	init(targetClassFile);
+	this.methodDeclaration = referenceMethod;
+	preserveUnusedLocals = referenceMethod.scope.problemReporter().options.preserveAllLocalVariables;
+	initializeMaxLocals(referenceMethod.binding);
 }
 /**
  * @param methodDeclaration org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration
  * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
  */
-public void resetForProblemClinit(ClassFile classFile) {
-	init(classFile);
+public void resetForProblemClinit(ClassFile targetClassFile) {
+	init(targetClassFile);
 	maxLocals = 0;
 }
 protected final void resizeByteArray() {
@@ -5162,7 +5162,7 @@ public static final void sort(int[] tab, int lo0, int hi0, int[] result) {
 }
 
 public final void store(LocalVariableBinding localBinding, boolean valueRequired) {
-	int position = localBinding.resolvedPosition;
+	int localPosition = localBinding.resolvedPosition;
 	// Using dedicated int bytecode
 	switch(localBinding.type.id) {
 		case TypeIds.T_int :
@@ -5172,7 +5172,7 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 		case TypeIds.T_boolean :
 			if (valueRequired)
 				this.dup();
-			switch (position) {
+			switch (localPosition) {
 				case 0 :
 					this.istore_0();
 					break;
@@ -5189,13 +5189,13 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 				// internal failure: trying to store into variable not supposed to be generated
 				//	break;
 				default :
-					this.istore(position);
+					this.istore(localPosition);
 			}
 			break;
 		case TypeIds.T_float :
 			if (valueRequired)
 				this.dup();
-			switch (position) {
+			switch (localPosition) {
 				case 0 :
 					this.fstore_0();
 					break;
@@ -5209,13 +5209,13 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 					this.fstore_3();
 					break;
 				default :
-					this.fstore(position);
+					this.fstore(localPosition);
 			}
 			break;
 		case TypeIds.T_double :
 			if (valueRequired)
 				this.dup2();
-			switch (position) {
+			switch (localPosition) {
 				case 0 :
 					this.dstore_0();
 					break;
@@ -5229,13 +5229,13 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 					this.dstore_3();
 					break;
 				default :
-					this.dstore(position);
+					this.dstore(localPosition);
 			}
 			break;
 		case TypeIds.T_long :
 			if (valueRequired)
 				this.dup2();
-			switch (position) {
+			switch (localPosition) {
 				case 0 :
 					this.lstore_0();
 					break;
@@ -5249,14 +5249,14 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 					this.lstore_3();
 					break;
 				default :
-					this.lstore(position);
+					this.lstore(localPosition);
 			}
 			break;
 		default:
 			// Reference object
 			if (valueRequired)
 				this.dup();
-			switch (position) {
+			switch (localPosition) {
 				case 0 :
 					this.astore_0();
 					break;
@@ -5270,14 +5270,14 @@ public final void store(LocalVariableBinding localBinding, boolean valueRequired
 					this.astore_3();
 					break;
 				default :
-					this.astore(position);
+					this.astore(localPosition);
 			}
 	}
 }
-public final void store(TypeBinding type, int position) {
+public final void store(TypeBinding type, int localPosition) {
 	// Using dedicated int bytecode
 	if ((type == IntBinding) || (type == CharBinding) || (type == ByteBinding) || (type == ShortBinding) || (type == BooleanBinding)) {
-		switch (position) {
+		switch (localPosition) {
 			case 0 :
 				this.istore_0();
 				break;
@@ -5291,13 +5291,13 @@ public final void store(TypeBinding type, int position) {
 				this.istore_3();
 				break;
 			default :
-				this.istore(position);
+				this.istore(localPosition);
 		}
 		return;
 	}
 	// Using dedicated float bytecode
 	if (type == FloatBinding) {
-		switch (position) {
+		switch (localPosition) {
 			case 0 :
 				this.fstore_0();
 				break;
@@ -5311,13 +5311,13 @@ public final void store(TypeBinding type, int position) {
 				this.fstore_3();
 				break;
 			default :
-				this.fstore(position);
+				this.fstore(localPosition);
 		}
 		return;
 	}
 	// Using dedicated long bytecode
 	if (type == LongBinding) {
-		switch (position) {
+		switch (localPosition) {
 			case 0 :
 				this.lstore_0();
 				break;
@@ -5331,13 +5331,13 @@ public final void store(TypeBinding type, int position) {
 				this.lstore_3();
 				break;
 			default :
-				this.lstore(position);
+				this.lstore(localPosition);
 		}
 		return;
 	}
 	// Using dedicated double bytecode
 	if (type == DoubleBinding) {
-		switch (position) {
+		switch (localPosition) {
 			case 0 :
 				this.dstore_0();
 				break;
@@ -5351,12 +5351,12 @@ public final void store(TypeBinding type, int position) {
 				this.dstore_3();
 				break;
 			default :
-				this.dstore(position);
+				this.dstore(localPosition);
 		}
 		return;
 	}
 	// Reference object
-	switch (position) {
+	switch (localPosition) {
 		case 0 :
 			this.astore_0();
 			break;
@@ -5370,11 +5370,11 @@ public final void store(TypeBinding type, int position) {
 			this.astore_3();
 			break;
 		default :
-			this.astore(position);
+			this.astore(localPosition);
 	}
 }
-public final void storeInt(int position) {
-	switch (position) {
+public final void storeInt(int localPosition) {
+	switch (localPosition) {
 		case 0 :
 			this.istore_0();
 			break;
@@ -5388,11 +5388,11 @@ public final void storeInt(int position) {
 			this.istore_3();
 			break;
 		default :
-			this.istore(position);
+			this.istore(localPosition);
 	}
 }
-public final void storeObject(int position) {
-	switch (position) {
+public final void storeObject(int localPosition) {
+	switch (localPosition) {
 		case 0 :
 			this.astore_0();
 			break;
@@ -5406,7 +5406,7 @@ public final void storeObject(int position) {
 			this.astore_3();
 			break;
 		default :
-			this.astore(position);
+			this.astore(localPosition);
 	}
 }
 final public void swap() {

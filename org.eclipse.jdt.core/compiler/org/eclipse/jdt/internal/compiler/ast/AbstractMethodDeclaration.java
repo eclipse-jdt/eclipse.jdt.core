@@ -53,26 +53,19 @@ public abstract class AbstractMethodDeclaration
 	 */
 	public void abort(int abortLevel) {
 
-		if (scope == null) {
-			throw new AbortCompilation(); // cannot do better
-		}
-
-		CompilationResult compilationResult =
-			scope.referenceCompilationUnit().compilationResult;
-
 		switch (abortLevel) {
 			case AbortCompilation :
-				throw new AbortCompilation(compilationResult);
+				throw new AbortCompilation(this.compilationResult);
 			case AbortCompilationUnit :
-				throw new AbortCompilationUnit(compilationResult);
+				throw new AbortCompilationUnit(this.compilationResult);
 			case AbortType :
-				throw new AbortType(compilationResult);
+				throw new AbortType(this.compilationResult);
 			default :
-				throw new AbortMethod(compilationResult);
+				throw new AbortMethod(this.compilationResult);
 		}
 	}
 
-	public abstract void analyseCode(ClassScope scope, InitializationFlowContext initializationContext, FlowInfo info);
+	public abstract void analyseCode(ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo info);
 
 		/**
 	 * Bind and add argument's binding into the scope of the method

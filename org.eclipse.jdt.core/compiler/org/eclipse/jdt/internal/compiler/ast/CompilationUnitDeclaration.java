@@ -57,11 +57,11 @@ public class CompilationUnitDeclaration
 
 		switch (abortLevel) {
 			case AbortType :
-				throw new AbortType(compilationResult);
+				throw new AbortType(this.compilationResult);
 			case AbortMethod :
-				throw new AbortMethod(compilationResult);
+				throw new AbortMethod(this.compilationResult);
 			default :
-				throw new AbortCompilationUnit(compilationResult);
+				throw new AbortCompilationUnit(this.compilationResult);
 		}
 	}
 
@@ -282,29 +282,29 @@ public class CompilationUnitDeclaration
 
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,
-		CompilationUnitScope scope) {
+		CompilationUnitScope unitScope) {
 
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
-			if (visitor.visit(this, scope)) {
+			if (visitor.visit(this, this.scope)) {
 				if (currentPackage != null) {
-					currentPackage.traverse(visitor, scope);
+					currentPackage.traverse(visitor, this.scope);
 				}
 				if (imports != null) {
 					int importLength = imports.length;
 					for (int i = 0; i < importLength; i++) {
-						imports[i].traverse(visitor, scope);
+						imports[i].traverse(visitor, this.scope);
 					}
 				}
 				if (types != null) {
 					int typesLength = types.length;
 					for (int i = 0; i < typesLength; i++) {
-						types[i].traverse(visitor, scope);
+						types[i].traverse(visitor, this.scope);
 					}
 				}
 			}
-			visitor.endVisit(this, scope);
+			visitor.endVisit(this, this.scope);
 		} catch (AbortCompilationUnit e) {
 		}
 	}
