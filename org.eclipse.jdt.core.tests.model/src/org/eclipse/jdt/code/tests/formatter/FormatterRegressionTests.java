@@ -31,8 +31,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final boolean DEBUG = false;
 	
 	public static Test suite() {
-		junit.framework.TestSuite suite = new Suite(
-				FormatterRegressionTests.class.getName());
+		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
 
 		if (true) {
 			Class c = FormatterRegressionTests.class;
