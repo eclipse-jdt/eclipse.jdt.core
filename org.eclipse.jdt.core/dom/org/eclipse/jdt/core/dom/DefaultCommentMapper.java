@@ -237,9 +237,7 @@ class DefaultCommentMapper {
 	 * from previous extended position to node start position. If one or several comment are found,
 	 * returns first comment start position, otherwise returns node start position.
 	 * 
-	 * First look after first comment before node start position using global comment index
-	 * to reduce range of search. Obviously returns if no comment is found before the node...
-	 * @see #doExtraRangesForChildren(ASTNode, Scanner)
+	 * First look after first comment before node start position and return if none was found...
 	 *
 	 * When first comment was found before node, goes up in comment list until one of
 	 * following condition becomes true:
@@ -349,9 +347,7 @@ class DefaultCommentMapper {
 	 * from node end position to specified next start. If one or several comment are found,
 	 * returns last comment end position, otherwise returns node end position.
 	 * 
-	 * First look after first comment after node end position using global comment index
-	 * to reduce range of search. Obviously returns if no comment is found after the node...
-	 * @see #doExtraRangesForChildren(ASTNode, Scanner)
+	 * First look after first comment after node end position and return if none was found...
 	 *
 	 * When first comment was found after node, goes down in comment list until one of
 	 * following condition becomes true:

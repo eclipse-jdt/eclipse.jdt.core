@@ -413,8 +413,8 @@ class DocCommentParser extends AbstractCommentParser {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#updateDocComment()
+	/*
+	 * Add stored tag elements to associated comment.
 	 */
 	protected void updateDocComment() {
 		for (int idx = 0; idx <= this.astPtr; idx++) {
