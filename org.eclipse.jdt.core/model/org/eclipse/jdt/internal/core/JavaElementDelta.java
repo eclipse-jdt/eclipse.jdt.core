@@ -22,7 +22,7 @@ public class JavaElementDelta implements IJavaElementDelta {
 	/**
 	 * @see #getKind()
 	 */
-	private int fKind;
+	private int fKind = 0;
 	/**
 	 * @see #getFlags()
 	 */
@@ -69,14 +69,24 @@ public class JavaElementDelta implements IJavaElementDelta {
 public JavaElementDelta(IJavaElement element) {
 	super();
 	fChangedElement = element;
-	fKind = CHANGED;
-	fChangeFlags = F_CHILDREN;
 }
 /**
  * Adds the child delta to the collection of affected children.  If the
  * child is already in the collection, walk down the hierarchy.
  */
 protected void addAffectedChild(JavaElementDelta child) {
+	switch (fKind) {
+		case ADDED:
+		case REMOVED:
+			break;
+		case CHANGED:
+			fChangeFlags |= F_CHILDREN;
+			break;
+		default:
+			fKind = CHANGED;
+			fChangeFlags |= F_CHILDREN;
+	}
+	
 	if (fAffectedChildren.length == 0) {
 		fAffectedChildren = new IJavaElementDelta[] {child};
 		return;
@@ -110,7 +120,6 @@ protected void addAffectedChild(JavaElementDelta child) {
 public void added(IJavaElement element) {
 	JavaElementDelta addedDelta = new JavaElementDelta(element);
 	addedDelta.fKind = ADDED;
-	addedDelta.fChangeFlags= 0;
 	insertDeltaTree(element, addedDelta);
 }
 /**
@@ -118,6 +127,17 @@ public void added(IJavaElement element) {
  * child is already in the collection, walk down the hierarchy.
  */
 protected void addResourceDelta(IResourceDelta child) {
+	switch (fKind) {
+		case ADDED:
+		case REMOVED:
+			break;
+		case CHANGED:
+			fChangeFlags |= F_CONTENT;
+			break;
+		default:
+			fKind = CHANGED;
+			fChangeFlags |= F_CONTENT;
+	}
 	if (resourceDeltas == null) {
 		resourceDeltas = new IResourceDelta[5];
 		resourceDeltas[resourceDeltasCounter++] = child;
@@ -138,7 +158,7 @@ protected void addResourceDelta(IResourceDelta child) {
 public void changed(IJavaElement element, int changeFlag) {
 	JavaElementDelta changedDelta = new JavaElementDelta(element);
 	changedDelta.fKind = CHANGED;
-	changedDelta.fChangeFlags = changeFlag;
+	changedDelta.fChangeFlags |= changeFlag;
 	insertDeltaTree(element, changedDelta);
 }
 /**
@@ -147,7 +167,7 @@ public void changed(IJavaElement element, int changeFlag) {
 public void closed(IJavaElement element) {
 	JavaElementDelta delta = new JavaElementDelta(element);
 	delta.fKind = CHANGED;
-	delta.fChangeFlags= F_CLOSED;
+	delta.fChangeFlags |= F_CLOSED;
 	insertDeltaTree(element, delta);
 }
 /**
@@ -162,9 +182,9 @@ protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelt
 		if (this.equalsAndSameParent(delta.getElement(), getElement())) { // handle case of two jars that can be equals but not in the same project
 			// the element being changed is the root element
 			fKind= delta.fKind;
-			fChangeFlags= delta.fChangeFlags;
-			fMovedToHandle= delta.fMovedToHandle;
-			fMovedFromHandle= delta.fMovedFromHandle;
+			fChangeFlags = delta.fChangeFlags;
+			fMovedToHandle = delta.fMovedToHandle;
+			fMovedFromHandle = delta.fMovedFromHandle;
 		} else {
 			// the given delta is not the root or a child - illegal
 			Assert.isTrue(false);
@@ -174,8 +194,6 @@ protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelt
 			IJavaElement ancestor = (IJavaElement) ancestors.elementAt(i);
 			JavaElementDelta ancestorDelta = new JavaElementDelta(ancestor);
 			ancestorDelta.addAffectedChild(childDelta);
-			ancestorDelta.fKind = CHANGED;
-			ancestorDelta.fChangeFlags = F_CHILDREN;
 			childDelta = ancestorDelta;
 		}
 	}
@@ -363,7 +381,7 @@ protected void insertDeltaTree(IJavaElement element, JavaElementDelta delta) {
 public void movedFrom(IJavaElement movedFromElement, IJavaElement movedToElement) {
 	JavaElementDelta removedDelta = new JavaElementDelta(movedFromElement);
 	removedDelta.fKind = REMOVED;
-	removedDelta.fChangeFlags = F_MOVED_TO;
+	removedDelta.fChangeFlags |= F_MOVED_TO;
 	removedDelta.fMovedToHandle = movedToElement;
 	insertDeltaTree(movedFromElement, removedDelta);
 }
@@ -376,7 +394,7 @@ public void movedFrom(IJavaElement movedFromElement, IJavaElement movedToElement
 public void movedTo(IJavaElement movedToElement, IJavaElement movedFromElement) {
 	JavaElementDelta addedDelta = new JavaElementDelta(movedToElement);
 	addedDelta.fKind = ADDED;
-	addedDelta.fChangeFlags = F_MOVED_FROM;
+	addedDelta.fChangeFlags |= F_MOVED_FROM;
 	addedDelta.fMovedFromHandle = movedFromElement;
 	insertDeltaTree(movedToElement, addedDelta);
 }
@@ -386,7 +404,7 @@ public void movedTo(IJavaElement movedToElement, IJavaElement movedFromElement) 
 public void opened(IJavaElement element) {
 	JavaElementDelta delta = new JavaElementDelta(element);
 	delta.fKind = CHANGED;
-	delta.fChangeFlags= F_OPENED;
+	delta.fChangeFlags |= F_OPENED;
 	insertDeltaTree(element, delta);
 }
 /**
@@ -430,16 +448,10 @@ public void removed(IJavaElement element) {
 	insertDeltaTree(element, removedDelta);
 	JavaElementDelta actualDelta = getDeltaFor(element);
 	if (actualDelta != null) {
-		actualDelta.fKind= REMOVED;
-		actualDelta.fChangeFlags= 0;
+		actualDelta.fKind = REMOVED;
+		actualDelta.fChangeFlags = 0;
 		actualDelta.fAffectedChildren = fgEmptyDelta;
 	}
-}
-/**
- * Sets the change flags of this delta.
- */
-protected void setFlags(int flags) {
-	fChangeFlags = flags;
 }
 /**
  * Creates the nested deltas resulting from a change operation.
@@ -450,7 +462,7 @@ protected void setFlags(int flags) {
 public void sourceAttached(IJavaElement element) {
 	JavaElementDelta attachedDelta = new JavaElementDelta(element);
 	attachedDelta.fKind = CHANGED;
-	attachedDelta.fChangeFlags = F_SOURCEATTACHED;
+	attachedDelta.fChangeFlags |= F_SOURCEATTACHED;
 	insertDeltaTree(element, attachedDelta);
 }
 /**
@@ -462,7 +474,7 @@ public void sourceAttached(IJavaElement element) {
 public void sourceDetached(IJavaElement element) {
 	JavaElementDelta detachedDelta = new JavaElementDelta(element);
 	detachedDelta.fKind = CHANGED;
-	detachedDelta.fChangeFlags = F_SOURCEDETACHED;
+	detachedDelta.fChangeFlags |= F_SOURCEDETACHED;
 	insertDeltaTree(element, detachedDelta);
 }
 /** 
@@ -556,6 +568,13 @@ public String toDebugString(int depth) {
 			buffer.append("\n"); //$NON-NLS-1$
 			buffer.append(((JavaElementDelta) children[i]).toDebugString(depth + 1));
 		}
+	}
+	for (int i = 0; i < resourceDeltasCounter; i++) {
+		buffer.append("\n");
+		for (int j = 0; j < depth+1; j++) {
+			buffer.append('\t');
+		}
+		buffer.append(resourceDeltas[i].toString());
 	}
 	return buffer.toString();
 }
