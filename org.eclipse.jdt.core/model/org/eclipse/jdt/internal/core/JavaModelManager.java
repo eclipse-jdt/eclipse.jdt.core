@@ -170,6 +170,14 @@ public class JavaModelManager implements ISaveParticipant {
 		return container;
 	}
 	
+	private synchronized Map containerClone(IJavaProject project) {
+		Map originalProjectContainers = (Map)this.containers.get(project);
+		if (originalProjectContainers == null) return null;
+		Map projectContainers = new HashMap(originalProjectContainers.size());
+		projectContainers.putAll(originalProjectContainers);
+		return projectContainers;
+	}
+	
 	/*
 	 * Returns the set of container paths for the given project that are being initialized in the current thread.
 	 */
@@ -220,6 +228,26 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 		// container values are persisted in preferences during save operations, see #saving(ISaveContext)
+	}
+	
+	private synchronized void containersReset(String[] containerIDs) {
+		for (int i = 0; i < containerIDs.length; i++) {
+			String containerID = containerIDs[i];
+			Iterator projectIterator = this.containers.keySet().iterator();
+			while (projectIterator.hasNext()){
+				IJavaProject project = (IJavaProject)projectIterator.next();
+				Map projectContainers = (Map)this.containers.get(project);
+				if (projectContainers != null){
+					Iterator containerIterator = projectContainers.keySet().iterator();
+					while (containerIterator.hasNext()){
+						IPath containerPath = (IPath)containerIterator.next();
+						if (containerPath.segment(0).equals(containerID)) { // registered container
+							projectContainers.put(containerPath, null); // reset container value, but leave entry in Map
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -1303,24 +1331,7 @@ public class JavaModelManager implements ISaveParticipant {
 			this.variables.put(varName, null); // reset variable, but leave its entry in the Map, so it will be part of variable names.
 		}
 		// override persisted values for containers which have a registered initializer
-		String[] registeredContainerIDs = getRegisteredContainerIDs();
-		for (int i = 0; i < registeredContainerIDs.length; i++) {
-			String containerID = registeredContainerIDs[i];
-			Iterator projectIterator = this.containers.keySet().iterator();
-			while (projectIterator.hasNext()){
-				IJavaProject project = (IJavaProject)projectIterator.next();
-				Map projectContainers = (Map)this.containers.get(project);
-				if (projectContainers != null){
-					Iterator containerIterator = projectContainers.keySet().iterator();
-					while (containerIterator.hasNext()){
-						IPath containerPath = (IPath)containerIterator.next();
-						if (containerPath.segment(0).equals(containerID)) { // registered container
-							projectContainers.put(containerPath, null); // reset container value, but leave entry in Map
-						}
-					}
-				}
-			}
-		}
+		containersReset(getRegisteredContainerIDs());
 	}
 
 	/**
@@ -1582,7 +1593,8 @@ public class JavaModelManager implements ISaveParticipant {
 		IJavaProject[] projects = getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 		    IJavaProject project = projects[i];
-			Map projectContainers = (Map)this.containers.get(project);
+			// clone while iterating (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
+			Map projectContainers = containerClone(project);
 			if (projectContainers == null) continue;
 			for (Iterator keys = projectContainers.keySet().iterator(); keys.hasNext();) {
 			    IPath containerPath = (IPath) keys.next();
