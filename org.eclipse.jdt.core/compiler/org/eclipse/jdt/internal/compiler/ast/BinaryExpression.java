@@ -1685,14 +1685,17 @@ public class BinaryExpression extends OperatorExpression {
 			}
 		}
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
-			if (leftTypeId == T_String
-					&& rightType.isArrayType()
-					&& ((ArrayBinding) rightType).elementsType() == CharBinding) {
-				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
-					} else if (rightTypeId == T_String
-							&& leftType.isArrayType()
-							&& ((ArrayBinding) leftType).elementsType() == CharBinding) {
-				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
+			if (leftTypeId == T_String) {
+				this.left.computeConversion(scope, leftType, leftType);
+				if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == CharBinding) {
+					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
+				}
+			}
+			if (rightTypeId == T_String) {
+				this.right.computeConversion(scope, rightType, rightType);
+				if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == CharBinding) {
+					scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
+				}
 			}
 		}
 

@@ -651,6 +651,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	System.out.println(foo(t));\n" + 
 			"	                   ^^^^^^\n" + 
 			"Unhandled exception type T\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 16)\n" + 
+			"	class EX extends Exception {\n" + 
+			"	      ^^\n" + 
+			"The serializable class EX does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n");
 	}
 	public void test015() {
@@ -915,6 +920,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	new X<EX>(new EX());\n" + 
 			"	^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unhandled exception type EX\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 13)\n" + 
+			"	class EX extends Exception {\n" + 
+			"	      ^^\n" + 
+			"The serializable class EX does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n");
 	}
 	
@@ -5738,8 +5748,13 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n", 			
 			},
 			"----------\n" + 
-			"1. ERROR in Alpha.java (at line 4)\r\n" + 
-			"	public void m() throws Alpha<String> {\r\n" + 
+			"1. WARNING in Alpha.java (at line 1)\n" + 
+			"	public class Alpha<T> extends RuntimeException {\n" + 
+			"	             ^^^^^\n" + 
+			"The serializable class Alpha does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in Alpha.java (at line 4)\n" + 
+			"	public void m() throws Alpha<String> {\n" + 
 			"	                       ^^^^^\n" + 
 			"Cannot use the parameterized type Alpha<String> either in catch block or throws clause\n" + 
 			"----------\n");
@@ -5764,12 +5779,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n", 			
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X<T> extends RuntimeException {\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	} catch(X<String> e) {\n" + 
 			"	                  ^\n" + 
 			"Cannot use the parameterized type X<String> either in catch block or throws clause\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
 			"	} catch(X<X<String>> e) {\n" + 
 			"	                     ^\n" + 
 			"Cannot use the parameterized type X<X<String>> either in catch block or throws clause\n" + 
@@ -6218,10 +6238,15 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\r\n" + 
-			"	} catch (T t) {\r\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	} catch (T t) {\n" + 
 			"	           ^\n" + 
 			"Cannot use the type parameter T in a catch block\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 19)\n" + 
+			"	class EX extends Exception {\n" + 
+			"	      ^^\n" + 
+			"The serializable class EX does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n");
 	}
 	// 69170 - invalid generic array creation
@@ -6983,5 +7008,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast to type List<? extends Number> for expression of type List<Integer>\n" + 
 			"----------\n");
+	}
+	// 70053 missing checkcast in string concatenation
+	public void test254() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				" public static void main(String[] args) {\n" + 
+				"  X x = new X();\n" + 
+				"  System.out.print(\"S\" + x.a() + \"U\" + x.b().get(0) + \"C\" + x.a() + \"C\");\n" + 
+				"  System.out.println(new StringBuilder(\"E\").append(x.a()).append(\"S\").append(x.b().get(0)).append(\"S\").append(x.a()).append(\"!\"));  \n" + 
+				" }\n" + 
+				" String a() { return \"\"; }\n" + 
+				" List<String> b() { \n" + 
+				"  ArrayList<String> als = new ArrayList<String>(1);\n" + 
+				"  als.add(a());\n" + 
+				"  return als;\n" + 
+				" }\n" + 
+				"}\n"
+			},
+			"SUCCESS!");		
 	}			
 }
