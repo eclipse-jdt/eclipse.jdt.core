@@ -396,6 +396,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// Process resources
 			if (shouldMoveFolder) {
 				// move underlying resource
+				// TODO Revisit once bug 43044 is fixed
 				if (sourceIsReadOnly) {
 					srcFolder.setReadOnly(false);
 				}
