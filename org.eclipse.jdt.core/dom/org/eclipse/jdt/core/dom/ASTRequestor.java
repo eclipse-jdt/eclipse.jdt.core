@@ -74,7 +74,9 @@ public abstract class ASTRequestor {
 	 * @param binding the requested binding 
 	 * @param bindingKey the key of the requested binding
 	 */
-	public abstract void acceptBinding(IBinding binding, String bindingKey);
+	public void acceptBinding(IBinding binding, String bindingKey) {
+		// TODO (jerome) make abstract when clients implement it
+	}
 	
 	/**
 	 * @deprecated
