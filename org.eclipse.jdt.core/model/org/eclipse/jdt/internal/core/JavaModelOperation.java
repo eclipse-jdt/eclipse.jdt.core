@@ -17,6 +17,7 @@ import java.util.HashMap;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Defines behavior common to all Java Model operations

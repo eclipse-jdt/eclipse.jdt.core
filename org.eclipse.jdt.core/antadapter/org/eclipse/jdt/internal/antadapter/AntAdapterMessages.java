@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public class Util {
+public class AntAdapterMessages {
 
 	private static final String BUNDLE_NAME = "org.eclipse.jdt.internal.antadapter.messages"; //$NON-NLS-1$
 
@@ -30,7 +30,7 @@ public class Util {
 		}
 	}
 
-	private Util() {
+	private AntAdapterMessages() {
 		// cannot be instantiated
 	}
 

@@ -81,14 +81,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		//long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, null);//$NON-NLS-1$
 		if (edit == null) return null;
-		String result = org.eclipse.jdt.internal.core.Util.editedString(source, edit);
+		String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
 		if (length == source.length()) {
 			//time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, null);//$NON-NLS-1$
 			if (edit == null) return null;
 //			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
-			final String result2 = org.eclipse.jdt.internal.core.Util.editedString(result, edit);
+			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 			if (!result.equals(result2)) {
 				assertEquals("Different reformatting", result2, result);
 			}

@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 
 import org.eclipse.jdt.internal.core.util.LRUCache;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  *	The <code>OverflowingLRUCache</code> is an LRUCache which attempts

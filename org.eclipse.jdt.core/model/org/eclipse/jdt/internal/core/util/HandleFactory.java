@@ -54,8 +54,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Creates java element handles.
@@ -181,7 +181,7 @@ public class HandleFactory {
 				currentElement = 
 					((IType)currentElement).getMethod(
 						currentElement.getElementName(), 
-						org.eclipse.jdt.internal.core.Util.typeParameterSignatures(node));
+						Util.typeParameterSignatures(node));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
@@ -258,7 +258,7 @@ public class HandleFactory {
 				currentElement = 
 					((IType)currentElement).getMethod(
 						new String(node.selector), 
-						org.eclipse.jdt.internal.core.Util.typeParameterSignatures(node));
+						Util.typeParameterSignatures(node));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
@@ -478,7 +478,7 @@ public class HandleFactory {
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
 					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
-					if (root.getPath().isPrefixOf(path) && !org.eclipse.jdt.internal.core.Util.isExcluded(path, root.fullExclusionPatternChars())) {
+					if (root.getPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullExclusionPatternChars())) {
 						return root;
 					}
 				}

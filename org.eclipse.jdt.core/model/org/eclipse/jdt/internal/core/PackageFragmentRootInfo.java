@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * The element info for <code>PackageFragmentRoot</code>s.

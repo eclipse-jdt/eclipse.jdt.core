@@ -20,7 +20,7 @@ import org.apache.tools.ant.Task;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
-import org.eclipse.jdt.internal.antadapter.Util;
+import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
 
 public class CheckDebugAttributes extends Task {
 
@@ -29,10 +29,10 @@ public class CheckDebugAttributes extends Task {
 	
 	public void execute() throws BuildException {
 		if (this.file == null) {
-			throw new BuildException(Util.getString("checkDebugAttributes.file.argument.cannot.be.null")); //$NON-NLS-1$
+			throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.cannot.be.null")); //$NON-NLS-1$
 		}
 		if (this.property == null) {
-			throw new BuildException(Util.getString("checkDebugAttributes.property.argument.cannot.be.null")); //$NON-NLS-1$
+			throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.property.argument.cannot.be.null")); //$NON-NLS-1$
 		}
 		try {
 			boolean hasDebugAttributes = false;
@@ -49,13 +49,13 @@ public class CheckDebugAttributes extends Task {
 				IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, IClassFileReader.ALL);
 				hasDebugAttributes = checkClassFile(classFileReader);
 			} else {
-				throw new BuildException(Util.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile")); //$NON-NLS-1$
+				throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile")); //$NON-NLS-1$
 			}
 			if (hasDebugAttributes) {
 				this.project.setUserProperty(this.property, "has debug"); //$NON-NLS-1$
 			}
 		} catch (IOException e) {
-			throw new BuildException(Util.getString("checkDebugAttributes.ioexception.occured") + this.file); //$NON-NLS-1$
+			throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.ioexception.occured") + this.file); //$NON-NLS-1$
 		}
 	}
 	

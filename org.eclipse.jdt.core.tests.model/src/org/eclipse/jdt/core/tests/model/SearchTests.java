@@ -101,7 +101,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			int length = results.size();
 			String[] strings = new String[length];
 			results.toArray(strings);
-			org.eclipse.jdt.internal.core.Util.sort(strings);
+			org.eclipse.jdt.internal.core.util.Util.sort(strings);
 			StringBuffer buffer = new StringBuffer(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);

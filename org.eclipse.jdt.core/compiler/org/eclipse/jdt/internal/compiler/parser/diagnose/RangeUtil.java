@@ -16,8 +16,7 @@ import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
-public class Util {
-	private static final int INITIAL_SIZE = 10;
+public class RangeUtil {
 	
 	// flags
 	public static final int NO_FLAG = 0;
@@ -25,6 +24,7 @@ public class Util {
 	public static final int IGNORE = 2;
 	
 	static class RangeResult {
+		private static final int INITIAL_SIZE = 10;
 		int pos;
 		int[] intervalStarts;
 		int[] intervalEnds;

@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.jdom.DOMFactory;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMPackage;
 import org.eclipse.jdt.internal.core.jdom.DOMNode;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * <p>This operation adds/replaces a package declaration in an existing compilation unit.

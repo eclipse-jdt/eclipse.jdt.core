@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexManager extends JobManager implements IIndexConstants {
 	/* number of file contents in memory */
@@ -329,7 +330,7 @@ public IIndex peekAtIndex(IPath path) {
  * Name of the background process
  */
 public String processName(){
-	return org.eclipse.jdt.internal.core.search.Util.bind("process.name"); //$NON-NLS-1$
+	return Util.bind("process.name"); //$NON-NLS-1$
 }
 private void rebuildIndex(String indexName, IPath path) {
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);

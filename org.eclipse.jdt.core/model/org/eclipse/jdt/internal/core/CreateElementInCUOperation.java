@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.jdom.DOMFactory;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.jdom.DOMNode;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * <p>This abstract class implements behavior common to <code>CreateElementInCUOperations</code>.
@@ -137,7 +138,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 				if (buffer  == null) return;
 				char[] bufferContents = buffer.getCharacters();
 				if (bufferContents == null) return;
-				char[] elementContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(fCreatedElement.getCharacters(), bufferContents);
+				char[] elementContents = Util.normalizeCRs(fCreatedElement.getCharacters(), bufferContents);
 				switch (fReplacementLength) {
 					case -1 : 
 						// element is append at the end

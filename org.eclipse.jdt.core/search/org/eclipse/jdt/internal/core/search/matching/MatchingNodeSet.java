@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfLong;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A set of matches and possible matches, which need to be resolved.

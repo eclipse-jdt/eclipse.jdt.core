@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class PossibleMatch implements ICompilationUnit {
 

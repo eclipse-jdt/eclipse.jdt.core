@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.DOMFactory;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.internal.core.jdom.DOMNode;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This operation deletes a collection of elements (and

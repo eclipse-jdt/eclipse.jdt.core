@@ -5374,7 +5374,7 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	if(isDietParse) {
 		TypeDeclaration[] types = this.compilationUnit.types;
 		
-		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.Util.computeDietRange(types);
+		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.RangeUtil.computeDietRange(types);
 		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2]);
 		diagnoseParser.diagnoseParse();
 		

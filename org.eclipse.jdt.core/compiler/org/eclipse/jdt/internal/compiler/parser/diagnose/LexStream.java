@@ -78,7 +78,7 @@ public class LexStream implements TerminalTokens {
 				if(tokenKind != TokenNameEOF) {
 					int start = scanner.getCurrentTokenStartPosition();
 					int end = scanner.getCurrentTokenEndPosition();
-					if(!Util.isInInterval(start, end, intervalStartToSkip, intervalEndToSkip)) {
+					if(!RangeUtil.isInInterval(start, end, intervalStartToSkip, intervalEndToSkip)) {
 						Token token = new Token();
 						token.kind = tokenKind;
 						token.name = scanner.getCurrentTokenSource();
@@ -86,10 +86,10 @@ public class LexStream implements TerminalTokens {
 						token.end = end;
 						token.line = scanner.getLineNumber(end);
 						
-						int pInterval = Util.getPreviousInterval(start, end, intervalStartToSkip, intervalEndToSkip);
-						if(pInterval != previousInterval && (intervalFlagsToSkip[previousInterval + 1] & Util.IGNORE) == 0){
+						int pInterval = RangeUtil.getPreviousInterval(start, end, intervalStartToSkip, intervalEndToSkip);
+						if(pInterval != previousInterval && (intervalFlagsToSkip[previousInterval + 1] & RangeUtil.IGNORE) == 0){
 							token.flags = IS_AFTER_JUMP;
-							if((intervalFlagsToSkip[pInterval] & Util.LBRACE_MISSING) != 0){
+							if((intervalFlagsToSkip[pInterval] & RangeUtil.LBRACE_MISSING) != 0){
 								token.flags |= LBRACE_MISSING;
 							}
 						}

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This operation renames resources (Package fragments and compilation units).

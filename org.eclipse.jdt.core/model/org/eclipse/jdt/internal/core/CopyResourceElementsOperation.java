@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * This operation copies/moves/renames a collection of resources from their current
@@ -133,7 +134,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		boolean containsReadOnlyPackageFragment = false;
 		IContainer parentFolder = (IContainer) root.getResource();
 		JavaElementDelta projectDelta = null;
-		String[] names = org.eclipse.jdt.internal.core.Util.getTrimmedSimpleNames(newFragName);
+		String[] names = Util.getTrimmedSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
 		char[][] exclusionsPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 		for (int i = 0; i < names.length; i++) {
@@ -152,7 +153,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName.toString());
 				if (i < names.length - 1 // all but the last one are side effect packages
-						&& !org.eclipse.jdt.internal.core.Util.isExcluded(parentFolder, exclusionsPatterns)) { 
+						&& !Util.isExcluded(parentFolder, exclusionsPatterns)) { 
 					if (projectDelta == null) {
 						projectDelta = getDeltaFor(root.getJavaProject());
 					}
@@ -184,7 +185,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * @see MultiOperation
 	 */
 	protected String getMainTaskName() {
-		return org.eclipse.jdt.internal.core.Util.bind("operation.copyResourceProgress"); //$NON-NLS-1$
+		return Util.bind("operation.copyResourceProgress"); //$NON-NLS-1$
 	}
 	/**
 	 * Sets the deltas to register the changes resulting from this operation
@@ -198,7 +199,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * 	 
 	 */
 	protected void prepareDeltas(IJavaElement sourceElement, IJavaElement destinationElement, boolean isMove) {
-		if (org.eclipse.jdt.internal.core.Util.isExcluded(sourceElement) || org.eclipse.jdt.internal.core.Util.isExcluded(destinationElement)) return;
+		if (Util.isExcluded(sourceElement) || Util.isExcluded(destinationElement)) return;
 		IJavaProject destProject = destinationElement.getJavaProject();
 		if (isMove) {
 			IJavaProject sourceProject = sourceElement.getJavaProject();
@@ -463,7 +464,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 							String domCUContents = domCU.getContents();
 							String cuContents = null;
 							if (domCUContents != null) {
-								cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(domCU.getContents(), bufferContents);
+								cuContents = Util.normalizeCRs(domCU.getContents(), bufferContents);
 							} else {
 								// See PR http://dev.eclipse.org/bugs/show_bug.cgi?id=11285
 								cuContents = bufferContents;//$NON-NLS-1$
@@ -578,7 +579,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	
 	private void updateReadOnlyPackageFragmentsForCopy(IContainer sourceFolder, IPackageFragmentRoot root, String newFragName) {
 		IContainer parentFolder = (IContainer) root.getResource();
-		String[] names = org.eclipse.jdt.internal.core.Util.getTrimmedSimpleNames(newFragName);
+		String[] names = Util.getTrimmedSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
 		for (int i = 0, nameLength = names.length; i < nameLength; i++) {
 			String subFolderName = names[i];
@@ -594,7 +595,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 
 	private void updateReadOnlyPackageFragmentsForMove(IContainer sourceFolder, IPackageFragmentRoot root, String newFragName, boolean sourceFolderIsReadOnly) {
 		IContainer parentFolder = (IContainer) root.getResource();
-		String[] names = org.eclipse.jdt.internal.core.Util.getTrimmedSimpleNames(newFragName);
+		String[] names = Util.getTrimmedSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
 		for (int i = 0, nameLength = names.length; i < nameLength; i++) {
 			String subFolderName = names[i];

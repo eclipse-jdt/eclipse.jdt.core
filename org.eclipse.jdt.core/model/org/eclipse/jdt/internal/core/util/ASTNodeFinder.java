@@ -93,7 +93,7 @@ public class ASTNodeFinder {
 					if (args != null && args.length == parameterCount) {
 						for (int j = 0; j < parameterCount; j++) {
 							TypeReference type = args[j].type;
-							String signature = org.eclipse.jdt.internal.core.Util.typeSignature(type);
+							String signature = Util.typeSignature(type);
 							if (!signature.equals(parameterTypeSignatures[j])) {
 								continue nextMethod;
 							}

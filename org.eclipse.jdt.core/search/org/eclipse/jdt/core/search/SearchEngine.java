@@ -36,9 +36,9 @@ import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.jdt.internal.core.search.PathCollector;
-import org.eclipse.jdt.internal.core.search.Util;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import java.util.*;
 

@@ -125,14 +125,14 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 }
 
 protected void sortMarkers(IMarker[] markers) {
-	org.eclipse.jdt.internal.core.Util.Comparer comparer = new org.eclipse.jdt.internal.core.Util.Comparer() {
+	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
 		public int compare(Object a, Object b) {
 			IMarker markerA = (IMarker)a;
 			IMarker markerB = (IMarker)b;
 			return markerA.getAttribute(IMarker.MESSAGE, "").compareTo(markerB.getAttribute(IMarker.MESSAGE, "")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	};
-	org.eclipse.jdt.internal.core.Util.sort(markers, comparer);
+	org.eclipse.jdt.internal.core.util.Util.sort(markers, comparer);
 }
 public static Test suite() {
 

@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import java.util.*;
 

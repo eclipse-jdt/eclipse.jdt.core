@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * @see IPackageFragment
@@ -194,7 +195,7 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  */
 public ICompilationUnit getCompilationUnit(String cuName) {
 	if (!org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(cuName)) {
-		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
 	}
 	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
 }

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.internal.core.util.Util;
+
 /**
  * A mergeFactory is used to merge 2 indexes into one. One of the indexes 
  * (oldIndex) is on the disk and the other(addsIndex) is in memory.

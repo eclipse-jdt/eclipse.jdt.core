@@ -11,9 +11,10 @@
 package org.eclipse.jdt.internal.core.index.impl;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class WordEntry {
-	protected char[] fWord;
+	public char[] fWord;
 	protected int fNumRefs;
 	protected int[] fRefs;
 	public WordEntry() {

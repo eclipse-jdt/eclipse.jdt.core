@@ -202,14 +202,14 @@ protected void renameProject(String project, String newName) throws CoreExceptio
 	this.getProject(project).move(new Path(newName), true, null);
 }
 protected void sortDeltas(IJavaElementDelta[] deltas) {
-	org.eclipse.jdt.internal.core.Util.Comparer comparer = new org.eclipse.jdt.internal.core.Util.Comparer() {
+	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
 		public int compare(Object a, Object b) {
 			IJavaElementDelta deltaA = (IJavaElementDelta)a;
 			IJavaElementDelta deltaB = (IJavaElementDelta)b;
 			return deltaA.getElement().getElementName().compareTo(deltaB.getElement().getElementName());
 		}
 	};
-	org.eclipse.jdt.internal.core.Util.sort(deltas, comparer);
+	org.eclipse.jdt.internal.core.util.Util.sort(deltas, comparer);
 }
 protected IClassFile getClassFile(String path) {
 	return (IClassFile)JavaCore.create(getFile(path));
@@ -251,9 +251,9 @@ protected String getSortedByProjectDeltas() {
 		// sort by project
 		IJavaElementDelta[] sorted = new IJavaElementDelta[projectsLength];
 		System.arraycopy(projects, 0, sorted, 0, projectsLength);
-		org.eclipse.jdt.internal.core.Util.sort(
+		org.eclipse.jdt.internal.core.util.Util.sort(
 			sorted, 
-			new  org.eclipse.jdt.internal.core.Util.Comparer() {
+			new  org.eclipse.jdt.internal.core.util.Util.Comparer() {
 				public int compare(Object a, Object b) {
 					return a.toString().compareTo(b.toString());
 				}
