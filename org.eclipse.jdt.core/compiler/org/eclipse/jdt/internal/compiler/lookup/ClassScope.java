@@ -452,22 +452,18 @@ public class ClassScope extends Scope {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
 				int unexpectedModifiers =
-					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccFinal | AccStrictfp | AccEnum);
+					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccStrictfp | AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 			} else if (sourceType.isLocalType()) {
-				int unexpectedModifiers = ~(AccAbstract | AccFinal | AccStrictfp | AccEnum);
+				int unexpectedModifiers = ~(AccAbstract | AccStrictfp | AccFinal | AccEnum); // add final since implicitly set for anonymous type
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForLocalEnum(sourceType);
 			} else {
-				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccFinal | AccStrictfp | AccEnum);
+				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccStrictfp | AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
-
-			// check that Final and Abstract are not set together
-			if ((realModifiers & (AccFinal | AccAbstract)) == (AccFinal | AccAbstract))
-				problemReporter().illegalModifierCombinationFinalAbstractForClass(sourceType);
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
