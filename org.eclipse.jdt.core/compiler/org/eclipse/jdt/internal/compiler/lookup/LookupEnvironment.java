@@ -498,8 +498,7 @@ PackageBinding getTopLevelPackage(char[] name) {
 	if (packageBinding != null) {
 		if (packageBinding == TheNotFoundPackage)
 			return null;
-		else
-			return packageBinding;
+		return packageBinding;
 	}
 
 	if (nameEnvironment.isPackage(null, name)) {
@@ -654,8 +653,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 
 	if (dimension == 0)
 		return binding;
-	else
-		return createArrayType(binding, dimension);
+	return createArrayType(binding, dimension);
 }
 TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType) {
 	// TypeVariableSignature = 'T' Identifier ';'
@@ -748,8 +746,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 boolean isPackage(char[][] compoundName, char[] name) {
 	if (compoundName == null || compoundName.length == 0)
 		return nameEnvironment.isPackage(null, name);
-	else
-		return nameEnvironment.isPackage(compoundName, name);
+	return nameEnvironment.isPackage(compoundName, name);
 }
 // The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 

@@ -44,9 +44,8 @@ public class ArrayAllocationExpression extends Expression {
 		}
 		if (initializer != null) {
 			return initializer.analyseCode(currentScope, flowContext, flowInfo);
-		} else {
-			return flowInfo;
 		}
+		return flowInfo;
 	}
 
 	/**

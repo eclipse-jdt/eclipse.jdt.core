@@ -779,10 +779,6 @@ public class TypeDeclaration
 		if (unit.ignoreMethodBodies)
 			return;
 
-		// no scope were created, so cannot report further errors
-//		if (binding == null)
-//			return;
-
 		//members
 		if (memberTypes != null) {
 			int length = memberTypes.length;

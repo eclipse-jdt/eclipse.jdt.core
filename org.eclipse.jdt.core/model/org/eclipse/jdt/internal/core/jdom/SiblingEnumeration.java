@@ -12,15 +12,17 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Enumeration;
 
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 
 /**
  * SiblingEnumeration provides an enumeration on a linked list
  * of sibling DOM nodes.
  *
  * @see java.util.Enumeration
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
-
 /* package */ class SiblingEnumeration implements Enumeration {
 
 	/**

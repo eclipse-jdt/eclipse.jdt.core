@@ -137,6 +137,11 @@ public class JavaProject
 	 */
 	public static final IClasspathEntry[] INVALID_CLASSPATH = new IClasspathEntry[0];
 	
+	/*
+	 * Value of project's resolved classpath while it is being resolved
+	 */
+	private static final IClasspathEntry[] RESOLUTION_IN_PROGRESS = new IClasspathEntry[0];
+	
 	/**
 	 * Returns a canonicalized path from the given external path.
 	 * Note that the return path contains the same number of segments
@@ -1763,22 +1768,36 @@ public class JavaProject
 		throws JavaModelException {
 
 		return 
-			this.getResolvedClasspath(
+			getResolvedClasspath(
 				ignoreUnresolvedEntry, 
-				false); // generateMarkerOnError
+				false, // don't generateMarkerOnError
+				true // returnResolutionInProgress
+			);
 	}
 
 	/**
+	 * @see IJavaProject
+	 */
+	public IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedEntry, boolean generateMarkerOnError)
+		throws JavaModelException {
+
+		return 
+			getResolvedClasspath(
+				ignoreUnresolvedEntry, 
+				generateMarkerOnError,
+				true // returnResolutionInProgress
+			);
+	}
+
+	/*
 	 * Internal variant which can create marker on project for invalid entries
-	 * and caches the resolved classpath on perProjectInfo
-	 * @param ignoreUnresolvedEntry boolean
-	 * @param generateMarkerOnError boolean
-	 * @return IClasspathEntry[]
-	 * @throws JavaModelException
+	 * and caches the resolved classpath on perProjectInfo.
+	 * If requested, return a special classpath (RESOLUTION_IN_PROGRESS) if the classpath is being resolved.
 	 */
 	public IClasspathEntry[] getResolvedClasspath(
 		boolean ignoreUnresolvedEntry,
-		boolean generateMarkerOnError)
+		boolean generateMarkerOnError,
+		boolean returnResolutionInProgress)
 		throws JavaModelException {
 
 		JavaModelManager.PerProjectInfo perProjectInfo = null;
@@ -1787,16 +1806,26 @@ public class JavaProject
 			if (perProjectInfo != null) {
 				// resolved path is cached on its info
 				IClasspathEntry[] infoPath = perProjectInfo.resolvedClasspath;
-				if (infoPath != null) return infoPath;
+				if (infoPath != null && (returnResolutionInProgress || infoPath != RESOLUTION_IN_PROGRESS)) {
+					return infoPath;
+				}
 			}
 		}
 		Map reverseMap = perProjectInfo == null ? null : new HashMap(5);
-		IClasspathEntry[] resolvedPath = getResolvedClasspath(
-			getRawClasspath(generateMarkerOnError, !generateMarkerOnError), 
-			generateMarkerOnError ? getOutputLocation() : null, 
-			ignoreUnresolvedEntry, 
-			generateMarkerOnError,
-			reverseMap);
+		IClasspathEntry[] resolvedPath = null;
+		boolean nullOldResolvedCP = perProjectInfo != null && perProjectInfo.resolvedClasspath == null;
+		try {
+			// protect against misbehaving clients (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=61040)
+			if (nullOldResolvedCP) perProjectInfo.resolvedClasspath = RESOLUTION_IN_PROGRESS;
+			resolvedPath = getResolvedClasspath(
+				getRawClasspath(generateMarkerOnError, !generateMarkerOnError), 
+				generateMarkerOnError ? getOutputLocation() : null, 
+				ignoreUnresolvedEntry, 
+				generateMarkerOnError,
+				reverseMap);
+		} finally {
+			if (nullOldResolvedCP) perProjectInfo.resolvedClasspath = null;
+		}
 
 		if (perProjectInfo != null){
 			if (perProjectInfo.rawClasspath == null // .classpath file could not be read
@@ -1807,7 +1836,7 @@ public class JavaProject
 					this.createClasspathProblemMarker(new JavaModelStatus(
 						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
 						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
-				}
+			}
 
 			perProjectInfo.resolvedClasspath = resolvedPath;
 			perProjectInfo.resolvedPathToRawEntries = reverseMap;

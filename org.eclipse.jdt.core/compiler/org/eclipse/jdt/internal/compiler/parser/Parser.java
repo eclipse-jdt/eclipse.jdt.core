@@ -2333,7 +2333,7 @@ protected void consumeEmptyClassMemberDeclaration() {
 	// ClassMemberDeclaration ::= ';'
 	pushOnAstLengthStack(0);
 	problemReporter().superfluousSemicolon(this.endPosition+1, this.endStatementPosition);
-	this.scanner.commentPtr = -1;
+	flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeEmptyDefaultValue() {
 	// DefaultValueopt ::= $empty
@@ -2397,7 +2397,7 @@ protected void consumeEmptyTypeDeclaration() {
 	// TypeDeclaration ::= ';' 
 	pushOnAstLengthStack(0);
 	problemReporter().superfluousSemicolon(this.endPosition+1, this.endStatementPosition);
-	this.scanner.commentPtr = -1;	
+	flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	// EnhancedForStatementHeader ::= 'for' '(' Type PushModifiers Identifier Dimsopt ':' Expression ')'

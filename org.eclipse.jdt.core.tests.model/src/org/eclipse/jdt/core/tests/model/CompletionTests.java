@@ -220,6 +220,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionKeywordThis12"));
 	suite.addTest(new CompletionTests("testCompletionKeywordThis13"));
 	suite.addTest(new CompletionTests("testCompletionKeywordThis14"));
+	suite.addTest(new CompletionTests("testCompletionKeywordThis15"));
 	suite.addTest(new CompletionTests("testCompletionKeywordSuper1"));
 	suite.addTest(new CompletionTests("testCompletionKeywordSuper2"));
 	suite.addTest(new CompletionTests("testCompletionKeywordSuper3"));
@@ -5603,6 +5604,24 @@ public void testCompletionKeywordThis14() throws JavaModelException {
 		assertEquals(
 			"",
 			requestor.getResults());
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=42402
+ */
+public void testCompletionKeywordThis15() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordThis15.java");
+
+	String str = cu.getSource();
+	String completeBehind = "CompletionKeywordThis15.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:CompletionKeywordThis15.InnerClass    completion:InnerClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
+			"element:class    completion:class    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE) + "\n"+
+			"element:this    completion:this    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE) + "",
+		requestor.getResults());
 }
 public void testCompletionKeywordSuper7() throws JavaModelException {
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();

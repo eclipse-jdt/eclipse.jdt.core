@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
@@ -134,7 +134,9 @@ public boolean equals(Object o) {
 }
 /**
  * @see JavaElement#equalsDOMNode
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected boolean equalsDOMNode(IDOMNode node) {
 	return (node.getNodeType() == IDOMNode.TYPE) && super.equalsDOMNode(node);
 }

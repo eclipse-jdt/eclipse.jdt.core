@@ -65,7 +65,7 @@ public IProblem createProblem(
 	ReferenceContext referenceContext,
 	CompilationResult unitResult) {
 
-	return problemFactory.createProblem(
+	return this.problemFactory.createProblem(
 		fileName, 
 		problemId, 
 		problemArguments, 
@@ -121,7 +121,7 @@ public void handle(
 			// should abort ?
 			int abortLevel;
 			if ((abortLevel = 
-				(policy.stopOnFirstError() ? AbortCompilation : severity & Abort)) != 0) {
+				(this.policy.stopOnFirstError() ? AbortCompilation : severity & Abort)) != 0) {
 
 				referenceContext.abort(abortLevel);
 			}

@@ -285,11 +285,9 @@ public class FlowContext implements TypeConstants {
 			char[] currentLabelName;
 			if (((currentLabelName = current.labelName()) != null)
 				&& CharOperation.equals(currentLabelName, labelName)) {
-				if (lastNonReturningSubRoutine == null) {
+				if (lastNonReturningSubRoutine == null)
 					return current;
-				} else {
-					return lastNonReturningSubRoutine;
-				}
+				return lastNonReturningSubRoutine;
 			}
 			current = current.parent;
 		}
@@ -320,17 +318,13 @@ public class FlowContext implements TypeConstants {
 
 				// matching label found					
 				if ((lastContinuable != null)
-					&& (current.associatedNode.concreteStatement()	== lastContinuable.associatedNode)) {
-						
-					if (lastNonReturningSubRoutine == null) {
-						return lastContinuable;
-					} else {
-						return lastNonReturningSubRoutine;
-					}
-				} else {
-					// label is found, but not a continuable location
-					return NotContinuableContext;
-				}
+						&& (current.associatedNode.concreteStatement()	== lastContinuable.associatedNode)) {
+				    
+					if (lastNonReturningSubRoutine == null) return lastContinuable;
+					return lastNonReturningSubRoutine;
+				} 
+				// label is found, but not a continuable location
+				return NotContinuableContext;
 			}
 			current = current.parent;
 		}
@@ -349,11 +343,8 @@ public class FlowContext implements TypeConstants {
 				lastNonReturningSubRoutine = current;
 			}
 			if (current.isBreakable() && current.labelName() == null) {
-				if (lastNonReturningSubRoutine == null) {
-					return current;
-				} else {
-					return lastNonReturningSubRoutine;
-				}
+				if (lastNonReturningSubRoutine == null) return current;
+				return lastNonReturningSubRoutine;
 			}
 			current = current.parent;
 		}
@@ -372,11 +363,9 @@ public class FlowContext implements TypeConstants {
 				lastNonReturningSubRoutine = current;
 			}
 			if (current.isContinuable()) {
-				if (lastNonReturningSubRoutine == null) {
+				if (lastNonReturningSubRoutine == null)
 					return current;
-				} else {
-					return lastNonReturningSubRoutine;
-				}
+				return lastNonReturningSubRoutine;
 			}
 			current = current.parent;
 		}

@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.jdom.IDOMMember;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
@@ -20,8 +20,10 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  *
  * @see IDOMMember
  * @see DOMNode
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
-
 abstract class DOMMember extends DOMNode implements IDOMMember {
 
 	/**

@@ -433,9 +433,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		if (abortException.isSilent) {
 			if (abortException.silentException == null) {
 				return;
-			} else {
-				throw abortException.silentException;
 			}
+			throw abortException.silentException;
 		}
 
 		/* uncomment following line to see where the abort came from */

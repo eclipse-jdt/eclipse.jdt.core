@@ -15,9 +15,7 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.DOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMField;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -43,7 +41,9 @@ public CreateFieldOperation(IType parentElement, String source, boolean force) {
 }
 /**
  * @see CreateTypeMemberOperation#generateElementDOM
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected IDOMNode generateElementDOM() throws JavaModelException {
 	if (fDOMNode == null) {
 		fDOMNode = (new DOMFactory()).createField(fSource);
@@ -66,7 +66,7 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
  * @see CreateElementInCUOperation#generateResultHandle
  */
 protected IJavaElement generateResultHandle() {
-	return getType().getField(fDOMNode.getName());
+	return getType().getField(getDOMNodeName());
 }
 /**
  * @see CreateElementInCUOperation#getMainTaskName()
@@ -100,11 +100,18 @@ protected void initializeDefaultPosition() {
  */
 protected IJavaModelStatus verifyNameCollision() {
 	IType type= getType();
-	if (type.getField(fDOMNode.getName()).exists()) {
+	if (type.getField(getDOMNodeName()).exists()) {
 		return new JavaModelStatus(
 			IJavaModelStatusConstants.NAME_COLLISION, 
-			Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
+			Util.bind("status.nameCollision", getDOMNodeName())); //$NON-NLS-1$
 	}
 	return JavaModelStatus.VERIFIED_OK;
+}
+/**
+ * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+ */
+// TODO - JDOM - remove once model ported off of JDOM
+private String getDOMNodeName() {
+	return fDOMNode.getName();
 }
 }

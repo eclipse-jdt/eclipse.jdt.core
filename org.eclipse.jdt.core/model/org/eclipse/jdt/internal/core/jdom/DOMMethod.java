@@ -14,8 +14,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.jdom.IDOMMethod;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
@@ -23,8 +22,11 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  *
  * @see IDOMMethod
  * @see DOMNode
- * TODO (jerome) - add implementation support for 1.5 features
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
+ * powerful, fine-grained DOM/AST API found in the 
+ * org.eclipse.jdt.core.dom package.
  */
+// TODO (jerome) - add implementation support for 1.5 features
 class DOMMethod extends DOMMember implements IDOMMethod {
 
 	/**
@@ -728,7 +730,7 @@ public String toString() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMMethod#setDefault(java.lang.String)
+ * @see IDOMMethod#setDefault(java.lang.String)
  * @since 3.0
  */
 public void setDefault(String defaultValue) {
@@ -736,7 +738,7 @@ public void setDefault(String defaultValue) {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMMethod#getDefault()
+ * @see IDOMMethod#getDefault()
  * @since 3.0
  */
 public String getDefault() {
@@ -744,7 +746,7 @@ public String getDefault() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMMethod#getTypeParameters()
+ * @see IDOMMethod#getTypeParameters()
  * @since 3.0
  */
 public String[] getTypeParameters() {
@@ -752,7 +754,7 @@ public String[] getTypeParameters() {
 }
 
 /**
- * @see org.eclipse.jdt.core.jdom.IDOMMethod#setTypeParameters(java.lang.String[])
+ * @see IDOMMethod#setTypeParameters(java.lang.String[])
  * @since 3.0
  */
 public void setTypeParameters(String[] typeParameters) {

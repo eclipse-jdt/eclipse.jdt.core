@@ -160,8 +160,8 @@ public void decodeIndexKey(char[] key) {
 	}
 
 	this.superClassOrInterface = key[slash + 1];
-	this.classOrInterface = key[slash + 1];
-	this.modifiers = key[slash + 2]; // implicit cast to int type
+	this.classOrInterface = key[slash + 2];
+	this.modifiers = key[slash + 3]; // implicit cast to int type
 }
 public SearchPattern getBlankPattern() {
 	return new SuperTypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);

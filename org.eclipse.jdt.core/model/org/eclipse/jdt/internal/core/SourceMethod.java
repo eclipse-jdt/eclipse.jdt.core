@@ -16,8 +16,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.jdom.IDOMMethod;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -52,7 +51,9 @@ public boolean equals(Object o) {
 }
 /**
  * @see JavaElement#equalsDOMNode
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected boolean equalsDOMNode(IDOMNode node) {
 	if (node.getNodeType() == IDOMNode.METHOD) {
 		try {
@@ -219,7 +220,9 @@ public String readableName() {
 /**
  * Returns <code>true</code> if the signature of this <code>SourceMethod</code> matches that of the given
  * <code>IDOMMethod</code>, otherwise <code>false</code>. 
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected boolean signatureEquals(IDOMMethod method) {
 	String[] otherTypes= method.getParameterTypes();
 	String[] types= getParameterTypes();

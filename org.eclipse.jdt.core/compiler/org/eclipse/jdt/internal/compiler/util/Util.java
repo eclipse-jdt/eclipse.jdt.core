@@ -326,11 +326,19 @@ public class Util implements SuffixConstants {
 				}
 			} while (amountRead != -1);
 
+			// Do not keep first character for UTF-8 BOM encoding
+			int start = 0;
+			if ("UTF-8".equals(encoding)) { //$NON-NLS-1$
+				if (contents[0] == 0xFEFF) { // if BOM char then skip
+					contentsLength--;
+					start = 1;
+				}
+			}
 			// resize contents if necessary
 			if (contentsLength < contents.length) {
 				System.arraycopy(
 					contents,
-					0,
+					start,
 					contents = new char[contentsLength],
 					0,
 					contentsLength);
@@ -345,11 +353,19 @@ public class Util implements SuffixConstants {
 				len += readSize;
 				readSize = reader.read(contents, len, length - len);
 			}
+			// Do not keep first character for UTF-8 BOM encoding
+			int start = 0;
+			if ("UTF-8".equals(encoding)) { //$NON-NLS-1$
+				if (contents[0] == 0xFEFF) { // if BOM char then skip
+					len--;
+					start = 1;
+				}
+			}
 			// See PR 1FMS89U
 			// Now we need to resize in case the default encoding used more than one byte for each
 			// character
 			if (len != length)
-				System.arraycopy(contents, 0, (contents = new char[len]), 0, len);
+				System.arraycopy(contents, start, (contents = new char[len]), 0, len);
 		}
 
 		return contents;

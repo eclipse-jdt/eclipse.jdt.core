@@ -18,8 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -126,7 +125,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * Returns true if this <code>JavaElement</code> is equivalent to the given
 	 * <code>IDOMNode</code>.
+	 * @deprecated JDOM is obsolete
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	protected boolean equalsDOMNode(IDOMNode node) {
 		return false;
 	}
@@ -170,7 +171,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * Returns the <code>IDOMNode</code> that corresponds to this <code>JavaElement</code>
 	 * or <code>null</code> if there is no corresponding node.
+	 * @deprecated JDOM is obsolete
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	public IDOMNode findNode(IDOMCompilationUnit dom) {
 		int type = getElementType();
 		if (type == IJavaElement.COMPILATION_UNIT || 
@@ -202,7 +205,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		}
 	}
 	/**
+	 * @deprecated JDOM is obsolete
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	protected IDOMNode followPath(ArrayList path, int position, IDOMNode node) {
 	
 		if (equalsDOMNode(node)) {

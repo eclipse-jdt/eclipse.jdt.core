@@ -824,7 +824,9 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocAmbiguousMethodReference = Javadoc + Internal + 511;
 	/** @since 3.0 */
-	int JavadocMessagePrefix = Internal + 512;
+	int JavadocUnterminatedInlineTag = Javadoc + Internal + 512;
+	/** @since 3.0 */
+	int JavadocMessagePrefix = Internal + 515;
 
 	/**
 	 * Generics

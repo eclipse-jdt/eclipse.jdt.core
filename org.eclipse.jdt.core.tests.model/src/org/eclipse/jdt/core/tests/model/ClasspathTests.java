@@ -78,8 +78,8 @@ static {
 //	testsRange = new int[] { 21, 38 };
 }
 public static Test suite() {
-//	return buildTestSuite(ClasspathTests.class);
-	return buildTestSuite(ClasspathTests.class, "testClasspathValidation", null);
+	return buildTestSuite(ClasspathTests.class);
+//	return buildTestSuite(ClasspathTests.class, "testClasspathValidation", null);
 }
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
 	waitForAutoBuild();

@@ -19,9 +19,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.DOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMImport;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -57,7 +55,9 @@ public CreateImportOperation(String importName, ICompilationUnit parentElement) 
 }
 /**
  * @see CreateTypeMemberOperation#generateElementDOM
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected IDOMNode generateElementDOM() {
 	if (fCUDOM.getChild(fImportName) == null) {
 		DOMFactory factory = new DOMFactory();

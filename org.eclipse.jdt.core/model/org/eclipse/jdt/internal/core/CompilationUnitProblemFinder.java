@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -218,5 +219,12 @@ public class CompilationUnitProblemFinder extends Compiler {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * Fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60689.
+	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
+	 */
+	public void initializeParser() {
+		this.parser = new CommentRecorderParser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
+	}
 }	
 

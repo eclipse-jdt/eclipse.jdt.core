@@ -63,6 +63,7 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
@@ -71,7 +72,6 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.framework.BundleContext;
@@ -3407,7 +3407,7 @@ public final class JavaCore extends Plugin {
 	
 			if (monitor != null && monitor.isCanceled()) return;
 	
-			IJavaProject affectedProject = affectedProjects[i];
+			JavaProject affectedProject = (JavaProject) affectedProjects[i];
 			IClasspathContainer newContainer = respectiveContainers[i];
 			if (newContainer == null) newContainer = JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS; // 30920 - prevent infinite loop
 			boolean found = false;
@@ -3463,7 +3463,7 @@ public final class JavaCore extends Plugin {
 				continue;
 			}
 			remaining++; 
-			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
+			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true/*ignore ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
 		}
 		
@@ -3723,40 +3723,33 @@ public final class JavaCore extends Plugin {
 			
 			// process deltas since last activated in indexer thread so that indexes are up-to-date.
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658
-			manager.getIndexManager().request(
-				new IJob() {
-					public boolean belongsTo(String jobFamily) {
-						return false;
-					}
-					public void cancel() {
-						// ignore
-					}
-					public void ensureReadyToRun() {
-						// ignore
-					}
-					public boolean execute(IProgressMonitor progress) {
-						try {
-							// add save participant and process delta atomically
-							// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59937
-							workspace.run(
-								new IWorkspaceRunnable() {
-									public void run(IProgressMonitor monitor) throws CoreException {
-										ISavedState savedState = workspace.addSaveParticipant(JavaCore.this, manager);
-										if (savedState != null) {
-											// the event type coming from the saved state is always POST_AUTO_BUILD
-											// force it to be POST_CHANGE so that the delta processor can handle it
-											manager.deltaState.getDeltaProcessor().overridenEventType = IResourceChangeEvent.POST_CHANGE;
-											savedState.processResourceChangeEvents(manager.deltaState);
-										}
+			Job processSavedState = new Job(Util.bind("savedState.jobName")) { //$NON-NLS-1$
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						// add save participant and process delta atomically
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59937
+						workspace.run(
+							new IWorkspaceRunnable() {
+								public void run(IProgressMonitor progress) throws CoreException {
+									ISavedState savedState = workspace.addSaveParticipant(JavaCore.this, manager);
+									if (savedState != null) {
+										// the event type coming from the saved state is always POST_AUTO_BUILD
+										// force it to be POST_CHANGE so that the delta processor can handle it
+										manager.deltaState.getDeltaProcessor().overridenEventType = IResourceChangeEvent.POST_CHANGE;
+										savedState.processResourceChangeEvents(manager.deltaState);
 									}
-								},
-								null); // no progress monitor
-						} catch (CoreException e) {
-							Util.log(e, "Could not process saved state delta"); //$NON-NLS-1$
-						}
-						return true;
+								}
+							},
+							monitor);
+					} catch (CoreException e) {
+						return e.getStatus();
 					}
-				});
+					return Status.OK_STATUS;
+				}
+			};
+			processSavedState.setSystem(true);
+			processSavedState.setPriority(Job.SHORT); // process asap
+			processSavedState.schedule();
 		} catch (RuntimeException e) {
 			manager.shutdown();
 			throw e;
@@ -3832,7 +3825,7 @@ public final class JavaCore extends Plugin {
 		if (model != null) {
 			IJavaProject[] projects = model.getJavaProjects();
 			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
-				IJavaProject project = projects[i];
+				JavaProject project = (JavaProject) projects[i];
 						
 				// check to see if any of the modified variables is present on the classpath
 				IClasspathEntry[] classpath = project.getRawClasspath();
@@ -3845,14 +3838,14 @@ public final class JavaCore extends Plugin {
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
 	
 							if (variableName.equals(entry.getPath().segment(0))){
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true));
+								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignore ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
 								continue nextProject;
 							}
 							IPath sourcePath, sourceRootPath;
 							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
 								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
 	
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true));
+								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
 								continue nextProject;
 							}
 						}												

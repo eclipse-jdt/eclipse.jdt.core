@@ -246,19 +246,21 @@ public void exitInterface(int declarationEnd) {
 public void exitMethod(int declarationEnd) {
 	this.methodDepth--;
 }
-public void popTypeName(){
-	try {
+public void popTypeName() {
+	if (depth > 0) {
 		enclosingTypeNames[--depth] = null;
-	} catch (ArrayIndexOutOfBoundsException e) {
-		if (JobManager.VERBOSE) {
+	} else if (JobManager.VERBOSE) {
+		// dump a trace so it can be tracked down
+		try {
+			enclosingTypeNames[-1] = null;
+		} catch (ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 	}
 }
-public void pushTypeName(char[] typeName){
-	if (depth == enclosingTypeNames.length){
+public void pushTypeName(char[] typeName) {
+	if (depth == enclosingTypeNames.length)
 		System.arraycopy(enclosingTypeNames, 0, enclosingTypeNames = new char[depth*2][], 0, depth);
-	}
 	enclosingTypeNames[depth++] = typeName;
 }
 }

@@ -36,15 +36,14 @@ public class ArrayReference extends Reference {
 
 		if (assignment.expression == null) {
 			return analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
-		} else {
-			return assignment
-				.expression
-				.analyseCode(
-					currentScope,
-					flowContext,
-					analyseCode(currentScope, flowContext, flowInfo).unconditionalInits())
-				.unconditionalInits();
 		}
+		return assignment
+			.expression
+			.analyseCode(
+				currentScope,
+				flowContext,
+				analyseCode(currentScope, flowContext, flowInfo).unconditionalInits())
+			.unconditionalInits();
 	}
 
 	public FlowInfo analyseCode(

@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 
 /**
  * @see IPackageDeclaration
@@ -28,7 +28,9 @@ public boolean equals(Object o) {
 }
 /**
  * @see JavaElement#equalsDOMNode
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected boolean equalsDOMNode(IDOMNode node) {
 	return (node.getNodeType() == IDOMNode.PACKAGE) && getElementName().equals(node.getName());
 }

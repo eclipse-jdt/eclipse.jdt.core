@@ -144,20 +144,48 @@ Incorrect highlighting for type problem in qualified type name
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M9 Build - ?th May 2004
+Eclipse SDK 3.0M9 Build - 11th May 2004
 <br>Project org.eclipse.jdt.core v_427
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_427">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added new flag IJavaElementDelta.F_PRIMARY_RESOURCE that is set when the resource of a primary working copy 
-     changes (or when it is added or removed).</li>
-<li>Removed dependency on org.eclipse.runtime.compatibility.</li>
-<li>Tuned the diagnosis for unnecessary else statements to tolerate else-if constructs.</li>
+<li>A system job now reports progress when the indexer is running.</li>
+<li>The org.eclipse.jdt.core.jdom package has been deprecated. The JDOM was made obsolete by 
+      the addition in 2.0 of the more powerful, fine-grained DOM/AST API found in the 
+      org.eclipse.jdt.core.dom package.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61214">61214</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60689">60689</a>
+AST on reconcile: AST without Javadoc comments created
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60365">60365</a>
+hierarchy view shows some interfaces as classes [type hierarchy] 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53290">53290</a>
+[Javadoc] Compiler should complain when tag name is not correct
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53279">53279</a>
+[Javadoc] Compiler should complain when inline tag is not terminated
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51600">51600</a>
+Javadoc: tags with errors are not stored in DOM AST Javadoc hierarchy
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59751">59751</a>
+No Feedback/information from indexing 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=42402">42402</a>
+OuterClass.this does not appear in code assist of the InnerClass
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61390">61390</a>
+Indexing thread grabbing resource lock 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61408">61408</a>
+Incorrect parsing
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=58859">58859</a>
+[encoding] Editor does not detect BOM on .txt files
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61148">61148</a>
+deprecate JDOM API 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61270">61270</a>
+Wrong delta when copying a package that overrides another package 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61181">61181</a>
+Task tag starting with double-/ (//) causes compile error
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61040">61040</a>
+Should add protect for reentrance to #getResolvedClasspath 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61214">61214</a>
 The classpath computation inside the Java builder should get rid of duplicates entries
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60867">60867</a>
 LocalVariableReferenceMatch should offer isReadAccess(), etc. 

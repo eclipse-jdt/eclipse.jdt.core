@@ -80,10 +80,8 @@ public int dimensions() {
 */
 
 public TypeBinding elementsType() {
-	if (this.dimensions == 1)
-		return this.leafComponentType;
-	else
-		return this.environment.createArrayType(this.leafComponentType, this.dimensions - 1);
+	if (this.dimensions == 1) return this.leafComponentType;
+	return this.environment.createArrayType(this.leafComponentType, this.dimensions - 1);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()

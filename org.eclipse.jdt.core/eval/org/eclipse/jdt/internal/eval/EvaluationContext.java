@@ -466,16 +466,9 @@ IBinaryType getRootCodeSnippetBinary() {
  */
 public GlobalVariable newVariable(char[] typeName, char[] name, char[] initializer) {
 	GlobalVariable var = new GlobalVariable(typeName, name, initializer);
-	try {
-		this.variables[this.variableCount++] = var;
-	} catch (ArrayIndexOutOfBoundsException e) {
-		int index = this.variableCount - 1;
-		GlobalVariable[] oldVars = this.variables;
-		GlobalVariable[] newVars = new GlobalVariable[index * 2];
-		System.arraycopy(oldVars, 0, newVars, 0, index);
-		newVars[index] = var;
-		this.variables = newVars;
-	}
+	if (this.variableCount >= this.variables.length) // assume variables is never empty
+		System.arraycopy(this.variables, 0, this.variables = new GlobalVariable[this.variableCount * 2], 0, this.variableCount);
+	this.variables[this.variableCount++] = var;
 	this.varsChanged = true;
 	return var;
 }

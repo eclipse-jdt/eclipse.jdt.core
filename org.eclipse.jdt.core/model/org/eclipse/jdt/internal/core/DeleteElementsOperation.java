@@ -21,9 +21,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.jdom.DOMFactory;
-import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
-import org.eclipse.jdt.internal.core.jdom.DOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -47,7 +45,9 @@ public class DeleteElementsOperation extends MultiOperation {
 	/**
 	 * The <code>DOMFactory</code> used to manipulate the source code of
 	 * <code>ICompilationUnit</code>s.
+	 * @deprecated JDOM is obsolete 
 	 */
+    // TODO - JDOM - remove once model ported off of JDOM
 	protected DOMFactory factory;
 	/**
 	 * When executed, this operation will delete the given elements. The elements
@@ -56,9 +56,17 @@ public class DeleteElementsOperation extends MultiOperation {
 	 */
 	public DeleteElementsOperation(IJavaElement[] elementsToDelete, boolean force) {
 		super(elementsToDelete, force);
-		factory = new DOMFactory();
+		initDOMFactory();
 	}
 	
+	/**
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+	 */
+    // TODO - JDOM - remove once model ported off of JDOM
+	private void initDOMFactory() {
+		factory = new DOMFactory();
+	}
+
 	/**
 	 * @see MultiOperation
 	 */
@@ -116,12 +124,8 @@ public class DeleteElementsOperation extends MultiOperation {
 			if (e.exists()) {
 				char[] contents = buffer.getCharacters();
 				if (contents == null) continue;
-				IDOMCompilationUnit cuDOM = factory.createCompilationUnit(contents, cu.getElementName());
-				DOMNode node = (DOMNode)((JavaElement) e).findNode(cuDOM);
-				if (node == null) Assert.isTrue(false, "Failed to locate " + e.getElementName() + " in " + cuDOM.getName()); //$NON-NLS-1$//$NON-NLS-2$
-
-				int startPosition = node.getStartPosition();
-				buffer.replace(startPosition, node.getEndPosition() - startPosition + 1, CharOperation.NO_CHAR);
+				String cuName = cu.getElementName();
+				replaceElementInBuffer(buffer, e, cuName);
 				delta.removed(e);
 				if (e.getElementType() == IJavaElement.IMPORT_DECLARATION) {
 					numberOfImports--;
@@ -139,6 +143,19 @@ public class DeleteElementsOperation extends MultiOperation {
 			}
 		}
 	}
+	/**
+	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
+	 */
+    // TODO - JDOM - remove once model ported off of JDOM
+	private void replaceElementInBuffer(IBuffer buffer, IJavaElement elementToRemove, String cuName) {
+		IDOMCompilationUnit cuDOM = factory.createCompilationUnit(buffer.getCharacters(), cuName);
+		org.eclipse.jdt.internal.core.jdom.DOMNode node = (org.eclipse.jdt.internal.core.jdom.DOMNode)((JavaElement) elementToRemove).findNode(cuDOM);
+		if (node == null) Assert.isTrue(false, "Failed to locate " + elementToRemove.getElementName() + " in " + cuDOM.getName()); //$NON-NLS-1$//$NON-NLS-2$
+
+		int startPosition = node.getStartPosition();
+		buffer.replace(startPosition, node.getEndPosition() - startPosition + 1, CharOperation.NO_CHAR);
+	}
+
 	/**
 	 * @see MultiOperation
 	 * This method first group the elements by <code>ICompilationUnit</code>,

@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 
 /**
  * Handle for an import declaration. Info object is a ImportDeclarationElementInfo.
@@ -36,7 +36,9 @@ public boolean equals(Object o) {
 }
 /**
  * @see JavaElement#equalsDOMNode
+ * @deprecated JDOM is obsolete
  */
+// TODO - JDOM - remove once model ported off of JDOM
 protected boolean equalsDOMNode(IDOMNode node) {
 	return (node.getNodeType() == IDOMNode.IMPORT) && getElementName().equals(node.getName());
 }

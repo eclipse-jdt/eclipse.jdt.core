@@ -29,7 +29,7 @@ public TypeHierarchyTests(String name) {
 public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(TypeHierarchyTests.class.getName());
-		suite.addTest(new TypeHierarchyTests("testSuperTypeHierarchyWithMissingBinary"));
+		suite.addTest(new TypeHierarchyTests("testGetCachedFlags"));
 		return suite;
 	}
 	return new Suite(TypeHierarchyTests.class);
@@ -845,6 +845,17 @@ public void testGetAllTypes() throws JavaModelException {
 		"p1.Z\n",
 		hierarchy.getAllTypes()
 	);
+}
+/**
+ * Ensures that the flags for an interface hierarchy are correctly cached
+ * (regression test for bug 60365 hierarchy view shows some interfaces as classes [type hierarchy])
+ */
+public void testGetCachedFlags() throws JavaModelException {
+	IType type1 = getClassFile("TypeHierarchy", "test60365.jar", "q4", "I1.class").getType();
+	ITypeHierarchy hierarchy = type1.newTypeHierarchy(null);
+	IType type2 = getClassFile("TypeHierarchy", "test60365.jar", "q4", "I2.class").getType();
+	int flags = hierarchy.getCachedFlags(type2);
+	assertTrue("Cached flags for I2 should indicate interface", Flags.isInterface(flags));
 }
 /**
  * Ensures that the correct extending interfaces exist in the type 

@@ -188,11 +188,8 @@ public final class CharOperation {
 	 * @since 3.0
 	 */
 	public static String charToString(char[] charArray) {
-		if (charArray == null) {
-			return null;
-		} else {
-			return new String(charArray);
-		}
+		if (charArray == null) return null;
+		return new String(charArray);
 	}
 
 	/**

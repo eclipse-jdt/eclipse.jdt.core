@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.processing;
 
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class JobManager implements Runnable {
@@ -307,6 +309,24 @@ public abstract class JobManager implements Runnable {
 		long idlingStart = -1;
 		activateProcessing();
 		try {
+			class ProgressJob extends Job {
+				ProgressJob(String name) {
+					super(name);
+				}
+				protected IStatus run(IProgressMonitor monitor) {
+					int awaitingJobsCount;
+					while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
+						monitor.subTask(Util.bind("manager.filesToIndex", Integer.toString(awaitingJobsCount))); //$NON-NLS-1$
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							// ignore
+						}
+					}
+					return Status.OK_STATUS;
+				}
+			}
+			ProgressJob progressJob = null;
 			while (this.processingThread != null) {
 				try {
 					IJob job;
@@ -316,6 +336,7 @@ public abstract class JobManager implements Runnable {
 
 						// must check for new job inside this sync block to avoid timing hole
 						if ((job = currentJob()) == null) {
+							if (progressJob != null) progressJob = null;
 							if (idlingStart < 0)
 								idlingStart = System.currentTimeMillis();
 							else
@@ -337,6 +358,12 @@ public abstract class JobManager implements Runnable {
 					}
 					try {
 						this.executing = true;
+						if (progressJob == null) {
+							progressJob = new ProgressJob(Util.bind("manager.indexingInProgress")); //$NON-NLS-1$
+							progressJob.setPriority(Job.LONG);
+							progressJob.setSystem(true);
+							progressJob.schedule();
+						}
 						/*boolean status = */job.execute(null);
 						//if (status == FAILED) request(job);
 					} finally {

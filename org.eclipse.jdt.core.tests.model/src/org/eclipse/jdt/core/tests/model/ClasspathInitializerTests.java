@@ -144,7 +144,7 @@ public ClasspathInitializerTests(String name) {
 public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testContainerInitializer8"));
+		suite.addTest(new ClasspathInitializerTests("testVariableInitializer3"));
 		return suite;
 	}
 	return new Suite(ClasspathInitializerTests.class);
@@ -510,6 +510,68 @@ public void testContainerInitializer8() throws CoreException {
 	} finally {
 		stopDeltas();
 		deleteProjects(projects);
+	}
+}
+/*
+ * Ensure that a StackOverFlowError is not thrown if the initializer asks for the resolved classpath
+ * that is being resolved.
+ * (regression test for bug 61040 Should add protect for reentrance to #getResolvedClasspath)
+ */
+public void testContainerInitializer9() throws CoreException {
+	try {
+		ClasspathInitializerTests.DefaultContainerInitializer initializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}) {
+			protected DefaultContainer newContainer(char[][] libPaths) {
+				return new DefaultContainer(libPaths) {
+					public IClasspathEntry[] getClasspathEntries() {
+						try {
+							getJavaProject("P1").getResolvedClasspath(true);
+						} catch (JavaModelException e) {
+							// project doesn't exist: ignore
+						}
+						return super.getClasspathEntries();
+					}
+				};
+			}
+		};
+		ContainerInitializer.setInitializer(initializer);
+		JavaCore.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				createProject("P1");
+				editFile(
+					"/P1/.project",
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+					"<projectDescription>\n" + 
+					"	<name>P1</name>\n" + 
+					"	<comment></comment>\n" + 
+					"	<projects>\n" + 
+					"	</projects>\n" + 
+					"	<buildSpec>\n" + 
+					"		<buildCommand>\n" + 
+					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
+					"			<arguments>\n" + 
+					"			</arguments>\n" + 
+					"		</buildCommand>\n" + 
+					"	</buildSpec>\n" + 
+					"	<natures>\n" + 
+					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
+					"	</natures>\n" + 
+					"</projectDescription>"
+				);
+				createFile(
+					"/P1/.classpath",
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+					"<classpath>\n" +
+					"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+					"	<classpathentry kind=\"output\" path=\"\"/>\n" +
+					"</classpath>"
+				);
+			}
+		}, null);
+		getJavaProject("P1").getResolvedClasspath(true);
+	} finally {
+		stopDeltas();
+		ContainerInitializer.setInitializer(null);
+		deleteProject("P1");
 	}
 }
 public void testVariableInitializer1() throws CoreException {
