@@ -670,7 +670,8 @@ public class VarargsTest extends AbstractComparisonTest {
 				"class Y extends X {\n" +
 				"	public void count(int[] values) {}\n" +
 				"}\n",
-			},			"----------\n" + 
+			},
+			"----------\n" + 
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	public void count(int[] values) {}\n" + 
 			"	  ^^^^^\n" + 
