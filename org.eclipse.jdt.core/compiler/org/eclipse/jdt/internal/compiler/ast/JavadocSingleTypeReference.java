@@ -11,8 +11,12 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
 public class JavadocSingleTypeReference extends SingleTypeReference {
@@ -40,5 +44,47 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
+	}
+
+	/*
+	 * 
+	 */
+	private TypeBinding internalResolveType(Scope scope) {
+		// handle the error here
+		this.constant = NotAConstant;
+		if (this.resolvedType != null) { // is a shared type reference which was already resolved
+			if (!this.resolvedType.isValidBinding())
+				return null; // already reported error
+		} else {
+			this.resolvedType = getTypeBinding(scope);
+			if (!this.resolvedType.isValidBinding()) {
+				char[][] tokens = { this.token };
+				Binding binding = scope.getTypeOrPackage(tokens);
+				if (!(binding instanceof PackageBinding)) {
+					reportInvalidType(scope);
+				}
+				return null;
+			}
+			if (isTypeUseDeprecated(this.resolvedType, scope)) {
+				reportDeprecatedType(scope);
+			}
+		}
+		return this.resolvedType;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 * We need to override to handle package references
+	 */
+	public TypeBinding resolveType(BlockScope blockScope) {
+		return internalResolveType(blockScope);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+	 * We need to override to handle package references
+	 */
+	public TypeBinding resolveType(ClassScope classScope) {
+		return internalResolveType(classScope);
 	}
 }
