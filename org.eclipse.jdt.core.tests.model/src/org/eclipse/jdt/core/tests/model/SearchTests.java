@@ -117,16 +117,16 @@ public static Test suite() {
 public SearchTests(String name) {
 	super(name);
 }
-protected void assertAllTypes(int waitingPolicy, String expected) throws JavaModelException {
-	assertAllTypes("Unexpected all types", null, waitingPolicy, expected);
+protected void assertAllTypes(int waitingPolicy, IProgressMonitor progressMonitor, String expected) throws JavaModelException {
+	assertAllTypes("Unexpected all types", null/* no specific project*/, waitingPolicy, progressMonitor, expected);
 }
 protected void assertAllTypes(String expected) throws JavaModelException {
-	assertAllTypes(WAIT_UNTIL_READY_TO_SEARCH, expected);
+	assertAllTypes(WAIT_UNTIL_READY_TO_SEARCH, null/* no progress monitor*/, expected);
 }
 protected void assertAllTypes(String message, IJavaProject project, String expected) throws JavaModelException {
-	assertAllTypes(message, project, WAIT_UNTIL_READY_TO_SEARCH, expected);
+	assertAllTypes(message, project, WAIT_UNTIL_READY_TO_SEARCH, null/* no progress monitor*/, expected);
 }
-protected void assertAllTypes(String message, IJavaProject project, int waitingPolicy, String expected) throws JavaModelException {
+protected void assertAllTypes(String message, IJavaProject project, int waitingPolicy, IProgressMonitor progressMonitor, String expected) throws JavaModelException {
 	IJavaSearchScope scope =
 		project == null ?
 			SearchEngine.createWorkspaceScope() :
@@ -143,7 +143,7 @@ protected void assertAllTypes(String message, IJavaProject project, int waitingP
 		scope, 
 		requestor,
 		waitingPolicy,
-		null);
+		progressMonitor);
 	String actual = requestor.toString();
 	if (!expected.equals(actual)){
 	 	System.out.println(Util.displayString(actual, 3));
@@ -250,11 +250,12 @@ public void testChangeClasspath() throws CoreException {
 		indexManager.enable();
 		job.waitForJobToStart(); // job is suspended here
 		
-		// query all type names with 
+		// query all type names with a null progress monitor
 		boolean operationCanceled = false;
 		try {
 			assertAllTypes(
 				CANCEL_IF_NOT_READY_TO_SEARCH,
+				null, // null progress monitor
 				"Should not get any type"
 			);
 		} catch (OperationCanceledException e) {
