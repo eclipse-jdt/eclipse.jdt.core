@@ -106,8 +106,10 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources4"));
 	suite.addTest(new JavaProjectTests("testSourceFolderWithJarName"));
 	suite.addTest(new JavaProjectTests("testJdkLevelRoot"));
-	suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension1"));
-	suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension2"));
+	
+	// TODO (jerome) reenable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460 is fixed 
+	//suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension1"));
+	//suite.addTest(new JavaProjectTests("testExtraJavaLikeExtension2"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -297,7 +299,8 @@ public void testExternalArchiveCorrespondingResource() throws JavaModelException
 /*
  * Ensures that a file with an extra Java-like extension is listed in the children of a package.
  */
-public void testExtraJavaLikeExtension1() throws CoreException {
+// TODO (jerome) reenable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460 is fixed 
+public void _testExtraJavaLikeExtension1() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFolder("/P/pack");
@@ -316,7 +319,8 @@ public void testExtraJavaLikeExtension1() throws CoreException {
 /*
  * Ensures that a file with an extra Java-like extension is not listed in the non-Java resources of a package.
  */
-public void testExtraJavaLikeExtension2() throws CoreException {
+// TODO (jerome) reenable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460 is fixed 
+public void _testExtraJavaLikeExtension2() throws CoreException {
 	try {
 		createJavaProject("P");
 		createFolder("/P/pack");

@@ -789,29 +789,34 @@ public class Util {
 	 */
 	public static char[][] getJavaLikeExtensions() {
 		if (JAVA_LIKE_EXTENSIONS == null) {
-			IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
-			String[] fileExtensions = javaContentType == null ? null : javaContentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
-			// note that file extensions contains "java" as it is defined in JDT Core's plugin.xml
-			int length = fileExtensions == null ? 0 : fileExtensions.length;
-			char[][] extensions = new char[length][];
-			SimpleWordSet knownExtensions = new SimpleWordSet(length); // used to ensure no duplicate extensions
-			extensions[0] = SuffixConstants.SUFFIX_java; // ensure that ".java" is first
-			knownExtensions.add(SuffixConstants.SUFFIX_java);
-			int index = 1;
-			for (int i = 0; i < length; i++) {
-				String fileExtension = fileExtensions[i];
-				int extensionLength = fileExtension.length() + 1;
-				char[] extension = new char[extensionLength];
-				extension[0] = '.';
-				fileExtension.getChars(0, extensionLength-1, extension, 1);
-				if (!knownExtensions.includes(extension)) {
-					extensions[index++] = extension;
-					knownExtensions.add(extension);
+			// TODO (jerome) reenable once JDT UI supports other file extensions (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=71460)
+			if (true)
+				JAVA_LIKE_EXTENSIONS = new char[][] {SuffixConstants.SUFFIX_java};
+			else {
+				IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaModelManager.JAVA_SOURCE_CONTENT_TYPE);
+				String[] fileExtensions = javaContentType == null ? null : javaContentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+				// note that file extensions contains "java" as it is defined in JDT Core's plugin.xml
+				int length = fileExtensions == null ? 0 : fileExtensions.length;
+				char[][] extensions = new char[length][];
+				SimpleWordSet knownExtensions = new SimpleWordSet(length); // used to ensure no duplicate extensions
+				extensions[0] = SuffixConstants.SUFFIX_java; // ensure that ".java" is first
+				knownExtensions.add(SuffixConstants.SUFFIX_java);
+				int index = 1;
+				for (int i = 0; i < length; i++) {
+					String fileExtension = fileExtensions[i];
+					int extensionLength = fileExtension.length() + 1;
+					char[] extension = new char[extensionLength];
+					extension[0] = '.';
+					fileExtension.getChars(0, extensionLength-1, extension, 1);
+					if (!knownExtensions.includes(extension)) {
+						extensions[index++] = extension;
+						knownExtensions.add(extension);
+					}
 				}
+				if (index != length)
+					System.arraycopy(extensions, 0, extensions = new char[index][], 0, index);
+				JAVA_LIKE_EXTENSIONS = extensions;
 			}
-			if (index != length)
-				System.arraycopy(extensions, 0, extensions = new char[index][], 0, index);
-			JAVA_LIKE_EXTENSIONS = extensions;
 		}
 		return JAVA_LIKE_EXTENSIONS;
 	}
