@@ -157,7 +157,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 				parentFolder = parentFolder.getFolder(new Path(subFolderName));
 				sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
-				if (sourceFolder.isReadOnly()) {
+				if (Util.isReadOnly(sourceFolder)) {
 					containsReadOnlyPackageFragment = true;
 				}
 				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName);
@@ -291,7 +291,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					// when the file was copied, its read-only flag was preserved -> temporary set it to false
 					// note this doesn't interfer with repository providers as this is a new resource that cannot be under
 					// version control yet
-					destFile.setReadOnly(false);
+					Util.setReadOnly(destFile, false);
 					
 					destFile.setContents(
 						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
@@ -302,7 +302,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				} catch (CoreException e) {
 					throw new JavaModelException(e);
 				} finally {
-					destFile.setReadOnly(wasReadOnly);
+					Util.setReadOnly(destFile, wasReadOnly);
 				}
 			}
 		
@@ -635,8 +635,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			String subFolderName = newFragName[i];
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
-			if (sourceFolder.exists() && sourceFolder.isReadOnly()) {
-				parentFolder.setReadOnly(true);
+			if (sourceFolder.exists() && Util.isReadOnly(sourceFolder)) {
+				Util.setReadOnly(parentFolder, true);
 			}
 		}
 	}
@@ -647,10 +647,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			String subFolderName = newFragName[i];
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
-			if ((sourceFolder.exists() && sourceFolder.isReadOnly()) || (i == length - 1 && sourceFolderIsReadOnly)) {
-				parentFolder.setReadOnly(true);
+			if ((sourceFolder.exists() && Util.isReadOnly(sourceFolder)) || (i == length - 1 && sourceFolderIsReadOnly)) {
+				Util.setReadOnly(parentFolder, true);
 				// the source folder will be deleted anyway (move operation)
-				sourceFolder.setReadOnly(false);
+				Util.setReadOnly(sourceFolder, false);
 			}
 		}
 	}

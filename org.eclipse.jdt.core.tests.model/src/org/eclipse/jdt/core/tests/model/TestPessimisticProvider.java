@@ -59,7 +59,11 @@ public class TestPessimisticProvider extends RepositoryProvider implements IFile
 					new IWorkspaceRunnable() {
 						public void run(IProgressMonitor monitor)	{
 							for (int i = 0, length = files.length; i < length; i++) {
-								files[i].setReadOnly(false);
+								try {
+									setReadOnly(files[i], false);
+								} catch (CoreException e) {
+									e.printStackTrace();
+								}
 							}
 						}
 					},
@@ -74,8 +78,29 @@ public class TestPessimisticProvider extends RepositoryProvider implements IFile
 
 	public IStatus validateSave(IFile file) {
 		if (markWritableOnSave) {
-			file.setReadOnly(false);
+			try {
+				setReadOnly(file, false);
+			} catch (CoreException e) {
+				e.printStackTrace();
+				return e.getStatus();
+			}
 		}
 		return Status.OK_STATUS;
+	}
+
+	public void setReadOnly(IResource resource, boolean readOnly) throws CoreException {
+		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+		if (resourceAttributes != null) {
+			resourceAttributes.setReadOnly(readOnly);
+			resource.setResourceAttributes(resourceAttributes);
+		}		
+	}
+
+	public boolean isReadOnly(IResource resource) throws CoreException {
+		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+		if (resourceAttributes != null) {
+			return resourceAttributes.isReadOnly();
+		}
+		return false;
 	}
 }

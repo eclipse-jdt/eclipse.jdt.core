@@ -134,16 +134,16 @@ public void testChangeContent() throws CoreException {
  */
 public void testChangeContentOfReadOnlyCU1() throws CoreException {
 	IResource resource = this.cu.getUnderlyingResource();
-	boolean readOnlyFlag = resource.isReadOnly();
+	boolean readOnlyFlag = isReadOnly(resource);
 	boolean didComplain = false;
 	try {
-		resource.setReadOnly(true);
+		setReadOnly(resource, true);
 		this.copy.getBuffer().setContents("invalid");
 		this.copy.commitWorkingCopy(true, null);
 	} catch(JavaModelException e){
 		didComplain = true;
 	} finally {
-		resource.setReadOnly(readOnlyFlag);
+		setReadOnly(resource, readOnlyFlag);
 	}
 	assertTrue("Should have complained about modifying a read-only unit:", didComplain);
 	assertTrue("ReadOnly buffer got modified:", !this.cu.getBuffer().getContents().equals("invalid"));
@@ -162,11 +162,11 @@ public void testChangeContentOfReadOnlyCU2() throws CoreException {
 		"}";
 	IResource resource = this.cu.getUnderlyingResource();
 	IProject project = resource.getProject();
-	boolean readOnlyFlag = resource.isReadOnly();
+	boolean readOnlyFlag = isReadOnly(resource);
 	try {
 		RepositoryProvider.map(project, TestPessimisticProvider.NATURE_ID);
 		TestPessimisticProvider.markWritableOnSave = true;
-		resource.setReadOnly(true);
+		setReadOnly(resource, true);
 		
 		this.copy.getBuffer().setContents(newContents);
 		this.copy.commitWorkingCopy(true, null);
@@ -177,7 +177,7 @@ public void testChangeContentOfReadOnlyCU2() throws CoreException {
 	} finally {
 		TestPessimisticProvider.markWritableOnSave = false;
 		RepositoryProvider.unmap(project);
-		resource.setReadOnly(readOnlyFlag);
+		setReadOnly(resource, readOnlyFlag);
 	}
 }
 

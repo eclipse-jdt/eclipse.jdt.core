@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -1721,6 +1722,21 @@ public class Util {
 		}
 		split[currentWord] = string.substring(last, end);
 		return split;
+	}
+	public static boolean isReadOnly(IResource resource) {
+		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+		if (resourceAttributes == null) return false; // not supported on this platform for this resource
+		return resourceAttributes.isReadOnly();
+	}
+	public static void setReadOnly(IResource resource, boolean readOnly) {
+		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+		if (resourceAttributes == null) return; // not supported on this platform for this resource
+		resourceAttributes.setReadOnly(readOnly);
+		try {
+			resource.setResourceAttributes(resourceAttributes);
+		} catch (CoreException e) {
+			// ignore
+		}
 	}
 	public static void sort(char[][] list) {
 		if (list.length > 1)

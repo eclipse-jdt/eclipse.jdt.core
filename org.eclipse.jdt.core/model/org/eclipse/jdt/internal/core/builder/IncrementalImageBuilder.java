@@ -474,7 +474,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
 						outputFile.setDerived(true);
-						outputFile.setReadOnly(false); // just in case the original was read only
+						Util.setReadOnly(outputFile, false); // just in case the original was read only
 						return;
 					case IResourceDelta.REMOVED :
 						if (outputFile.exists()) {
@@ -497,7 +497,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
 						outputFile.setDerived(true);
-						outputFile.setReadOnly(false); // just in case the original was read only
+						Util.setReadOnly(outputFile, false); // just in case the original was read only
 				}
 				return;
 			}

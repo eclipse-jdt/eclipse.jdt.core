@@ -292,5 +292,19 @@ protected IClasspathEntry[] createClasspath(String projectName, String[] folders
 	}
 	return classpath;
 }
+public void setReadOnly(IResource resource, boolean readOnly) throws CoreException {
+	ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+	if (resourceAttributes != null) {
+		resourceAttributes.setReadOnly(readOnly);
+		resource.setResourceAttributes(resourceAttributes);
+	}		
+}
 
+public boolean isReadOnly(IResource resource) throws CoreException {
+	ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+	if (resourceAttributes != null) {
+		return resourceAttributes.isReadOnly();
+	}
+	return false;
+}
 }

@@ -225,7 +225,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						}
 						resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
 						copiedResource.setDerived(true);
-						copiedResource.setReadOnly(false); // just in case the original was read only
+						Util.setReadOnly(copiedResource, false); // just in case the original was read only
 						return false;
 					case IResource.FOLDER :
 						resource = proxy.requestResource();
