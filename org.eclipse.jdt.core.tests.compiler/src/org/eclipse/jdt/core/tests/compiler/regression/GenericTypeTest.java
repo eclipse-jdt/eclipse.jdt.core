@@ -7963,7 +7963,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			});	
 	}	
 	// 75156 - should report name clash
-	// TODO (kent) reenable once addressed
+	// TODO (kent) fixed with !inheritedArg.isEquivalentTo(currentArg) check in MethodVerifier
 	  public void _test310() {
 		this.runNegativeTest(
 			new String[] {
@@ -7978,10 +7978,15 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"	void foo(List<Object> lo) { }\n" + 
 				"}"
 			},
-			"report name clash");	
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 4)\n" + 
+			"	void foo(List<X> lx) { }\n" + 
+			"	     ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
+			"----------\n");	
 	}
 	// 75156 variation - should report name clash and ambiguity
-	// TODO (kent) reenable once addressed
+	// TODO (kent) fixed with !inheritedArg.isEquivalentTo(currentArg) check in MethodVerifier
 	public void _test311() {
 		this.runNegativeTest(
 			new String[] {
@@ -7999,10 +8004,20 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"	void foo(List<Object> lo) { }\n" + 
 				"}"
 			},
-			"should report name clash and ambiguity");	
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 4)\n" + 
+			"	void foo(List<X> lx) { }\n" + 
+			"	     ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 6)\n" + 
+			"	this.foo((List)null);\n" + 
+			"	     ^^^\n" + 
+			"The method foo(List<X>) is ambiguous for the type X\n" + 
+			"----------\n");	
 	}		
 	// 75156 variation - should report name clash instead of final method override
-	// TODO (kent) reenable once addressed
+	// TODO (kent) fixed with !inheritedArg.isEquivalentTo(currentArg) check in MethodVerifier
 	public void _test312() {
 		this.runNegativeTest(
 			new String[] {
@@ -8017,7 +8032,12 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"	final void foo(List<Object> lo) { }\n" + 
 				"}"	
 			},
-			"should report name clash");	
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 4)\n" + 
+			"	void foo(List<X> lx) { }\n" + 
+			"	     ^^^^^^^^^^^^^^^\n" + 
+			"Name clash : The method foo(List<X>) of type X has the same erasure as foo(List<Object>) of type X2 but does not override it\n" + 
+			"----------\n");	
 	}
 	// 73963 
 	public void test313() {
