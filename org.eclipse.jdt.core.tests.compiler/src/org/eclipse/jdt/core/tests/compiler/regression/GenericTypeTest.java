@@ -13518,4 +13518,48 @@ public void test499(){
 		"Type mismatch: cannot convert from Object&Serializable&Cloneable to Integer[]\n" + 
 		"----------\n");
 }	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84251
+public void test500(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"interface Sink<T> { \n" + 
+			"	void flush(T t);\n" + 
+			"}\n" + 
+			"class SimpleSinkImpl<T> implements Sink<T> {\n" + 
+			"	public void flush(T t) {}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    private <T> T writeAll(Collection<T> coll, Sink<? super T> snk) { \n" + 
+			"        T last = null;\n" + 
+			"        for (T t : coll) { \n" + 
+			"            last = t;\n" + 
+			"            snk.flush(last);\n" + 
+			"        }\n" + 
+			"        return last;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void test1() {\n" + 
+			"        Sink<Object> s = new SimpleSinkImpl<Object>();\n" + 
+			"        Collection<String> cs = new ArrayList<String>();\n" + 
+			"        cs.add(\"hello!\");\n" + 
+			"        cs.add(\"goodbye\");\n" + 
+			"        cs.add(\"see you\");\n" + 
+			"        \n" + 
+			"        String str = this.writeAll(cs, s);  \n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X test = new X();\n" + 
+			"        \n" + 
+			"        test.test1();\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"");
+}	
 }
