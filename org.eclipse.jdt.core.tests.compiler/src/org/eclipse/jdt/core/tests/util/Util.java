@@ -73,6 +73,9 @@ public static void compile(String[] pathsAndContents, Map options, String output
 public static String[] concatWithClassLibs(String classpath, boolean inFront) {
 	String[] classLibs = getJavaClassLibs();
 	final int length = classLibs.length;
+	File dir = new File(classpath);
+	if (!dir.exists())
+		dir.mkdirs();
 	String[] defaultClassPaths = new String[length + 1];
 	if (inFront) {
 		System.arraycopy(classLibs, 0, defaultClassPaths, 1, length);

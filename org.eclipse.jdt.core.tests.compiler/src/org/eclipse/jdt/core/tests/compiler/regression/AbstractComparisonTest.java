@@ -21,7 +21,6 @@ import junit.framework.AssertionFailedError;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -55,6 +54,7 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 	// to enable set VM args to -Dcompliance=1.5 -Drun.javac=enabled
 	public static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
 	public static boolean runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
+	public static String JAVAC_OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "javac";
 	public IPath dirPath;
 
 	public AbstractComparisonTest(String name) {
@@ -79,7 +79,7 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 	 * but leaving the directory.
 	 * @throws TargetException if the target path could not be cleaned up
 	 */
-	protected void cleanupDirectory(File directory) throws TargetException {
+	protected void cleanupDirectory(File directory) {
 		if (!directory.exists()) {
 			return;
 		}
@@ -89,14 +89,12 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 			if (file.isDirectory()) {
 				cleanupDirectory(file);
 			} else {
-				if (!file.delete()) {
-					throw new TargetException("Could not delete file " + file.getPath());
-				}
+				if (!file.delete())
+					System.out.println("Could not delete file " + file.getPath());
 			}
 		}
-		if (!directory.delete()) {
-			throw new TargetException("Could not delete directory " + directory.getPath());
-		}
+		if (!directory.delete())
+			System.out.println("Could not delete directory " + directory.getPath());
 	}
 
 	/*
@@ -130,7 +128,7 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 			throw e;
 		} finally {
 			if (runJavac)
-				runJavac(testFiles, null);
+				runJavac(testFiles, null, expectedSuccessOutputString, shouldFlushOutputDirectory);
 		}
 	}
 
@@ -141,17 +139,22 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 	 * Launch compilation in a thread and verify that it does not take more than 5s
 	 * to perform it. Otherwise abort the process and log in console.
 	 */
-	protected void runJavac(String[] testFiles, final String expectedProblemLog) {
+	protected void runJavac(String[] testFiles, final String expectedProblemLog, final String expectedSuccessOutputString, boolean shouldFlushOutputDirectory) {
 		try {
+			if (shouldFlushOutputDirectory)
+				cleanupDirectory(new File(JAVAC_OUTPUT_DIR));
+
 			// Write files in dir
 			IPath dirFilePath = writeFiles(testFiles);
-			
+
 			String testName = shortTestName();
-			Process process = null;
+			Process compileProcess = null;
+			Process execProcess = null;
 			try {
 				// Compute classpath
-				String[] classpath = getDefaultClassPaths();
+				String[] classpath = Util.concatWithClassLibs(JAVAC_OUTPUT_DIR, false);
 				StringBuffer cp = new StringBuffer();
+				cp.append(" -classpath .;"); // start with the current directory which contains the source files
 				int length = classpath.length;
 				for (int i = 0; i < length; i++) {
 					if (classpath[i].indexOf(" ") != -1) {
@@ -165,8 +168,9 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 				IPath jdkDir = (new Path(Util.getJREDirectory())).removeLastSegments(1);
 				IPath javacPath = jdkDir.append("bin").append("javac.exe");
 				StringBuffer cmdLine = new StringBuffer(javacPath.toString());
-				cmdLine.append(" -classpath ");
 				cmdLine.append(cp);
+				cmdLine.append(" -d ");
+				cmdLine.append(JAVAC_OUTPUT_DIR.indexOf(" ") != -1 ? "\"" + JAVAC_OUTPUT_DIR + "\"" : JAVAC_OUTPUT_DIR);
 				cmdLine.append(" -source 1.5 -deprecation -Xlint:unchecked "); // enable recommended warnings
 				if (this.dirPath.equals(dirFilePath)) {
 					cmdLine.append("*.java");
@@ -178,19 +182,19 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 //				System.out.println(testName+": "+cmdLine.toString());
 //				System.out.println(GenericTypeTest.this.dirPath.toFile().getAbsolutePath());
 				// Launch process
-				process = Runtime.getRuntime().exec(cmdLine.toString(), null, this.dirPath.toFile());
+				compileProcess = Runtime.getRuntime().exec(cmdLine.toString(), null, this.dirPath.toFile());
 	            // Log errors
-	            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
-	            
+	            Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");            
+
 	            // Log output
-	            Logger outputLogger = new Logger(process.getInputStream(), "OUTPUT");
-	                
+	            Logger outputLogger = new Logger(compileProcess.getInputStream(), "OUTPUT");
+
 	            // start the threads to run outputs (standard/error)
 	            errorLogger.start();
 	            outputLogger.start();
 
 	            // Wait for end of process
-				int exitValue = process.waitFor();
+				int exitValue = compileProcess.waitFor();
 
 				// Compare compilation results
 				if (expectedProblemLog == null) {
@@ -199,12 +203,32 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 						System.out.println(testName+": javac has found error(s) although we're expecting conform result:\n");
 						System.out.println(errorLogger.buffer.toString());
 						printFiles(testFiles);
-					}
-					else if (errorLogger.buffer.length() > 0) {
+					} else if (errorLogger.buffer.length() > 0) {
 						System.out.println("========================================");
 						System.out.println(testName+": javac displays warning(s) although we're expecting conform result:\n");
 						System.out.println(errorLogger.buffer.toString());
 						printFiles(testFiles);
+					} else if (expectedSuccessOutputString != null) {
+						// Compute command line
+						IPath javaPath = jdkDir.append("bin").append("java.exe");
+						StringBuffer javaCmdLine = new StringBuffer(javaPath.toString());
+						javaCmdLine.append(cp);
+						// assume executable class is name of first test file
+						javaCmdLine.append(' ').append(testFiles[0].substring(0, testFiles[0].indexOf('.')));
+						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString(), null, this.dirPath.toFile());
+						Logger logger = new Logger(execProcess.getInputStream(), "OUTPUT");
+						logger.start();
+
+						exitValue = execProcess.waitFor();
+						String javaOutput = logger.buffer.toString().trim();
+						if (!expectedSuccessOutputString.equals(javaOutput)) {
+							System.out.println("========================================");
+							System.out.println(testName+": runtime results don't match:");
+							System.out.println(expectedSuccessOutputString);
+							System.out.println(javaOutput);
+							System.out.println("\n");
+							printFiles(testFiles);
+						}
 					}
 				} else if (exitValue == 0) {
 					if (errorLogger.buffer.length() == 0) {
@@ -236,15 +260,16 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 			} catch (IOException ioe) {
 				System.out.println(testName+": Not possible to launch Sun javac compilation!");
 			} catch (InterruptedException e1) {
-				if (process != null) process.destroy();
+				if (compileProcess != null) compileProcess.destroy();
+				if (execProcess != null) execProcess.destroy();
 				System.out.println(testName+": Sun javac compilation was aborted!");
 			}
-
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
 			// Clean up written file(s)
 			IPath testDir =  new Path(Util.getOutputDirectory()).append(shortTestName());
 			cleanupDirectory(testDir.toFile());
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -263,7 +288,7 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 			throw e;
 		} finally {
 			if (runJavac)
-				runJavac(testFiles, expectedProblemLog);
+				runJavac(testFiles, expectedProblemLog, null, shouldFlushOutputDirectory);
 		}
 	}
 
