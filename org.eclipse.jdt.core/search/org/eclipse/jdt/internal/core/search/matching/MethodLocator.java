@@ -119,6 +119,9 @@ protected int matchMethod(MethodBinding method) {
 	if (parameterCount > -1) {
 		if (method.parameters == null) return INACCURATE_MATCH;
 		if (parameterCount != method.parameters.length) return IMPOSSIBLE_MATCH;
+		if (!method.isValidBinding() && ((ProblemMethodBinding)method).problemId() == ProblemReasons.Ambiguous)
+			// return inaccurate match for ambiguous call (bug 80890)
+			return INACCURATE_MATCH;
 		for (int i = 0; i < parameterCount; i++) {
 			TypeBinding argType = method.parameters[i];
 			int newLevel = IMPOSSIBLE_MATCH;

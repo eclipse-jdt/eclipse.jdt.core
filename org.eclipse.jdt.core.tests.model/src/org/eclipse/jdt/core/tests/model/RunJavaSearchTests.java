@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.lang.reflect.*;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -23,7 +24,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 public RunJavaSearchTests(String name) {
 	super(name);
 }
-public static Class[] getAllTestClasses() {
+public static Class[] getJavaSearchTestClasses() {
 	return new Class[] {
 		JavaSearchTests.class,
 		JavaSearchGenericTypeTests.class,
@@ -37,15 +38,19 @@ public static Class[] getAllTestClasses() {
 public static Test suite() {
 	TestSuite ts = new TestSuite(RunJavaSearchTests.class.getName());
 
-	JavaSearchTests.TEST_SUITES = new ArrayList(Arrays.asList(getAllTestClasses()));
+	JavaSearchTests.TEST_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));
 	// Reset forgotten subsets of tests
 	TestCase.TESTS_PREFIX = null;
 	TestCase.TESTS_NAMES = null;
 	TestCase.TESTS_NUMBERS = null;
 	TestCase.TESTS_RANGE = null;
-
-	for (int i = 0, l=JavaSearchTests.TEST_SUITES.size(); i < l; i++) {
-		Class testClass = (Class) JavaSearchTests.TEST_SUITES.get(i);
+	
+	List allClasses = new ArrayList(JavaSearchTests.TEST_SUITES);
+	allClasses.add(JavaSearchBugsTests.class);
+	allClasses.add(JavaSearchMultipleProjectsTests.class);
+	allClasses.add(SearchTests.class);
+	for (int i = 0, size=allClasses.size(); i < size; i++) {
+		Class testClass = (Class) allClasses.get(i);
 
 		// call the suite() method and add the resulting suite to the suite
 		try {

@@ -35,11 +35,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static String EXTERNAL_JAR_DIR_PATH;
 	
-	// static variables for subsets tests
-	public static String[] testsNames = null; // list of test names to perform
-	public static int[] testsNumbers = null; // list of test numbers to perform
-	public static int[] testsRange = null; // range of test numbers to perform
-	
 	// infos for invalid results
 	protected int tabs = 2;
 	protected boolean displayName = false;

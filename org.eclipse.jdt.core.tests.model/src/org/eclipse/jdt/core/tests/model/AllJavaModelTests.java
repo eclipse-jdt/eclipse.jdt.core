@@ -30,8 +30,6 @@ static Class[] getAllTestClasses() {
 		CompilationUnitTests.class,
 		AttachSourceTests.class,
 		RunJavaSearchTests.class,
-		JavaSearchMultipleProjectsTests.class,
-		SearchTests.class,
 		WorkingCopyTests.class,
 		WorkingCopyNotInClasspathTests.class,
 		HierarchyOnWorkingCopiesTests.class,
@@ -111,8 +109,6 @@ public static Test suite() {
 	
 	// Java search tests
 	suite.addTest(RunJavaSearchTests.suite());
-	suite.addTest(JavaSearchMultipleProjectsTests.suite());
-	suite.addTest(SearchTests.suite());
 		
 	// Working copy tests
 	suite.addTest(WorkingCopyTests.suite());
