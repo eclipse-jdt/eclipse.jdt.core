@@ -12,10 +12,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -31,7 +29,6 @@ class DefaultCommentMapper {
 	private Comment[] comments;
 	private Map leadingComments;
 	private Map trailingComments;
-	Set attachedDocComments = new HashSet();
 	
 	private int commentIndex;
 
@@ -221,10 +218,10 @@ class DefaultCommentMapper {
 	 * end next start for last child is the first token after the end of the node which
 	 * is neither a comment nor white spaces.
 	 * 
-	 * Compute first leading and trailing comment tables as this let us to optimize
+	 * Compute first leading and trailing comment tables at this let us to optimize
 	 * comment look up in the table. As all comments on a same level are ordered
 	 * by position, we store the index to start the search from it instead of restarting
-	 * each time from the beginning (see in storeLeadingComments and storeTrailingComments
+	 * each time from the beginning (see in storeLeadingComments and streTrailingComments
 	 * methods).
 	 */
 	private void doExtraRangesForChildren(ASTNode node, Scanner scanner) {
@@ -311,12 +308,12 @@ class DefaultCommentMapper {
 			// Verify for each comment that there's only white spaces between end and start of {following comment|node}
 			Comment comment = this.comments[idx];
 			int commentStart = comment.getStartPosition();
-			int end = commentStart+comment.getLength()-1;
+			int end = commentStart+comment.getLength();
 			int commentLine = scanner.getLineNumber(commentStart);
 			if (end <= previousEnd || (commentLine == previousEndLine && commentLine != nodeStartLine)) {
 				break;
-			} else if ((end+1) < previousStart) { // may be equals => then no scan is necessary
-				scanner.resetTo(end+1, previousStart);
+			} else if (end < previousStart) { // may be equals => then no scan is necessary
+				scanner.resetTo(end, previousStart);
 				try {
 					int token = scanner.getNextToken();
 					if (token != TerminalTokens.TokenNameWHITESPACE || scanner.currentPosition != previousStart) {
@@ -349,18 +346,18 @@ class DefaultCommentMapper {
 			// Verify that there's no token on the same line before first leading comment
 			int commentStart = this.comments[startIdx].getStartPosition();
 			if (previousEnd < commentStart && previousEndLine != nodeStartLine) {
-				int lastTokenEnd = previousEnd;
+				int startPosition = previousEnd;
 				scanner.resetTo(previousEnd, commentStart);
 				try {
 					while (scanner.currentPosition != commentStart) {
 						if (scanner.getNextToken() != TerminalTokens.TokenNameWHITESPACE) {
-							lastTokenEnd =  scanner.getCurrentTokenEndPosition();
+							startPosition =  scanner.getCurrentTokenStartPosition();
 						}
 					}
 				} catch (InvalidInputException e) {
 					// do nothing
 				}
-				int lastTokenLine = scanner.getLineNumber(lastTokenEnd);
+				int lastTokenLine = scanner.getLineNumber(startPosition);
 				int length = this.comments.length;
 				while (startIdx<length && lastTokenLine == scanner.getLineNumber(this.comments[startIdx].getStartPosition())) {
 					startIdx++;
@@ -467,15 +464,6 @@ class DefaultCommentMapper {
 				if (sameLineIdx == -1) return nodeEnd;
 				endIdx = sameLineIdx;
 			}
-			// Verify that traling comment is not an already attached doc comment
-			idx = startIdx;
-			for (; idx <= endIdx; idx++) {
-				if (this.comments[idx].isDocComment() && this.attachedDocComments.contains(this.comments[idx]))  {
-					if (idx == startIdx) return nodeEnd;
-					break;
-				}
-			}
-			endIdx = idx - 1;
 			// Store leading comments indexes
 			this.trailingComments.put(node, new int[] { startIdx, endIdx });
 			extended = this.comments[endIdx].getStartPosition()+this.comments[endIdx].getLength()-1;
@@ -509,24 +497,6 @@ class DefaultCommentMapper {
 			}
 			this.result.add(node);
 			return false;
-		}
-		public boolean visit(FieldDeclaration node) {
-			if (node.getJavadoc() != null) {
-				DefaultCommentMapper.this.attachedDocComments.add(node.getJavadoc());
-			}
-			return super.visit(node);
-		}
-		public boolean visit(MethodDeclaration node) {
-			if (node.getJavadoc() != null) {
-				DefaultCommentMapper.this.attachedDocComments.add(node.getJavadoc());
-			}
-			return super.visit(node);
-		}
-		public boolean visit(TypeDeclaration node) {
-			if (node.getJavadoc() != null) {
-				DefaultCommentMapper.this.attachedDocComments.add(node.getJavadoc());
-			}
-			return super.visit(node);
 		}
 	}
 }
