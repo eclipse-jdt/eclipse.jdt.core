@@ -31,6 +31,9 @@ public static Test suite() {
 	// Project & Root API unit tests
 	suite.addTest(JavaProjectTests.suite());
 
+	// Compilation unit tests
+	suite.addTest(CompilationUnitTests.suite());
+
 	// Source attachment tests
 	suite.addTest(AttachSourceTests.suite());
 	

@@ -156,7 +156,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case DOM_EXCEPTION:
 					return Util.bind("status.JDOMError"); //$NON-NLS-1$
 				case ELEMENT_DOES_NOT_EXIST:
-					return Util.bind("element.doesNotExist",fElements[0].getElementName()); //$NON-NLS-1$
+					return Util.bind("element.doesNotExist",((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 				case EVALUATION_ERROR:
 					return Util.bind("status.evaluationError", getString()); //$NON-NLS-1$
 				case INDEX_OUT_OF_BOUNDS:
@@ -164,14 +164,14 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case INVALID_CONTENTS:
 					return Util.bind("status.invalidContents"); //$NON-NLS-1$
 				case INVALID_DESTINATION:
-					return Util.bind("status.invalidDestination", fElements[0].getElementName()); //$NON-NLS-1$
+					return Util.bind("status.invalidDestination", ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 				case INVALID_ELEMENT_TYPES:
 					StringBuffer buff= new StringBuffer(Util.bind("operation.notSupported")); //$NON-NLS-1$
 					for (int i= 0; i < fElements.length; i++) {
 						if (i > 0) {
 							buff.append(", "); //$NON-NLS-1$
 						}
-						buff.append(fElements[0].getElementName());
+						buff.append(((JavaElement)fElements[i]).toStringWithAncestors());
 					}
 					return buff.toString();
 				case INVALID_NAME:
@@ -187,7 +187,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case INVALID_RESOURCE_TYPE:
 					return Util.bind("status.invalidResourceType", getString()); //$NON-NLS-1$
 				case INVALID_SIBLING:
-					return Util.bind("status.invalidSibling", fElements[0].getElementName()); //$NON-NLS-1$
+					return Util.bind("status.invalidSibling", ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 				case IO_EXCEPTION:
 					return Util.bind("status.IOException"); //$NON-NLS-1$
 				case NAME_COLLISION:
@@ -208,7 +208,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case NULL_STRING:
 					return Util.bind("operation.needString"); //$NON-NLS-1$
 				case PATH_OUTSIDE_PROJECT:
-					return Util.bind("operation.pathOutsideProject", getString(), fElements[0].getElementName()); //$NON-NLS-1$
+					return Util.bind("operation.pathOutsideProject", getString(), ((JavaElement)fElements[0]).toStringWithAncestors()); //$NON-NLS-1$
 				case READ_ONLY:
 					IJavaElement element = fElements[0];
 					String name = element.getElementName();
