@@ -144,7 +144,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			String typeName = initialTypeNames[i];
 			char[] typeNameChars = typeName.toCharArray();
 		toCompile[i] = new SourceFile(filename,
-				CharOperation.splitOn('/', typeNameChars, typeNameChars[0] == '/' ? 1 : 0, typeName.lastIndexOf('/') - 1));
+				CharOperation.splitOn('/', typeNameChars, /*typeNameChars[0] == '/' ? 1 :*/ 0, typeName.lastIndexOf('/') - 1));
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {

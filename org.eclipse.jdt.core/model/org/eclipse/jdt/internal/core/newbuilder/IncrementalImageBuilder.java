@@ -139,7 +139,7 @@ protected void addAffectedSourceFiles() {
 					for (int j = 0, k = sourceFolders.length; j < k; j++) {
 						String sourceLocation = sourceFolders[j].getLocation().toString();
 						if (location.startsWith(sourceLocation)) {
-							typeNames.add(location.substring(sourceLocation.length(), location.length() - 5)); // length of ".java"
+							typeNames.add(location.substring(sourceLocation.length() + 1, location.length() - 5)); // length of ".java"
 							continue next;
 						}
 					}
