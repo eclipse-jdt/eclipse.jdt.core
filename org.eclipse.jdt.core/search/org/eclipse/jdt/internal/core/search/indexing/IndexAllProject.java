@@ -52,13 +52,33 @@ public class IndexAllProject extends IndexRequest {
 
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!project.isAccessible()) return true; // nothing to do
-
-		Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
-		if (index == null) return true;
-		ReadWriteMonitor monitor = index.monitor;
-		if (monitor == null) return true; // index got deleted since acquired
-
+		
+		ReadWriteMonitor monitor = null;
 		try {
+			// Get source folder entries. Libraries are done as a separate job
+			JavaProject javaProject = (JavaProject)JavaCore.create(this.project);
+			// Do not create marker nor log problems while getting raw classpath (see bug 41859)
+			IClasspathEntry[] entries = javaProject.getRawClasspath(false, false);
+			int length = entries.length;
+			IClasspathEntry[] sourceEntries = new IClasspathEntry[length];
+			int sourceEntriesNumber = 0;
+			for (int i = 0; i < length; i++) {
+				IClasspathEntry entry = entries[i];
+				if ((entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)) 
+					sourceEntries[sourceEntriesNumber++] = entry;
+			}
+			if (sourceEntriesNumber == 0) 
+				// nothing to index
+				// also the project might be a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
+				return true;
+			if (sourceEntriesNumber != length)
+				System.arraycopy(sourceEntries, 0, sourceEntries = new IClasspathEntry[sourceEntriesNumber], 0, sourceEntriesNumber);
+	
+			Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
+			if (index == null) return true;
+			monitor = index.monitor;
+			if (monitor == null) return true; // index got deleted since acquired
+			
 			monitor.enterRead(); // ask permission to read
 
 			String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
@@ -70,105 +90,100 @@ public class IndexAllProject extends IndexRequest {
 				indexedFileNames.put(paths[i], DELETED);
 			final long indexLastModified = max == 0 ? 0L : index.getIndexFile().lastModified();
 
-			JavaProject javaProject = (JavaProject)JavaCore.create(this.project);
-			// Do not create marker nor log problems while getting raw classpath (see bug 41859)
-			IClasspathEntry[] entries = javaProject.getRawClasspath(false, false);
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
-			for (int i = 0, length = entries.length; i < length; i++) {
+			for (int i = 0; i < sourceEntriesNumber; i++) {
 				if (this.isCancelled) return false;
 
-				IClasspathEntry entry = entries[i];
-				if ((entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)) { // Index only source folders. Libraries are done as a separate job
-					IResource sourceFolder = root.findMember(entry.getPath());
-					if (sourceFolder != null) {
-						
-						// collect output locations if source is project (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32041)
-						final HashSet outputs = new HashSet();
-						if (sourceFolder.getType() == IResource.PROJECT) {
-							// Do not create marker nor log problems while getting output location (see bug 41859)
-							outputs.add(javaProject.getOutputLocation(false, false));
-							for (int j = 0; j < length; j++) {
-								IPath output = entries[j].getOutputLocation();
-								if (output != null) {
-									outputs.add(output);
-								}
+				IClasspathEntry entry = sourceEntries[i];
+				IResource sourceFolder = root.findMember(entry.getPath());
+				if (sourceFolder != null) {
+					
+					// collect output locations if source is project (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32041)
+					final HashSet outputs = new HashSet();
+					if (sourceFolder.getType() == IResource.PROJECT) {
+						// Do not create marker nor log problems while getting output location (see bug 41859)
+						outputs.add(javaProject.getOutputLocation(false, false));
+						for (int j = 0; j < sourceEntriesNumber; j++) {
+							IPath output = sourceEntries[j].getOutputLocation();
+							if (output != null) {
+								outputs.add(output);
 							}
 						}
-						final boolean hasOutputs = !outputs.isEmpty();
-						
-						final char[][] inclusionPatterns = ((ClasspathEntry) entry).fullInclusionPatternChars();
-						final char[][] exclusionPatterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
-						if (max == 0) {
-							sourceFolder.accept(
-								new IResourceProxyVisitor() {
-									public boolean visit(IResourceProxy proxy) {
-										if (isCancelled) return false;
-										switch(proxy.getType()) {
-											case IResource.FILE :
-												if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
-													IFile file = (IFile) proxy.requestResource();
-													if (file.getLocation() == null) return false;
-													if (exclusionPatterns != null || inclusionPatterns != null)
-														if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
-															return false;
-													indexedFileNames.put(file.getFullPath().toString(), file);
-												}
-												return false;
-											case IResource.FOLDER :
-												if (exclusionPatterns != null && inclusionPatterns == null) {
-													// if there are inclusion patterns then we must walk the children
-													if (Util.isExcluded(proxy.requestFullPath(), inclusionPatterns, exclusionPatterns, true)) 
-													    return false;
-												}
-												if (hasOutputs && outputs.contains(proxy.requestFullPath()))
-													return false;
-										}
-										return true;
-									}
-								},
-								IResource.NONE
-							);
-						} else {
-							sourceFolder.accept(
-								new IResourceProxyVisitor() {
-									public boolean visit(IResourceProxy proxy) {
-										if (isCancelled) return false;
-										switch(proxy.getType()) {
-											case IResource.FILE :
-												if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
-													IFile file = (IFile) proxy.requestResource();
-													IPath location = file.getLocation();
-													if (location == null) return false;
-													if (exclusionPatterns != null || inclusionPatterns != null)
-														if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
-															return false;
-													String path = file.getFullPath().toString();
-													indexedFileNames.put(path,
-														indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
-															? (Object) file
-															: (Object) OK);
-												}
-												return false;
-											case IResource.FOLDER :
+					}
+					final boolean hasOutputs = !outputs.isEmpty();
+					
+					final char[][] inclusionPatterns = ((ClasspathEntry) entry).fullInclusionPatternChars();
+					final char[][] exclusionPatterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
+					if (max == 0) {
+						sourceFolder.accept(
+							new IResourceProxyVisitor() {
+								public boolean visit(IResourceProxy proxy) {
+									if (isCancelled) return false;
+									switch(proxy.getType()) {
+										case IResource.FILE :
+											if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
+												IFile file = (IFile) proxy.requestResource();
+												if (file.getLocation() == null) return false;
 												if (exclusionPatterns != null || inclusionPatterns != null)
-													if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 														return false;
-												if (hasOutputs && outputs.contains(proxy.requestFullPath()))
-													return false;
-										}
-										return true;
+												indexedFileNames.put(file.getFullPath().toString(), file);
+											}
+											return false;
+										case IResource.FOLDER :
+											if (exclusionPatterns != null && inclusionPatterns == null) {
+												// if there are inclusion patterns then we must walk the children
+												if (Util.isExcluded(proxy.requestFullPath(), inclusionPatterns, exclusionPatterns, true)) 
+												    return false;
+											}
+											if (hasOutputs && outputs.contains(proxy.requestFullPath()))
+												return false;
 									}
-								},
-								IResource.NONE
-							);
-						}
+									return true;
+								}
+							},
+							IResource.NONE
+						);
+					} else {
+						sourceFolder.accept(
+							new IResourceProxyVisitor() {
+								public boolean visit(IResourceProxy proxy) {
+									if (isCancelled) return false;
+									switch(proxy.getType()) {
+										case IResource.FILE :
+											if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
+												IFile file = (IFile) proxy.requestResource();
+												IPath location = file.getLocation();
+												if (location == null) return false;
+												if (exclusionPatterns != null || inclusionPatterns != null)
+													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
+														return false;
+												String path = file.getFullPath().toString();
+												indexedFileNames.put(path,
+													indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
+														? (Object) file
+														: (Object) OK);
+											}
+											return false;
+										case IResource.FOLDER :
+											if (exclusionPatterns != null || inclusionPatterns != null)
+												if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+													return false;
+											if (hasOutputs && outputs.contains(proxy.requestFullPath()))
+												return false;
+									}
+									return true;
+								}
+							},
+							IResource.NONE
+						);
 					}
 				}
 			}
 
 			Object[] names = indexedFileNames.keyTable;
 			Object[] values = indexedFileNames.valueTable;
-			for (int i = 0, length = names.length; i < length; i++) {
+			for (int i = 0, namesLength = names.length; i < namesLength; i++) {
 				String name = (String) names[i];
 				if (name != null) {
 					if (this.isCancelled) return false;
@@ -200,7 +215,8 @@ public class IndexAllProject extends IndexRequest {
 			this.manager.removeIndex(this.containerPath);
 			return false;
 		} finally {
-			monitor.exitRead(); // free read lock
+			if (monitor != null)
+				monitor.exitRead(); // free read lock
 		}
 		return true;
 	}
