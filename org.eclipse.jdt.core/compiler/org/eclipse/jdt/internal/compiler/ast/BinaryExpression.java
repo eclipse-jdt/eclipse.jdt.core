@@ -13,7 +13,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class BinaryExpression extends OperatorExpression {
 	public Expression left, right;
 	public Constant optimizedBooleanConstant;
-	public TypeBinding type;	
 
 public BinaryExpression(Expression left, Expression right,int operator) {
 	this.left = left;
@@ -1345,28 +1344,28 @@ public TypeBinding resolveType(BlockScope scope) {
 	switch (result & 0xF) {// record the current ReturnTypeID
 		// only switch on possible result type.....
 		case T_boolean :
-			this.type = BooleanBinding;
+			this.typeBinding = BooleanBinding;
 			break;
 		case T_byte :
-			this.type = ByteBinding;
+			this.typeBinding = ByteBinding;
 			break;
 		case T_char :
-			this.type = CharBinding;
+			this.typeBinding = CharBinding;
 			break;
 		case T_double :
-			this.type = DoubleBinding;
+			this.typeBinding = DoubleBinding;
 			break;
 		case T_float :
-			this.type = FloatBinding;
+			this.typeBinding = FloatBinding;
 			break;
 		case T_int :
-			this.type = IntBinding;
+			this.typeBinding = IntBinding;
 			break;
 		case T_long :
-			this.type = LongBinding;
+			this.typeBinding = LongBinding;
 			break;
 		case T_String :
-			this.type = scope.getJavaLangString();
+			this.typeBinding = scope.getJavaLangString();
 			break;
 		default : //error........
 			constant = Constant.NotAConstant;
@@ -1376,7 +1375,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// compute the constant when valid
 	computeConstant(scope, leftId, rightId);
-	return this.type;
+	return this.typeBinding;
 }
 public String toStringExpressionNoParenthesis(){
 	/* slow code*/

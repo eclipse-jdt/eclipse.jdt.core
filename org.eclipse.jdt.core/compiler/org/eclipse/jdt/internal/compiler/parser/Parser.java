@@ -1375,6 +1375,10 @@ protected void consumeClassBodyDeclaration() {
 	nestedMethod[nestedType]--;
 	Initializer initializer = new Initializer((Block) astStack[astPtr], 0);
 	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
+	int javadocCommentStart = intStack[intPtr--];
+	if (javadocCommentStart != -1) {
+		initializer.declarationSourceStart = javadocCommentStart;
+	}
 	astStack[astPtr] = initializer;
 	initializer.sourceEnd = endStatementPosition;
 	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
@@ -1699,6 +1703,8 @@ protected void consumeDefaultModifiers() {
 }
 protected void consumeDiet() {
 	// Diet ::= $empty
+	checkAnnotation();
+	pushOnIntStack(modifiersSourceStart); // push the start position of a javadoc comment if there is one
 	jumpOverMethodBody();
 }
 protected void consumeDims() {
@@ -2383,7 +2389,7 @@ protected void consumeMethodHeader() {
 	// recovery
 	if (currentElement != null){
 		if (currentToken == TokenNameSEMICOLON){
-			method.modifiers |= AccSemicolonBody;
+			method.modifiers |= AccSemicolonBody;			
 			method.declarationSourceEnd = scanner.currentPosition-1;
 			if (currentElement.parent != null){
 				currentElement = currentElement.parent;

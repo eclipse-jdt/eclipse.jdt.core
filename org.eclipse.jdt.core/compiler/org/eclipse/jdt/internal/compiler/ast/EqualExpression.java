@@ -496,7 +496,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			return null;
 		}
 		computeConstant(leftTb, rightTb);
-		this.type = BooleanBinding;
+		this.typeBinding = BooleanBinding;
 		return BooleanBinding;
 	}
 
@@ -512,7 +512,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			right.implicitConversion = String2String;
 		if (leftTb.id == T_String)
 			left.implicitConversion = String2String;
-		this.type = BooleanBinding;
+		this.typeBinding = BooleanBinding;
 		return BooleanBinding;
 	}
 	constant = NotAConstant;

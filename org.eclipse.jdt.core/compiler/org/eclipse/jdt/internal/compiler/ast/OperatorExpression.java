@@ -5,9 +5,11 @@ package org.eclipse.jdt.internal.compiler.ast;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class OperatorExpression extends Expression implements OperatorIds {
 	public static int[][] ResolveTypeTables = new int[NumberOfTables][];
+	public TypeBinding typeBinding;	
 	static {classInitialize();}
 /**
  * OperatorExpression constructor comment.

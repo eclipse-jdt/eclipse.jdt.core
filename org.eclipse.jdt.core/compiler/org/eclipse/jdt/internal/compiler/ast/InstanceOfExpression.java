@@ -194,6 +194,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().notCompatibleTypesError(this, expressionTb, checkTb);
 		return null;
 	}
+	this.typeBinding = BooleanBinding;
 	return BooleanBinding;
 }
 public String toStringExpressionNoParenthesis(){

@@ -112,6 +112,77 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 	
 	/**
+	 * Answer a new compiler using the given name environment and compiler options.
+	 * The environment and options will be in effect for the lifetime of the compiler.
+	 * When the compiler is run, compilation results are sent to the given requestor.
+	 *
+	 *  @param environment org.eclipse.jdt.internal.compiler.api.env.INameEnvironment
+	 *      Environment used by the compiler in order to resolve type and package
+	 *      names. The name environment implements the actual connection of the compiler
+	 *      to the outside world (e.g. in batch mode the name environment is performing
+	 *      pure file accesses, reuse previous build state or connection to repositories).
+	 *      Note: the name environment is responsible for implementing the actual classpath
+	 *            rules.
+	 *
+	 *  @param policy org.eclipse.jdt.internal.compiler.api.problem.IErrorHandlingPolicy
+	 *      Configurable part for problem handling, allowing the compiler client to
+	 *      specify the rules for handling problems (stop on first error or accumulate
+	 *      them all) and at the same time perform some actions such as opening a dialog
+	 *      in UI when compiling interactively.
+	 *      @see org.eclipse.jdt.internal.compiler.api.problem.DefaultErrorHandlingPolicies
+	 *      
+	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
+	 *      Component which will receive and persist all compilation results and is intended
+	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
+	 *      responsible for writing out the actual .class files to the file system.
+	 *      @see org.eclipse.jdt.internal.compiler.api.CompilationResult
+	 *
+	 *  @param problemFactory org.eclipse.jdt.internal.compiler.api.problem.IProblemFactory
+	 *      Factory used inside the compiler to create problem descriptors. It allows the
+	 *      compiler client to supply its own representation of compilation problems in
+	 *      order to avoid object conversions. Note that the factory is not supposed
+	 *      to accumulate the created problems, the compiler will gather them all and hand
+	 *      them back as part of the compilation unit result.
+	 *	@param parseLiteralExpressionsAsConstants <code>boolean</code>
+	 *		This parameter is used to optimize the literals or leave them as they are in the source.
+	 * 		If you put true, "Hello" + " world" will be converted to "Hello world".
+	 */
+	public Compiler(
+		INameEnvironment environment,
+		IErrorHandlingPolicy policy,
+		Map settings,
+		final ICompilerRequestor requestor,
+		IProblemFactory problemFactory,
+		boolean parseLiteralExpressionsAsConstants) {
+
+		// create a problem handler given a handling policy
+		this.options = new CompilerOptions(settings);
+		
+		// wrap requestor in DebugRequestor if one is specified
+		if(DebugRequestor == null) {
+			this.requestor = requestor;
+		} else {
+			this.requestor = new ICompilerRequestor(){
+				public void acceptResult(CompilationResult result){
+					if (DebugRequestor.isActive()){
+						DebugRequestor.acceptDebugResult(result);
+					}
+					requestor.acceptResult(result);
+				}
+			};
+		}
+		this.problemReporter =
+			new ProblemReporter(policy, this.options, problemFactory);
+		this.lookupEnvironment =
+			new LookupEnvironment(this, options, problemReporter, environment);
+		this.parser =
+			new Parser(
+				problemReporter, 
+				parseLiteralExpressionsAsConstants, 
+				this.options.assertMode);
+	}
+	
+	/**
 	 * Add an additional binary type
 	 */
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding) {

@@ -220,29 +220,28 @@ public class UnaryExpression extends OperatorExpression {
 		//  <<16   <<12       <<8    <<4       <<0
 		int result = ResolveTypeTables[tableId][(expressionId << 4) + expressionId];
 		expression.implicitConversion = result >>> 12;
-		TypeBinding type;
 		bits |= result & 0xF;
 		switch (result & 0xF) { // only switch on possible result type.....
 			case T_boolean :
-				type = BooleanBinding;
+				this.typeBinding = BooleanBinding;
 				break;
 			case T_byte :
-				type = ByteBinding;
+				this.typeBinding = ByteBinding;
 				break;
 			case T_char :
-				type = CharBinding;
+				this.typeBinding = CharBinding;
 				break;
 			case T_double :
-				type = DoubleBinding;
+				this.typeBinding = DoubleBinding;
 				break;
 			case T_float :
-				type = FloatBinding;
+				this.typeBinding = FloatBinding;
 				break;
 			case T_int :
-				type = IntBinding;
+				this.typeBinding = IntBinding;
 				break;
 			case T_long :
-				type = LongBinding;
+				this.typeBinding = LongBinding;
 				break;
 			default : //error........
 				constant = Constant.NotAConstant;
@@ -265,7 +264,7 @@ public class UnaryExpression extends OperatorExpression {
 					optimizedBooleanConstant = Constant.fromValue(!cst.booleanValue());
 			}
 		}
-		return type;
+		return this.typeBinding;
 	}
 
 	public String toStringExpressionNoParenthesis() {
