@@ -18,6 +18,7 @@ What's new in this drop (since 0.9)
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GEKKUO: ITPJCORE:ALL - JM - Util.readContentsAsBytes(InputStream) doesn't allow for size hint
 1GBRPSJ: ITPJCORE:Options - should surface the code formatter options on JavaCore
 1GJU3YV: ITPJCORE:ALL - ArrayIndexOutOfBoundsException in scanner
 1GJL1R5: ITPJCORE:ALL - NPE in ClassFile.getSourceRange
