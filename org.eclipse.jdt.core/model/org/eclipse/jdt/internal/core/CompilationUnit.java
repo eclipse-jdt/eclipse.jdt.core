@@ -10,13 +10,17 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.lookup.*;
 
 import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * @see ICompilationUnit
@@ -57,7 +61,7 @@ public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException
 /**
  * @see ICodeAssist
  */
-public void codeComplete(int offset, ICodeCompletionRequestor requestor) throws JavaModelException {
+public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
 	codeComplete(this, isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this, offset, requestor);
 }
 /**
@@ -123,7 +127,7 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 		String source = ""; //$NON-NLS-1$
 		if (pkg.getElementName().length() > 0) {
 			//not the default package...add the package declaration
-			source = "package " + pkg.getElementName() + ";"  + JavaModelManager.LINE_SEPARATOR + JavaModelManager.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
+			source = "package " + pkg.getElementName() + ";"  + Util.LINE_SEPARATOR + Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, fName, source, force);
 		runOperation(op, monitor);
@@ -186,7 +190,7 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
@@ -199,13 +203,13 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, H
 		// generate structure
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 		IProblemFactory factory = new DefaultProblemFactory();
-		SourceElementParser parser = new SourceElementParser(requestor, factory);
+		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(JavaCore.getOptions()));
 		parser.parseCompilationUnit(this, !isWorkingCopy());
 		if (isWorkingCopy()) {
 			// remember problems
-			Vector problems = requestor.fProblems;
+			ArrayList problems = requestor.fProblems;
 			if (problems != null) {
-				problems.copyInto(((WorkingCopyElementInfo)unitInfo).problems = new IProblem[problems.size()]);
+				problems.toArray(((WorkingCopyElementInfo)unitInfo).problems = new IProblem[problems.size()]);
 			}
 			
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
@@ -223,23 +227,22 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, H
 public IType[] getAllTypes() throws JavaModelException {
 	IJavaElement[] types = getTypes();
 	int i;
-	Vector allTypes = new Vector(types.length);
-	Vector typesToTraverse = new Vector(types.length);
+	ArrayList allTypes = new ArrayList(types.length);
+	ArrayList typesToTraverse = new ArrayList(types.length);
 	for (i = 0; i < types.length; i++) {
-		typesToTraverse.addElement(types[i]);
+		typesToTraverse.add(types[i]);
 	}
 	while (!typesToTraverse.isEmpty()) {
-		IType type = (IType) typesToTraverse.elementAt(0);
-		typesToTraverse.removeElement(type);
-		allTypes.addElement(type);
+		IType type = (IType) typesToTraverse.get(0);
+		typesToTraverse.remove(type);
+		allTypes.add(type);
 		types = type.getTypes();
 		for (i = 0; i < types.length; i++) {
-			typesToTraverse.addElement(types[i]);
+			typesToTraverse.add(types[i]);
 		}
-	}
-	allTypes.trimToSize();
+	} 
 	IType[] arrayOfAllTypes = new IType[allTypes.size()];
-	allTypes.copyInto(arrayOfAllTypes);
+	allTypes.toArray(arrayOfAllTypes);
 	return arrayOfAllTypes;
 }
 /**
@@ -362,10 +365,16 @@ public IPackageDeclaration getPackageDeclaration(String name) {
  * @see ICompilationUnit
  */
 public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException {
-	Vector v= getChildrenOfType(PACKAGE_DECLARATION);
-	IPackageDeclaration[] array= new IPackageDeclaration[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(PACKAGE_DECLARATION);
+	IPackageDeclaration[] array= new IPackageDeclaration[list.size()];
+	list.toArray(array);
 	return array;
+}
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.api.ICompilationUnit
+ */
+public char[][] getPackageName() {
+	return null;
 }
 /**
  * Returns the reference information for this compilation unit
@@ -397,18 +406,25 @@ public IType getType(String name) {
  * @see ICompilationUnit
  */
 public IType[] getTypes() throws JavaModelException {
-	Vector v= getChildrenOfType(TYPE);
-	IType[] array= new IType[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(TYPE);
+	IType[] array= new IType[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
  * @see IWorkingCopy
  */
 public IJavaElement getWorkingCopy() throws JavaModelException {
-	WorkingCopy workingCopy= new WorkingCopy((IPackageFragment)getParent(), getElementName());
+	return (IJavaElement)this.getWorkingCopy(null, null);
+}
+/**
+ * @see IWorkingCopy
+ */
+public IWorkingCopy getWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
+	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName());
 	// open the working copy now to ensure contents are that of the current state of this element
-	workingCopy.open(null);
+	IBuffer buffer = factory == null ? null : factory.createBuffer(workingCopy);
+	workingCopy.open(pm, buffer);
 	return workingCopy;
 }
 /**
@@ -571,4 +587,69 @@ public void triggerSourceEndOffset(int amount, int nameStart, int nameEnd) {
 public void triggerSourceRangeOffset(int amount, int nameStart, int nameEnd) {
 	triggerSourceEndOffset(amount, nameStart, nameEnd);
 }
+/**
+ * @see ICodeAssist
+ * @deprecated - use codeComplete(int, ICompletionRequestor)
+ */
+public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
+	
+	if (requestor == null){
+		codeComplete(offset, (ICompletionRequestor)null);
+		return;
+	}
+	codeComplete(
+		offset,
+		new ICompletionRequestor(){
+			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptError(IMarker marker) {
+				requestor.acceptError(marker);
+			}
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd){
+				requestor.acceptKeyword(keywordName, completionStart, completionEnd);
+			}
+			public void acceptLabel(char[] labelName,int completionStart,int completionEnd){
+				requestor.acceptLabel(labelName, completionStart, completionEnd);
+			}
+			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// skip parameter names
+				requestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptModifier(char[] modifierName,int completionStart,int completionEnd){
+				requestor.acceptModifier(modifierName, completionStart, completionEnd);
+			}
+			public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
+			}
+			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
+			}
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd){
+				// ignore
+			}
+		});
+}
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new CompilationUnit(
+			(IPackageFragment)((JavaElement)fParent).rootedAt(project), 
+			fName);
+}
+
 }

@@ -72,6 +72,8 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (info == null) {
 		buffer.append("<initializer>"); //$NON-NLS-1$
 		buffer.append(" (not open)"); //$NON-NLS-1$
+	} else if (info == NO_INFO) {
+		buffer.append(getElementName());
 	} else {
 		try {
 			if (Flags.isStatic(this.getFlags())) {

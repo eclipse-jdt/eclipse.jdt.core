@@ -28,7 +28,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	int pc = codeStream.position;
 	if (valueRequired)
 		codeStream.aconst_null();
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding literalType(BlockScope scope) {
 	return NullBinding;

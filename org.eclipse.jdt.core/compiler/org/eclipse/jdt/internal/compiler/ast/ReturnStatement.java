@@ -127,7 +127,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				TryStatement trySub = (TryStatement) sub;
 				if (trySub.subRoutineCannotReturn) {
 					codeStream.goto_(trySub.subRoutineStartLabel);
-					codeStream.recordPositionsFrom(pc, this);
+					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					return;
 				} else {
 					codeStream.jsr(trySub.subRoutineStartLabel);
@@ -144,7 +144,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	// output the suitable return bytecode or wrap the value inside a descriptor for doits
 	this.generateReturnBytecode(currentScope, codeStream);
 	
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Dump the suitable return bytecode for a return statement

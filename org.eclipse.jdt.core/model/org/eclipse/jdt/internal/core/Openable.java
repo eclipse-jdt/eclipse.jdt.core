@@ -5,12 +5,12 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
-import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -18,7 +18,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -57,11 +58,11 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) thr
 
 	// remove existing (old) infos
 	removeInfo();
-	Hashtable newElements = new Hashtable(11);
+	HashMap newElements = new HashMap(11);
 	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource()));
 	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
-	for (Enumeration e = newElements.keys(); e.hasMoreElements();) {
-		IJavaElement key = (IJavaElement) e.nextElement();
+	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
+		IJavaElement key = (IJavaElement) iter.next();
 		Object value = newElements.get(key);
 		fgJavaModelManager.putInfo(key, value);
 	}
@@ -93,7 +94,7 @@ protected void closing(Object info) throws JavaModelException {
 /**
  * @see ICodeAssist
  */
-protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICodeCompletionRequestor requestor) throws JavaModelException {
+protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICompletionRequestor requestor) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
 	}
@@ -162,7 +163,7 @@ protected OpenableElementInfo createElementInfo() {
  * if successful, or false if an error is encountered while determining
  * the structure of this element.
  */
-protected abstract boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException;
+protected abstract boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException;
 /**
  * Note: a buffer with no unsaved changes can be closed by the Java Model
  * since it has a finite number of buffers allowed open at one time. If this
@@ -191,7 +192,7 @@ public IBuffer getBuffer() throws JavaModelException {
 /**
  * Returns the buffer manager for this element.
  */
-protected IBufferManager getBufferManager() {
+protected BufferManager getBufferManager() {
 	return BufferManager.getDefaultBufferManager();
 }
 /**
@@ -303,8 +304,14 @@ public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
  * @see IOpenable
  */
 public void open(IProgressMonitor pm) throws JavaModelException {
+	this.open(pm, null);
+}
+/**
+ * Opens this openable using the given buffer (or null if one should be created)
+ */
+protected void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	if (!isOpen()) {
-		openWhenClosed(pm);
+		this.openWhenClosed(pm, buffer);
 	}
 }
 /**
@@ -316,17 +323,24 @@ public void open(IProgressMonitor pm) throws JavaModelException {
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	return null;
 }
+
 /**
  * Open an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
+ * Use the given buffer to get the source, or open a new one if null.
  */
-protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	try {
+		
+		if (JavaModelManager.VERBOSE){
+			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); //$NON-NLS-1$//$NON-NLS-2$
+		}
+		
 		// 1) Parent must be open - open the parent if necessary
 		Openable openableParent = (Openable)getOpenableParent();
 		if (openableParent != null) {
 			OpenableElementInfo openableParentInfo = (OpenableElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
 			if (openableParentInfo == null) {
-				openableParent.openWhenClosed(pm);
+				openableParent.openWhenClosed(pm, null);
 			}
 			// Parent is open. 
 		}
@@ -341,10 +355,15 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 			}
 		}
 
-		// 2) create the new element info and open a buffer
+		// 2) create the new element info and open a buffer if needed
 		OpenableElementInfo info = createElementInfo();
-		if (resource != null && isSourceElement()) {
-			openBuffer(pm);
+		if (buffer == null) {
+			if (resource != null && isSourceElement()) {
+				this.openBuffer(pm);
+			} 
+		} else {
+			this.getBufferManager().addBuffer(buffer);
+			buffer.addBufferChangedListener(this);
 		}
 
 		// 3) build the structure of the openable
@@ -385,5 +404,62 @@ public PackageFragmentRoot getPackageFragmentRoot() {
 		current = current.getParent();
 	} while(current != null);
 	return null;
+}
+/**
+ * @see ICodeAssist
+ * @deprecated - use codeComplete(ICompilationUnit, ICompilationUnit, int, ICompletionRequestor) instead
+ */
+protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
+
+	if (requestor == null){
+		codeComplete(cu, unitToSkip, position, (ICompletionRequestor)null);
+		return;
+	}
+	codeComplete(
+		cu,
+		unitToSkip,
+		position,
+		new ICompletionRequestor(){
+			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptError(IMarker marker) {
+				requestor.acceptError(marker);
+			}
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd){
+				requestor.acceptKeyword(keywordName, completionStart, completionEnd);
+			}
+			public void acceptLabel(char[] labelName,int completionStart,int completionEnd){
+				requestor.acceptLabel(labelName, completionStart, completionEnd);
+			}
+			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// skip parameter names
+				requestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptModifier(char[] modifierName,int completionStart,int completionEnd){
+				requestor.acceptModifier(modifierName, completionStart, completionEnd);
+			}
+			public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
+			}
+			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
+			}
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd){
+				// ignore
+			}
+		});
 }
 }

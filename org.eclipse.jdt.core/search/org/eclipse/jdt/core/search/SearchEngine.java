@@ -93,6 +93,7 @@ public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
  *
  * @param elements the java elements the scope is limited to
  * @return a new java search scope
+ * @since 2.0
  */
 public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
 	return createJavaSearchScope(elements, true);
@@ -115,10 +116,11 @@ public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
  * @param includeReferencedProjects a flag indicating if referenced projects must be 
  * 									 recursively included
  * @return a new java search scope
+ * @since 2.0
  */
 public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
 	JavaSearchScope scope = new JavaSearchScope();
-	Hashtable visitedProjects = new Hashtable(2);
+	HashSet visitedProjects = new HashSet(2);
 	for (int i = 0, length = elements.length; i < length; i++) {
 		IJavaElement element = elements[i];
 		if (element != null) {
@@ -228,6 +230,9 @@ public static IJavaSearchScope createWorkspaceScope() {
  * <code>search(ws,"run()",METHOD,REFERENCES,col)</code>
  * searchs for all references to the method <code>run</code>.
  *
+ * Note that by default the pattern will be case insensitive. For specifying case s
+ * sensitive search, use <code>search(workspace, createSearchPattern(patternString, searchFor, limitTo, true), scope, resultCollector);</code>
+ * 
  * @param workspace the workspace
  * @param pattern the pattern to be searched for
  * @param searchFor a hint what kind of Java element the string pattern represents.
@@ -319,27 +324,28 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 										.getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		MatchLocator matchLocator = new MatchLocator((SearchPattern)searchPattern, detailLevel, resultCollector, scope);
-		if (indexManager != null) {
-			indexManager.performConcurrentJob(
-				new PatternSearchJob(
-					(SearchPattern)searchPattern, 
-					scope, 
-					detailLevel, 
-					pathCollector, 
-					indexManager, 
-					progressMonitor),
-				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-				progressMonitor);
 
-			if (progressMonitor != null) {
-				progressMonitor.worked(5);
-			}
-				
-			/* eliminating false matches and locating them */
-			if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-			matchLocator.locateMatches(pathCollector.getPaths(), workspace);
+		indexManager.performConcurrentJob(
+			new PatternSearchJob(
+				(SearchPattern)searchPattern, 
+				scope, 
+				detailLevel, 
+				pathCollector, 
+				indexManager),
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			progressMonitor);
+
+		if (progressMonitor != null) {
+			progressMonitor.worked(5);
 		}
+			
+		/* eliminating false matches and locating them */
+		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
+		matchLocator.locateMatches(pathCollector.getPaths(), workspace);
+		
 
+		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
+		
 		if (progressMonitor != null) {
 			progressMonitor.done();
 		}
@@ -406,7 +412,6 @@ public void searchAllTypeNames(
 	IProgressMonitor progressMonitor)  throws JavaModelException {
 
 	IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager()).getIndexManager();
-	if (indexManager == null) return;
 		
 	char classOrInterface;
 	switch(searchFor){
@@ -442,7 +447,7 @@ public void searchAllTypeNames(
 	};
 
 	indexManager.performConcurrentJob(
-		new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager, progressMonitor),
+		new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager),
 		waitingPolicy,
 		progressMonitor);	
 }
@@ -483,15 +488,21 @@ public void searchAllTypeNames(
  *	</ul>
  */	
 public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
-	MatchLocator locator = new MatchLocator(
-		(SearchPattern)createSearchPattern("*", IJavaSearchConstants.FIELD, IJavaSearchConstants.REFERENCES, true), //$NON-NLS-1$
-		IInfoConstants.DeclarationInfo,
-		resultCollector,
-		new JavaWorkspaceScope());
-	// TBD: limit search to type or method by passing start and end of enclosing element
-	locator.locateMatches(
-		new String[] {enclosingElement.getUnderlyingResource().getFullPath().toString()}, 
-		workspace);
+	SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
+	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
+	IResource resource = enclosingElement.getUnderlyingResource();
+	if (resource instanceof IFile) {
+		MatchLocator locator = new MatchLocator(
+			pattern,
+			IInfoConstants.DeclarationInfo,
+			resultCollector,
+			scope);
+		locator.locateMatches(
+			new String[] {resource.getFullPath().toString()}, 
+			workspace);
+	} else {
+		search(workspace, pattern, scope, resultCollector);
+	}
 }
 /**
  * Searches for all declarations of the types referenced in the given element.
@@ -530,15 +541,21 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
  *	</ul>
  */	
 public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
-	MatchLocator locator = new MatchLocator(
-		(SearchPattern)createSearchPattern("*", IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, true), //$NON-NLS-1$
-		IInfoConstants.DeclarationInfo,
-		resultCollector,
-		new JavaWorkspaceScope());
-	// TBD: limit search to type or method by passing start and end of enclosing element
-	locator.locateMatches(
-		new String[] {enclosingElement.getUnderlyingResource().getFullPath().toString()}, 
-		workspace);
+	SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
+	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
+	IResource resource = enclosingElement.getUnderlyingResource();
+	if (resource instanceof IFile) {
+		MatchLocator locator = new MatchLocator(
+			pattern,
+			IInfoConstants.DeclarationInfo,
+			resultCollector,
+			scope);
+		locator.locateMatches(
+			new String[] {resource.getFullPath().toString()}, 
+			workspace);
+	} else {
+		search(workspace, pattern, scope, resultCollector);
+	}
 }
 /**
  * Searches for all declarations of the methods invoked in the given element.
@@ -580,14 +597,20 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
  *	</ul>
  */	
 public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
-	MatchLocator locator = new MatchLocator(
-		(SearchPattern)createSearchPattern("*", IJavaSearchConstants.METHOD, IJavaSearchConstants.REFERENCES, true), //$NON-NLS-1$
-		IInfoConstants.DeclarationInfo,
-		resultCollector,
-		new JavaWorkspaceScope());
-	// TBD: limit search to type or method by passing start and end of enclosing element
-	locator.locateMatches(
-		new String[] {enclosingElement.getUnderlyingResource().getFullPath().toString()}, 
-		workspace);
+	SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
+	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
+	IResource resource = enclosingElement.getUnderlyingResource();
+	if (resource instanceof IFile) {
+		MatchLocator locator = new MatchLocator(
+			pattern,
+			IInfoConstants.DeclarationInfo,
+			resultCollector,
+			scope);
+		locator.locateMatches(
+			new String[] {resource.getFullPath().toString()}, 
+			workspace);
+	} else {
+		search(workspace, pattern, scope, resultCollector);
+	}
 }
 }

@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.core.index.impl;
  * All Rights Reserved.
  */
 import java.io.*;
-import java.util.Vector;
 
 public class Util {
 
@@ -36,49 +35,7 @@ public class Util {
 		}
 		return len1 - len2;
 	}
-	/**
-	 * Adds all files with the given suffix in the given directory 
-	 * and all its subdirectories to the given Vector.
-	 */
-	public static void getFiles(File fileOrDir, String[] suffix, Vector v) {
-		if (fileOrDir.isDirectory()) {
-			String[] list= fileOrDir.list();
-			if (list != null) {
-				sort(list);
-				for (int i= 0; i < list.length; ++i) {
-					File file= new File(fileOrDir, list[i]);
-					getFiles(file, suffix, v);
-				}
-			}
-		} else {
-			for (int i= 0; i < suffix.length; i++) {
-				if (fileOrDir.getName().toLowerCase().endsWith(suffix[i])) {
-					v.addElement(fileOrDir);
-					break;
-				}
-			}
-		}
-	}
-	/**
-	 * Adds all files with the given suffix in the given directory 
-	 * and all its subdirectories to the given Vector.
-	 */
-	public static void getFiles(File fileOrDir, String suffix, Vector v) {
-		if (fileOrDir.isDirectory()) {
-			String[] list= fileOrDir.list();
-			if (list != null) {
-				sort(list);
-				for (int i= 0; i < list.length; ++i) {
-					File file= new File(fileOrDir, list[i]);
-					getFiles(file, suffix, v);
-				}
-			}
-		} else {
-			if (fileOrDir.getName().toLowerCase().endsWith(suffix)) {
-				v.addElement(fileOrDir);
-			}
-		}
-	}
+
 	/**
 	 * Returns the length of the common prefix between s1 and s2.
 	 */

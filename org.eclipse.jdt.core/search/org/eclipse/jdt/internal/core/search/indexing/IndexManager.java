@@ -32,10 +32,10 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public IWorkspace workspace;
 
 	/* indexes */
-	Hashtable indexes = new Hashtable(5);
+	Map indexes = new HashMap(5);
 
 	/* read write monitors */
-	private Hashtable monitors = new Hashtable(5);
+	private Map monitors = new HashMap(5);
 
 	/* need to save ? */
 	private boolean needToSave = false;
@@ -56,7 +56,7 @@ public void activateProcessing() {
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void add(IFile resource, IResource indexedContainer){
+public void add(IFile resource, IPath indexedContainer){
 	if (JavaCore.getPlugin() == null || this.workspace == null) return;	
 	String extension = resource.getFileExtension();
 	if ("java".equals(extension)){ //$NON-NLS-1$
@@ -79,7 +79,7 @@ public void add(IFile resource, IResource indexedContainer){
  */
 public void checkIndexConsistency() {
 
-	if (VERBOSE) System.out.println("STARTING - ensuring consistency"); //$NON-NLS-1$
+	if (VERBOSE) System.out.println("STARTING ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$//$NON-NLS-2$
 
 	boolean wasEnabled = isEnabled();	
 	try {
@@ -96,7 +96,7 @@ public void checkIndexConsistency() {
 		}
 	} finally {
 		if (wasEnabled) enable();
-		if (VERBOSE) System.out.println("DONE - ensuring consistency"); //$NON-NLS-1$
+		if (VERBOSE) System.out.println("DONE ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 private String computeIndexName(String pathString) {
@@ -270,7 +270,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return Util.bind("process.name", IndexManager.class.getName()); //$NON-NLS-1$
+	return Util.bind("process.name"); //$NON-NLS-1$
 }
 /**
  * Recreates the index for a given path, keeping the same read-write monitor.
@@ -303,7 +303,7 @@ public synchronized IIndex recreateIndex(IPath path) {
  * Trigger removal of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void remove(String resourceName, IResource indexedContainer){
+public void remove(String resourceName, IPath indexedContainer){
 	request(new RemoveFromIndex(resourceName, indexedContainer, this));
 }
 /**
@@ -313,8 +313,8 @@ public void reset(){
 
 	super.reset();
 	if (indexes != null){
-		indexes = new Hashtable(5);
-		monitors = new Hashtable(5);
+		indexes = new HashMap(5);
+		monitors = new HashMap(5);
 	}
 	javaPluginLocation = null;
 }
@@ -322,22 +322,37 @@ public void reset(){
  * Commit all index memory changes to disk
  */
 public void saveIndexes(){
-	Enumeration indexList = indexes.elements();
-	while (indexList.hasMoreElements()){
+
+	ArrayList indexList = new ArrayList();
+	synchronized(this){
+		IIndex[] indexArray = new IIndex[indexes.size()];
+		for (Iterator iter = indexes.values().iterator(); iter.hasNext();){
+			indexList.add(iter.next());
+		}
+	}
+
+	for (Iterator iter = indexList.iterator(); iter.hasNext();){		
+		IIndex index = (IIndex)iter.next();
+		if (index == null) continue; // index got deleted since acquired
+		ReadWriteMonitor monitor = getMonitorFor(index);
+		if (monitor == null) continue; // index got deleted since acquired
 		try {
-			IIndex index = (IIndex)indexList.nextElement();
-			if (index == null) continue; // index got deleted since acquired
-			ReadWriteMonitor monitor = getMonitorFor(index);
-			if (monitor == null) continue; // index got deleted since acquired
-			try {
-				monitor.enterWrite();
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile()); //$NON-NLS-1$
-				index.save();
-			} finally {
-				monitor.exitWrite();
+			monitor.enterWrite();
+			if (IndexManager.VERBOSE){
+				if (index.hasChanged()){
+					System.out.println("-> merging index : "+index.getIndexFile()); //$NON-NLS-1$
+				}
 			}
-		} catch(IOException e){
-			// Index file has been deleted
+			try {
+				index.save();
+			} catch(IOException e){
+				if (IndexManager.VERBOSE){
+					e.printStackTrace();
+				}
+				//org.eclipse.jdt.internal.core.Util.log(e);
+			}
+		} finally {
+			monitor.exitWrite();
 		}
 	}
 	needToSave = false;

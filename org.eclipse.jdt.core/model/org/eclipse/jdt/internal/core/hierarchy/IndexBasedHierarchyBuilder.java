@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
@@ -37,7 +39,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 	 * for the types in the region (i.e. no supertypes outside
 	 * the region).
 	 */
-	protected Hashtable cuToHandle;
+	protected Map cuToHandle;
 
 	/**
 	 * The scope this hierarchy builder should restrain results to.
@@ -47,7 +49,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 	/**
 	 * Cache used to record binaries recreated from index matches
 	 */
-	protected Hashtable binariesFromIndexMatches;
+	protected Map binariesFromIndexMatches;
 	
 	/**
 	 * Collection used to queue subtype index queries
@@ -84,30 +86,30 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 	}
 public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scope) throws JavaModelException {
 	super(hierarchy);
-	this.cuToHandle = new Hashtable(5);
-	this.binariesFromIndexMatches = new Hashtable(10);
+	this.cuToHandle = new HashMap(5);
+	this.binariesFromIndexMatches = new HashMap(10);
 	this.scope = scope;
 }
 /**
  * Add the type info from the given hierarchy binary type to the given list of infos.
  */
-private void addInfoFromBinaryIndexMatch(Openable handle, HierarchyBinaryType binaryType, Vector infos) throws JavaModelException {
-	infos.addElement(binaryType);
+private void addInfoFromBinaryIndexMatch(Openable handle, HierarchyBinaryType binaryType, ArrayList infos) throws JavaModelException {
+	infos.add(binaryType);
 	this.infoToHandle.put(binaryType, handle);
 }
 /**
  * Add the type info from the given class file to the given list of infos.
  */
-private void addInfoFromOpenClassFile(ClassFile classFile, Vector infos) throws JavaModelException {
+private void addInfoFromOpenClassFile(ClassFile classFile, ArrayList infos) throws JavaModelException {
 	IType type = classFile.getType();
 	IGenericType info = (IGenericType) ((BinaryType) type).getRawInfo();
-	infos.addElement(info);
+	infos.add(info);
 	this.infoToHandle.put(info, classFile);
 }
 /**
  * Add the type info from the given CU to the given list of infos.
  */
-private void addInfoFromOpenCU(CompilationUnit cu, Vector infos) throws JavaModelException {
+private void addInfoFromOpenCU(CompilationUnit cu, ArrayList infos) throws JavaModelException {
 	IType[] types = cu.getTypes();
 	for (int j = 0; j < types.length; j++) {
 		SourceType type = (SourceType)types[j];
@@ -117,9 +119,9 @@ private void addInfoFromOpenCU(CompilationUnit cu, Vector infos) throws JavaMode
 /**
  * Add the type info from the given CU to the given list of infos.
  */
-private void addInfoFromOpenSourceType(SourceType type, Vector infos) throws JavaModelException {
+private void addInfoFromOpenSourceType(SourceType type, ArrayList infos) throws JavaModelException {
 	IGenericType info = (IGenericType)type.getRawInfo();
-	infos.addElement(info);
+	infos.add(info);
 	this.infoToHandle.put(info, type);
 	IType[] members = type.getTypes();
 	for (int i = 0; i < members.length; i++) {
@@ -138,12 +140,12 @@ public void build(boolean computeSubtypes) throws JavaModelException, CoreExcept
 		this.buildSupertypes();
 	}
 }
-private void buildForProject(JavaProject project, Vector infos, Vector units) throws JavaModelException {
+private void buildForProject(JavaProject project, ArrayList infos, ArrayList units) throws JavaModelException {
 	IType focusType = this.getType();
 	if (focusType != null && focusType.getJavaProject().equals(project)) {
 		// add focus type
 		try {
-			infos.addElement(((JavaElement) focusType).getRawInfo());
+			infos.add(((JavaElement) focusType).getRawInfo());
 		} catch (JavaModelException e) {
 			// if the focus type is not present, or if cannot get workbench path
 			// we cannot create the hierarchy
@@ -156,7 +158,7 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 	int infosSize = infos.size();
 	if (infosSize > 0) {
 		genericTypes = new IGenericType[infosSize];
-		infos.copyInto(genericTypes);
+		infos.toArray(genericTypes);
 	} else {
 		genericTypes = new IGenericType[0];
 	}
@@ -164,7 +166,7 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 	int unitsSize = units.size();
 	if (unitsSize > 0) {
 		compilationUnits = new ICompilationUnit[unitsSize];
-		units.copyInto(compilationUnits);
+		units.toArray(compilationUnits);
 	} else {
 		compilationUnits = new ICompilationUnit[0];
 	}
@@ -172,18 +174,24 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 	// resolve
 	if (infosSize > 0 || unitsSize > 0) {
 		this.searchableEnvironment = (SearchableEnvironment)project.getSearchableNameEnvironment();
-		if (focusType != null && focusType.getJavaProject().equals(project)) {
+		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
+		if (inProjectOfFocusType) {
 			this.searchableEnvironment.unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
 		}
 		this.nameLookup = project.getNameLookup();
 		this.hierarchyResolver = 
-			new HierarchyResolver(this.searchableEnvironment, this, new DefaultProblemFactory());
+			new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
 		if (focusType != null) {
 			char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-			this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+			ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+			if (focusTypeBinding == null 
+				|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
+				// focus type is not visible in this project: no need to go further
+				return;
+			}
 		}
 		this.hierarchyResolver.resolve(genericTypes, compilationUnits);
-		if (focusType != null && focusType.getJavaProject().equals(project)) {
+		if (inProjectOfFocusType) {
 			this.searchableEnvironment.unitToLookInside = null;
 		}
 	}
@@ -201,15 +209,14 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	 */
 	Util.sortReverseOrder(allPotentialSubTypes);
 	
-	Vector infos = new Vector();
-	Vector units = new Vector();
+	ArrayList infos = new ArrayList();
+	ArrayList units = new ArrayList();
 
 	IType focusType = this.getType();
 
 	// create element infos for subtypes
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	IWorkspace workspace = focusType.getJavaProject().getProject().getWorkspace();
-	HandleFactory factory = new HandleFactory(workspace.getRoot(), manager);
+	HandleFactory factory = new HandleFactory(workspace);
 	IJavaProject currentProject = null;
 	for (int i = 0, length = allPotentialSubTypes.length; i < length; i++) {
 		try {
@@ -219,13 +226,13 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 			IJavaProject project = handle.getJavaProject();
 			if (currentProject == null) {
 				currentProject = project;
-				infos = new Vector(5);
-				units = new Vector(5);
+				infos = new ArrayList(5);
+				units = new ArrayList(5);
 			} else if (!currentProject.equals(project)) {
 				this.buildForProject((JavaProject)currentProject, infos, units);
 				currentProject = project;
-				infos = new Vector(5);
-				units = new Vector(5);
+				infos = new ArrayList(5);
+				units = new ArrayList(5);
 			}
 			if (handle.isOpen()) {
 				// reuse the info from the java model cache
@@ -278,7 +285,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	if (!this.hierarchy.contains(focusType)) {
 		try {
 			currentProject = focusType.getJavaProject();
-			this.buildForProject((JavaProject)currentProject, new Vector(), new Vector());
+			this.buildForProject((JavaProject)currentProject, new ArrayList(), new ArrayList());
 		} catch (JavaModelException e) {
 		}
 	}
@@ -292,19 +299,19 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
  * Create an ICompilationUnit info from the given compilation unit on disk and 
  * adds it to the given list of units.
  */
-private void createCompilationUnitFromPath(Openable handle, String osPath, Vector units) throws JavaModelException {
+private void createCompilationUnitFromPath(Openable handle, String osPath, ArrayList units) throws JavaModelException {
 	BasicCompilationUnit unit = 
 		new BasicCompilationUnit(
 			null,
 			osPath);
-	units.addElement(unit);
+	units.add(unit);
 	this.cuToHandle.put(unit, handle);
 }
 /**
  * Creates the type info from the given class file on disk and
  * adds it to the given list of infos.
  */
-private void createInfoFromClassFile(Openable handle, String osPath, Vector infos) throws JavaModelException {
+private void createInfoFromClassFile(Openable handle, String osPath, ArrayList infos) throws JavaModelException {
 	IGenericType info = null;
 	try {
 		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
@@ -315,13 +322,13 @@ private void createInfoFromClassFile(Openable handle, String osPath, Vector info
 		e.printStackTrace();
 		return;
 	}						
-	infos.addElement(info);
+	infos.add(info);
 	this.infoToHandle.put(info, handle);
 }
 /**
  * Create a type info from the given class file in a jar and adds it to the given list of infos.
  */
-private void createInfoFromClassFileInJar(Openable classFile, Vector infos) throws JavaModelException {
+private void createInfoFromClassFileInJar(Openable classFile, ArrayList infos) throws JavaModelException {
 	IJavaElement pkg = classFile.getParent();
 	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName(); //$NON-NLS-1$
 	IGenericType info = null;
@@ -349,7 +356,7 @@ private void createInfoFromClassFileInJar(Openable classFile, Vector infos) thro
 			}
 		}	
 	}
-	infos.addElement(info);
+	infos.add(info);
 	this.infoToHandle.put(info, classFile);
 }
 /**
@@ -359,9 +366,9 @@ private void createInfoFromClassFileInJar(Openable classFile, Vector infos) thro
 private String[] determinePossibleSubTypes() throws JavaModelException, CoreException {
 
 	class PathCollector implements IPathRequestor {
-		Hashtable paths = new Hashtable(10);
+		HashSet paths = new HashSet(10);
 		public void acceptPath(String path) {
-			paths.put(path, path);
+			paths.add(path);
 		}
 	}
 	PathCollector collector = new PathCollector();
@@ -376,12 +383,12 @@ private String[] determinePossibleSubTypes() throws JavaModelException, CoreExce
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		this.hierarchy.fProgressMonitor);
 
-	Hashtable paths = collector.paths;
+	HashSet paths = collector.paths;
 	int length = paths.size();
 	String[] result = new String[length];
 	int count = 0;
-	for (Enumeration elements = paths.elements(); elements.hasMoreElements(); ) {
-		result[count++] = (String) elements.nextElement();
+	for (Iterator iter = paths.iterator(); iter.hasNext();) {
+		result[count++] = (String) iter.next();
 	} 
 	return result;
 }
@@ -396,15 +403,15 @@ protected IType getHandle(IGenericType genericType) {
 			CompilationUnit unit = (CompilationUnit)this.cuToHandle.get(hierarchyType.originatingUnit);
 
 			// collect enclosing type names
-			Vector enclosingTypeNames = new Vector();
+			ArrayList enclosingTypeNames = new ArrayList();
 			HierarchyType enclosingType = hierarchyType;
 			do {
-				enclosingTypeNames.addElement(enclosingType.name);
+				enclosingTypeNames.add(enclosingType.name);
 				enclosingType = enclosingType.enclosingType;
 			} while (enclosingType != null);
 			int length = enclosingTypeNames.size();
 			char[][] simpleTypeNames = new char[length][];
-			enclosingTypeNames.copyInto(simpleTypeNames);
+			enclosingTypeNames.toArray(simpleTypeNames);
 
 			// build handle
 			type = unit.getType(new String(simpleTypeNames[length-1]));
@@ -431,7 +438,7 @@ public static void searchAllPossibleSubTypes(
 	IWorkspace workbench,
 	IType type,
 	IJavaSearchScope scope,
-	final Hashtable binariesFromIndexMatches,
+	final Map binariesFromIndexMatches,
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
 	IProgressMonitor progressMonitor)  throws JavaModelException, CoreException {
@@ -441,7 +448,6 @@ public static void searchAllPossibleSubTypes(
 	final HashtableOfObject foundSuperNames = new HashtableOfObject(5);
 
 	IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager()).getIndexManager();
-	if (indexManager == null) return;
 
 	/* use a special collector to collect paths and queue new subtype names */
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
@@ -469,8 +475,7 @@ public static void searchAllPossibleSubTypes(
 				type, 
 				IInfoConstants.PathInfo, 
 				searchRequestor, 
-				indexManager, 
-				progressMonitor);
+				indexManager);
 	
 	/* iterate all queued names */
 	awaitings.add(type.getElementName().toCharArray());

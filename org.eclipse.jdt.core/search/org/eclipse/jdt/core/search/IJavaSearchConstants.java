@@ -29,28 +29,36 @@ public interface IJavaSearchConstants {
 	 * The searched element is a type.
 	 */
 	int TYPE= 0;
+
 	/**
 	 * The searched element is a method.
 	 */
 	int METHOD= 1;
+
 	/**
 	 * The searched element is a package.
 	 */
 	int PACKAGE= 2;
+
 	/**
 	 * The searched element is a constructor.
 	 */
 	int CONSTRUCTOR= 3;
+
 	/**
 	 * The searched element is a field.
 	 */
 	int FIELD= 4;
+
 	/**
-	 * The searched element is a class.
+	 * The searched element is a class. 
+	 * More selective than using TYPE
 	 */
 	int CLASS= 5;
+
 	/**
 	 * The searched element is an interface.
+	 * More selective than using TYPE
 	 */
 	int INTERFACE= 6;
 
@@ -58,29 +66,65 @@ public interface IJavaSearchConstants {
 	
 	/**
 	 * The search result is a declaration.
+	 * Can be used in conjunction with any of the nature of searched elements
+	 * so as to better narrow down the search.
 	 */
 	int DECLARATIONS= 0;
+
 	/**
-	 * The search result is a type that implements an interface.
+	 * The search result is a type that implements an interface. 
+	 * Used in conjunction with either TYPE or CLASS or INTERFACE, it will
+	 * respectively search for any type implementing/extending an interface, or
+	 * rather exclusively search for classes implementing an interface, or interfaces 
+	 * extending an interface.
 	 */
 	int IMPLEMENTORS= 1;
+
 	/**
 	 * The search result is a reference.
+	 * Can be used in conjunction with any of the nature of searched elements
+	 * so as to better narrow down the search.
+	 * References can contain implementors since they are more generic kind
+	 * of matches.
 	 */
 	int REFERENCES= 2;
+
 	/**
 	 * The search result is a declaration, a reference, or an implementor 
 	 * of an interface.
+	 * Can be used in conjunction with any of the nature of searched elements
+	 * so as to better narrow down the search.
 	 */
 	int ALL_OCCURRENCES= 3;
+
 	/**
-	 * The search result is only a read access to a field, it is not a write access.
+	 * When searching for field matches, it will exclusively find read accesses, as
+	 * opposed to write accesses. Note that some expressions are considered both
+	 * as field read/write accesses: e.g. x++; x+= 1;
+	 * 
+	 * @since 2.0
 	 */
-	int READ_REFERENCES = 4;
+	int READ_ACCESSES = 4;
+	
 	/**
-	 * The search result is only a write access to a field, it is not a read access.
+	 * When searching for field matches, it will exclusively find write accesses, as
+	 * opposed to read accesses. Note that some expressions are considered both
+	 * as field read/write accesses: e.g. x++; x+= 1;
+	 * 
+	 * @since 2.0
 	 */
-	int WRITE_REFERENCES = 5;
+	int WRITE_ACCESSES = 5;
+	
+	/** 
+	 * @deprecated - use READ_ACCESSES instead (will be discarded before 2.0)
+	 * @since 2.0
+	 */
+	int READ_REFERENCES = READ_ACCESSES;
+	/** 
+	 * @deprecated - use WRITE_ACCESSES instead (will be discarded before 2.0)
+	 * @since 2.0
+	 */
+	int WRITE_REFERENCES = WRITE_ACCESSES;
 
 	/* Syntactic match modes */
 	

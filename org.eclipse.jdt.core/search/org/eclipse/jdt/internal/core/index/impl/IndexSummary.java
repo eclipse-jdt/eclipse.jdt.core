@@ -19,12 +19,12 @@ public class IndexSummary {
 	/**
 	 * First file for each block.
 	 */
-	protected Vector firstFilesInBlocks= new Vector();
+	protected ArrayList firstFilesInBlocks= new ArrayList();
 
 	/**
 	 * First word for each block.
 	 */
-	protected Vector firstWordsInBlocks= new Vector();
+	protected ArrayList firstWordsInBlocks= new ArrayList();
 
 	/**
 	 * Number of files in the index.
@@ -58,7 +58,7 @@ public class IndexSummary {
 		FirstFileInBlock entry= new FirstFileInBlock();
 		entry.indexedFile= indexedFile;
 		entry.blockNum= blockNum;
-		firstFilesInBlocks.addElement(entry);
+		firstFilesInBlocks.add(entry);
 	}
 	/**
 	 * Adds the given word as the first word for the given Block number. 
@@ -71,7 +71,7 @@ public class IndexSummary {
 		FirstWordInBlock entry= new FirstWordInBlock();
 		entry.word= word;
 		entry.blockNum= blockNum;
-		firstWordsInBlocks.addElement(entry);
+		firstWordsInBlocks.add(entry);
 	}
 	/**
 	 * Returns the numbers of all the blocks
@@ -81,12 +81,12 @@ public class IndexSummary {
 		int max = firstWordsInBlocks.size();
 		int[] blockNums = new int[max];
 		for (int i = 0; i < max; i++){
-			blockNums[i] = ((FirstWordInBlock)firstWordsInBlocks.elementAt(i)).blockNum;
+			blockNums[i] = ((FirstWordInBlock)firstWordsInBlocks.get(i)).blockNum;
 		}
 		return blockNums;
 	}
 public int getBlockNum(int blockLocation) {
-	return ((FirstWordInBlock) firstWordsInBlocks.elementAt(blockLocation)).blockNum;
+	return ((FirstWordInBlock) firstWordsInBlocks.get(blockLocation)).blockNum;
 }
 	/**
 	 * Returns the number of the Block containing the file with the given number. 
@@ -96,7 +96,7 @@ public int getBlockNum(int blockLocation) {
 		int max= firstFilesInBlocks.size() - 1;
 		while (min <= max) {
 			int mid= (min + max) / 2;
-			FirstFileInBlock entry= (FirstFileInBlock) firstFilesInBlocks.elementAt(mid);
+			FirstFileInBlock entry= (FirstFileInBlock) firstFilesInBlocks.get(mid);
 			int compare= fileNum - entry.indexedFile.getFileNumber();
 			if (compare == 0)
 				return entry.blockNum;
@@ -107,7 +107,7 @@ public int getBlockNum(int blockLocation) {
 		}
 		if (max < 0)
 			return -1;
-		FirstFileInBlock entry= (FirstFileInBlock) firstFilesInBlocks.elementAt(max);
+		FirstFileInBlock entry= (FirstFileInBlock) firstFilesInBlocks.get(max);
 		return entry.blockNum;
 	}
 	/**
@@ -118,7 +118,7 @@ public int getBlockNum(int blockLocation) {
 		int max= firstWordsInBlocks.size() - 1;
 		while (min <= max) {
 			int mid= (min + max) / 2;
-			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(mid);
+			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(mid);
 			int compare= Util.compare(word, entry.word);
 			if (compare == 0)
 				return entry.blockNum;
@@ -129,7 +129,7 @@ public int getBlockNum(int blockLocation) {
 		}
 		if (max < 0)
 			return -1;
-		FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(max);
+		FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(max);
 		return entry.blockNum;
 	}
 	public int[] getBlockNumsForPrefix(char[] prefix) {
@@ -139,7 +139,7 @@ public int getBlockNum(int blockLocation) {
 		int match= -1;
 		while (min <= max && match < 0) {
 			int mid= (min + max) / 2;
-			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(mid);
+			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(mid);
 			int compare= Util.startsWith(entry.word, prefix);
 			if (compare == 0) {
 				match= mid;
@@ -159,7 +159,7 @@ public int getBlockNum(int blockLocation) {
 		int firstBlock= match - 1;
 		// Look if previous blocks are affected
 		for (; firstBlock >= 0; firstBlock--) {
-			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(firstBlock);
+			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(firstBlock);
 			if (!CharOperation.startsWith(entry.word, prefix))
 				break;
 		}
@@ -169,7 +169,7 @@ public int getBlockNum(int blockLocation) {
 		// Look if next blocks are affected
 		int firstNotIncludedBlock= match + 1;
 		for (; firstNotIncludedBlock < size; firstNotIncludedBlock++) {
-			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(firstNotIncludedBlock);
+			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(firstNotIncludedBlock);
 			if (!CharOperation.startsWith(entry.word, prefix))
 				break;
 		}
@@ -178,7 +178,7 @@ public int getBlockNum(int blockLocation) {
 		int[] result= new int[numberOfBlocks];
 		int pos= firstBlock;
 		for (int i= 0; i < numberOfBlocks; i++, pos++) {
-			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(pos);
+			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(pos);
 			result[i]= entry.blockNum;
 		}
 		return result;
@@ -190,7 +190,7 @@ public int getFirstBlockLocationForPrefix(char[] prefix) {
 	int match = -1;
 	while (min <= max) {
 		int mid = (min + max) / 2;
-		FirstWordInBlock entry = (FirstWordInBlock) firstWordsInBlocks.elementAt(mid);
+		FirstWordInBlock entry = (FirstWordInBlock) firstWordsInBlocks.get(mid);
 		int compare = Util.startsWith(entry.word, prefix);
 		if (compare == 0) {
 			match = mid;
@@ -211,7 +211,7 @@ public int getFirstBlockLocationForPrefix(char[] prefix) {
 	} else {
 		// look for possible matches inside previous blocks
 		while (match > 0){
-			FirstWordInBlock entry = (FirstWordInBlock) firstWordsInBlocks.elementAt(match);
+			FirstWordInBlock entry = (FirstWordInBlock) firstWordsInBlocks.get(match);
 			if (!CharOperation.startsWith(entry.word, prefix)){
 				break;
 			}
@@ -232,7 +232,7 @@ public int getFirstBlockLocationForPrefix(char[] prefix) {
  */
 public int getNextBlockLocationForPrefix(char[] prefix, int blockLoc) {
 	if (++blockLoc < firstWordsInBlocks.size()){
-		FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(blockLoc);
+		FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(blockLoc);
 		if (CharOperation.startsWith(entry.word, prefix)) return blockLoc;
 	}
 	return -1;
@@ -263,14 +263,14 @@ public int getNextBlockLocationForPrefix(char[] prefix, int blockLoc) {
 			int fileNum= raf.readInt();
 			entry.indexedFile= new IndexedFile(path, fileNum);
 			entry.blockNum= raf.readInt();
-			firstFilesInBlocks.addElement(entry);
+			firstFilesInBlocks.add(entry);
 		}
 		int numFirstWords= raf.readInt();
 		for (int i= 0; i < numFirstWords; ++i) {
 			FirstWordInBlock entry= new FirstWordInBlock();
 			entry.word= raf.readUTF().toCharArray();
 			entry.blockNum= raf.readInt();
-			firstWordsInBlocks.addElement(entry);
+			firstWordsInBlocks.add(entry);
 		}
 	}
 	/**
@@ -297,14 +297,14 @@ public int getNextBlockLocationForPrefix(char[] prefix, int blockLoc) {
 		raf.writeInt(firstWordBlockNum);
 		raf.writeInt(firstFilesInBlocks.size());
 		for (int i= 0, size= firstFilesInBlocks.size(); i < size; ++i) {
-			FirstFileInBlock entry= (FirstFileInBlock) firstFilesInBlocks.elementAt(i);
+			FirstFileInBlock entry= (FirstFileInBlock) firstFilesInBlocks.get(i);
 			raf.writeUTF(entry.indexedFile.getPath());
 			raf.writeInt(entry.indexedFile.getFileNumber());
 			raf.writeInt(entry.blockNum);
 		}
 		raf.writeInt(firstWordsInBlocks.size());
 		for (int i= 0, size= firstWordsInBlocks.size(); i < size; ++i) {
-			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.elementAt(i);
+			FirstWordInBlock entry= (FirstWordInBlock) firstWordsInBlocks.get(i);
 			raf.writeUTF(new String(entry.word));
 			raf.writeInt(entry.blockNum);
 		}

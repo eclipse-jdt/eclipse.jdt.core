@@ -57,6 +57,12 @@ public char[] getMainTypeName() {
 	return fSourceEntry.getName().toCharArray();
 }
 /**
+ * @see ICompilationUnit
+ */
+public char[][] getPackageName() {
+	return null;
+}
+/**
  * Returns the source entry
  */
 public SourceEntry getSourceEntry() {

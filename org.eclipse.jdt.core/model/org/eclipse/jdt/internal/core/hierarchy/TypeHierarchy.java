@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.search.*;
 
@@ -33,17 +34,18 @@ import java.util.zip.ZipFile;
  * @see ITypeHierarchy
  */
 public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
+	public static boolean DEBUG = false;
 	/**
 	 * The type the hierarchy was specifically computed for,
 	 * possibly null.
 	 */
 	protected IType fType;
 
-	protected Hashtable fClassToSuperclass;
-	protected Hashtable fTypeToSuperInterfaces;
-	protected Hashtable fTypeToSubtypes;
+	protected Map fClassToSuperclass;
+	protected Map fTypeToSuperInterfaces;
+	protected Map fTypeToSubtypes;
 	protected TypeVector fRootClasses= new TypeVector();
-	protected Vector fInterfaces= new Vector(10);
+	protected ArrayList fInterfaces= new ArrayList(10);
 	
 	protected static final IType[] fgEmpty= new IType[0];
 	
@@ -55,14 +57,14 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	/**
 	 * Change listeners - null if no one is listening.
 	 */
-	protected Vector fChangeListeners= null;
+	protected ArrayList fChangeListeners= null;
 
 	/**
 	 * A set of the compilation units and class
 	 * files that are considered in this hierarchy. Null if
 	 * not activated.
 	 */
-	protected Hashtable files= null;
+	protected Map files= null;
 
 	/**
 	 * A region describing the packages considered by this
@@ -119,7 +121,7 @@ public TypeHierarchy(IType type, IJavaSearchScope scope, boolean computeSubtypes
 protected void activate() {
 
 	// determine my file, package, root, & project regions.
-	this.files = new Hashtable(5);
+	this.files = new HashMap(5);
 	fProjectRegion = new Region();
 	fPackageRegion = new Region();
 	fRootRegion = new Region();
@@ -143,14 +145,14 @@ protected void activate() {
 	fIsActivated = true;
 }
 /**
- * Adds all of the elements in the collection to the vector if the
- * element is not already in the vector.
+ * Adds all of the elements in the collection to the list if the
+ * element is not already in the list.
  */
-private void addAllCheckingDuplicates(Vector vector, IType[] collection) {
+private void addAllCheckingDuplicates(ArrayList list, IType[] collection) {
 	for (int i = 0; i < collection.length; i++) {
 		IType element = collection[i];
-		if (!vector.contains(element)) {
-			vector.addElement(element);
+		if (!list.contains(element)) {
+			list.add(element);
 		}
 	}
 }
@@ -158,7 +160,7 @@ private void addAllCheckingDuplicates(Vector vector, IType[] collection) {
  * Adds the type to the collection of interfaces.
  */
 protected void addInterface(IType type) {
-	fInterfaces.addElement(type);
+	fInterfaces.add(type);
 }
 /**
  * Adds the type to the collection of root classes
@@ -186,7 +188,7 @@ protected void addSubtype(IType type, IType subtype) {
  */
 public void addTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener) {
 	if (fChangeListeners == null) {
-		fChangeListeners= new Vector();
+		fChangeListeners= new ArrayList();
 		// fix for 1FW67PA
 		if (fExists) {
 			activate();
@@ -194,7 +196,7 @@ public void addTypeHierarchyChangedListener(ITypeHierarchyChangedListener listen
 	}
 	// add listener only if it is not already present
 	if (fChangeListeners.indexOf(listener) == -1) {
-		fChangeListeners.addElement(listener);
+		fChangeListeners.add(listener);
 	}
 }
 /**
@@ -237,7 +239,7 @@ protected void checkCanceled() {
  * Compute this type hierarchy.
  */
 protected void compute() throws JavaModelException, CoreException {
-	if (JavaModelManager.ENABLE_INDEXING && fType != null) {
+	if (fType != null) {
 		HierarchyBuilder builder = 
 			new IndexBasedHierarchyBuilder(
 				this, 
@@ -258,11 +260,7 @@ public boolean contains(IType type) {
 	if (fRootClasses.contains(type)) return true;
 
 	// interfaces
-	for (Enumeration enum = fInterfaces.elements(); enum.hasMoreElements();) {
-		if (enum.nextElement().equals(type)) {
-			return true;
-		}
-	}
+	if (fInterfaces.contains(type)) return true;
 	
 	return false;
 }
@@ -285,15 +283,15 @@ protected void deactivate() {
  */
 protected void destroy() {
 	fExists = false;
-	fClassToSuperclass = new Hashtable(1);
-	this.files = new Hashtable(5);
-	fInterfaces = new Vector(0);
+	fClassToSuperclass = new HashMap(1);
+	this.files = new HashMap(5);
+	fInterfaces = new ArrayList(0);
 	fPackageRegion = new Region();
 	fProjectRegion = new Region();
 	fRootClasses = new TypeVector();
 	fRootRegion = new Region();
-	fTypeToSubtypes = new Hashtable(1);
-	fTypeToSuperInterfaces = new Hashtable(1);
+	fTypeToSubtypes = new HashMap(1);
+	fTypeToSuperInterfaces = new HashMap(1);
 	JavaModelManager.getJavaModelManager().removeElementChangedListener(this);
 }
 /**
@@ -337,9 +335,12 @@ protected void fireChange() {
 	if (fChangeListeners == null) {
 		return;
 	}
-	Vector listeners= (Vector)fChangeListeners.clone();
+	if (DEBUG) {
+		System.out.println("FIRING hierarchy change for hierarchy focused on " + ((JavaElement)fType).toStringWithAncestors()); //$NON-NLS-1$
+	}
+	ArrayList listeners= (ArrayList)fChangeListeners.clone();
 	for (int i= 0; i < listeners.size(); i++) {
-		ITypeHierarchyChangedListener listener= (ITypeHierarchyChangedListener)listeners.elementAt(i);
+		ITypeHierarchyChangedListener listener= (ITypeHierarchyChangedListener)listeners.get(i);
 		// ensure the listener is still a listener
 		if (fChangeListeners != null  && fChangeListeners.indexOf(listener) >= 0) {
 			listener.typeHierarchyChanged(this);
@@ -350,10 +351,10 @@ protected void fireChange() {
  * @see ITypeHierarchy
  */
 public IType[] getAllClasses() {
-	Enumeration keys = fClassToSuperclass.keys();
+
 	TypeVector classes = fRootClasses.copy();
-	while (keys.hasMoreElements()) {
-		classes.add((IType)keys.nextElement());
+	for (Iterator iter = this.fClassToSuperclass.keySet().iterator(); iter.hasNext();){
+		classes.add((IType)iter.next());
 	}
 	return classes.elements();
 }
@@ -362,7 +363,7 @@ public IType[] getAllClasses() {
  */
 public IType[] getAllInterfaces() {
 	IType[] collection= new IType[fInterfaces.size()];
-	fInterfaces.copyInto(collection);
+	fInterfaces.toArray(collection);
 	return collection;
 }
 /**
@@ -375,20 +376,20 @@ public IType[]  getAllSubtypes(IType type) {
  * @see getAllSubtypes(IType)
  */
 private IType[] getAllSubtypesForType(IType type) {
-	Vector subTypes = new Vector();
+	ArrayList subTypes = new ArrayList();
 	getAllSubtypesForType0(type, subTypes);
 	IType[] subClasses = new IType[subTypes.size()];
-	subTypes.copyInto(subClasses);
+	subTypes.toArray(subClasses);
 	return subClasses;
 }
 /**
  */
-private void getAllSubtypesForType0(IType type, Vector subs) {
+private void getAllSubtypesForType0(IType type, ArrayList subs) {
 	IType[] subTypes = getSubtypesForType(type);
 	if (subTypes.length != 0) {
 		for (int i = 0; i < subTypes.length; i++) {
 			IType subType = subTypes[i];
-			subs.addElement(subType);
+			subs.add(subType);
 			getAllSubtypesForType0(subType, subs);
 		}
 	}
@@ -409,16 +410,16 @@ public IType[] getAllSuperclasses(IType type) {
  * @see ITypeHierarchy
  */
 public IType[] getAllSuperInterfaces(IType type) {
-	Vector supers = new Vector();
+	ArrayList supers = new ArrayList();
 	if (fTypeToSuperInterfaces.get(type) == null) {
 		return fgEmpty;
 	}
 	getAllSuperInterfaces0(type, supers);
 	IType[] superinterfaces = new IType[supers.size()];
-	supers.copyInto(superinterfaces);
+	supers.toArray(superinterfaces);
 	return superinterfaces;
 }
-private void getAllSuperInterfaces0(IType type, Vector supers) {
+private void getAllSuperInterfaces0(IType type, ArrayList supers) {
 	IType[] superinterfaces = (IType[]) fTypeToSuperInterfaces.get(type);
 	if (superinterfaces != null && superinterfaces.length != 0) {
 		addAllCheckingDuplicates(supers, superinterfaces);
@@ -435,16 +436,16 @@ private void getAllSuperInterfaces0(IType type, Vector supers) {
  * @see ITypeHierarchy
  */
 public IType[] getAllSupertypes(IType type) {
-	Vector supers = new Vector();
+	ArrayList supers = new ArrayList();
 	if (fTypeToSuperInterfaces.get(type) == null) {
 		return fgEmpty;
 	}
 	getAllSupertypes0(type, supers);
 	IType[] supertypes = new IType[supers.size()];
-	supers.copyInto(supertypes);
+	supers.toArray(supertypes);
 	return supertypes;
 }
-private void getAllSupertypes0(IType type, Vector supers) {
+private void getAllSupertypes0(IType type, ArrayList supers) {
 	IType[] superinterfaces = (IType[]) fTypeToSuperInterfaces.get(type);
 	if (superinterfaces != null && superinterfaces.length != 0) {
 		addAllCheckingDuplicates(supers, superinterfaces);
@@ -454,7 +455,7 @@ private void getAllSupertypes0(IType type, Vector supers) {
 	}
 	IType superclass = (IType) fClassToSuperclass.get(type);
 	if (superclass != null) {
-		supers.addElement(superclass);
+		supers.add(superclass);
 		getAllSupertypes0(superclass, supers);
 	}
 }
@@ -489,10 +490,10 @@ public IType[] getExtendingInterfaces(IType type) {
  * @see getExtendingInterfaces
  */
 private IType[] getExtendingInterfaces0(IType interfce) {
-	Enumeration keys = fTypeToSuperInterfaces.keys();
-	Vector xers = new Vector();
-	while (keys.hasMoreElements()) {
-		IType type = (IType) keys.nextElement();
+	Iterator iter = fTypeToSuperInterfaces.keySet().iterator();
+	ArrayList xers = new ArrayList();
+	while (iter.hasNext()) {
+		IType type = (IType) iter.next();
 		try {
 			if (type.isClass()) {
 				continue;
@@ -505,13 +506,13 @@ private IType[] getExtendingInterfaces0(IType interfce) {
 			for (int i = 0; i < interfaces.length; i++) {
 				IType iFace = interfaces[i];
 				if (iFace.equals(interfce)) {
-					xers.addElement(type);
+					xers.add(type);
 				}
 			}
 		}
 	}
 	IType[] extenders = new IType[xers.size()];
-	xers.copyInto(extenders);
+	xers.toArray(extenders);
 	return extenders;
 }
 /**
@@ -532,10 +533,11 @@ public IType[] getImplementingClasses(IType type) {
  * @see getImplementingClasses
  */
 private IType[] getImplementingClasses0(IType interfce) {
-	Enumeration keys = fTypeToSuperInterfaces.keys();
-	Vector iMenters = new Vector();
-	while (keys.hasMoreElements()) {
-		IType type = (IType) keys.nextElement();
+	
+	Iterator iter = fTypeToSuperInterfaces.keySet().iterator();
+	ArrayList iMenters = new ArrayList();
+	while (iter.hasNext()) {
+		IType type = (IType) iter.next();
 		try {
 			if (type.isInterface()) {
 				continue;
@@ -547,12 +549,12 @@ private IType[] getImplementingClasses0(IType interfce) {
 		for (int i = 0; i < interfaces.length; i++) {
 			IType iFace = interfaces[i];
 			if (iFace.equals(interfce)) {
-				iMenters.addElement(type);
+				iMenters.add(type);
 			}
 		}
 	}
 	IType[] implementers = new IType[iMenters.size()];
-	iMenters.copyInto(implementers);
+	iMenters.toArray(implementers);
 	return implementers;
 }
 /**
@@ -753,9 +755,9 @@ protected void initialize(int size) {
 		size = 10;
 	}
 	int smallSize = (size / 2);
-	fClassToSuperclass = new Hashtable(size);
-	fTypeToSubtypes = new Hashtable(smallSize);
-	fTypeToSuperInterfaces = new Hashtable(smallSize);
+	fClassToSuperclass = new HashMap(size);
+	fTypeToSubtypes = new HashMap(smallSize);
+	fTypeToSuperInterfaces = new HashMap(smallSize);
 }
 /**
  * Returns true if this hierarchy is actively tracking changes
@@ -1028,43 +1030,14 @@ protected boolean packageRegionContainsSamePackageFragment(IJavaElement element)
 	}
 	return false;
 }
-/**
- * Prunes this type hierarchy to only contain the branch to the given type,
- * and its subtree. Pruning is only done for classes.
- */
-protected void pruneTypeHierarchy(IType type, IProgressMonitor monitor) throws JavaModelException {
-	if (type.isClass()) {
-		IType[] supers= getAllSuperclasses(type);
-		
-		if (supers.length == 0) {
-			// nothing to prune if this is a root - unless there are other roots
-			return;
-		}
-		
-		IType[] branch= new IType[supers.length + 1];
-		System.arraycopy(supers, 0, branch, 1, supers.length);
-		branch[0]= type;
-		// Branch is a list from the root to our type
-		// Walk the branch pruning all other subtrees
-		for (int i= branch.length - 1; i > 0; i--) {
-			IType[] subtrees= getSubtypes(branch[i]);
-			for (int j= 0; j < subtrees.length; j++) {
-				if (!subtrees[j].equals(branch[i - 1])) {
-					removeType(subtrees[j]);
-				}
-				this.worked(1);
-			}
-			fTypeToSubtypes.put(branch[i], new TypeVector(branch[i - 1]));
-		}
-	}
-}
+
 /**
  * @see ITypeHierarchy
  */
 public void refresh(IProgressMonitor monitor) throws JavaModelException {
 	try {
 		boolean reactivate = isActivated();
-		Vector listeners = fChangeListeners;
+		ArrayList listeners = fChangeListeners;
 		if (reactivate) {
 			deactivate();
 		}
@@ -1072,11 +1045,15 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		if (monitor != null) {
 			monitor.beginTask(Util.bind("hierarchy.creating"), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
 		}
-		compute();
-		if (fType != null) {
-			//prune the hierarchy tree to only include branch and subtree for the type
-			pruneTypeHierarchy(fType, monitor);
+		long start = -1;
+		if (DEBUG) {
+			start = System.currentTimeMillis();
+			System.out.println("CREATING TYPE HIERARCHY [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (fType != null) {
+				System.out.println("  on type " + ((JavaElement)fType).toStringWithAncestors()); //$NON-NLS-1$
+			}
 		}
+		compute();
 		if (reactivate) {
 			activate();
 			fChangeListeners = listeners;
@@ -1085,6 +1062,9 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 			monitor.done();
 		}
 		fProgressMonitor = null;
+		if (DEBUG) {
+			System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	} catch (JavaModelException e) {
 		fProgressMonitor = null;
 		throw e;
@@ -1125,7 +1105,7 @@ public void removeTypeHierarchyChangedListener(ITypeHierarchyChangedListener lis
 	if (fChangeListeners == null) {
 		return;
 	}
-	fChangeListeners.removeElement(listener);
+	fChangeListeners.remove(listener);
 	if (fChangeListeners.isEmpty()) {
 		deactivate();
 	}
@@ -1211,7 +1191,8 @@ private void toString(StringBuffer buffer, IType type, int indent, boolean ascen
 	for (int i= 0; i < indent; i++) {
 		buffer.append("  "); //$NON-NLS-1$
 	}
-	buffer.append(type.getFullyQualifiedName());
+	JavaElement element = (JavaElement)type;
+	buffer.append(element.toStringWithAncestors());
 	buffer.append('\n');
 
 	IType[] types= ascendant ? getSupertypes(type) : getSubtypes(type);
@@ -1226,9 +1207,8 @@ private void toString(StringBuffer buffer, IType type, int indent, boolean ascen
  */
 private boolean typeHasSupertype(IType type) {
 	String simpleName = type.getElementName();
-	Enumeration enum = fClassToSuperclass.elements();
-	while (enum.hasMoreElements()) {
-		IType superType = (IType)enum.nextElement();
+	for(Iterator iter = fClassToSuperclass.values().iterator(); iter.hasNext();){
+		IType superType = (IType)iter.next();
 		if (superType.getElementName().equals(simpleName)) {
 			return true;
 		}

@@ -51,8 +51,6 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	this.currentProject = getProject();
 	if (currentProject == null || !currentProject.exists()) return new IProject[0];
 
-	if (DEBUG)
-		System.out.println("\nStarting build of " + currentProject.getName()); //$NON-NLS-1$
 	this.notifier = new BuildNotifier(monitor, currentProject);
 	notifier.begin();
 	boolean ok = false;
@@ -106,6 +104,9 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 }
 
 private void buildAll() {
+	if (DEBUG)
+		System.out.println("\nFULL build of: " + currentProject.getName()); //$NON-NLS-1$
+
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	clearLastState();
 	BatchImageBuilder imageBuilder = new BatchImageBuilder(this);
@@ -114,6 +115,9 @@ private void buildAll() {
 }
 
 private void buildDeltas(SimpleLookupTable deltas) {
+	if (DEBUG)
+		System.out.println("\nINCREMENTAL build of: " + currentProject.getName()); //$NON-NLS-1$
+
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
 	if (imageBuilder.build(deltas))

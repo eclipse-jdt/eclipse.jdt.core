@@ -36,6 +36,7 @@ public class HierarchyResolver implements ITypeRequestor {
 	private IGenericType[] typeModels;
 	private ReferenceBinding[] typeBindings;
 	private ReferenceBinding focusType;
+	private CompilerOptions options;
 	
 public HierarchyResolver(
 	INameEnvironment nameEnvironment,
@@ -45,7 +46,7 @@ public HierarchyResolver(
 	IProblemFactory problemFactory) {
 
 	// create a problem handler given a handling policy
-	CompilerOptions options = settings == null ? new CompilerOptions() : new CompilerOptions(settings);
+	options = settings == null ? new CompilerOptions() : new CompilerOptions(settings);
 	ProblemReporter problemReporter = new ProblemReporter(policy, options, problemFactory);
 	this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, nameEnvironment);
 	this.requestor = requestor;
@@ -54,11 +55,11 @@ public HierarchyResolver(
 	this.typeModels = new IGenericType[5];
 	this.typeBindings = new ReferenceBinding[5];
 }
-public HierarchyResolver(INameEnvironment nameEnvironment, IHierarchyRequestor requestor, IProblemFactory problemFactory) {
+public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, IHierarchyRequestor requestor, IProblemFactory problemFactory) {
 	this(
 		nameEnvironment,
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(),
-		null,
+		settings,
 		requestor,
 		problemFactory);
 }
@@ -265,8 +266,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		for (int i = 0; i < sourceLength; i++){
 			ICompilationUnit sourceUnit = sourceUnits[i];
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
-			CompilerOptions options = new CompilerOptions();
-			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.assertMode);
+			Parser parser = new Parser(lookupEnvironment.problemReporter, true, options.assertMode);
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
 				units[suppliedLength+i] = parsedUnit;
@@ -348,10 +348,12 @@ public void resolve(IGenericType suppliedType) {
 }
 /**
  * Set the focus type (ie. the type that this resolver is computing the hierarch for.
+ * Returns the binding of this focus type or null if it could not be found.
  */
-public void setFocusType(char[][] compoundName) {
-	if (compoundName == null || this.lookupEnvironment == null) return;
+public ReferenceBinding setFocusType(char[][] compoundName) {
+	if (compoundName == null || this.lookupEnvironment == null) return null;
 	this.focusType = this.lookupEnvironment.askForType(compoundName);
+	if (this.focusType == null) return null;
 	
 	/* All siblings of the focus type were added (since this.focusType == null).
 	   Remove the ones that are not part of the hierarchy
@@ -365,7 +367,7 @@ public void setFocusType(char[][] compoundName) {
 	for (int i = 0; i <= typeIndex; i++) {
 		this.remember(typeModels[i], typeBindings[i]); // will skip types not part of the hierarchy
 	}
-	
+	return this.focusType;
 }
 private boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 	if (this.focusType == null) return true; // accept all types (case of hierarchy in a region)

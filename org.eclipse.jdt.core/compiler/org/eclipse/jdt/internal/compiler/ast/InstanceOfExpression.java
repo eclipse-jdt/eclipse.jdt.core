@@ -175,7 +175,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	codeStream.instance_of(type.binding);
 	if (!valueRequired)
 		codeStream.pop();
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;

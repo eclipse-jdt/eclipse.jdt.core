@@ -35,6 +35,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public static boolean DEBUG = false;
 	public int parseThreshold = -1;
 	// number of initial units parsed at once (-1: none)
+
+	/*
+	 * Static requestor reserved to listening compilation results in debug mode,
+	 * so as for example to monitor compiler activity independantly from a particular
+	 * builder implementation. It is reset at the end of compilation, and should not 
+	 * persist any information after having been reset.
+	 */
+	public static IDebugRequestor DebugRequestor = null;
+
 	/**
 	 * Answer a new compiler using the given name environment and compiler options.
 	 * The environment and options will be in effect for the lifetime of the compiler.
@@ -72,12 +81,25 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		INameEnvironment environment,
 		IErrorHandlingPolicy policy,
 		Map settings,
-		ICompilerRequestor requestor,
+		final ICompilerRequestor requestor,
 		IProblemFactory problemFactory) {
 
 		// create a problem handler given a handling policy
 		this.options = new CompilerOptions(settings);
-		this.requestor = requestor;
+		
+		// wrap requestor in DebugRequestor if one is specified
+		if(DebugRequestor == null) {
+			this.requestor = requestor;
+		} else {
+			this.requestor = new ICompilerRequestor(){
+				public void acceptResult(CompilationResult result){
+					if (DebugRequestor.isActive()){
+						DebugRequestor.acceptDebugResult(result);
+					}
+					requestor.acceptResult(result);
+				}
+			};
+		}
 		this.problemReporter =
 			new ProblemReporter(policy, this.options, problemFactory);
 		this.lookupEnvironment =
@@ -450,6 +472,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		lookupEnvironment.reset();
 		parser.scanner.source = null;
 		unitsToProcess = null;
+		if (DebugRequestor != null) DebugRequestor.reset();
 	}
 
 	/**

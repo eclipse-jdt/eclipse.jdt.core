@@ -11,8 +11,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.jdom.DOMException;
 import org.eclipse.jdt.core.jdom.IDOMField;
 import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.CharArrayOps;
 
@@ -373,16 +373,16 @@ protected char[] getSingleVariableDeclaratorContents() {
 				.append('=')
 				.append(fInitializer)
 				.append(';')
-				.append(JavaModelManager.LINE_SEPARATOR);
+				.append(Util.LINE_SEPARATOR);
 		} else {
 			buffer
 				.append(fDocument, fNameRange[1] + 1, fInitializerRange[0] - fNameRange[1] - 1)
 				.append(getInitializer())
 				.append(';')
-				.append(JavaModelManager.LINE_SEPARATOR);
+				.append(Util.LINE_SEPARATOR);
 		}
 	} else {
-		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append(';').append(Util.LINE_SEPARATOR);
 	}
 	return buffer.getContents();
 }

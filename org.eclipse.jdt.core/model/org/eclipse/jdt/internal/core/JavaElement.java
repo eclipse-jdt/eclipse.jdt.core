@@ -10,7 +10,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Root of Java element handle hierarchy.
@@ -65,6 +65,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected static JavaModelManager fgJavaModelManager = JavaModelManager.getJavaModelManager();
 	
+	protected static final Object NO_INFO = new Object();
+	
 /**
  * Constructs a handle for a java element of the specified type, with
  * the given parent element and name.
@@ -87,6 +89,7 @@ protected JavaElement(int type, IJavaElement parent, String name) throws Illegal
  * @see IOpenable
  */
 public void close() throws JavaModelException {
+
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
 		if (this instanceof IParent) {
@@ -104,6 +107,9 @@ public void close() throws JavaModelException {
  * This element is being closed.  Do any necessary cleanup.
  */
 protected void closing(Object info) throws JavaModelException {
+	if (JavaModelManager.VERBOSE){
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier());  //$NON-NLS-1$//$NON-NLS-2$
+	}
 }
 /**
  * Returns true if this handle represents the same Java element
@@ -160,12 +166,12 @@ public IDOMNode findNode(IDOMCompilationUnit dom) {
 		type == IJavaElement.METHOD || 
 		type == IJavaElement.PACKAGE_DECLARATION || 
 		type == IJavaElement.TYPE) {
-		Vector path = new Vector();
+		ArrayList path = new ArrayList();
 		IJavaElement element = this;
 		while (element != null && element.getElementType() != IJavaElement.COMPILATION_UNIT) {
 			if (element.getElementType() != IJavaElement.IMPORT_CONTAINER) {
 				// the DOM does not have import containers, so skip them
-				path.insertElementAt(element, 0);
+				path.add(0, element);
 			}
 			element = element.getParent();
 		}
@@ -180,14 +186,14 @@ public IDOMNode findNode(IDOMCompilationUnit dom) {
 				return null;
 			}
 		}
-		return ((JavaElement) path.elementAt(0)).followPath(path, 0, dom.getFirstChild());
+		return ((JavaElement) path.get(0)).followPath(path, 0, dom.getFirstChild());
 	} else {
 		return null;
 	}
 }
 /**
  */
-protected IDOMNode followPath(Vector path, int position, IDOMNode node) {
+protected IDOMNode followPath(ArrayList path, int position, IDOMNode node) {
 
 	try {
 		if (equalsDOMNode(node)) {
@@ -196,7 +202,7 @@ protected IDOMNode followPath(Vector path, int position, IDOMNode node) {
 			} else {
 				if (node.getFirstChild() != null) {
 					position++;
-					return ((JavaElement)path.elementAt(position)).followPath(path, position, node.getFirstChild());
+					return ((JavaElement)path.get(position)).followPath(path, position, node.getFirstChild());
 				} else {
 					return null;
 				}
@@ -223,17 +229,17 @@ public IJavaElement[] getChildren() throws JavaModelException {
  *
  * @param type - one of constants defined by IJavaLanguageElementTypes
  */
-public Vector getChildrenOfType(int type) throws JavaModelException {
+public ArrayList getChildrenOfType(int type) throws JavaModelException {
 	IJavaElement[] children = getChildren();
 	int size = children.length;
-	Vector v = new Vector(size);
+	ArrayList list = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
 		JavaElement elt = (JavaElement)children[i];
 		if (elt.getElementType() == type) {
-			v.addElement(elt);
+			list.add(elt);
 		}
 	}
-	return v;
+	return list;
 }
 /**
  * @see IMember
@@ -460,13 +466,13 @@ public void offsetSourceRange(int amount) {
  */
 protected void openHierarchy() throws JavaModelException {
 	if (this instanceof IOpenable) {
-		((Openable) this).openWhenClosed(null);
+		((Openable) this).openWhenClosed(null, null);
 	} else {
 		Openable openableParent = (Openable)getOpenableParent();
 		if (openableParent != null) {
 			JavaElementInfo openableParentInfo = (JavaElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
 			if (openableParentInfo == null) {
-				openableParent.openWhenClosed(null);
+				openableParent.openWhenClosed(null, null);
 			} else {
 				throw newNotPresentException();
 			}
@@ -502,6 +508,10 @@ protected void removeInfo() {
 	}
 }
 /**
+ * Returns a copy of this element rooted at the given project.
+ */
+public abstract IJavaElement rootedAt(IJavaProject project);
+/**
  * Runs a Java Model Operation
  */
 protected void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
@@ -522,10 +532,9 @@ protected String tabString(int tab) {
 /**
  * @private Debugging purposes
  */
-protected String toDebugString() {
+public String toDebugString() {
 	StringBuffer buffer = new StringBuffer();
-	Object info = fgJavaModelManager.getInfo(this);
-	this.toStringInfo(0, buffer, info);
+	this.toStringInfo(0, buffer, NO_INFO);
 	return buffer.toString();
 }
 /**
@@ -551,12 +560,20 @@ protected void toString(int tab, StringBuffer buffer) {
 /**
  * @private Debugging purposes
  */
+public String toStringWithAncestors() {
+	StringBuffer buffer = new StringBuffer();
+	this.toStringInfo(0, buffer, NO_INFO);
+	this.toStringAncestors(buffer);
+	return buffer.toString();
+}
+/**
+ * @private Debugging purposes
+ */
 protected void toStringAncestors(StringBuffer buffer) {
 	JavaElement parent = (JavaElement)this.getParent();
-	if (parent != null) {
+	if (parent != null && parent.getParent() != null) {
 		buffer.append(" [in "); //$NON-NLS-1$
-		Object parentInfo = fgJavaModelManager.getInfo(parent);
-		parent.toStringInfo(0, buffer, parentInfo);
+		parent.toStringInfo(0, buffer, NO_INFO);
 		parent.toStringAncestors(buffer);
 		buffer.append("]"); //$NON-NLS-1$
 	}

@@ -75,7 +75,7 @@ public class OR_OR_Expression extends BinaryExpression {
 		if (constant != Constant.NotAConstant) {
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		bits |= OnlyValueRequiredMASK;
@@ -108,7 +108,7 @@ public class OR_OR_Expression extends BinaryExpression {
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class OR_OR_Expression extends BinaryExpression {
 						valueRequired);
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
@@ -224,7 +224,7 @@ public class OR_OR_Expression extends BinaryExpression {
 					falseLabel,
 					false);
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
@@ -268,7 +268,7 @@ public class OR_OR_Expression extends BinaryExpression {
 				// no implicit fall through TRUE/FALSE --> should never occur
 			}
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,

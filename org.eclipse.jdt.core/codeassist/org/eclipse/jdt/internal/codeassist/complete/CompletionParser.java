@@ -76,10 +76,6 @@ public class CompletionParser extends AssistParser {
 	int lastModifiers = AccDefault;
 	int lastModifiersStart = -1;
 	
-/** @deprecated - should use constructor with assertMode */
-public CompletionParser(ProblemReporter problemReporter) {
-	this(problemReporter, false/*no assertion by default*/);
-}
 public CompletionParser(ProblemReporter problemReporter, boolean assertMode) {
 	super(problemReporter, assertMode);
 }
@@ -98,7 +94,7 @@ protected void attachOrphanCompletionNode(){
 			if (recoveredType.foundOpeningBrace) {
 				/* generate a pseudo field with a completion on type reference */	
 				if (orphan instanceof TypeReference){
-					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan);
+					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan, false);
 
 					// retrieve available modifiers if any
 					if (intPtr >= 2 && intStack[intPtr-1] == this.lastModifiersStart && intStack[intPtr-2] == this.lastModifiers){
@@ -119,7 +115,7 @@ protected void attachOrphanCompletionNode(){
 				//if (rParenPos < lParenPos){ // inside arguments
 				if (orphan instanceof TypeReference){
 					currentElement = currentElement.parent.add(
-						new CompletionOnFieldType((TypeReference)orphan), 0);
+						new CompletionOnFieldType((TypeReference)orphan, true), 0);
 					return;
 				}
 			}
@@ -578,6 +574,11 @@ protected void consumeConditionalExpression(int op) {
 protected void consumeConstructorBody() {
 	super.consumeConstructorBody();
 	this.labelCounterPtr--;
+	if (this.blockInvocationPtr >= 0) this.blockInvocationPtr--;
+}
+protected void consumeConstructorHeader() {
+	super.consumeConstructorHeader();
+	pushBlockInvocationPtr();
 }
 protected void consumeConstructorHeaderName() {
 
@@ -690,6 +691,12 @@ protected void consumeMethodHeaderName() {
 protected void consumeMethodBody() {
 	super.consumeMethodBody();
 	this.labelCounterPtr--;
+	if (this.blockInvocationPtr >= 0) this.blockInvocationPtr--;
+}
+
+protected void consumeMethodHeader() {
+	super.consumeMethodHeader();
+	pushBlockInvocationPtr();
 }
 protected void consumeModifiers() {
 	super.consumeModifiers();
@@ -812,7 +819,7 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLBRACKET:
 				this.betweenNewAndLeftBraket = false;
-				break;
+				break; 
 			case TokenNameRBRACE:
 				if (this.blockInvocationPtr >= 0) this.blockInvocationPtr--;
 				break;
@@ -1092,7 +1099,7 @@ public void recordCompletionOnReference(){
 		
 		/* generate a pseudo field with a completion on type reference */	
 		currentElement.add(
-			new CompletionOnFieldType(this.getTypeReference(0)), 0);
+			new CompletionOnFieldType(this.getTypeReference(0), false), 0);
 		return;
 	}
 	if (!diet) return; // only record references attached to types

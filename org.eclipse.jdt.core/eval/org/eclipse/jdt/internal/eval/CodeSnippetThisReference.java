@@ -47,7 +47,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.aload_0();
 		codeStream.getfield(delegateThis);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public boolean isSuperAccess(){
 	return false;

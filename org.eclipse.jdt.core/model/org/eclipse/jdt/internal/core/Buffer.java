@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 import java.io.*;
@@ -22,7 +23,7 @@ public class Buffer implements IBuffer {
 	protected IFile fFile;
 	protected int fFlags;
 	protected char[] fContents;
-	protected Vector fChangeListeners;
+	protected ArrayList fChangeListeners;
 	protected IOpenable fOwner;
 	protected int fGapStart= -1;
 	protected int fGapEnd= -1;
@@ -62,10 +63,10 @@ protected Buffer(BufferManager manager, IFile file, char[] contents, IOpenable o
  */
 public void addBufferChangedListener(IBufferChangedListener listener) {
 	if (fChangeListeners == null) {
-		fChangeListeners = new Vector(5);
+		fChangeListeners = new ArrayList(5);
 	}
 	if (!fChangeListeners.contains(listener)) {
-		fChangeListeners.addElement(listener);
+		fChangeListeners.add(listener);
 	}
 }
 /**
@@ -244,7 +245,7 @@ private String getLineSeparator(char[] text) {
 			this.lineSeparator = this.findLineSeparator(text);
 			if (this.lineSeparator == null) {
 				// default to system line separator
-				return JavaModelManager.LINE_SEPARATOR;
+				return Util.LINE_SEPARATOR;
 			}
 		}
 	}
@@ -416,7 +417,7 @@ private String normalizeCRs(String text) {
 protected void notifyChanged(BufferChangedEvent event) {
 	if (fChangeListeners != null) {
 		for (int i = 0, size = fChangeListeners.size(); i < size; ++i) {
-			IBufferChangedListener listener = (IBufferChangedListener) fChangeListeners.elementAt(i);
+			IBufferChangedListener listener = (IBufferChangedListener) fChangeListeners.get(i);
 			listener.bufferChanged(event);
 		}
 	}
@@ -426,7 +427,7 @@ protected void notifyChanged(BufferChangedEvent event) {
  */
 public void removeBufferChangedListener(IBufferChangedListener listener) {
 	if (fChangeListeners != null) {
-		fChangeListeners.removeElement(listener);
+		fChangeListeners.remove(listener);
 		if (fChangeListeners.size() == 0) {
 			fChangeListeners = null;
 		}

@@ -10,13 +10,18 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
-import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.builder.IPackage;
+import org.eclipse.jdt.internal.core.builder.impl.BatchImageBuilder;
+import org.eclipse.jdt.internal.core.builder.impl.BuilderEnvironment;
 import org.eclipse.jdt.internal.core.builder.impl.JavaBuilder;
+import org.eclipse.jdt.internal.core.builder.impl.PackageImpl;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
+import org.eclipse.jdt.internal.core.builder.impl.StateImpl;
+import org.eclipse.jdt.internal.core.newbuilder.NameEnvironment;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.eval.*;
 
@@ -52,6 +57,10 @@ public IGlobalVariable[] allVariables() {
  * Checks to ensure that there is a previously built state.
  */
 protected void checkBuilderState() throws JavaModelException {
+	
+	if (JavaModelManager.USING_NEW_BUILDER){
+		return;
+	}
 	if (!getProject().hasBuildState()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, Util.bind("eval.needBuiltState"))); //$NON-NLS-1$
 	}
@@ -59,7 +68,7 @@ protected void checkBuilderState() throws JavaModelException {
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete.
  */
-public void codeComplete(String codeSnippet, int position, ICodeCompletionRequestor requestor) throws JavaModelException {
+public void codeComplete(String codeSnippet, int position, ICompletionRequestor requestor) throws JavaModelException {
 	this.context.complete(
 		codeSnippet.toCharArray(),
 		position,
@@ -197,8 +206,24 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
  * Returns a name environment for the last built state.
  */
 protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
-	return JavaModelManager.getJavaModelManager().getNameEnvironment(getProject().getProject());
+	
+	if (JavaModelManager.USING_NEW_BUILDER){
+		return new NameEnvironment(getProject());
+	} else {
+		IProject project = getProject().getProject();
+		StateImpl state= (StateImpl) JavaModelManager.getJavaModelManager().getLastBuiltState(project, null);
+		if (state == null)
+			return null;
+		BuilderEnvironment env = new BuilderEnvironment(new BatchImageBuilder(state));
+		
+		// Fix for 1GB7PUI: ITPJCORE:WINNT - evaluation from type in default package
+		IPackage defaultPackage = state.getDevelopmentContext().getImage().getPackageHandle(PackageImpl.DEFAULT_PACKAGE_PREFIX + project.getName(), true);
+		env.setDefaultPackage(defaultPackage);
+		
+		return env;
+	}
 }
+
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#getImports
  */
@@ -283,5 +308,61 @@ public void setPackageName(String packageName) {
 public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelException {
 	checkBuilderState();
 	this.context.evaluateImports(getBuildNameEnvironment(), getInfrastructureEvaluationRequestor(requestor), getProblemFactory());
+}
+/**
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete.
+ * @deprecated - use codeComplete(String, int, ICompletionRequestor) instead
+ */
+public void codeComplete(String codeSnippet, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
+
+	if (requestor == null){
+		codeComplete(codeSnippet, position, (ICompletionRequestor)null);
+		return;
+	}
+	codeComplete(
+		codeSnippet,
+		position,
+		new ICompletionRequestor(){
+			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptError(IMarker marker) {
+				requestor.acceptError(marker);
+			}
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd){
+				requestor.acceptKeyword(keywordName, completionStart, completionEnd);
+			}
+			public void acceptLabel(char[] labelName,int completionStart,int completionEnd){
+				requestor.acceptLabel(labelName, completionStart, completionEnd);
+			}
+			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// skip parameter names
+				requestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptModifier(char[] modifierName,int completionStart,int completionEnd){
+				requestor.acceptModifier(modifierName, completionStart, completionEnd);
+			}
+			public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
+			}
+			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
+			}
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd){
+				// ignore
+			}
+		});
 }
 }

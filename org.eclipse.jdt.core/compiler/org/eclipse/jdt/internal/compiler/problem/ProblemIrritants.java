@@ -164,6 +164,8 @@ public interface ProblemIrritants { // max: 500
 	// syntax errors
 	final int InterfaceCannotHaveConstructors = Internal + 207;
 	final int ArrayConstantsOnlyInArrayInitializers = Internal + 208;
+	final int ParsingErrorOnKeyword = Internal + 209;	
+	final int ParsingErrorOnKeywordNoSuggestion = Internal + 210;
 
 	final int UnmatchedBracket = Internal + 220;
 	final int NoFieldOnBaseType = FieldRelated + 221;
@@ -211,6 +213,7 @@ public interface ProblemIrritants { // max: 500
 	final int PublicClassMustMatchFileName = TypeRelated + 325;
 	final int MustSpecifyPackage = 326;
 	final int HierarchyHasProblems = TypeRelated + 327;
+	final int PackageIsNotExpectedPackage = 328;
 	final int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
 
 	final int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included

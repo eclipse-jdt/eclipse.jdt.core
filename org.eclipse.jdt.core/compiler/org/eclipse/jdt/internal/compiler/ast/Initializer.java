@@ -38,7 +38,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	int pc = codeStream.position;
 	block.generateCode(currentScope, codeStream);
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public boolean isField() {
 	return false;

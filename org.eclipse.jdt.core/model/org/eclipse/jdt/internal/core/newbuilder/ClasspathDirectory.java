@@ -26,7 +26,7 @@ ClasspathDirectory(String binaryPath) {
 	this.directoryCache = new SimpleLookupTable(11);
 }
 
-void cleanup() {
+void clear() {
 	this.missingPackages = null;
 	this.directoryCache = null;
 }

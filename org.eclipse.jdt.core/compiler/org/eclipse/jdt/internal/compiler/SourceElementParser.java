@@ -85,7 +85,7 @@ public SourceElementParser(
 			requestor.acceptProblem(problem);
 		}
 	},
-	false,
+	true,
 	options.assertMode);
 	this.requestor = requestor;
 	typeNames = new char[4][];
@@ -93,6 +93,7 @@ public SourceElementParser(
 	nestedTypeIndex = 0;
 }
 
+/** @deprecated use SourceElementParser(ISourceElementRequestor, IProblemFactory, CompilerOptions) */
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory) {
@@ -102,8 +103,9 @@ public SourceElementParser(
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory,
+	CompilerOptions options,
 	boolean reportLocalDeclarations) {
-		this(requestor, problemFactory, new CompilerOptions());
+		this(requestor, problemFactory, options);
 		if (reportLocalDeclarations) {
 			this.localDeclarationVisitor = new LocalDeclarationVisitor();
 		}
@@ -295,7 +297,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	super.consumeSingleTypeImportDeclarationName();
 	ImportReference impt = (ImportReference)astStack[astPtr];
 	if (reportReferenceInfo) {
-		requestor.acceptTypeReference(impt.tokens, impt.sourceStart(), impt.sourceEnd());
+		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
 protected void consumeTypeImportOnDemandDeclarationName() {
@@ -306,7 +308,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	super.consumeTypeImportOnDemandDeclarationName();
 	ImportReference impt = (ImportReference)astStack[astPtr];
 	if (reportReferenceInfo) {
-		requestor.acceptUnknownReference(impt.tokens, impt.sourceStart(), impt.sourceEnd());
+		requestor.acceptUnknownReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
 protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
@@ -403,7 +405,7 @@ public TypeReference getTypeReference(int dim) {
 			if (dim == 0) {
 				QualifiedTypeReference ref = new QualifiedTypeReference(tokens, positions);
 				if (reportReferenceInfo) {
-					requestor.acceptTypeReference(ref.tokens, ref.sourceStart(), ref.sourceEnd());
+					requestor.acceptTypeReference(ref.tokens, ref.sourceStart, ref.sourceEnd);
 				}
 				return ref;
 			} else {
@@ -411,7 +413,7 @@ public TypeReference getTypeReference(int dim) {
 					new ArrayQualifiedTypeReference(tokens, dim, positions); 
 				ref.sourceEnd = endPosition;					
 				if (reportReferenceInfo) {
-					requestor.acceptTypeReference(ref.tokens, ref.sourceStart(), ref.sourceEnd());
+					requestor.acceptTypeReference(ref.tokens, ref.sourceStart, ref.sourceEnd);
 				}
 				return ref;
 			}
@@ -430,7 +432,6 @@ public NameReference getUnspecifiedReference() {
 				identifierPositionStack[identifierPtr--]); 
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
-//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	} else {
@@ -445,10 +446,6 @@ public NameReference getUnspecifiedReference() {
 				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
-/*			requestor.acceptUnknownReference(
-				ref.tokens, 
-				ref.sourceStart(), 
-				ref.sourceEnd()); */
 		}
 		return ref;
 	}
@@ -472,7 +469,6 @@ public NameReference getUnspecifiedReferenceOptimized() {
 		ref.bits |= LOCAL | FIELD;
 		if (reportReferenceInfo) {
 			this.addUnknownRef(ref);
-//			requestor.acceptUnknownReference(ref.token, ref.sourceStart());
 		}
 		return ref;
 	}
@@ -496,10 +492,6 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	ref.bits |= LOCAL | FIELD;
 	if (reportReferenceInfo) {
 		this.addUnknownRef(ref);
-/*		requestor.acceptUnknownReference(
-			ref.tokens, 
-			ref.sourceStart(), 
-			ref.sourceEnd());*/
 	}
 	return ref;
 }
@@ -606,32 +598,32 @@ private void notifyAllUnknownReferences() {
 				// variable but not type
 				if (nameRef instanceof SingleNameReference) { 
 					// local var or field
-					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
 				} else {
 					// QualifiedNameReference
 					// The last token is a field reference and the previous tokens are a type/variable references
 					char[][] tokens = ((QualifiedNameReference) nameRef).tokens;
 					int tokensLength = tokens.length;
-					requestor.acceptFieldReference(tokens[tokensLength - 1], nameRef.sourceEnd() - tokens[tokensLength - 1].length + 1);
+					requestor.acceptFieldReference(tokens[tokensLength - 1], nameRef.sourceEnd - tokens[tokensLength - 1].length + 1);
 					char[][] typeRef = new char[tokensLength - 1][];
 					System.arraycopy(tokens, 0, typeRef, 0, tokensLength - 1);
-					requestor.acceptUnknownReference(typeRef, nameRef.sourceStart(), nameRef.sourceEnd() - tokens[tokensLength - 1].length);
+					requestor.acceptUnknownReference(typeRef, nameRef.sourceStart, nameRef.sourceEnd - tokens[tokensLength - 1].length);
 				}
 			} else {
 				// variable or type
 				if (nameRef instanceof SingleNameReference) {
-					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
 				} else {
 					//QualifiedNameReference
-					requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
+					requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
 				}
 			}
 		} else if ((nameRef.bits & BindingIds.TYPE) != 0) {
 			if (nameRef instanceof SingleNameReference) {
-				requestor.acceptTypeReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+				requestor.acceptTypeReference(((SingleNameReference) nameRef).token, nameRef.sourceStart);
 			} else {
 				// it is a QualifiedNameReference
-				requestor.acceptTypeReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
+				requestor.acceptTypeReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart, nameRef.sourceEnd);
 			}
 		}
 	}
@@ -1070,8 +1062,7 @@ public void parseTypeMemberDeclarations(
 		// the compilationUnitDeclaration should contain exactly one type
 		/* run automaton */
 		parse();
-	} catch (Exception e) {
-		e.printStackTrace();
+	} catch (AbortCompilation e) {
 	} finally {
 		diet = old;
 	}

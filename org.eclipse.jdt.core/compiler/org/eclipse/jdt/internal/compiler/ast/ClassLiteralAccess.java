@@ -15,9 +15,10 @@ public class ClassLiteralAccess extends Expression {
 	public TypeBinding targetType;
 	FieldBinding syntheticField;
 
-public ClassLiteralAccess(int pos, TypeReference t) {
+public ClassLiteralAccess(int sourceEnd, TypeReference t) {
 	type = t;
-	sourceEnd = (sourceStart = pos)+4 ; // "class" length - 1
+	this.sourceStart = t.sourceStart;
+	this.sourceEnd = sourceEnd;
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	
@@ -42,7 +43,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// in interface case, no caching occurs, since cannot make a cache field for interface
 	if (valueRequired)
 		codeStream.generateClassLiteralAccessForType(type.binding, syntheticField);
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;

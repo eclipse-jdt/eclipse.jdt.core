@@ -157,7 +157,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		} else {
 			// generate condition side-effects
 			condition.generateCode(currentScope, codeStream, false);
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		}
 	}
 	// generate else statement
@@ -174,7 +174,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (mergedInitStateIndex != -1) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resolve(BlockScope scope) {
 	TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);

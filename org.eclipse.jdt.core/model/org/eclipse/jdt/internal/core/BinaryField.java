@@ -48,4 +48,23 @@ public String getTypeSignature() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getRawInfo();
 	return new String(ClassFile.translatedName(info.getTypeName()));
 }
+/**
+ * @private Debugging purposes
+ */
+protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	if (info == null) {
+		buffer.append(getElementName());
+		buffer.append(" (not open)"); //$NON-NLS-1$
+	} else if (info == NO_INFO) {
+		buffer.append(getElementName());
+	} else {
+		try {
+			buffer.append(Signature.toString(this.getTypeSignature()));
+			buffer.append(" "); //$NON-NLS-1$
+			buffer.append(this.getElementName());
+		} catch (JavaModelException e) {
+			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
+		}
+	}
+}
 }

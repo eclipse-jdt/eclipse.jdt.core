@@ -52,9 +52,6 @@ public boolean build(SimpleLookupTable deltas) {
 	// recompile all dependent source files of any type with structural changes or new/removed secondary type
 	// keep a loop counter to abort & perform a full build
 
-	if (JavaBuilder.DEBUG)
-		System.out.println("INCREMENTAL build"); //$NON-NLS-1$
-
 	try {
 		resetCollections();
 

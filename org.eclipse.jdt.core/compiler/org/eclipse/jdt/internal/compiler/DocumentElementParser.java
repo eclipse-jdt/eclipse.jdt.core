@@ -62,11 +62,6 @@ public DocumentElementParser(
 	intArrayStack = new int[30][];
 }
 
-public DocumentElementParser(
-	final IDocumentElementRequestor requestor, 
-	IProblemFactory problemFactory) {
-		this(requestor, problemFactory, new CompilerOptions());
-}
 /**
  *
  * INTERNAL USE-ONLY
@@ -190,8 +185,8 @@ protected void consumeClassHeader() {
 		for (int i = 0; i < superInterfacesLength; i++) {
 			TypeReference superInterface = superInterfaces[i];
 			interfaceNames[i] = CharOperation.concatWith(superInterface.getTypeName(), '.'); 
-			interfaceNameStarts[i] = superInterface.sourceStart();
-			interfaceNameEnds[i] = superInterface.sourceEnd();
+			interfaceNameStarts[i] = superInterface.sourceStart;
+			interfaceNameEnds[i] = superInterface.sourceEnd;
 		}
 	}
 	// flush the comments related to the class header
@@ -205,8 +200,8 @@ protected void consumeClassHeader() {
 			typeDecl.modifiersSourceStart, 
 			typeStartPosition, 
 			typeDecl.name, 
-			typeDecl.sourceStart(), 
-			typeDecl.sourceEnd(), 
+			typeDecl.sourceStart, 
+			typeDecl.sourceEnd, 
 			null, 
 			-1, 
 			-1, 
@@ -222,11 +217,11 @@ protected void consumeClassHeader() {
 			typeDecl.modifiersSourceStart, 
 			typeStartPosition, 
 			typeDecl.name, 
-			typeDecl.sourceStart(), 
-			typeDecl.sourceEnd(), 
+			typeDecl.sourceStart, 
+			typeDecl.sourceEnd, 
 			CharOperation.concatWith(superclass.getTypeName(), '.'), 
-			superclass.sourceStart(), 
-			superclass.sourceEnd(), 
+			superclass.sourceStart, 
+			superclass.sourceEnd, 
 			interfaceNames, 
 			interfaceNameStarts, 
 			interfaceNameEnds, 
@@ -261,6 +256,7 @@ protected void consumeClassHeaderName() {
 	//compute the declaration source too
 	// 'class' and 'interface' push an int position
 	typeStartPosition = typeDecl.declarationSourceStart = intStack[intPtr--];
+	intPtr--;
 	int declarationSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
@@ -327,10 +323,10 @@ protected void consumeConstructorHeader() {
 			TypeReference argumentType = argument.type;
 			argumentTypes[i] = returnTypeName(argumentType);
 			argumentNames[i] = argument.name;
-			argumentNameStarts[i] = argument.sourceStart();
-			argumentNameEnds[i] = argument.sourceEnd();
-			argumentTypeStarts[i] = argumentType.sourceStart();
-			argumentTypeEnds[i] = argumentType.sourceEnd();
+			argumentNameStarts[i] = argument.sourceStart;
+			argumentNameEnds[i] = argument.sourceEnd;
+			argumentTypeStarts[i] = argumentType.sourceStart;
+			argumentTypeEnds[i] = argumentType.sourceEnd;
 		}
 	}
 	TypeReference[] thrownExceptions = cd.thrownExceptions;
@@ -345,8 +341,8 @@ protected void consumeConstructorHeader() {
 		for (int i = 0; i < thrownExceptionLength; i++) {
 			TypeReference exception = thrownExceptions[i];
 			exceptionTypes[i] = CharOperation.concatWith(exception.getTypeName(), '.');
-			exceptionTypeStarts[i] = exception.sourceStart();
-			exceptionTypeEnds[i] = exception.sourceEnd();
+			exceptionTypeStarts[i] = exception.sourceStart;
+			exceptionTypeEnds[i] = exception.sourceEnd;
 		}
 	}
 	requestor
@@ -356,7 +352,7 @@ protected void consumeConstructorHeader() {
 			cd.modifiers,
 			cd.modifiersSourceStart, 
 			cd.selector, 
-			cd.sourceStart(), 
+			cd.sourceStart, 
 			(int) (selectorSourcePositions & 0xFFFFFFFFL), 
 			// retrieve the source end of the name
 			argumentTypes, 
@@ -502,8 +498,8 @@ protected void consumeEnterVariable() {
 				declaration.modifiers, 
 				declaration.modifiersSourceStart, 
 				returnTypeName(declaration.type), 
-				type.sourceStart(), 
-				type.sourceEnd(), 
+				type.sourceStart, 
+				type.sourceEnd, 
 				typeDims, 
 				name, 
 				(int) (namePosition >>> 32), 
@@ -523,7 +519,7 @@ protected void consumeExitVariableWithInitialization() {
 	super.consumeExitVariableWithInitialization();
 	nestedMethod[nestedType]--;	
 	lastFieldEndPosition = scanner.currentPosition - 1;
-	lastFieldBodyEndPosition = 	((AbstractVariableDeclaration) astStack[astPtr]).initialization.sourceEnd();
+	lastFieldBodyEndPosition = 	((AbstractVariableDeclaration) astStack[astPtr]).initialization.sourceEnd;
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
@@ -619,8 +615,8 @@ protected void consumeInterfaceHeader() {
 		for (int i = 0; i < superInterfacesLength; i++) {
 			TypeReference superInterface = superInterfaces[i];
 			interfaceNames[i] = CharOperation.concatWith(superInterface.getTypeName(), '.'); 
-			interfaceNameStarts[i] = superInterface.sourceStart();
-			interfacenameEnds[i] = superInterface.sourceEnd();
+			interfaceNameStarts[i] = superInterface.sourceStart;
+			interfacenameEnds[i] = superInterface.sourceEnd;
 		}
 	}
 	// flush the comments related to the interface header
@@ -632,8 +628,8 @@ protected void consumeInterfaceHeader() {
 		typeDecl.modifiersSourceStart, 
 		typeStartPosition, 
 		typeDecl.name, 
-		typeDecl.sourceStart(), 
-		typeDecl.sourceEnd(), 
+		typeDecl.sourceStart, 
+		typeDecl.sourceEnd, 
 		interfaceNames, 
 		interfaceNameStarts, 
 		interfacenameEnds, 
@@ -666,6 +662,7 @@ protected void consumeInterfaceHeaderName() {
 	//compute the declaration source too
 	// 'class' and 'interface' push an int position
 	typeStartPosition = typeDecl.declarationSourceStart = intStack[intPtr--];
+	intPtr--;
 	int declarationSourceStart = intStack[intPtr--];
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
@@ -738,10 +735,10 @@ protected void consumeMethodHeader() {
 			TypeReference argumentType = argument.type;
 			argumentTypes[i] = returnTypeName(argumentType);
 			argumentNames[i] = argument.name;
-			argumentNameStarts[i] = argument.sourceStart();
-			argumentNameEnds[i] = argument.sourceEnd();
-			argumentTypeStarts[i] = argumentType.sourceStart();
-			argumentTypeEnds[i] = argumentType.sourceEnd();
+			argumentNameStarts[i] = argument.sourceStart;
+			argumentNameEnds[i] = argument.sourceEnd;
+			argumentTypeStarts[i] = argumentType.sourceStart;
+			argumentTypeEnds[i] = argumentType.sourceEnd;
 		}
 	}
 	TypeReference[] thrownExceptions = md.thrownExceptions;
@@ -756,8 +753,8 @@ protected void consumeMethodHeader() {
 		for (int i = 0; i < thrownExceptionLength; i++) {
 			TypeReference exception = thrownExceptions[i];
 			exceptionTypes[i] = CharOperation.concatWith(exception.getTypeName(), '.');
-			exceptionTypeStarts[i] = exception.sourceStart();
-			exceptionTypeEnds[i] = exception.sourceEnd();
+			exceptionTypeStarts[i] = exception.sourceStart;
+			exceptionTypeEnds[i] = exception.sourceEnd;
 		}
 	}
 	requestor
@@ -767,11 +764,11 @@ protected void consumeMethodHeader() {
 			md.modifiers, 
 			md.modifiersSourceStart, 
 			returnTypeName, 
-			returnType.sourceStart(), 
-			returnType.sourceEnd(), 
+			returnType.sourceStart, 
+			returnType.sourceEnd, 
 			typeDims, 
 			md.selector, 
-			md.sourceStart(), 
+			md.sourceStart, 
 			(int) (selectorSourcePositions & 0xFFFFFFFFL), 
 			argumentTypes, 
 			argumentTypeStarts, 
@@ -800,8 +797,8 @@ protected void consumeMethodHeaderExtendedDims() {
 		int baseType;
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
-			int sourceStart = returnType.sourceStart();
-			int sourceEnd = returnType.sourceEnd();
+			int sourceStart = returnType.sourceStart;
+			int sourceEnd = returnType.sourceEnd;
 			returnType = TypeReference.baseTypeReference(-baseType, dims);
 			returnType.sourceStart = sourceStart;
 			returnType.sourceEnd = sourceEnd;
@@ -859,7 +856,7 @@ protected void consumePackageDeclarationName() {
 		importReference.declarationSourceEnd, 
 		intArrayStack[intArrayPtr--], 
 		CharOperation.concatWith(importReference.getImportName(), '.'),
-		importReference.sourceStart());
+		importReference.sourceStart);
 }
 protected void consumePushModifiers() {
 	checkAnnotation(); // might update modifiers with AccDeprecated
@@ -892,7 +889,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 		importReference.declarationSourceEnd,
 		intArrayStack[intArrayPtr--],
 		CharOperation.concatWith(importReference.getImportName(), '.'),
-		importReference.sourceStart(),
+		importReference.sourceStart,
 		false);
 }
 /**
@@ -941,7 +938,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		importReference.declarationSourceEnd,
 		intArrayStack[intArrayPtr--],
 		CharOperation.concatWith(importReference.getImportName(), '.'), 
-		importReference.sourceStart(),
+		importReference.sourceStart,
 		true);
 }
 public CompilationUnitDeclaration endParse(int act) {

@@ -259,7 +259,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /*
  * The APIs with an extra argument is used whenever there are two references to the same variable which

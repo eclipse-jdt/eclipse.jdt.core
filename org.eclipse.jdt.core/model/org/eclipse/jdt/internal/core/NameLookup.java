@@ -7,10 +7,10 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.core.resources.*;
-import java.util.Vector;
-import java.util.Hashtable;
 import java.io.File;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -54,7 +54,7 @@ public class NameLookup {
 	 * with the same name, values are arrays of package fragments
 	 * ordered as they appear on the classpath.
 	 */
-	protected Hashtable fPackageFragments;
+	protected Map fPackageFragments;
 
 	/**
 	 * Singleton <code>SingleTypeRequestor</code>.
@@ -112,8 +112,8 @@ public class NameLookup {
 	private void configureFromProject(IJavaProject project) throws JavaModelException {
 		workspace= project.getJavaModel().getWorkspace();
 		fPackageFragmentRoots= ((JavaProject) project).getAllPackageFragmentRoots();
-		fPackageFragments= new Hashtable();
-		IPackageFragment[] frags= ((JavaProject) project).getAllPackageFragments();
+		fPackageFragments= new HashMap();
+		IPackageFragment[] frags= ((JavaProject) project).getPackageFragmentsInRoots(fPackageFragmentRoots);
 		for (int i= 0; i < frags.length; i++) {
 			IPackageFragment fragment= frags[i];
 			IPackageFragment[] entry= (IPackageFragment[]) fPackageFragments.get(fragment.getElementName());
@@ -272,28 +272,6 @@ public class NameLookup {
 						return null;
 					}
 				}
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the package fragment root whose path matches the given
-	 * (absolute) path, or <code>null</code> if none exist. The domain of
-	 * the search is bounded by the classpath of the <code>IJavaProject</code>
-	 * this <code>NameLookup</code> was obtained from.
-	 * The path can be:
-	 *	- internal to the workbench: "/Compiler/src"
-	 *	- external to the workbench: "c:/jdk/classes.zip"
-	 */
-	public IPackageFragmentRoot findPackageFragmentRoot(IPath path) {
-		if (!path.isAbsolute()) {
-			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
-		}
-		for (int i= 0; i < fPackageFragmentRoots.length; i++) {
-			IPackageFragmentRoot classpathRoot= fPackageFragmentRoots[i];
-			if (classpathRoot.getPath().equals(path)) {
-				return classpathRoot;
-			}
 		}
 		return null;
 	}
@@ -544,6 +522,9 @@ public class NameLookup {
 		if (index != -1) {
 			//the type name of the inner type
 			unqualifiedName= name.substring(index + 1, name.length());
+			if (unqualifiedName.length() > 0 && Character.isDigit(unqualifiedName.charAt(0))){
+				unqualifiedName = name;
+			}
 		}
 		String lowerName= name.toLowerCase();
 		for (int i= 0; i < length; i++) {

@@ -44,7 +44,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				TryStatement trySub = (TryStatement) sub;
 				if (trySub.subRoutineCannotReturn)	{
 					codeStream.goto_(trySub.subRoutineStartLabel);
-					codeStream.recordPositionsFrom(pc, this);
+					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					return;
 				} else {
 					codeStream.jsr(trySub.subRoutineStartLabel);
@@ -53,7 +53,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	}
 	codeStream.goto_(targetLabel);
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resetStateForCodeGeneration() {
 	this.targetLabel.resetStateForCodeGeneration();

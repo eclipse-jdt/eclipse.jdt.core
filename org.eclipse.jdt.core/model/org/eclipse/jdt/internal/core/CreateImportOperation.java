@@ -12,8 +12,6 @@ import org.eclipse.jdt.core.jdom.DOMFactory;
 import org.eclipse.jdt.core.jdom.IDOMImport;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 
-import java.util.Vector;
-
 /**
  * <p>This operation adds an import declaration to an existing compilation unit.
  * If the compilation unit already includes the specified import declaration,

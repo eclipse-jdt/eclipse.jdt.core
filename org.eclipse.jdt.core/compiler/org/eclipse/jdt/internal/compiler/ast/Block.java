@@ -63,7 +63,7 @@ public class Block extends Statement {
 		if (scope != currentScope) { // was really associated with its own scope
 			codeStream.exitUserScope(scope);
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	public boolean isEmptyBlock() {

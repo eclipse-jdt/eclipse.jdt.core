@@ -240,7 +240,7 @@ public void exitMethod(int declarationEnd) {
 }
 public void popTypeName(){
 	try {
-	enclosingTypeNames[depth--] = null;
+	enclosingTypeNames[--depth] = null;
 	} catch (ArrayIndexOutOfBoundsException e) {
 		e.printStackTrace();
 	}

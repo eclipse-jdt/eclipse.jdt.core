@@ -41,7 +41,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	int pc = codeStream.position;
 	if (valueRequired)
 		codeStream.aload_0();
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public boolean isThis() {
 	

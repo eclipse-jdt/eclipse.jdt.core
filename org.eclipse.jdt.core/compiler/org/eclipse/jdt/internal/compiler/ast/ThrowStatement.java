@@ -41,7 +41,7 @@ public class ThrowStatement extends Statement {
 		int pc = codeStream.position;
 		exception.generateCode(currentScope, codeStream, true);
 		codeStream.athrow();
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	public void resolve(BlockScope scope) {

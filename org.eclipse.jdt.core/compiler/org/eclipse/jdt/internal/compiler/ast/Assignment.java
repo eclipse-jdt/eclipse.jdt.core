@@ -39,7 +39,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	int pc = codeStream.position;
 	lhs.generateAssignment(currentScope, codeStream, this, valueRequired); // variable may have been optimized out
 	// the lhs is responsible to perform the implicitConversion generation for the assignment since optimized for unused local assignment.
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// due to syntax lhs may be only a NameReference, a FieldReference or an ArrayReference

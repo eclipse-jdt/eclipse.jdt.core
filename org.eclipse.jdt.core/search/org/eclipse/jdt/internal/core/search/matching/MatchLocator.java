@@ -54,11 +54,14 @@ public class MatchLocator implements ITypeRequestor {
 	public IJavaSearchScope scope;
 
 	public MatchLocatorParser parser;
+	public NameLookup nameLookup;
 	public LookupEnvironment lookupEnvironment;
 	public HashtableOfObject parsedUnits;
-	private PotentialMatch[] potentialMatches;
-	private int potentialMatchesIndex;
-	private int potentialMatchesLength;
+	private MatchingOpenableSet matchingOpenables;
+	private MatchingOpenable currentMatchingOpenable;
+	public HandleFactory handleFactory;
+
+	private static char[] EMPTY_FILE_NAME = new char[0];
 
 	public MatchLocator(
 		SearchPattern pattern,
@@ -102,80 +105,99 @@ public class MatchLocator implements ITypeRequestor {
 		ISourceType sourceType = sourceTypes[0];
 		while (sourceType.getEnclosingType() != null)
 			sourceType = sourceType.getEnclosingType();
-		CompilationUnitDeclaration unit = null;
 		if (sourceType instanceof SourceTypeElementInfo) {
 			// get source
 			SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) sourceType;
 			IType type = elementInfo.getHandle();
 			try {
-				final IFile file = (IFile) type.getUnderlyingResource();
-				final char[] source = Util.getResourceContentsAsCharArray(file);
-
-				// get main type name
-				final String fileName = file.getFullPath().lastSegment();
-				final char[] mainTypeName =
-					fileName.substring(0, fileName.length() - 5).toCharArray();
-
-				// source unit
-				ICompilationUnit sourceUnit = new ICompilationUnit() {
-					public char[] getContents() {
-						return source;
-					}
-					public char[] getFileName() {
-						return fileName.toCharArray();
-					}
-					public char[] getMainTypeName() {
-						return mainTypeName;
-					}
-				};
-
-				// diet parse
-				MatchSet originalMatchSet = this.parser.matchSet;
-				try {
-					this.parser.matchSet = new MatchSet(this);
-					CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
-					unit = this.parser.dietParse(sourceUnit, compilationResult);
-				} finally {
-					if (originalMatchSet == null) {
-						if (!this.parser.matchSet.isEmpty() 
-								&& unit != null) {
-							// potential matches were found while initializing the search pattern
-							// from the lookup environment: add them in the list of potential matches
-							PotentialMatch potentialMatch = 
-								new PotentialMatch(
-									this,
-									file, 
-									(CompilationUnit)type.getCompilationUnit(), 
-									unit,
-									this.parser.matchSet);
-							this.addPotentialMatch(potentialMatch);
-						}
-						this.parser.matchSet = null;
-					} else {
-						this.parser.matchSet = originalMatchSet;
-					}
-				}
+				this.buildBindings(type.getCompilationUnit());
 			} catch (JavaModelException e) {
-				unit = null;
+				// nothing we can do here: ignore
 			}
 		} else {
 			CompilationResult result =
 				new CompilationResult(sourceType.getFileName(), 0, 0);
-			unit =
+			CompilationUnitDeclaration unit =
 				SourceTypeConverter.buildCompilationUnit(
 					sourceTypes,
 					true,
 					true,
 					lookupEnvironment.problemReporter,
 					result);
-		}
-
-		if (unit != null) {
 			this.lookupEnvironment.buildTypeBindings(unit);
 			this.lookupEnvironment.completeTypeBindings(unit, true);
 			this.parsedUnits.put(sourceType.getQualifiedName(), unit);
 		}
 	}
+
+/*
+ * Parse the given compiation unit and build its type bindings.
+ * Remember the parsed unit.
+ */
+public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilationUnit compilationUnit) throws JavaModelException {
+	final IFile file = (IFile)compilationUnit.getUnderlyingResource();
+	CompilationUnitDeclaration unit = null;
+	
+	// get main type name
+	final String fileName = file.getFullPath().lastSegment();
+	final char[] mainTypeName =
+		fileName.substring(0, fileName.length() - 5).toCharArray();
+	
+	// find out if unit is already known
+	char[] qualifiedName = compilationUnit.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+	unit = (CompilationUnitDeclaration)this.parsedUnits.get(qualifiedName);
+	if (unit != null) return unit;
+
+	// source unit
+	final char[] source = Util.getResourceContentsAsCharArray(file);
+	ICompilationUnit sourceUnit = new ICompilationUnit() {
+		public char[] getContents() {
+			return source;
+		}
+		public char[] getFileName() {
+			return fileName.toCharArray();
+		}
+		public char[] getMainTypeName() {
+			return mainTypeName;
+		}
+		public char[][] getPackageName() {
+			return null;
+		}
+	};
+	
+	// diet parse
+	MatchSet originalMatchSet = this.parser.matchSet;
+	try {
+		this.parser.matchSet = new MatchSet(this);
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
+		unit = this.parser.dietParse(sourceUnit, compilationResult);
+	} finally {
+		if (originalMatchSet == null) {
+			if (!this.parser.matchSet.isEmpty() 
+					&& unit != null) {
+				// potential matches were found while initializing the search pattern
+				// from the lookup environment: add the corresponding openable in the list
+				MatchingOpenable matchingOpenable = 
+					new MatchingOpenable(
+						this,
+						file, 
+						(CompilationUnit)compilationUnit, 
+						unit,
+						this.parser.matchSet);
+				this.matchingOpenables.add(matchingOpenable);
+			}
+			this.parser.matchSet = null;
+		} else {
+			this.parser.matchSet = originalMatchSet;
+		}
+	}
+	if (unit != null) {
+		this.lookupEnvironment.buildTypeBindings(unit);
+		this.lookupEnvironment.completeTypeBindings(unit, true);
+		this.parsedUnits.put(qualifiedName, unit);
+	}
+	return unit;
+}
 
 	/**
 	 * Creates an IField from the given field declaration and type. 
@@ -320,16 +342,9 @@ public class MatchLocator implements ITypeRequestor {
 		return parent.getType(new String(simpleTypeName));
 	}
 	protected IResource getCurrentResource() {
-		return this.potentialMatches[this.potentialMatchesIndex].resource;
+		return this.currentMatchingOpenable.resource;
 	}
-	protected boolean includesPotentialMatch(PotentialMatch potentialMatch) {
-		for (int i = 0; i < this.potentialMatchesLength; i++) {
-			if (potentialMatch.openable.equals(this.potentialMatches[i].openable)) {
-				return true;
-			}
-		}
-		return false;
-	}
+
 	protected Scanner getScanner() {
 		return this.parser == null ? null : this.parser.scanner;
 	}
@@ -340,23 +355,24 @@ public class MatchLocator implements ITypeRequestor {
 	public void locateMatches(String[] filePaths, IWorkspace workspace)
 		throws JavaModelException {
 		Util.sort(filePaths); // sort by projects
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		HandleFactory factory = new HandleFactory(workspace.getRoot(), manager);
+		if (this.handleFactory == null) {
+			this.handleFactory = new HandleFactory(workspace);
+		}
+		this.pattern.initializePolymorphicSearch(this, this.collector.getProgressMonitor());
+
 		JavaProject previousJavaProject = null;
 		int length = filePaths.length;
 		double increment = 100.0 / length;
 		double totalWork = 0;
 		int lastProgress = 0;
-		boolean couldInitializePattern = false;
-		this.potentialMatches = new PotentialMatch[10];
-		this.potentialMatchesLength = 0;
+		this.matchingOpenables = new MatchingOpenableSet();
 		for (int i = 0; i < length; i++) {
 			IProgressMonitor monitor = this.collector.getProgressMonitor();
 			if (monitor != null && monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 			String pathString = filePaths[i];
-			Openable openable = factory.createOpenable(pathString);
+			Openable openable = this.handleFactory.createOpenable(pathString);
 			if (openable == null)
 				continue; // match is outside classpath
 
@@ -373,7 +389,7 @@ public class MatchLocator implements ITypeRequestor {
 					// locate matches in previous project
 					if (previousJavaProject != null) {
 						try {
-							this.locateMatches();
+							this.locateMatches(previousJavaProject);
 						} catch (JavaModelException e) {
 							if (e.getException() instanceof CoreException) {
 								throw e;
@@ -381,23 +397,20 @@ public class MatchLocator implements ITypeRequestor {
 								// problem with classpath in this project -> skip it
 							}
 						}
-						this.potentialMatchesLength = 0;
+						this.matchingOpenables = new MatchingOpenableSet();
 					}
 
 					// create parser for this project
-					couldInitializePattern = this.createParser(javaProject);
+					this.createParser(javaProject);
 					previousJavaProject = javaProject;
 				}
-				if (!couldInitializePattern)
-					continue;
-				// the pattern could not be initialized: the match cannot be in this project
 			} catch (JavaModelException e) {
 				// file doesn't exist -> skip it
 				continue;
 			}
 
-			// add potential match
-			this.addPotentialMatch(resource, openable);
+			// add matching openable
+			this.addMatchingOpenable(resource, openable);
 
 			if (monitor != null) {
 				totalWork = totalWork + increment;
@@ -410,7 +423,7 @@ public class MatchLocator implements ITypeRequestor {
 		// last project
 		if (previousJavaProject != null) {
 			try {
-				this.locateMatches();
+				this.locateMatches(previousJavaProject);
 			} catch (JavaModelException e) {
 				if (e.getException() instanceof CoreException) {
 					throw e;
@@ -418,7 +431,7 @@ public class MatchLocator implements ITypeRequestor {
 					// problem with classpath in last project -> skip it
 				}
 			}
-			this.potentialMatchesLength = 0;
+			this.matchingOpenables = new MatchingOpenableSet();
 		}
 
 	}
@@ -462,9 +475,7 @@ public class MatchLocator implements ITypeRequestor {
 								if (resource == null) { // case of a file in an external jar
 									resource = javaProject.getProject();
 								}
-								this.potentialMatchesIndex = 0;
-								this.potentialMatches =
-									new PotentialMatch[] { new PotentialMatch(this, resource, null)};
+								this.currentMatchingOpenable = new MatchingOpenable(this, resource, null);
 								try {
 									this.report(-1, -2, pkg, IJavaSearchResultCollector.EXACT_MATCH);
 								} catch (CoreException e) {
@@ -480,23 +491,87 @@ public class MatchLocator implements ITypeRequestor {
 				}
 			}
 	}
+public IType lookupType(TypeBinding typeBinding) {
+	char[] packageName = typeBinding.qualifiedPackageName();
+	char[] typeName = typeBinding.qualifiedSourceName();
+	
+	// find package fragments
+	IPackageFragment[] pkgs = 
+		this.nameLookup.findPackageFragments(
+			(packageName == null || packageName.length == 0) ? 
+				IPackageFragment.DEFAULT_PACKAGE_NAME : 
+				new String(packageName), 
+			false);
+			
+	// iterate type lookup in each package fragment
+	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
+		IType type = 
+			this.nameLookup.findType(
+				new String(typeName), 
+				pkgs[i], 
+				false, 
+				typeBinding.isClass() ?
+					NameLookup.ACCEPT_CLASSES:
+					NameLookup.ACCEPT_INTERFACES);
+		if (type != null) return type;	
+	}
+	
+	// search inside enclosing element
+	char[][] qualifiedName = CharOperation.splitOn('.', typeName);
+	int length = qualifiedName.length;
+	if (length == 0) return null;
+	IType type = this.createTypeHandle(qualifiedName[0]);
+	if (type == null) return null;
+	for (int i = 1; i < length; i++) {
+		type = this.createTypeHandle(type, qualifiedName[i]);
+		if (type == null) return null;
+	}
+	if (type.exists()) return type;	
+	
+	return null;
+}
 	public void report(
 		int sourceStart,
 		int sourceEnd,
 		IJavaElement element,
 		int accuracy)
 		throws CoreException {
+
 		if (this.scope.encloses(element)) {
-			this.collector.accept(
+			this.report(
 				this.getCurrentResource(),
 				sourceStart,
-				sourceEnd + 1,
+				sourceEnd,
 				element,
 				accuracy);
 		}
 	}
+	public void report(
+		IResource resource,
+		int sourceStart,
+		int sourceEnd,
+		IJavaElement element,
+		int accuracy)
+		throws CoreException {
+
+		this.collector.accept(
+			resource,
+			sourceStart,
+			sourceEnd + 1,
+			element,
+			accuracy);
+	}
 
 	public void reportBinaryMatch(
+		IMember binaryMember,
+		IBinaryType info,
+		int accuracy)
+		throws CoreException, JavaModelException {
+			
+		this.reportBinaryMatch(null, binaryMember, info, accuracy);
+	}
+	public void reportBinaryMatch(
+		IResource resource,
 		IMember binaryMember,
 		IBinaryType info,
 		int accuracy)
@@ -515,7 +590,11 @@ public class MatchLocator implements ITypeRequestor {
 		}
 		int startIndex = range.getOffset();
 		int endIndex = startIndex + range.getLength() - 1;
-		this.report(startIndex, endIndex, binaryMember, accuracy);
+		if (resource == null) {
+			this.report(startIndex, endIndex, binaryMember, accuracy);
+		} else {
+			this.report(resource, startIndex, endIndex, binaryMember, accuracy);
+		}
 	}
 
 	/**
@@ -572,7 +651,7 @@ public class MatchLocator implements ITypeRequestor {
 		Scanner scanner = parser.scanner;
 		int nameSourceStart = methodDeclaration.sourceStart;
 		scanner.setSourceBuffer(
-			this.potentialMatches[this.potentialMatchesIndex].getSource());
+			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(nameSourceStart, methodDeclaration.sourceEnd);
 		try {
 			scanner.getNextToken();
@@ -597,10 +676,11 @@ public class MatchLocator implements ITypeRequestor {
 	public void reportPackageReference(ImportReference node) {
 		// TBD
 	}
+
 	/**
-	 * Reports the given reference to the search requestor.
-	 * Finds the accurate positions of the tokens given by qualifiedName
-	 * in the source.
+	 * Finds the accurate positions of the sequence of tokens given by qualifiedName
+	 * in the source and reports a reference to this this qualified name
+	 * to the search requestor.
 	 */
 	public void reportAccurateReference(
 		int sourceStart,
@@ -609,34 +689,13 @@ public class MatchLocator implements ITypeRequestor {
 		IJavaElement element,
 		int accuracy)
 		throws CoreException {
-			
-		this.reportAccurateReference(
-			sourceStart,
-			sourceEnd,
-			qualifiedName,
-			element,
-			new int[] {accuracy},
-			false);
-	}
-	/**
-	 * Reports the given reference to the search requestor.
-	 * Reports only occurence of the reference that have an accurracy which is not -1.
-	 * Finds the accurate positions of the tokens given by qualifiedName
-	 * in the source.
-	 */
-	public void reportAccurateReference(
-		int sourceStart,
-		int sourceEnd,
-		char[][] qualifiedName,
-		IJavaElement element,
-		int[] accuracies,
-		boolean accuracyStartsOnFirstToken)
-		throws CoreException {
+
+		if (accuracy == -1) return;
 
 		// compute source positions of the qualified reference 
 		Scanner scanner = parser.scanner;
 		scanner.setSourceBuffer(
-			this.potentialMatches[this.potentialMatchesIndex].getSource());
+			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(sourceStart, sourceEnd);
 
 		int refSourceStart = -1, refSourceEnd = -1;
@@ -644,7 +703,6 @@ public class MatchLocator implements ITypeRequestor {
 		int token = -1;
 		int previousValid = -1;
 		int i = 0;
-		int accuracyIndex = 0;
 		do {
 			int currentPosition = scanner.currentPosition;
 			// read token
@@ -676,25 +734,87 @@ public class MatchLocator implements ITypeRequestor {
 				}
 			}
 			if (i == tokenNumber) {
-				if (accuracies[accuracyIndex] != -1) {
-					// accept reference
-					if (refSourceStart != -1) {
-						this.report(refSourceStart, refSourceEnd, element, accuracies[accuracyIndex]);
-					} else {
-						this.report(sourceStart, sourceEnd, element, accuracies[accuracyIndex]);
+				// accept reference
+				if (refSourceStart != -1) {
+					this.report(refSourceStart, refSourceEnd, element, accuracy);
+				} else {
+					this.report(sourceStart, sourceEnd, element, accuracy);
+				}
+				return;
+			}
+		} while (token != TerminalSymbols.TokenNameEOF);
+
+	}
+	/**
+	 * Finds the accurate positions of each valid token in the source and
+	 * reports a reference to this token to the search requestor.
+	 * A token is valid if it has an accurracy which is not -1.
+	 */
+	public void reportAccurateReference(
+		int sourceStart,
+		int sourceEnd,
+		char[][] tokens,
+		IJavaElement element,
+		int[] accuracies)
+		throws CoreException {
+
+		// compute source positions of the qualified reference 
+		Scanner scanner = parser.scanner;
+		scanner.setSourceBuffer(
+			this.currentMatchingOpenable.getSource());
+		scanner.resetTo(sourceStart, sourceEnd);
+
+		int refSourceStart = -1, refSourceEnd = -1;
+		int length = tokens.length;
+		int token = -1;
+		int previousValid = -1;
+		int i = 0;
+		int accuracyIndex = 0;
+		do {
+			int currentPosition = scanner.currentPosition;
+			// read token
+			try {
+				token = scanner.getNextToken();
+			} catch (InvalidInputException e) {
+			}
+			if (token != TerminalSymbols.TokenNameEOF) {
+				char[] currentTokenSource = scanner.getCurrentTokenSource();
+				boolean equals = false;
+				while (i < length
+					&& !(equals = CharOperation.equals(tokens[i++], currentTokenSource))) {
+				}
+				if (equals && (previousValid == -1 || previousValid == i - 2)) {
+					previousValid = i - 1;
+					if (refSourceStart == -1) {
+						refSourceStart = currentPosition;
 					}
+					refSourceEnd = scanner.currentPosition - 1;
+				} else {
 					i = 0;
 					refSourceStart = -1;
 					previousValid = -1;
-					if (!accuracyStartsOnFirstToken) {
-						accuracyIndex++;
-					}			
+				}
+				// read '.'
+				try {
+					token = scanner.getNextToken();
+				} catch (InvalidInputException e) {
 				}
 			}
-			if (accuracyStartsOnFirstToken) {
+			if (accuracies[accuracyIndex] != -1) {
+				// accept reference
+				if (refSourceStart != -1) {
+					this.report(refSourceStart, refSourceEnd, element, accuracies[accuracyIndex]);
+				} else {
+					this.report(sourceStart, sourceEnd, element, accuracies[accuracyIndex]);
+				}
+				i = 0;
+			}
+			refSourceStart = -1;
+			previousValid = -1;
+			if (accuracyIndex < accuracies.length-1) {
 				accuracyIndex++;
 			}
-		} while (token != TerminalSymbols.TokenNameEOF && accuracyIndex < accuracies.length);
+		} while (token != TerminalSymbols.TokenNameEOF);
 
 	}
 
@@ -801,44 +921,31 @@ public class MatchLocator implements ITypeRequestor {
 			accuracy);
 	}
 
-private PotentialMatch newPotentialMatch(IResource resource, Openable openable) {
-	PotentialMatch potentialMatch;
+private MatchingOpenable newMatchingOpenable(IResource resource, Openable openable) {
+	MatchingOpenable matchingOpenable;
 	try {
-		potentialMatch = new PotentialMatch(this, resource, openable);
+		matchingOpenable = new MatchingOpenable(this, resource, openable);
 	} catch (AbortCompilation e) {
-		// problem with class path: ignore this potential match
+		// problem with class path: ignore this matching openable
 		return null;
 	}
-	return potentialMatch;
+	return matchingOpenable;
 }
-private void addPotentialMatch(IResource resource, Openable openable)
+private void addMatchingOpenable(IResource resource, Openable openable)
 		throws JavaModelException {
 		
-	PotentialMatch potentialMatch = this.newPotentialMatch(resource, openable);
-	if (potentialMatch != null) {
-		this.addPotentialMatch(potentialMatch);
-	}
-}
-private void addPotentialMatch(PotentialMatch potentialMatch) {
-	if (this.potentialMatchesLength == this.potentialMatches.length) {
-		System.arraycopy(
-			this.potentialMatches,
-			0,
-			this.potentialMatches = new PotentialMatch[this.potentialMatchesLength * 2],
-			0,
-			this.potentialMatchesLength);
-	}
-	if (!this.includesPotentialMatch(potentialMatch)) {
-		this.potentialMatches[this.potentialMatchesLength++] = potentialMatch;
+	MatchingOpenable matchingOpenable = this.newMatchingOpenable(resource, openable);
+	if (matchingOpenable != null) {
+		this.matchingOpenables.add(matchingOpenable);
 	}
 }
 
+
 	/**
 	 * Create a new parser for the given project, as well as a lookup environment.
-	 * Asks the pattern to initialize itself from the lookup environment.
-	 * Returns whether it was able to initialize the pattern.
+	 * Asks the pattern to initialize itself for polymorphic search.
 	 */
-	private boolean createParser(JavaProject project) throws JavaModelException {
+	private void createParser(JavaProject project) throws JavaModelException {
 		INameEnvironment nameEnvironment = project.getSearchableNameEnvironment();
 		IProblemFactory problemFactory = new DefaultProblemFactory();
 
@@ -852,17 +959,111 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 			new LookupEnvironment(this, options, problemReporter, nameEnvironment);
 		this.parser = new MatchLocatorParser(problemReporter, options.assertMode);
 		this.parsedUnits = new HashtableOfObject(10);
-		return this.pattern.initializeFromLookupEnvironment(this.lookupEnvironment);
+		this.nameLookup = project.getNameLookup();
 	}
 
+	public CompilationUnitDeclaration dietParse(final char[] source) {
+		// source unit
+		ICompilationUnit sourceUnit = new ICompilationUnit() {
+			public char[] getContents() {
+				return source;
+			}
+			public char[] getFileName() {
+				return EMPTY_FILE_NAME; // not used
+			}
+			public char[] getMainTypeName() {
+				return null; // don't need to check if main type name == compilation unit name
+			}
+			public char[][] getPackageName() {
+				return null;
+			}
+		};
+		
+		// diet parse
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);  
+		return this.parser.dietParse(sourceUnit, compilationResult);
+	}
+	
+	public char[] findSource(ClassFile classFile) {
+		char[] source = null; 
+		try {
+			SourceMapper sourceMapper = classFile.getSourceMapper();
+			if (sourceMapper != null) {
+				source = sourceMapper.findSource(classFile.getType());
+			}
+			if (source == null) {
+				// default to opening the class file
+				String sourceFromBuffer = classFile.getSource();
+				if (sourceFromBuffer != null) {
+					source = sourceFromBuffer.toCharArray();
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+		return source;
+	}
+public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFile, IResource resource) throws CoreException {
+	BinaryType binaryType = (BinaryType)classFile.getType();
+	if (classFile.isOpen()) {
+		// reuse the info from the java model cache
+		return (IBinaryType)binaryType.getRawInfo();
+	} else {
+		// create a temporary info
+		IBinaryType info;
+		try {
+			IJavaElement pkg = classFile.getParent();
+			PackageFragmentRoot root = (PackageFragmentRoot)pkg.getParent();
+			if (root.isArchive()) {
+				// class file in a jar
+				String pkgPath = pkg.getElementName().replace('.', '/');
+				String classFilePath = 
+					(pkgPath.length() > 0) ?
+						pkgPath + "/" + classFile.getElementName() : //$NON-NLS-1$
+						classFile.getElementName();
+				ZipFile zipFile = null;
+				try {
+					zipFile = ((JarPackageFragmentRoot)root).getJar();
+					info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(
+						zipFile,
+						classFilePath);
+				} finally {
+					if (zipFile != null) {
+						try {
+							zipFile.close();
+						} catch (IOException e) {
+							// ignore 
+						}
+					}
+				}
+			} else {
+				// class file in a directory
+				String osPath = resource.getFullPath().toOSString();
+				info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
+			}
+			return info;
+		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+			//e.printStackTrace();
+			return null;
+		} catch (java.io.IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
+	}
+}
 	protected Openable getCurrentOpenable() {
-		return this.potentialMatches[this.potentialMatchesIndex].openable;
+		return this.currentMatchingOpenable.openable;
 	}
 
 	/**
-	 * Locate the matches amongst the potential matches.
+	 * Locate the matches amongst the matching openables.
 	 */
-	private void locateMatches() throws JavaModelException {
+	private void locateMatches(JavaProject javaProject) throws JavaModelException {
+		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(javaProject.getPackageFragmentRoots());
+	
+		// binding creation
+		for (int i = 0, length = openables.length; i < length; i++) { 
+			openables[i].buildTypeBindings();
+		}
+
 		// binding resolution
 		boolean shouldResolve = true;
 		try {
@@ -873,25 +1074,27 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 			shouldResolve = false;
 		}
 
-		// potential match resolution
-		for (this.potentialMatchesIndex = 0;
-			this.potentialMatchesIndex < this.potentialMatchesLength;
-			this.potentialMatchesIndex++) {
-				
+		// matching openable resolution
+		for (int i = 0, length = openables.length; i < length; i++) { 
 			IProgressMonitor monitor = this.collector.getProgressMonitor();
 			if (monitor != null && monitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
 			
 			try {
-				PotentialMatch potentialMatch =
-					this.potentialMatches[this.potentialMatchesIndex];
-				potentialMatch.shouldResolve = shouldResolve;
-				potentialMatch.locateMatches();
-				potentialMatch.reset();
+				this.currentMatchingOpenable = openables[i];
+				
+				// skip type has it is hidden so not visible
+				if (this.currentMatchingOpenable.hasAlreadyDefinedType()) {
+					continue;
+				}
+				
+				this.currentMatchingOpenable.shouldResolve = shouldResolve;
+				this.currentMatchingOpenable.locateMatches();
+				this.currentMatchingOpenable.reset();
 			} catch (AbortCompilation e) {
 				// problem with class path: it could not find base classes
-				// continue and try next potential match
+				// continue and try next matching openable
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
 					throw (JavaModelException) e;
@@ -900,5 +1103,6 @@ private void addPotentialMatch(PotentialMatch potentialMatch) {
 				}
 			}
 		}
+		this.currentMatchingOpenable = null;
 	}
 }

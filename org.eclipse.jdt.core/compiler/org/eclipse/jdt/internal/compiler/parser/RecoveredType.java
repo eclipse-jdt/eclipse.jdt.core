@@ -55,7 +55,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 				methodCount); 
 		}
 	}
-	RecoveredMethod element = new RecoveredMethod(methodDeclaration, this, bracketBalance);
+	RecoveredMethod element = new RecoveredMethod(methodDeclaration, this, bracketBalance, this.recoveringParser);
 	methods[methodCount++] = element;
 
 	/* consider that if the opening brace was not found, it is there */

@@ -14,26 +14,30 @@ import org.eclipse.jdt.internal.core.index.impl.*;
 import java.io.*;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 class AddClassFileToIndex implements IJob {
 	IFile resource;
 	IndexManager manager;
-	IResource indexedContainer;
+	IPath indexedContainer;
 	byte[] contents;
 	public AddClassFileToIndex(
 		IFile resource,
 		IndexManager manager,
-		IResource indexedContainer) {
+		IPath indexedContainer) {
 		this.resource = resource;
 		this.manager = manager;
 		this.indexedContainer = indexedContainer;
 	}
 	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.indexedContainer.getProject().getName());
+		return jobFamily.equals(this.indexedContainer.segment(0));
 	}
-	public boolean execute() {
+	public boolean execute(IProgressMonitor progressMonitor) {
+		
+		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+		
 		try {
-			IIndex index = manager.getIndex(this.indexedContainer.getFullPath());
+			IIndex index = manager.getIndex(this.indexedContainer);
 			if (!resource.isLocal(IResource.DEPTH_ZERO)) {
 				return FAILED;
 			}

@@ -123,7 +123,7 @@ public class ConditionalExpression extends OperatorExpression {
 		if (constant != NotAConstant) {
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		Constant cst = condition.constant;
@@ -186,7 +186,7 @@ public class ConditionalExpression extends OperatorExpression {
 		// implicit conversion
 		if (valueRequired)
 			codeStream.generateImplicitConversion(implicitConversion);
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class ConditionalExpression extends OperatorExpression {
 				mergedInitStateIndex);
 		}
 		// no implicit conversion for boolean values
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {

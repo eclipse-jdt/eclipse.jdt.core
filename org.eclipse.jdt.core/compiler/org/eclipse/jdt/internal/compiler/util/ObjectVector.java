@@ -61,8 +61,13 @@ public final class ObjectVector {
 
 	public void copyInto(Object[] targetArray){
 		
-		System.arraycopy(this.elements, 0, targetArray, 0, this.size);
+		this.copyInto(targetArray, 0);
 	}
+	
+	public void copyInto(Object[] targetArray, int index){
+		
+		System.arraycopy(this.elements, 0, targetArray, index, this.size);
+	}	
 	
 	public Object elementAt(int index) {
 

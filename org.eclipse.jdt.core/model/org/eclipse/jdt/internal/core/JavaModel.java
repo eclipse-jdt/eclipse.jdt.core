@@ -54,6 +54,10 @@ private void cleanupCycleMarkers() {
  * Remove the Java Model from the cache
  */
 protected void closing(Object info) throws JavaModelException {
+	if (JavaModelManager.VERBOSE){
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); //$NON-NLS-1$//$NON-NLS-2$
+	}
+
 	JavaModelManager.fgManager.fModelInfo.close();
 	JavaModelManager.fgManager.fModelInfo= null;
 }
@@ -181,7 +185,7 @@ public boolean equals(Object o) {
 protected boolean generateInfos(
 	OpenableElementInfo info,
 	IProgressMonitor pm,
-	Hashtable newElements,
+	Map newElements,
 	IResource underlyingResource)
 	throws JavaModelException {
 
@@ -415,9 +419,9 @@ public IJavaProject getJavaProject(IResource resource) {
  * @see IJavaModel
  */
 public IJavaProject[] getJavaProjects() throws JavaModelException {
-	Vector v= getChildrenOfType(JAVA_PROJECT);
-	IJavaProject[] array= new IJavaProject[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(JAVA_PROJECT);
+	IJavaProject[] array= new IJavaProject[list.size()];
+	list.toArray(array);
 	return array;
 
 }
@@ -462,6 +466,13 @@ public void rename(IJavaElement[] elements, IJavaElement[] destinations, String[
 	
 	runOperation(op, monitor);
 }
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return this;
+
+}
 /**
  * Configures and runs the <code>MultiOperation</code>.
  */
@@ -502,7 +513,7 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 
 	// lookup - outside the container
 	File externalFile = new File(path.toOSString());
-	if (externalFile.exists()) return externalFile;
+	if (!checkResourceExistence ||externalFile.exists()) return externalFile;
 	return null;	
 }
 }

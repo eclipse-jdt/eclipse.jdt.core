@@ -616,7 +616,7 @@ public void generateCode(BlockScope blockScope, CodeStream codeStream) {
 		 ((NestedTypeBinding) binding).computeSyntheticArgumentsOffset();
 	}
 	generateCode(codeStream.classFile);
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Bytecode generation for a member inner type

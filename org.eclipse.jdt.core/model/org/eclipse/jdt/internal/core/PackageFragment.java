@@ -41,7 +41,7 @@ protected PackageFragment(IPackageFragmentRoot root, String name) {
  * @see JarPackageFragment).
  */
 protected boolean computeChildren(OpenableElementInfo info, IResource resource) throws JavaModelException {
-	Vector vChildren = new Vector();
+	ArrayList vChildren = new ArrayList();
 	int kind = getKind();
 	String extType;
 	if (kind == IPackageFragmentRoot.K_SOURCE) {
@@ -60,10 +60,10 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 						IJavaElement childElement;
 						if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
 							childElement = getCompilationUnit(child.getName());
-							vChildren.addElement(childElement);
+							vChildren.add(childElement);
 						} else if (Util.isValidClassFileName(child.getName())) {
 							childElement = getClassFile(child.getName());
-							vChildren.addElement(childElement);
+							vChildren.add(childElement);
 						}
 					}
 				}
@@ -72,9 +72,8 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
-	vChildren.trimToSize();
 	IJavaElement[] children = new IJavaElement[vChildren.size()];
-	vChildren.copyInto(children);
+	vChildren.toArray(children);
 	info.setChildren(children);
 	return true;
 }
@@ -128,7 +127,7 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	return computeChildren(info, underlyingResource);
 }
 /**
@@ -150,9 +149,9 @@ public IClassFile[] getClassFiles() throws JavaModelException {
 		return fgEmptyClassFileList;
 	}
 	
-	Vector v= getChildrenOfType(CLASS_FILE);
-	IClassFile[] array= new IClassFile[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(CLASS_FILE);
+	IClassFile[] array= new IClassFile[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -169,9 +168,9 @@ public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 		return fgEmptyCompilationUnitList;
 	}
 	
-	Vector v= getChildrenOfType(COMPILATION_UNIT);
-	ICompilationUnit[] array= new ICompilationUnit[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(COMPILATION_UNIT);
+	ICompilationUnit[] array= new ICompilationUnit[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -287,6 +286,15 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
 	String[] renamings= new String[] {name};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
+}
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new PackageFragment(
+			(IPackageFragmentRoot)((JavaElement)fParent).rootedAt(project), 
+			fName);
 }
 /**
  * @private Debugging purposes

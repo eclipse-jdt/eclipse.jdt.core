@@ -68,7 +68,7 @@ public class FileListBlock extends Block {
 	 */
 	protected String[] getPaths() throws IOException {
 		if (paths == null) {
-			Vector v= new Vector();
+			ArrayList v= new ArrayList();
 			int offset= 4;
 			char[] prevPath= null;
 			for (;;) {
@@ -85,11 +85,11 @@ public class FileListBlock extends Block {
 				}
 				if (path.length == 0)
 					break;
-				v.addElement(new String(path));
+				v.add(new String(path));
 				prevPath= path;
 			}
 			paths= new String[v.size()];
-			v.copyInto(paths);
+			v.toArray(paths);
 		}
 		return paths;
 	}

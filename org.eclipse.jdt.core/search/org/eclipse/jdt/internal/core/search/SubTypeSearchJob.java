@@ -20,18 +20,18 @@ import java.util.*;
 
 public class SubTypeSearchJob extends PatternSearchJob {
 
-	Hashtable inputs = new Hashtable(5);
-public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager, IProgressMonitor progressMonitor) {
-	super(pattern, scope, detailLevel, requestor, indexManager, progressMonitor);
+	Map inputs = new HashMap(5);
+public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
+	super(pattern, scope, detailLevel, requestor, indexManager);
 }
-public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, org.eclipse.jdt.internal.core.search.indexing.IndexManager indexManager, IProgressMonitor progressMonitor) {
-	super(pattern, scope, focus, detailLevel, requestor, indexManager, progressMonitor);
+public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, org.eclipse.jdt.internal.core.search.indexing.IndexManager indexManager) {
+	super(pattern, scope, focus, detailLevel, requestor, indexManager);
 }
 public void closeAll(){
 
-	Enumeration openedInputs = inputs.elements();
-	while (openedInputs.hasMoreElements()){
-		IndexInput input = (IndexInput) openedInputs.nextElement();
+	Iterator openedInputs = inputs.values().iterator();
+	while (openedInputs.hasNext()){
+		IndexInput input = (IndexInput) openedInputs.next();
 		try {
 			input.close();
 		} catch(IOException e){
@@ -41,7 +41,7 @@ public void closeAll(){
 /**
  * execute method comment.
  */
-public boolean search(IIndex index) {
+public boolean search(IIndex index, IProgressMonitor progressMonitor) {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 

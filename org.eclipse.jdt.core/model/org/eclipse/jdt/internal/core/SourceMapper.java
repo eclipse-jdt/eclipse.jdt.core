@@ -10,8 +10,10 @@ import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 import org.eclipse.jdt.core.*;
@@ -680,22 +682,27 @@ public class SourceMapper
 			IProblemFactory factory = new DefaultProblemFactory();
 			SourceElementParser parser = null;
 			boolean isAnonymousClass = false;
+			char[] fullName = null;
+			this.anonymousClassName = 0;
 			try {
-				isAnonymousClass = ((IBinaryType) fType.getRawInfo()).isAnonymous();
+				IBinaryType binType = (IBinaryType) fType.getRawInfo();
+				isAnonymousClass = binType.isAnonymous();
+				fullName = binType.getName();
 			} catch(JavaModelException e) {
 			}
 			if (isAnonymousClass) {
+				String eltName = fType.getElementName();
+				eltName = eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());
 				try {
-					this.anonymousClassName = Integer.parseInt(fType.getElementName());
+					this.anonymousClassName = Integer.parseInt(eltName);
 				} catch(NumberFormatException e) {
 				}
-				parser = new SourceElementParser(this, factory, true);
-			} else {
-				parser = new SourceElementParser(this, factory);
 			}
+			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
+			parser = new SourceElementParser(this, factory, new CompilerOptions(JavaCore.getOptions()), doFullParse);
 			parser.parseCompilationUnit(
 				new BasicCompilationUnit(contents, type.getElementName() + ".java" ), //$NON-NLS-1$
-				isAnonymousClass);
+				doFullParse);
 			if (searchedElement != null) {
 				ISourceRange range = this.getNameRange(searchedElement);
 				return range;
@@ -747,4 +754,41 @@ public class SourceMapper
 		}
 		return imports;
 	}
+	
+	private boolean hasToRetrieveSourceRangesForLocalClass(char[] eltName) {
+		/*
+		 * A$1$B$2 : true
+		 * A$B$B$2 : true
+		 * A$C$B$D : false
+		 * A$F$B$D$1$F : true
+		 * A$1 : true
+		 * A$B : false
+		 */
+		if (eltName == null) return false;
+		int index = 0;
+		int dollarIndex = CharOperation.indexOf('$', eltName, index);
+		if (dollarIndex != -1) {
+			index = dollarIndex + 1;
+			dollarIndex = CharOperation.indexOf('$', eltName, index);
+			if (dollarIndex == -1) { 
+				dollarIndex = eltName.length;
+			}
+			while (dollarIndex != -1) {
+				for (int i = index; i < dollarIndex; i++) {
+					if (!Character.isDigit(eltName[i])) {
+						index = dollarIndex + 1;
+						i = dollarIndex;
+						if (index > eltName.length) return false;
+						dollarIndex = CharOperation.indexOf('$', eltName, index);
+						if (dollarIndex == -1) { 
+							dollarIndex = eltName.length;
+						}
+						continue;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}	
 }

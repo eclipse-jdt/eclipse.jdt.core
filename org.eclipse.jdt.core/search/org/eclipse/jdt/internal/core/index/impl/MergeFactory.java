@@ -34,12 +34,12 @@ public class MergeFactory {
 	/**
 	 * Files removed from oldIndex. 
 	 */
-	protected Hashtable removedInOld;
+	protected Map removedInOld;
 
 	/**
 	 * Files removed from addsIndex. 
 	 */
-	protected Hashtable removedInAdds;
+	protected Map removedInAdds;
 	protected int[] mappingOld;
 	protected int[] mappingAdds;
 	public static final int ADDS_INDEX= 0;
@@ -48,7 +48,7 @@ public class MergeFactory {
 	 * MergeFactory constructor comment.
 	 * @param directory java.io.File
 	 */
-	public MergeFactory(IndexInput oldIndexInput, IndexInput addsIndexInput, BlocksIndexOutput mergeIndexOutput, Hashtable removedInOld, Hashtable removedInAdds) {
+	public MergeFactory(IndexInput oldIndexInput, IndexInput addsIndexInput, BlocksIndexOutput mergeIndexOutput, Map removedInOld, Map removedInAdds) {
 		oldInput= oldIndexInput;
 		addsInput= addsIndexInput;
 		mergeOutput= mergeIndexOutput;
@@ -67,20 +67,23 @@ public class MergeFactory {
 	 * Merges the 2 indexes into a new one on the disk.
 	 */
 	public void merge() throws IOException {
-		//init
-		addsInput.open();
-		oldInput.open();
-		mergeOutput.open();
-		init();
-		//merge
-		//findChanges();
-		mergeFiles();
-		mergeReferences();
-		mergeOutput.flush();
-		//closes everything
-		oldInput.close();
-		addsInput.close();
-		mergeOutput.close();
+		try {
+			//init
+			addsInput.open();
+			oldInput.open();
+			mergeOutput.open();
+			init();
+			//merge
+			//findChanges();
+			mergeFiles();
+			mergeReferences();
+			mergeOutput.flush();
+		} finally {
+			//closes everything
+			oldInput.close();
+			addsInput.close();
+			mergeOutput.close();
+		}
 	}
 	/**
 	 * Merges the files of the 2 indexes in the new index, removes the files

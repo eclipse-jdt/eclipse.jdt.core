@@ -58,7 +58,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (constant != Constant.NotAConstant) {
 		if (valueRequired)
 			codeStream.generateConstant(constant, implicitConversion);
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
 	bits |= OnlyValueRequiredMASK;
@@ -510,7 +510,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(implicitConversion);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Boolean operator code generation
@@ -574,7 +574,7 @@ public void generateOptimizedGreaterThan(BlockScope currentScope, CodeStream cod
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		// x > 0
@@ -596,7 +596,7 @@ public void generateOptimizedGreaterThan(BlockScope currentScope, CodeStream cod
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}			
 	}
@@ -623,7 +623,7 @@ public void generateOptimizedGreaterThan(BlockScope currentScope, CodeStream cod
 						codeStream.dcmpl();
 						codeStream.ifgt(trueLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 		} else {
@@ -645,7 +645,7 @@ public void generateOptimizedGreaterThan(BlockScope currentScope, CodeStream cod
 						codeStream.dcmpl();
 						codeStream.ifle(falseLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			} else {
 				// no implicit fall through TRUE/FALSE --> should never occur
@@ -680,7 +680,7 @@ public void generateOptimizedGreaterThanOrEqual(BlockScope currentScope, CodeStr
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		// x >= 0
@@ -702,7 +702,7 @@ public void generateOptimizedGreaterThanOrEqual(BlockScope currentScope, CodeStr
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}			
 	}
@@ -729,7 +729,7 @@ public void generateOptimizedGreaterThanOrEqual(BlockScope currentScope, CodeStr
 						codeStream.dcmpl();
 						codeStream.ifge(trueLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 		} else {
@@ -751,7 +751,7 @@ public void generateOptimizedGreaterThanOrEqual(BlockScope currentScope, CodeStr
 						codeStream.dcmpl();
 						codeStream.iflt(falseLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			} else {
 				// no implicit fall through TRUE/FALSE --> should never occur
@@ -786,7 +786,7 @@ public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeSt
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		// x < 0
@@ -808,7 +808,7 @@ public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeSt
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}			
 	}
@@ -835,7 +835,7 @@ public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeSt
 						codeStream.dcmpg();
 						codeStream.iflt(trueLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 		} else {
@@ -857,7 +857,7 @@ public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeSt
 						codeStream.dcmpg();
 						codeStream.ifge(falseLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			} else {
 				// no implicit fall through TRUE/FALSE --> should never occur
@@ -892,7 +892,7 @@ public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		// x <= 0
@@ -914,7 +914,7 @@ public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}			
 	}
@@ -941,7 +941,7 @@ public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream
 						codeStream.dcmpg();
 						codeStream.ifle(trueLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			}
 		} else {
@@ -963,7 +963,7 @@ public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream
 						codeStream.dcmpg();
 						codeStream.ifgt(falseLabel);
 				}
-				codeStream.recordPositionsFrom(pc, this);
+				codeStream.recordPositionsFrom(pc, this.sourceStart);
 				return;
 			} else {
 				// no implicit fall through TRUE/FALSE --> should never occur
@@ -1002,7 +1002,7 @@ public void generateOptimizedLogicalAnd(BlockScope currentScope, CodeStream code
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		if ((condConst = right.conditionalConstant()) != NotAConstant) {
@@ -1029,7 +1029,7 @@ public void generateOptimizedLogicalAnd(BlockScope currentScope, CodeStream code
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 	}
@@ -1054,7 +1054,7 @@ public void generateOptimizedLogicalAnd(BlockScope currentScope, CodeStream code
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Boolean generation for |
@@ -1086,7 +1086,7 @@ public void generateOptimizedLogicalOr(BlockScope currentScope, CodeStream codeS
 					right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		if ((condConst = right.conditionalConstant()) != NotAConstant) {
@@ -1112,7 +1112,7 @@ public void generateOptimizedLogicalOr(BlockScope currentScope, CodeStream codeS
 				}
 				right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, false);
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 	}
@@ -1137,7 +1137,7 @@ public void generateOptimizedLogicalOr(BlockScope currentScope, CodeStream codeS
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Boolean generation for ^
@@ -1160,7 +1160,7 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 					right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		if ((condConst = right.conditionalConstant()) != NotAConstant) {
@@ -1177,7 +1177,7 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 				}
 				right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, false);
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 	}
@@ -1202,7 +1202,7 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void generateOptimizedStringBuffer(BlockScope blockScope, CodeStream codeStream, int typeID) {
 	/* In the case trying to make a string concatenation, there is no need to create a new
@@ -1217,10 +1217,10 @@ public void generateOptimizedStringBuffer(BlockScope blockScope, CodeStream code
 		} else {
 			int pc = codeStream.position;
 			left.generateOptimizedStringBuffer(blockScope, codeStream, left.implicitConversion & 0xF);
-			codeStream.recordPositionsFrom(pc, left);
+			codeStream.recordPositionsFrom(pc, left.sourceStart);
 			pc = codeStream.position;
 			right.generateOptimizedStringBuffer(blockScope, codeStream, right.implicitConversion & 0xF);
-			codeStream.recordPositionsFrom(pc, right);
+			codeStream.recordPositionsFrom(pc, right.sourceStart);
 		}
 	} else {
 		super.generateOptimizedStringBuffer(blockScope, codeStream, typeID);
@@ -1241,10 +1241,10 @@ public void generateOptimizedStringBufferCreation(BlockScope blockScope, CodeStr
 		} else {
 			int pc = codeStream.position;
 			left.generateOptimizedStringBufferCreation(blockScope, codeStream, left.implicitConversion & 0xF);
-			codeStream.recordPositionsFrom(pc, left);
+			codeStream.recordPositionsFrom(pc, left.sourceStart);
 			pc = codeStream.position;
 			right.generateOptimizedStringBuffer(blockScope, codeStream, right.implicitConversion & 0xF);
-			codeStream.recordPositionsFrom(pc, right);
+			codeStream.recordPositionsFrom(pc, right.sourceStart);
 		}
 	} else {
 		super.generateOptimizedStringBufferCreation(blockScope, codeStream, typeID);

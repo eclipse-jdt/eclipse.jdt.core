@@ -29,16 +29,15 @@ protected JarPackageFragment(IPackageFragmentRoot root, String name) {
  * can only be IClassFile (representing .class files).
  */
 protected boolean computeChildren(OpenableElementInfo info) {
-	Vector vChildren = new Vector();
+	ArrayList vChildren = new ArrayList();
 	JarPackageFragmentInfo jInfo= (JarPackageFragmentInfo)info;
-	for (Enumeration e = jInfo.fEntryNames.elements(); e.hasMoreElements();) {
-		String child = (String) e.nextElement();
+	for (Iterator iter = jInfo.fEntryNames.iterator(); iter.hasNext();) {
+		String child = (String) iter.next();
 		IClassFile classFile = getClassFile(child);
-		vChildren.addElement(classFile);
+		vChildren.add(classFile);
 	}
-	vChildren.trimToSize();
 	IJavaElement[] children= new IJavaElement[vChildren.size()];
-	vChildren.copyInto(children);
+	vChildren.toArray(children);
 	info.setChildren(children);
 	return true;
 }
@@ -80,9 +79,9 @@ protected OpenableElementInfo createElementInfo() {
  * @see IPackageFragment
  */
 public IClassFile[] getClassFiles() throws JavaModelException {
-	Vector v= getChildrenOfType(CLASS_FILE);
-	IClassFile[] array= new IClassFile[v.size()];
-	v.copyInto(array);
+	ArrayList list = getChildrenOfType(CLASS_FILE);
+	IClassFile[] array= new IClassFile[list.size()];
+	list.toArray(array);
 	return array;
 }
 /**
@@ -120,7 +119,7 @@ public boolean isReadOnly() {
 /**
  * @see Openable#openWhenClosed()
  */
-protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	// Open my jar
 	getOpenableParent().open(pm);
 }
@@ -129,6 +128,15 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
  */
 public void refreshChildren() {
 	// do nothing
+}
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new JarPackageFragment(
+			(IPackageFragmentRoot)((JavaElement)fParent).rootedAt(project), 
+			fName);
 }
 protected Object[] storedNonJavaResources() throws JavaModelException {
 	return ((JarPackageFragmentInfo) getElementInfo()).getNonJavaResources();

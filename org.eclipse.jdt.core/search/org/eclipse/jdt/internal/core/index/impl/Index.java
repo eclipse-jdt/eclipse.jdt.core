@@ -38,12 +38,12 @@ public class Index implements IIndex {
 	/**
 	 * Files removed form the addsIndex.
 	 */
-	protected Hashtable removedInAdds;
+	protected Map removedInAdds;
 
 	/**
 	 * Files removed form the oldIndex.
 	 */
-	protected Hashtable removedInOld;
+	protected Map removedInOld;
 	protected static final int CAN_MERGE= 0;
 	protected static final int MERGED= 1;
 	private File indexFile;
@@ -115,8 +115,8 @@ public class Index implements IIndex {
 		addsIndexInput= new SimpleIndexInput(addsIndex);
 
 		//vectors who keep track of the removed Files
-		removedInAdds= new Hashtable(11);
-		removedInOld= new Hashtable(11);
+		removedInAdds= new HashMap(11);
+		removedInOld= new HashMap(11);
 	}
 	/**
 	 * @see IIndex#getIndexFile
@@ -181,8 +181,8 @@ public class Index implements IIndex {
 		addsIndexInput= new SimpleIndexInput(addsIndex);
 
 		//vectors who keep track of the removed Files
-		removedInAdds= new Hashtable(11);
-		removedInOld= new Hashtable(11);
+		removedInAdds= new HashMap(11);
+		removedInOld= new HashMap(11);
 
 		// check whether existing index file can be read
 		if (indexFile.exists()) {
@@ -227,26 +227,28 @@ public class Index implements IIndex {
 		IndexInput mainIndexInput= new BlocksIndexInput(indexFile);
 		BlocksIndexOutput tempIndexOutput= new BlocksIndexOutput(tempFile);
 
-		//invoke a mergeFactory
-		new MergeFactory(
-			mainIndexInput, 
-			addsIndexInput, 
-			tempIndexOutput, 
-			removedInOld, 
-			removedInAdds).merge();
-		
-		//rename the file created to become the main index
-		File mainIndexFile= (File) mainIndexInput.getSource();
-		File tempIndexFile= (File) tempIndexOutput.getDestination();
-		mainIndexFile.delete();
-		tempIndexFile.renameTo(mainIndexFile);
-		
-		//initialise remove vectors and addsindex, and change the state
-		removedInAdds.clear();
-		removedInOld.clear();
-		addsIndex.init();
-		addsIndexInput= new SimpleIndexInput(addsIndex);
-		state= MERGED;
+		try {
+			//invoke a mergeFactory
+			new MergeFactory(
+				mainIndexInput, 
+				addsIndexInput, 
+				tempIndexOutput, 
+				removedInOld, 
+				removedInAdds).merge();
+			
+			//rename the file created to become the main index
+			File mainIndexFile= (File) mainIndexInput.getSource();
+			File tempIndexFile= (File) tempIndexOutput.getDestination();
+			mainIndexFile.delete();
+			tempIndexFile.renameTo(mainIndexFile);
+		} finally {		
+			//initialise remove vectors and addsindex, and change the state
+			removedInAdds.clear();
+			removedInOld.clear();
+			addsIndex.init();
+			addsIndexInput= new SimpleIndexInput(addsIndex);
+			state= MERGED;
+		}
 	}
 	/**
 	 * @see IIndex#query

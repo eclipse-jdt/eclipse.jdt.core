@@ -20,6 +20,8 @@ import org.eclipse.jdt.internal.core.builder.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.impl.*;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
+import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
+import org.eclipse.jdt.internal.core.newbuilder.JavaBuilder;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
 /**
@@ -78,9 +80,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	private static final String INDEX_MANAGER_DEBUG = PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
+	private static final String JAVAMODEL_DEBUG = PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String DELTA_DEBUG = PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
+	private static final String HIERARCHY_DEBUG = PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
+	private static final String BUILDER_DEBUG = PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
 	
 	
-	private static Hashtable Variables = new Hashtable(5);
+	private static Map Variables = new HashMap(5);
 	private static Hashtable Options = getDefaultOptions();
 
 	/**
@@ -163,22 +169,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * element's parents if they are not yet open.
 	 */
 	public static IJavaElement create(IFile file) {
-		if (file == null) {
-			return null;
-		}
-		String extension = file.getProjectRelativePath().getFileExtension();
-		if (extension != null) {
-			if (Util.isValidCompilationUnitName(file.getName())) {
-				return createCompilationUnitFrom(file);
-			} else if (Util.isValidClassFileName(file.getName())) {
-				return createClassFileFrom(file);
-			} else if (extension.equalsIgnoreCase("jar"  //$NON-NLS-1$
-				) || extension.equalsIgnoreCase("zip"  //$NON-NLS-1$
-				)) {
-				return createJarPackageFragmentRootFrom(file);
-			}
-		}
-		return null;
+		return JavaModelManager.create(file, null);
 	}
 	/**
 	 * Returns the package fragment or package fragment root corresponding to the given folder, or
@@ -190,34 +181,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * element's parents if they are not yet open.
 	 */
 	public static IJavaElement create(IFolder folder) {
-		if (folder == null) {
-			return null;
-		}
-		if (folder.getName().indexOf('.') < 0) {
-			JavaProject project = (JavaProject) create(folder.getProject());
-			if (project == null)
-				return null;
-			IJavaElement element = determineIfOnClasspath(folder, project);
-			try {
-				IPath outputLocation = project.getOutputLocation();
-				if (outputLocation == null)
-					return null;
-				if (outputLocation.isPrefixOf(folder.getFullPath())) {
-					if (project.getClasspathEntryFor(outputLocation) != null) {
-						// if the output location is the same as an input location, return the element
-						return element;
-					} else {
-						// otherwise, do not create elements for folders in the output location
-						return null;
-					}
-				} else {
-					return element;
-				}
-			} catch (JavaModelException e) {
-				return null;
-			}
-		}
-		return null;
+		return JavaModelManager.create(folder, null);
 	}
 	/**
 	 * Returns the Java project corresponding to the given project, or
@@ -253,22 +217,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * element's parents if they are not yet open.
 	 */
 	public static IJavaElement create(IResource resource) {
-		if (resource == null) {
-			return null;
-		}
-		int type = resource.getType();
-		switch (type) {
-			case IResource.PROJECT :
-				return create((IProject) resource);
-			case IResource.FILE :
-				return create((IFile) resource);
-			case IResource.FOLDER :
-				return create((IFolder) resource);
-			case IResource.ROOT :
-				return create((IWorkspaceRoot) resource);
-			default :
-				return null;
-		}
+		return JavaModelManager.create(resource, null);
 	}
 	/**
 	 * Returns the Java model.
@@ -285,15 +234,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * to recognize the class file.
 	 */
 	public static IClassFile createClassFileFrom(IFile file) {
-		IJavaProject project = (IJavaProject) create(file.getProject());
-		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
-		if (pkg == null) {
-			// fix for 1FVS7WE
-			// not on classpath - make the root its folder, and a default package
-			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-		}
-		return pkg.getClassFile(file.getName());
+		return JavaModelManager.createClassFileFrom(file, null);
 	}
 	/**
 	 * Creates and returns a compilation unit element for
@@ -301,16 +242,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * to recognize the compilation unit.
 	 */
 	public static ICompilationUnit createCompilationUnitFrom(IFile file) {
-		IProject fileProject = file.getProject();
-		IJavaProject project = (IJavaProject) create(fileProject);
-		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
-		if (pkg == null) {
-			// fix for 1FVS7WE
-			// not on classpath - make the root its folder, and a default package
-			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
-		}
-		return pkg.getCompilationUnit(file.getName());
+		return JavaModelManager.createCompilationUnitFrom(file, null);
 	}
 	/**
 	 * Creates and returns a handle for the given JAR file.
@@ -320,71 +252,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * (for example, if the JAR file represents a non-Java resource)
 	 */
 	public static IPackageFragmentRoot createJarPackageFragmentRootFrom(IFile file) {
-		IJavaProject project = (IJavaProject) create(file.getProject());
+		return JavaModelManager.createJarPackageFragmentRootFrom(file, null);
+	}
 
-		// Create a jar package fragment root only if on the classpath
-		IPath resourcePath = file.getFullPath();
-		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-			for (int i = 0, length = entries.length; i < length; i++) {
-				IClasspathEntry entry = entries[i];
-				IPath rootPath = entry.getPath();
-				if (rootPath.equals(resourcePath)) {
-					return project.getPackageFragmentRoot(file);
-				}
-			}
-		} catch (JavaModelException e) {
-		}
-		return null;
-	}
-	/**
-	 * Returns the package fragment root represented by the resource, or
-	 * the package fragment the given resource is located in, or <code>null</code>
-	 * if the given resource is not on the classpath of the given project.
-	 */
-	private static IJavaElement determineIfOnClasspath(
-		IResource resource,
-		IJavaProject project) {
-		IPath resourcePath = resource.getFullPath();
-		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-			for (int i = 0; i < entries.length; i++) {
-				IClasspathEntry entry = entries[i];
-				IPath rootPath = entry.getPath();
-				if (rootPath.equals(resourcePath)) {
-					return project.getPackageFragmentRoot(resource);
-				} else if (rootPath.isPrefixOf(resourcePath)) {
-					IPackageFragmentRoot root =
-						((JavaProject) project).getPackageFragmentRoot(rootPath);
-					if (root == null) return null;
-					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
-					if (resource.getType() == IResource.FILE) {
-						// if the resource is a file, then remove the last segment which
-						// is the file name in the package
-						pkgPath = pkgPath.removeLastSegments(1);
-					}
-					StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
-					for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
-						String segment = pkgPath.segment(j);
-						if (segment.indexOf('.') >= 0) {
-							return null;
-						}
-						pkgName.append(segment);
-						if (j < pkgPath.segmentCount() - 1) {
-							pkgName.append("." ); //$NON-NLS-1$
-						}
-					}
-					if (!JavaConventions.validatePackageName(pkgName.toString()).isOK()) {
-						return null;
-					}
-					return root.getPackageFragment(pkgName.toString());
-				}
-			}
-		} catch (JavaModelException npe) {
-			return null;
-		}
-		return null;
-	}
 	/**
 	 * Returns the path held in the given classpath variable.
 	 * Returns <node>null</code> if unable to bind.
@@ -413,10 +283,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static String[] getClasspathVariableNames() {
 		int length = Variables.size();
 		String[] result = new String[length];
-		Enumeration vars = Variables.keys();
+		Iterator vars = Variables.keySet().iterator();
 		int index = 0;
-		while (vars.hasMoreElements()) {
-			result[index++] = (String) vars.nextElement();
+		while (vars.hasNext()) {
+			result[index++] = (String) vars.next();
 		}
 		return result;
 	}
@@ -1032,11 +902,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	private void startIndexing() {
 
-		JavaModelManager manager =
-			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		IndexManager indexManager = manager.getIndexManager();
-		if (indexManager != null)
-			indexManager.reset();
+		JavaModelManager.getJavaModelManager().getIndexManager().reset();
 	}
 
 	/**
@@ -1055,16 +921,27 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			
 			option = Platform.getDebugOption(COMPILER_DEBUG);
 			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
+			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(DELTA_DEBUG);
+			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(HIERARCHY_DEBUG);
+			if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(BUILDER_DEBUG);
+			if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IndexManager indexManager = manager.getIndexManager();
-			if (indexManager != null) {
-				// need to initialize workbench now since a query may be done before indexing starts
-				indexManager.workspace = workspace;
-			}
+
+			// need to initialize workspace now since a query may be done before indexing starts
+			manager.getIndexManager().workspace = workspace;
+
 			workspace.addResourceChangeListener(
 				manager,
 				IResourceChangeEvent.PRE_AUTO_BUILD
@@ -1093,7 +970,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		throws JavaModelException {
 
 		// gather classpath information for updating
-		Hashtable affectedProjects = new Hashtable(5);
+		HashMap affectedProjects = new HashMap(5);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IJavaModel model = manager.getJavaModel();
@@ -1131,16 +1008,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				if (wasFiring)
 					manager.stopDeltas();
 				// propagate classpath change
-				Enumeration projectsToUpdate = affectedProjects.keys();
-				while (projectsToUpdate.hasMoreElements()) {
-					JavaProject project = (JavaProject) projectsToUpdate.nextElement();
+				Iterator projectsToUpdate = affectedProjects.keySet().iterator();
+				while (projectsToUpdate.hasNext()) {
+					JavaProject project = (JavaProject) projectsToUpdate.next();
 					project
 						.setRawClasspath(
 							project.getRawClasspath(),
+							SetClasspathOperation.ReuseOutputLocation,
 							monitor,
+							true,
 							project.getWorkspace().isAutoBuilding(),
-					// force build if in auto build mode
-					 (IClasspathEntry[]) affectedProjects.get(project));
+							// force build if in auto build mode
+							(IClasspathEntry[]) affectedProjects.get(project));
 				}
 			} finally {
 				manager.mergeDeltas();
@@ -1398,6 +1277,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:				"org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:	{ "enabled", "disabled" }
 	 *     - default:				"disabled"
+	 * 
+	 *	CODEASSIST / Automatic Qualification of Implicit Members
+	 *    When active, completion automatically qualifies completion on implicit
+	 *    field references and message expressions.
+	 *     - option id:				"org.eclipse.jdt.core.codeComplete.forceImplicitQualification"
+	 *     - possible values:	{ "enabled", "disabled" }
+	 *     - default:				"disabled"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
@@ -1443,8 +1329,181 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		// CodeAssist settings
 		defaultOptions.put("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
-
+		defaultOptions.put("org.eclipse.jdt.core.codeComplete.forceImplicitQualification", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+		
 		return defaultOptions;
 	}
+
+
+	/**
+	 * Names of recognized configurable options
+	 */
 	
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_LOCAL_VARIABLE_ATTR = PLUGIN_ID + ".compiler.debug.localVariable"; //$NON-NLS-1$
+		// possible values are GENERATE or DO_NOT_GENERATE (default is DO_NOT_GENERATE)
+		
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_LINE_NUMBER_ATTR = PLUGIN_ID + ".compiler.debug.lineNumber"; //$NON-NLS-1$
+		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
+		
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_SOURCE_FILE_ATTR = PLUGIN_ID + ".compiler.debug.sourceFile"; //$NON-NLS-1$
+		// possible values are  GENERATE or DO_NOT_GENERATE (default is GENERATE)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal"; //$NON-NLS-1$
+		// possible values are PRESERVE or OPTIMIZE_OUT	(default is OPTIMIZE_OUT)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"; //$NON-NLS-1$
+		// possible values are VERSION_1_1 or VERSION_1_2	(default is VERSION_1_1)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"; //$NON-NLS-1$
+		// possible values are ERROR or WARNING	(default is ERROR)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_INVALID_IMPORT = PLUGIN_ID + ".compiler.problem.invalidImport"; //$NON-NLS-1$
+		// possible values are ERROR or WARNING	(default is ERROR)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD = PLUGIN_ID + ".compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+		
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME = PLUGIN_ID + ".compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_HIDDEN_CATCH_BLOCK = PLUGIN_ID + ".compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_UNUSED_LOCAL = PLUGIN_ID + ".compiler.problem.unusedLocal"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is WARNING)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
+		// possible values are WARNING or IGNORE (default is IGNORE)
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
+		// possible values are COMPUTE or IGNORE (default is COMPUTE)
+
+	/**
+	 * Possible values for configurable options
+	 */
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String GENERATE = "generate"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String DO_NOT_GENERATE = "do not generate"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String PRESERVE = "preserve"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String OPTIMIZE_OUT = "optimize out"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String VERSION_1_1 = "1.1"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String VERSION_1_2 = "1.2"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String ERROR = "error"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String WARNING = "warning"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String IGNORE = "ignore"; //$NON-NLS-1$
+
+	/** 
+	 * @deprecated - use string value directly
+	 * @see JavaCore#getDefaultOptions
+	 */
+	public static final String COMPUTE = "compute"; //$NON-NLS-1$
 }

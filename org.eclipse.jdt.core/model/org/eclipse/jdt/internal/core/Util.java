@@ -7,9 +7,9 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
@@ -22,6 +22,9 @@ import java.util.ResourceBundle;
  * Provides convenient utility methods to other types in this package.
  */
 public class Util {
+
+	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
+	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
 	public interface Comparable {
 		/**
@@ -191,6 +194,7 @@ public static int compare(char[] v1, char[] v2) {
 		s2.getChars(0, l2, buf, l1);
 		return new String(buf);
 	}
+
 	/**
 	 * Concatenate three strings.
 	 * @see concat(String, String)
@@ -469,6 +473,23 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 		int len = sig.length();
 		return checkTypeSignature(sig, 0, len, allowVoid) == len;
 	}
+
+/**
+ * Add entry into the workspace log file
+ */
+public static void log(String message){
+	JavaCore.getPlugin().getLog().log(
+		new JavaModelStatus(IStatus.ERROR, message));
+}	
+
+/**
+ * Add entry into the workspace log file
+ */
+public static void log(Throwable e){
+	JavaCore.getPlugin().getLog().log(
+		new JavaModelStatus(IStatus.ERROR, e));
+}	
+
 /**
  * Sort the objects in the given collection using the given sort order.
  */
@@ -558,6 +579,24 @@ private static void quickSort(String[] sortedCollection, int left, int right) {
 	if (left < original_right) {
 		quickSort(sortedCollection, left, original_right);
 	}
+}
+/**
+ * Converts the given relative path into a package name.
+ * Returns null if the path is not a valid package name.
+ */
+public static String packageName(IPath pkgPath) {
+	StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
+		String segment = pkgPath.segment(j);
+		if (segment.indexOf('.') >= 0) {
+			return null;
+		}
+		pkgName.append(segment);
+		if (j < pkgPath.segmentCount() - 1) {
+			pkgName.append("." ); //$NON-NLS-1$
+		}
+	}
+	return pkgName.toString();
 }
 /**
  * Sort the comparable objects in the given collection.
@@ -795,8 +834,14 @@ public static String bind(String id, String[] bindings) {
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
 		return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 	}
+	// for compatibility with MessageFormat which eliminates double quotes in original message
+	char[] messageWithNoDoubleQuotes =
+	CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
+	message = new String(messageWithNoDoubleQuotes);
+
 	if (bindings == null)
 		return message;
+
 	int length = message.length();
 	int start = -1;
 	int end = length;

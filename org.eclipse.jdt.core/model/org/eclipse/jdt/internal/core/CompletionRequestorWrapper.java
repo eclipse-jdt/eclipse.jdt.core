@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.core.*;
@@ -15,10 +14,10 @@ import org.eclipse.jdt.core.*;
 public class CompletionRequestorWrapper implements ICompletionRequestor {
 	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
 	
-	ICodeCompletionRequestor clientRequestor;
+	ICompletionRequestor clientRequestor;
 	NameLookup nameLookup;
 	
-public CompletionRequestorWrapper(ICodeCompletionRequestor clientRequestor, NameLookup nameLookup){
+public CompletionRequestorWrapper(ICompletionRequestor clientRequestor, NameLookup nameLookup){
 	this.clientRequestor = clientRequestor;
 	this.nameLookup = nameLookup;
 }
@@ -32,23 +31,8 @@ public void acceptClass(char[] packageName, char[] className, char[] completionN
 /**
  * See ICompletionRequestor
  */
-public void acceptError(IProblem error) {
-
-	if (true) return; // work-around PR 1GD9RLP: ITPJCORE:WIN2000 - Code assist is slow
-	try {
-		IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-		marker.setAttribute(IJavaModelMarker.ID, error.getID());
-		marker.setAttribute(IMarker.CHAR_START, error.getSourceStart());
-		marker.setAttribute(IMarker.CHAR_END, error.getSourceEnd() + 1);
-		marker.setAttribute(IMarker.LINE_NUMBER, error.getSourceLineNumber());
-		//marker.setAttribute(IMarker.LOCATION, "#" + error.getSourceLineNumber());
-		marker.setAttribute(IMarker.MESSAGE, error.getMessage());
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-
-		this.clientRequestor.acceptError(marker);
-
-	} catch(CoreException e){
-	}
+public void acceptError(IMarker problemMarker) {
+	this.clientRequestor.acceptError(problemMarker);
 }
 /**
  * See ICompletionRequestor

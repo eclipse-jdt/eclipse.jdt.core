@@ -19,19 +19,16 @@ ZipFile zipFile;
 SimpleLookupTable directoryCache;	
 
 ClasspathJar(String zipFilename) {
-	this.zipFilename = zipFilename;
-	this.zipFile = null;
-	this.directoryCache = null;
+	try {
+		this.zipFilename = zipFilename;
+		this.zipFile = new ZipFile(new File(zipFilename));
+		buildDirectoryStructure();
+	} catch(IOException e) {
+		directoryCache = new SimpleLookupTable();
+	}
 }
 
 void buildDirectoryStructure() {
-	try {
-		this.zipFile = new ZipFile(zipFilename);
-	} catch(IOException e) {
-		this.directoryCache = new SimpleLookupTable();
-		return;
-	}
-
 	directoryCache = new SimpleLookupTable(101);
 	for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = ((ZipEntry) e.nextElement()).getName();
@@ -50,10 +47,7 @@ void buildDirectoryStructure() {
 	}
 }
 
-void cleanup() {
-	if (zipFile != null) {
-		try { zipFile.close(); } catch(IOException e) {}
-	}
+void clear() {
 	this.zipFile = null;
 	this.directoryCache = null;
 }
@@ -65,8 +59,14 @@ public boolean equals(Object o) {
 	return zipFilename.equals(((ClasspathJar) o).zipFilename);
 }
 
+boolean isPackage(char[][] compoundName, char[] packageName) {
+	return 
+		directoryCache.get(
+			NameEnvironment.assembleName(packageName, compoundName, '/'))
+				!= null;
+}
+
 NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
-	if (directoryCache == null) buildDirectoryStructure();
 	try {
 		String binaryFilename =
 			NameEnvironment.assembleName(new String(className) + ".class", packageName, '/'); //$NON-NLS-1$
@@ -77,14 +77,6 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 	} catch (Exception e) {
 		return null; // treat as if class file is missing
 	}
-}
-
-boolean isPackage(char[][] compoundName, char[] packageName) {
-	if (directoryCache == null) buildDirectoryStructure();
-	return
-		directoryCache.get(
-			NameEnvironment.assembleName(packageName, compoundName, '/'))
-				!= null;
 }
 
 public String toString() {

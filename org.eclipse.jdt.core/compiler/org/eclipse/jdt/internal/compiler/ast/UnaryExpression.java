@@ -55,7 +55,7 @@ public class UnaryExpression extends OperatorExpression {
 			if (valueRequired) {
 				codeStream.generateConstant(constant, implicitConversion);
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
@@ -72,13 +72,16 @@ public class UnaryExpression extends OperatorExpression {
 							valueRequired);
 						if (valueRequired) {
 							codeStream.iconst_0();
-							codeStream.goto_(endifLabel = new Label(codeStream));
-							codeStream.decrStackSize(1);
-							falseLabel.place();
-							if (valueRequired)
+							if (falseLabel.hasForwardReferences()) {
+								codeStream.goto_(endifLabel = new Label(codeStream));
+								codeStream.decrStackSize(1);
+								falseLabel.place();
 								codeStream.iconst_1();
-							endifLabel.place();
-						}
+								endifLabel.place();
+							}
+						} else { // 6596: if (!(a && b)){} - must still place falseLabel
+							falseLabel.place();
+						}						
 						break;
 				}
 				break;
@@ -146,7 +149,7 @@ public class UnaryExpression extends OperatorExpression {
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	/**

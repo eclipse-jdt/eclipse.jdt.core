@@ -218,7 +218,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 		if (!this.matchesName(this.typeSimpleName, sourceName))
 			return IMPOSSIBLE_MATCH;
 
-		return POSSIBLE_MATCH;
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }
 

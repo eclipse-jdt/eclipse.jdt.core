@@ -43,14 +43,12 @@ private void addEnclosingProjectOrJar(IPath path) {
 	this.enclosingProjectsAndJars[length] = path;
 }
 
-public void add(IJavaProject javaProject, boolean includesPrereqProjects, Hashtable visitedProjects) throws JavaModelException {
+public void add(IJavaProject javaProject, boolean includesPrereqProjects, HashSet visitedProjects) throws JavaModelException {
 	IProject project = javaProject.getProject();
-	if (!project.isAccessible() || visitedProjects.get(project) != null) return;
-	visitedProjects.put(project, project);
+	if (!project.isAccessible() || !visitedProjects.add(project)) return;
 
 	this.addEnclosingProjectOrJar(project.getFullPath());
 
-	IWorkspaceRoot root = project.getWorkspace().getRoot();
 	IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
 	IJavaModel model = javaProject.getJavaModel();
 	for (int i = 0, length = entries.length; i < length; i++) {
@@ -75,7 +73,7 @@ public void add(IJavaProject javaProject, boolean includesPrereqProjects, Hashta
 public void add(IJavaElement element) throws JavaModelException {
 	IPackageFragmentRoot root = null;
 	if (element instanceof IJavaProject) {
-		this.add((IJavaProject)element, true, new Hashtable(2));
+		this.add((IJavaProject)element, true, new HashSet(2));
 	} else if (element instanceof IPackageFragmentRoot) {
 		root = (IPackageFragmentRoot)element;
 		this.add(root.getPath(), true);
@@ -93,6 +91,15 @@ public void add(IJavaElement element) throws JavaModelException {
 		IResource resource = element.getUnderlyingResource();
 		if (resource != null && resource.isAccessible()) {
 			this.add(resource.getFullPath(), true);
+			
+			// find package fragment root including this java element
+			IJavaElement parent = element.getParent();
+			while (parent != null && !(parent instanceof IPackageFragmentRoot)) {
+				parent = parent.getParent();
+			}
+			if (parent instanceof IPackageFragmentRoot) {
+				root = (IPackageFragmentRoot)parent;
+			}
 		}	
 	}
 	
@@ -196,6 +203,7 @@ private IPath fullPath(IJavaElement element) {
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#includesBinaries()
+ * @deprecated
  */
 public boolean includesBinaries() {
 	return true;
@@ -203,6 +211,7 @@ public boolean includesBinaries() {
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#includesClasspaths()
+ * @deprecated
  */
 public boolean includesClasspaths() {
 	return true;
@@ -210,12 +219,14 @@ public boolean includesClasspaths() {
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#setIncludesBinaries
+ * @deprecated
  */
 public void setIncludesBinaries(boolean includesBinaries) {
 }
 
 /* (non-Javadoc)
  * @see IJavaSearchScope#setIncludeClasspaths
+ * @deprecated
  */
 public void setIncludesClasspaths(boolean includesClasspaths) {
 }

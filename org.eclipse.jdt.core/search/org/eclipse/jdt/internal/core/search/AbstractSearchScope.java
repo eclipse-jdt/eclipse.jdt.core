@@ -4,9 +4,6 @@ package org.eclipse.jdt.internal.core.search;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.util.Enumeration;
-import java.util.Vector;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.resources.IResource;
 

@@ -100,7 +100,7 @@ private boolean canSeeFocus(IPath projectOrJarPath) {
 	}
 }
 private void computeIndexes() {
-	Vector indexesInScope = new Vector();
+	ArrayList indexesInScope = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IWorkspaceRoot root = this.indexManager.workspace.getRoot();
 	for (int i = 0; i < projectsAndJars.length; i++) {
@@ -121,7 +121,7 @@ private void computeIndexes() {
 		}
 	}
 	this.indexes = new IIndex[indexesInScope.size()];
-	indexesInScope.copyInto(this.indexes);
+	indexesInScope.toArray(this.indexes);
 }
 public IIndex[] getIndexes() {
 	if (this.indexes == null) {

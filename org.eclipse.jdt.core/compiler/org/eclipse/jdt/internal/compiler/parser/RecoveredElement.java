@@ -14,7 +14,7 @@ public class RecoveredElement {
 	public RecoveredElement parent;
 	public int bracketBalance;
 	public boolean foundOpeningBrace;
-	private Parser recoveringParser;
+	protected Parser recoveringParser;
 public RecoveredElement(RecoveredElement parent, int bracketBalance){
 	this(parent, bracketBalance, null);
 }

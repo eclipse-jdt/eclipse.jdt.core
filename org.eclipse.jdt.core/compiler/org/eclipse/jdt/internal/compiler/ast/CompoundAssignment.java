@@ -42,7 +42,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(implicitConversion);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public String operatorToString() {
 	switch (operator) {

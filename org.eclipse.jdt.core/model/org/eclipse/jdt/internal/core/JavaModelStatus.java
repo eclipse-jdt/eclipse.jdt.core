@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.runtime.IPath;
-import java.util.Vector;
 
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.core.runtime.Status;
@@ -310,6 +309,9 @@ public static IJavaModelStatus newMultiStatus(IJavaModelStatus[] children) {
  * purposes.
  */
 public String toString() {
+	if (this == VERIFIED_OK){
+		return "JavaModelStatus[OK]"; //$NON-NLS-1$
+	}
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Java Model Status ["); //$NON-NLS-1$
 	buffer.append(getMessage());

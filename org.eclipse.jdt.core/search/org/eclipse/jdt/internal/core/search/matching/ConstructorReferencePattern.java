@@ -9,6 +9,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
@@ -22,8 +23,27 @@ import java.io.*;
 public class ConstructorReferencePattern extends MethodReferencePattern {
 
 	private char[] decodedTypeName;
-public ConstructorReferencePattern(char[] declaringSimpleName, int matchMode, boolean isCaseSensitive, char[] declaringQualification, char[][] parameterQualifications, char[][] parameterSimpleNames) {
-	super(null, matchMode, isCaseSensitive, declaringQualification, declaringSimpleName, null, null, parameterQualifications, parameterSimpleNames);
+	
+public ConstructorReferencePattern(
+	char[] declaringSimpleName, 
+	int matchMode, 
+	boolean isCaseSensitive, 
+	char[] declaringQualification, 
+	char[][] parameterQualifications, 
+	char[][] parameterSimpleNames,
+	IType declaringType) {
+		
+	super(
+		null, 
+		matchMode, 
+		isCaseSensitive, 
+		declaringQualification, 
+		declaringSimpleName, 
+		null, 
+		null, 
+		parameterQualifications, 
+		parameterSimpleNames,
+		declaringType);
 }
 public void decodeIndexEntry(IEntryResult entryResult){
 
@@ -146,7 +166,7 @@ private int matchLevel(AllocationExpression allocation, boolean resolve) {
 			if (parameterCount != argumentCount)
 				return IMPOSSIBLE_MATCH;
 		}
-		return POSSIBLE_MATCH;
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }
 
@@ -179,7 +199,7 @@ private int matchLevel(ExplicitConstructorCall call, boolean resolve) {
 			if (parameterCount != argumentCount)
 				return IMPOSSIBLE_MATCH;
 		}
-		return POSSIBLE_MATCH;
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }
 

@@ -53,7 +53,7 @@ public abstract class AssistParser extends Parser {
 	protected int inMethodPtr;
 	protected boolean[] inMethodStack = new boolean[StackIncrement];
 public AssistParser(ProblemReporter problemReporter, boolean assertMode) {
-	super(problemReporter, false, assertMode);
+	super(problemReporter, true, assertMode);
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){

@@ -549,7 +549,7 @@ public static final char[][] splitOn(char divider, char[] array) {
 }
 public static final char[][] splitOn(char divider, char[] array, int start, int end) {
 	int length = array == null ? 0 : array.length;
-	if (length == 0)
+	if (length == 0 || start > end)
 		return TypeConstants.NoCharChar;
 
 	int wordCount = 1;

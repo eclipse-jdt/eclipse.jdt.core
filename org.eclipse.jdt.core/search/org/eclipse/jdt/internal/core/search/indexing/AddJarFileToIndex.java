@@ -40,7 +40,9 @@ class AddJarFileToIndex implements IJob {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(projectName);
 	}
-	public boolean execute() {
+	public boolean execute(IProgressMonitor progressMonitor) {
+		
+		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 		try {
 			if (this.resource != null) {
 				if (!this.resource.isLocal(IResource.DEPTH_ZERO)) {
@@ -82,10 +84,10 @@ class AddJarFileToIndex implements IJob {
 				}
 
 				if (JobManager.VERBOSE)
-					System.out.println("INDEX : " + zip.getName()); //$NON-NLS-1$
+					System.out.println("INDEX ("+ Thread.currentThread()+"): " + zip.getName()); //$NON-NLS-1$//$NON-NLS-2$
 				long initialTime = System.currentTimeMillis();
 
-				final Hashtable indexedFileNames = new Hashtable(100);
+				final HashSet indexedFileNames = new HashSet(100);
 				IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
 				int resultLength = results == null ? 0 : results.length;
 				if (resultLength != 0) {
@@ -96,7 +98,7 @@ class AddJarFileToIndex implements IJob {
 					 */
 					for (int i = 0; i < resultLength; i++) {
 						String fileName = results[i].getPath();
-						indexedFileNames.put(fileName, fileName);
+						indexedFileNames.add(fileName);
 					}
 					boolean needToReindex = false;
 					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
@@ -105,7 +107,7 @@ class AddJarFileToIndex implements IJob {
 						if (Util.isClassFileName(ze.getName())) {
 							JarFileEntryDocument entryDocument =
 								new JarFileEntryDocument(ze, null, zipFilePath);
-							if (indexedFileNames.remove(entryDocument.getName()) == null) {
+							if (!indexedFileNames.remove(entryDocument.getName())) {
 								needToReindex = true;
 								break;
 							}

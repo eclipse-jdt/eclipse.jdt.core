@@ -359,12 +359,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	public static final int SquareBracket = 1;
 	public static final int CurlyBracket = 2;
 	public static final int BracketKinds = 3;
-public Parser(ProblemReporter problemReporter) {
-	this(problemReporter, false);
-}
-public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
-	this(problemReporter, false, false);
-}
+
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals, boolean assertMode) {
 		
 	this.problemReporter = problemReporter;
@@ -1373,6 +1368,7 @@ protected void consumeClassBodyDeclaration() {
 	//optimize the push/pop
 	nestedMethod[nestedType]--;
 	Initializer initializer = new Initializer((Block) astStack[astPtr], 0);
+	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
 	astStack[astPtr] = initializer;
 	initializer.sourceEnd = endStatementPosition;
 	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
@@ -1490,8 +1486,12 @@ protected void consumeClassHeaderName() {
 	identifierLengthPtr--;
 
 	//compute the declaration source too
+	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
+	// we want to keep the beginning position but get rid of the end position
+	// it is only used for the ClassLiteralAccess positions.
 	typeDecl.declarationSourceStart = intStack[intPtr--]; 
-	// 'class' and 'interface' push an int position
+	intPtr--; // remove the end position of the class token
+
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
 	if (typeDecl.modifiersSourceStart >= 0) {
@@ -1889,8 +1889,8 @@ protected void consumeEnterVariable() {
 		int baseType;
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
-			int typeSourceStart = type.sourceStart();
-			int typeSourceEnd = type.sourceEnd();
+			int typeSourceStart = type.sourceStart;
+			int typeSourceEnd = type.sourceEnd;
 			type = TypeReference.baseTypeReference(-baseType, dimension);
 			type.sourceStart = typeSourceStart;
 			type.sourceEnd = typeSourceEnd;
@@ -2230,8 +2230,11 @@ protected void consumeInterfaceHeaderName() {
 	identifierLengthPtr--;
 
 	//compute the declaration source too
+	// 'class' and 'interface' push two int positions: the beginning of the class token and its end.
+	// we want to keep the beginning position but get rid of the end position
+	// it is only used for the ClassLiteralAccess positions.
 	typeDecl.declarationSourceStart = intStack[intPtr--];
-	// 'class' and 'interface' push an int position
+	intPtr--; // remove the end position of the class token
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
 	if (typeDecl.modifiersSourceStart >= 0) {
@@ -2394,8 +2397,8 @@ protected void consumeMethodHeaderExtendedDims() {
 		int baseType;
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
-			int sourceStart = returnType.sourceStart();
-			int sourceEnd =  returnType.sourceEnd();
+			int sourceStart = returnType.sourceStart;
+			int sourceEnd =  returnType.sourceEnd;
 			returnType = TypeReference.baseTypeReference(-baseType, dims);
 			returnType.sourceStart = sourceStart;
 			returnType.sourceEnd = sourceEnd;
@@ -2683,12 +2686,14 @@ protected void consumePrimaryNoNewArray() {
 }
 protected void consumePrimaryNoNewArrayArrayType() {
 	// PrimaryNoNewArray ::= ArrayType '.' 'class'
+	intPtr--;
 	pushOnExpressionStack(
 		new ClassLiteralAccess(intStack[intPtr--],
 		getTypeReference(intStack[intPtr--])));
 }
 protected void consumePrimaryNoNewArrayName() {
 	// PrimaryNoNewArray ::= Name '.' 'class'
+	intPtr--;
 	pushOnExpressionStack(
 		new ClassLiteralAccess(intStack[intPtr--],
 		getTypeReference(0)));
@@ -2711,6 +2716,7 @@ protected void consumePrimaryNoNewArrayNameThis() {
 }
 protected void consumePrimaryNoNewArrayPrimitiveType() {
 	// PrimaryNoNewArray ::= PrimitiveType '.' 'class'
+	intPtr--;
 	pushOnExpressionStack(
 		new ClassLiteralAccess(intStack[intPtr--],
 		getTypeReference(0)));
@@ -3937,8 +3943,9 @@ protected void consumeToken(int type) {
 
 		case TokenNameinterface :
 			adjustInterfaceModifiers();
-			//'class' is pushing an int (position) on the stack ==> 'interface' needs to do it too....
+			//'class' is pushing two int (positions) on the stack ==> 'interface' needs to do it too....
 			pushOnIntStack(scanner.startPosition);
+			pushOnIntStack(scanner.currentPosition - 1);			
 			break;
 
 		case TokenNameabstract :
@@ -4104,9 +4111,12 @@ protected void consumeToken(int type) {
 		case TokenNamewhile :
 		case TokenNamebreak :
 		case TokenNamecontinue :
-		case TokenNameclass :
 		case TokenNamereturn :
 		case TokenNamecase :
+			pushOnIntStack(scanner.startPosition);
+			break;
+		case TokenNameclass :
+			pushOnIntStack(scanner.currentPosition - 1);
 			pushOnIntStack(scanner.startPosition);
 			break;
 		case TokenNamedefault :
@@ -6021,7 +6031,7 @@ protected void ignoreExpressionAssignment() {
 	ArrayInitializer arrayInitializer = (ArrayInitializer) expressionStack[expressionPtr--];
 	expressionLengthPtr -- ;
 	// report a syntax error and abort parsing
-	problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart(), arrayInitializer.sourceEnd()); 	
+	problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart, arrayInitializer.sourceEnd); 	
 }
 protected void ignoreInterfaceDeclaration() {
 	// BlockStatement ::= InvalidInterfaceDeclaration
@@ -7093,12 +7103,12 @@ protected void updateSourceDeclarationParts(int variableDeclaratorsCounter) {
 
 	FieldDeclaration field;
 	int endTypeDeclarationPosition = 
-		-1 + astStack[astPtr - variableDeclaratorsCounter + 1].sourceStart(); 
+		-1 + astStack[astPtr - variableDeclaratorsCounter + 1].sourceStart; 
 	for (int i = 0; i < variableDeclaratorsCounter - 1; i++) {
 		//last one is special(see below)
 		field = (FieldDeclaration) astStack[astPtr - i - 1];
 		field.endPart1Position = endTypeDeclarationPosition;
-		field.endPart2Position = -1 + astStack[astPtr - i].sourceStart();
+		field.endPart2Position = -1 + astStack[astPtr - i].sourceStart;
 	}
 	//last one
 	(field = (FieldDeclaration) astStack[astPtr]).endPart1Position = 

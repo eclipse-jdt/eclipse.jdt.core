@@ -21,9 +21,6 @@ protected BatchImageBuilder(JavaBuilder javaBuilder) {
 }
 
 public void build() {
-	if (JavaBuilder.DEBUG)
-		System.out.println("FULL build"); //$NON-NLS-1$
-
 	try {
 		notifier.subTask(Util.bind("build.scrubbingOutput")); //$NON-NLS-1$
 		scrubOutputFolder();

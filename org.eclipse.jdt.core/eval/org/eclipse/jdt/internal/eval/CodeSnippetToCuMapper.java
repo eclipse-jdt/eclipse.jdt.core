@@ -4,10 +4,14 @@ package org.eclipse.jdt.internal.eval;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
@@ -68,7 +72,7 @@ private void buildCUSource() {
 	if (this.packageName != null && this.packageName.length != 0) {
 		buffer.append("package "); //$NON-NLS-1$
 		buffer.append(this.packageName);
-		buffer.append(";").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+		buffer.append(";").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 		this.lineNumberOffset++;
 	}
 
@@ -77,7 +81,7 @@ private void buildCUSource() {
 	for (int i = 0; i < imports.length; i++) {
 		buffer.append("import "); //$NON-NLS-1$
 		buffer.append(imports[i]);
-		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append(';').append(Util.LINE_SEPARATOR);
 		this.lineNumberOffset++;
 	}
 
@@ -95,7 +99,7 @@ private void buildCUSource() {
 		buffer.append("."); //$NON-NLS-1$
 		buffer.append(ROOT_CLASS_NAME);
 	}
-	buffer.append(" {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append(" {").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 	this.lineNumberOffset++;
 
 	if (this.declaringTypeName != null){
@@ -103,7 +107,7 @@ private void buildCUSource() {
 		buffer.append(this.declaringTypeName);
 		buffer.append(" "); //$NON-NLS-1$
 		buffer.append(DELEGATE_THIS); // val$this
-		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append(';').append(Util.LINE_SEPARATOR);
 		this.lineNumberOffset++;
 	}
 	// add some storage location for local variable persisted state
@@ -114,19 +118,19 @@ private void buildCUSource() {
 			buffer.append(" "); //$NON-NLS-1$
 			buffer.append(LOCAL_VAR_PREFIX); // val$...
 			buffer.append(localVarNames[i]);
-			buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
+			buffer.append(';').append(Util.LINE_SEPARATOR);
 			this.lineNumberOffset++;
 		}
 	}
 	// run() method declaration
-	buffer.append("public void run() throws Throwable {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append("public void run() throws Throwable {").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 	this.lineNumberOffset++;
 	startPosOffset = buffer.length();
 	buffer.append(codeSnippet);
-	buffer.append('}').append(JavaModelManager.LINE_SEPARATOR);
+	buffer.append('}').append(Util.LINE_SEPARATOR);
 
 	// end of class declaration
-	buffer.append('}').append(JavaModelManager.LINE_SEPARATOR);
+	buffer.append('}').append(Util.LINE_SEPARATOR);
 
 	// store result
 	int length = buffer.length();
@@ -148,11 +152,30 @@ public ICompletionRequestor getCompletionRequestor(final ICompletionRequestor or
 						|| CharOperation.equals(className, CodeSnippetToCuMapper.this.varClassName))) return;
 			originalRequestor.acceptClass(packageName, className, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);
 		}
-		public void acceptError(IProblem error) {
-			error.setSourceLineNumber(error.getSourceLineNumber() - lineNumberOffset);
-			error.setSourceStart(error.getSourceStart() - startPosOffset);
-			error.setSourceEnd(error.getSourceEnd() - startPosOffset);
-			originalRequestor.acceptError(error);
+		public void acceptError(IMarker problemMarker) {
+
+			try {
+				String attr = (String) problemMarker.getAttribute(IMarker.CHAR_START);
+				int start = Integer.parseInt(attr);
+				problemMarker.setAttribute(IMarker.CHAR_START, start - startPosOffset);	
+			} catch(CoreException e){
+			} catch(NumberFormatException e){
+			}
+			try {
+				String attr = (String) problemMarker.getAttribute(IMarker.CHAR_END);
+				int end = Integer.parseInt(attr);
+				problemMarker.setAttribute(IMarker.CHAR_END, end - startPosOffset);	
+			} catch(CoreException e){
+			} catch(NumberFormatException e){
+			}
+			try {
+				String attr = (String) problemMarker.getAttribute(IMarker.LINE_NUMBER);
+				int line = Integer.parseInt(attr);
+				problemMarker.setAttribute(IMarker.LINE_NUMBER, line - lineNumberOffset);	
+			} catch(CoreException e){
+			} catch(NumberFormatException e){
+			}
+			originalRequestor.acceptError(problemMarker);
 		}
 		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 			originalRequestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);

@@ -4,11 +4,13 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.jdom.*;
-import java.util.Hashtable;
 
 /**
  * This operation copies/moves a collection of elements from their current
@@ -46,7 +48,7 @@ import java.util.Hashtable;
 public class CopyElementsOperation extends MultiOperation {
 
 	
-	private Hashtable fSources = new Hashtable();
+	private Map fSources = new HashMap();
 /**
  * When executed, this operation will copy the given elements to the
  * given containers.  The elements and destination containers must be in
@@ -85,14 +87,14 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 				if (isRenamingMainType(element, dest)) {
 					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + ".java"}, fForce); //$NON-NLS-1$
 				} else {
-					return new CreateTypeOperation(dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR, fForce);
+					return new CreateTypeOperation(dest, getSourceFor(element) + Util.LINE_SEPARATOR, fForce);
 				}
 			case IJavaElement.METHOD :
-				return new CreateMethodOperation((IType) dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR, fForce);
+				return new CreateMethodOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, fForce);
 			case IJavaElement.FIELD :
-				return new CreateFieldOperation((IType) dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR, fForce);
+				return new CreateFieldOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, fForce);
 			case IJavaElement.INITIALIZER :
-				return new CreateInitializerOperation((IType) dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR);
+				return new CreateInitializerOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR);
 			default :
 				return null;
 		}

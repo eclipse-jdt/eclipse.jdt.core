@@ -6,8 +6,8 @@ package org.eclipse.jdt.internal.core;
  */
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import java.util.ArrayList;
 import org.eclipse.core.resources.*;
-import java.util.Vector;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
@@ -33,6 +33,7 @@ protected BinaryType(IJavaElement parent, String name) {
  * @see IOpenable
  */
 public void close() throws JavaModelException {
+	
 	Object info = fgJavaModelManager.peekAtInfo(this);
 	if (info != null) {
 		ClassFileInfo cfi = getClassFileInfo();
@@ -54,6 +55,9 @@ public void close() throws JavaModelException {
  * Remove my cached children from the Java Model
  */
 protected void closing(Object info) throws JavaModelException {
+	if (JavaModelManager.VERBOSE){
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier());  //$NON-NLS-1$//$NON-NLS-2$
+	}
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
 }
@@ -123,13 +127,13 @@ public IField getField(String name) {
  * @see IType
  */
 public IField[] getFields() throws JavaModelException {
-	Vector v= getChildrenOfType(FIELD);
+	ArrayList list = getChildrenOfType(FIELD);
 	int size;
-	if ((size = v.size()) == 0) {
+	if ((size = list.size()) == 0) {
 		return NO_FIELDS;
 	} else {
 		IField[] array= new IField[size];
-		v.copyInto(array);
+		list.toArray(array);
 		return array;
 	}
 }
@@ -172,13 +176,13 @@ public IMethod getMethod(String name, String[] parameterTypeSignatures) {
  * @see IType
  */
 public IMethod[] getMethods() throws JavaModelException {
-	Vector v= getChildrenOfType(METHOD);
+	ArrayList list = getChildrenOfType(METHOD);
 	int size;
-	if ((size = v.size()) == 0) {
+	if ((size = list.size()) == 0) {
 		return NO_METHODS;
 	} else {
 		IMethod[] array= new IMethod[size];
-		v.copyInto(array);
+		list.toArray(array);
 		return array;
 	}
 }
@@ -242,7 +246,11 @@ public String getTypeQualifiedName() {
 		return name.substring(0,name.lastIndexOf('.'));
 	}
 	if (fParent.getElementType() == IJavaElement.TYPE) {
-		return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
+		if (Character.isDigit(fName.charAt(0))) {
+			return ((IType) fParent).getTypeQualifiedName();
+		} else {
+			return ((IType) fParent).getTypeQualifiedName() + '$' + fName;
+		}
 	}
 	Assert.isTrue(false); // should not be reachable
 	return null;
@@ -251,13 +259,13 @@ public String getTypeQualifiedName() {
  * @see IType
  */
 public IType[] getTypes() throws JavaModelException {
-	Vector v= getChildrenOfType(TYPE);
+	ArrayList list = getChildrenOfType(TYPE);
 	int size;
-	if ((size = v.size()) == 0) {
+	if ((size = list.size()) == 0) {
 		return NO_TYPES;
 	} else {
 		IType[] array= new IType[size];
-		v.copyInto(array);
+		list.toArray(array);
 		return array;
 	}
 }
@@ -336,5 +344,27 @@ protected void removeInfo() {
 public String[][] resolveType(String typeName) throws JavaModelException {
 	// not implemented for binary types
 	return null;
+}
+/**
+ * @private Debugging purposes
+ */
+protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	if (info == null) {
+		buffer.append(this.getElementName());
+		buffer.append(" (not open)"); //$NON-NLS-1$
+	} else if (info == NO_INFO) {
+		buffer.append(getElementName());
+	} else {
+		try {
+			if (this.isInterface()) {
+				buffer.append("interface "); //$NON-NLS-1$
+			} else {
+				buffer.append("class "); //$NON-NLS-1$
+			}
+			buffer.append(this.getElementName());
+		} catch (JavaModelException e) {
+			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
+		}
+	}
 }
 }

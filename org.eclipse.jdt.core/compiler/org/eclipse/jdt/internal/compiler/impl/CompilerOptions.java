@@ -102,7 +102,7 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 	public boolean assertMode = false; //1.3 behavior by default
 	
 	// print what unit is being processed
-	public boolean verbose = false;
+	public boolean verbose = Compiler.DEBUG;
 
 	// indicates if reference info is desired
 	public boolean produceReferenceInfo = true;

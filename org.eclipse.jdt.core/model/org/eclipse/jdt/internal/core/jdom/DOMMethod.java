@@ -9,8 +9,8 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.jdom.IDOMMethod;
 import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.CharArrayOps;
 
@@ -573,7 +573,7 @@ public void setBody(String body) {
 	fBody= body;
 	setHasBody(body != null);
 	if (!hasBody()) {
-		fBody= ";"+JavaModelManager.LINE_SEPARATOR; //$NON-NLS-1$
+		fBody= ";"+Util.LINE_SEPARATOR; //$NON-NLS-1$
 	}
 }
 /**

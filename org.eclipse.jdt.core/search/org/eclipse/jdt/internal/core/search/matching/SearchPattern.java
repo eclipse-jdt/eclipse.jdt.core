@@ -4,14 +4,22 @@ package org.eclipse.jdt.internal.core.search.matching;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.apache.tools.ant.taskdefs.optional.depend.ClassFile;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -32,7 +40,7 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 
 	protected int matchMode;
 	protected boolean isCaseSensitive;
-	protected boolean needsResolve;
+	protected boolean needsResolve = true;
 
 	/* match level */
 	public static final int IMPOSSIBLE_MATCH = 0;
@@ -46,7 +54,7 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 	public static final int FIELD = 4;
 	public static final int METHOD = 8;
 	
-	public static final char[][][] NOT_FOUND_DECLARING_TYPE = new char[0][][];
+
 
 public SearchPattern(int matchMode, boolean isCaseSensitive) {
 	this.matchMode = matchMode;
@@ -196,15 +204,43 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 	SearchPattern searchPattern = null;
 	switch (limitTo){
 		case IJavaSearchConstants.DECLARATIONS :
-			searchPattern = new ConstructorDeclarationPattern(typeNameChars, matchMode, isCaseSensitive, declaringQualificationChars, parameterTypeQualifications, parameterTypeSimpleNames);
+			searchPattern = 
+				new ConstructorDeclarationPattern(
+					typeNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringQualificationChars, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames);
 			break;
 		case IJavaSearchConstants.REFERENCES :
-			searchPattern = new ConstructorReferencePattern(typeNameChars, matchMode, isCaseSensitive, declaringQualificationChars, parameterTypeQualifications, parameterTypeSimpleNames);
+			searchPattern = 
+				new ConstructorReferencePattern(
+					typeNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringQualificationChars, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames,
+					null);
 			break;
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			searchPattern = new OrPattern(
-				new ConstructorDeclarationPattern(typeNameChars, matchMode, isCaseSensitive, declaringQualificationChars, parameterTypeQualifications, parameterTypeSimpleNames),
-				new ConstructorReferencePattern(typeNameChars, matchMode, isCaseSensitive, declaringQualificationChars, parameterTypeQualifications, parameterTypeSimpleNames));
+				new ConstructorDeclarationPattern(
+					typeNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringQualificationChars, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames),
+				new ConstructorReferencePattern(
+					typeNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringQualificationChars, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames,
+					null));
 			break;
 	}
 	return searchPattern;
@@ -366,7 +402,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 					true, // read access
 					true); // write access
 			break;
-		case IJavaSearchConstants.READ_REFERENCES :
+		case IJavaSearchConstants.READ_ACCESSES :
 			searchPattern = 
 				new FieldReferencePattern(
 					fieldNameChars, 
@@ -379,7 +415,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 					true, // read access only
 					false);
 			break;
-		case IJavaSearchConstants.WRITE_REFERENCES :
+		case IJavaSearchConstants.WRITE_ACCESSES :
 			searchPattern = 
 				new FieldReferencePattern(
 					fieldNameChars, 
@@ -626,15 +662,55 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 	SearchPattern searchPattern = null;
 	switch (limitTo){
 		case IJavaSearchConstants.DECLARATIONS :
-			searchPattern = new MethodDeclarationPattern(selectorChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, returnTypeQualification, returnTypeSimpleName, parameterTypeQualifications, parameterTypeSimpleNames);
+			searchPattern = 
+				new MethodDeclarationPattern(
+					selectorChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					returnTypeQualification, 
+					returnTypeSimpleName, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames);
 			break;
 		case IJavaSearchConstants.REFERENCES :
-			searchPattern = new MethodReferencePattern(selectorChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, returnTypeQualification, returnTypeSimpleName, parameterTypeQualifications, parameterTypeSimpleNames);
+			searchPattern = 
+				new MethodReferencePattern(
+					selectorChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					returnTypeQualification, 
+					returnTypeSimpleName, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames,
+					null);
 			break;
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			searchPattern = new OrPattern(
-				new MethodDeclarationPattern(selectorChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, returnTypeQualification, returnTypeSimpleName, parameterTypeQualifications, parameterTypeSimpleNames),
-				new MethodReferencePattern(selectorChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, returnTypeQualification, returnTypeSimpleName, parameterTypeQualifications, parameterTypeSimpleNames));
+				new MethodDeclarationPattern(
+					selectorChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					returnTypeQualification, 
+					returnTypeSimpleName, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames),
+				new MethodReferencePattern(
+					selectorChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					returnTypeQualification, 
+					returnTypeSimpleName, 
+					parameterTypeQualifications, 
+					parameterTypeSimpleNames,
+					null));
 			break;
 	}
 	return searchPattern;
@@ -730,7 +806,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 							true,  // read access
 							true); // write access
 					break;
-				case IJavaSearchConstants.READ_REFERENCES :
+				case IJavaSearchConstants.READ_ACCESSES :
 					searchPattern = 
 						new FieldReferencePattern(
 							name, 
@@ -743,7 +819,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 							true,  // read access only
 							false);
 					break;
-				case IJavaSearchConstants.WRITE_REFERENCES :
+				case IJavaSearchConstants.WRITE_ACCESSES :
 					searchPattern = 
 						new FieldReferencePattern(
 							name, 
@@ -831,27 +907,95 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			switch (limitTo) {
 				case IJavaSearchConstants.DECLARATIONS :
 					if (isConstructor) {
-						searchPattern = new ConstructorDeclarationPattern(declaringSimpleName, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, parameterQualifications, parameterSimpleNames);
+						searchPattern = 
+							new ConstructorDeclarationPattern(
+								declaringSimpleName, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								parameterQualifications, 
+								parameterSimpleNames);
 					} else {
-						searchPattern = new MethodDeclarationPattern(selector, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, returnQualification, returnSimpleName, parameterQualifications, parameterSimpleNames);
+						searchPattern = 
+							new MethodDeclarationPattern(
+								selector, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								declaringSimpleName, 
+								returnQualification, 
+								returnSimpleName, 
+								parameterQualifications, 
+								parameterSimpleNames);
 					}
 					break;
 				case IJavaSearchConstants.REFERENCES :
 					if (isConstructor) {
-						searchPattern = new ConstructorReferencePattern(declaringSimpleName, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, parameterQualifications, parameterSimpleNames);
+						searchPattern = 
+							new ConstructorReferencePattern(
+								declaringSimpleName, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								parameterQualifications, 
+								parameterSimpleNames,
+								method.getDeclaringType());
 					} else {
-						searchPattern = new MethodReferencePattern(selector, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, returnQualification, returnSimpleName, parameterQualifications, parameterSimpleNames);
+						searchPattern = 
+							new MethodReferencePattern(
+								selector, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								declaringSimpleName, 
+								returnQualification, 
+								returnSimpleName, 
+								parameterQualifications, 
+								parameterSimpleNames,
+								method.getDeclaringType());
 					}
 					break;
 				case IJavaSearchConstants.ALL_OCCURRENCES :
 					if (isConstructor) {
 						searchPattern = new OrPattern(
-							new ConstructorDeclarationPattern(declaringSimpleName, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, parameterQualifications, parameterSimpleNames), 
-							new ConstructorReferencePattern(declaringSimpleName, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, parameterQualifications, parameterSimpleNames));
+							new ConstructorDeclarationPattern(
+								declaringSimpleName, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								parameterQualifications, 
+								parameterSimpleNames), 
+							new ConstructorReferencePattern(
+								declaringSimpleName, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								parameterQualifications, 
+								parameterSimpleNames,
+								method.getDeclaringType()));
 					} else {
 						searchPattern = new OrPattern(
-							new MethodDeclarationPattern(selector, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, returnQualification, returnSimpleName, parameterQualifications, parameterSimpleNames), 
-							new MethodReferencePattern(selector, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, returnQualification, returnSimpleName, parameterQualifications, parameterSimpleNames));
+							new MethodDeclarationPattern(
+								selector, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								declaringSimpleName, 
+								returnQualification, 
+								returnSimpleName, 
+								parameterQualifications, 
+								parameterSimpleNames), 
+							new MethodReferencePattern(
+								selector, 
+								EXACT_MATCH, 
+								CASE_SENSITIVE, 
+								declaringQualification, 
+								declaringSimpleName, 
+								returnQualification, 
+								returnSimpleName, 
+								parameterQualifications, 
+								parameterSimpleNames,
+								method.getDeclaringType()));
 					}
 					break;
 			}
@@ -1173,103 +1317,17 @@ public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$
 }
 
-/**
- * Collects the super type names of the given declaring type.
- * Returns NOT_FOUND_DECLARING_TYPE if the declaring type was not found.
- * Returns null if the declaring type pattern doesn't require an exact match.
- */
-protected char[][][] collectSuperTypeNames(char[] declaringQualification, char[] declaringSimpleName, int matchMode, LookupEnvironment env) {
 
-	try {
-		char[][] declaringTypeName = null;
-		if (declaringQualification != null 
-				&& declaringSimpleName != null
-				&& matchMode == EXACT_MATCH) {
-			char[][] qualification = CharOperation.splitOn('.', declaringQualification);
-			declaringTypeName = CharOperation.arrayConcat(qualification, declaringSimpleName);
-		}
-		if (declaringTypeName != null) {
-			for (int i = 0, max = declaringTypeName.length; i < max; i++) {
-				ReferenceBinding matchingDeclaringType = env.askForType(declaringTypeName);
-				if (matchingDeclaringType != null 
-					&& (matchingDeclaringType.isValidBinding()
-						|| matchingDeclaringType.problemId() != ProblemReasons.NotFound)) {
-					return this.collectSuperTypeNames(matchingDeclaringType);
-				}
-				// if nothing is in the cache, it could have been a member type (A.B.C.D --> A.B.C$D)
-				int last = declaringTypeName.length - 1;
-				if (last == 0) break; 
-				declaringTypeName[last-1] = CharOperation.concat(declaringTypeName[last-1], declaringTypeName[last], '$'); // try nested type
-				declaringTypeName = CharOperation.subarray(declaringTypeName, 0, last);
-			}
-			return NOT_FOUND_DECLARING_TYPE; // the declaring type was not found 
-		} else {
-			// non exact match: use the null value so that matches is more tolerant
-			return null;
-		}
-	} catch (AbortCompilation e) {
-		// classpath problem: default to null value so that matches is more tolerant
-		return null;
-	}
-}
+
+
+
+
 
 /**
- * Collects the names of all the supertypes of the given type.
- */
-private char[][][] collectSuperTypeNames(ReferenceBinding type) {
-
-	// superclass
-	char[][][] superClassNames = null;
-	ReferenceBinding superclass = type.superclass();
-	if (superclass != null) {
-		superClassNames = this.collectSuperTypeNames(superclass);
-	}
-
-	// interfaces
-	char[][][][] superInterfaceNames = null;
-	int superInterfaceNamesLength = 0;
-	ReferenceBinding[] interfaces = type.superInterfaces();
-	if (interfaces != null) {
-		superInterfaceNames = new char[interfaces.length][][][];
-		for (int i = 0; i < interfaces.length; i++) {
-			superInterfaceNames[i] = this.collectSuperTypeNames(interfaces[i]);
-			superInterfaceNamesLength += superInterfaceNames[i].length;
-		}
-	}
-
-	int length = 
-		(superclass == null ? 0 : 1)
-		+ (superClassNames == null ? 0 : superClassNames.length)
-		+ (interfaces == null ? 0 : interfaces.length)
-		+ superInterfaceNamesLength;
-	char[][][] result = new char[length][][];
-	int index = 0;
-	if (superclass != null) {
-		result[index++] = superclass.compoundName;
-		if (superClassNames != null) {
-			System.arraycopy(superClassNames, 0, result, index, superClassNames.length);
-			index += superClassNames.length;
-		}
-	}
-	if (interfaces != null) {
-		for (int i = 0, max = interfaces.length; i < max; i++) {
-			result[index++] = interfaces[i].compoundName;
-			if (superInterfaceNames != null) {
-				System.arraycopy(superInterfaceNames[i], 0, result, index, superInterfaceNames[i].length);
-				index += superInterfaceNames[i].length;
-			}
-		}
-	}
-	
-	return result;
-}
-
-/**
- * Initializes this search pattern from the given lookup environment.
- * Returns whether it could be initialized.
+ * Initializes this search pattern so that polymorphic search can be performed.
  */ 
-public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
-	return true;
+public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
+	// default is to do nothing
 }
 
 /**

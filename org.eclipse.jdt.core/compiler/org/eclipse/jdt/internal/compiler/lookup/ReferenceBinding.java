@@ -53,17 +53,25 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, SourceTypeBindin
 	if (invocationType == this && invocationType == receiverType) return true;
 
 	if (isProtected()) {
-		// answer true if the invocationType is the receiver (or its enclosingType) or they are in the same package
-		// OR the invocationType is a subclass of the enclosingType
-		//    AND the receiverType is the invocationType or its subclass
+
+		// answer true if the invocationType is the declaringClass or they are in the same package
+		// OR the invocationType is a subclass of the declaringClass
+		//    AND the invocationType is the invocationType or its subclass
+		//    OR the type is a static method accessed directly through a type
+		//    OR previous assertions are true for one of the enclosing type
 		if (invocationType == this) return true;
 		if (invocationType.fPackage == fPackage) return true;
-		ReferenceBinding declaringClass = enclosingType();
-		if (declaringClass != null){ // could be null if incorrect top-level protected type
-			if (invocationType == declaringClass) return true;
-			if (declaringClass.isSuperclassOf(invocationType))
-				return invocationType == receiverType || invocationType.isSuperclassOf(receiverType);
-		}
+
+		ReferenceBinding currentType = invocationType;
+		ReferenceBinding declaringClass = enclosingType(); // protected types always have an enclosing one
+		if (declaringClass == null) return false; // could be null if incorrect top-level protected type
+		//int depth = 0;
+		do {
+			if (declaringClass == invocationType) return true;
+			if (declaringClass.isSuperclassOf(currentType)) return true;
+			//depth++;
+			currentType = currentType.enclosingType();
+		} while (currentType != null);
 		return false;
 	}
 
@@ -121,6 +129,26 @@ public final boolean canBeSeenBy(Scope scope) {
 				|| enclosingType().isSuperclassOf(invocationType); // protected types always have an enclosing one
 	}
 
+	if (isProtected()) {
+		// answer true if the invocationType is the declaringClass or they are in the same package
+		// OR the invocationType is a subclass of the declaringClass
+		//    AND the invocationType is the invocationType or its subclass
+		//    OR the type is a static method accessed directly through a type
+		//    OR previous assertions are true for one of the enclosing type
+		if (invocationType.fPackage == fPackage) return true;
+
+		ReferenceBinding currentType = invocationType;
+		ReferenceBinding declaringClass = enclosingType(); // protected types always have an enclosing one
+		if (declaringClass == null) return false; // could be null if incorrect top-level protected type
+		// int depth = 0;
+		do {
+			if (declaringClass == invocationType) return true;
+			if (declaringClass.isSuperclassOf(currentType)) return true;
+			// depth++;
+			currentType = currentType.enclosingType();
+		} while (currentType != null);
+		return false;
+	}
 	if (isPrivate()) {
 		// answer true if the receiver and the invocationType have a common enclosingType
 		// already know they are not the identical type

@@ -60,6 +60,11 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Conflict resolution policy - by default do not force (fail on a conflict).
 	 */
 	protected boolean fForce= false;
+	/*
+	 * Whether the operation has modified resources, and thus whether resource
+	 * delta notifcation will happen.
+	 */
+	protected boolean hasModifiedResource = false;
 /**
  * A common constructor for all Java Model operations.
  */
@@ -161,6 +166,7 @@ protected void copyResources(IResource[] resources, IPath destinationPath) throw
 	IWorkspace workspace = resources[0].getWorkspace();
 	try {
 		workspace.copy(resources, destinationPath, false, subProgressMonitor);
+		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
@@ -172,6 +178,7 @@ protected void createFile(IContainer folder, String name, InputStream contents, 
 	IFile file= folder.getFile(new Path(name));
 	try {
 		file.create(contents, force, getSubProgressMonitor(1));
+		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
@@ -184,6 +191,7 @@ protected void createFolder(IContainer parentFolder, String name, boolean force)
 	try {
 		// we should use true to create the file locally. Only VCM should use tru/false
 		folder.create(force, true, getSubProgressMonitor(1));
+		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
@@ -207,6 +215,7 @@ protected void deleteEmptyPackageFragment(
 			resource = resource.getParent();
 			if (!resource.equals(rootResource) && resource.members().length == 0) {
 				resource.delete(force, getSubProgressMonitor(1));
+				this.hasModifiedResource = true;
 			}
 		}
 	} catch (CoreException e) {
@@ -219,6 +228,7 @@ protected void deleteEmptyPackageFragment(
 protected void deleteResource(IResource resource, boolean force) throws JavaModelException {
 	try {
 		resource.delete(force, getSubProgressMonitor(1));
+		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
@@ -232,6 +242,7 @@ protected void deleteResources(IResource[] resources, boolean force) throws Java
 	IWorkspace workspace = resources[0].getWorkspace();
 	try {
 		workspace.delete(resources, force, subProgressMonitor);
+		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
@@ -268,6 +279,9 @@ public void executeNestedOperation(JavaModelOperation operation, int subWorkAmou
 	try {
 		operation.setNested(true);
 		operation.run(subProgressMonitor);
+		if (operation.hasModifiedResource()) {
+			this.hasModifiedResource = true;
+		}
 		//accumulate the nested operation deltas
 		if (operation.fDeltas != null) {
 			for (int i = 0; i < operation.fDeltas.length; i++) {
@@ -375,6 +389,13 @@ protected IWorkspace getWorkspace() {
 	}
 	return null;
 }
+/**
+ * Returns whether this operation has performed any resource modifications.
+ * Returns false if this operation has not been executed yet.
+ */
+public boolean hasModifiedResource() {
+	return !this.isReadOnly() && this.hasModifiedResource;
+}
 public void internalWorked(double work) {
 	if (fMonitor != null) {
 		fMonitor.internalWorked(work);
@@ -416,6 +437,7 @@ protected void moveResources(IResource[] resources, IPath destinationPath) throw
 	IWorkspace workspace = resources[0].getWorkspace();
 	try {
 		workspace.move(resources, destinationPath, false, subProgressMonitor);
+		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}

@@ -54,10 +54,10 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
 		if (fResource.getType() == IResource.FOLDER || fResource.getType() == IResource.PROJECT) {
-			Vector vChildren = new Vector(5);
+			ArrayList vChildren = new ArrayList(5);
 			computeFolderChildren((IContainer) fResource, "", vChildren); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
-			vChildren.copyInto(children);
+			vChildren.toArray(children);
 			info.setChildren(children);
 		}
 	} catch (JavaModelException e) {
@@ -73,9 +73,9 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-protected void computeFolderChildren(IContainer folder, String prefix, Vector vChildren) throws JavaModelException {
+protected void computeFolderChildren(IContainer folder, String prefix, ArrayList vChildren) throws JavaModelException {
 	IPackageFragment pkg = getPackageFragment(prefix);
-	vChildren.addElement(pkg);
+	vChildren.add(pkg);
 	try {
 		IPath outputLocationPath = getJavaProject().getOutputLocation();
 		IResource[] members = folder.members();
@@ -179,7 +179,7 @@ public boolean exists0() {
 /**
  * @see Openable
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
 	return computeChildren(info);
 }
@@ -285,12 +285,16 @@ public void refreshChildren() {
 		// do nothing.
 	}
 }
-	/**
-	 * Reset the array of non-java resources contained in the receiver to null.
-	 */
-	public void resetNonJavaResources() throws JavaModelException {
-		((PackageFragmentRootInfo) getElementInfo()).setNonJavaResources(null);
-	}
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new PackageFragmentRoot(
+			fResource,
+			project, 
+			fName);
+}
 /**
  * @private Debugging purposes
  */

@@ -8,9 +8,9 @@ import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+
 
 /**
  * @see IRegion
@@ -22,14 +22,14 @@ public class Region implements IRegion {
 	 * A collection of the top level elements
 	 * that have been added to the region
 	 */
-	protected Vector fRootElements;
+	protected ArrayList fRootElements;
 /**
  * Creates an empty region.
  *
  * @see IRegion
  */
 public Region() {
-	fRootElements = new Vector(1);
+	fRootElements = new ArrayList(1);
 }
 /**
  * @see IRegion#add(IJavaElement)
@@ -38,7 +38,7 @@ public void add(IJavaElement element) {
 	if (!contains(element)) {
 		//"new" element added to region
 		removeAllChildren(element);
-		fRootElements.addElement(element);
+		fRootElements.add(element);
 		fRootElements.trimToSize();
 	}
 }
@@ -48,15 +48,15 @@ public void add(IJavaElement element) {
 public boolean contains(IJavaElement element) {
 	
 	int size = fRootElements.size();
-	Vector parents = getAncestors(element);
+	ArrayList parents = getAncestors(element);
 	
 	for (int i = 0; i < size; i++) {
-		IJavaElement aTop = (IJavaElement) fRootElements.elementAt(i);
+		IJavaElement aTop = (IJavaElement) fRootElements.get(i);
 		if (aTop.equals(element)) {
 			return true;
 		}
 		for (int j = 0, pSize = parents.size(); j < pSize; j++) {
-			if (aTop.equals(parents.elementAt(j))) {
+			if (aTop.equals(parents.get(j))) {
 				//an ancestor is already included
 				return true;
 			}
@@ -69,11 +69,11 @@ public boolean contains(IJavaElement element) {
  * in bottom-up order.
  *
  */
-private Vector getAncestors(IJavaElement element) {
-	Vector parents = new Vector();
+private ArrayList getAncestors(IJavaElement element) {
+	ArrayList parents = new ArrayList();
 	IJavaElement parent = element.getParent();
 	while (parent != null) {
-		parents.addElement(parent);
+		parents.add(parent);
 		parent = parent.getParent();
 	}
 	parents.trimToSize();
@@ -86,7 +86,7 @@ public IJavaElement[] getElements() {
 	int size= fRootElements.size();
 	IJavaElement[] roots= new IJavaElement[size];
 	for (int i = 0; i < size; i++) {
-		roots[i]= (IJavaElement) fRootElements.elementAt(i);
+		roots[i]= (IJavaElement) fRootElements.get(i);
 	}
 
 	return roots;
@@ -97,7 +97,7 @@ public IJavaElement[] getElements() {
 public boolean remove(IJavaElement element) {
 
 	removeAllChildren(element);
-	return fRootElements.removeElement(element);
+	return fRootElements.remove(element);
 }
 /**
  * Removes any children of this element that are contained within this
@@ -107,9 +107,9 @@ public boolean remove(IJavaElement element) {
  */
 private void removeAllChildren(IJavaElement element) {
 	if (element instanceof IParent) {
-		Vector newRootElements = new Vector();
+		ArrayList newRootElements = new ArrayList();
 		for (int i = 0, size = fRootElements.size(); i < size; i++) {
-			IJavaElement currentRoot = (IJavaElement)fRootElements.elementAt(i);
+			IJavaElement currentRoot = (IJavaElement)fRootElements.get(i);
 			//walk the current root hierarchy
 			IJavaElement parent = currentRoot.getParent();
 			boolean isChild= false;
@@ -121,7 +121,7 @@ private void removeAllChildren(IJavaElement element) {
 				parent = parent.getParent();
 			}
 			if (!isChild) {
-				newRootElements.addElement(currentRoot);
+				newRootElements.add(currentRoot);
 			}
 		}
 		fRootElements= newRootElements;

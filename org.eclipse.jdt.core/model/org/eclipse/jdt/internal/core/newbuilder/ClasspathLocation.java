@@ -21,13 +21,10 @@ static ClasspathLocation forLibrary(String libraryPathname) {
 	return new ClasspathJar(libraryPathname);
 }
 
+abstract void clear();
 abstract NameEnvironmentAnswer findClass(char[] className, char[][] packageName);
 abstract boolean isPackage(char[][] compoundName, char[] packageName);
 
-// free anything which is not required when the state is saved
-void cleanup() {
-}
-// reset any internal caches before another compile loop starts
 void reset() {
 }
 }

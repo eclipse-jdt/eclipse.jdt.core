@@ -4,8 +4,12 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -17,8 +21,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 	IClasspathEntry[] oldExpandedPath;
 	IClasspathEntry[] newRawPath;
-	boolean saveClasspath;
-
+	boolean canChangeResource;
+	boolean forceSave;
+	
+	IPath newOutputLocation;
+	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
+	public static final IPath ReuseOutputLocation = new Path("Reuse Existing Output Location");  //$NON-NLS-1$
+	
 	/**
 	 * When executed, this operation sets the classpath of the given project.
 	 */
@@ -26,19 +35,23 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IJavaProject project,
 		IClasspathEntry[] oldExpandedPath,
 		IClasspathEntry[] newRawPath,
-		boolean saveClasspath) {
+		IPath newOutputLocation,
+		boolean canChangeResource,
+		boolean forceSave) {
 
 		super(new IJavaElement[] { project });
 		this.oldExpandedPath = oldExpandedPath;
 		this.newRawPath = newRawPath;
-		this.saveClasspath = saveClasspath;
+		this.newOutputLocation = newOutputLocation;
+		this.canChangeResource = canChangeResource;
+		this.forceSave = forceSave;
 	}
 
 	/**
 	 * Adds deltas for the given roots, with the specified change flag,
 	 * and closes the root. Helper method for #setClasspath
 	 */
-	protected void addDeltas(
+	protected void addClasspathDeltas(
 		IPackageFragmentRoot[] roots,
 		int flag,
 		JavaElementDelta delta) {
@@ -73,13 +86,51 @@ public class SetClasspathOperation extends JavaModelOperation {
 	}
 
 	/**
+	 * Recursively adds all subfolders of <code>folder</code> to the given collection.
+	 */
+	protected void collectAllSubfolders(IFolder folder, ArrayList collection) throws JavaModelException {
+		try {
+			IResource[] members= folder.members();
+			for (int i = 0, max = members.length; i < max; i++) {
+				IResource r= members[i];
+				if (r.getType() == IResource.FOLDER) {
+					collection.add(r);
+					collectAllSubfolders((IFolder)r, collection);
+				}
+			}	
+		} catch (CoreException e) {
+			throw new JavaModelException(e);
+		}
+	}
+
+	/**
 	 * Sets the classpath of the pre-specified project.
 	 */
 	protected void executeOperation() throws JavaModelException {
+	
+		if (this.newRawPath != ReuseClasspath){
+			updateClasspath();
+		}
+		if (this.newOutputLocation != ReuseOutputLocation){
+			updateOutputLocation();
+		}
+		done();
+	}
+	
+	/**
+	 * Returns <code>true</code> if this operation performs no resource modifications,
+	 * otherwise <code>false</code>. Subclasses must override.
+	 */
+	public boolean isReadOnly() {
+		return !this.canChangeResource;
+	}
+	private void updateClasspath() throws JavaModelException {
 
 		beginTask(Util.bind("classpath.settingProgress"), 2); //$NON-NLS-1$
 		JavaProject project = ((JavaProject) getElementsToProcess()[0]);
 
+		String[] oldRequired = project.getRequiredProjectNames();
+		
 		project.setRawClasspath0(this.newRawPath);
 
 		// change builder specs to build in the order given by the new classpath
@@ -100,10 +151,106 @@ public class SetClasspathOperation extends JavaModelOperation {
 				manager,
 				project);
 		} else {
-			project.saveClasspath(this.saveClasspath);
+			this.hasModifiedResource = project.saveClasspath(this.forceSave);
+			updateAffectedProjects(project.getProject().getFullPath());
 		}
-
-		done();
+		updateProjectReferences(oldRequired, project.getRequiredProjectNames());
+	}
+	/**
+	 * Sets the output location of the pre-specified project.
+	 *
+	 * <p>This can cause changes in package fragments - i.e. if the
+	 * old and new output location folder could be considered as
+	 * a package fragment.
+	 */
+	protected void updateOutputLocation() throws JavaModelException {
+		
+		beginTask(Util.bind("classpath.settingOutputLocationProgress"), 2); //$NON-NLS-1$
+		JavaProject project= ((JavaProject) getElementsToProcess()[0]);
+		
+		IPath oldLocation= project.getOutputLocation();
+	
+		// see if this will cause any package fragments to be added
+		boolean deltaToFire= false;
+		JavaElementDelta delta = newJavaElementDelta();
+		ArrayList added= determineAffectedPackageFragments(oldLocation);
+		Iterator iter = added.iterator();
+		while (iter.hasNext()){
+			IPackageFragment frag= (IPackageFragment)iter.next();
+			((IPackageFragmentRoot)frag.getParent()).close();
+			delta.added(frag);
+			deltaToFire = true;
+		}
+	
+		// see if this will cause any package fragments to be removed
+		ArrayList removed= determineAffectedPackageFragments(this.newOutputLocation);
+		iter = removed.iterator();
+		while (iter.hasNext()){
+			IPackageFragment frag= (IPackageFragment)iter.next();
+			((IPackageFragmentRoot)frag.getParent()).close();
+			delta.removed(frag);
+			deltaToFire = true;
+		}
+		
+		project.getJavaProjectElementInfo().setOutputLocation(this.newOutputLocation);
+		if (deltaToFire) {
+			addDelta(delta);	
+		}
+		worked(1);
+		this.hasModifiedResource = project.saveClasspath(false);
+		worked(1);
+	
+		// loose all built state - next build will be a full one
+		JavaModelManager.getJavaModelManager().setLastBuiltState(project.getProject(), null);
+	}
+	
+	/**
+	 * Returns a collection of package fragments that have been added/removed
+	 * as the result of changing the output location to/from the given
+	 * location. The collection is empty if no package fragments are
+	 * affected.
+	 */
+	protected ArrayList determineAffectedPackageFragments(IPath location) throws JavaModelException {
+		ArrayList fragments = new ArrayList();
+		JavaProject project = ((JavaProject) getElementsToProcess()[0]);
+	
+		// see if this will cause any package fragments to be affected
+		IWorkspace workspace = getWorkspace();
+		IResource resource = null;
+		if (location != null) {
+			resource = workspace.getRoot().findMember(location);
+		}
+		if (resource != null && resource.getType() == IResource.FOLDER) {
+			IFolder folder = (IFolder) resource;
+			// only changes if it actually existed
+			IClasspathEntry[] classpath = project.getExpandedClasspath(true);
+			for (int i = 0; i < classpath.length; i++) {
+				IClasspathEntry entry = classpath[i];
+				IPath path = classpath[i].getPath();
+				if (entry.getEntryKind() != IClasspathEntry.CPE_PROJECT && path.isPrefixOf(location) && !path.equals(location)) {
+					IPackageFragmentRoot[] roots = project.getPackageFragmentRoots(classpath[i]);
+					IPackageFragmentRoot root = roots[0];
+					// now the output location becomes a package fragment - along with any subfolders
+					ArrayList folders = new ArrayList();
+					folders.add(folder);
+					collectAllSubfolders(folder, folders);
+					Iterator elements = folders.iterator();
+					int segments = path.segmentCount();
+					while (elements.hasNext()) {
+						IFolder f = (IFolder) elements.next();
+						IPath relativePath = f.getFullPath().removeFirstSegments(segments);
+						String name = relativePath.toOSString();
+						name = name.replace(File.pathSeparatorChar, '.');
+						if (name.endsWith(".")) { //$NON-NLS-1$
+							name = name.substring(0, name.length() - 1);
+						}
+						IPackageFragment pkg = root.getPackageFragment(name);
+						fragments.add(pkg);
+					}
+				}
+			}
+		}
+		return fragments;
 	}
 
 	/**
@@ -130,35 +277,29 @@ public class SetClasspathOperation extends JavaModelOperation {
 			if (index == -1) {
 				IPackageFragmentRoot[] pkgFragmentRoots =
 					project.getPackageFragmentRoots(oldResolvedPath[i]);
-				addDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
-				hasChangedSourceEntries |= oldResolvedPath[i].getEntryKind()
-					== IClasspathEntry.CPE_SOURCE;
+				addClasspathDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
+
+				int changeKind = oldResolvedPath[i].getEntryKind();
+				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
 
 				// force detach source on jar package fragment roots (source will be lazily computed when needed)
 				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
 					IPackageFragmentRoot root = pkgFragmentRoots[j];
-
 					if (root instanceof JarPackageFragmentRoot) {
-						JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) root;
-						try {
-							jarRoot.getWorkspace().getRoot().setPersistentProperty(
-								jarRoot.getSourceAttachmentPropertyName(),
-								null);
-							// loose info - will be recomputed
-						} catch (CoreException ce) {
-						}
+						((JarPackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
 					}
 				}
 				hasDelta = true;
 
 			} else if (
 				oldResolvedPathLongest && index != i) { //reordering of the classpath
-				addDeltas(
+				addClasspathDeltas(
 					project.getPackageFragmentRoots(oldResolvedPath[i]),
 					IJavaElementDelta.F_CLASSPATH_REORDER,
 					delta);
-				hasChangedSourceEntries |= oldResolvedPath[i].getEntryKind()
-					== IClasspathEntry.CPE_SOURCE;
+				int changeKind = oldResolvedPath[i].getEntryKind();
+				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
+
 				hasDelta = true;
 			}
 		}
@@ -167,28 +308,28 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
 			if (index == -1) {
-				addDeltas(
+				addClasspathDeltas(
 					project.getPackageFragmentRoots(newResolvedPath[i]),
 					IJavaElementDelta.F_ADDED_TO_CLASSPATH,
 					delta);
-				hasChangedSourceEntries |= newResolvedPath[i].getEntryKind()
-					== IClasspathEntry.CPE_SOURCE;
+				int changeKind = newResolvedPath[i].getEntryKind();
+				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
 				hasDelta = true;
 
 			} else if (
 				!oldResolvedPathLongest && index != i) { //reordering of the classpath
-				addDeltas(
+				addClasspathDeltas(
 					project.getPackageFragmentRoots(newResolvedPath[i]),
 					IJavaElementDelta.F_CLASSPATH_REORDER,
 					delta);
-				hasChangedSourceEntries |= newResolvedPath[i].getEntryKind()
-					== IClasspathEntry.CPE_SOURCE;
+				int changeKind = newResolvedPath[i].getEntryKind();
+				hasChangedSourceEntries |= changeKind == IClasspathEntry.CPE_SOURCE;
 				hasDelta = true;
 			}
 		}
 		if (hasDelta) {
 			try {
-				project.saveClasspath(this.saveClasspath);
+				this.hasModifiedResource = project.saveClasspath(this.forceSave);
 			} catch (JavaModelException e) {
 			}
 			this.addDelta(delta);
@@ -200,42 +341,37 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 	}
 
-	/**
-	 * Possible failures: <ul>
-	 *  <li>NO_ELEMENTS_TO_PROCESS - the project supplied to the operation is
-	 * 		<code>null</code>.
-	 *	<li>NULL_PATH - the output location path supplied to the operation
-	 * 		is <code>null</code>.
-	 *	<li>PATH_OUTSIDE_PROJECT - the output location path supplied to the operation
-	 * 		is outside of the project supplied to this operation.
-	 *	<li>DEVICE_PATH - the path supplied to this operation must not specify a 
-	 * 		device
-	 *	<li>RELATIVE_PATH - the path supplied to this operation must be
-	 *		an absolute path
-	 *	<li>INVALID_PATH - the output location cannot overlap any package fragment
-	 *		root, except the project folder.
-	 *  <li>ELEMENT_DOES_NOT_EXIST - the Java project does not exist
-	 * </ul>
-	 */
 	public IJavaModelStatus verify() {
 
 		IJavaModelStatus status = super.verify();
 		if (!status.isOK()) {
 			return status;
 		}
-		IJavaProject javaProject = (IJavaProject) getElementToProcess();
+		IJavaProject project = (IJavaProject) getElementToProcess();
 
+		// retrieve classpath 
+		IClasspathEntry[] entries = this.newRawPath;
+		if (entries == ReuseClasspath){
+			try {
+				entries = project.getRawClasspath();			
+			} catch (JavaModelException e) {
+				return e.getJavaModelStatus();
+			}
+		}		
 		// retrieve output location
-		IPath outputLocation;
-		try {
-			outputLocation = javaProject.getOutputLocation();
-		} catch (JavaModelException e) {
-			return e.getJavaModelStatus();
+		IPath outputLocation = this.newOutputLocation;
+		if (outputLocation == ReuseOutputLocation){
+			try {
+				outputLocation = project.getOutputLocation();
+			} catch (JavaModelException e) {
+				return e.getJavaModelStatus();
+			}
 		}
-
+		
+		// perform validation
 		return JavaConventions.validateClasspath(
-			javaProject,
-			this.newRawPath,
+			project,
+			entries,
 			outputLocation);
 	}
 
@@ -251,12 +387,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				try {
 					JavaProject project = (JavaProject) projects[i];
-					IClasspathEntry[] classpath = project.getRawClasspath();
+					IClasspathEntry[] classpath = project.getResolvedClasspath(true);
 					for (int j = 0, entryCount = classpath.length; j < entryCount; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(prerequisiteProjectPath)) {
-							project.updateClassPath();
+							project.updateClassPath(this.fMonitor, this.canChangeResource);
 							break;
 						}
 					}
@@ -265,5 +401,84 @@ public class SetClasspathOperation extends JavaModelOperation {
 			}
 		} catch (JavaModelException e) {
 		}
+	}
+
+	/**
+	 * Update projects references so that the build order is consistent with the classpath
+	 */
+	protected void updateProjectReferences(String[] oldRequired, String[] newRequired) {
+
+		try {		
+			if (!this.canChangeResource) return;
+
+			checkIdentical : {
+				int oldLength = oldRequired.length;
+				if (oldLength == newRequired.length){
+					for (int i = 0; i < oldLength; i++){
+						if (!oldRequired[i].equals(newRequired[i])){
+							break checkIdentical;
+						}
+					}
+					return;
+				}
+			}
+			
+			JavaProject jproject = ((JavaProject) getElementsToProcess()[0]);
+			IProject project = jproject.getProject();
+			IProjectDescription description = project.getDescription();
+			 
+			IProject[] projectReferences = description.getReferencedProjects();
+			
+			HashSet oldReferences = new HashSet(projectReferences.length);
+			for (int i = 0; i < projectReferences.length; i++){
+				String projectName = projectReferences[i].getName();
+				oldReferences.add(projectName);
+			}
+			HashSet newReferences = (HashSet)oldReferences.clone();
+
+			for (int i = 0; i < oldRequired.length; i++){
+				String projectName = oldRequired[i];
+				newReferences.remove(projectName);
+			}
+			for (int i = 0; i < newRequired.length; i++){
+				String projectName = newRequired[i];
+				newReferences.add(projectName);
+			}
+
+			IProject[] requiredProjectArray = new IProject[newReferences.size()];
+			IWorkspaceRoot wksRoot = project.getWorkspace().getRoot();
+			Iterator iter = newReferences.iterator();
+			int index = 0;
+			while (iter.hasNext()){
+				String newName = (String)iter.next();
+				requiredProjectArray[index++] = wksRoot.getProject(newName);
+			}
+			description.setReferencedProjects(requiredProjectArray);
+			project.setDescription(description, this.fMonitor);
+
+		} catch(CoreException e){
+		}
+	}
+	public String toString(){
+		StringBuffer buffer = new StringBuffer(20);
+		buffer.append("SetClasspathOperation\n"); //$NON-NLS-1$
+		buffer.append(" - classpath : "); //$NON-NLS-1$
+		if (this.newRawPath == ReuseClasspath){
+			buffer.append("<Reuse Existing Classpath>"); //$NON-NLS-1$
+		} else {
+			buffer.append("{"); //$NON-NLS-1$
+			for (int i = 0; i < this.newRawPath.length; i++) {
+				if (i > 0) buffer.append(","); //$NON-NLS-1$
+				IClasspathEntry element = this.newRawPath[i];
+				buffer.append(" ").append(element.toString()); //$NON-NLS-1$
+			}
+		}
+		buffer.append("\n - output location : ");  //$NON-NLS-1$
+		if (this.newOutputLocation == ReuseOutputLocation){
+			buffer.append("<Reuse Existing Output Location>"); //$NON-NLS-1$
+		} else {
+			buffer.append(this.newOutputLocation.toString()); //$NON-NLS-1$
+		}
+		return buffer.toString();
 	}
 }

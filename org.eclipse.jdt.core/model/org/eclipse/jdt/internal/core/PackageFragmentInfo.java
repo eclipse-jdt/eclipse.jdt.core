@@ -8,7 +8,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 
 import java.util.Enumeration;
-import java.util.Vector;
 
 /**
  * Element info for PackageFragments.

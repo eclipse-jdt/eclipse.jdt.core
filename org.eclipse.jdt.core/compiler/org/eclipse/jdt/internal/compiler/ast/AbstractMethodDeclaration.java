@@ -191,7 +191,7 @@ private void generateCode(ClassFile classFile) {
 		}
 		// local variable attributes
 		codeStream.exitUserScope(scope);
-		codeStream.recordPositionsFrom(0, this);
+		codeStream.recordPositionsFrom(0, this.sourceStart);
 		classFile.completeCodeAttribute(codeAttributeOffset);
 		attributeNumber++;
 	}

@@ -47,6 +47,11 @@ public ProjectResourceCopier(IJavaProject project, JavaDevelopmentContextImpl de
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];
 			if ((entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)) {
+				if (this.outputLocation.equals(entry.getPath())){
+					// do nothing if output is same as one source folder
+					this.sourceFolders = new IResource[0];
+					break;	
+				}
 				this.sourceFolders[i] = this.root.findMember(entry.getPath());
 			}
 		}
@@ -62,7 +67,6 @@ public void copyAllResourcesOnClasspath(){
 	try {
 		for (int i = 0, length = this.sourceFolders.length; i < length; i++) {
 			if (sourceFolders[i] != null){
-				if (this.outputLocation.equals(this.sourceFolders[i].getFullPath())) continue; // do nothing if output is same as source folder
 				if (!hasNotified){
 					hasNotified = true;
 					if (notifier != null) notifier.subTask(Util.bind("build.copyingResources")); //$NON-NLS-1$

@@ -32,15 +32,34 @@ public class SelectionOnMessageSend extends MessageSend {
 		super.resolveType(scope);
 
 		// tolerate some error cases
-		if (binding == null || 
-				!(binding.isValidBinding() || 
-					binding.problemId() == ProblemReasons.NotVisible
-					|| binding.problemId() == ProblemReasons.InheritedNameHidesEnclosingName
-					|| binding.problemId() == ProblemReasons.NonStaticReferenceInConstructorInvocation
-					|| binding.problemId() == ProblemReasons.NonStaticReferenceInStaticContext))
+		if ((binding == null || binding.problemId() == ProblemReasons.NotFound )&&
+			receiverType != null &&
+			receiverType.isValidBinding() &&
+			selector != null &&
+			selector.length > 0) {
+				
+			MethodBinding closestMethod = null;
+			if(binding != null) {
+				closestMethod = ((ProblemMethodBinding)binding).closestMatch;
+			} else {
+				closestMethod = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
+			}
+			
+			if(closestMethod == null) {
+				throw new SelectionNodeFound();
+			} else {
+				throw new SelectionNodeFound(closestMethod);
+			}
+		} else if(binding == null ||
+					!(binding.isValidBinding() || 
+						binding.problemId() == ProblemReasons.NotVisible
+						|| binding.problemId() == ProblemReasons.InheritedNameHidesEnclosingName
+						|| binding.problemId() == ProblemReasons.NonStaticReferenceInConstructorInvocation
+						|| binding.problemId() == ProblemReasons.NonStaticReferenceInStaticContext)) {
 			throw new SelectionNodeFound();
-		else
+		} else {
 			throw new SelectionNodeFound(binding);
+		}
 	}
 
 	public String toStringExpression() {

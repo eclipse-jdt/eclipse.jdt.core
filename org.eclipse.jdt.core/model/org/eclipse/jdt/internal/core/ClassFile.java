@@ -36,10 +36,11 @@ protected ClassFile(IPackageFragment parent, String name) {
 		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
 	}
 }
+
 /**
  * @see ICodeAssist
  */
-public void codeComplete(int offset, ICodeCompletionRequestor requestor) throws JavaModelException {
+public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
 		BasicCompilationUnit cu = new BasicCompilationUnit(getSource().toCharArray(), getElementName() + ".java"); //$NON-NLS-1$
@@ -103,7 +104,7 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
  * @see Openable
  * @see Signature
  */
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Hashtable newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	IBinaryType typeInfo = getBinaryTypeInfo((IFile) underlyingResource);
 	if (typeInfo == null) {
 		// The structure of a class file is unknown if a class file format errors occurred
@@ -269,7 +270,7 @@ public IType getType() throws JavaModelException {
 		String name = fName.substring(0, fName.lastIndexOf('.'));
 		name = name.substring(name.lastIndexOf('.') + 1);
 		int index = name.lastIndexOf('$');
-		if (index > -1) {
+		if (index > -1 && !Character.isDigit(name.charAt(index + 1))) {
 			name = name.substring(index + 1);
 		}
 		fBinaryType = new BinaryType(this, name);
@@ -334,7 +335,7 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	if (mapper != null) {
 		char[] contents = mapper.findSource(getType());
 		if (contents != null) {
-			IBufferManager bufManager = getBufferManager();
+			BufferManager bufManager = getBufferManager();
 			IBuffer buf = bufManager.openBuffer(contents, pm, this, isReadOnly());
 			// do the source mapping
 			mapper.mapSource(getType(), contents);
@@ -350,6 +351,15 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 		}
 	}
 	return null;
+}
+/*
+ * @see JavaElement#rootedAt(IJavaProject)
+ */
+public IJavaElement rootedAt(IJavaProject project) {
+	return
+		new ClassFile(
+			(IPackageFragment)((JavaElement)fParent).rootedAt(project), 
+			fName);
 }
 /**
  * Returns the Java Model format of the simple class name for the
@@ -370,6 +380,9 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 		if (className[i] == '$') {
 			char[] name = new char[count];
 			System.arraycopy(className, i + 1, name, 0, count);
+			if (Character.isDigit(name[0])) {
+				break;
+			}
 			return name;
 		}
 		count++;
@@ -441,5 +454,61 @@ public static char[] translatedName(char[] name) {
 		count++;
 	}
 	return className;
+}
+
+/**
+ * @see ICodeAssist
+ * @deprecate - should use codeComplete(int, ICompletionRequestor) instead
+ */
+public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
+	
+	if (requestor == null){
+		codeComplete(offset, (ICompletionRequestor)null);
+		return;
+	}
+	codeComplete(
+		offset,
+		new ICompletionRequestor(){
+			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptError(IMarker marker) {
+				requestor.acceptError(marker);
+			}
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd){
+				requestor.acceptKeyword(keywordName, completionStart, completionEnd);
+			}
+			public void acceptLabel(char[] labelName,int completionStart,int completionEnd){
+				requestor.acceptLabel(labelName, completionStart, completionEnd);
+			}
+			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// skip parameter names
+				requestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+			}
+			public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd){
+				// ignore
+			}
+			public void acceptModifier(char[] modifierName,int completionStart,int completionEnd){
+				requestor.acceptModifier(modifierName, completionStart, completionEnd);
+			}
+			public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
+			}
+			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd){
+				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
+			}
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd){
+				// ignore
+			}
+		});
 }
 }

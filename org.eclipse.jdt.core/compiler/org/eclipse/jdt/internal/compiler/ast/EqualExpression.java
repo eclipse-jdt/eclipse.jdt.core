@@ -218,29 +218,38 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		int pc = codeStream.position;
 		if (valueRequired) 
 			codeStream.generateConstant(constant, implicitConversion);
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
-	Label falseLabel = new Label(codeStream);
-	generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired);
-	if (valueRequired){
-		// comparison is TRUE 
-		codeStream.iconst_1();
-		if ((bits & ValueForReturnMASK) != 0){
-			codeStream.ireturn();
-			// comparison is FALSE
-			falseLabel.place();
-			codeStream.iconst_0();
+	Label falseLabel;
+	generateOptimizedBoolean(
+		currentScope, 
+		codeStream, 
+		null, 
+		falseLabel = new Label(codeStream), 
+		valueRequired);
+	if (falseLabel.hasForwardReferences()) {
+		if (valueRequired){
+			// comparison is TRUE 
+			codeStream.iconst_1();
+			if ((bits & ValueForReturnMASK) != 0){
+				codeStream.ireturn();
+				// comparison is FALSE
+				falseLabel.place();
+				codeStream.iconst_0();
+			} else {
+				Label endLabel = new Label(codeStream);
+				codeStream.goto_(endLabel);
+				codeStream.decrStackSize(1);
+				// comparison is FALSE
+				falseLabel.place();
+				codeStream.iconst_0();
+				endLabel.place();
+			}
 		} else {
-			Label endLabel = new Label(codeStream);
-			codeStream.goto_(endLabel);
-			codeStream.decrStackSize(1);
-			// comparison is FALSE
 			falseLabel.place();
-			codeStream.iconst_0();
-			endLabel.place();
-		}
-	}
+		}	
+	}	
 }
 /**
  * Boolean operator code generation
@@ -265,7 +274,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 			generateOptimizedNonBooleanEqual(currentScope, codeStream, falseLabel, trueLabel, valueRequired);
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Boolean generation for == with boolean operands
@@ -278,13 +287,13 @@ public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream co
 	if (left.constant != NotAConstant) {
 		boolean inline = left.constant.booleanValue();
 		right.generateOptimizedBoolean(currentScope, codeStream, (inline ? trueLabel : falseLabel), (inline ? falseLabel : trueLabel), valueRequired);
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	} // optimized cases: x == true, x == false
 	if (right.constant != NotAConstant) {
 		boolean inline = right.constant.booleanValue();
 		left.generateOptimizedBoolean(currentScope, codeStream, (inline ? trueLabel : falseLabel), (inline ? falseLabel : trueLabel), valueRequired);
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
 	// default case
@@ -305,7 +314,7 @@ public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream co
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /**
  * Boolean generation for == with non-boolean operands
@@ -333,7 +342,7 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		// optimized case: x == 0
@@ -354,7 +363,7 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 	}
@@ -377,7 +386,7 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		// optimized case: 0 == x
@@ -399,7 +408,7 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 	}
@@ -457,7 +466,7 @@ public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public boolean isCompactableOperation() {
 	return false;

@@ -107,6 +107,7 @@ protected void consumeClassHeaderName() {
 
 	//compute the declaration source too
 	typeDecl.declarationSourceStart = intStack[intPtr--]; 
+	intPtr--;
 	// 'class' and 'interface' push an int position
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
@@ -185,6 +186,7 @@ protected void consumeInterfaceHeaderName() {
 
 	//compute the declaration source too
 	typeDecl.declarationSourceStart = intStack[intPtr--];
+	intPtr--;
 	// 'class' and 'interface' push an int position
 	typeDecl.modifiersSourceStart = intStack[intPtr--];
 	typeDecl.modifiers = intStack[intPtr--];
@@ -229,8 +231,8 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 			Expression lastExpression = (Expression) methodDecl.statements[last];
 			methodDecl.statements[last] = new CodeSnippetReturnStatement(
 											lastExpression, 
-											lastExpression.sourceStart(), 
-											lastExpression.sourceEnd(),
+											lastExpression.sourceStart, 
+											lastExpression.sourceEnd,
 											evaluationContext);
 		}
 	}
@@ -409,8 +411,8 @@ protected void consumeStatementReturn() {
 		pushOnAstStack(
 			new CodeSnippetReturnStatement(
 				expression, 
-				expression.sourceStart(), 
-				expression.sourceEnd(),
+				expression.sourceStart, 
+				expression.sourceEnd,
 				evaluationContext));
 	} else {
 		super.consumeStatementReturn();

@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -170,7 +171,7 @@ public String[] getParameterNames() throws JavaModelException {
 				if (source != null & sourceRange != null && sourceRange != SourceMapper.fgUnknownRange) {
 					IProblemFactory factory = new DefaultProblemFactory();
 					DecodeParametersNames decoder = new DecodeParametersNames();
-					SourceElementParser parser = new SourceElementParser(decoder, factory);
+					SourceElementParser parser = new SourceElementParser(decoder, factory, new CompilerOptions(JavaCore.getOptions()));
 					int start = sourceRange.getOffset();
 					int end = start + sourceRange.getLength();
 					parser.parseTypeMemberDeclarations(source, start, end);
@@ -239,5 +240,41 @@ public String readableName() {
 	}
 	buffer.append(")"); //$NON-NLS-1$
 	return buffer.toString();
+}
+/**
+ * @private Debugging purposes
+ */
+protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	if (info == null) {
+		buffer.append(getElementName());
+		buffer.append(" (not open)"); //$NON-NLS-1$
+	} else if (info == NO_INFO) {
+		buffer.append(getElementName());
+	} else {
+		try {
+			if (Flags.isStatic(this.getFlags())) {
+				buffer.append("static "); //$NON-NLS-1$
+			}
+			if (!this.isConstructor()) {
+				buffer.append(Signature.toString(this.getReturnType()));
+				buffer.append(' ');
+			}
+			buffer.append(this.getElementName());
+			buffer.append('(');
+			String[] parameterTypes = this.getParameterTypes();
+			int length;
+			if (parameterTypes != null && (length = parameterTypes.length) > 0) {
+				for (int i = 0; i < length; i++) {
+					buffer.append(Signature.toString(parameterTypes[i]));
+					if (i < length - 1) {
+						buffer.append(", "); //$NON-NLS-1$
+					}
+				}
+			}
+			buffer.append(')');
+		} catch (JavaModelException e) {
+			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
+		}
+	}
 }
 }

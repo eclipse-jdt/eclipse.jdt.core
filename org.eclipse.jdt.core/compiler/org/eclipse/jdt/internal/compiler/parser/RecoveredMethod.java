@@ -22,9 +22,7 @@ public class RecoveredMethod extends RecoveredElement implements CompilerModifie
 
 	public RecoveredBlock methodBody;
 	public boolean discardBody = true;
-public RecoveredMethod(AbstractMethodDeclaration methodDeclaration, RecoveredElement parent, int bracketBalance){
-	this(methodDeclaration, parent, bracketBalance, null);
-}
+
 public RecoveredMethod(AbstractMethodDeclaration methodDeclaration, RecoveredElement parent, int bracketBalance, Parser parser){
 	super(parent, bracketBalance, parser);
 	this.methodDeclaration = methodDeclaration;
@@ -45,7 +43,11 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalance) {
 	if (methodDeclaration.declarationSourceEnd > 0
 		&& nestedBlockDeclaration.sourceStart
 			> methodDeclaration.declarationSourceEnd){
-		return this.parent.add(nestedBlockDeclaration, bracketBalance);
+				if (this.parent == null){
+					return this; // ignore
+				} else {
+					return this.parent.add(nestedBlockDeclaration, bracketBalance);
+				}
 	}
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -64,12 +66,17 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 
 	/* local variables inside method can only be final and non void */
 	char[][] fieldTypeName; 
-	if ((fieldDeclaration.modifiers & ~AccFinal) != 0 /* local var can only be final */
+	if ((fieldDeclaration.modifiers & ~AccFinal) != 0 // local var can only be final 
 		|| (fieldDeclaration.type == null) // initializer
 		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
 			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));
-		return this.parent.add(fieldDeclaration, bracketBalance);
+
+		if (this.parent == null){
+			return this; // ignore
+		} else {
+			this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));
+			return this.parent.add(fieldDeclaration, bracketBalance);
+		}
 	}
 	/* default behavior is to delegate recording to parent if any,
 	do not consider elements passed the known end (if set)
@@ -78,7 +85,11 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	if (methodDeclaration.declarationSourceEnd > 0
 		&& fieldDeclaration.declarationSourceStart
 			> methodDeclaration.declarationSourceEnd){
-		return this.parent.add(fieldDeclaration, bracketBalance);
+		if (this.parent == null){
+			return this; // ignore
+		} else {
+			return this.parent.add(fieldDeclaration, bracketBalance);
+		}
 	}
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -93,21 +104,39 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
  */
 public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalance) {
 
+	/* local variables inside method can only be final and non void */
+/*	
+	char[][] localTypeName; 
+	if ((localDeclaration.modifiers & ~AccFinal) != 0 // local var can only be final 
+		|| (localDeclaration.type == null) // initializer
+		|| ((localTypeName = localDeclaration.type.getTypeName()).length == 1 // non void
+			&& CharOperation.equals(localTypeName[0], VoidBinding.sourceName()))){ 
+
+		if (this.parent == null){
+			return this; // ignore
+		} else {
+			this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(localDeclaration.declarationSourceStart - 1));
+			return this.parent.add(localDeclaration, bracketBalance);
+		}
+	}
+*/
 	/* do not consider a type starting passed the type end (if set)
 		it must be belonging to an enclosing type */
 	if (methodDeclaration.declarationSourceEnd != 0 
 		&& localDeclaration.declarationSourceStart > methodDeclaration.declarationSourceEnd){
-		if (parent == null) {
+			
+		if (this.parent == null) {
 			return this; // ignore
 		} else {
 			return this.parent.add(localDeclaration, bracketBalance);
 		}
 	}
-	/* method body should have been created */
-	Block block = new Block(0);
-	block.sourceStart = methodDeclaration.bodyStart;
-	RecoveredElement element = this.add(block, 1);
-	return element.add(localDeclaration, bracketBalance);	
+	if (methodBody == null){
+		Block block = new Block(0);
+		block.sourceStart = methodDeclaration.bodyStart;
+		this.add(block, 1);
+	}
+	return methodBody.add(localDeclaration, bracketBalance, true);
 }
 /*
  * Record a statement - regular method should have been created a block body
@@ -118,17 +147,19 @@ public RecoveredElement add(Statement statement, int bracketBalance) {
 		it must be belonging to an enclosing type */
 	if (methodDeclaration.declarationSourceEnd != 0 
 		&& statement.sourceStart > methodDeclaration.declarationSourceEnd){
-		if (parent == null) {
+
+		if (this.parent == null) {
 			return this; // ignore
 		} else {
 			return this.parent.add(statement, bracketBalance);
 		}
 	}
-	/* method body should have been created */
-	Block block = new Block(0);
-	block.sourceStart = methodDeclaration.bodyStart;
-	RecoveredElement element = this.add(block, 1);
-	return element.add(statement, bracketBalance);	
+	if (methodBody == null){
+		Block block = new Block(0);
+		block.sourceStart = methodDeclaration.bodyStart;
+		this.add(block, 1);
+	}
+	return methodBody.add(statement, bracketBalance, true);	
 }
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance) {
 
@@ -136,18 +167,20 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance)
 		it must be belonging to an enclosing type */
 	if (methodDeclaration.declarationSourceEnd != 0 
 		&& typeDeclaration.declarationSourceStart > methodDeclaration.declarationSourceEnd){
-		if (parent == null) {
+			
+		if (this.parent == null) {
 			return this; // ignore
 		} else {
 			return this.parent.add(typeDeclaration, bracketBalance);
 		}
 	}
 	if (typeDeclaration instanceof LocalTypeDeclaration){
-		/* method body should have been created */
-		Block block = new Block(0);
-		block.sourceStart = methodDeclaration.bodyStart;
-		RecoveredElement element = this.add(block, 1);
-		return element.add(typeDeclaration, bracketBalance);	
+		if (methodBody == null){
+			Block block = new Block(0);
+			block.sourceStart = methodDeclaration.bodyStart;
+			this.add(block, 1);
+		}
+		return methodBody.add(typeDeclaration, bracketBalance, true);	
 	}	
 	if (localTypes == null) {
 		localTypes = new RecoveredType[5];

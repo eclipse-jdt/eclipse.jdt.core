@@ -38,9 +38,21 @@ public FieldDeclaration(Expression initialization, char[] name, int sourceStart,
 	this.sourceStart = sourceStart;
 	this.sourceEnd = sourceEnd;
 }
-public FlowInfo analyseCode(MethodScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) {
+
+	// cannot define static non-constant field inside nested class
+	if (binding != null 
+			&& binding.isValidBinding() 
+			&& binding.isStatic() 
+			&& binding.constant == NotAConstant	
+			&& binding.declaringClass.isNestedType() 
+			&& binding.declaringClass.isClass() && !binding.declaringClass.isStatic()) {
+		initializationScope.problemReporter()
+			.unexpectedStaticModifierForField((SourceTypeBinding)binding.declaringClass, this);		
+	}
+
 	if (initialization != null) {
-		flowInfo = initialization.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+		flowInfo = initialization.analyseCode(initializationScope, flowContext, flowInfo).unconditionalInits();
 		flowInfo.markAsDefinitelyAssigned(binding);
 	} else {
 		flowInfo.markAsDefinitelyNotAssigned(binding); // clear the bit in case it was already set (from enclosing info)
@@ -75,7 +87,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			codeStream.putfield(binding);
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding getTypeBinding(Scope scope) {
 	return type.getTypeBinding(scope);
@@ -136,10 +148,6 @@ public void resolve(MethodScope initializationScope) {
 				if (binding.constant == null) binding.constant = Constant.NotAConstant;
 			}
 		}
-		// cannot define static non-constant field inside nested class
-		if (binding.isStatic() && binding.constant == NotAConstant)
-			if (binding.declaringClass.isNestedType() && binding.declaringClass.isClass() && !binding.declaringClass.isStatic())
-				initializationScope.problemReporter().unexpectedStaticModifierForField((SourceTypeBinding)binding.declaringClass, this);		
 	} 
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, MethodScope scope) {

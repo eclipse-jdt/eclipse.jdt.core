@@ -346,16 +346,16 @@ public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOExcept
 	 */
 	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
 		open();
-		Vector matches= new Vector();
+		ArrayList matches= new ArrayList();
 		setFirstFile();
 		while (hasMoreFiles()) {
 			IndexedFile file= getCurrentFile();
 			if (file.getPath().indexOf(word) != -1)
-				matches.addElement(file);
+				matches.add(file);
 			moveToNextFile();
 		}
 		IQueryResult[] match= new IQueryResult[matches.size()];
-		matches.copyInto(match);
+		matches.toArray(match);
 		return match;
 	}
 	/**

@@ -141,7 +141,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		&& !((action == null || action.isEmptyBlock()) && (increments == null))) {
 		int jumpPC = codeStream.position;
 		codeStream.goto_(conditionLabel);
-		codeStream.recordPositionsFrom(jumpPC, condition);
+		codeStream.recordPositionsFrom(jumpPC, condition.sourceStart);
 	}
 	// generate the loop action
 	actionLabel.place();
@@ -186,7 +186,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (mergedInitStateIndex != -1) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resolve(BlockScope upperScope) {
 	// use the scope that will hold the init declarations

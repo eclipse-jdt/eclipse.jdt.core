@@ -41,7 +41,7 @@ CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnviron
 /**
  * @see org.eclipse.jdt.internal.eval.Evaluator
  */
-protected void addEvaluationResultForCompilationProblem(Hashtable resultsByIDs, IProblem problem, char[] cuSource) {
+protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProblem problem, char[] cuSource) {
 	CodeSnippetToCuMapper mapper = getMapper();
 	int pbLineNumber = problem.getSourceLineNumber();
 	int evaluationType = mapper.getEvaluationType(pbLineNumber);

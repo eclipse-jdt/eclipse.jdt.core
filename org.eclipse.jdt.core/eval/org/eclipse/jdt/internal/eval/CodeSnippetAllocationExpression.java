@@ -32,7 +32,7 @@ public void generateCode(
 			codeStream.dup();
 		}
 		// better highlight for allocation: display the type individually
-		codeStream.recordPositionsFrom(pc, type);
+		codeStream.recordPositionsFrom(pc, type.sourceStart);
 
 		// handling innerclass instance allocation
 		if (allocatedType.isNestedType()) {
@@ -77,7 +77,7 @@ public void generateCode(
 		((CodeSnippetCodeStream) codeStream).invokeJavaLangReflectConstructorNewInstance();
 		codeStream.checkcast(allocatedType);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /* Inner emulation consists in either recording a dependency 
  * link only, or performing one level of propagation.

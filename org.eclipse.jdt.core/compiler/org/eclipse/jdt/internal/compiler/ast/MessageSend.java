@@ -59,8 +59,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// generate receiver/enclosing instance access
 	boolean isStatic = binding.isStatic();
 	// outer access ?
-	if (!isStatic && ((bits & DepthMASK) != 0)){
-		// outer method can be reached through emulation
+	if (!isStatic && ((bits & DepthMASK) != 0) && (receiver == ThisReference.ThisImplicit)){
+		// outer method can be reached through emulation if implicit access
 		Object[] path = currentScope.getExactEmulationPath(currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT));
 		if (path == null) {
 			// emulation was not possible (should not happen per construction)
@@ -112,7 +112,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				codeStream.pop();
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, (int)(this.nameSourcePosition >>> 32)); // highlight selector
 }
 public boolean isSuperAccess() {	
 	return receiver.isSuper();
@@ -121,7 +121,7 @@ public boolean isTypeAccess() {
 	return receiver != null && receiver.isTypeReference();
 }
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
-	if (((bits & DepthMASK) != 0) && (!binding.isStatic()) && (receiver == ThisReference.ThisImplicit)) {
+	if (((bits & DepthMASK) != 0) && !binding.isStatic() && (receiver == ThisReference.ThisImplicit)) {
 		ReferenceBinding compatibleType = currentScope.enclosingSourceType();
 		// the declaringClass of the target binding must be compatible with the enclosing
 		// type at <depth> levels outside
@@ -133,28 +133,36 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 
-	if (((bits & DepthMASK) != 0) 
-		|| currentScope.enclosingSourceType() != binding.declaringClass){ // implicit only have a depth set
-		if (binding.isPrivate()){ // private access 
+	if (binding.isPrivate()){
+
+		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
+		if (currentScope.enclosingSourceType() != binding.declaringClass){
+		
 			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(binding);
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
-			return;
 		}
-		if (receiver == ThisReference.ThisImplicit  
-			&& binding.isProtected()
-			&& (bits & DepthMASK) != 0 // only if outer access			
-			&& binding.declaringClass.getPackage() 
-				!= currentScope.enclosingSourceType().getPackage()){ // protected access (implicit access only)
-			syntheticAccessor = ((SourceTypeBinding)currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).addSyntheticMethod(binding);
-			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
-		}
-		if (receiver instanceof QualifiedSuperReference){ // qualified super
-			SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
-			syntheticAccessor = destinationType.addSyntheticMethod(binding);
+
+	} else if (receiver instanceof QualifiedSuperReference){ // qualified super
+
+		// qualified super need emulation always
+		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
+		syntheticAccessor = destinationType.addSyntheticMethod(binding);
+		currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+
+	} else if (binding.isProtected()){
+
+		SourceTypeBinding enclosingSourceType;
+		if (((bits & DepthMASK) != 0) 
+				&& binding.declaringClass.getPackage() 
+					!= (enclosingSourceType = currentScope.enclosingSourceType()).getPackage()){
+
+			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+			syntheticAccessor = currentCompatibleType.addSyntheticMethod(binding);
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
 		}
 	}
 }
+
 public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type
 	// Base type promotion

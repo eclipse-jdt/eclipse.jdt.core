@@ -66,7 +66,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			codeStream.aload_0();
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
 	currentScope.emulateOuterAccess((SourceTypeBinding) currentCompatibleType, false); // request cascade of accesses

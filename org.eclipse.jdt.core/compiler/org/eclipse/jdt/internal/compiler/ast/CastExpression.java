@@ -194,7 +194,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.pop();
 			}
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
 	expression.generateCode(currentScope, codeStream, valueRequired || needRuntimeCheckcast);
@@ -206,7 +206,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		if (valueRequired)
 			codeStream.generateImplicitConversion(implicitConversion);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// compute a new constant if the cast is effective

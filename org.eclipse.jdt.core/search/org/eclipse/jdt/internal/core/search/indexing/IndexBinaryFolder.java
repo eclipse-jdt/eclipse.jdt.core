@@ -34,7 +34,9 @@ public class IndexBinaryFolder implements IJob {
 	 * and discover resources which have either been changed, added or deleted
 	 * since the index was produced.
 	 */
-	public boolean execute() {
+	public boolean execute(IProgressMonitor progressMonitor) {
+
+		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 
 		if (!this.folder.isAccessible())
 			return COMPLETE; // nothing to do
@@ -104,9 +106,9 @@ public class IndexBinaryFolder implements IJob {
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
 				if (value instanceof IFile) {
-					manager.add((IFile) value, this.folder);
+					manager.add((IFile) value, this.folder.getFullPath());
 				} else if (value == DELETED) {
-					manager.remove(name, this.project);
+					manager.remove(name, this.project.getFullPath());
 				}
 			}
 		} catch (CoreException e) {

@@ -10,6 +10,11 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.codeassist.impl.*;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 
@@ -83,6 +88,14 @@ public final class CompletionEngine
 	static final char[] lengthField = "length".toCharArray();  //$NON-NLS-1$
 	static final char[] THIS = "this".toCharArray();  //$NON-NLS-1$
 	static final char[] THROWS = "throws".toCharArray();  //$NON-NLS-1$
+	
+	static InvocationSite FakeInvocationSite = new InvocationSite(){
+		public boolean isSuperAccess(){ return false; }
+		public boolean isTypeAccess(){ return false; }
+		public void setDepth(int depth){}
+		public void setFieldIndex(int depth){}
+		
+	};
 
 	/**
 	 * The CompletionEngine is responsible for computing source completions.
@@ -119,7 +132,23 @@ public final class CompletionEngine
 			public void record(IProblem problem, CompilationResult unitResult) {
 				if (problem.getID() != ProblemIrritants.UnmatchedBracket) {
 					unitResult.record(problem);
-					CompletionEngine.this.requestor.acceptError(problem);
+					
+					if (true) return; // work-around PR 1GD9RLP: ITPJCORE:WIN2000 - Code assist is slow
+					if (problem.isWarning()) return;
+					try {
+						IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
+						marker.setAttribute(IJavaModelMarker.ID, problem.getID());
+						marker.setAttribute(IMarker.CHAR_START, problem.getSourceStart());
+						marker.setAttribute(IMarker.CHAR_END, problem.getSourceEnd() + 1);
+						marker.setAttribute(IMarker.LINE_NUMBER, problem.getSourceLineNumber());
+						//marker.setAttribute(IMarker.LOCATION, "#" + error.getSourceLineNumber());
+						marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
+						marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+				
+						CompletionEngine.this.requestor.acceptError(marker);
+				
+					} catch(CoreException e){
+					}
 				}
 			}
 		};
@@ -283,7 +312,7 @@ public final class CompletionEngine
 			//		findKeywords(token, modifiers, scope); // could be the start of a field, method or member type
 			findTypesAndPackages(token, scope);
 			
-			if(field.modifiers == CompilerModifiers.AccDefault) {
+			if(!field.isLocalVariable && field.modifiers == CompilerModifiers.AccDefault) {
 				findMethods(token,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false);
 			}
 		} else {
@@ -482,9 +511,10 @@ public final class CompletionEngine
 										} else {
 
 											if (astNode instanceof CompletionOnClassLiteralAccess) {
-
-												char[] token = ((CompletionOnClassLiteralAccess) astNode).completionIdentifier;
-												findClassField(token, (TypeBinding) qualifiedBinding);
+												CompletionOnClassLiteralAccess access = (CompletionOnClassLiteralAccess) astNode;
+												setSourceRange(access.classStart, access.sourceEnd);
+								
+												findClassField(access.completionIdentifier, (TypeBinding) qualifiedBinding);
 											} else {
 												if(astNode instanceof CompletionOnMethodName) {
 													CompletionOnMethodName method = (CompletionOnMethodName) astNode;
@@ -616,6 +646,7 @@ public final class CompletionEngine
 		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D
 		} catch (InvalidCursorLocation e) { // may eventually report a usefull error
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
+		} catch (CompletionNodeFound e){ // internal failure - bugs 5618
 		} finally {
 			reset();
 		}
@@ -665,9 +696,11 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding constructor = methods[f];
 			if (constructor.isConstructor()) {
-				if (options.checkVisibility()
-					&& !constructor.canBeSeenBy(invocationSite, scope))
-					continue next;
+				
+				if (constructor.isSynthetic()) continue next;
+					
+				if (options.checkVisibility
+					&& !constructor.canBeSeenBy(invocationSite, scope)) continue next;
 
 				TypeBinding[] parameters = constructor.parameters;
 				int paramLength = parameters.length;
@@ -730,22 +763,19 @@ public final class CompletionEngine
 		int fieldLength = fieldName.length;
 		next : for (int f = fields.length; --f >= 0;) {			
 			FieldBinding field = fields[f];
-			if (onlyStaticFields && !field.isStatic())
-				continue next;
-			if (fieldLength > field.name.length)
-				continue next;
-			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))
-				continue next;
 
-			if (options.checkVisibility()
-				&& !field.canBeSeenBy(receiverType, invocationSite, scope))
-				continue next;
+			if (field.isSynthetic())	continue next;
+
+			if (onlyStaticFields && !field.isStatic()) continue next;
+
+			if (fieldLength > field.name.length) continue next;
+
+			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))	continue next;
+
+			if (options.checkVisibility
+				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
 
 			boolean prefixRequired = false;
-			
-			if(receiverType != invocationScope.enclosingSourceType()){
-				prefixRequired = implicitCall && isEnclosed(receiverType,invocationScope.enclosingSourceType());
-			}
 
 			for (int i = fieldsFound.size; --i >= 0;) {
 				FieldBinding otherField = (FieldBinding) fieldsFound.elementAt(i);
@@ -757,6 +787,7 @@ public final class CompletionEngine
 					if (otherField.declaringClass.isInterface())
 						if (field.declaringClass.implementsInterface(otherField.declaringClass, true))
 							continue next;
+					prefixRequired = true;
 				}
 			}
 
@@ -777,7 +808,7 @@ public final class CompletionEngine
 			
 			char[] completion = field.name;
 			
-			if(prefixRequired){
+			if(prefixRequired || options.forceImplicitQualification){
 				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), field.isStatic());
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
@@ -949,11 +980,16 @@ public final class CompletionEngine
 	}
 
 	private void findImports(CompletionOnImportReference importReference) {
-
-		char[] importName = CharOperation.concatWith(importReference.tokens, '.');
-
+		char[][] tokens = importReference.tokens;
+			
+		char[] importName = CharOperation.concatWith(tokens, '.');
+		
 		if (importName.length == 0)
 			return;
+			
+		char[] token = tokens[tokens.length - 1];
+		if(token != null && token.length == 0)
+			importName = CharOperation.concat(importName, new char[]{'.'});
 
 		resolvingImports = true;
 		setSourceRange(
@@ -1000,7 +1036,7 @@ public final class CompletionEngine
 				))
 				continue next;
 
-			if (options.checkVisibility()
+			if (options.checkVisibility
 				&& !memberType.canBeSeenBy(receiverType, invocationType))
 				continue next;
 
@@ -1146,6 +1182,92 @@ public final class CompletionEngine
 		}
 	}
 
+	private void findIntefacesMethods(
+		char[] selector,
+		TypeBinding[] argTypes,
+		ReferenceBinding receiverType,
+		ReferenceBinding[] itsInterfaces,
+		Scope scope,
+		ObjectVector methodsFound,
+		boolean onlyStaticMethods,
+		boolean exactMatch,
+		boolean isCompletingDeclaration,
+		InvocationSite invocationSite,
+		Scope invocationScope,
+		boolean implicitCall) {
+
+		if (selector == null)
+			return;
+
+		if (itsInterfaces != NoSuperInterfaces) {
+			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+			int lastPosition = 0;
+			interfacesToVisit[lastPosition] = itsInterfaces;
+			
+			for (int i = 0; i <= lastPosition; i++) {
+				ReferenceBinding[] interfaces = interfacesToVisit[i];
+
+				for (int j = 0, length = interfaces.length; j < length; j++) {
+					ReferenceBinding currentType = interfaces[j];
+
+					if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
+						// if interface as not already been visited
+						currentType.tagBits |= TagBits.InterfaceVisited;
+
+						if(isCompletingDeclaration){
+
+							findLocalMethodDeclarations(
+								selector,
+								currentType.methods(),
+								scope,
+								methodsFound,
+								onlyStaticMethods,
+								exactMatch,
+								receiverType);
+
+						} else {
+
+							findLocalMethods(
+								selector,
+								argTypes,
+								currentType.methods(),
+								scope,
+								methodsFound,
+								onlyStaticMethods,
+								exactMatch,
+								receiverType,
+								invocationSite,
+								invocationScope,
+								implicitCall);
+						}
+
+						itsInterfaces = currentType.superInterfaces();
+						if (itsInterfaces != NoSuperInterfaces) {
+
+							if (++lastPosition == interfacesToVisit.length)
+								System.arraycopy(
+									interfacesToVisit,
+									0,
+									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
+									0,
+									lastPosition);
+							interfacesToVisit[lastPosition] = itsInterfaces;
+						}
+					}
+				}
+			}
+
+			// bit reinitialization
+			for (int i = 0; i <= lastPosition; i++) {
+				ReferenceBinding[] interfaces = interfacesToVisit[i];
+
+				for (int j = 0, length = interfaces.length; j < length; j++){
+					interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
+				}
+			}
+		}
+	}
+	
 	private void findImplicitMessageSends(
 		char[] token,
 		TypeBinding[] argTypes,
@@ -1219,16 +1341,17 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
 
-			if (method.isConstructor())
-				continue next;
+			if (method.isSynthetic()) continue next;
+
+			if (method.isDefaultAbstract())	continue next;
+
+			if (method.isConstructor()) continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if (onlyStaticMethods && !method.isStatic())
-				continue next;
+			if (onlyStaticMethods && !method.isStatic()) continue next;
 
-			if (options.checkVisibility()
-				&& !method.canBeSeenBy(receiverType, invocationSite, scope))
-				continue next;
+			if (options.checkVisibility
+				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
@@ -1258,10 +1381,6 @@ public final class CompletionEngine
 			
 			boolean prefixRequired = false;
 			
-			if(receiverType != invocationScope.enclosingSourceType()){
-				prefixRequired = implicitCall && isEnclosed(receiverType,invocationScope.enclosingSourceType());
-			}
-			
 			for (int i = methodsFound.size; --i >= 0;) {
 
 				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
@@ -1285,6 +1404,7 @@ public final class CompletionEngine
 							.declaringClass
 							.implementsInterface(method.declaringClass,true))
 							continue next;
+					prefixRequired = true;
 				}
 			}
 
@@ -1320,7 +1440,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			if(prefixRequired){
+			if(prefixRequired || options.forceImplicitQualification){
 				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), method.isStatic());
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
@@ -1359,19 +1479,19 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 
 			MethodBinding method = methods[f];
-			if (method.isConstructor())
-				continue next;
+			if (method.isSynthetic())	continue next;
 				
-			if (method.isFinal())
-				continue next;
+			if (method.isDefaultAbstract()) continue next;
+			
+			if (method.isConstructor()) continue next;
+				
+			if (method.isFinal()) continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if (onlyStaticMethods && !method.isStatic())
-				continue next;
+			if (onlyStaticMethods && !method.isStatic()) continue next;
 
-			if (options.checkVisibility()
-				&& !method.canBeSeenBy(receiverType, false, scope))
-				continue next;
+			if (options.checkVisibility
+				&& !method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
@@ -1515,7 +1635,6 @@ public final class CompletionEngine
 				endPosition);
 		}
 	}
-
 	private void findMethods(
 		char[] selector,
 		TypeBinding[] argTypes,
@@ -1532,105 +1651,59 @@ public final class CompletionEngine
 		if (selector == null)
 			return;
 			
-		boolean isInterface = receiverType.isInterface();
-		
 		ReferenceBinding currentType = receiverType;
-		if (isInterface || isCompletingDeclaration) {
-			if(!isCompletingDeclaration){
-				findLocalMethods(
+		if (receiverType.isInterface()) {
+			if(isCompletingDeclaration) {
+				findIntefacesMethods(
 					selector,
 					argTypes,
-					currentType.methods(),
+					receiverType,
+					currentType.superInterfaces(),
 					scope,
 					methodsFound,
 					onlyStaticMethods,
 					exactMatch,
+					isCompletingDeclaration,
+					invocationSite,
+					invocationScope,
+					implicitCall);
+			} else {
+				findIntefacesMethods(
+					selector,
+					argTypes,
 					receiverType,
+					new ReferenceBinding[]{currentType},
+					scope,
+					methodsFound,
+					onlyStaticMethods,
+					exactMatch,
+					isCompletingDeclaration,
 					invocationSite,
 					invocationScope,
 					implicitCall);
 			}
-
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
-				ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-				int lastPosition = 0;
-				interfacesToVisit[lastPosition] = itsInterfaces;
-
-				for (int i = 0; i <= lastPosition; i++) {
-					ReferenceBinding[] interfaces = interfacesToVisit[i];
-
-					for (int j = 0, length = interfaces.length; j < length; j++) {
-						currentType = interfaces[j];
-
-						if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
-							// if interface as not already been visited
-							currentType.tagBits |= TagBits.InterfaceVisited;
-
-							if(isCompletingDeclaration){
-
-								findLocalMethodDeclarations(
-									selector,
-									currentType.methods(),
-									scope,
-									methodsFound,
-									onlyStaticMethods,
-									exactMatch,
-									receiverType);
-
-							} else {
-
-								findLocalMethods(
-									selector,
-									argTypes,
-									currentType.methods(),
-									scope,
-									methodsFound,
-									onlyStaticMethods,
-									exactMatch,
-									receiverType,
-									invocationSite,
-									invocationScope,
-									implicitCall);
-							}
-
-							itsInterfaces = currentType.superInterfaces();
-							if (itsInterfaces != NoSuperInterfaces) {
-
-								if (++lastPosition == interfacesToVisit.length)
-									System.arraycopy(
-										interfacesToVisit,
-										0,
-										interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-										0,
-										lastPosition);
-								interfacesToVisit[lastPosition] = itsInterfaces;
-							}
-						}
-					}
-				}
-
-				// bit reinitialization
-				for (int i = 0; i <= lastPosition; i++) {
-					ReferenceBinding[] interfaces = interfacesToVisit[i];
-
-					for (int j = 0, length = interfaces.length; j < length; j++){
-						interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
-					}
-				}
-			}
 			
 			currentType = scope.getJavaLangObject();
-		}
-		
-		if(!isInterface){
+		} else {
 			if(isCompletingDeclaration){
+				findIntefacesMethods(
+					selector,
+					argTypes,
+					receiverType,
+					currentType.superInterfaces(),
+					scope,
+					methodsFound,
+					onlyStaticMethods,
+					exactMatch,
+					isCompletingDeclaration,
+					invocationSite,
+					invocationScope,
+					implicitCall);
+				
 				currentType = receiverType.superclass();
-			} else {
-				currentType = receiverType;
 			}
 		}
-		
+		boolean hasPotentialDefaultAbstractMethods = true;
 		while (currentType != null) {
 
 			if(isCompletingDeclaration){
@@ -1658,10 +1731,27 @@ public final class CompletionEngine
 					invocationScope,
 					implicitCall);
 			}
+			
+			if(hasPotentialDefaultAbstractMethods && currentType.isAbstract()){
+				findIntefacesMethods(
+					selector,
+					argTypes,
+					receiverType,
+					currentType.superInterfaces(),
+					scope,
+					methodsFound,
+					onlyStaticMethods,
+					exactMatch,
+					isCompletingDeclaration,
+					invocationSite,
+					invocationScope,
+					implicitCall);
+			} else {
+				hasPotentialDefaultAbstractMethods = false;
+			}
 			currentType = currentType.superclass();
 		}
 	}
-	
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){
 		ReferenceBinding bindingType = method.declaringClass;
 
@@ -1701,8 +1791,8 @@ public final class CompletionEngine
 				if(answer.isSourceType()) {
 					ISourceType sourceType = answer.getSourceTypes()[0];
 					ISourceMethod[] sourceMethods = sourceType.getMethods();
-
-					for(int i = 0; i < sourceMethods.length ; i++){
+					int len = sourceMethods == null ? 0 : sourceMethods.length;
+					for(int i = 0; i < len ; i++){
 						ISourceMethod sourceMethod = sourceMethods[i];
 						char[][] argTypeNames = sourceMethod.getArgumentTypeNames();
 

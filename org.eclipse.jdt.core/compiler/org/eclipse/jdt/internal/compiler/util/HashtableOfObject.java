@@ -8,7 +8,7 @@ import org.eclipse.jdt.internal.compiler.*;
 /**
  * Hashtable of {char[] --> Object }
  */
-public final class HashtableOfObject {
+public final class HashtableOfObject implements Cloneable {
 	
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public char[] keyTable[];
@@ -16,7 +16,7 @@ public final class HashtableOfObject {
 
 	int elementSize; // number of elements in the table
 	int threshold;
-	
+
 	public HashtableOfObject() {
 		this(13);
 	}
@@ -30,6 +30,21 @@ public final class HashtableOfObject {
 			extraRoom++;
 		this.keyTable = new char[extraRoom][];
 		this.valueTable = new Object[extraRoom];
+	}
+
+	public Object clone() throws CloneNotSupportedException {
+		HashtableOfObject result = (HashtableOfObject) super.clone();
+		result.elementSize = this.elementSize;
+		result.threshold = this.threshold;
+
+		int length = this.keyTable.length;
+		result.keyTable = new char[length][];
+		System.arraycopy(this.keyTable, 0, result.keyTable, 0, length);
+
+		length = this.valueTable.length;
+		result.valueTable = new Object[length];
+		System.arraycopy(this.valueTable, 0, result.valueTable, 0, length);
+		return result;
 	}
 
 	public boolean containsKey(char[] key) {
@@ -78,6 +93,26 @@ public final class HashtableOfObject {
 		if (++elementSize > threshold)
 			rehash();
 		return value;
+	}
+
+	public Object removeKey(char[] key) {
+
+		int index = CharOperation.hashCode(key) % valueTable.length;
+		int keyLength = key.length;
+		char[] currentKey;
+		while ((currentKey = keyTable[index]) != null) {
+			if (currentKey.length == keyLength
+				&& CharOperation.prefixEquals(currentKey, key)) {
+					Object value = valueTable[index];
+					elementSize--;
+					keyTable[index] = null;
+					valueTable[index] = null;
+					rehash();
+					return value;
+				}
+			index = (index + 1) % keyTable.length;
+		}
+		return null;
 	}
 
 	private void rehash() {

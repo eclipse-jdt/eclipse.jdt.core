@@ -8,6 +8,7 @@ import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Implements functionality common to
@@ -64,9 +65,9 @@ protected void generateNewCompilationUnitDOM(ICompilationUnit cu) throws JavaMod
 protected IDOMNode generateSyntaxIncorrectDOM() throws JavaModelException {
 	//create some dummy source to generate a dom node
 	StringBuffer buff = new StringBuffer();
-	buff.append(JavaModelManager.LINE_SEPARATOR + " public class A {" + JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buff.append(Util.LINE_SEPARATOR + " public class A {" + Util.LINE_SEPARATOR); //$NON-NLS-1$
 	buff.append(fSource);
-	buff.append(JavaModelManager.LINE_SEPARATOR).append('}');
+	buff.append(Util.LINE_SEPARATOR).append('}');
 	IDOMCompilationUnit domCU = (new DOMFactory()).createCompilationUnit(buff.toString(), "A.java"); //$NON-NLS-1$
 	IDOMNode node = (IDOMNode) domCU.getChild("A").getChildren().nextElement(); //$NON-NLS-1$
 	if (node != null) {

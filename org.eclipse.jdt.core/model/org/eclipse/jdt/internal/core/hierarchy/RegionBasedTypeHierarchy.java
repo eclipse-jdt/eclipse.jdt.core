@@ -90,13 +90,5 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 public IJavaProject javaProject() {
 	return fProject;
 }
-protected void pruneTypeHierarchy(IType type, IProgressMonitor monitor) throws JavaModelException {
-	// there is no pruning to do if the hierarchy was created for the single type
-	IJavaElement[] roots= fRegion.getElements();
-	if (roots.length == 1 && roots[0].equals(type)) {
-		return;
-	}
 
-	super.pruneTypeHierarchy(type, monitor);
-}
 }

@@ -40,7 +40,7 @@ public class CompilationUnitStructureRequestor implements ISourceElementRequesto
 	 * the parser. Keys are handles, values are corresponding
 	 * info objects.
 	 */
-	protected Hashtable fNewElements;
+	protected Map fNewElements;
 
 	/**
 	 * Stack of parent scope info objects - i.e. the info on the
@@ -104,7 +104,7 @@ public class CompilationUnitStructureRequestor implements ISourceElementRequesto
 	 * If any errors appear (i.e. not warnings), the structure
 	 * of the compilation unit is considered unknown.
 	 */	
-	protected Vector fProblems;
+	protected ArrayList fProblems;
 
 	/**
 	 * Empty collections used for efficient initialization
@@ -119,7 +119,7 @@ public class CompilationUnitStructureRequestor implements ISourceElementRequesto
 	protected HashtableOfObject messageRefCache;
 	protected HashtableOfObject typeRefCache;
 	protected HashtableOfObject unknownRefCache;
-protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Hashtable newElements) throws JavaModelException {
+protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) throws JavaModelException {
 	fUnit = unit;
 	fUnitInfo = unitInfo;
 	fNewElements = newElements;
@@ -244,9 +244,9 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 }
 public void acceptProblem(IProblem problem) {
 	if (fProblems == null) {
-		fProblems= new Vector();
+		fProblems= new ArrayList();
 	}
-	fProblems.addElement(problem);
+	fProblems.add(problem);
 }
 public void acceptTypeReference(char[][] typeName, int sourceStart, int sourceEnd) {
 	int last = typeName.length - 1;
@@ -586,9 +586,8 @@ protected void enterType(
 	info.setSourceFileName(fSourceFileName);
 	info.setPackageName(fPackageName);
 	info.setQualifiedName(qualifiedName);
-	Enumeration e = fNewElements.keys();
-	while(e.hasMoreElements()) {
-		Object object = e.nextElement();
+	for (Iterator iter = fNewElements.keySet().iterator(); iter.hasNext();){
+		Object object = iter.next();
 		if (object instanceof IImportDeclaration)
 			info.addImport(((IImportDeclaration)object).getElementName().toCharArray());
 	}
@@ -631,7 +630,7 @@ public void exitCompilationUnit(int declarationEnd) {
 	fUnitInfo.setIsStructureKnown(true);
 	if (fProblems != null) {
 		for (int i= 0; i < fProblems.size(); i++) {
-			IProblem problem= (IProblem)fProblems.elementAt(i);
+			IProblem problem= (IProblem)fProblems.get(i);
 			if (!problem.isWarning()) {
 				fUnitInfo.setIsStructureKnown(false);
 				break;
