@@ -5133,8 +5133,7 @@ public void test91() {
 		"public interface Fred {\n" + 
 		"  void foo();\n" + 
 		"  void bar();\n" + 
-		"  public fred(X x, int y) {\n" + 
-		"  }\n" + 
+		"  public fred(X x, int y);\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = expectedDietUnitToString;
@@ -5166,8 +5165,7 @@ public void test92() {
 	String expectedDietUnitToString = 
 		"public interface Test {\n" + 
 		"  void foo();\n" + 
-		"  public fred(Fred x, int y) {\n" + 
-		"  }\n" + 
+		"  public fred(Fred x, int y);\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = expectedDietUnitToString;

@@ -4901,10 +4901,12 @@ protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 	if (hasBody && ((length = astLengthStack[astLengthPtr--]) != 0)) {
 		astPtr -= length;
 	}
-	
 	ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) astStack[astPtr];
 	constructorDeclaration.bodyEnd = endStatementPosition;
 	constructorDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(endStatementPosition);
+	if (!hasBody) {
+		constructorDeclaration.modifiers |= AccSemicolonBody;
+	}
 }
 protected void ignoreMethodBody() {
 	// InterfaceMemberDeclaration ::= InvalidMethodDeclaration
