@@ -130,10 +130,6 @@ public int hashCode() {
 					manager.remove(name, projectPath);
 				}
 			}
-			
-			// request to save index when all cus have been indexed
-			manager.request(new SaveIndex(manager, projectPath));
-			
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.project + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$

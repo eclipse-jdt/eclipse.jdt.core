@@ -25,7 +25,7 @@ public class SaveIndex extends IndexRequest {
 	IndexManager manager;
 	IPath path;
 	
-	public SaveIndex(IndexManager manager, IPath projectPath) {
+	public SaveIndex(IPath projectPath, IndexManager manager) {
 		this.manager = manager;
 		this.path = projectPath;
 	}
