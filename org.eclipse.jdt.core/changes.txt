@@ -18,6 +18,7 @@ STREAM: 2.0
   1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
   1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference
   1GK7K17: ITPJCORE:WIN2000 - search: missing type reference
+  1G52F7P: ITPJCORE:WINNT - Search - finds bogus references to class
 
   KJ
   ================================================================================
