@@ -263,6 +263,58 @@ public void testCreateResourceExcludedPackage() throws CoreException {
 		root.getNonJavaResources());
 }
 /*
+ * Ensures that a cu that is not excluded is on the classpath of the project.
+ */
+public void testIsOnClasspath1() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", ""});
+	this.createFolder("/P/src/p");
+	IFile file = this.createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
+	
+	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
+	assertTrue("CU should be on classpath", project.isOnClasspath(cu));
+}
+/*
+ * Ensures that a cu that is excluded is not on the classpath of the project.
+ */
+public void testIsOnClasspath2() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.createFolder("/P/src/p");
+	IFile file = this.createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
+	
+	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
+	assertTrue("CU should not be on classpath", !project.isOnClasspath(cu));
+}
+/*
+ * Ensures that a non-java resource that is not excluded is on the classpath of the project.
+ */
+public void testIsOnClasspath3() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", ""});
+	this.createFolder("/P/src/p");
+	IFile file = this.createFile("/P/src/p/readme.txt", "");
+	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
+}
+/*
+ * Ensures that a non-java resource that is excluded is not on the classpath of the project.
+ */
+public void testIsOnClasspath4() throws CoreException {
+	this.setClasspath(new String[] {"/P/src", "p/**"});
+	this.createFolder("/P/src/p");
+	IFile file = this.createFile("/P/src/p/readme.txt", "");
+	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
+}
+/*
  * Ensure that renaming an excluded compilation unit so that it is not excluded any longer
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */

@@ -10,6 +10,7 @@
  *     IBM Corporation - added getOption(String, boolean), getOptions(boolean) and setOptions(Map)
  *     IBM Corporation - deprecated getPackageFragmentRoots(IClasspathEntry) and 
  *                               added findPackageFragmentRoots(IClasspathEntry)
+ *     IBM Corporation - added isOnClasspath(IResource)
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -455,6 +456,18 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @since 2.0
 	 */
 	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
+	/**
+	 * Returns whether the given resource is on the classpath of this project.
+	 * Returns false if the resource is explicitely excluded from the classpath.
+	 * 
+	 * @param element the given element
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return true if the given resource is on the classpath of this project, false otherwise
+	 * @see IClasspathEntry#getExclusionPatterns()
+	 * @since 2.1
+	 */
+	boolean isOnClasspath(IResource resource) throws JavaModelException;
 
 	/**
 	 * Creates a new evaluation context.

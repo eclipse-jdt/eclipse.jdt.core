@@ -41,6 +41,9 @@ Eclipse SDK 2.1 Build - ?th December 2002
 <h2>
 What's new in this drop</h2>
 <ul> 
+<li>Added API <code>IJavaProject.isOnClasspath(IResource)</code> that returns whether a given resource is on the 
+     classpath of the project and whether it is excluded.
+</li>
 <li>Added mechanism to allow generic container user to request updating definitions held by
 container initializers, onto <code>org.eclipse.jdt.core.ClasspathContainerInitializer</code>:
 
@@ -104,7 +107,9 @@ public static ClasspathContainerInitializer getClasspathContainerInitializer(Str
 </ul> 
  
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27652">27652</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27595">27595</a>
+Add isOnClasspath(IResource) as API 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27652">27652</a>
 DCR - Need a way to request container initializers to update their container definitions
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27555">27555</a>
 [startup] PackageFragmentRoot - source attached too early (?) 

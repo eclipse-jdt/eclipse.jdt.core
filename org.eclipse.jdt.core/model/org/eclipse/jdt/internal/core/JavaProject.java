@@ -1623,18 +1623,26 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
-		IPath rootPath;
-		if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
-			rootPath = ((IJavaProject)element).getProject().getFullPath();
-		} else {
-			IPackageFragmentRoot root = (IPackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-			if (root == null) {
-				return false;
-			}
-			rootPath = root.getPath();
-		}
-		return this.findPackageFragmentRoot0(rootPath) != null;
+		return this.isOnClasspath(element.getPath());
 	}
+	private boolean isOnClasspath(IPath path) throws JavaModelException {
+		IClasspathEntry[] classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
+		for (int i = 0; i < classpath.length; i++) {
+			IClasspathEntry entry = classpath[i];
+			if (entry.getPath().isPrefixOf(path) 
+					&& !Util.isExcluded(path, ((ClasspathEntry)entry).fullExclusionPatternChars())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/*
+	 * @see IJavaProject
+	 */
+	public boolean isOnClasspath(IResource resource) throws JavaModelException {
+		return this.isOnClasspath(resource.getFullPath());
+	}
+
 
 	/*
 	 * load preferences from a shareable format (VCM-wise)
