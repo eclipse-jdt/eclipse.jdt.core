@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
@@ -350,7 +351,7 @@ protected IGenericType createInfoFromClassFileInJar(Openable classFile) {
 	return info;
 }
 
-protected void addInfoFromClosedElement(Openable handle, ArrayList infos, ArrayList units, String resourcePath) {
+protected void addInfoFromClosedElement(Openable handle, ArrayList infos, ArrayList closedUnits, String resourcePath) {
 	
 	// create a temporary info
 	IJavaElement pkg = handle.getParent();
@@ -370,10 +371,7 @@ protected void addInfoFromClosedElement(Openable handle, ArrayList infos, ArrayL
 			String osPath = location.toOSString();
 			if (handle instanceof CompilationUnit) {
 				// compilation unit in a directory
-				ICompilationUnit unit = this.createCompilationUnitFromPath(handle, osPath);
-				if (unit != null) {
-					units.add(unit);
-				}
+				closedUnits.add(handle);
 			} else if (handle instanceof ClassFile) {
 				// class file in a directory
 				IGenericType info = this.createInfoFromClassFile(handle, osPath);
@@ -405,9 +403,19 @@ protected void addInfoFromOpenSourceType(SourceType type, ArrayList infos) throw
 	IGenericType info = (IGenericType)type.getElementInfo();
 	infos.add(info);
 	this.infoToHandle.put(info, type);
-	IType[] members = type.getTypes();
+	IJavaElement[] members = type.getChildren();
 	for (int i = 0; i < members.length; i++) {
-		this.addInfoFromOpenSourceType((SourceType)members[i], infos);
+		IJavaElement member = members[i];
+		if (member instanceof SourceType) {
+			addInfoFromOpenSourceType((SourceType)member, infos);
+		} else {
+			// field, initializer or method
+			IJavaElement[] memberMembers = ((IParent)member).getChildren();
+			for (int j = 0; j < memberMembers.length; j++) {
+				IJavaElement memberMember = memberMembers[j];
+				addInfoFromOpenSourceType((SourceType)memberMember, infos);
+			}
+		}
 	}
 }
 
@@ -421,7 +429,7 @@ protected void addInfoFromOpenClassFile(ClassFile classFile, ArrayList infos) th
 	this.infoToHandle.put(info, classFile);
 }
 
-protected void addInfoFromElement(Openable handle, ArrayList infos, ArrayList units, String resourcePath) throws JavaModelException {
+protected void addInfoFromElement(Openable handle, ArrayList infos, ArrayList closedUnits, String resourcePath) throws JavaModelException {
 	if (handle.isOpen()) {
 		// reuse the info from the java model cache
 		if (handle instanceof CompilationUnit) {
@@ -430,7 +438,7 @@ protected void addInfoFromElement(Openable handle, ArrayList infos, ArrayList un
 			this.addInfoFromOpenClassFile((ClassFile)handle, infos);
 		}
 	} else {
-		this.addInfoFromClosedElement(handle, infos, units, resourcePath);
+		this.addInfoFromClosedElement(handle, infos, closedUnits, resourcePath);
 	}
 }
 

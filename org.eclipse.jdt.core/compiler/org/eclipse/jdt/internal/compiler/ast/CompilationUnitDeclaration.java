@@ -30,8 +30,8 @@ public class CompilationUnitDeclaration
 	public ProblemReporter problemReporter;
 	public CompilationResult compilationResult;
 
-	private LocalTypeBinding[] localTypes;
-	int localTypeCount = 0;
+	public LocalTypeBinding[] localTypes;
+	public int localTypeCount = 0;
 	
 	public boolean isPropagatingInnerClassEmulation;
 

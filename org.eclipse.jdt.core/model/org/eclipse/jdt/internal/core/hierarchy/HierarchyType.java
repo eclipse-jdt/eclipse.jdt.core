@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 
 /**
@@ -20,30 +20,27 @@ import org.eclipse.jdt.internal.compiler.env.IGenericType;
  */
 public class HierarchyType implements IGenericType {
 
-	public HierarchyType enclosingType;
+	public IType typeHandle;
 	public boolean isClass;
 	public char[] name;
 	public int modifiers;
 	public char[] superclassName;
 	public char[][] superInterfaceNames;
-	public ICompilationUnit originatingUnit;
 	
 public HierarchyType(
-	HierarchyType enclosingType, 
+	IType typeHandle, 
 	boolean isClass, 
 	char[] name, 
 	int modifiers, 
 	char[] superclassName,
-	char[][] superInterfaceNames,
-	ICompilationUnit originatingUnit) {
+	char[][] superInterfaceNames) {
 		
-	this.enclosingType = enclosingType;
+	this.typeHandle = typeHandle;
 	this.isClass = isClass;
 	this.name = name;
 	this.modifiers = modifiers;
 	this.superclassName = superclassName;
 	this.superInterfaceNames = superInterfaceNames;
-	this.originatingUnit = originatingUnit;
 }
 /**
  * Answer the file name which defines the type.
@@ -56,7 +53,7 @@ public HierarchyType(
  * e.g. "c:/com/ibm/compiler/java/api/Compiler.java" 
  */
 public char[] getFileName() {
-	return originatingUnit.getFileName();
+	return this.typeHandle.getCompilationUnit().getElementName().toCharArray();
 }
 /**
  * Answer an int whose bits are set according the access constants

@@ -26,8 +26,6 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -111,12 +109,12 @@ private void addInfoFromBinaryIndexMatch(Openable handle, HierarchyBinaryType bi
 	infos.add(binaryType);
 	this.infoToHandle.put(binaryType, handle);
 }
-protected void addInfoFromClosedElement(Openable handle,ArrayList infos,ArrayList units,String resourcePath) {
+protected void addInfoFromClosedElement(Openable handle,ArrayList infos,ArrayList closedUnits,String resourcePath) {
 	HierarchyBinaryType binaryType = (HierarchyBinaryType) binariesFromIndexMatches.get(resourcePath);
 	if (binaryType != null) {
 		this.addInfoFromBinaryIndexMatch(handle, binaryType, infos);
 	} else {
-		super.addInfoFromClosedElement(handle, infos, units, resourcePath);
+		super.addInfoFromClosedElement(handle, infos, closedUnits, resourcePath);
 	}
 }
 /**
@@ -151,14 +149,15 @@ public void build(boolean computeSubtypes) {
 				this.hierarchy.progressMonitor == null ? 
 					null : 
 					new SubProgressMonitor(this.hierarchy.progressMonitor, amountOfWorkForSubtypes);
-			String[] allPossibleSubtypes = this.determinePossibleSubTypes(possibleSubtypesMonitor);
+			HashSet localTypes = new HashSet(10); // contains the paths that have potential subtypes that are local/anonymous types
+			String[] allPossibleSubtypes = this.determinePossibleSubTypes(localTypes, possibleSubtypesMonitor);
 			if (allPossibleSubtypes != null) {
 				IProgressMonitor buildMonitor = 
 					this.hierarchy.progressMonitor == null ? 
 						null : 
 						new SubProgressMonitor(this.hierarchy.progressMonitor, 100 - amountOfWorkForSubtypes);
 				this.hierarchy.initialize(allPossibleSubtypes.length);
-				buildFromPotentialSubtypes(allPossibleSubtypes, buildMonitor);
+				buildFromPotentialSubtypes(allPossibleSubtypes, localTypes, buildMonitor);
 			}
 		} else {
 			this.hierarchy.initialize(1);
@@ -168,7 +167,7 @@ public void build(boolean computeSubtypes) {
 		manager.flushZipFiles();
 	}
 }
-private void buildForProject(JavaProject project, ArrayList infos, ArrayList units, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, IProgressMonitor monitor) throws JavaModelException {
+private void buildForProject(JavaProject project, ArrayList infos, ArrayList closedUnits, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, HashSet localTypes, IProgressMonitor monitor) throws JavaModelException {
 	// copy vectors into arrays
 	IGenericType[] genericTypes;
 	int infosSize = infos.size();
@@ -178,17 +177,17 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 	} else {
 		genericTypes = new IGenericType[0];
 	}
-	ICompilationUnit[] compilationUnits;
-	int unitsSize = units.size();
-	if (unitsSize > 0) {
-		compilationUnits = new ICompilationUnit[unitsSize];
-		units.toArray(compilationUnits);
+	org.eclipse.jdt.core.ICompilationUnit[] closedCUs;
+	int closedUnitsSize = closedUnits.size();
+	if (closedUnitsSize > 0) {
+		closedCUs = new org.eclipse.jdt.core.ICompilationUnit[closedUnitsSize];
+		closedUnits.toArray(closedCUs);
 	} else {
-		compilationUnits = new ICompilationUnit[0];
+		closedCUs = new org.eclipse.jdt.core.ICompilationUnit[0];
 	}
 
 	// resolve
-	if (infosSize > 0 || unitsSize > 0) {
+	if (infosSize > 0 || closedUnitsSize > 0) {
 		this.searchableEnvironment = (SearchableEnvironment)project.getSearchableNameEnvironment();
 		IType focusType = this.getType();
 		this.nameLookup = project.getNameLookup();
@@ -218,9 +217,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 				if (declaringMember == null) {
 					// top level or member type
 					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-					ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
-					if (focusTypeBinding == null 
-							|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
+					if (!inProjectOfFocusType && project.getSearchableNameEnvironment().findType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
 						// focus type is not visible in this project: no need to go further
 						return;
 					}
@@ -230,7 +227,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 					return;
 				}
 			}
-			this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
+			this.hierarchyResolver.resolve(genericTypes, closedCUs, localTypes, monitor);
 		} finally {
 			if (inProjectOfFocusType) {
 				this.nameLookup.setUnitsToLookInside(null);
@@ -241,7 +238,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 /**
  * Configure this type hierarchy based on the given potential subtypes.
  */
-private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgressMonitor monitor) {
+private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet localTypes, IProgressMonitor monitor) {
 	IType focusType = this.getType();
 		
 	// substitute compilation units with working copies
@@ -289,7 +286,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 	Util.sortReverseOrder(allPotentialSubTypes);
 	
 	ArrayList infos = new ArrayList();
-	ArrayList units = new ArrayList();
+	ArrayList closedUnits = new ArrayList();
 
 	try {
 		// create element infos for subtypes
@@ -319,16 +316,16 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 				if (currentProject == null) {
 					currentProject = project;
 					infos = new ArrayList(5);
-					units = new ArrayList(5);
+					closedUnits = new ArrayList(5);
 				} else if (!currentProject.equals(project)) {
 					// build current project
-					this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
+					this.buildForProject((JavaProject)currentProject, infos, closedUnits, workingCopies, localTypes, monitor);
 					currentProject = project;
 					infos = new ArrayList(5);
-					units = new ArrayList(5);
+					closedUnits = new ArrayList(5);
 				}
 				
-				this.addInfoFromElement(handle, infos, units, resourcePath);
+				this.addInfoFromElement(handle, infos, closedUnits, resourcePath); // TODO (jerome) should not add all infos: this creates duplicate compilation units
 			} catch (JavaModelException e) {
 				continue;
 			}
@@ -341,7 +338,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 				currentProject = focusType.getJavaProject();
 				this.addInfosFromType(focusType, infos);
 			}
-			this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
+			this.buildForProject((JavaProject)currentProject, infos, closedUnits, workingCopies, localTypes, monitor);
 		} catch (JavaModelException e) {
 			// ignore
 		}
@@ -351,9 +348,9 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, IProgress
 			try {
 				currentProject = focusType.getJavaProject();
 				infos = new ArrayList();
-				units = new ArrayList();
+				closedUnits = new ArrayList();
 				this.addInfosFromType(focusType, infos);
-				this.buildForProject((JavaProject)currentProject, infos, units, workingCopies, monitor);
+				this.buildForProject((JavaProject)currentProject, infos, closedUnits, workingCopies, localTypes, monitor);
 			} catch (JavaModelException e) {
 				// ignore
 			}
@@ -376,12 +373,15 @@ protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String 
  * Returns all of the possible subtypes of this type hierarchy.
  * Returns null if they could not be determine.
  */
-private String[] determinePossibleSubTypes(IProgressMonitor monitor) {
+private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMonitor monitor) {
 
 	class PathCollector implements IPathRequestor {
 		HashSet paths = new HashSet(10);
-		public void acceptPath(String path) {
+		public void acceptPath(String path, boolean containsLocalTypes) {
 			paths.add(path);
+			if (containsLocalTypes) {
+				localTypes.add(path);
+			}
 		}
 	}
 	PathCollector collector = new PathCollector();
@@ -415,25 +415,7 @@ protected IType getHandle(IGenericType genericType) {
 	if (genericType instanceof HierarchyType) {
 		IType type = (IType)this.infoToHandle.get(genericType);
 		if (type == null) {
-			HierarchyType hierarchyType = (HierarchyType)genericType;
-			CompilationUnit unit = (CompilationUnit)this.cuToHandle.get(hierarchyType.originatingUnit);
-
-			// collect enclosing type names
-			ArrayList enclosingTypeNames = new ArrayList();
-			HierarchyType enclosingType = hierarchyType;
-			do {
-				enclosingTypeNames.add(enclosingType.name);
-				enclosingType = enclosingType.enclosingType;
-			} while (enclosingType != null);
-			int length = enclosingTypeNames.size();
-			char[][] simpleTypeNames = new char[length][];
-			enclosingTypeNames.toArray(simpleTypeNames);
-
-			// build handle
-			type = unit.getType(new String(simpleTypeNames[length-1]));
-			for (int i = length-2; i >= 0; i--) {
-				type = type.getType(new String(simpleTypeNames[i]));
-			}
+			type = ((HierarchyType)genericType).typeHandle;
 			this.infoToHandle.put(genericType, type);
 		}
 		return type;
@@ -467,7 +449,7 @@ public static void searchAllPossibleSubTypes(
 	/* use a special collector to collect paths and queue new subtype names */
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptSuperTypeReference(String resourcePath, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface, char[] superQualification, char[] superTypeName, char superClassOrInterface, int modifiers) {
-			pathRequestor.acceptPath(resourcePath);
+			pathRequestor.acceptPath(resourcePath, enclosingTypeName == IIndexConstants.ONE_ZERO);
 			int suffix = resourcePath.toLowerCase().indexOf(SUFFIX_STRING_class);
 			if (suffix != -1){ 
 				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(resourcePath);

@@ -199,7 +199,8 @@ public Member getOuterMostLocalContext() {
 	Member lastLocalContext = null;
 	parentLoop: while (true) {
 		switch (current.getElementType()) {
-			case COMPILATION_UNIT :
+			case CLASS_FILE:
+			case COMPILATION_UNIT:
 				break parentLoop; // done recursing
 			case TYPE:
 				// cannot be a local context

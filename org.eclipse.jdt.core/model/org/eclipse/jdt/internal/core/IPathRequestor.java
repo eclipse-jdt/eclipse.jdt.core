@@ -11,5 +11,5 @@
 package org.eclipse.jdt.internal.core;
 
 public interface IPathRequestor {
-	void acceptPath(String path);
+	void acceptPath(String path, boolean containsLocalTypes);
 }

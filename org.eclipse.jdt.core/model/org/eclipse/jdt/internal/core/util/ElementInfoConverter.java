@@ -85,14 +85,12 @@ public class ElementInfoConverter implements CompilerModifiers {
 		Block block = new Block(0);
 		Initializer initializer = new Initializer(block, IConstants.AccDefault);
 
-		int start = initializerInfo.getNameSourceStart();
-		int end = initializerInfo.getNameSourceEnd();
+		int start = initializerInfo.getDeclarationSourceStart();
+		int end = initializerInfo.getDeclarationSourceEnd();
 
 		initializer.name = initializerInfo.getName();
-		initializer.sourceStart = start;
-		initializer.sourceEnd = end;
-		initializer.declarationSourceStart = initializerInfo.getDeclarationSourceStart();
-		initializer.declarationSourceEnd = initializerInfo.getDeclarationSourceEnd();
+		initializer.sourceStart = initializer.declarationSourceStart = start;
+		initializer.sourceEnd = initializer.declarationSourceEnd = end;
 		initializer.modifiers = initializerInfo.getModifiers();
 
 		/* convert local and anonymous types */

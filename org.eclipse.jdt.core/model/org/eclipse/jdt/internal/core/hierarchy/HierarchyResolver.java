@@ -23,11 +23,14 @@ package org.eclipse.jdt.internal.core.hierarchy;
  * implements I & J?
  */
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -35,8 +38,8 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -66,56 +69,56 @@ import org.eclipse.jdt.internal.core.util.HandleFactory;
 
 public class HierarchyResolver implements ITypeRequestor {
 	
-/**
- * A wrapper around the simple name of a type that is missing.
- */
-public class MissingType implements IGenericType {
-	public String simpleName;
+	/*
+	 * A wrapper around the simple name of a type that is missing.
+	 */
+	public class MissingType implements IGenericType {
+		public String simpleName;
+		
+		public MissingType(String simpleName) {
+			this.simpleName = simpleName;
+		}
 	
-	public MissingType(String simpleName) {
-		this.simpleName = simpleName;
-	}
-
-	/*
-	 * @see IDependent#getFileName()
-	 */
-	public char[] getFileName() {
-		return null;
-	}
+		/*
+		 * @see IDependent#getFileName()
+		 */
+		public char[] getFileName() {
+			return null;
+		}
+		
+		/*
+		 * @see IGenericType#getModifiers()
+		 */
+		public int getModifiers() {
+			return 0;
+		}
 	
-	/*
-	 * @see IGenericType#getModifiers()
-	 */
-	public int getModifiers() {
-		return 0;
-	}
-
-	/*
-	 * @see IGenericType#isBinaryType()
-	 */
-	public boolean isBinaryType() {
-		return false;
-	}
-
-	/*
-	 * @see IGenericType#isClass()
-	 */
-	public boolean isClass() {
-		return false;
-	}
-
-	/*
-	 * @see IGenericType#isInterface()
-	 */
-	public boolean isInterface() {
-		return false;
-	}
+		/*
+		 * @see IGenericType#isBinaryType()
+		 */
+		public boolean isBinaryType() {
+			return false;
+		}
 	
-	public String toString() {
-		return "Missing type: " + this.simpleName; //$NON-NLS-1$
+		/*
+		 * @see IGenericType#isClass()
+		 */
+		public boolean isClass() {
+			return false;
+		}
+	
+		/*
+		 * @see IGenericType#isInterface()
+		 */
+		public boolean isInterface() {
+			return false;
+		}
+		
+		public String toString() {
+			return "Missing type: " + this.simpleName; //$NON-NLS-1$
+		}
+	
 	}
-
-}
 	private ReferenceBinding focusType;
 	private boolean hasMissingSuperClass;
 	LookupEnvironment lookupEnvironment;
@@ -177,7 +180,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
 			new ISourceType[] {sourceType}, // ignore secondary types, to improve laziness
-			false, // no need for field and methods
+			true, //need for field and methods // TODO (jerome) need fields and methods for super types of local types only
 			true, // need member types
 			false, // no need for field initialization
 			lookupEnvironment.problemReporter, 
@@ -187,8 +190,11 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	if (unit != null) {
 		try {
 			this.lookupEnvironment.buildTypeBindings(unit);
-			rememberWithMemberTypes(sourceType, unit.types[0].binding);
-			this.lookupEnvironment.completeTypeBindings(unit, false);
+			
+			org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)sourceType).getHandle().getCompilationUnit();
+			rememberAllTypes(unit, cu, false);
+
+			this.lookupEnvironment.completeTypeBindings(unit, true); // TODO (jerome) need build fields and methods for super types of local types only
 		} catch (AbortCompilation e) {
 			// missing 'java.lang' package: ignore
 		}
@@ -308,90 +314,100 @@ private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	typeModels[typeIndex] = suppliedType;
 	typeBindings[typeIndex] = typeBinding;
 }
-private void rememberWithMemberTypes(ISourceType suppliedType, ReferenceBinding typeBinding) {
-	if (typeBinding == null) return;
-
-	remember(suppliedType, typeBinding);
-
-	ISourceType[] memberTypes = suppliedType.getMemberTypes();
-	if (memberTypes == null) return;
-	for (int m = memberTypes.length; --m >= 0;) {
-		ISourceType memberType = memberTypes[m];
-		rememberWithMemberTypes(memberType, typeBinding.getMemberType(memberType.getName()));
-	}
-}
-private void rememberWithMemberTypes(TypeDeclaration typeDeclaration, HierarchyType enclosingType, ICompilationUnit unit) {
-
-	if (typeDeclaration.binding == null) return;
-
-	// simple super class name
-	char[] superclassName = null;
-	TypeReference superclass = typeDeclaration.superclass;
-	if (superclass != null) {
-		char[][] typeName = superclass.getTypeName();
-		superclassName = typeName == null ? null : typeName[typeName.length-1];
-	}
-	
-	// simple super interface names
-	char[][] superInterfaceNames = null;
-	TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
-	if (superInterfaces != null) {
-		int length = superInterfaces.length;
-		superInterfaceNames = new char[length][];
-		for (int i = 0; i < length; i++) {
-			TypeReference superInterface = superInterfaces[i];
-			char[][] typeName = superInterface.getTypeName();
-			superInterfaceNames[i] = typeName[typeName.length-1];
+private void remember(IType type, ReferenceBinding typeBinding) {
+	if (((CompilationUnit)type.getCompilationUnit()).isOpen()) {
+		try {
+			IGenericType genericType = (IGenericType)((JavaElement)type).getElementInfo();
+			remember(genericType, typeBinding);
+		} catch (JavaModelException e) {
+			// cannot happen since element is open
+			return;
 		}
+	} else {
+		if (typeBinding == null) return;
+		
+		TypeDeclaration typeDeclaration = ((SourceTypeBinding)typeBinding).scope.referenceType();
+	
+		// simple super class name
+		char[] superclassName = null;
+		TypeReference superclass = typeDeclaration.superclass;
+		if (superclass != null) {
+			char[][] typeName = superclass.getTypeName();
+			superclassName = typeName == null ? null : typeName[typeName.length-1];
+		}
+		
+		// simple super interface names
+		char[][] superInterfaceNames = null;
+		TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+		if (superInterfaces != null) {
+			int length = superInterfaces.length;
+			superInterfaceNames = new char[length][];
+			for (int i = 0; i < length; i++) {
+				TypeReference superInterface = superInterfaces[i];
+				char[][] typeName = superInterface.getTypeName();
+				superInterfaceNames[i] = typeName[typeName.length-1];
+			}
+		}
+	
+		HierarchyType hierarchyType = new HierarchyType(
+			type, 
+			!typeDeclaration.isInterface(),
+			typeDeclaration.name,
+			typeDeclaration.binding.modifiers,
+			superclassName,
+			superInterfaceNames);
+		remember(hierarchyType, typeDeclaration.binding);
 	}
 
-	HierarchyType hierarchyType = new HierarchyType(
-		enclosingType, 
-		!typeDeclaration.isInterface(),
-		typeDeclaration.name,
-		typeDeclaration.binding.modifiers,
-		superclassName,
-		superInterfaceNames,
-		unit);
-	remember(hierarchyType, typeDeclaration.binding);
-
-	// propagate into member types
-	if (typeDeclaration.memberTypes == null) return;
-	MemberTypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
-	for (int i = 0, max = memberTypes.length; i < max; i++){
-		rememberWithMemberTypes(memberTypes[i], hierarchyType, unit);
-	}
 }
 /*
- * Remember the given type and the super types in the same compilation unit
+ * Remembers all type bindings defined in the given parsed unit, adding local/anonymous types if specified.
  */
-private void rememberWithSuperTypes(ReferenceBinding referenceBinding, HandleFactory factory, CompilationUnitScope compilationUnitScope, Openable openable) {
-	if (!(referenceBinding instanceof SourceTypeBinding)) return;
-	SourceTypeBinding type = (SourceTypeBinding)referenceBinding;
-	if (type.scope.compilationUnitScope() != compilationUnitScope) return;
-	IJavaElement element = factory.createElement(type.scope.referenceContext, compilationUnitScope.referenceContext, openable);
-	if (element == null) return;
-	ISourceType sourceType = null;
-	try {
-		sourceType = (ISourceType)((JavaElement)element).getElementInfo();
-	} catch (JavaModelException e) {
-		return;
+private void rememberAllTypes(CompilationUnitDeclaration parsedUnit, org.eclipse.jdt.core.ICompilationUnit cu, boolean includeLocalTypes) {
+	TypeDeclaration[] types = parsedUnit.types;
+	if (types != null) {
+		for (int i = 0, length = types.length; i < length; i++) {
+			TypeDeclaration type = types[i];
+			rememberWithMemberTypes(type, cu.getType(new String(type.name)));
+		}
 	}
-	remember(sourceType, type);
+	if (includeLocalTypes && parsedUnit.localTypes != null) {
+		HandleFactory factory = new HandleFactory();
+		HashSet existingElements = new HashSet(parsedUnit.localTypeCount);
+		HashMap knownScopes = new HashMap(parsedUnit.localTypeCount);
+		for (int i = 0; i < parsedUnit.localTypeCount; i++) {
+			LocalTypeBinding localType = parsedUnit.localTypes[i];
+			ClassScope classScope = localType.scope;
+			TypeDeclaration typeDecl = classScope.referenceType();
+			IType typeHandle = (IType)factory.createElement(classScope, cu, existingElements, knownScopes);
+			rememberWithMemberTypes(typeDecl, typeHandle);
+		}
+	}
+}
+private void rememberWithMemberTypes(TypeDeclaration typeDecl, IType typeHandle) {
+	remember(typeHandle, typeDecl.binding);
 	
-	if (type.superclass != null) {
-		rememberWithSuperTypes(type.superclass, factory, compilationUnitScope, openable);
+	TypeDeclaration[] memberTypes = typeDecl.memberTypes;
+	if (memberTypes != null) {
+		for (int i = 0, length = memberTypes.length; i < length; i++) {
+			TypeDeclaration memberType = memberTypes[i];
+			rememberWithMemberTypes(memberType, typeHandle.getType(new String(memberType.name)));
+		}
 	}
-	ReferenceBinding[] superInterfaces = type.superInterfaces;
-	if (superInterfaces != null) {
-		for (int i = 0, length = superInterfaces.length; i < length; i++) {
-			ReferenceBinding superInterface = superInterfaces[i];
-			rememberWithSuperTypes(superInterface, factory, compilationUnitScope, openable);
+}
+private void reportHierarchy() {
+	
+	// set focus type binding
+	IType focus = this.requestor.getType();
+	if (focus != null) {
+		Member declaringMember = ((Member)focus).getOuterMostLocalContext();
+		if (declaringMember == null) {
+			// top level or member type
+			char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
+			setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
 		}
 	}
 	
-}
-private void reportHierarchy() {
 	int objectIndex = -1;
 	for (int current = typeIndex; current >= 0; current--) {
 		ReferenceBinding typeBinding = typeBindings[current];
@@ -457,7 +473,9 @@ public void resolve(IGenericType suppliedType) {
 
 			if (unit != null) {
 				this.lookupEnvironment.buildTypeBindings(unit);
-				rememberWithMemberTypes(topLevelType, unit.types[0].binding);
+
+				org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)topLevelType).getHandle().getCompilationUnit();
+				rememberAllTypes(unit, cu, false);
 
 				this.lookupEnvironment.completeTypeBindings(unit, false);
 			}
@@ -479,11 +497,12 @@ public void resolve(IGenericType suppliedType) {
  * instead of a binary type.
  */
 
-public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits, IProgressMonitor monitor) {
+public void resolve(IGenericType[] suppliedTypes, org.eclipse.jdt.core.ICompilationUnit[] closedCUs, HashSet localTypes, IProgressMonitor monitor) {
 	try {
 		int suppliedLength = suppliedTypes == null ? 0 : suppliedTypes.length;
-		int sourceLength = sourceUnits == null ? 0 : sourceUnits.length;
+		int sourceLength = closedCUs == null ? 0 : closedCUs.length;
 		CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[suppliedLength + sourceLength];
+		boolean[] hasLocalType = new boolean[suppliedLength + sourceLength];
 		
 		// cache binary type bidings
 		BinaryTypeBinding[] binaryBindings = new BinaryTypeBinding[suppliedLength];
@@ -513,15 +532,36 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 				ISourceType topLevelType = (ISourceType) suppliedTypes[i];
 				while (topLevelType.getEnclosingType() != null)
 					topLevelType = topLevelType.getEnclosingType();
+				
+				// contains a potential subtype as a local or anonymous type?
+				boolean containsLocalType = false;
+				if (localTypes == null) { // case of hierarchy on region
+					containsLocalType = false;
+				} else if (topLevelType instanceof SourceTypeElementInfo) {
+					IPath path = ((SourceTypeElementInfo)topLevelType).getHandle().getPath();
+					containsLocalType = localTypes.contains(path.toString());
+				}
+				
 				CompilationResult result = new CompilationResult(topLevelType.getFileName(), i, suppliedLength, this.options.maxProblemsPerUnit);
-				units[i] = 
-					SourceTypeConverter.buildCompilationUnit(
-						new ISourceType[]{topLevelType}, 
-						false, // no need for field and methods
-						true, // need member types
-						false, // no need for field initialization
-						this.lookupEnvironment.problemReporter, 
-						result);
+				if (!containsLocalType) {
+					units[i] = 
+						SourceTypeConverter.buildCompilationUnit(
+							new ISourceType[]{topLevelType}, 
+							true, // need for field and methods // TODO (jerome) need fields and methods only for supertypes of local types
+							true, // need member types
+							false, // no need for field initialization
+							this.lookupEnvironment.problemReporter, 
+							result);
+				} else {
+					units[i] =
+						ElementInfoConverter.buildCompilationUnit(
+							new SourceTypeElementInfo[]{(SourceTypeElementInfo)topLevelType}, 
+							true, // need local types
+							this.lookupEnvironment.problemReporter, 
+							result);
+					units[i].bits |= AstNode.HasAllMethodBodies;
+					hasLocalType[i] = true;
+				}
 				if (units[i] != null) {
 					try {
 						this.lookupEnvironment.buildTypeBindings(units[i]);
@@ -534,29 +574,37 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		}
 		Parser parser = new Parser(this.lookupEnvironment.problemReporter, true);
 		for (int i = 0; i < sourceLength; i++){
-			ICompilationUnit sourceUnit = sourceUnits[i];
+			org.eclipse.jdt.core.ICompilationUnit closedCU = closedCUs[i];
+			IResource file = closedCU.getResource();
+			String osPath = file.getLocation().toOSString();
+			ICompilationUnit sourceUnit = this.requestor.createCompilationUnitFromPath((Openable)closedCU, osPath);
+			
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength, this.options.maxProblemsPerUnit); 
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
 				units[suppliedLength+i] = parsedUnit;
+
+				// contains a potential subtype as a local or anonymous type?
+				if (localTypes == null) { // case of hierarchy on region
+					hasLocalType[suppliedLength+i] = false;
+				} else {
+					IPath path = file.getFullPath();
+					hasLocalType[suppliedLength+i] = localTypes.contains(path.toString());
+				}
+			
 				this.lookupEnvironment.buildTypeBindings(parsedUnit);
 			}
 			worked(monitor, 1);
 		}
 		
-		// complete type bindings (ie. connect super types) and remember them
+		// complete type bindings (ie. connect super types)
 		for (int i = 0; i < suppliedLength; i++) {
 			if (!suppliedTypes[i].isBinaryType()) { // note that binary types have already been remembered above
 				CompilationUnitDeclaration parsedUnit = units[i];
 				if (parsedUnit != null) {
-					// must start with the top level type
-					ISourceType topLevelType = (ISourceType) suppliedTypes[i];
-					suppliedTypes[i] = null; // no longer needed pass this point				
-					while (topLevelType.getEnclosingType() != null)
-						topLevelType = topLevelType.getEnclosingType();
 					try {
-						this.lookupEnvironment.completeTypeBindings(parsedUnit, false);
-						rememberWithMemberTypes(topLevelType, parsedUnit.types[0].binding);
+						// NB: No need to get method bodies as they were already computed
+						this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // TODO (jerome) build fields and methods only for super types of local types
 					} catch (AbortCompilation e) {
 						// classpath problem for this type: ignore
 					}
@@ -567,15 +615,54 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		for (int i = 0; i < sourceLength; i++) {
 			CompilationUnitDeclaration parsedUnit = units[suppliedLength+i];
 			if (parsedUnit != null) {
-				this.lookupEnvironment.completeTypeBindings(parsedUnit, false);
-				int typeCount = parsedUnit.types == null ? 0 : parsedUnit.types.length;
-				ICompilationUnit sourceUnit = sourceUnits[i];
-				sourceUnits[i] = null; // no longer needed pass this point
-				for (int j = 0; j < typeCount; j++){
-					rememberWithMemberTypes(parsedUnit.types[j], null, sourceUnit);
+				try {
+					boolean localType = hasLocalType[suppliedLength+i];
+					if (localType) {
+						parser.getMethodBodies(parsedUnit);
+					}
+					this.lookupEnvironment.completeTypeBindings(parsedUnit, localType);
+				} catch (AbortCompilation e) {
+					// classpath problem for this type: ignore
 				}
 			}
 			worked(monitor, 1);
+		}
+		
+		// remember type bindings
+		for (int i = 0; i < suppliedLength; i++) {
+			if (!suppliedTypes[i].isBinaryType()) { // note that binary types have already been remembered above
+				CompilationUnitDeclaration parsedUnit = units[i];
+				if (parsedUnit != null) {
+					boolean localType = hasLocalType[i];
+					if (localType) {
+						parsedUnit.scope.faultInTypes();
+						parsedUnit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
+						parsedUnit.resolve();
+					}
+						
+					// must start with the top level type
+					ISourceType topLevelType = (ISourceType) suppliedTypes[i];
+					suppliedTypes[i] = null; // no longer needed pass this point				
+					while (topLevelType.getEnclosingType() != null) {
+						topLevelType = topLevelType.getEnclosingType();
+					}
+					org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)topLevelType).getHandle().getCompilationUnit();
+					rememberAllTypes(parsedUnit, cu, localType);
+				}
+			}
+		}
+		for (int i = 0; i < sourceLength; i++) {
+			CompilationUnitDeclaration parsedUnit = units[suppliedLength+i];
+			if (parsedUnit != null) {
+				boolean localType = hasLocalType[suppliedLength+i];
+				if (localType) {
+					parsedUnit.scope.faultInTypes();
+					parsedUnit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
+					parsedUnit.resolve();
+				}
+				
+				rememberAllTypes(parsedUnit, closedCUs[i], localType);
+			}
 		}
 
 		reportHierarchy();
@@ -585,20 +672,6 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 	} finally {
 		reset();
 	}
-}
-/**
- * Resolve the supertypes for the supplied source types.
- * Inform the requestor of the resolved supertypes for each
- * supplied source type using:
- *    connect(ISourceType suppliedType, IGenericType superclass, IGenericType[] superinterfaces)
- *
- * Also inform the requestor of the supertypes of each
- * additional requested super type which is also a source type
- * instead of a binary type.
- */
-
-public void resolve(IGenericType[] suppliedTypes, IProgressMonitor monitor) {
-	resolve(suppliedTypes, null, monitor);
 }
 public void resolveLocalType(IType type, Member declaringMember) throws JavaModelException {
 
@@ -638,7 +711,7 @@ public void resolveLocalType(IType type, Member declaringMember) throws JavaMode
 			unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 			unit.resolve();
 			this.focusType = typeDecl.binding;
-			rememberWithSuperTypes(this.focusType, new HandleFactory(), unit.scope, (Openable)type.getCompilationUnit());
+			rememberAllTypes(unit, declaringMember.getCompilationUnit(), true);
 			reportHierarchy();
 		} catch (AbortCompilation e) {
 			// missing 'java.lang' package: ignore

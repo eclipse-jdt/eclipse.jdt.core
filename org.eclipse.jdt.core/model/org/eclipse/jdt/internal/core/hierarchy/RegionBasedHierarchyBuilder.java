@@ -98,11 +98,11 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 
 	// collect infos and compilation units
 	ArrayList infos = new ArrayList();
-	ArrayList units = new ArrayList();
+	ArrayList closedUnits = new ArrayList();
 	types : for (int i = 0; i < size; i++) {
 		try {
 			IType type = types[i];
-			this.addInfoFromElement((Openable)type.getOpenable(), infos, units, type.getPath().toString());
+			this.addInfoFromElement((Openable)type.getOpenable(), infos, closedUnits, type.getPath().toString());
 		} catch (JavaModelException npe) {
 			continue types;
 		}
@@ -117,19 +117,19 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 	} else {
 		genericTypes = new IGenericType[0];
 	}
-	org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] compilationUnits;
-	int unitsSize = units.size();
-	if (unitsSize > 0) {
-		compilationUnits = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[unitsSize];
-		units.toArray(compilationUnits);
+	ICompilationUnit[] closedCUs;
+	int closedUnitsSize = closedUnits.size();
+	if (closedUnitsSize > 0) {
+		closedCUs = new ICompilationUnit[closedUnitsSize];
+		closedUnits.toArray(closedCUs);
 	} else {
-		compilationUnits = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[0];
+		closedCUs = new ICompilationUnit[0];
 	}
 
 	try {
 		// resolve
-		if (monitor != null) monitor.beginTask("", (infosSize+unitsSize) * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
-		if (infosSize > 0 || unitsSize > 0) {
+		if (monitor != null) monitor.beginTask("", (infosSize+closedUnitsSize) * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
+		if (infosSize > 0 || closedUnitsSize > 0) {
 			IType focusType = this.getType();
 			CompilationUnit unitToLookInside = null;
 			if (focusType != null) {
@@ -138,12 +138,12 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion, IProgr
 			if (this.nameLookup != null && unitToLookInside != null) {
 				try {
 					nameLookup.setUnitsToLookInside(new ICompilationUnit[] {unitToLookInside}); // NB: this uses a PerThreadObject, so it is thread safe
-					this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
+					this.hierarchyResolver.resolve(genericTypes, closedCUs, null, monitor);
 				} finally {
 					nameLookup.setUnitsToLookInside(null);
 				}
 			} else {
-				this.hierarchyResolver.resolve(genericTypes, compilationUnits, monitor);
+				this.hierarchyResolver.resolve(genericTypes, closedCUs, null, monitor);
 			}
 		}
 	} finally {

@@ -35,7 +35,6 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -170,8 +169,12 @@ public class HandleFactory {
 			public void endVisit(AnonymousLocalTypeDeclaration node, BlockScope scope) {
 				currentElement = currentElement.getParent();
 			}
+			
 			public boolean visit(ConstructorDeclaration node, ClassScope scope) {
-				currentElement = ((IType)currentElement).getMethod(currentElement.getElementName(), getParameterTypeSignatures(node));
+				currentElement = 
+					((IType)currentElement).getMethod(
+						currentElement.getElementName(), 
+						org.eclipse.jdt.internal.core.Util.typeParameterSignatures(node));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
@@ -216,7 +219,10 @@ public class HandleFactory {
 			}
 
 			public boolean visit(MethodDeclaration node, ClassScope scope) {
-				currentElement = ((IType)currentElement).getMethod(new String(node.selector), getParameterTypeSignatures(node));
+				currentElement = 
+					((IType)currentElement).getMethod(
+						new String(node.selector), 
+						org.eclipse.jdt.internal.core.Util.typeParameterSignatures(node));
 				if (node == toBeFound) throw new EndVisit();
 				return true;
 			}
@@ -241,19 +247,6 @@ public class HandleFactory {
 				currentElement = currentElement.getParent();
 			}
 
-			private String[] getParameterTypeSignatures(AbstractMethodDeclaration method) {
-				Argument[] args = method.arguments;
-				if (args != null) {
-					int length = args.length;
-					String[] signatures = new String[length];
-					for (int i = 0; i < args.length; i++) {
-						Argument arg = args[i];
-						signatures[i] = org.eclipse.jdt.internal.core.Util.typeSignature(arg.type);
-					}
-					return signatures;
-				}
-				return new String[0];
-			}
 			private IJavaElement updateOccurenceCount(IJavaElement element) {
 				while (knownElements.contains(element)) {
 					((JavaElement)element).occurrenceCount++;
@@ -273,21 +266,22 @@ public class HandleFactory {
 	/**
 	 * Returns a handle denoting the class member identified by its scope.
 	 */
-	public IJavaElement createElement(ClassScope scope, ICompilationUnit unit, HashSet existingElements) {
-		return createElement(scope, scope.referenceContext.sourceStart, unit, existingElements);
+	public IJavaElement createElement(ClassScope scope, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
+		return createElement(scope, scope.referenceContext.sourceStart, unit, existingElements, knownScopes);
 	}
 	/**
 	 * Create handle by adding child to parent obtained by recursing into parent scopes.
 	 */
-	private IJavaElement createElement(Scope scope, int elementPosition, ICompilationUnit unit, HashSet existingElements) {
-		IJavaElement newElement = null;
+	private IJavaElement createElement(Scope scope, int elementPosition, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
+		IJavaElement newElement = (IJavaElement)knownScopes.get(scope);
+		if (newElement != null) return newElement;
 	
 		switch(scope.kind) {
 			case Scope.COMPILATION_UNIT_SCOPE :
 				newElement = unit;
 				break;			
 			case Scope.CLASS_SCOPE :
-				IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements);
+				IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				switch (parentElement.getElementType()) {
 					case IJavaElement.COMPILATION_UNIT :
 						newElement = ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
@@ -301,14 +295,14 @@ public class HandleFactory {
 				}
 				break;
 			case Scope.METHOD_SCOPE :
-				IType parentType = (IType) createElement(scope.parent, elementPosition, unit, existingElements);
+				IType parentType = (IType) createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				MethodScope methodScope = (MethodScope) scope;
 				if (methodScope.isInsideInitializer()) {
 					// inside field or initializer, must find proper one
 					TypeDeclaration type = methodScope.referenceType();
 					for (int i = 0, length = type.fields.length; i < length; i++) {
 						FieldDeclaration field = type.fields[i];
-						if (field.sourceStart < elementPosition && field.sourceEnd > elementPosition) {
+						if (field.declarationSourceStart < elementPosition && field.declarationSourceEnd > elementPosition) {
 							if (field.isField()) {
 								newElement = parentType.getField(new String(field.name));
 							} else {
@@ -325,16 +319,16 @@ public class HandleFactory {
 				break;				
 			case Scope.BLOCK_SCOPE :
 				// standard block, no element per se
-				newElement = createElement(scope.parent, elementPosition, unit, existingElements);
+				newElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				break;
 		}
 		// increment occurrence count if collision is detected
 		if (newElement != null) {
 			while (!existingElements.add(newElement)) ((JavaElement)newElement).occurrenceCount++;
+			knownScopes.put(scope, newElement);
 		}
 		return newElement;
 	}
-	
 	/**
 	 * Returns the package fragment root that corresponds to the given jar path.
 	 * See createOpenable(...) for the format of the jar path string.
