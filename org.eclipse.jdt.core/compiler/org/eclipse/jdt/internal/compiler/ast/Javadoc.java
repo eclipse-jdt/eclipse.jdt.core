@@ -116,7 +116,7 @@ public class Javadoc extends ASTNode {
 		
 		// get method declaration
 		AbstractMethodDeclaration methDecl = methScope.referenceMethod();
-		boolean overriding = methDecl == null ? false : (methDecl.binding.modifiers & (AccImplementing+AccOverriding)) != 0;
+		boolean overriding = methDecl == null ? false : (methDecl.binding.modifiers & (AccImplementing|AccOverriding)) != 0;
 
 		// @see tags
 		int seeTagsLength = this.references == null ? 0 : this.references.length;
