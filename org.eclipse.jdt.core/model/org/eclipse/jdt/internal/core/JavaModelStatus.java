@@ -38,14 +38,16 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 */
 	protected String fString;
 	/**
-	 * Singleton OK object
-	 */
-	public static final IJavaModelStatus VERIFIED_OK = new JavaModelStatus(OK);
-	/**
 	 * Empty children
 	 */
 	protected final static IStatus[] fgEmptyChildren = new IStatus[] {};
 	protected IStatus[] fChildren= fgEmptyChildren;
+
+	/**
+	 * Singleton OK object
+	 */
+	public static final IJavaModelStatus VERIFIED_OK = new JavaModelStatus(OK);
+
 /**
  * Constructs an Java model status with no corresponding elements.
  */
