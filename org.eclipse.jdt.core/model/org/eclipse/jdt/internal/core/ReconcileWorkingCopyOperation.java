@@ -50,7 +50,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		JavaElementDeltaBuilder deltaBuilder = null;
 	
 		try {
-			if (!wasConsistent){
+			if (!wasConsistent) {
 				// create the delta builder (this remembers the current content of the cu)
 				deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 				
@@ -59,9 +59,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				deltaBuilder.buildDeltas();
 			} else {
 				// force problem detection? - if structure was consistent
-				if (forceProblemDetection && wasConsistent){
-					if (progressMonitor != null && progressMonitor.isCanceled()) return;
-			
+				if (forceProblemDetection) {
 					IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
 					if (problemRequestor != null && problemRequestor.isActive()){
 						problemRequestor.beginReporting();
