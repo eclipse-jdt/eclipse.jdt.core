@@ -44,46 +44,46 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class Main implements ProblemSeverities {
 
-	private boolean noWarn = false;
+	public boolean noWarn = false;
 
-	PrintWriter out;
-	boolean systemExitWhenFinished = true;
-	boolean proceedOnError = false;
+	public PrintWriter out;
+	public boolean systemExitWhenFinished = true;
+	public boolean proceedOnError = false;
 
-	boolean verbose = false;
-	boolean produceRefInfo = false;
-	boolean timer = false;
-	boolean showProgress = false;
+	public boolean verbose = false;
+	public boolean produceRefInfo = false;
+	public boolean timer = false;
+	public boolean showProgress = false;
 	public long time = 0;
-	long lineCount;
-	private boolean generatePackagesStructure;
+	public long lineCount;
+	public boolean generatePackagesStructure;
 
-	Hashtable options;
-	String[] filenames;
-	String[] encodings;
-	String[] classpaths;
-	String destinationPath;
-	String log;
-	int repetitions;
-	int globalProblemsCount;
-	int globalErrorsCount;
-	int globalWarningsCount;
-	int exportedClassFilesCounter;
+	public Hashtable options;
+	public String[] filenames;
+	public String[] encodings;
+	public String[] classpaths;
+	public String destinationPath;
+	public String log;
+	public int repetitions;
+	public int globalProblemsCount;
+	public int globalErrorsCount;
+	public int globalWarningsCount;
+	public int exportedClassFilesCounter;
 
-	private static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray(); //$NON-NLS-1$
-	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
-	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
+	public static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray(); //$NON-NLS-1$
+	public final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
+	public final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
 	/* Bundle containing messages */
-	protected static ResourceBundle bundle;
-	private final static String bundleName =
+	public static ResourceBundle bundle;
+	public final static String bundleName =
 		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
 
 	static {
 		relocalize();
 	}
 
-	private boolean proceed = true;
+	public boolean proceed = true;
 
 	public Main(PrintWriter writer, boolean systemExitWhenFinished) {
 
@@ -334,7 +334,7 @@ public class Main implements ProblemSeverities {
 	/*
 	Decode the command line arguments 
 	 */
-	private void configure(String[] argv) throws InvalidInputException {
+	public void configure(String[] argv) throws InvalidInputException {
 		
 		if ((argv == null) || (argv.length == 0))
 			throw new InvalidInputException(Main.bind("configure.noSourceFile")); //$NON-NLS-1$
@@ -971,13 +971,13 @@ public class Main implements ProblemSeverities {
 			repetitions = 1;
 		}
 	}
-	protected Map getOptions() {
+	public Map getOptions() {
 		return this.options;
 	}
 	/*
 	 * Answer the component to which will be handed back compilation results from the compiler
 	 */
-	protected ICompilerRequestor getBatchRequestor() {
+	public ICompilerRequestor getBatchRequestor() {
 		return new ICompilerRequestor() {
 			int lineDelta = 0;
 			public void acceptResult(CompilationResult compilationResult) {
@@ -1041,7 +1041,7 @@ public class Main implements ProblemSeverities {
 	/*
 	 *  Build the set of compilation source units
 	 */
-	protected CompilationUnit[] getCompilationUnits()
+	public CompilationUnit[] getCompilationUnits()
 		throws InvalidInputException {
 		int fileCount = filenames.length;
 		CompilationUnit[] units = new CompilationUnit[fileCount];
@@ -1071,7 +1071,7 @@ public class Main implements ProblemSeverities {
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
-	protected IErrorHandlingPolicy getHandlingPolicy() {
+	public IErrorHandlingPolicy getHandlingPolicy() {
 
 		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)	
 		return new IErrorHandlingPolicy() {
@@ -1086,7 +1086,7 @@ public class Main implements ProblemSeverities {
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
-	protected FileSystem getLibraryAccess() {
+	public FileSystem getLibraryAccess() {
 
 		String defaultEncoding = (String) options.get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(defaultEncoding)) //$NON-NLS-1$
@@ -1096,7 +1096,7 @@ public class Main implements ProblemSeverities {
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
-	protected IProblemFactory getProblemFactory() {
+	public IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(Locale.getDefault());
 	}
 	/*
@@ -1108,7 +1108,7 @@ public class Main implements ProblemSeverities {
 	}
 	// Dump classfiles onto disk for all compilation units that where successfull.
 
-	protected void outputClassFiles(CompilationResult unitResult) {
+	public void outputClassFiles(CompilationResult unitResult) {
 
 		if (!((unitResult == null) || (unitResult.hasErrors() && !proceedOnError))) {
 			Enumeration classFiles = unitResult.compiledTypes.elements();
@@ -1165,7 +1165,7 @@ public class Main implements ProblemSeverities {
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
-	protected void performCompilation() throws InvalidInputException {
+	public void performCompilation() throws InvalidInputException {
 
 		INameEnvironment environment = getLibraryAccess();
 		Compiler batchCompiler =
@@ -1185,7 +1185,7 @@ public class Main implements ProblemSeverities {
 		// cleanup
 		environment.cleanup();
 	}
-	private void printUsage() {
+	public void printUsage() {
 		out.println(Main.bind("misc.usage", Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$
 		out.flush();
 	}
@@ -1272,7 +1272,7 @@ public class Main implements ProblemSeverities {
 		return bind(id, new String[] { binding1, binding2 });
 	}
 
-	private String extractDestinationPathFromSourceFile(CompilationResult result) {
+	public String extractDestinationPathFromSourceFile(CompilationResult result) {
 		ICompilationUnit compilationUnit = result.compilationUnit;
 		if (compilationUnit != null) {
 			char[] fileName = compilationUnit.getFileName();
