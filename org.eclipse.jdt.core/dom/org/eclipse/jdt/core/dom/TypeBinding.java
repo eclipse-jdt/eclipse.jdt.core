@@ -546,9 +546,19 @@ class TypeBinding implements ITypeBinding {
 					this.key = buffer.toString();
 				} else if (this.binding.isArrayType()) {
 					if (this.getElementType() != null) {
-						this.key = this.getElementType().getKey() + this.getDimensions();
+						StringBuffer buffer = new StringBuffer(this.getElementType().getKey());
+						int dimensions = this.getDimensions();
+						for (int j = 0; j < dimensions; j++) {
+							buffer.append('[').append(']');
+						}
+						this.key = String.valueOf(buffer);
 					} else {
-						this.key = Integer.toString(this.getDimensions());
+						StringBuffer buffer = new StringBuffer();
+						int dimensions = this.getDimensions();
+						for (int j = 0; j < dimensions; j++) {
+							buffer.append('[').append(']');
+						}
+						this.key = String.valueOf(buffer);
 					}
 				} else {
 					// this is a primitive type
@@ -582,7 +592,7 @@ class TypeBinding implements ITypeBinding {
 			ITypeBinding elementType = getElementType();
 			String elementTypeQualifiedName = elementType.getQualifiedName();
 			if (elementTypeQualifiedName.length() != 0) {
-				int dimensions = getDimensions();
+				int dimensions = this.getDimensions();
 				char[] brackets = new char[dimensions * 2];
 				for (int i = dimensions * 2 - 1; i >= 0; i -= 2) {
 					brackets[i] = ']';

@@ -100,7 +100,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0568"));
+		suite.addTest(new ASTConverterTestAST3_2("test0569"));
 		return suite;
 	}
 	/**
@@ -5236,5 +5236,19 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0568", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Test new DOM Parser
+	 */
+	public void _test0569() throws JavaModelException {
+		try {
+			ASTParser.USE_NEW_DOM_PARSER = true;
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0569", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode result = runConversion(AST.JLS3, sourceUnit, false);
+			assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		} finally {
+			ASTParser.USE_NEW_DOM_PARSER = false;
+		}
 	}
 }

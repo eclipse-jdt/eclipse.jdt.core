@@ -163,6 +163,12 @@ class MethodBinding implements IMethodBinding {
 			if (_returnType != null) {
 				if (_returnType.isTypeVariable()) {
 					buffer.append(_returnType.getQualifiedName());
+				} else if (_returnType.isArray() && _returnType.getElementType().isTypeVariable()) {
+					int dimensions = _returnType.getDimensions();
+					buffer.append(_returnType.getElementType().getQualifiedName());
+					for (int i = 0; i < dimensions; i++) {
+						buffer.append('[').append(']');
+					}
 				} else {
 					buffer.append(_returnType.getKey());
 				}
@@ -177,6 +183,12 @@ class MethodBinding implements IMethodBinding {
 				if (parameter != null) {
 					if (parameter.isTypeVariable()) {
 						buffer.append(parameter.getQualifiedName());
+					} else if (parameter.isArray() && parameter.getElementType().isTypeVariable()) {
+						int dimensions = parameter.getDimensions();
+						buffer.append(parameter.getElementType().getQualifiedName());
+						for (int j = 0; j < dimensions; j++) {
+							buffer.append('[').append(']');
+						}
 					} else {
 						buffer.append(parameter.getKey());
 					}
@@ -189,6 +201,12 @@ class MethodBinding implements IMethodBinding {
 				if (thrownException != null) {
 					if (thrownException.isTypeVariable()) {
 						buffer.append(thrownException.getQualifiedName());					
+					} else if (thrownException.isArray() && thrownException.getElementType().isTypeVariable()) {
+						int dimensions = thrownException.getDimensions();
+						buffer.append(thrownException.getElementType().getQualifiedName());
+						for (int j = 0; j < dimensions; j++) {
+							buffer.append('[').append(']');
+						}
 					} else {
 						buffer.append(thrownException.getKey());
 					}
