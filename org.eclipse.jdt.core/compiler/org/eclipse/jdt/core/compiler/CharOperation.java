@@ -2209,8 +2209,8 @@ public final class CharOperation {
 				last = i + 1;
 			}
 		}
-		split[currentWord] = new char[end - last];
-		System.arraycopy(array, last, split[currentWord], 0, end - last);
+		split[currentWord] = new char[end - last + 1];
+		System.arraycopy(array, last, split[currentWord], 0, end - last + 1);
 		return split;
 	}
 
