@@ -4808,12 +4808,19 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 				if (insertionIndex != -1) {
 					// widen the existing entry
 					// we have to figure out if we need to move the last entry at another location to keep a sorted table
-					if ((pcToSourceMapSize > 4) && (pcToSourceMap[pcToSourceMapSize - 4] > startPC)) {
-						System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - 2 - insertionIndex);
-						pcToSourceMap[insertionIndex++] = startPC;
-						pcToSourceMap[insertionIndex] = newLine;						
-					} else {
-						pcToSourceMap[pcToSourceMapSize - 2] = startPC;
+					/* First we need to check if at the insertion position there is not an existing entry
+					 * that includes the one we want to insert. This is the case if pcToSourceMap[insertionIndex - 1] == newLine.
+					 * In this case we don't want to change the table. If not, we want to insert a new entry. Prior to insertion
+					 * we want to check if it is worth doing an arraycopy. If not we simply update the recorded pc.
+					 */
+					if (!((insertionIndex > 1) && (pcToSourceMap[insertionIndex - 1] == newLine))) {
+						if ((pcToSourceMapSize > 4) && (pcToSourceMap[pcToSourceMapSize - 4] > startPC)) {
+							System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - 2 - insertionIndex);
+							pcToSourceMap[insertionIndex++] = startPC;
+							pcToSourceMap[insertionIndex] = newLine;						
+						} else {
+							pcToSourceMap[pcToSourceMapSize - 2] = startPC;
+						}
 					}
 				}
 			}
