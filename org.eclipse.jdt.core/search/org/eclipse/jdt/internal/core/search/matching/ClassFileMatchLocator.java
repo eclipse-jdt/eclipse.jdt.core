@@ -107,8 +107,18 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 		for (int i = 0, l = methods.length; i < l; i++) {
 			IBinaryMethod method = methods[i];
 			if (matchBinary(pattern, method, info)) {
+				char[] name;
+				if (method.isConstructor()) {
+					name = info.getName();
+					int lastSlash = CharOperation.lastIndexOf('/', name);
+					if (lastSlash != -1) {
+						name = CharOperation.subarray(name, lastSlash+1, name.length);
+					}
+				} else {
+					name = method.getSelector();
+				}
 				IMethod methodHandle = binaryType.getMethod(
-					new String(method.isConstructor() ? info.getName() : method.getSelector()),
+					new String(name),
 					CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.getMethodDescriptor()))));
 				locator.reportBinaryMemberDeclaration(null, methodHandle, info, accuracy);
 			}
