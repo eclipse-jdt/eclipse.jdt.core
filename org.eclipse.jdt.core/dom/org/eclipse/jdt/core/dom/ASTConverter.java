@@ -1706,6 +1706,7 @@ class ASTConverter {
 			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 			breakStatement.setLabel(name);
 		}
+		retrieveSemiColonPosition(breakStatement);
 		return breakStatement;
 	}
 
@@ -1717,6 +1718,7 @@ class ASTConverter {
 			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 			continueStatement.setLabel(name);
 		}
+		retrieveSemiColonPosition(continueStatement);
 		return continueStatement;
 	}
 		

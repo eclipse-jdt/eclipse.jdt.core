@@ -211,7 +211,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0082"));
+//		suite.addTest(new ASTConverterTest("test0373"));
 		return suite;
 	}
 		
@@ -2221,7 +2221,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNotNull("Expression should not be null", statement); //$NON-NLS-1$
 		BreakStatement breakStatement = this.ast.newBreakStatement();
 		assertTrue("Both AST trees should be identical", breakStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
-		checkSourceRange(statement, "break", source); //$NON-NLS-1$
+		checkSourceRange(statement, "break;", source); //$NON-NLS-1$
 	}
 
 	/**
@@ -2237,7 +2237,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertNotNull("Expression should not be null", statement); //$NON-NLS-1$
 		ContinueStatement continueStatement = this.ast.newContinueStatement();
 		assertTrue("Both AST trees should be identical", continueStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
-		checkSourceRange(statement, "continue", source); //$NON-NLS-1$
+		checkSourceRange(statement, "continue;", source); //$NON-NLS-1$
 	}
 	
 	/**
@@ -2254,7 +2254,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		ContinueStatement continueStatement = this.ast.newContinueStatement();
 		continueStatement.setLabel(this.ast.newSimpleName("label"));
 		assertTrue("Both AST trees should be identical", continueStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
-		checkSourceRange(statement, "continue label", source); //$NON-NLS-1$
+		checkSourceRange(statement, "continue label;", source); //$NON-NLS-1$
 	}
 	
 	/**
@@ -2271,7 +2271,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		BreakStatement breakStatement = this.ast.newBreakStatement();
 		breakStatement.setLabel(this.ast.newSimpleName("label")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", breakStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
-		checkSourceRange(statement, "break label", source); //$NON-NLS-1$
+		checkSourceRange(statement, "break label;", source); //$NON-NLS-1$
 	}
 
 	/**
@@ -5343,7 +5343,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		ContinueStatement continueStatement = this.ast.newContinueStatement();
 		continueStatement.setLabel(this.ast.newSimpleName("label"));
 		assertTrue("Both AST trees should be identical", continueStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
-		checkSourceRange(statement, "continue label", source); //$NON-NLS-1$
+		checkSourceRange(statement, "continue label;", source); //$NON-NLS-1$
 		checkSourceRange(statement.getLabel(), "label", source);
 	}
 		
@@ -5362,7 +5362,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		BreakStatement breakStatement = this.ast.newBreakStatement();
 		breakStatement.setLabel(this.ast.newSimpleName("label")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", breakStatement.subtreeMatch(new ASTMatcher(), statement));		//$NON-NLS-1$
-		checkSourceRange(statement, "break label", source); //$NON-NLS-1$
+		checkSourceRange(statement, "break label;", source); //$NON-NLS-1$
 		checkSourceRange(statement.getLabel(), "label", source);
 	}
 
@@ -9314,7 +9314,59 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertTrue("Not an empty statement", statement.getNodeType() == ASTNode.EMPTY_STATEMENT);
 		checkSourceRange(statement, ";", source);
 	}
-						
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23118
+	 */
+	public void test0373() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0373", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		ForStatement forStatement = (ForStatement) node;
+		Statement statement = forStatement.getBody();
+		assertTrue("Not a block statement", statement.getNodeType() == ASTNode.BLOCK);
+		Block block = (Block) statement;
+		List statements = block.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		Statement statement2 = (Statement) statements.get(0);
+		assertTrue("Not a break statement", statement2.getNodeType() == ASTNode.BREAK_STATEMENT);
+		BreakStatement breakStatement = (BreakStatement) statement2;
+		checkSourceRange(breakStatement, "break;", source);		
+	}
+							
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23118
+	 */
+	public void test0374() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0374", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		ForStatement forStatement = (ForStatement) node;
+		Statement statement = forStatement.getBody();
+		assertTrue("Not a block statement", statement.getNodeType() == ASTNode.BLOCK);
+		Block block = (Block) statement;
+		List statements = block.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		Statement statement2 = (Statement) statements.get(0);
+		assertTrue("Not a break statement", statement2.getNodeType() == ASTNode.CONTINUE_STATEMENT);
+		ContinueStatement continueStatement = (ContinueStatement) statement2;
+		checkSourceRange(continueStatement, "continue;", source);		
+	}						
+
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
