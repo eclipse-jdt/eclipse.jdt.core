@@ -299,23 +299,20 @@ protected void deleteProject(String projectName) throws CoreException {
 	} catch (CoreException e) {
 		lastException = e;
 	}
-	
-	if (project.isAccessible()) {
-		int retryCount = 10;
-		while (--retryCount >= 0) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-			try {
-				project.delete(true, null);
-			} catch (CoreException e) {
-				lastException = e;
-			}
-			if (!project.isAccessible()) return;
+	int retryCount = 60; // wait 1 minute at most
+	while (project.isAccessible() && --retryCount >= 0) {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
 		}
-		System.err.println("Failed to delete project " + projectName);
+		try {
+			project.delete(true, null);
+		} catch (CoreException e) {
+			lastException = e;
+		}
 	}
+	if (!project.isAccessible()) return;
+	System.err.println("Failed to delete project " + projectName);
 	if (lastException != null) {
 		throw lastException;
 	}
