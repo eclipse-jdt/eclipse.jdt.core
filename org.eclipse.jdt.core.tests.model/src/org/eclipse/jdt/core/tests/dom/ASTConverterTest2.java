@@ -475,5 +475,28 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode declaringNode4 = unit2.findDeclaringNode(typeBinding.getKey());
 		assertNotNull("No declaring node", declaringNode4); //$NON-NLS-1$
 	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24268
+	 */
+	public void test0415() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0415", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a switch statement", node.getNodeType() == ASTNode.SWITCH_STATEMENT); //$NON-NLS-1$
+		SwitchStatement switchStatement = (SwitchStatement) node;
+		List statements = switchStatement.statements();
+		assertEquals("wrong size", statements.size(), 5); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(3);
+		assertTrue("not a switch case (default)", statement.getNodeType() == ASTNode.SWITCH_CASE); //$NON-NLS-1$
+		SwitchCase defaultCase = (SwitchCase) statement;
+		assertTrue("not a default case", defaultCase.isDefault());
+		assertEquals("wrong toString()", "default : ", defaultCase.toString());
+	}
+	
 }
 
