@@ -245,7 +245,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * for this kind of completion proposal at little extra cost:
 	 * <ul>
 	 * <li>{@link #getDeclarationSignature()} -
-	 * the dot-based package signature of the package that is referenced
+	 * the dot-based package name of the package that is referenced
 	 * </li>
 	 * </ul>
 	 * </p>
@@ -266,7 +266,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * for this kind of completion proposal at little extra cost:
 	 * <ul>
 	 * <li>{@link #getDeclarationSignature()} -
-	 * the dot-based package signature of the package that contains
+	 * the dot-based package name of the package that contains
 	 * the type that is referenced
 	 * </li>
 	 * <li>{@link #getSignature()} -
@@ -740,7 +740,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	}
 	
 	/**
-	 * Returns the type or package signature of the relevant
+	 * Returns the type signature or package name of the relevant
 	 * declaration in the context, or <code>null</code> if none.
 	 * <p>
 	 * This field is available for the following kinds of
@@ -756,9 +756,9 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * of the type that declares the method that is being
 	 * implemented or overridden</li>
 	 * 	<li><code>PACKAGE_REF</code> - dot-based package 
-	 * signature of the package that is referenced</li>
+	 * name of the package that is referenced</li>
 	 * 	<li><code>TYPE_REF</code> - dot-based package 
-	 * signature of the package containing the type that is referenced</li>
+	 * name of the package containing the type that is referenced</li>
 	 *  <li><code>POTENTIAL_METHOD_DECLARATION</code> - type signature
 	 * of the type that declares the method that is being created</li>
 	 * </ul>
@@ -767,8 +767,8 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * returned.
 	 * </p>
 	 * 
-	 * @return the declaration signature, or
-	 * <code>null</code> if none
+	 * @return a type signature or a package name (depending
+	 * on the kind of completion), or <code>null</code> if none
 	 * @see Signature
 	 */
 	public char[] getDeclarationSignature() {
