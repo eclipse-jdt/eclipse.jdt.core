@@ -9,7 +9,7 @@
 
 <h2>
 Notes on Workspace Structure</h2>
-Last revised&nbsp; 10:15 Wednesday September 26, 2001
+Last revised&nbsp; 17:00 Wednesday September 26, 2001
 <p>In large Java development efforts, it is not uncommon for several inter-related
 projects to be under development at the same time. For the purposes of
 this discussion, assume teams, projects, and components align. All teams
@@ -675,7 +675,9 @@ are loaded (automation required).</li>
 Pro: no restriction on number of jars per project.</li>
 
 <li>
-Note: the exported libraries are external to the project.</li>
+Fatal flaw (!): limited able to compile against a stub project due to lack
+of sufficient context Note: the exported libraries are external to the
+project.</li>
 
 <li>
 Note: uses library projects (proposed for R2.0).</li>
@@ -738,6 +740,19 @@ P2
 <br>project P1 (shared)
 <br>&nbsp;&nbsp;&nbsp; build classpath = source /P1/C1
 <br>&nbsp;&nbsp;&nbsp; output folder /P1/bin
+<p>The fatal flaw is clear in the case of a workspace containing P4 and
+a stub for P2.
+<p>project P4 (shared)
+<br>&nbsp;&nbsp;&nbsp; build classpath = source /P4/C4; project P2
+<br>&nbsp;&nbsp;&nbsp; output folder /P4/bin
+<br>&amp;
+<br>project P2 (not shared)
+<br>&nbsp;&nbsp;&nbsp; library project
+<br>&nbsp;&nbsp;&nbsp; build classpath = export BUILD/c2.jar+BUILD/c2src.zip
+<p>If, for example, a class in C4 subclasses a class in C2 which subclasses
+a class in C1, then the compiler will need to get its hands on the class
+in C1. Unfortunately, neither the source code nor binary for C1 is anywhere
+to be found.
 <h3>
 <a NAME="Other Scenarios"></a>Assorted Other Scenarios</h3>
 A couple of other scenarios can be constructed using a combination of the
@@ -839,10 +854,12 @@ as part of the centralized build process.
 their assigned component while providing placeholders for other components
 that it depends on. The arrangement is flexible in allowing easy switching
 from using a component to actively developing it by replacing the placeholder.
-The main drawbacks are their limited useful of the stub projects (can't
-browse the component; can't patch the component), and the ongoing need
-to create additional proxy projects to fill in for the missing prerequisites
-as real source projects get added to the workspace.
+Unfortunately, this approach is fatally flawed because a compiler might
+not have enough information to compile. The other drawbacks are their limited
+useful of the stub projects (can't browse the component; can't patch the
+component), and the ongoing need to create additional proxy projects to
+fill in for the missing prerequisites as real source projects get added
+to the workspace.
 <h3>
 Document History</h3>
 15:45 Wednesday September 5, 2001 - first version sent for comments
@@ -850,5 +867,8 @@ Document History</h3>
 <br>19:40 Wednesday September 12, 2001 - automation for unshared proxy
 library projects
 <br>10:15 Wednesday September 26, 2001 - added stub projects
+<br>17:00 Wednesday September 26, 2001 - documented fatal flaw with stub
+projects
+<br>&nbsp;
 </body>
 </html>
