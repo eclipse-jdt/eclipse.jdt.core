@@ -636,14 +636,14 @@ public class Scribe {
 							return;
 						} else if (count == 1) {
 							if (hasLineComment) {
-								preserveEmptyLines(1);
+								printNewLine();
 							} else {
 								printNewLine();
 							}
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						} else if (hasLineComment) {
-							preserveEmptyLines(1);
+							printNewLine();
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						}
@@ -655,6 +655,11 @@ public class Scribe {
 						break;
 					case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
+						if (hasLineComment) {
+							printNewLine();
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+							return;
+						}
 						this.printBlockComment(this.scanner.getRawTokenSource(), this.scanner.getCurrentTokenStartPosition());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = false;
