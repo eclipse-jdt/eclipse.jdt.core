@@ -188,6 +188,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 								try {
 									project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
 								} catch (JavaModelException e) {
+									Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
 								}
 								break;
 							case IResourceDelta.CHANGED :
@@ -244,25 +245,22 @@ public class DeltaProcessor implements IResourceChangeListener {
 									if (outputLocation == null) {
 										outputLocation = SetClasspathOperation.ReuseOutputLocation;
 									}
-									try {
-										project.setRawClasspath(
-											fileEntries, 
-											outputLocation, 
-											null, // monitor
-											true, // canChangeResource
-											false, // forceSave
-											project.getResolvedClasspath(true), // ignoreUnresolvedVariable
-											true, // needCycleCheck
-											true); // needValidation
-									} catch (JavaModelException e) {
-									}
+									project.setRawClasspath(
+										fileEntries, 
+										outputLocation, 
+										null, // monitor
+										true, // canChangeResource
+										false, // forceSave
+										project.getResolvedClasspath(true), // ignoreUnresolvedVariable
+										true, // needCycleCheck
+										true); // needValidation
 								} catch (RuntimeException e) {
 									// setRawClasspath might fire a delta, and a listener may throw an exception
-									Util.log(e, "Exception updating classpath for "+ project.getPath()); //$NON-NLS-1$
+									Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
 									break;
 								} catch (CoreException e) {
-									// setRawClasspath might fire a delta, and a listener may throw an exception
-									Util.log(e, "Exception updating classpath for "+ project.getPath()); //$NON-NLS-1$
+									// happens if the .classpath could not be written to disk
+									Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
 									break;
 								}
 	
