@@ -100,8 +100,6 @@ public static Test suite() {
 		TestCase.TESTS_RANGE = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
-//	// Add Javadoc test suites
-//	all.addTest(JavadocTest.suite());
 	return all;
 }
 }

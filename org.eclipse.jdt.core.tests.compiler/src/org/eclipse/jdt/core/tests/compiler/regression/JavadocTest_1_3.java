@@ -34,8 +34,6 @@ public class JavadocTest_1_3 extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-		SHIFT = true;
-		INDENT = 3;
 //		TESTS_NAMES = new String[] {
 //			"testBug70892conform1", "testBug70892conform2"
 //		};

@@ -262,7 +262,24 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 					+ "	}\n"
 					+ "}\n" };
 	}
-	
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void setUp() throws Exception {
+		super.setUp();
+//		SHIFT = true;
+//		INDENT = 3;
+	}
+
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown() throws Exception {
+//		SHIFT = false;
+//		INDENT = 2;
+		super.tearDown();
+	}
+
 	protected void runConformReferenceTest(String[] testFiles) {
 		String[] completedFiles = testFiles;
 		if (!useLibrary) {
