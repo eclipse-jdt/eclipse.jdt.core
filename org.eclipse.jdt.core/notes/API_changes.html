@@ -1,0 +1,51 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="IBM">
+   <title>JDT/Core Breaking API changes</title>
+
+</head>
+<body>
+
+<body text="#000000" bgcolor="#FFFFFF">
+&nbsp;
+
+<table border=0 cellspacing=5 cellpadding=2 width="100%" >
+  <tr> 
+    <td align=left width="72%">
+      <font face="Verdana, Arial, Helvetica" size="+3"><b>jdt core - Breaking API changes from R2.1 to R3.0</b></font>
+      <br><font face="Arial, Helvetica, sans-serif" size="-2" color="#8080ff">java development tooling core</font></td>
+  </tr>
+	<tr><td>&nbsp;</td></tr>
+  <tr>
+  	<td>
+	  <font face="Arial, Helvetica, sans-serif" size="-1">
+	  This document lists the breaking API changes that occured between R2.1 and R3.0 and how to migrate from the R2.1 API to
+	  the R3.0 API.
+	  </font>
+	</td>
+  </tr>
+</table>
+
+<p>
+<ul>
+<li>(in progress) <code>IWorkingCopy</code> now extends <code>ICompilationUnit</code>
+	 (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36987 ">bug 36987 </a>)
+	  <p>
+	  Historically, <code>IWorkingCopy</code> gathered all working copy concerns, 
+	  and <code>ICompilationUnit</code> implement this interface, though only the 
+	  factory method makes sense for them; thus their implementation of the working 
+	  copy features do nothing relevant to clients. <code>IWorkingCopy</code> also 
+	  implements the spec'ed factory method, but it doesn't work for these.
+	  </p>
+	  <p>
+	  Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can
+	  adapt to this change by referencing <code>IWorkingCopy</code> instead of 
+	  <code>ICompilationUnit</code> when a working copy is needed.
+	  </p>
+</li>
+</ul>
+
+</body>
+</html>
