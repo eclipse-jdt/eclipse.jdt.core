@@ -765,12 +765,14 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	// create buffer -  compilation units only use default buffer factory
 	BufferManager bufManager = getBufferManager();
 	IBuffer buffer = getBufferFactory().createBuffer(this);
-	bufManager.addBuffer(buffer);
 	
 	// set the buffer source
 	if (buffer != null && buffer.getCharacters() == null){
 		buffer.setContents(Util.getResourceContentsAsCharArray((IFile)this.getResource()));
 	}
+
+	// add buffer to buffer cache
+	bufManager.addBuffer(buffer);
 			
 	// listen to buffer changes
 	buffer.addBufferChangedListener(this);
