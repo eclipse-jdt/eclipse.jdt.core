@@ -1,0 +1,23 @@
+<html>
+
+<head>
+<title>JDT Core Porting Guide</title>
+</head>
+
+<body>
+
+<h1>JDT Core 3.0 Porting Guide</h1>
+<p>Last modified 13:30 CET November 27, 2003</p>
+<h4>Interface IWorkingCopy (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)</h4>
+<ul>
+  <li>Historically, IWorkingCopy gathered all working copy concerns, and ICompilationUnit implement this interface, 
+        though only the factory method makes sense for them; thus their implementation of the working copy features 
+        do nothing relevant to clients. IWorkingCopy also implements the spec'ed factory method, but it doesn't work for these.</li>
+   <li>Interface IWorkingCopy is removed and all its functionality is moved to ICompilationUnit.</li>
+   <li>Clients using IWorkingCopy and ICompilationUnit can adapt to this change by referencing ICompilationUnit instead of 
+         IWorkingCopy when a working copy is needed.</li>
+</ul>
+
+</body>
+
+</html>
