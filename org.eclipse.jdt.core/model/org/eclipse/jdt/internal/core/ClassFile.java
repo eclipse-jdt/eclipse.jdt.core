@@ -12,12 +12,14 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -50,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 
 public class ClassFile extends Openable implements IClassFile {
 	protected BinaryType fBinaryType = null;
+	private boolean checkAutomaticSourceMapping;
 /*
  * Creates a handle to a class file.
  *
@@ -60,6 +63,7 @@ protected ClassFile(IPackageFragment parent, String name) {
 	if (!Util.isClassFileName(name)) {
 		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
 	}
+	checkAutomaticSourceMapping = false;
 }
 
 /**
@@ -402,6 +406,86 @@ private boolean isValidClassFile() {
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	SourceMapper mapper = getSourceMapper();
 	if (mapper != null) {
+		return mapSource(mapper);
+	} else if (!checkAutomaticSourceMapping) {
+		/*
+		 * We try to see if we can automatically attach a source
+		 * source files located inside the same folder than its .class file
+		 * See bug 36510.
+		 */
+		PackageFragmentRoot root = getPackageFragmentRoot();
+		if (root.isArchive()) {
+			// root is a jar file or a zip file
+			String elementName = getElementName();
+			StringBuffer sourceFileName = new StringBuffer(elementName.substring(0, elementName.lastIndexOf('.')));
+			sourceFileName.append(Util.SUFFIX_java);
+			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
+			ZipFile jar = null;
+			try {
+				jar = jarPackageFragmentRoot.getJar();
+				IPackageFragment packageFragment = (IPackageFragment) getParent();
+				ZipEntry zipEntry = null;
+				if (packageFragment.isDefaultPackage()) {
+					zipEntry = jar.getEntry(sourceFileName.toString());
+				} else {
+					zipEntry = jar.getEntry(getParent().getElementName() + '/' + sourceFileName.toString());
+				}
+				if (zipEntry != null) {
+					// found a source file
+					checkAutomaticSourceMapping = true;
+					root.attachSource(root.getPath(), null, null);
+					SourceMapper sourceMapper = getSourceMapper();
+					if (sourceMapper != null) {
+						return mapSource(sourceMapper);
+					}
+				}
+			} catch (CoreException e) {
+				if (e instanceof JavaModelException) throw (JavaModelException)e;
+				throw new JavaModelException(e);
+			} finally {
+				JavaModelManager.getJavaModelManager().closeZipFile(jar);
+			}
+		} else {
+			// Attempts to find the corresponding java file
+			String qualifiedName = getType().getFullyQualifiedName();
+			NameLookup lookup = ((JavaProject) getJavaProject()).getNameLookup();
+			ICompilationUnit cu = lookup.findCompilationUnit(qualifiedName);
+			if (cu != null) {
+				return cu.getBuffer();
+			} else	{
+				// root is a class folder
+				IPath sourceFilePath = getPath().removeFileExtension().addFileExtension("java");
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				if (workspace == null) {
+					checkAutomaticSourceMapping = true; // we don't want to check again
+					return null; // workaround for http://bugs.eclipse.org/bugs/show_bug.cgi?id=34069
+				}
+				if (JavaModel.getTarget(
+						workspace.getRoot(),
+						sourceFilePath.makeRelative(), // ensure path is relative (see http://dev.eclipse.org/bugs/show_bug.cgi?id=22517)
+						true) != null) {
+							
+					// found a source file
+					 // we don't need to check again. The source will be attached.
+					checkAutomaticSourceMapping = true;
+					root.attachSource(root.getPath(), null, null);
+					SourceMapper sourceMapper = getSourceMapper();
+					if (sourceMapper != null) {
+						return mapSource(sourceMapper);
+					}
+				}
+			}
+		}
+	}
+	return null;
+}
+protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	if (!isValidClassFile()) throw newNotPresentException();
+	IResource resource = this.getResource();
+	if (resource != null && !resource.isAccessible()) throw newNotPresentException();
+	return super.openWhenClosed(pm);
+}
+private IBuffer mapSource(SourceMapper mapper) throws JavaModelException {
 	char[] contents = mapper.findSource(getType());
 	if (contents != null) {
 		// create buffer
@@ -423,23 +507,9 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 		
 		return buffer;
 	}
-	} else {
-		// Attempts to find the corresponding java file
-		String qualifiedName = getType().getFullyQualifiedName();
-		NameLookup lookup = ((JavaProject) getJavaProject()).getNameLookup();
-		ICompilationUnit cu = lookup.findCompilationUnit(qualifiedName);
-		if (cu != null) {
-			return cu.getBuffer();
-		}
-	}
 	return null;
 }
-protected OpenableElementInfo openWhenClosed(IProgressMonitor pm) throws JavaModelException {
-	if (!isValidClassFile()) throw newNotPresentException();
-	IResource resource = this.getResource();
-	if (resource != null && !resource.isAccessible()) throw newNotPresentException();
-	return super.openWhenClosed(pm);
-}/*
+/*
  * @see JavaElement#rootedAt(IJavaProject)
  */
 public IJavaElement rootedAt(IJavaProject project) {
