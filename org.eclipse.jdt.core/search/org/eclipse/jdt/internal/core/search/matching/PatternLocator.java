@@ -98,10 +98,6 @@ public int match(AstNode node, MatchingNodeSet nodeSet) { // needed for some gen
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
 }
-public int match(Argument node, MatchingNodeSet nodeSet) {
-	// each subtype should override if needed
-	return IMPOSSIBLE_MATCH;
-}
 public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
