@@ -134,7 +134,7 @@ public void enterInterface(int declarationStart, int modifiers, char[] name, int
  */
 public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	enterAbstractMethod(declarationStart, modifiers, 
-		null, name, nameStart, nameEnd, parameterTypes,
+		returnType, name, nameStart, nameEnd, parameterTypes,
 		parameterNames, exceptionTypes,false);
 }
 /**
