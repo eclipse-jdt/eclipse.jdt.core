@@ -11542,4 +11542,107 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 		"SUCCESS");
 	}		
+	// 80083
+	public void test435() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",//===============================
+				"import java.lang.reflect.InvocationTargetException;\n" + 
+				"import java.lang.reflect.Method;\n" + 
+				"\n" + 
+				"import orders.DiscreteOrder;\n" + 
+				"import orders.impl.IntegerOrder;\n" + 
+				"import orders.impl.IntegerOrder2;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) throws SecurityException,\n" + 
+				"            NoSuchMethodException, IllegalArgumentException,\n" + 
+				"            IllegalAccessException {\n" + 
+				"        Test test = new Test();\n" + 
+				"\n" + 
+				"        for (String method : new String[] { \"test1\", \"test2\", \"test3\", \"test4\" }) {\n" + 
+				"            Method m = test.getClass().getMethod(method);\n" + 
+				"            try {\n" + 
+				"                m.invoke(test);\n" + 
+				"                System.out.print(\"*** \" + m + \": success\");\n" + 
+				"            } catch (InvocationTargetException e) {\n" + 
+				"                System.out.print(\"*** \" + m + \": failed, stacktrace follows\");\n" + 
+				"                e.getCause().printStackTrace(System.out);\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void test1() { // works\n" + 
+				"        new IntegerOrder().next(new Integer(0)); // works\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void test2() { // doesn\'t work\n" + 
+				"        final DiscreteOrder<Integer> order = new IntegerOrder();\n" + 
+				"        order.next(new Integer(0));\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void test3() { // works\n" + 
+				"        new IntegerOrder2().next(new Integer(0)); // works\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void test4() { // doesn\'t work\n" + 
+				"        final DiscreteOrder<Integer> order = new IntegerOrder2();\n" + 
+				"        order.next(new Integer(0));\n" + 
+				"    }\n" + 
+				"}\n",
+				"orders/DiscreteOrder.java",//===============================
+				"package orders;\n" + 
+				"public interface DiscreteOrder<E extends Comparable<E>> {\n" + 
+				"    /**\n" + 
+				"     * @return The element immediately before <code>element</code> in the\n" + 
+				"     *         discrete ordered space.\n" + 
+				"     */\n" + 
+				"    public E previous(E element);\n" + 
+				"    /**\n" + 
+				"     * @return The element immediately after <code>element</code> in the\n" + 
+				"     *         discrete ordered space.\n" + 
+				"     */\n" + 
+				"    public E next(E element);\n" + 
+				"}\n",				
+				"orders/impl/IntegerOrder.java",//===============================
+				"package orders.impl;\n" + 
+				"import orders.DiscreteOrder;\n" + 
+				"\n" + 
+				"public class IntegerOrder implements DiscreteOrder<Integer> {\n" + 
+				"\n" + 
+				"    public IntegerOrder() {\n" + 
+				"        super();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Integer previous(Integer arg0) {\n" + 
+				"        return new Integer(arg0.intValue() - 1);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Integer next(Integer arg0) {\n" + 
+				"        return new Integer(arg0.intValue() + 1);\n" + 
+				"    }\n" + 
+				"}\n",				
+				"orders/impl/IntegerOrder2.java",//===============================
+				"package orders.impl;\n" + 
+				"\n" + 
+				"\n" + 
+				"public class IntegerOrder2 extends IntegerOrder {\n" + 
+				"\n" + 
+				"    public IntegerOrder2() {\n" + 
+				"        super();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Comparable previous(Comparable arg0) {\n" + 
+				"        return previous((Integer) arg0);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Comparable next(Comparable arg0) {\n" + 
+				"        return next((Integer) arg0);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}\n",
+			},
+		"*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success");
+	}		
 }
