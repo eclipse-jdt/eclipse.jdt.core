@@ -77,12 +77,37 @@ public class CorrectionEngine implements ProblemReasons {
 		int start = marker.getAttribute(IMarker.CHAR_START, -1);
 		int end = marker.getAttribute(IMarker.CHAR_END, -1);
 		
-		if(id == -1 || args == null || start == -1 || end == -1)
-			return;
-		
 		computeCorrections(unit, id, start + positionOffset, end + positionOffset, args, requestor);
 	}
 	
+	/**
+	 * Performs code correction for the given IProblem,
+	 * reporting results to the given correction requestor.
+	 * 
+	 * @return void
+	 *      correction results are answered through a requestor.
+	 * 
+	 * @param problem
+	 * 		the problem which describe the problem to correct.
+	 * 
+	 * @param targetUnit
+	 * 		denote the compilation unit in which correction occurs. Cannot be null.
+	 * 
+	 * @exception IllegalArgumentException if <code>targetUnit</code> or <code>requestor</code> is <code>null</code>
+	 * @since 2.0 
+	 */
+	public void computeCorrections(IProblem problem, ICompilationUnit targetUnit, ICorrectionRequestor requestor) throws JavaModelException {
+		if (requestor == null) {
+			throw new IllegalArgumentException(Util.bind("correction.nullUnit")); //$NON-NLS-1$
+		}
+		this.computeCorrections(
+			targetUnit, problem.getID(), 
+			problem.getSourceStart(), 
+			problem.getSourceEnd(), 
+			problem.getArguments(),
+			requestor);
+	}
+
 	/**
 	 * Ask the engine to compute a correction for the specified problem
 	 * of the given compilation unit.
@@ -109,6 +134,9 @@ public class CorrectionEngine implements ProblemReasons {
 	 * @since 2.0
 	 */
 	private void computeCorrections(ICompilationUnit unit, int id, int start, int end, String[] arguments, ICorrectionRequestor requestor) throws JavaModelException{
+
+		if(id == -1 || arguments == null || start == -1 || end == -1)
+			return;		
 		if (requestor == null) {
 			throw new IllegalArgumentException(Util.bind("correction.nullRequestor")); //$NON-NLS-1$
 		}
