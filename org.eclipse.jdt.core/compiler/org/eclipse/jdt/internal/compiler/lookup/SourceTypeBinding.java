@@ -447,7 +447,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 	if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
-			if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+			if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
 				foundNothing = false; // inner type lookups must know that a method with this name exists
 				if (method.parameters.length == argCount) {
 					TypeBinding[] toMatch = method.parameters;
@@ -490,7 +490,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	int fieldLength = fieldName.length;
 	for (int f = fields.length; --f >= 0;) {
 		FieldBinding field = fields[f];
-		if (field.name.length == fieldLength && CharOperation.prefixEquals(field.name, fieldName)) {
+		if (field.name.length == fieldLength && CharOperation.equals(field.name, fieldName)) {
 			if (resolveTypeFor(field) != null)
 				return field;
 
@@ -521,7 +521,7 @@ public MethodBinding[] getMethods(char[] selector) {
 		if ((modifiers & AccUnresolved) == 0) { // have resolved all arg types & return type of the methods
 			for (int m = 0, length = methods.length; m < length; m++) {
 				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
 					count++;
 					lastIndex = m;
 				}
@@ -531,7 +531,7 @@ public MethodBinding[] getMethods(char[] selector) {
 			int failed = 0;
 			for (int m = 0, length = methods.length; m < length; m++) {
 				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
 					if (resolveTypesFor(method) == null) {
 						foundProblem = true;
 						methods[m] = null; // unable to resolve parameters
@@ -548,7 +548,7 @@ public MethodBinding[] getMethods(char[] selector) {
 			if (foundProblem || count > 1) {
 				for (int m = methods.length; --m >= 0;) {
 					MethodBinding method = methods[m];
-					if (method != null && method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector)) {
+					if (method != null && method.selector.length == selectorLength && CharOperation.equals(method.selector, selector)) {
 						AbstractMethodDeclaration methodDecl = null;
 						for (int i = 0; i < m; i++) {
 							MethodBinding method2 = methods[i];
@@ -597,7 +597,7 @@ public MethodBinding[] getMethods(char[] selector) {
 			count = 0;
 			for (int m = 0; m <= lastIndex; m++) {
 				MethodBinding method = methods[m];
-				if (method.selector.length == selectorLength && CharOperation.prefixEquals(method.selector, selector))
+				if (method.selector.length == selectorLength && CharOperation.equals(method.selector, selector))
 					result[count++] = method;
 			}
 			return result;
