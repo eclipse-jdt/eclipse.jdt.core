@@ -489,6 +489,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUnusedParameterWhenImplementingAbstract, reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportSpecialParameterHidingField, reportSpecialParameterHidingField ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(maxProblemsPerUnit));
 		return optionsMap;		
 	}
 	
