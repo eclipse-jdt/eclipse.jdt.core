@@ -2536,18 +2536,26 @@ public void testOutputFolder1() throws CoreException {
  */
 public void testReplaceProject() throws CoreException {
 	try {
-		final IJavaProject[] javaProjects = new IJavaProject[1];
-		javaProjects[0] = createJavaProject("P", new String[] {"src"}, "bin");
+		final IJavaProject javaProject = createJavaProject("P", new String[] {"src"}, "bin");
 
 		ResourcesPlugin.getWorkspace().run(
 			new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
-					deleteProject("P");
-					javaProjects[0] = createJavaProject("P", new String[] {"src2"}, "bin2");
+					IProjectDescription descr = javaProject.getProject().getDescription();
+					descr.setComment("dummy"); // ensure it is changed
+					javaProject.getProject().setDescription(descr, monitor);
+					editFile(
+						"/P/.classpath",
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+						"<classpath>\n" +
+						"    <classpathentry kind=\"src\" path=\"src2\"/>\n" +
+						"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+						"</classpath>"
+					);
 				}
 			},
 			null);
-		IClasspathEntry[] classpath = javaProjects[0].getRawClasspath();
+		IClasspathEntry[] classpath = javaProject.getRawClasspath();
 		assertEquals("classpath should have been refreshed", new Path("/P/src2"), classpath[0].getPath());
 	} finally {
 		deleteProject("P");
