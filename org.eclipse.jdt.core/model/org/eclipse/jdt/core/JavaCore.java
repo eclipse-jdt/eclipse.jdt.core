@@ -2065,7 +2065,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						String variableName = variableNames[k];						
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
 
-							if (entry.getPath().segment(0).equals(variableName)){
+							if (variableName.equals(entry.getPath().segment(0))){
 								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
 								
 								// also check whether it will be necessary to update proj references and cycle markers
@@ -2083,8 +2083,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								continue nextProject;
 							}
 							IPath sourcePath, sourceRootPath;
-							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& sourcePath.segment(0).equals(variableName))
-								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& sourceRootPath.segment(0).equals(variableName))) {
+							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
+								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
 
 								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
 								continue nextProject;
