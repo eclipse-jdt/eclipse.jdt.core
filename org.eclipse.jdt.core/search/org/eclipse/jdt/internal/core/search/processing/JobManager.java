@@ -365,9 +365,20 @@ public abstract class JobManager implements Runnable {
 				// keep job manager alive
 				this.discardJobs(null);
 				this.thread = null;
-				this.reset(); // this will fork a new thread
-				throw e;
+				this.reset(); // this will fork a new thread with no waiting jobs, some indexes will be inconsistent
 			}
+			throw e;
+		} catch (Error e) {
+			if (this.thread != null && !(e instanceof ThreadDeath)) {
+				// log exception
+				org.eclipse.jdt.internal.core.Util.log(e, "Background Indexer Crash Recovery"); //$NON-NLS-1$
+				
+				// keep job manager alive
+				this.discardJobs(null);
+				this.thread = null;
+				this.reset(); // this will fork a new thread with no waiting jobs, some indexes will be inconsistent
+			}
+			throw e;
 		}
 	}
 	/**
