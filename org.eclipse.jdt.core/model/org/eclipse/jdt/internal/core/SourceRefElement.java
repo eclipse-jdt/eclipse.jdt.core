@@ -77,8 +77,6 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
 	if (openableParentInfo == null) {
 		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
-	} else {
-		throw newNotPresentException();
 	}
 }
 /**
