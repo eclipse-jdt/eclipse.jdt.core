@@ -3395,7 +3395,7 @@ protected void consumeMethodHeaderNameWithTypeParameters() {
 		}
 	}		
 }
-protected void consumeMethodHeaderParameters() {
+protected void consumeMethodHeaderRightParen() {
 	// MethodHeaderParameters ::= FormalParameterListopt ')'
 	int length = this.astLengthStack[this.astLengthPtr--];
 	this.astPtr -= length;
@@ -3978,7 +3978,7 @@ protected void consumeRule(int act) {
   consumeMethodDeclaration(false);  
 			break;
  
-    case 144 : if (DEBUG) { System.out.println("MethodHeader ::= MethodHeaderName MethodHeaderParameters"); }  //$NON-NLS-1$
+    case 144 : if (DEBUG) { System.out.println("MethodHeader ::= MethodHeaderName FormalParameterListopt"); }  //$NON-NLS-1$
 		    consumeMethodHeader();  
 			break;
  
@@ -3990,8 +3990,8 @@ protected void consumeRule(int act) {
 		    consumeMethodHeaderName();  
 			break;
  
-    case 147 : if (DEBUG) { System.out.println("MethodHeaderParameters ::= FormalParameterListopt RPAREN"); }  //$NON-NLS-1$
-		    consumeMethodHeaderParameters();  
+    case 147 : if (DEBUG) { System.out.println("MethodHeaderRightParen ::= RPAREN"); }  //$NON-NLS-1$
+		    consumeMethodHeaderRightParen();  
 			break;
  
     case 148 : if (DEBUG) { System.out.println("MethodHeaderExtendedDims ::= Dimsopt"); }  //$NON-NLS-1$

@@ -1559,8 +1559,8 @@ protected void consumeMethodHeaderName() {
 		}
 	}
 }
-protected void consumeMethodHeaderParameters() {
-	super.consumeMethodHeaderParameters();
+protected void consumeMethodHeaderRightParen() {
+	super.consumeMethodHeaderRightParen();
 	
 	if (currentElement != null
 		&& currentToken == TokenNameIdentifier

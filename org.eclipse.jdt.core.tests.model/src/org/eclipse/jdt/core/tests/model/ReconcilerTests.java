@@ -920,9 +920,8 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	public void bar( {\n" + 
 		"	               ^\n" + 
-		"Syntax error, insert \"MethodHeaderParameters\" to complete MethodHeader\n" + 
+		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
 		"----------\n"
-		// TODO (david) should improve error diagnosis
 	);
 }
 /**

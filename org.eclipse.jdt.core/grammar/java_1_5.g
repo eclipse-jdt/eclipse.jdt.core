@@ -540,9 +540,9 @@ AbstractMethodDeclaration ::= MethodHeader ';'
   consumeMethodDeclaration(false); $break ./
 /:$readableName AbstractMethodDeclaration:/
 
-MethodHeader ::= MethodHeaderName MethodHeaderParameters MethodHeaderExtendedDims MethodHeaderThrowsClauseopt
+MethodHeader ::= MethodHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderExtendedDims MethodHeaderThrowsClauseopt
 /.$putCase consumeMethodHeader(); $break ./
-/:$readableName MethodHeader:/
+/:$readableName MethodDeclaration:/
 
 MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeMethodHeaderNameWithTypeParameters(); $break ./
@@ -550,9 +550,9 @@ MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
-MethodHeaderParameters ::= FormalParameterListopt ')'
-/.$putCase consumeMethodHeaderParameters(); $break ./
-/:$readableName MethodHeaderParameters:/
+MethodHeaderRightParen ::= ')'
+/.$putCase consumeMethodHeaderRightParen(); $break ./
+/:$readableName ):/
 
 MethodHeaderExtendedDims ::= Dimsopt
 /.$putCase consumeMethodHeaderExtendedDims(); $break ./
@@ -562,9 +562,9 @@ MethodHeaderThrowsClause ::= 'throws' ClassTypeList
 /.$putCase consumeMethodHeaderThrowsClause(); $break ./
 /:$readableName MethodHeaderThrowsClause:/
 
-ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderThrowsClauseopt
+ConstructorHeader ::= ConstructorHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderThrowsClauseopt
 /.$putCase consumeConstructorHeader(); $break ./
-/:$readableName ConstructorHeader:/
+/:$readableName ConstructorDeclaration:/
 
 ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
 /.$putCase consumeConstructorHeaderNameWithTypeParameters(); $break ./
