@@ -154,11 +154,12 @@ public void cleanup() {
 }
 
 private NameEnvironmentAnswer findClass(char[] name, char[][] packageName) {
-	String fullName = assembleName(name, packageName, '/');
-	if (initialTypeNames != null)
+	if (initialTypeNames != null) {
+		String fullName = assembleName(name, packageName, '/');
 		for (int i = 0, length = initialTypeNames.length; i < length; i++)
 			if (fullName.equals(initialTypeNames[i]))
 				return null; // looking for a file which we know was provided at the beginning of the compilation
+	}
 	for (int i = 0, length = classpathLocations.length; i < length; i++) {
 		NameEnvironmentAnswer answer = classpathLocations[i].findClass(name, packageName);
 		if (answer != null) return answer;
