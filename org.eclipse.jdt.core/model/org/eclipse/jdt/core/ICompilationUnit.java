@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -84,6 +83,7 @@ void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor moni
  * <li> This element is not a working copy (INVALID_ELEMENT_TYPES)
  * <li> A update conflict (described above) (UPDATE_CONFLICT)
  * </ul>
+ * @since 3.0
  */
 void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -205,7 +205,7 @@ void discardWorkingCopy() throws JavaModelException;
  * 
  * @param element the given element
  * @return the found elements in this compilation unit that correspond to the given element
- * @since 2.0 
+ * @since 3.0 
  */
 IJavaElement[] findElements(IJavaElement element);
 /**
@@ -213,7 +213,7 @@ IJavaElement[] findElements(IJavaElement element);
  * compilation unit), or <code>null</code> if no such a type exists.
  * 
  * @return the found primary type of this compilation unit, or <code>null</code> if no such a type exists
- * @since 2.0
+ * @since 3.0
  */
 IType findPrimaryType();
 /**
@@ -407,41 +407,17 @@ ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProblemRequestor proble
  * 
  * @return true if this working copy's original element's content
  * has not changed since the inception of this working copy, false otherwise
+ * @since 3.0
  */
 boolean isBasedOn(IResource resource);
 /**
  * Returns whether this element is a working copy.
  * 
  * @return true if this element is a working copy, false otherwise
+ * @since 3.0
  */
 boolean isWorkingCopy();
-/**
- * Reconciles the contents of this working copy.
- * It performs the reconciliation by locally caching the contents of 
- * the working copy, updating the contents, then creating a delta 
- * over the cached contents and the new contents, and finally firing
- * this delta.
- * <p>
- * If the working copy hasn't changed, then no problem will be detected,
- * this is equivalent to <code>IWorkingCopy#reconcile(false, null)</code>.
- * <p>
- * Compilation problems found in the new contents are notified through the
- * <code>IProblemRequestor</code> interface which was passed at
- * creation, and no longer as transient markers. Therefore this API will
- * return <code>null</code>.
- * <p>
- * Note: It has been assumed that added inner types should
- * not generate change deltas.  The implementation has been
- * modified to reflect this assumption.
- *
- * @exception JavaModelException if the contents of the original element
- *		cannot be accessed. Reasons include:
- * <ul>
- * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * </ul>
- * @return <code>null</code>
- */
-IMarker[] reconcile() throws JavaModelException;
+
 /**
  * Reconciles the contents of this working copy.
  * It performs the reconciliation by locally caching the contents of 
@@ -469,7 +445,7 @@ IMarker[] reconcile() throws JavaModelException;
  * <ul>
  * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
- * @since 2.0
+ * @since 3.0
  */
 void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -485,6 +461,7 @@ void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws J
  * <ul>
  * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
+ * @since 3.0
  */
 void restore() throws JavaModelException;
 }
