@@ -1813,6 +1813,7 @@ protected void consumeDiet() {
 	// Diet ::= $empty
 	checkAnnotation();
 	pushOnIntStack(modifiersSourceStart); // push the start position of a javadoc comment if there is one
+	resetModifiers();
 	jumpOverMethodBody();
 }
 protected void consumeDims() {
