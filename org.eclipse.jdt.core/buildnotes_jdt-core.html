@@ -46,12 +46,13 @@ What's new in this drop</h2>
 <li>Added following APIs to <code>org.eclipse.jdt.core.dom.CompilationUnit</code>:
 <ul>
 <li><code>getCommentList()</code>: Returns a list of the comments encountered while parsing the compilation unit.</li>
-<li><code>getExtendedStartPosition(ASTNode)</code>: Returns the extended start position for a given DOM/AST node.
-This extended position takes into account node leading comments.</li>
-<li><code>getExtendedLength(ASTNode)</code>: Returns the extended length for a given DOM/AST node.
-This extended length takes into account node trailing comments.</li>
+<li><code>getExtendedStartPosition(ASTNode)</code>: Returns the extended start position of the given node.</li>
+<li><code>getExtendedLength(ASTNode)</code>: Returns the extended source length of the given node.</li>
 </li>
 </ul>
+Unlike <code>ASTNode#getStartPosition()</code> and <code>ASTNode#getLength()</code>, the extended source range may include
+comments and whitespace immediately before or after the normal source range for the node.
+<br>
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53445">53445</a> for more details on heuristic to find leading and trailing comments.
 </li>
 <li>Added API <code>FieldReferenceMatch.isReadAccess()</code> and <code>isWriteAccess()</code>.
