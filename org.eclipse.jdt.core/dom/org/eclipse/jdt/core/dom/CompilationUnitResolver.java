@@ -508,7 +508,7 @@ class CompilationUnitResolver extends Compiler {
 			}
 			// first unit cleanup is done by caller, but cleanup all enqueued requested units (not processed)
 //			if (resolver != null) {
-//				for (int i = 1, length = resolver.totalUnits; i < length; i++) {
+//				for (int i = 1; i <  resolver.totalUnits; i++) { // could be more requested units
 //					CompilationUnitDeclaration parsedUnit = resolver.unitsToProcess[i];
 //					if (parsedUnit.scope != null) 
 //						parsedUnit.scope.faultInTypes(); // force resolution of signatures, so clients can query DOM AST
