@@ -2300,7 +2300,11 @@ public void resetTo(int begin, int end) {
 
 	this.diet = false;
 	this.initialPosition = this.startPosition = this.currentPosition = begin;
-	this.eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
+	if (this.source != null && this.source.length < end) {
+		this.eofPosition = this.source.length;
+	} else {
+		this.eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
+	}
 	this.commentPtr = -1; // reset comment stack
 	this.foundTaskCount = 0;
 	
