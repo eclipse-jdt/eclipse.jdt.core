@@ -616,7 +616,7 @@ public abstract class ASTNode {
 	 * @see EnhancedForStatement
 	 * @since 3.0
 	 */
-	public static final int ENHANCED_FOR_STATEMENT = 90;
+	public static final int ENHANCED_FOR_STATEMENT = 70;
 
 	/**
 	 * Node type constant indicating a node of type 
@@ -630,7 +630,7 @@ public abstract class ASTNode {
 	 * @see EnumConstantDeclaration
 	 * @since 3.0
 	 */
-	public static final int ENUM_CONSTANT_DECLARATION = 91;
+	public static final int ENUM_CONSTANT_DECLARATION = 71;
 	
 	/**
 	 * Node type constant indicating a node of type 
@@ -644,7 +644,7 @@ public abstract class ASTNode {
 	 * @see TypeParameter
 	 * @since 3.0
 	 */
-	public static final int TYPE_PARAMETER = 92;
+	public static final int TYPE_PARAMETER = 72;
 
 	/**
 	 * Node type constant indicating a node of type 
@@ -658,7 +658,7 @@ public abstract class ASTNode {
 	 * @see ParameterizedType
 	 * @since 3.0
 	 */
-	public static final int PARAMETERIZED_TYPE = 93;
+	public static final int PARAMETERIZED_TYPE = 73;
 
 	/**
 	 * Node type constant indicating a node of type 
@@ -672,7 +672,7 @@ public abstract class ASTNode {
 	 * @see QualifiedType
 	 * @since 3.0
 	 */
-	public static final int QUALIFIED_TYPE = 94;
+	public static final int QUALIFIED_TYPE = 74;
 	
 	/**
 	 * Node type constant indicating a node of type 
@@ -686,7 +686,7 @@ public abstract class ASTNode {
 	 * @see WildcardType
 	 * @since 3.0
 	 */
-	public static final int WILDCARD_TYPE = 95;
+	public static final int WILDCARD_TYPE = 75;
 	
 	/**
 	 * Owning AST.
