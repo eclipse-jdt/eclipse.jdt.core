@@ -24,29 +24,35 @@ import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.FalseLiteral;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Internal class for resolving bindings using old ASTs.
  */
 class DefaultBindingResolver extends BindingResolver {
-
 	/**
 	 * This map is used to keep the correspondance between new bindings and the 
 	 * compiler bindings. This is an identity map. We should only create one object
@@ -69,8 +75,6 @@ class DefaultBindingResolver extends BindingResolver {
 	 * This map is used to get a binding from its ast node
 	 */
 	Map astNodesToBindings;
-
-
 	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
@@ -80,154 +84,38 @@ class DefaultBindingResolver extends BindingResolver {
 		this.bindingsToAstNodes = new HashMap();
 		this.astNodesToBindings = new HashMap();
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
 	IBinding resolveName(Name name) {
-		// retrieve the old ast node
-		if (name.getParent() instanceof PackageDeclaration) {
-			return resolveNameForPackageDeclaration(name);
+		ASTNode parent = name.getParent();
+		if (parent instanceof MethodInvocation
+			|| parent instanceof SuperMethodInvocation) {
+			return internalResolveNameForMethodInvocation(name);
 		}
-		if (name.getParent() instanceof ImportDeclaration) {
-			return null;
+		if (parent instanceof FieldAccess
+		   || parent instanceof SuperFieldAccess) {
+			return internalResolveNameForFieldAccess(name);
 		}
-		AstNode node = (AstNode) this.newAstToOldAst.get(name);
-		if (node instanceof NameReference || node == null) {
-			return resolveNameForNameReference(name, node);
+		if (parent instanceof PackageDeclaration) {
+			return internalResolveNameForPackageDeclaration(name);
 		}
-		if (node instanceof MessageSend) {
-			return resolveNameForMessageSend(name, node);
+		if (parent instanceof SimpleType) {
+			return internalResolveNameForSimpleType(name);
 		}
-		return super.resolveName(name);
-	}
-
-	private IBinding resolveNameForMessageSend(Name name, AstNode node) {
-		MessageSend messageSend = (MessageSend) node;
-		if (name.isSimpleName()) {
-			// this can be either the qualifier or the method invocation name
-			SimpleName simpleName = (SimpleName) name;
-			if (simpleName.getIdentifier().equals(new String(messageSend.selector))) {
-				return this.getMethodBinding(messageSend.binding); 
-			} else {
-				// this is the qualifier
-				org.eclipse.jdt.internal.compiler.ast.Expression receiver = messageSend.receiver;
-				if (receiver instanceof SingleNameReference) {
-					SingleNameReference singleNameReference = (SingleNameReference) receiver;
-					if (singleNameReference.isTypeReference()) {
-						return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
-					} else {
-						// this is a variable or a field
-						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding);				
-					}
-				}
-			}
-		} else {
-			// this is the qualifier
-			org.eclipse.jdt.internal.compiler.ast.Expression receiver = messageSend.receiver;
-			if (receiver instanceof QualifiedNameReference) {
-				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) receiver;
-		
-				if (qualifiedNameReference.isTypeReference()) {
-					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
-				} else {
-					// this is a variable or a field
-					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
-				}
-			}
+		if (parent instanceof ThisExpression) {
+			return internalResolveNameForThisExpression(name);
+		}
+		if (name instanceof QualifiedName) {
+			return internalResolveNameForQualifiedName(name);
+		}
+		if (name instanceof SimpleName) {
+			return internalResolveNameForSimpleName(name);
 		}
 		return super.resolveName(name);
 	}
 
-	private IBinding resolveNameForMessageSend(Name name, AstNode node, int index) {
-		MessageSend messageSend = (MessageSend) node;
-		// this is the qualifier
-		org.eclipse.jdt.internal.compiler.ast.Expression receiver = messageSend.receiver;
-		if (receiver instanceof QualifiedNameReference) {
-			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) receiver;
-	
-			if (qualifiedNameReference.isTypeReference()) {
-				return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
-			} else {
-				// this is a variable or a field
-				if (index != 0) {
-					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding).getDeclaringClass();				
-				} else {
-					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
-				}
-			}
-		}
-		return super.resolveName(name);
-	}
-
-	private IBinding resolveNameForNameReference(Name name, AstNode node) {
-		if (node != null) {
-			if (node instanceof SingleNameReference) {
-				SingleNameReference singleNameReference = (SingleNameReference) node;
-				if (singleNameReference.isTypeReference()) {
-					return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
-				} else {
-					// this is a variable or a field
-					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding);				
-				}
-			} else if (node instanceof QualifiedNameReference) {
-				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
-		
-				if (qualifiedNameReference.isTypeReference()) {
-					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
-				} else {
-					// this is a variable or a field
-					if (qualifiedNameReference.otherBindings == null) {
-						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
-					} else {
-						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - 1]);				
-					}
-				}
-			}
-		}
-		// this might be a inner qualified name or simple name inside a qualified name
-		int index = 1;
-		QualifiedName firstQualifier = null;
-		Name firstName = name;
-		if (name.isSimpleName()) {
-			if (name.getParent() instanceof QualifiedName) {
-				name = (QualifiedName) name.getParent();
-				firstQualifier = (QualifiedName) name;
-			} else {
-				return super.resolveName(name);
-			}
-		}
-		while (name.getParent() instanceof QualifiedName) {
-			index++;
-			name = (QualifiedName) name.getParent();
-		}
-		// now we can retrieve the enclosing compiler's node corresponding to the inner name
-		node = (AstNode) this.newAstToOldAst.get(name);
-		if (node == null) {
-			return super.resolveName(name);
-		} else if (node instanceof NameReference) {
-			
-			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
-			if (firstQualifier != null) {
-				// handle the first simple name in a qualified name a.b.c.d (handles the 'a' case)
-				Name firstQualifierName = firstQualifier.getQualifier();
-				if (firstQualifierName.isSimpleName() && firstName == firstQualifierName) {
-					return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
-				}
-			}
-			if (qualifiedNameReference.isTypeReference()) {
-				return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
-			} else {
-				// this is a variable or a field
-				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.otherBindings[qualifiedNameReference.otherBindings.length - index]);				
-			}
-		} else if (node instanceof MessageSend) {
-			return this.resolveNameForMessageSend(name, node, index);
-		}
-		return super.resolveName(name);
-	}
-
-	private IBinding resolveNameForPackageDeclaration(Name name) {
+	private IBinding internalResolveNameForPackageDeclaration(Name name) {
 		PackageDeclaration packageDeclaration = (PackageDeclaration) name.getParent();
 		CompilationUnit unit = (CompilationUnit) packageDeclaration.getParent();
 		List types = unit.types();
@@ -239,7 +127,6 @@ class DefaultBindingResolver extends BindingResolver {
 		return typeBinding.getPackage();
 		
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -251,14 +138,12 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return this.getTypeBinding(typeReference.binding);
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveWellKnownType(String name) {
 		return super.resolveWellKnownType(name);
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -271,7 +156,6 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return super.resolveType(type);
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -284,7 +168,6 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return super.resolveMethod(method);
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -292,19 +175,23 @@ class DefaultBindingResolver extends BindingResolver {
 		AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) this.newAstToOldAst.get(variable);
 		if (abstractVariableDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) abstractVariableDeclaration;
-			return this.getVariableBinding(fieldDeclaration.binding);
+			IVariableBinding variableBinding = this.getVariableBinding(fieldDeclaration.binding);
+			this.bindingsToAstNodes.put(variableBinding, variable);
+			return variableBinding;
 		}
-		return this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding);
+		IVariableBinding variableBinding = this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding);
+		this.bindingsToAstNodes.put(variableBinding, variable);
+		return variableBinding;
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
 	IVariableBinding resolveVariable(FieldDeclaration variable) {
 		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) this.newAstToOldAst.get(variable);
-		return this.getVariableBinding(fieldDeclaration.binding);
+		IVariableBinding variableBinding = this.getVariableBinding(fieldDeclaration.binding);
+		this.bindingsToAstNodes.put(variableBinding, variable);
+		return variableBinding;
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -402,19 +289,62 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	/*
+	 * @see BindingResolver#resolveImport(ImportDeclaration)
+	 */
+	IBinding resolveImport(ImportDeclaration importDeclaration) {
+		Scope scope = retrieveCompilationUnitScope(importDeclaration);
+		AstNode node = (AstNode) this.newAstToOldAst.get(importDeclaration);
+		if (node instanceof ImportReference) {
+			ImportReference importReference = (ImportReference) node;
+			if (importReference.onDemand) {
+				Binding binding = scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
+				if ((binding != null) && (binding.isValidBinding())) {
+					IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+					this.bindingsToAstNodes.put(packageBinding, importDeclaration);
+					return packageBinding;
+				}
+			} else {
+				Binding binding = scope.getTypeOrPackage(importReference.tokens);
+				if (binding != null && binding.isValidBinding()) {
+					ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+					this.bindingsToAstNodes.put(typeBinding, importDeclaration);
+					return typeBinding;
+				}
+			}
+		}
+		return super.resolveImport(importDeclaration);
+	}
+
+	/*
+	 * @see BindingResolver#resolvePackage(PackageDeclaration)
+	 */
+	IPackageBinding resolvePackage(PackageDeclaration pkg) {
+		Scope scope = retrieveCompilationUnitScope(pkg);
+		AstNode node = (AstNode) this.newAstToOldAst.get(pkg);
+		if (node instanceof ImportReference) {
+			ImportReference importReference = (ImportReference) node;
+			Binding binding = scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
+			if ((binding != null) && (binding.isValidBinding())) {
+				IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+				this.bindingsToAstNodes.put(packageBinding, pkg);
+				return packageBinding;
+			}
+		}
+		return super.resolvePackage(pkg);
+	}
+
+	/*
 	 * Method declared on BindingResolver.
 	 */
 	public ASTNode findDeclaringNode(IBinding binding) {
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
 	void store(ASTNode node, AstNode oldASTNode) {
 		this.newAstToOldAst.put(node, oldASTNode);
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -430,7 +360,6 @@ class DefaultBindingResolver extends BindingResolver {
 		this.compilerBindingsToASTBindings.put(referenceBinding, binding);
 		return binding;
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -446,7 +375,6 @@ class DefaultBindingResolver extends BindingResolver {
 		this.compilerBindingsToASTBindings.put(packageBinding, binding);
 		return binding;
 	}
-
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -479,6 +407,16 @@ class DefaultBindingResolver extends BindingResolver {
 		return binding;
 	}
 
+
+	private Scope retrieveCompilationUnitScope(ASTNode node) {
+		ASTNode currentNode = node;
+		while(!(currentNode instanceof CompilationUnit)) {
+			currentNode = currentNode.getParent();
+		}
+		CompilationUnitDeclaration compilationUnitDeclaration = (CompilationUnitDeclaration) this.newAstToOldAst.get(currentNode);
+		return compilationUnitDeclaration.scope;
+	}
+
 	private BlockScope retrieveEnclosingScope(ASTNode node) {
 		ASTNode currentNode = node;
 		while(!(currentNode instanceof MethodDeclaration) && !(currentNode instanceof Initializer)) {
@@ -500,4 +438,148 @@ class DefaultBindingResolver extends BindingResolver {
 		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.newAstToOldAst.get(currentNode);
 		return abstractMethodDeclaration.scope;
 	}	
+	
+	private IBinding internalResolveNameForQualifiedName(Name name) {
+		QualifiedName qualifiedName = (QualifiedName) name;
+		ASTNode parent = qualifiedName.getParent();
+		int index = 0;
+		while (parent instanceof QualifiedName) {
+			qualifiedName = (QualifiedName) parent;
+			parent = parent.getParent();
+			index++;
+		}
+		return returnBindingForQualifiedNamePart(qualifiedName, index);
+	}
+
+	private IBinding returnBindingForQualifiedNamePart(ASTNode parent, int index) {
+		// now we can retrieve the compiler's node
+		AstNode node = (AstNode) this.newAstToOldAst.get(parent);
+		if (node instanceof QualifiedNameReference) {
+			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
+			if (qualifiedNameReference.isTypeReference()) {
+				return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+			} else {
+				int qualifiedNameLength = qualifiedNameReference.tokens.length;
+				int indexInQualifiedName = qualifiedNameLength - index; // one-based
+				int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding; // one-based
+				int otherBindingLength = qualifiedNameLength - indexOfFirstFieldBinding;
+				if (indexInQualifiedName < indexOfFirstFieldBinding) {
+					// a extra lookup is required`
+					Scope scope = retrieveEnclosingScope(parent);
+					return this.getTypeBinding(scope.getType(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName)));
+				} else {
+					if (indexInQualifiedName == indexOfFirstFieldBinding) {
+						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
+					} else {
+						return this.getVariableBinding(qualifiedNameReference.otherBindings[otherBindingLength - index - 1]);				
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private IBinding internalResolveNameForSimpleName(Name name) {
+		AstNode node = (AstNode) this.newAstToOldAst.get(name);
+		if (node == null) {
+			ASTNode parent = name.getParent();
+			if (parent instanceof QualifiedName) {
+				// retrieve the qualified name and remember at which position is the simple name
+				QualifiedName qualifiedName = (QualifiedName) parent;
+				int index = -1;
+				if (qualifiedName.getQualifier() == name) {
+					index++;
+				}
+				while (parent instanceof QualifiedName) {
+					qualifiedName = (QualifiedName) parent;
+					parent = parent.getParent();
+					index++;
+				}
+				return returnBindingForQualifiedNamePart(qualifiedName, index);
+			}
+		}
+		if (node instanceof SingleNameReference) {
+			SingleNameReference singleNameReference = (SingleNameReference) node;
+			if (singleNameReference.isTypeReference()) {
+				return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
+			} else {
+				// this is a variable or a field
+				return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding);				
+			}
+		} else if (node instanceof QualifiedSuperReference) {
+			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
+			return this.getTypeBinding(qualifiedSuperReference.qualification.binding);
+		}
+		return null;
+	}
+
+	private IBinding internalResolveNameForMethodInvocation(Name name) {
+		ASTNode parent = name.getParent();
+		if (parent instanceof MethodInvocation) {
+			MethodInvocation methodInvocation = (MethodInvocation) parent;
+			if (name == methodInvocation.getExpression()) {
+				if (name.isQualifiedName()) {
+					return this.internalResolveNameForQualifiedName(name);
+				} else {
+					return this.internalResolveNameForSimpleName(name);
+				}
+			} else {
+				AstNode node = (AstNode) this.newAstToOldAst.get(name);
+				if (node instanceof MessageSend) {
+					MessageSend messageSend = (MessageSend) node;
+					return getMethodBinding(messageSend.binding);
+				}
+				return null;
+			}
+		} else {
+			SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation) parent;
+			if (name == superMethodInvocation.getQualifier()) {
+				if (name.isQualifiedName()) {
+					return this.internalResolveNameForQualifiedName(name);
+				} else {
+					return this.internalResolveNameForSimpleName(name);
+				}
+			} else {
+				AstNode node = (AstNode) this.newAstToOldAst.get(name);
+				if (node instanceof MessageSend) {
+					MessageSend messageSend = (MessageSend) node;
+					return getMethodBinding(messageSend.binding);
+				}
+				return null;
+			}
+		}
+	}
+	
+	private IBinding internalResolveNameForFieldAccess(Name name) {
+		AstNode node = (AstNode) this.newAstToOldAst.get(name);
+		if (node instanceof FieldReference) {
+			return getVariableBinding(((FieldReference) node).binding);
+		} else if (node instanceof QualifiedSuperReference) {
+			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
+			return this.getTypeBinding(qualifiedSuperReference.qualification.binding);
+		}
+		return null;
+	}	
+
+	private IBinding internalResolveNameForSimpleType(Name name) {
+		AstNode node = (AstNode) this.newAstToOldAst.get(name);
+		if (node instanceof TypeReference) {
+			return this.getTypeBinding(((TypeReference) node).binding);
+		} else if (node instanceof NameReference) {
+			NameReference nameReference = (NameReference) node;
+			if (nameReference.isTypeReference()) {
+				return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) nameReference.binding);
+			}
+		}
+		return null;
+	}	
+
+	private IBinding internalResolveNameForThisExpression(Name name) {
+		AstNode node = (AstNode) this.newAstToOldAst.get(name);
+		if (node instanceof TypeReference) {
+			return this.getTypeBinding(((TypeReference) node).binding);
+		}
+		return null;
+	}
 }
+
