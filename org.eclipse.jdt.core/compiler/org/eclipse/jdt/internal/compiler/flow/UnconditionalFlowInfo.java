@@ -398,6 +398,14 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		if (this == DEAD_END) return otherInits;
 		if (otherInits == DEAD_END) return this;
 	
+		if ((this.reachMode & UNREACHABLE) != (otherInits.reachMode & UNREACHABLE)){
+			if ((this.reachMode & UNREACHABLE) != 0){
+				return otherInits;
+			} else {
+				return this;
+			}
+		}
+		
 		// if one branch is not fake reachable, then the merged one is reachable
 		this.reachMode &= otherInits.reachMode;
 	
