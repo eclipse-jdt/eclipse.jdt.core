@@ -3300,6 +3300,7 @@ public void test096() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79396
 public void test097() {
 	this.runConformTest(
 		new String[] {

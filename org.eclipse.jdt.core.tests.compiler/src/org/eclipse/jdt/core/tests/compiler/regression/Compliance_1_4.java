@@ -3311,6 +3311,7 @@ public void test096() {
 		"Cannot cast from X.A to X.C\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79396
 public void test097() {
 	this.runConformTest(
 		new String[] {
