@@ -1,23 +1,40 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v0.5 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v05.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-
-import org.eclipse.core.resources.*;
 import java.util.ArrayList;
-import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.codeassist.*;
-import org.eclipse.jdt.internal.compiler.*;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
+import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
+import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
+import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /**
  * Handle for a source type. Info object is a SourceTypeElementInfo.
