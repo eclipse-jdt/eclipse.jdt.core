@@ -7,7 +7,7 @@ package test0005;
 }
 
 @interface Author {
-	Name name();
+	Name value();
 }
 
 @interface Retention {

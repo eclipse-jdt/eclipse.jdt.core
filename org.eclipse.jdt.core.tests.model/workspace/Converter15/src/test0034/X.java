@@ -5,7 +5,7 @@ enum Bar {
 }
 
 @interface Foo {
-	Bar val();
+	Bar value();
 }
 	 
 public @Foo(Bar.CONSTANT) class X {
