@@ -347,7 +347,7 @@ public abstract class JobManager implements Runnable {
 						// handle shutdown case when notifyAll came before the wait but after the while loop was entered
 						if (this.processingThread == null) continue;
 
-						// must check for new job inside this loop to avoid timing hole
+						// must check for new job inside this sync block to avoid timing hole
 						if ((job = currentJob()) == null) {
 							if (idlingStart < 0)
 								idlingStart = System.currentTimeMillis();
