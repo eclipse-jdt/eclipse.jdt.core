@@ -3942,25 +3942,40 @@ protected void consumeToken(int type) {
 		scanner.currentLine = null;
 		scanner.wasNonExternalizedStringLiteral = false;
 	}
-
+	// clear the commentPtr of the scanner in case we read something different from a modifier
+	switch(type) {
+		case TokenNameabstract :
+		case TokenNamestrictfp :
+		case TokenNamefinal :
+		case TokenNamenative :
+		case TokenNameprivate :
+		case TokenNameprotected :
+		case TokenNamepublic :
+		case TokenNametransient :
+		case TokenNamevolatile :
+		case TokenNamestatic :
+		case TokenNamesynchronized :
+			break;
+		default:
+			scanner.commentPtr = -1;
+	}
 	//System.out.println(scanner.toStringAction(type));
 	switch (type) {
-
 		case TokenNameIdentifier :
 			pushIdentifier();
 			if (scanner.useAssertAsAnIndentifier) {
 				long positions = identifierPositionStack[identifierPtr];
 				problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
 			}
+			scanner.commentPtr = -1;
 			break;
-
 		case TokenNameinterface :
 			adjustInterfaceModifiers();
 			//'class' is pushing two int (positions) on the stack ==> 'interface' needs to do it too....
 			pushOnIntStack(scanner.startPosition);
 			pushOnIntStack(scanner.currentPosition - 1);			
+			scanner.commentPtr = -1;
 			break;
-
 		case TokenNameabstract :
 			checkAndSetModifiers(AccAbstract);
 			break;
@@ -3995,67 +4010,72 @@ protected void consumeToken(int type) {
 			pushOnIntStack(scanner.startPosition);			
 			checkAndSetModifiers(AccSynchronized);
 			break;
-
 			//==============================
-
 		case TokenNamevoid :
 			pushIdentifier(-T_void);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);
+			scanner.commentPtr = -1;
 			break;
 			//push a default dimension while void is not part of the primitive
 			//declaration baseType and so takes the place of a type without getting into
 			//regular type parsing that generates a dimension on intStack
-
 		case TokenNameboolean :
 			pushIdentifier(-T_boolean);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);		
+			scanner.commentPtr = -1;
 			break;
 		case TokenNamebyte :
 			pushIdentifier(-T_byte);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
+			scanner.commentPtr = -1;
 			break;
 		case TokenNamechar :
 			pushIdentifier(-T_char);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
+			scanner.commentPtr = -1;
 			break;
 		case TokenNamedouble :
 			pushIdentifier(-T_double);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
+			scanner.commentPtr = -1;
 			break;
 		case TokenNamefloat :
 			pushIdentifier(-T_float);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
+			scanner.commentPtr = -1;
 			break;
 		case TokenNameint :
 			pushIdentifier(-T_int);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
+			scanner.commentPtr = -1;
 			break;
 		case TokenNamelong :
 			pushIdentifier(-T_long);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
+			scanner.commentPtr = -1;
 			break;
 		case TokenNameshort :
 			pushIdentifier(-T_short);
 			pushOnIntStack(scanner.currentPosition - 1);				
 			pushOnIntStack(scanner.startPosition);					
+			scanner.commentPtr = -1;
 			break;
-
 			//==============================
-
 		case TokenNameIntegerLiteral :
 			pushOnExpressionStack(
 				new IntLiteral(
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
+			scanner.commentPtr = -1;
 			break;
 		case TokenNameLongLiteral :
 			pushOnExpressionStack(
@@ -4063,6 +4083,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
+			scanner.commentPtr = -1;
 			break;
 		case TokenNameFloatingPointLiteral :
 			pushOnExpressionStack(
@@ -4070,6 +4091,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
+			scanner.commentPtr = -1;
 			break;
 		case TokenNameDoubleLiteral :
 			pushOnExpressionStack(
@@ -4077,6 +4099,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
+			scanner.commentPtr = -1;
 			break;
 		case TokenNameCharacterLiteral :
 			pushOnExpressionStack(
@@ -4084,6 +4107,7 @@ protected void consumeToken(int type) {
 					scanner.getCurrentTokenSource(), 
 					scanner.startPosition, 
 					scanner.currentPosition - 1)); 
+			scanner.commentPtr = -1;
 			break;
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral = new StringLiteral(
@@ -4091,10 +4115,12 @@ protected void consumeToken(int type) {
 					scanner.startPosition, 
 					scanner.currentPosition - 1); 
 			pushOnExpressionStack(stringLiteral); 
+			scanner.commentPtr = -1;
 			break;
 		case TokenNamefalse :
 			pushOnExpressionStack(
 				new FalseLiteral(scanner.startPosition, scanner.currentPosition - 1)); 
+			scanner.commentPtr = -1;
 			break;
 		case TokenNametrue :
 			pushOnExpressionStack(
@@ -4104,7 +4130,6 @@ protected void consumeToken(int type) {
 			pushOnExpressionStack(
 				new NullLiteral(scanner.startPosition, scanner.currentPosition - 1)); 
 			break;
-
 			//============================
 		case TokenNamesuper :
 		case TokenNamethis :
@@ -4203,7 +4228,6 @@ protected void consumeToken(int type) {
 			//  case TokenNameDIVIDE :
 			//  case TokenNameGREATER  :
 			//  case TokenNameLESS  :
-
 	}
 }
 protected void consumeTypeDeclarations() {
