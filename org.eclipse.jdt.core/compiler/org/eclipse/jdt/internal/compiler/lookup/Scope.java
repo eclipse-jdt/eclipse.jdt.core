@@ -1253,13 +1253,12 @@ public abstract class Scope
 	*/
 	final Binding getTypeOrPackage(char[] name, int mask) {
 		Scope scope = this;
-		int problemId = NotFound;
+		ReferenceBinding foundType = null;
 		if ((mask & TYPE) == 0) {
 			Scope next = scope;
 			while ((next = scope.parent) != null)
 				scope = next;
 		} else {
-			ReferenceBinding foundType = null;
 			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 				switch (scope.kind) {
 					case METHOD_SCOPE :
@@ -1312,10 +1311,8 @@ public abstract class Scope
 				}
 				scope = scope.parent;
 			}
-			if (foundType != null) {
-				if (foundType.problemId() != NotVisible) return foundType;
-				problemId = NotVisible;
-			}
+			if (foundType != null && foundType.problemId() != NotVisible)
+				return foundType;
 		}
 
 		// at this point the scope is a compilation unit scope
@@ -1376,8 +1373,8 @@ public abstract class Scope
 									return new ProblemReferenceBinding(name, Ambiguous);
 								type = temp;
 								foundInImport = true;
-							} else {
-								problemId = temp.problemId();
+							} else if (foundType == null) {
+								foundType = temp;
 							}
 						}
 					}
@@ -1393,7 +1390,8 @@ public abstract class Scope
 		}
 
 		// Answer error binding -- could not find name
-		return new ProblemReferenceBinding(name, problemId);
+		if (foundType != null) return foundType; // problem type from above
+		return new ProblemReferenceBinding(name, NotFound);
 	}
 
 	/* Answer whether the type is defined in the same compilation unit as the receiver
