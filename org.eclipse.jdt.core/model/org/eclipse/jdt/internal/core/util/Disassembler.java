@@ -1004,9 +1004,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
 			buffer.append(Util.bind("disassembler.localvariabletypetableattributeheader")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
-			ILocalVariableTypeTableEntry[] localVariableTableEntries = localVariableTypeAttribute.getLocalVariableTypeTable();
+			ILocalVariableTypeTableEntry[] localVariableTypeTableEntries = localVariableTypeAttribute.getLocalVariableTypeTable();
 			for (int i = 0; i < localVariableTypeTableLength - 1; i++) {
-				ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTableEntries[i];
+				ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTypeTableEntries[i];
 				int index= localVariableTypeTableEntry.getIndex();
 				int startPC = localVariableTypeTableEntry.getStartPC();
 				int length  = localVariableTypeTableEntry.getLength();
@@ -1023,7 +1023,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(localVariableTypeTableEntry.getSignature());
 				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
-			ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTableEntries[localVariableTypeTableLength - 1];
+			ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTypeTableEntries[localVariableTypeTableLength - 1];
 			int index= localVariableTypeTableEntry.getIndex();
 			int startPC = localVariableTypeTableEntry.getStartPC();
 			int length  = localVariableTypeTableEntry.getLength();
