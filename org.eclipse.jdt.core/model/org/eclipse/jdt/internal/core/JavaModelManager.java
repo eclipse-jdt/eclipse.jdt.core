@@ -242,7 +242,11 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 			
 		IPath resourcePath = resource.getFullPath();
 		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
+			IClasspathEntry[] entries = 
+				Util.isJavaFileName(resourcePath.lastSegment())
+					? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
+					: ((JavaProject)project).getResolvedClasspath(true);
+				
 			for (int i = 0; i < entries.length; i++) {
 				IClasspathEntry entry = entries[i];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
