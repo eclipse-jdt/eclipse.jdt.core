@@ -291,9 +291,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (newCUName != null) {
 				//the main type has been renamed
 				String oldName = source.getElementName();
-				oldName = oldName.substring(0, oldName.length() - 5);
+				oldName = oldName.substring(0, oldName.length() - 5); //TODO (jerome) should not hardcode extension length
 				String newName = newCUName;
-				newName = newName.substring(0, newName.length() - 5);
+				newName = newName.substring(0, newName.length() - 5); //TODO (jerome) should not hardcode extension length
 				prepareDeltas(source.getType(oldName), destCU.getType(newName), isMove());
 			}
 		} else {
@@ -626,8 +626,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		 */
 		private void updateTypeName(ICompilationUnit cu, CompilationUnit astCU, String oldName, String newName, ASTRewrite rewriter) throws JavaModelException {
 			if (newName != null) {
-				String oldTypeName= oldName.substring(0, oldName.length() - 5);
-				String newTypeName= newName.substring(0, newName.length() - 5);
+				String oldTypeName= oldName.substring(0, oldName.length() - 5); //TODO (jerome) should not hardcode extension length
+				String newTypeName= newName.substring(0, newName.length() - 5); //TODO (jerome) should not hardcode extension length
 				AST ast = astCU.getAST();
 				// update main type name
 				IType[] types = cu.getTypes();

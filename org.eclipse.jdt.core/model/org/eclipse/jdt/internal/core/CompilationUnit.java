@@ -676,7 +676,7 @@ public IImportDeclaration[] getImports() throws JavaModelException {
 public char[] getMainTypeName(){
 	String elementName = getElementName();
 	//remove the .java
-	elementName = elementName.substring(0, elementName.length() - 5);
+	elementName = elementName.substring(0, elementName.length() - 5); //TODO (jerome) should not hardcode extension length
 	return elementName.toCharArray();
 }
 /**
