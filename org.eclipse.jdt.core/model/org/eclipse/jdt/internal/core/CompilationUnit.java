@@ -362,12 +362,9 @@ public void destroy() {
  * @see ICompilationUnit#discardWorkingCopy
  */
 public void discardWorkingCopy() throws JavaModelException {
-	int useCount = JavaModelManager.getJavaModelManager().discardPerWorkingCopyInfo(this);
-	if (useCount == 0) {
-		// discard working copy and its children
-		DiscardWorkingCopyOperation op = new DiscardWorkingCopyOperation(this);
-		runOperation(op, null);
-	}
+	// discard working copy and its children
+	DiscardWorkingCopyOperation op = new DiscardWorkingCopyOperation(this);
+	runOperation(op, null);
 }
 /**
  * Returns true if this handle represents the same Java element

@@ -11,10 +11,12 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
- * A working copy was discarded: signal its removal through a delta.
+ * Discards a working copy (decrement its use count and remove its working copy info if the use count is 0)
+ * and signal its removal through a delta.
  */
 public class DiscardWorkingCopyOperation extends JavaModelOperation {
 	
@@ -24,11 +26,21 @@ public class DiscardWorkingCopyOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		CompilationUnit workingCopy = getWorkingCopy();
 		
-		// report removed java delta
-		JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
-		delta.removed(workingCopy);
-		addDelta(delta);
-		removeReconcileDelta(workingCopy);
+		int useCount = JavaModelManager.getJavaModelManager().discardPerWorkingCopyInfo(workingCopy);
+		if (useCount == 0) {
+			if (workingCopy.owner != DefaultWorkingCopyOwner.PRIMARY) {
+				// report removed java delta for a non-primary working copy
+				JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+				delta.removed(workingCopy);
+				addDelta(delta);
+				removeReconcileDelta(workingCopy);
+			} else {
+				// report a F_PRIMARY_WORKING_COPY change delta for a primary working copy
+				JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+				delta.changed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
+				addDelta(delta);			
+			}
+		}
 	}
 	/**
 	 * Returns the working copy this operation is working on.
