@@ -2059,7 +2059,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 				 break;
 			case SCOPE_CODE:
 				StringBuffer buf = new StringBuffer();
-				for (int i = Parser.scope_suffix[- (int) nameIndex]; Parser.scope_rhs[i] != 0; i++) {
+				for (int i = Parser.scope_suffix[- nameIndex]; Parser.scope_rhs[i] != 0; i++) {
 					buf.append(Parser.name[Parser.scope_rhs[i]]);
 					if (Parser.scope_rhs[i + 1] != 0) // any more symbols to print?
 						buf.append(' ');
@@ -2155,7 +2155,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 				errorStart = lexStream.start(rightToken);
 			
 	            StringBuffer buf = new StringBuffer();
-	            for (int i = Parser.scope_suffix[- (int) nameIndex]; Parser.scope_rhs[i] != 0; i++) {
+	            for (int i = Parser.scope_suffix[- nameIndex]; Parser.scope_rhs[i] != 0; i++) {
 	                buf.append(Parser.name[Parser.scope_rhs[i]]);
 	                if (Parser.scope_rhs[i+1] != 0)
 	                     buf.append(' ');

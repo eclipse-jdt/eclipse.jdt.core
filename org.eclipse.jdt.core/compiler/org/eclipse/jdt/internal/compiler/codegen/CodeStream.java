@@ -1563,7 +1563,7 @@ public void generateInlinedValue(byte inlinedValue) {
 			break;
 		default :
 			if ((-128 <= inlinedValue) && (inlinedValue <= 127)) {
-				this.bipush((byte) inlinedValue);
+				this.bipush(inlinedValue);
 				return;
 			}
 	}
@@ -5456,65 +5456,65 @@ final public void wide() {
 		resizeByteArray(OPC_wide);
 	}
 }
-public final void writeByte(byte b) {
+public final void writeByte(byte value) {
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = b;
+		bCodeStream[classFileOffset++] = value;
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray(b);
+		resizeByteArray(value);
 	}
 }
-public final void writeByteAtPos(int pos, byte b) {
+public final void writeByteAtPos(int pos, byte value) {
 	try {
-		bCodeStream[pos] = b;
+		bCodeStream[pos] = value;
 	} catch (IndexOutOfBoundsException ex) {
 		resizeByteArray();
-		bCodeStream[pos] = b;
+		bCodeStream[pos] = value;
 	}
 }
 /**
  * Write a unsigned 8 bits value into the byte array
  * @param b the signed byte
  */
-public final void writeSignedByte(int b) {
+public final void writeSignedByte(int value) {
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) b;
+		bCodeStream[classFileOffset++] = (byte) value;
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) b);
+		resizeByteArray((byte) value);
 	}
 }
 /**
  * Write a signed 16 bits value into the byte array
- * @param b the signed short
+ * @param value the signed short
  */
-public final void writeSignedShort(int b) {
+public final void writeSignedShort(int value) {
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (b >> 8);
+		bCodeStream[classFileOffset++] = (byte) (value >> 8);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (b >> 8));
+		resizeByteArray((byte) (value >> 8));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) b;
+		bCodeStream[classFileOffset++] = (byte) value;
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) b);
+		resizeByteArray((byte) value);
 	}
 }
-public final void writeSignedShort(int pos, int b) {
+public final void writeSignedShort(int pos, int value) {
 	int currentOffset = startingClassFileOffset + pos;
 	try {
-		bCodeStream[currentOffset] = (byte) (b >> 8);
+		bCodeStream[currentOffset] = (byte) (value >> 8);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) (b >> 8);
+		bCodeStream[currentOffset] = (byte) (value >> 8);
 	}
 	try {
-		bCodeStream[currentOffset + 1] = (byte) b;
+		bCodeStream[currentOffset + 1] = (byte) value;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset + 1] = (byte) b;
+		bCodeStream[currentOffset + 1] = (byte) value;
 	}
 }
 public final void writeSignedWord(int value) {
@@ -5574,30 +5574,30 @@ public final void writeSignedWord(int pos, int value) {
  * Write a unsigned 8 bits value into the byte array
  * @param b the unsigned byte
  */
-public final void writeUnsignedByte(int b) {
+public final void writeUnsignedByte(int value) {
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) b;
+		bCodeStream[classFileOffset++] = (byte) value;
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) b);
+		resizeByteArray((byte) value);
 	}
 }
 /**
  * Write a unsigned 16 bits value into the byte array
  * @param b the unsigned short
  */
-public final void writeUnsignedShort(int b) {
+public final void writeUnsignedShort(int value) {
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (b >>> 8);
+		bCodeStream[classFileOffset++] = (byte) (value >>> 8);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (b >>> 8));
+		resizeByteArray((byte) (value >>> 8));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) b;
+		bCodeStream[classFileOffset++] = (byte) value;
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) b);
+		resizeByteArray((byte) value);
 	}
 }
 /**

@@ -285,6 +285,13 @@ public class ConditionalExpression extends OperatorExpression {
 		// specs p.368
 		constant = NotAConstant;
 		TypeBinding conditionType = condition.resolveTypeExpecting(scope, BooleanBinding);
+		
+		if (valueIfTrue instanceof CastExpression) {
+			valueIfTrue.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		}
+		if (valueIfFalse instanceof CastExpression) {
+			valueIfFalse.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		}
 		TypeBinding valueIfTrueType = valueIfTrue.resolveType(scope);
 		TypeBinding valueIfFalseType = valueIfFalse.resolveType(scope);
 		if (conditionType == null || valueIfTrueType == null || valueIfFalseType == null)
@@ -333,18 +340,18 @@ public class ConditionalExpression extends OperatorExpression {
 			}
 			// <Byte|Short|Char> x constant(Int)  ---> <Byte|Short|Char>   and reciprocally
 			if ((valueIfTrueType == ByteBinding || valueIfTrueType == ShortBinding || valueIfTrueType == CharBinding)
-				&& (valueIfFalseType == IntBinding
-					&& valueIfFalse.isConstantValueOfTypeAssignableToType(valueIfFalseType, valueIfTrueType))) {
+					&& (valueIfFalseType == IntBinding
+						&& valueIfFalse.isConstantValueOfTypeAssignableToType(valueIfFalseType, valueIfTrueType))) {
 				valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
 				valueIfFalse.implicitWidening(valueIfTrueType, valueIfFalseType);
 				this.resolvedType = valueIfTrueType;
 				return valueIfTrueType;
 			}
 			if ((valueIfFalseType == ByteBinding
-				|| valueIfFalseType == ShortBinding
-				|| valueIfFalseType == CharBinding)
-				&& (valueIfTrueType == IntBinding
-					&& valueIfTrue.isConstantValueOfTypeAssignableToType(valueIfTrueType, valueIfFalseType))) {
+					|| valueIfFalseType == ShortBinding
+					|| valueIfFalseType == CharBinding)
+					&& (valueIfTrueType == IntBinding
+						&& valueIfTrue.isConstantValueOfTypeAssignableToType(valueIfTrueType, valueIfFalseType))) {
 				valueIfTrue.implicitWidening(valueIfFalseType, valueIfTrueType);
 				valueIfFalse.implicitWidening(valueIfFalseType, valueIfFalseType);
 				this.resolvedType = valueIfFalseType;
@@ -353,7 +360,7 @@ public class ConditionalExpression extends OperatorExpression {
 			// Manual binary numeric promotion
 			// int
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_int)
-				&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_int)) {
+					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_int)) {
 				valueIfTrue.implicitWidening(IntBinding, valueIfTrueType);
 				valueIfFalse.implicitWidening(IntBinding, valueIfFalseType);
 				this.resolvedType = IntBinding;
@@ -361,7 +368,7 @@ public class ConditionalExpression extends OperatorExpression {
 			}
 			// long
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_long)
-				&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_long)) {
+					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_long)) {
 				valueIfTrue.implicitWidening(LongBinding, valueIfTrueType);
 				valueIfFalse.implicitWidening(LongBinding, valueIfFalseType);
 				returnTypeSlotSize = 2;
@@ -370,7 +377,7 @@ public class ConditionalExpression extends OperatorExpression {
 			}
 			// float
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_float)
-				&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_float)) {
+					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_float)) {
 				valueIfTrue.implicitWidening(FloatBinding, valueIfTrueType);
 				valueIfFalse.implicitWidening(FloatBinding, valueIfFalseType);
 				this.resolvedType = FloatBinding;
@@ -385,7 +392,7 @@ public class ConditionalExpression extends OperatorExpression {
 		}
 		// Type references (null null is already tested)
 		if ((valueIfTrueType.isBaseType() && valueIfTrueType != NullBinding)
-			|| (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding)) {
+				|| (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding)) {
 			scope.problemReporter().conditionalArgumentsIncompatibleTypes(
 				this,
 				valueIfTrueType,

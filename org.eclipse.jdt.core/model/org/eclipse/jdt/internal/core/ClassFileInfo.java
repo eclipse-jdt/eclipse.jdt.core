@@ -164,7 +164,7 @@ protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
  */
 void removeBinaryChildren() throws JavaModelException {
 	if (this.binaryChildren != null) {
-		JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		for (int i = 0; i <this.binaryChildren.length; i++) {
 			JavaElement child = this.binaryChildren[i];
 			if (child instanceof BinaryType) {

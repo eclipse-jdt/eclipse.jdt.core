@@ -194,61 +194,6 @@ public class AllocationExpression
 		}
 	}
 
-	public TypeBinding resolveType(BlockScope scope) {
-
-		// Propagate the type checking to the arguments, and check if the constructor is defined.
-		constant = NotAConstant;
-		this.resolvedType = type.resolveType(scope);
-		// will check for null after args are resolved
-
-		// buffering the arguments' types
-		TypeBinding[] argumentTypes = NoParameters;
-		if (arguments != null) {
-			boolean argHasError = false;
-			int length = arguments.length;
-			argumentTypes = new TypeBinding[length];
-			for (int i = 0; i < length; i++)
-				if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
-					argHasError = true;
-			if (argHasError)
-				return this.resolvedType;
-		}
-		if (this.resolvedType == null)
-			return null;
-
-		if (!this.resolvedType.canBeInstantiated()) {
-			scope.problemReporter().cannotInstantiate(type, this.resolvedType);
-			return this.resolvedType;
-		}
-		ReferenceBinding allocatedType = (ReferenceBinding) this.resolvedType;
-		if (!(binding = scope.getConstructor(allocatedType, argumentTypes, this))
-			.isValidBinding()) {
-			if (binding.declaringClass == null)
-				binding.declaringClass = allocatedType;
-			scope.problemReporter().invalidConstructor(this, binding);
-			return this.resolvedType;
-		}
-		if (isMethodUseDeprecated(binding, scope))
-			scope.problemReporter().deprecatedMethod(binding, this);
-
-		if (arguments != null)
-			for (int i = 0; i < arguments.length; i++)
-				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
-		return allocatedType;
-	}
-
-	public void setActualReceiverType(ReferenceBinding receiverType) {
-		// ignored
-	}
-
-	public void setDepth(int i) {
-		// ignored
-	}
-
-	public void setFieldIndex(int i) {
-		// ignored
-	}
-
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		output.append("new "); //$NON-NLS-1$
@@ -261,6 +206,75 @@ public class AllocationExpression
 			}
 		}
 		return output.append(')');
+	}
+	
+	public TypeBinding resolveType(BlockScope scope) {
+
+		// Propagate the type checking to the arguments, and check if the constructor is defined.
+		constant = NotAConstant;
+		this.resolvedType = type.resolveType(scope);
+		// will check for null after args are resolved
+
+		// buffering the arguments' types
+		boolean argsContainCast = false;
+		TypeBinding[] argumentTypes = NoParameters;
+		if (arguments != null) {
+			boolean argHasError = false;
+			int length = arguments.length;
+			argumentTypes = new TypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				Expression argument = this.arguments[i];
+				if (argument instanceof CastExpression) {
+					argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+					argsContainCast = true;
+				}
+				if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
+					argHasError = true;
+				}
+			}
+			if (argHasError) {
+				return this.resolvedType;
+			}
+		}
+		if (this.resolvedType == null)
+			return null;
+
+		if (!this.resolvedType.canBeInstantiated()) {
+			scope.problemReporter().cannotInstantiate(type, this.resolvedType);
+			return this.resolvedType;
+		}
+		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
+		if (!(binding = scope.getConstructor(allocationType, argumentTypes, this))
+			.isValidBinding()) {
+			if (binding.declaringClass == null)
+				binding.declaringClass = allocationType;
+			scope.problemReporter().invalidConstructor(this, binding);
+			return this.resolvedType;
+		}
+		if (isMethodUseDeprecated(binding, scope))
+			scope.problemReporter().deprecatedMethod(binding, this);
+
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
+			}
+			if (argsContainCast) {
+				CastExpression.checkNeedForArgumentCasts(scope, null, allocationType, binding, this.arguments, argumentTypes, this);
+			}
+		}
+		return allocationType;
+	}
+
+	public void setActualReceiverType(ReferenceBinding receiverType) {
+		// ignored
+	}
+
+	public void setDepth(int i) {
+		// ignored
+	}
+
+	public void setFieldIndex(int i) {
+		// ignored
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

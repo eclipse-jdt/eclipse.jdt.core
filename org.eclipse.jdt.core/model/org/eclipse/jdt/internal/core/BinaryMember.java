@@ -41,7 +41,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	Openable openableParent = (Openable)getOpenableParent();
 	if (openableParent == null) return;
 	
-	ClassFileInfo openableParentInfo = (ClassFileInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+	ClassFileInfo openableParentInfo = (ClassFileInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
 	if (openableParentInfo == null) {
 		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
 		openableParentInfo = (ClassFileInfo)newElements.get(openableParent);

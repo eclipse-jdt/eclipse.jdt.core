@@ -72,7 +72,7 @@ void branch() {
 		if (Math.abs(offset) > 0x7FFF && !this.codeStream.wideMode) {
 			throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE);
 		}
-		codeStream.writeSignedShort((short) offset);
+		codeStream.writeSignedShort(offset);
 	}
 }
 /*
@@ -189,10 +189,10 @@ public void place() { // Currently lacking wide support.
 				if (this.isWide) {
 					codeStream.writeSignedWord(forwardReferences[i], offset);
 				} else {
-					codeStream.writeSignedShort(forwardReferences[i], (short) offset);
+					codeStream.writeSignedShort(forwardReferences[i], offset);
 				}
 			} else {
-				codeStream.writeSignedShort(forwardReferences[i], (short) offset);
+				codeStream.writeSignedShort(forwardReferences[i], offset);
 			}
 		}
 		// For all labels placed at that position we check if we need to rewrite the jump
@@ -220,10 +220,10 @@ public void place() { // Currently lacking wide support.
 								if (this.isWide) {
 									codeStream.writeSignedWord(forwardPosition, offset);
 								} else {
-									codeStream.writeSignedShort(forwardPosition, (short) offset);
+									codeStream.writeSignedShort(forwardPosition, offset);
 								}
 							} else {
-								codeStream.writeSignedShort(forwardPosition, (short) offset);
+								codeStream.writeSignedShort(forwardPosition, offset);
 							}
 						}
 					}

@@ -827,9 +827,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						options.put(
 							CompilerOptions.OPTION_ReportSuperfluousSemicolon,
 							CompilerOptions.WARNING);
-					} else if (token.equals("predicateThrow")) {//$NON-NLS-1$ 
+					} else if (token.equals("booleanThrow")) {//$NON-NLS-1$ 
 						options.put(
 							CompilerOptions.OPTION_ReportBooleanMethodThrowingException,
+							CompilerOptions.WARNING);
+					} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
+						options.put(
+							CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
 							CompilerOptions.WARNING);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$
@@ -1215,7 +1219,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if (!(entry.getValue() instanceof String))
 				continue;
 			if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-				options.put((String) entry.getKey(), CompilerOptions.IGNORE);
+				options.put(entry.getKey(), CompilerOptions.IGNORE);
 			}
 		}
 		options.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$

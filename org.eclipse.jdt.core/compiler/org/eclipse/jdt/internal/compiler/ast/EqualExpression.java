@@ -498,9 +498,14 @@ public boolean isCompactableOperation() {
 	return false;
 }
 public TypeBinding resolveType(BlockScope scope) {
-	// always return BooleanBinding
+
+	if (left instanceof CastExpression) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 	TypeBinding leftType = left.resolveType(scope);
+
+	if (right instanceof CastExpression) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 	TypeBinding rightType = right.resolveType(scope);
+
+	// always return BooleanBinding
 	if (leftType == null || rightType == null){
 		constant = NotAConstant;		
 		return null;
@@ -509,7 +514,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// both base type
 	if (leftType.isBaseType() && rightType.isBaseType()) {
 		// the code is an int
-		// (cast)  left   == (cast)  rigth --> result
+		// (cast)  left   == (cast)  right --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
 		int result = ResolveTypeTables[EQUAL_EQUAL][ (leftType.id << 4) + rightType.id];
@@ -521,25 +526,54 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().invalidOperator(this, leftType, rightType);
 			return null;
 		}
+		// check need for operand cast
+		boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
+		boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;
+		if (unnecessaryLeftCast || unnecessaryRightCast) {
+			int alternateLeftId = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType.id : leftType.id;
+			int alternateRightId = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType.id : rightType.id;
+			int alternateResult = ResolveTypeTables[EQUAL_EQUAL][(alternateLeftId << 4) + alternateRightId];
+			// (cast)  left   Op (cast)  right --> result
+			//  1111   0000       1111   0000     1111
+			//  <<16   <<12       <<8    <<4       <<0
+			final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
+			if ((result & CompareMASK) == (alternateResult & CompareMASK)) { // same promotions and result
+				if (unnecessaryLeftCast) scope.problemReporter().unnecessaryCast((CastExpression)left); 
+				if (unnecessaryRightCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
+			}
+		}		
 		computeConstant(leftType, rightType);
-		this.resolvedType = BooleanBinding;
-		return BooleanBinding;
+		return this.resolvedType = BooleanBinding;
 	}
 
 	// Object references 
 	// spec 15.20.3
 	if (areTypesCastCompatible(scope, rightType, leftType) || areTypesCastCompatible(scope, leftType, rightType)) {
 		// (special case for String)
-		if ((rightType.id == T_String) && (leftType.id == T_String))
+		if ((rightType.id == T_String) && (leftType.id == T_String)) {
 			computeConstant(leftType, rightType);
-		else
+		} else {
 			constant = NotAConstant;
-		if (rightType.id == T_String)
+		}
+		if (rightType.id == T_String) {
 			right.implicitConversion = String2String;
-		if (leftType.id == T_String)
+		}
+		if (leftType.id == T_String) {
 			left.implicitConversion = String2String;
-		this.resolvedType = BooleanBinding;
-		return BooleanBinding;
+		}
+		// check need for operand cast
+		boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
+		boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;
+		if (unnecessaryLeftCast || unnecessaryRightCast) {
+			TypeBinding alternateLeftType = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType : leftType;
+			TypeBinding alternateRightType = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType : rightType;
+			if (areTypesCastCompatible(scope, alternateLeftType, alternateRightType)
+					|| areTypesCastCompatible(scope, alternateRightType, alternateLeftType)) {
+				if (unnecessaryLeftCast) scope.problemReporter().unnecessaryCast((CastExpression)left); 
+				if (unnecessaryRightCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
+			}
+		}
+		return this.resolvedType = BooleanBinding;
 	}
 	constant = NotAConstant;
 	scope.problemReporter().notCompatibleTypesError(this, leftType, rightType);

@@ -223,7 +223,7 @@ public class TryStatement extends SubRoutineStatement {
 				exceptionLabels[i] =
 					new ExceptionLabel(
 						codeStream,
-						(ReferenceBinding) catchArguments[i].binding.type);
+						catchArguments[i].binding.type);
 			}
 		}
 		if (subRoutineStartLabel != null) {

@@ -30,7 +30,7 @@ public class AbortCompilation extends RuntimeException {
 
 	public AbortCompilation() {
 
-		this((CompilationResult)null);
+		this(null);
 	}
 
 	public AbortCompilation(int problemId, String[] problemArguments, String[] messageArguments) {

@@ -1658,15 +1658,19 @@ public class BinaryExpression extends OperatorExpression {
 		
 	public TypeBinding resolveType(BlockScope scope) {
 
+		if (left instanceof CastExpression) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		TypeBinding leftType = left.resolveType(scope);
+
+		if (right instanceof CastExpression) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		TypeBinding rightType = right.resolveType(scope);
+
 		// use the id of the type to navigate into the table
-		TypeBinding leftTb = left.resolveType(scope);
-		TypeBinding rightTb = right.resolveType(scope);
-		if (leftTb == null || rightTb == null) {
+		if (leftType == null || rightType == null) {
 			constant = Constant.NotAConstant;
 			return null;
 		}
-		int leftId = leftTb.id;
-		int rightId = rightTb.id;
+		int leftId = leftType.id;
+		int rightId = rightType.id;
 		if (leftId > 15
 			|| rightId > 15) { // must convert String + Object || Object + String
 			if (leftId == T_String) {
@@ -1675,34 +1679,31 @@ public class BinaryExpression extends OperatorExpression {
 				leftId = T_Object;
 			} else {
 				constant = Constant.NotAConstant;
-				scope.problemReporter().invalidOperator(this, leftTb, rightTb);
+				scope.problemReporter().invalidOperator(this, leftType, rightType);
 				return null;
 			}
 		}
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
 			if (leftId == T_String
-				&& rightTb.isArrayType()
-				&& ((ArrayBinding) rightTb).elementsType(scope) == CharBinding)
-				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(
-					right);
-			else if (
-				rightId == T_String
-					&& leftTb.isArrayType()
-					&& ((ArrayBinding) leftTb).elementsType(scope) == CharBinding)
-				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(
-					left);
+					&& rightType.isArrayType()
+					&& ((ArrayBinding) rightType).elementsType(scope) == CharBinding) {
+				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
+					} else if (rightId == T_String
+							&& leftType.isArrayType()
+							&& ((ArrayBinding) leftType).elementsType(scope) == CharBinding) {
+				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
+			}
 		}
 
 		// the code is an int
-		// (cast)  left   Op (cast)  rigth --> result
+		// (cast)  left   Op (cast)  right --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
 
 		// Don't test for result = 0. If it is zero, some more work is done.
 		// On the one hand when it is not zero (correct code) we avoid doing the test	
-		int result =
-			ResolveTypeTables[(bits & OperatorMASK) >> OperatorSHIFT][(leftId << 4)
-				+ rightId];
+		int operator = (bits & OperatorMASK) >> OperatorSHIFT;
+		int result = ResolveTypeTables[operator][(leftId << 4) + rightId];
 		left.implicitConversion = result >>> 12;
 		right.implicitConversion = (result >>> 4) & 0x000FF;
 
@@ -1735,10 +1736,26 @@ public class BinaryExpression extends OperatorExpression {
 				break;
 			default : //error........
 				constant = Constant.NotAConstant;
-				scope.problemReporter().invalidOperator(this, leftTb, rightTb);
+				scope.problemReporter().invalidOperator(this, leftType, rightType);
 				return null;
 		}
 
+		// check need for operand cast
+		boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
+		boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;
+		if (unnecessaryLeftCast || unnecessaryRightCast) {
+			int alternateLeftId = unnecessaryLeftCast ? ((CastExpression)left).expression.resolvedType.id : leftId;
+			int alternateRightId = unnecessaryRightCast ? ((CastExpression)right).expression.resolvedType.id : rightId;
+			int alternateResult = ResolveTypeTables[operator][(alternateLeftId << 4) + alternateRightId];
+			// (cast)  left   Op (cast)  right --> result
+			//  1111   0000       1111   0000     1111
+			//  <<16   <<12       <<8    <<4       <<0
+			final int CompareMASK = (0xF<<16) + (0xF<<8) + 0xF; // mask hiding compile-time types
+			if ((result & CompareMASK) == (alternateResult & CompareMASK)) { // same promotions and result
+				if (unnecessaryLeftCast) scope.problemReporter().unnecessaryCast((CastExpression)left); 
+				if (unnecessaryRightCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
+			}
+		}
 		// compute the constant when valid
 		computeConstant(scope, leftId, rightId);
 		return this.resolvedType;

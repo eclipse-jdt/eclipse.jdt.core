@@ -107,7 +107,7 @@ public class TypeLiteral extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild((ASTNode) this.type, (ASTNode) type, false);
+		replaceChild(this.type, type, false);
 		this.type = type;
 	}
 

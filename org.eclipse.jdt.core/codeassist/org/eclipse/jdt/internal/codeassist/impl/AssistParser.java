@@ -117,7 +117,7 @@ public RecoveredElement buildInitialRecoveryState(){
 						&& field.declarationSourceStart <= scanner.initialPosition
 						&& scanner.initialPosition <= field.declarationSourceEnd
 						&& scanner.eofPosition <= field.declarationSourceEnd+1){
-					element = new RecoveredInitializer((Initializer) field, null, 1, this);
+					element = new RecoveredInitializer(field, null, 1, this);
 					lastCheckPoint = field.declarationSourceStart;					
 					break;
 				}

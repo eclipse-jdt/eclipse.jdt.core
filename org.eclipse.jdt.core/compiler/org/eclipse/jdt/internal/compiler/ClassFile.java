@@ -95,7 +95,7 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
-		long targetJDK = ((SourceTypeBinding) referenceBinding).scope.environment().options.targetJDK;
+		long targetJDK = referenceBinding.scope.environment().options.targetJDK;
 		header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
 		header[headerOffset++] = (byte) (targetJDK >> 24); // major high
@@ -156,12 +156,7 @@ public class ClassFile
 				contents[contentsOffset++] = (byte) interfaceIndex;
 			}
 		}
-		produceDebugAttributes =
-			((SourceTypeBinding) referenceBinding)
-				.scope
-				.environment()
-				.options
-				.produceDebugAttributes;
+		produceDebugAttributes = referenceBinding.scope.environment().options.produceDebugAttributes;
 		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 		this.creatingProblemType = creatingProblemType;
 		codeStream = new CodeStream(this);

@@ -41,159 +41,134 @@ public class InstanceOfExpression extends OperatorExpression {
 			.analyseCode(currentScope, flowContext, flowInfo)
 			.unconditionalInits();
 	}
-
-	public final boolean areTypesCastCompatible(
+	/**
+	 * Returns false if the instanceof unnecessary
+	 */
+	public final boolean checkCastTypesCompatibility(
 		BlockScope scope,
 		TypeBinding castType,
 		TypeBinding expressionType) {
-
-		//	see specifications p.68
-		//A more cpmplete version of this method is provided on
+	
+		//A more complete version of this method is provided on
 		//CastExpression (it deals with constant and need runtime checkcast)
 
-		if (castType == expressionType) return true;
+		if (castType == expressionType) return false;
 		
-		//by grammatical construction, the first test is ALWAYS false
-		//if (castTb.isBaseType())
-		//{	if (expressionTb.isBaseType())
-		//	{	if (expression.isConstantValueOfTypeAssignableToType(expressionTb,castTb))
-		//		{	return true;}
-		//		else
-		//		{	if (expressionTb==castTb)
-		//			{	return true;}
-		//			else 
-		//			{	if (scope.areTypesCompatible(expressionTb,castTb))
-		//				{	return true; }
-		//				
-		//				if (BaseTypeBinding.isNarrowing(castTb.id,expressionTb.id))
-		//				{	return true;}
-		//				return false;}}}
-		//	else
-		//	{	return false; }}
-		//else
-		{ //-------------checkcast to something which is NOT a basetype----------------------------------	
+		//by grammatical construction, the base type check is not necessary
 
-			//null is compatible with every thing .... 
-			if (NullBinding == expressionType) {
-				return true;
-			}
-			if (expressionType.isArrayType()) {
-				if (castType.isArrayType()) {
-					//------- (castTb.isArray) expressionTb.isArray -----------
-					TypeBinding expressionEltTb = ((ArrayBinding) expressionType).elementsType(scope);
-					if (expressionEltTb.isBaseType())
-						// <---stop the recursion------- 
-						return ((ArrayBinding) castType).elementsType(scope) == expressionEltTb;
-					//recursivly on the elts...
-					return areTypesCastCompatible(
-						scope,
-						((ArrayBinding) castType).elementsType(scope),
-						expressionEltTb);
-				}
-				if (castType.isClass()) {
-					//------(castTb.isClass) expressionTb.isArray ---------------	
-					if (scope.isJavaLangObject(castType))
-						return true;
-					return false;
-				}
-				if (castType.isInterface()) {
-					//------- (castTb.isInterface) expressionTb.isArray -----------
-					if (scope.isJavaLangCloneable(castType) || scope.isJavaIoSerializable(castType)) {
-						return true;
-					}
-					return false;
-				}
-
-				return false;
-			}
-			if (expressionType.isBaseType()) {
-				return false;
-			}
-			if (expressionType.isClass()) {
-				if (castType.isArrayType()) {
-					// ---- (castTb.isArray) expressionTb.isClass -------
-					if (scope.isJavaLangObject(expressionType)) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				if (castType.isClass()) { // ----- (castTb.isClass) expressionTb.isClass ------ 
-					if (expressionType.isCompatibleWith(castType))
-						return true;
-					else {
-						if (castType.isCompatibleWith(expressionType)) {
-							return true;
-						}
-						return false;
-					}
-				}
-				if (castType.isInterface()) {
-					// ----- (castTb.isInterface) expressionTb.isClass -------  
-					if (((ReferenceBinding) expressionType).isFinal()) {
-						//no subclass for expressionTb, thus compile-time check is valid
-						if (expressionType.isCompatibleWith(castType))
-							return true;
-						return false;
-					} else {
-						return true;
-					}
-				}
-
-				return false;
-			}
-			if (expressionType.isInterface()) {
-				if (castType.isArrayType()) {
-					// ----- (castTb.isArray) expressionTb.isInterface ------
-					if (scope.isJavaLangCloneable(expressionType)
-						|| scope.isJavaIoSerializable(expressionType))
-						//potential runtime error
-						{
-						return true;
-					}
-					return false;
-				}
-				if (castType.isClass()) {
-					// ----- (castTb.isClass) expressionTb.isInterface --------
-					if (scope.isJavaLangObject(castType))
-						return true;
-					if (((ReferenceBinding) castType).isFinal()) {
-						//no subclass for castTb, thus compile-time check is valid
-						if (castType.isCompatibleWith(expressionType)) {
-							return true;
-						}
-						return false;
-					}
-					return true;
-				}
-				if (castType.isInterface()) {
-					// ----- (castTb.isInterface) expressionTb.isInterface -------
-					if ((Scope.compareTypes(castType, expressionType) == NotRelated)) {
-						MethodBinding[] castTbMethods = ((ReferenceBinding) castType).methods();
-						int castTbMethodsLength = castTbMethods.length;
-						MethodBinding[] expressionTbMethods =
-							((ReferenceBinding) expressionType).methods();
-						int expressionTbMethodsLength = expressionTbMethods.length;
-						for (int i = 0; i < castTbMethodsLength; i++) {
-							for (int j = 0; j < expressionTbMethodsLength; j++) {
-								if (castTbMethods[i].selector == expressionTbMethods[j].selector) {
-									if (castTbMethods[i].returnType != expressionTbMethods[j].returnType) {
-										if (castTbMethods[i].areParametersEqual(expressionTbMethods[j])) {
-											return false;
-										}
-									}
-								}
-							}
-						}
-					}
-					return true;
-				}
-
-				return false;
-			} 
-
-			return false;
+		if (castType == null || expressionType == null) return true;
+	
+		//-----------cast to something which is NOT a base type--------------------------	
+		if (expressionType == NullBinding) {
+			//	if (castType.isArrayType()){ // 26903 - need checkcast when casting null to array type
+			//		needRuntimeCheckcast = true;
+			//	}
+			return false; //null is compatible with every thing
 		}
+		if (expressionType.isBaseType()) {
+			scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
+			return true;
+		}
+	
+		if (expressionType.isArrayType()) {
+			if (castType == expressionType) return false; // identity conversion
+	
+			if (castType.isArrayType()) {
+				//------- (castType.isArray) expressionType.isArray -----------
+				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType(scope);
+				if (exprElementType.isBaseType()) {
+					// <---stop the recursion------- 
+					if (((ArrayBinding) castType).elementsType(scope) != exprElementType)
+						scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
+					return true;
+				}
+				// recursively on the elements...
+				return checkCastTypesCompatibility(
+					scope,
+					((ArrayBinding) castType).elementsType(scope),
+					exprElementType);
+			} else if (
+				castType.isClass()) {
+				//------(castType.isClass) expressionType.isArray ---------------	
+				if (scope.isJavaLangObject(castType)) {
+					return false;
+				}
+			} else { //------- (castType.isInterface) expressionType.isArray -----------
+				if (scope.isJavaLangCloneable(castType) || scope.isJavaIoSerializable(castType)) {
+					return true;
+				}
+			}
+			scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
+			return true;
+		}
+	
+		if (expressionType.isClass()) {
+			if (castType.isArrayType()) {
+				// ---- (castType.isArray) expressionType.isClass -------
+				if (scope.isJavaLangObject(expressionType)) { // potential runtime error
+					return true;
+				}
+			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
+				if (expressionType.isCompatibleWith(castType)){ // no runtime error
+					return false;
+				}
+				if (castType.isCompatibleWith(expressionType)) {
+					// potential runtime  error
+					return true;
+				}
+			} else { // ----- (castType.isInterface) expressionType.isClass -------  
+				if (((ReferenceBinding) expressionType).isFinal()) {
+					// no subclass for expressionType, thus compile-time check is valid
+					if (expressionType.isCompatibleWith(castType)) 
+						return false;
+				} else { // a subclass may implement the interface ==> no check at compile time
+					return true;
+				}
+			}
+			scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
+			return true;
+		}
+	
+		//	if (expressionType.isInterface()) { cannot be anything else
+		if (castType.isArrayType()) {
+			// ----- (castType.isArray) expressionType.isInterface ------
+			if (!(scope.isJavaLangCloneable(expressionType)
+					|| scope.isJavaIoSerializable(expressionType))) {// potential runtime error
+				scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
+			}
+			return true;
+		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
+			if (scope.isJavaLangObject(castType)) { // no runtime error
+				return false;
+			}
+			if (((ReferenceBinding) castType).isFinal()) {
+				// no subclass for castType, thus compile-time check is valid
+				if (!castType.isCompatibleWith(expressionType)) {
+					// potential runtime error
+					scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
+					return true;
+				}
+			}
+		} else { // ----- (castType.isInterface) expressionType.isInterface -------
+			if (castType == expressionType) { 
+				return false; // identity conversion
+			}
+			if (Scope.compareTypes(castType, expressionType) == NotRelated) {
+				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
+				MethodBinding[] expressionTypeMethods =
+					((ReferenceBinding) expressionType).methods();
+				int exprMethodsLength = expressionTypeMethods.length;
+				for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++)
+					for (int j = 0; j < exprMethodsLength; j++) {
+						if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
+								&& (castTypeMethods[i].selector == expressionTypeMethods[j].selector)
+								&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
+							scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
+						}
+					}
+			}
+		}
+		return true;
 	}
 	/**
 	 * Code generation for instanceOfExpression
@@ -229,12 +204,11 @@ public class InstanceOfExpression extends OperatorExpression {
 		if (expressionType == null || checkType == null)
 			return null;
 
-		if (!areTypesCastCompatible(scope, checkType, expressionType)) {
-			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkType);
-			return null;
+		boolean necessary = checkCastTypesCompatibility(scope, checkType, expressionType);
+		if (!necessary) {
+			scope.problemReporter().unnecessaryInstanceof(this, checkType);
 		}
-		this.resolvedType = BooleanBinding;
-		return BooleanBinding;
+		return this.resolvedType = BooleanBinding;
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

@@ -59,6 +59,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportIndirectStaticAccess = "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"; //$NON-NLS-1$
 	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
 	public static final String OPTION_ReportBooleanMethodThrowingException = "org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnnecessaryTypeCheck = "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
@@ -115,6 +116,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long SuperfluousSemicolon = 0x80000000L;
 	public static final long IndirectStaticAccess = 0x100000000L;
 	public static final long BooleanMethodThrowingException = 0x200000000L;
+	public static final long UnnecessaryTypeCheck = 0x400000000L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 
@@ -428,9 +430,14 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				updateSeverity(UnusedPrivateMember, optionValue);
 				continue;
 			} 
-			// Report unused private members
+			// Report boolean method throwing exception
 			if(optionID.equals(OPTION_ReportBooleanMethodThrowingException)){
 				updateSeverity(BooleanMethodThrowingException, optionValue);
+				continue;
+			} 
+			// Report unnecessary cast
+			if(optionID.equals(OPTION_ReportUnnecessaryTypeCheck)){
+				updateSeverity(UnnecessaryTypeCheck, optionValue);
 				continue;
 			} 
 			// Report task
@@ -488,6 +495,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportSuperfluousSemicolon, getSeverityString(SuperfluousSemicolon)); 
 		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier)); 
 		optionsMap.put(OPTION_ReportBooleanMethodThrowingException, getSeverityString(BooleanMethodThrowingException)); 
+		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(targetJDK)); 

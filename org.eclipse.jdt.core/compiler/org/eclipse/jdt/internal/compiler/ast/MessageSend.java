@@ -48,6 +48,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);	
 	return flowInfo;
 }
+
 /**
  * MessageSend code generation
  *
@@ -192,17 +193,23 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.qualifyingType = this.receiverType = receiver.resolveType(scope); 
 	
 	// will check for null after args are resolved
+	boolean argsContainCast = false; 
 	TypeBinding[] argumentTypes = NoParameters;
 	if (arguments != null) {
 		boolean argHasError = false; // typeChecks all arguments 
 		int length = arguments.length;
 		argumentTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++){
-			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null){
+			Expression argument = arguments[i];
+			if (argument instanceof CastExpression) {
+				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				argsContainCast = true;
+			}
+			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
 				argHasError = true;
 			}
 		}
-		if (argHasError){
+		if (argHasError) {
 			if(receiverType instanceof ReferenceBinding) {
 				// record any selector match, for clients who may still need hint about possible method match
 				this.codegenBinding = this.binding = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
@@ -258,10 +265,14 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, binding);
 		}		
 	}
-	if (arguments != null)
-		for (int i = 0; i < arguments.length; i++)
+	if (arguments != null) {
+		for (int i = 0; i < arguments.length; i++) {
 			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
-
+		}
+		if (argsContainCast) {
+			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, (ReferenceBinding)receiverType, binding, this.arguments, argumentTypes, this);
+		}
+	}
 	//-------message send that are known to fail at compile time-----------
 	if (binding.isAbstract()) {
 		if (receiver.isSuper()) {

@@ -39,6 +39,7 @@
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
  *								   BooleanMethodThrowingException
+ *								   UnnecessaryCast
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -352,6 +353,8 @@ public interface IProblem {
 	int UnhandledExceptionInImplicitConstructorCall = TypeRelated + 147;
 				
 	// expressions
+	int UnnecessaryCast = Internal + TypeRelated + 148;
+	int UnnecessaryInstanceof	 = Internal + TypeRelated + 149;
 	int ArrayReferenceRequired = Internal + 150;
 	int NoImplicitStringConversionForCharArrayExpression = Internal + 151;
 	// constant expressions
@@ -370,7 +373,6 @@ public interface IProblem {
 	int CodeCannotBeReached = Internal + 161;
 	int CannotReturnInInitializer = Internal + 162;
 	int InitializerMustCompleteNormally = Internal + 163;
-	
 	// assert
 	int InvalidVoidExpression = Internal + 164;
 	// try

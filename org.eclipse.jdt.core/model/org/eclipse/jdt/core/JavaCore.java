@@ -44,6 +44,7 @@
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_INDIRECT_STATIC_ACCESS
  *                                 COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION
+ *                                 COMPILER_PB_UNNECESSARY_CAST
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -284,6 +285,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION = PLUGIN_ID + ".compiler.problem.booleanMethodThrowingException"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_UNNECESSARY_TYPE_CHECK = PLUGIN_ID + ".compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
@@ -1187,7 +1194,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						initializer.initialize(variableName);
 					}
 				});
-				variablePath = (IPath) JavaModelManager.variableGet(variableName); // initializer should have performed side-effect
+				variablePath = JavaModelManager.variableGet(variableName); // initializer should have performed side-effect
 				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle (initializer did not init or reentering call)
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
@@ -1403,6 +1410,26 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
+	 * COMPILER / Reporting Assignment with no Effect
+	 *    When enabled, the compiler will issue an error or a warning whenever an assignment
+	 *    has no effect (e.g 'x = x').
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 * 
+	 * COMPILER / Reporting Superfluous Semicolon
+	 *    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Reporting Unnecessary Type Check
+	 *    When enabled, the compiler will issue an error or a warning when a cast or an instanceof operation 
+	 *    is unnecessary.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
 	 * COMPILER / Reporting Synthetic Access Emulation
 	 *    When enabled, the compiler will issue an error or a warning whenever it emulates 
 	 *    access to a non-accessible member of an enclosing type. Such access can have
@@ -1440,13 +1467,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
-	 * 
-	 * COMPILER / Reporting Assignment with no Effect
-	 *    When enabled, the compiler will issue an error or a warning whenever an assignment
-	 *    has no effect (e.g 'x = x').
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"
-	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "warning"
 	 * 
 	 * COMPILER / Reporting Interface Method not Compatible with non-Inherited Methods
 	 *    When enabled, the compiler will issue an error or a warning whenever an interface
@@ -1492,12 +1512,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    When enabled, the compiler will issue an error or a warning if a boolean assignment is acting as the condition
 	 *    of a control statement  (where it probably was meant to be a boolean comparison).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment"
-	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
-	 * 
-	 * COMPILER / Reporting Superfluous Semicolon
-	 *    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 * 
@@ -3197,7 +3211,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaProcessor);
 		workspace.removeSaveParticipant(this);
 
-		((JavaModelManager) JavaModelManager.getJavaModelManager()).shutdown();
+		JavaModelManager.getJavaModelManager().shutdown();
 	}
 
 	/**
@@ -3287,7 +3301,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
 			String variableName = variableNames[i];
-			IPath oldPath = (IPath)JavaModelManager.variableGet(variableName); // if reentering will provide previous session value 
+			IPath oldPath = JavaModelManager.variableGet(variableName); // if reentering will provide previous session value 
 			if (oldPath == JavaModelManager.VariableInitializationInProgress){
 				IPath previousPath = (IPath)JavaModelManager.PreviousSessionVariables.get(variableName);
 				if (previousPath != null){

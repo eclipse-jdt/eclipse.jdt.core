@@ -264,19 +264,27 @@ public class ExplicitConstructorCall
 			}
 
 			// arguments buffering for the method lookup
-			TypeBinding[] argTypes = NoParameters;
+			TypeBinding[] argumentTypes = NoParameters;
+			boolean argsContainCast = false;
 			if (arguments != null) {
 				boolean argHasError = false; // typeChecks all arguments
 				int length = arguments.length;
-				argTypes = new TypeBinding[length];
-				for (int i = 0; i < length; i++)
-					if ((argTypes[i] = arguments[i].resolveType(scope)) == null)
+				argumentTypes = new TypeBinding[length];
+				for (int i = 0; i < length; i++) {
+					Expression argument = this.arguments[i];
+					if (argument instanceof CastExpression) {
+						argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+						argsContainCast = true;
+					}
+					if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
 						argHasError = true;
-				if (argHasError)
+					}
+				}
+				if (argHasError) {
 					return;
+				}
 			}
-			if ((binding = scope.getConstructor(receiverType, argTypes, this))
-				.isValidBinding()) {
+			if ((binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope))
 					scope.problemReporter().deprecatedMethod(binding, this);
 
@@ -284,8 +292,12 @@ public class ExplicitConstructorCall
 				if (arguments != null) {
 					int length = arguments.length;
 					TypeBinding[] paramTypes = binding.parameters;
-					for (int i = 0; i < length; i++)
-						arguments[i].implicitWidening(paramTypes[i], argTypes[i]);
+					for (int i = 0; i < length; i++) {
+						arguments[i].implicitWidening(paramTypes[i], argumentTypes[i]);
+					}
+					if (argsContainCast) {
+						CastExpression.checkNeedForArgumentCasts(scope, null, receiverType, binding, this.arguments, argumentTypes, this);
+					}
 				}
 				if (binding.isPrivate()) {
 					binding.modifiers |= AccPrivateUsed;
@@ -315,13 +327,12 @@ public class ExplicitConstructorCall
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
-			if (qualification != null) {
-				qualification.traverse(visitor, scope);
+			if (this.qualification != null) {
+				this.qualification.traverse(visitor, scope);
 			}
-			if (arguments != null) {
-				int argumentLength = arguments.length;
-				for (int i = 0; i < argumentLength; i++)
-					arguments[i].traverse(visitor, scope);
+			if (this.arguments != null) {
+				for (int i = 0, argumentLength = this.arguments.length; i < argumentLength; i++)
+					this.arguments[i].traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

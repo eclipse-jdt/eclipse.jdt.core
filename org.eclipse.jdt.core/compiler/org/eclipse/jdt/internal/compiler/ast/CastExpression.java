@@ -15,17 +15,17 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class CastExpression extends Expression {
 
 	public Expression expression;
 	public Expression type;
-	public boolean needRuntimeCheckcast;
-
+	
 	//expression.implicitConversion holds the cast for baseType casting 
-	public CastExpression(Expression e, Expression t) {
-		expression = e;
-		type = t;
+	public CastExpression(Expression expression, Expression type) {
+		this.expression = expression;
+		this.type = type;
 
 		//due to the fact an expression may start with ( and that a cast also start with (
 		//the field is an expression....it can be a TypeReference OR a NameReference Or
@@ -53,21 +53,23 @@ public class CastExpression extends Expression {
 			.unconditionalInits();
 	}
 
-	public final void areTypesCastCompatible(
+	/**
+	 * Returns false if the cast is unnecessary
+	 */
+	public final boolean checkCastTypesCompatibility(
 		BlockScope scope,
 		TypeBinding castType,
 		TypeBinding expressionType) {
-
+	
 		// see specifications 5.5
 		// handle errors and process constant when needed
-
+	
 		// if either one of the type is null ==>
 		// some error has been already reported some where ==>
 		// we then do not report an obvious-cascade-error.
-
-		needRuntimeCheckcast = false;
-		if (castType == null || expressionType == null) return;
-
+	
+		if (castType == null || expressionType == null) return true;
+	
 		// identity conversion cannot be performed upfront, due to side-effects
 		// like constant propagation
 				
@@ -76,120 +78,128 @@ public class CastExpression extends Expression {
 				if (expressionType == castType) {
 					expression.implicitWidening(castType, expressionType);
 					constant = expression.constant; //use the same constant
-					return;
+					return false;
 				}
+				boolean necessary = false;
 				if (expressionType.isCompatibleWith(castType)
-					|| BaseTypeBinding.isNarrowing(castType.id, expressionType.id)) {
+						|| (necessary = BaseTypeBinding.isNarrowing(castType.id, expressionType.id))) {
 					expression.implicitConversion = (castType.id << 4) + expressionType.id;
-					if (expression.constant != Constant.NotAConstant)
+					if (expression.constant != Constant.NotAConstant) {
 						constant = expression.constant.castTo(expression.implicitConversion);
-					return;
+					}
+					return necessary;
+					
 				}
 			}
 			scope.problemReporter().typeCastError(this, castType, expressionType);
-			return;
+			return true;
 		}
-
+	
 		//-----------cast to something which is NOT a base type--------------------------	
 		if (expressionType == NullBinding) {
 			//	if (castType.isArrayType()){ // 26903 - need checkcast when casting null to array type
 			//		needRuntimeCheckcast = true;
 			//	}
-			return; //null is compatible with every thing
+			return false; //null is compatible with every thing
 		}
 		if (expressionType.isBaseType()) {
 			scope.problemReporter().typeCastError(this, castType, expressionType);
-			return;
+			return true;
 		}
-
+	
 		if (expressionType.isArrayType()) {
-			if (castType == expressionType) return; // identity conversion
-
+			if (castType == expressionType) return false; // identity conversion
+	
 			if (castType.isArrayType()) {
 				//------- (castType.isArray) expressionType.isArray -----------
 				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType(scope);
 				if (exprElementType.isBaseType()) {
 					// <---stop the recursion------- 
-					if (((ArrayBinding) castType).elementsType(scope) == exprElementType)
-						needRuntimeCheckcast = true;
-					else
+					if (((ArrayBinding) castType).elementsType(scope) == exprElementType) {
+						this.bits |= NeedRuntimeCheckCastMASK;
+					} else {
 						scope.problemReporter().typeCastError(this, castType, expressionType);
-					return;
+					}
+					return true;
 				}
 				// recursively on the elements...
-				areTypesCastCompatible(
+				return checkCastTypesCompatibility(
 					scope,
 					((ArrayBinding) castType).elementsType(scope),
 					exprElementType);
-				return;
 			} else if (
 				castType.isClass()) {
 				//------(castType.isClass) expressionType.isArray ---------------	
-				if (scope.isJavaLangObject(castType))
-					return;
+				if (scope.isJavaLangObject(castType)) {
+					return false;
+				}
 			} else { //------- (castType.isInterface) expressionType.isArray -----------
 				if (scope.isJavaLangCloneable(castType) || scope.isJavaIoSerializable(castType)) {
-					needRuntimeCheckcast = true;
-					return;
+					this.bits |= NeedRuntimeCheckCastMASK;
+					return true;
 				}
 			}
 			scope.problemReporter().typeCastError(this, castType, expressionType);
-			return;
+			return true;
 		}
-
+	
 		if (expressionType.isClass()) {
 			if (castType.isArrayType()) {
 				// ---- (castType.isArray) expressionType.isClass -------
 				if (scope.isJavaLangObject(expressionType)) { // potential runtime error
-					needRuntimeCheckcast = true;
-					return;
+					this.bits |= NeedRuntimeCheckCastMASK;
+					return true;
 				}
 			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
 				if (expressionType.isCompatibleWith(castType)){ // no runtime error
 					if (castType.id == T_String) constant = expression.constant; // (String) cst is still a constant
-					return;
+					return false;
 				}
 				if (castType.isCompatibleWith(expressionType)) {
 					// potential runtime  error
-					needRuntimeCheckcast = true;
-					return;
+					this.bits |= NeedRuntimeCheckCastMASK;
+					return true;
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 				if (((ReferenceBinding) expressionType).isFinal()) {
 					// no subclass for expressionType, thus compile-time check is valid
 					if (expressionType.isCompatibleWith(castType)) 
-						return;
+						return false;
 				} else { // a subclass may implement the interface ==> no check at compile time
-					needRuntimeCheckcast = true;
-					return;
+					this.bits |= NeedRuntimeCheckCastMASK;
+					return true;
 				}
 			}
 			scope.problemReporter().typeCastError(this, castType, expressionType);
-			return;
+			return true;
 		}
-
+	
 		//	if (expressionType.isInterface()) { cannot be anything else
 		if (castType.isArrayType()) {
 			// ----- (castType.isArray) expressionType.isInterface ------
 			if (scope.isJavaLangCloneable(expressionType)
-				|| scope.isJavaIoSerializable(expressionType)) // potential runtime error
-				needRuntimeCheckcast = true;
-			else
+					|| scope.isJavaIoSerializable(expressionType)) {// potential runtime error
+				this.bits |= NeedRuntimeCheckCastMASK;
+			} else {
 				scope.problemReporter().typeCastError(this, castType, expressionType);
-			return;
+			}
+			return true;
 		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
-			if (scope.isJavaLangObject(castType)) // no runtime error
-				return;
+			if (scope.isJavaLangObject(castType)) { // no runtime error
+				return false;
+			}
 			if (((ReferenceBinding) castType).isFinal()) {
 				// no subclass for castType, thus compile-time check is valid
 				if (!castType.isCompatibleWith(expressionType)) {
 					// potential runtime error
 					scope.problemReporter().typeCastError(this, castType, expressionType);
-					return;
+					return true;
 				}
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
-			if (castType == expressionType) return; // identity conversion
+			if (castType == expressionType) { 
+				return false; // identity conversion
+			}
 			if (Scope.compareTypes(castType, expressionType) == NotRelated) {
 				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
 				MethodBinding[] expressionTypeMethods =
@@ -205,8 +215,62 @@ public class CastExpression extends Expression {
 					}
 			}
 		}
-		needRuntimeCheckcast = true;
-		return;
+		this.bits |= NeedRuntimeCheckCastMASK;
+		return true;
+	}
+
+	/**
+	 * Cast expressions will considered as useful if removing them all would actually bind to a different method
+	 * (no fine grain analysis on per casted argument basis)
+	 */
+	public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiver, ReferenceBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] argumentTypes, final InvocationSite invocationSite) {
+	
+		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		
+		TypeBinding[] parameterTypes = binding.parameters;
+		int length = argumentTypes.length;
+		TypeBinding[] rawArgumentTypes = argumentTypes;
+		for (int i = 0; i < length; i++) {
+			Expression argument = arguments[i];
+			if ((argument.bits & UnnecessaryCastMask) != 0) {
+				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
+				// obvious identity cast
+				if (castedExpressionType == parameterTypes[i]) { 
+					scope.problemReporter().unnecessaryCast((CastExpression)argument);
+				// widening cast, will need to check later whether it would affect method lookup
+				} else {
+					if (rawArgumentTypes == argumentTypes) {
+						System.arraycopy(rawArgumentTypes, 0, rawArgumentTypes = new TypeBinding[length], 0, length);
+					}
+					// only retain widened argument types, since narrowing are thought to be ok
+					rawArgumentTypes[i] = castedExpressionType; 
+				}
+			}
+		}
+		if (rawArgumentTypes == argumentTypes) return; // did not find any unnecessary cast candidate
+	
+		InvocationSite fakeInvocationSite = new InvocationSite(){	
+			public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
+			public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
+			public void setActualReceiverType(ReferenceBinding actualReceiverType) {}
+			public void setDepth(int depth) {}
+			public void setFieldIndex(int depth){}
+		};	
+		MethodBinding bindingIfNoCast;
+		if (binding.isConstructor()) {
+			bindingIfNoCast = scope.getConstructor(receiverType, rawArgumentTypes, fakeInvocationSite);
+		} else {
+			bindingIfNoCast = receiver.isImplicitThis()
+				? scope.getImplicitMethod(binding.selector, rawArgumentTypes, fakeInvocationSite)
+				: scope.getMethod(receiverType, binding.selector, rawArgumentTypes, fakeInvocationSite); 	
+		}
+		if (bindingIfNoCast == binding) {
+			for (int i = 0; i < length; i++) {
+				if (argumentTypes[i] != rawArgumentTypes[i]) {
+					scope.problemReporter().unnecessaryCast((CastExpression)arguments[i]);
+				}
+			}
+		}
 	}
 
 	/**
@@ -222,9 +286,9 @@ public class CastExpression extends Expression {
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
+		boolean needRuntimeCheckcast = (this.bits & NeedRuntimeCheckCastMASK) != 0;
 		if (constant != NotAConstant) {
-			if (valueRequired
-				|| needRuntimeCheckcast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
+			if (valueRequired || needRuntimeCheckcast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
 				codeStream.generateConstant(constant, implicitConversion);
 				if (needRuntimeCheckcast) {
 					codeStream.checkcast(this.resolvedType);
@@ -274,17 +338,25 @@ public class CastExpression extends Expression {
 
 		constant = Constant.NotAConstant;
 		implicitConversion = T_undefined;
+
 		if ((type instanceof TypeReference) || (type instanceof NameReference)
 				&& ((type.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
+
 			this.resolvedType = type.resolveType(scope);
-			TypeBinding castedExpressionType = expression.resolveType(scope);
-			if (this.resolvedType != null && castedExpressionType != null) {
-				areTypesCastCompatible(scope, this.resolvedType, castedExpressionType);
+			TypeBinding expressionType = expression.resolveType(scope);
+			if (this.resolvedType != null && expressionType != null) {
+				boolean necessary = checkCastTypesCompatibility(scope, this.resolvedType, expressionType);
+				if (!necessary) {
+					this.bits |= UnnecessaryCastMask;
+					if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {
+						scope.problemReporter().unnecessaryCast(this);
+					}
+				}
 			}
 			return this.resolvedType;
 		} else { // expression as a cast !!!!!!!!
-			TypeBinding castedExpressionType = expression.resolveType(scope);
-			if (castedExpressionType == null) return null;
+			TypeBinding expressionType = expression.resolveType(scope);
+			if (expressionType == null) return null;
 			scope.problemReporter().invalidTypeReference(type);
 			return null;
 		}

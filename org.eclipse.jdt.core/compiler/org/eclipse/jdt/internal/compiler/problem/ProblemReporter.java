@@ -544,6 +544,10 @@ public int computeSeverity(int problemId){
 		case IProblem.BooleanMethodThrowingException:
 			return this.options.getSeverity(CompilerOptions.BooleanMethodThrowingException);
 			
+		case IProblem.UnnecessaryCast:
+		case IProblem.UnnecessaryInstanceof:
+			return this.options.getSeverity(CompilerOptions.UnnecessaryTypeCheck);
+			
 		default:
 			return Error;
 	}
@@ -2898,7 +2902,6 @@ public void uninitializedLocalVariable(LocalVariableBinding binding, AstNode loc
 		location.sourceEnd);
 }
 public void unmatchedBracket(int position, ReferenceContext context, CompilationResult compilationResult) {
-
 	this.handle(
 		IProblem.UnmatchedBracket, 
 		NoArgument,
@@ -2907,6 +2910,24 @@ public void unmatchedBracket(int position, ReferenceContext context, Compilation
 		position,
 		context,
 		compilationResult);
+}
+public void unnecessaryCast(CastExpression castExpression) {
+	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
+	this.handle(
+		IProblem.UnnecessaryCast,
+		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName())},
+		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName())},
+		castExpression.sourceStart,
+		castExpression.sourceEnd);
+}
+public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, TypeBinding checkType) {
+	TypeBinding expressionType = instanceofExpression.expression.resolvedType;
+	this.handle(
+		IProblem.UnnecessaryInstanceof,
+		new String[]{ new String(expressionType.readableName()), new String(checkType.readableName())},
+		new String[]{ new String(expressionType.shortReadableName()), new String(checkType.shortReadableName())},
+		instanceofExpression.sourceStart,
+		instanceofExpression.sourceEnd);
 }
 public void unnecessaryEnclosingInstanceSpecification(Expression expression, ReferenceBinding targetType) {
 	this.handle(
