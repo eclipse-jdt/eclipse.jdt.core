@@ -146,7 +146,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 				parentFolder = parentFolder.getFolder(new Path(subFolderName));
 				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName.toString());
 				if (i < names.length - 1 // all but the last one are side effect packages
-						&& !org.eclipse.jdt.internal.core.Util.isExcluded(subFolder, exclusionsPatterns)) { 
+						&& !org.eclipse.jdt.internal.core.Util.isExcluded(parentFolder, exclusionsPatterns)) { 
 					if (projectDelta == null) {
 						projectDelta = getDeltaFor(root.getJavaProject());
 					}

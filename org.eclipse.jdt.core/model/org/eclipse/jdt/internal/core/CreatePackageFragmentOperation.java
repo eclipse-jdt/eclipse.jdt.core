@@ -82,7 +82,7 @@ protected void executeOperation() throws JavaModelException {
 			createFolder(parentFolder, subFolderName, fForce);
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			IPackageFragment addedFrag = root.getPackageFragment(sideEffectPackageName);
-			if (!Util.isExcluded(subFolder, exclusionPatterns)) {
+			if (!Util.isExcluded(parentFolder, exclusionPatterns)) {
 				if (delta == null) {
 					delta = newJavaElementDelta();
 				}

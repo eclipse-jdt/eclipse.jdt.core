@@ -1068,14 +1068,10 @@ public static String bind(String id, String binding1, String binding2) {
 		return true;		
 	}
 	/*
-	 * Returns whether the given java element is exluded from its classpath.	 */
+	 * Returns whether the given compilation unit or package fragment is exluded from its classpath.
+	 * All other types of element are considered non-excluded.	 */
 	public static final boolean isExcluded(IJavaElement element) {
 		switch (element.getElementType()) {
-			case IJavaElement.JAVA_PROJECT:
-			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			case IJavaElement.CLASS_FILE:
-				// projects, pkg fragment root and class files are never excluded
-				return false;
 			case IJavaElement.PACKAGE_FRAGMENT:
 			case IJavaElement.COMPILATION_UNIT:
 				PackageFragmentRoot root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
@@ -1083,10 +1079,7 @@ public static String bind(String id, String binding1, String binding2) {
 				IResource resource = element.getResource();
 				return resource != null && Util.isExcluded(resource, exclusionPatterns);
 			default:
-				// everything in a compilation unit
-				IJavaElement cu = element.getAncestor(IJavaElement.COMPILATION_UNIT);
-				if (cu == null) return false;
-				return isExcluded(cu);
+				return false;
 		}
 	}
 	/*
