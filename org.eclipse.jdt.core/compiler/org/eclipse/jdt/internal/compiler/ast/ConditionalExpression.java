@@ -317,7 +317,7 @@ public class ConditionalExpression extends OperatorExpression {
 			&& (trueConstant = valueIfTrue.constant) != NotAConstant
 			&& (falseConstant = valueIfFalse.constant) != NotAConstant) {
 			// all terms are constant expression so we can propagate the constant
-			// from valueIFTrue or valueIfFalse to teh receiver constant
+			// from valueIFTrue or valueIfFalse to the receiver constant
 			constant = condConstant.booleanValue() ? trueConstant : falseConstant;
 		}
 		if (valueIfTrueType == valueIfFalseType) { // harmed the implicit conversion 
