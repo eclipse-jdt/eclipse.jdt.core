@@ -116,6 +116,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 						break;
 					case ITerminalSymbols.TokenNameIdentifier:
 					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameQUESTION:
 						if (typeName == null) {
 							typeName = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -151,6 +152,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 					case ITerminalSymbols.TokenNameDOT:
 					case ITerminalSymbols.TokenNameIdentifier:
 					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameQUESTION:
 					case ITerminalSymbols.TokenNameLBRACKET:
 					case ITerminalSymbols.TokenNameRBRACKET:
 					case ITerminalSymbols.TokenNameboolean:
@@ -305,6 +307,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 						break;
 					case ITerminalSymbols.TokenNameIdentifier:
 					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameQUESTION:
 						if (fieldName == null) {
 							fieldName = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -323,6 +326,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 					case ITerminalSymbols.TokenNameDOT:
 					case ITerminalSymbols.TokenNameIdentifier:
 					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameQUESTION:
 					case ITerminalSymbols.TokenNameLBRACKET:
 					case ITerminalSymbols.TokenNameRBRACKET:
 					case ITerminalSymbols.TokenNameboolean:
@@ -526,6 +530,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						break;
 					case ITerminalSymbols.TokenNameIdentifier:
 					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameQUESTION:
 						if (selector == null) {
 							selector = new String(scanner.getCurrentTokenSource());
 						} else {
@@ -562,6 +567,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 					case ITerminalSymbols.TokenNameDOT:
 					case ITerminalSymbols.TokenNameIdentifier:
 					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameQUESTION:
 					case ITerminalSymbols.TokenNameLBRACKET:
 					case ITerminalSymbols.TokenNameRBRACKET:
 					case ITerminalSymbols.TokenNameboolean:
@@ -591,6 +597,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 					case ITerminalSymbols.TokenNameDOT:
 					case ITerminalSymbols.TokenNameIdentifier:
 					case ITerminalSymbols.TokenNameMULTIPLY:
+					case ITerminalSymbols.TokenNameQUESTION:
 					case ITerminalSymbols.TokenNameLBRACKET:
 					case ITerminalSymbols.TokenNameRBRACKET:
 					case ITerminalSymbols.TokenNameboolean:
@@ -1131,6 +1138,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 			case ITerminalSymbols.TokenNameDOT:
 			case ITerminalSymbols.TokenNameIdentifier:
 			case ITerminalSymbols.TokenNameMULTIPLY:
+			case ITerminalSymbols.TokenNameQUESTION:
 			case ITerminalSymbols.TokenNameLBRACKET:
 			case ITerminalSymbols.TokenNameRBRACKET:
 			case ITerminalSymbols.TokenNameboolean:

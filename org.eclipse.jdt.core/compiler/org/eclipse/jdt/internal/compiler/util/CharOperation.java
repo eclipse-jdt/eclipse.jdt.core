@@ -388,7 +388,7 @@ final static public char[] lastSegment(char[] array, char separator) {
 	return subarray(array, pos+1, array.length);
 }
 /**
- * char[] pattern matching, accepting wild-cards '*'.
+ * char[] pattern matching, accepting wild-cards '*' and '?'.
  *
  * When not case sensitive, the pattern is assumed to already be lowercased, the
  * name will be lowercased character per character as comparing.
@@ -406,7 +406,8 @@ public static final boolean match(char[] pattern, char[] name, boolean isCaseSen
 		if (iName == nameLength) return false;
 		if (patternChar != (isCaseSensitive 
 								? name[iName] 
-								: Character.toLowerCase(name[iName]))){
+								: Character.toLowerCase(name[iName]))
+				&& patternChar != '?'){
 			return false;
 		}
 		iName++;
@@ -430,7 +431,8 @@ public static final boolean match(char[] pattern, char[] name, boolean isCaseSen
 		/* chech current name character */
 		if ((isCaseSensitive 
 				? name[iName] 
-				: Character.toLowerCase(name[iName]))!= patternChar){
+				: Character.toLowerCase(name[iName]))!= patternChar
+					&& patternChar != '?'){
 			iPattern = segmentStart; // mismatch - restart current segment
 			iName = ++prefixStart;
 			continue checkSegment;
