@@ -19,11 +19,13 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class Javadoc extends ASTNode {
 
 	public JavadocSingleNameReference[] parameters; // @param
-	public JavadocSingleNameReference[] invalidParameters; // @param
 	public TypeReference[] thrownExceptions; // @throws, @exception
 	public JavadocReturnStatement returnStatement; // @return
 	public Expression[] references; // @see
 	public boolean inherited = false;
+	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+	// Store param references for tag with invalid syntax
+	public JavadocSingleNameReference[] invalidParameters; // @param
 
 	public Javadoc(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
@@ -218,7 +220,7 @@ public class Javadoc extends ASTNode {
 		// @throws/@exception tags
 		resolveThrowsTags(methScope, reportMissing);
 
-		// Resolve unexpected tags
+		// Resolve param tags with invalid syntax
 		int length = this.invalidParameters == null ? 0 : this.invalidParameters.length;
 		for (int i = 0; i < length; i++) {
 			this.invalidParameters[i].resolve(methScope, false);
@@ -409,7 +411,7 @@ public class Javadoc extends ASTNode {
 				}
 			}
 		}
-		// unexpected parameters array
+		// array of invalid syntax tags parameters
 		if (this.invalidParameters != null) {
 			for (int i=0; i<this.invalidParameters.length; i++) {
 				JavadocSingleNameReference param = this.invalidParameters[i];

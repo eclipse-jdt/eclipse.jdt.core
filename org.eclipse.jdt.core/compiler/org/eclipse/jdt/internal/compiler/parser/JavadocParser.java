@@ -39,7 +39,8 @@ public class JavadocParser extends AbstractCommentParser {
 	// Public fields
 	public Javadoc docComment;
 	
-	// Private fields
+	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+	// Store param references for tag with invalid syntax
 	private int invParamsPtr = -1;
 	private JavadocSingleNameReference[] invParamsStack;
 
@@ -301,6 +302,8 @@ public class JavadocParser extends AbstractCommentParser {
 			for (int i=THROWS_TAG_EXPECTED_ORDER; i<=this.astLengthPtr; i+=ORDERED_TAGS_NUMBER) {
 				if (this.astLengthStack[i] != 0) {
 					if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+					// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
+					// store param references in specific array
 					if (this.invParamsPtr == -1l) {
 						this.invParamsStack = new JavadocSingleNameReference[10];
 					}
@@ -411,7 +414,7 @@ public class JavadocParser extends AbstractCommentParser {
 			this.docComment.returnStatement = (JavadocReturnStatement) this.returnStatement;
 		}
 		
-		// Copy unexpected tags array
+		// Copy array of invalid syntax param tags
 		if (this.invParamsPtr >= 0) {
 			this.docComment.invalidParameters = new JavadocSingleNameReference[this.invParamsPtr+1];
 			System.arraycopy(this.invParamsStack, 0, this.docComment.invalidParameters, 0, this.invParamsPtr+1);
