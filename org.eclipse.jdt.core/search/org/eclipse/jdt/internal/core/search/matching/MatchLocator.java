@@ -810,7 +810,6 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet,
  * Locate the matches in the given files and report them using the search requestor. 
  */
 public void locateMatches(SearchDocument[] searchDocuments) throws CoreException {
-	long start = System.currentTimeMillis(); // debug
 	int docsLength = searchDocuments.length;
 	if (SearchEngine.VERBOSE) {
 		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
@@ -932,13 +931,6 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			this.nameEnvironment.cleanup();
 		manager.flushZipFiles();
 	}
-	// debug
-	System.out.println("Time to locate " + //$NON-NLS-1$
-			this.progressWorked+
-			" matches: " + //$NON-NLS-1$
-			(System.currentTimeMillis() - start) +
-			" ms"); //$NON-NLS-1$
-	// end debug
 }
 /**
  * Locates the package declarations corresponding to this locator's pattern. 
