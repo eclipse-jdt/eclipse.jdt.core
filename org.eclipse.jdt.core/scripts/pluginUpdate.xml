@@ -1,0 +1,40 @@
+<!-- build script to create a plugin from org.eclipse.jdt.core -->
+<project name="org.eclipse.jdt.core" default="export" basedir="..">
+	<target name="init">
+		<tstamp/>
+		<property name="destdir" value="../../plugin-update" />
+		<property name="dest"  value="${destdir}/org.eclipse.jdt.core" />
+	</target>
+
+	<target name="export" depends="init">
+
+		<echo message="TARGET: ${destdir}" />
+		<mkdir dir="${destdir}" />
+		<delete dir="${dest}" />
+		<mkdir dir="${dest}" />
+
+		<echo message="UPDATE jdtcore.jar" />
+		<jar 
+			jarfile="${dest}/jdtcore.jar"
+			basedir="bin"
+		/>
+		
+		<echo message="UPDATE plugin.xml" />
+		<copy file="plugin.xml" todir="${dest}" />
+
+		<echo message="UPDATE notice.html" />
+		<copy file="notice.html" todir="${dest}" />
+		
+		<echo message="UPDATE jdtcoresrc.zip" />
+		<zip zipfile="${dest}/jdtcoresrc.zip">
+		    <zipfileset dir="Eclipse Java Ant Compiler" />
+		    <zipfileset dir="Eclipse Java Batch Compiler" />
+		    <zipfileset dir="Eclipse Java Code Assist" />
+		    <zipfileset dir="Eclipse Java Compiler" />
+		    <zipfileset dir="Eclipse Java Core Search" />
+		    <zipfileset dir="Eclipse Java Evaluation" />
+		    <zipfileset dir="Eclipse Java Model" />
+		    <zipfileset dir="Eclipse Java Formatter" />
+  		</zip>		
+	</target>
+</project>

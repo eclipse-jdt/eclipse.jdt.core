@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 
 import java.io.*;
-import java.net.*;
+import java.net.URL;
 import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.*;
@@ -142,7 +142,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"/*nonNLS*/;
 
 	private static Hashtable DefaultOptions;
-	private final static String PropertiesBundleName = "org.eclipse.jdt.core.javacore"/*nonNLS*/;
+	private final static String PropertiesBundleName = "org.eclipse.jdt.core.JavaCore"/*nonNLS*/;
 /**
  * Creates the Java core plug-in.
  */
