@@ -182,8 +182,12 @@ protected void addAffectedChild(JavaElementDelta child) {
  * and then an add operation should call this method.
  */
 public void added(IJavaElement element) {
+	added(element, 0);
+}
+public void added(IJavaElement element, int flags) {
 	JavaElementDelta addedDelta = new JavaElementDelta(element);
 	addedDelta.added();
+	addedDelta.changeFlags |= flags;
 	insertDeltaTree(element, addedDelta);
 }
 /**
@@ -503,11 +507,15 @@ protected IJavaElementDelta[] removeAndShrinkArray(IJavaElementDelta[] old, int 
  * and then the delete operation should call this method.
  */
 public void removed(IJavaElement element) {
+	removed(element, 0);
+}
+public void removed(IJavaElement element, int flags) {
 	JavaElementDelta removedDelta= new JavaElementDelta(element);
 	insertDeltaTree(element, removedDelta);
 	JavaElementDelta actualDelta = getDeltaFor(element);
 	if (actualDelta != null) {
 		actualDelta.removed();
+		actualDelta.changeFlags |= flags;
 		actualDelta.fAffectedChildren = fgEmptyDelta;
 	}
 }

@@ -334,7 +334,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"P[*]: {CHILDREN}\n" + 
 				"	<project root>[*]: {CHILDREN}\n" + 
 				"		<default>[*]: {CHILDREN}\n" + 
-				"			[Working copy] Y.java[+]: {}"
+				"			[Working copy] Y.java[+]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
 			stopDeltas();
@@ -467,7 +467,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"P[*]: {CHILDREN}\n" + 
 				"	<project root>[*]: {CHILDREN}\n" + 
 				"		<default>[*]: {CHILDREN}\n" + 
-				"			Y.java[-]: {}"
+				"			Y.java[-]: {PRIMARY WORKING COPY}"
 			);
 		} finally {
 			stopDeltas();

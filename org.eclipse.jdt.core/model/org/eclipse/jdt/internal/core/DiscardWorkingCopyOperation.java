@@ -43,7 +43,7 @@ public class DiscardWorkingCopyOperation extends JavaModelOperation {
 				} else {
 					// report a REMOVED delta
 					JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
-					delta.removed(workingCopy);
+					delta.removed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
 					addDelta(delta);
 				}
 			}

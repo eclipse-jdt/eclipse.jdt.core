@@ -54,7 +54,7 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 			} else {
 				// report an ADDED delta
 				JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
-				delta.added(workingCopy);
+				delta.added(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
 				addDelta(delta);
 			}
 		}
