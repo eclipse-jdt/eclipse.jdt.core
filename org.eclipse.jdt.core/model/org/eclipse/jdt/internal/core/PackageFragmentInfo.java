@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * Element info for PackageFragments.
@@ -31,59 +31,6 @@ public PackageFragmentInfo() {
 	fNonJavaResources = null;
 }
 /**
- * Compute the non-java resources of this package fragment.
- *
- * <p>Package fragments which are folders recognize files based on the
- * type of the fragment
- * <p>Package fragments which are in a jar only recognize .class files (
- * @see JarPackageFragment).
- */
-private Object[] computeNonJavaResources(IResource resource, char[][] exclusionPatterns) {
-	Object[] nonJavaResources = new IResource[5];
-	int nonJavaResourcesCounter = 0;
-	try{
-		IResource[] members = ((IContainer) resource).members();
-		for (int i = 0, max = members.length; i < max; i++) {
-			IResource child = members[i];
-			if (Util.isExcluded(child, exclusionPatterns)) continue;
-			if (child.getType() == IResource.FILE) {
-				String fileName = child.getName();
-				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
-					if (nonJavaResources.length == nonJavaResourcesCounter) {
-						// resize
-						System.arraycopy(
-							nonJavaResources,
-							0,
-							(nonJavaResources = new IResource[nonJavaResourcesCounter * 2]),
-							0,
-							nonJavaResourcesCounter);
-					}
-					nonJavaResources[nonJavaResourcesCounter++] = child;
-				}
-			} else if (child.getType() == IResource.FOLDER) {
-				if (!Util.isValidFolderNameForPackage(child.getName())) {
-					if (nonJavaResources.length == nonJavaResourcesCounter) {
-						// resize
-						System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
-					}
-					nonJavaResources[nonJavaResourcesCounter++] = child;
-				}
-			}
-		}
-		if (nonJavaResourcesCounter == 0) {
-			nonJavaResources = NO_NON_JAVA_RESOURCES;
-		} else {
-			if (nonJavaResources.length != nonJavaResourcesCounter) {
-				System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter]), 0, nonJavaResourcesCounter);
-			}
-		}	
-	} catch(CoreException e) {
-		nonJavaResources = NO_NON_JAVA_RESOURCES;
-		nonJavaResourcesCounter = 0;
-	}
-	return nonJavaResources;
-}
-/**
  */
 boolean containsJavaResources() {
 	return fChildren.length != 0;
@@ -94,7 +41,14 @@ boolean containsJavaResources() {
 Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot rootHandle) {
 	Object[] nonJavaResources = fNonJavaResources;
 	if (nonJavaResources == null) {
-		nonJavaResources = computeNonJavaResources(underlyingResource, rootHandle.getExclusionPatterns());
+		try {
+			nonJavaResources = 
+				PackageFragmentRootInfo.computeFolderNonJavaResources(
+					(JavaProject)rootHandle.getJavaProject(), 
+					(IContainer)underlyingResource, 
+					rootHandle.getExclusionPatterns());
+		} catch (JavaModelException e) {
+		}
 		fNonJavaResources = nonJavaResources;
 	}
 	return nonJavaResources;

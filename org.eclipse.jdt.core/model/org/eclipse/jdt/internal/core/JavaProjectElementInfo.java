@@ -67,12 +67,14 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		IPath projectPath = project.getProject().getFullPath();
 		boolean srcIsProject = false;
 		boolean binIsProject = false;
+		char[][] exclusionPatterns = null;
 		try {
 			IClasspathEntry[] classpath = project.getExpandedClasspath(true);
 			for (int i = 0; i < classpath.length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (projectPath.equals(entry.getPath())) {
 					srcIsProject = true;
+					exclusionPatterns = ((ClasspathEntry)entry).fulExclusionPatternChars();
 					break;
 				}
 			}
@@ -89,12 +91,14 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				IResource res = members[i];
 				switch (res.getType()) {
 					case IResource.FILE :
-						// check if this file might be a jar or a zip inside the build path
+						// ignore this file if referred to on the build path
 						IPath resFullPath = res.getFullPath();
+						String resName = res.getName();
 						if (project.findPackageFragmentRoot0(resFullPath) == null) {
-							String resName = res.getName();
 							// ignore .java file if src == project
-							if (srcIsProject && Util.isValidCompilationUnitName(resName)) {
+							if (srcIsProject 
+								&& Util.isValidCompilationUnitName(resName)
+								&& !Util.isExcluded(res, exclusionPatterns)) {
 								break;
 							}
 							// ignore .class file if bin == project

@@ -74,6 +74,10 @@ public class Util {
 	public final static char[] SUFFIX_CLASS = ".CLASS".toCharArray(); //$NON-NLS-1$
 	public final static char[] SUFFIX_java = ".java".toCharArray(); //$NON-NLS-1$
 	public final static char[] SUFFIX_JAVA = ".JAVA".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_jar = ".jar".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_JAR = ".JAR".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_zip = ".zip".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_ZIP = ".ZIP".toCharArray(); //$NON-NLS-1$
 
 	static {
 		String ver = System.getProperty("java.version"); //$NON-NLS-1$
@@ -1105,6 +1109,28 @@ public static String bind(String id, String binding1, String binding2) {
 		return false;
 	}
 
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(".jar" or ".zip")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isArchiveFileName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_JAR.length;
+		if (nameLength < suffixLength) return false;
+
+		int i, offset;
+		for ( i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
+			char c = name.charAt(offset + i);
+			if (c != SUFFIX_jar[i] && c != SUFFIX_JAR[i]) break;
+		}
+		if (i == suffixLength) return true;		
+		for ( i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
+			char c = name.charAt(offset + i);
+			if (c != SUFFIX_zip[i] && c != SUFFIX_ZIP[i]) return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * Validate the given compilation unit name.
 	 * A compilation unit name must obey the following rules:

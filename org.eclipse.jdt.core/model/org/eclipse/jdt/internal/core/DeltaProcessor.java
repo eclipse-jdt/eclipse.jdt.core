@@ -94,6 +94,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 */
 	int currentEventType;
 	
+	/*
+	 * The exclusion patterns of the package fragment root that is being visites.	 */
+	char[][] currentExclusionPatterns;
+	
 	public HashMap externalTimeStamps = new HashMap();
 	public HashSet projectsToUpdate = new HashSet();
 	// list of root projects which namelookup caches need to be updated for dependents
@@ -898,6 +902,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 				}
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			case IJavaElement.PACKAGE_FRAGMENT:
+				if (Util.isExcluded(res, this.currentExclusionPatterns)) {
+					return -1;
+				}
 				if (res instanceof IFolder) {
 					if (Util.isValidFolderNameForPackage(res.getName())) {
 						return IJavaElement.PACKAGE_FRAGMENT;
@@ -1215,12 +1222,13 @@ private JavaModelException newInvalidElementType() {
 						delta.getFlags(),
 						IJavaElement.JAVA_MODEL, 
 						isPkgFragmentRoot);
-				char[][] exclusionPatterns = null;
 				if (isPkgFragmentRoot) {
-					exclusionPatterns = (char[][])this.exclusionPatterns.get(fullPath);
+					this.currentExclusionPatterns = (char[][])this.exclusionPatterns.get(fullPath);
+				} else {
+					this.currentExclusionPatterns = null;
 				}
 				
-				this.traverseDelta(delta, elementType, projectOfRoot, null, IGNORE, exclusionPatterns); // traverse delta
+				this.traverseDelta(delta, elementType, projectOfRoot, null, IGNORE); // traverse delta
 				translatedDeltas[i] = fCurrentDelta;
 			}
 			
@@ -1491,8 +1499,7 @@ private JavaModelException newInvalidElementType() {
 		int elementType, 
 		IJavaProject currentProject,
 		IPath currentOutput,
-		int outputTraverseMode,
-		char[][] currentExclusionPatterns) {
+		int outputTraverseMode) {
 			
 		IResource res = delta.getResource();
 		
@@ -1556,9 +1563,6 @@ private JavaModelException newInvalidElementType() {
 				// check source attachment change
 				this.checkSourceAttachmentChange(child, childRes);
 				
-				// check if resource is not excluded
-				if (Util.isExcluded(childRes, currentExclusionPatterns)) continue;
-
 				// find out whether the child is a package fragment root of the current project
 				IPath childPath = childRes.getFullPath();
 				IJavaProject projectOfRoot = (IJavaProject)this.roots.get(childPath);
@@ -1574,7 +1578,7 @@ private JavaModelException newInvalidElementType() {
 						isPkgFragmentRoot);
 						
 				if (isPkgFragmentRoot) {
-					currentExclusionPatterns = (char[][])this.exclusionPatterns.get(childPath);
+					this.currentExclusionPatterns = (char[][])this.exclusionPatterns.get(childPath);
 				}
 				
 				// filter out changes in output location
@@ -1598,7 +1602,7 @@ private JavaModelException newInvalidElementType() {
 				
 				// traverse delta for child in the same project
 				if (childType == -1
-					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject, currentOutput, outputTraverseMode, currentExclusionPatterns)) {
+					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject, currentOutput, outputTraverseMode)) {
 					try {
 						if (currentProject != null) {
 							if (!isValidParent) continue; 
@@ -1632,7 +1636,7 @@ private JavaModelException newInvalidElementType() {
 				
 				// if child is a package fragment root of another project, traverse delta too
 				if (projectOfRoot != null && !isPkgFragmentRoot) {
-					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, projectOfRoot, null, IGNORE, null); // binary output of projectOfRoot cannot be this root
+					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, projectOfRoot, null, IGNORE); // binary output of projectOfRoot cannot be this root
 					// NB: No need to check the return value as the child can only be on the classpath
 				}
 				

@@ -47,35 +47,36 @@ public PackageFragmentRootInfo() {
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-private Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder, char[][] exclusionPatterns) throws JavaModelException {
+static Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder, char[][] exclusionPatterns) throws JavaModelException {
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
 		IResource[] members = folder.members();
-		for (int i = 0, max = members.length; i < max; i++) {
+		nextResource: for (int i = 0, max = members.length; i < max; i++) {
 			IResource member = members[i];
-			if (Util.isExcluded(member, exclusionPatterns)) continue;
-			if (member.getType() == IResource.FILE) {
-				String fileName = member.getName();
-				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
+			switch (member.getType()) {
+				case IResource.FILE :
+					String fileName = member.getName();
+					if (Util.isValidCompilationUnitName(fileName) && !Util.isExcluded(member, exclusionPatterns)) 
+						continue nextResource;
+					if (Util.isValidClassFileName(fileName)) 
+						continue nextResource;
 					// check case of a .zip or .jar file on classpath
-					if (project.findPackageFragmentRoot0(member.getFullPath()) == null) {
-						if (nonJavaResources.length == nonJavaResourcesCounter) {
-							// resize
-							System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
-						}
-						nonJavaResources[nonJavaResourcesCounter++] = member;
-					}
-				}
-			} else if (member.getType() == IResource.FOLDER) {
-				if (!Util.isValidFolderNameForPackage(member.getName())) {
-					if (nonJavaResources.length == nonJavaResourcesCounter) {
-						// resize
-						System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
-					}
-					nonJavaResources[nonJavaResourcesCounter++] = member;
-				}
+					if (Util.isArchiveFileName(fileName) && project.findPackageFragmentRoot0(member.getFullPath()) != null) 
+						continue nextResource;
+					break;
+
+				case IResource.FOLDER :
+					if (Util.isValidFolderNameForPackage(member.getName()) && !Util.isExcluded(member, exclusionPatterns)) 
+						continue nextResource;
+					break;
 			}
+			if (nonJavaResources.length == nonJavaResourcesCounter) {
+				// resize
+				System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
+			}
+			nonJavaResources[nonJavaResourcesCounter++] = member;
+
 		}
 		if (nonJavaResources.length != nonJavaResourcesCounter) {
 			System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter]), 0, nonJavaResourcesCounter);
