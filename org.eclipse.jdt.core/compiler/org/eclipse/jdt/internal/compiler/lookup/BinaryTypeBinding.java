@@ -258,18 +258,21 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 			this.fields = new FieldBinding[size];
 			boolean checkGenericSignatures = sourceLevel >= ClassFileConstants.JDK1_5;
 			for (int i = 0; i < size; i++) {
-				IBinaryField field = iFields[i];
-				char[] fieldSignature = checkGenericSignatures ? field.getGenericSignature() : null;
+				IBinaryField binaryField = iFields[i];
+				char[] fieldSignature = checkGenericSignatures ? binaryField.getGenericSignature() : null;
 				TypeBinding type = fieldSignature == null
-					? environment.getTypeFromSignature(field.getTypeName(), 0, -1, false, this)
+					? environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this)
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
-				this.fields[i] =
+				FieldBinding field =
 					new FieldBinding(
-						field.getName(),
+						binaryField.getName(),
 						type,
-						field.getModifiers() | AccUnresolved,
+						binaryField.getModifiers() | AccUnresolved,
 						this,
-						field.getConstant());
+						binaryField.getConstant());
+				field.id = i; // ordinal
+				this.fields[i] = field;
+
 			}
 		}
 	}
