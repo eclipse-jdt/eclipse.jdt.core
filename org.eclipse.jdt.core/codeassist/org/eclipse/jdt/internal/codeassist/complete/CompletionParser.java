@@ -620,6 +620,48 @@ protected void consumeConstructorHeaderName() {
 	this.restartRecovery = true;
 }
 
+protected void consumeEnterVariable() {
+	identifierPtr--;
+	identifierLengthPtr--;
+
+	boolean isLocalDeclaration = nestedMethod[nestedType] != 0;
+	int variableIndex = variablesCounter[nestedType];
+	int extendedDimension = intStack[intPtr + 1];
+	
+	if(isLocalDeclaration || indexOfAssistIdentifier() < 0 || variableIndex != 0 || extendedDimension != 0) {
+		identifierPtr++;
+		identifierLengthPtr++;
+		super.consumeEnterVariable();
+	} else {
+		restartRecovery = true;
+		
+		// recovery
+		if (currentElement != null) {
+			int nameSourceStart = (int)(identifierPositionStack[identifierPtr] >>> 32);
+			intPtr--;
+			
+			TypeReference type = getTypeReference(intStack[intPtr--]);
+			intPtr--;
+			
+			if (!(currentElement instanceof RecoveredType)
+				&& (currentToken == TokenNameDOT
+					|| (scanner.getLineNumber(type.sourceStart)
+							!= scanner.getLineNumber(nameSourceStart)))){
+				lastCheckPoint = nameSourceStart;
+				restartRecovery = true;
+				return;
+			}
+			
+			FieldDeclaration completionFieldDecl = new CompletionOnFieldType(type, false);
+			completionFieldDecl.modifiers = intStack[intPtr--];
+			assistNode = completionFieldDecl;
+			lastCheckPoint = type.sourceEnd + 1;
+			currentElement = currentElement.add(completionFieldDecl, 0);
+			lastIgnoredToken = -1;
+		}
+	}
+}
+
 protected void consumeExitVariableWithInitialization() {
 	super.consumeExitVariableWithInitialization();
 	
