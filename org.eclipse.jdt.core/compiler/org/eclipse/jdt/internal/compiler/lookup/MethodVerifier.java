@@ -69,27 +69,6 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 		}
 	}
 }
-private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
-	ReferenceBinding superType = this.type.superclass();
-	char[] selector = abstractMethod.selector;
-	do {
-		if (!superType.isValidBinding()) return;
-		if (!superType.isAbstract()) return; // closer non abstract super type will be flagged instead
-
-		MethodBinding[] methods = superType.getMethods(selector);
-		nextMethod : for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
-			if (method.returnType != abstractMethod.returnType || !method.areParametersEqual(abstractMethod))
-				continue nextMethod;
-			if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
-				continue nextMethod;
-			if (superType.fPackage == abstractMethod.declaringClass.fPackage) return; // found concrete implementation of abstract method in same package
-		}
-	} while ((superType = superType.superclass()) != abstractMethod.declaringClass);
-
-	// non visible abstract methods cannot be overridden so the type must be defined abstract
-	this.problemReporter().abstractMethodCannotBeOverridden(this.type, abstractMethod);
-}
 /*
 "8.4.4"
 Verify that newExceptions are all included in inheritedExceptions.
@@ -231,6 +210,27 @@ private void checkMethods() {
 			}
 		}
 	}
+}
+private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
+	ReferenceBinding superType = this.type.superclass();
+	char[] selector = abstractMethod.selector;
+	do {
+		if (!superType.isValidBinding()) return;
+		if (!superType.isAbstract()) return; // closer non abstract super type will be flagged instead
+
+		MethodBinding[] methods = superType.getMethods(selector);
+		nextMethod : for (int m = methods.length; --m >= 0;) {
+			MethodBinding method = methods[m];
+			if (method.returnType != abstractMethod.returnType || !method.areParametersEqual(abstractMethod))
+				continue nextMethod;
+			if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
+				continue nextMethod;
+			if (superType.fPackage == abstractMethod.declaringClass.fPackage) return; // found concrete implementation of abstract method in same package
+		}
+	} while ((superType = superType.superclass()) != abstractMethod.declaringClass);
+
+	// non visible abstract methods cannot be overridden so the type must be defined abstract
+	this.problemReporter().abstractMethodCannotBeOverridden(this.type, abstractMethod);
 }
 /*
 Binding creation is responsible for reporting:
