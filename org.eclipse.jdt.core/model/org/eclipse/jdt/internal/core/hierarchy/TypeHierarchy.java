@@ -1058,7 +1058,7 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		fProgressMonitor = null;
 		if (DEBUG) {
-			System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms [" + Thread.currentThread() + "]");
+			System.out.println("CREATED TYPE HIERARCHY in " + (System.currentTimeMillis() - start) + "ms [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			System.out.println(this.toString());
 		}
 	} catch (JavaModelException e) {
