@@ -51,9 +51,17 @@ protected boolean computeChildren(OpenableElementInfo info) {
 	}
 	int max = resNames.length;
 	Object[] res = new Object[max];
+	int index = 0;
 	for (int i = 0; i < max; i++) {
-		res[i] = new JarEntryFile(resNames[i], zipName);
+		String resName = resNames[i];
+		// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
+		if (!resName.toLowerCase().endsWith(".java")) { //$NON-NLS-1$
+			res[index++] = new JarEntryFile(resName, zipName);
+		}
 	} 
+	if (index != max) {
+		System.arraycopy(res, 0, res = new Object[index], 0, index);
+	}
 	info.setNonJavaResources(res);
 }
 /**
