@@ -64,7 +64,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 						typeParts[length - 1] = typeParts[length - 1].substring(0, indexOfArrayBrace);
 						String[] typeSubstrings = new String[length];
 						for (int j = 0; j < length; j++) {
-							typeSubstrings[j] = new String(typeParts[j]);
+							typeSubstrings[j] = typeParts[j];
 						}
 						singleVariableDeclaration.setType(ast.newArrayType(ast.newSimpleType(ast.newName(typeSubstrings)), dimensions));
 					} else {
@@ -126,7 +126,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				return null;
 			}
 			if (token == TerminalTokens.TokenNameIdentifier) {
-				return ast.newSimpleType(ast.newSimpleName(new String(typeSource)));
+				return ast.newSimpleType(ast.newSimpleName(typeSource));
 			} else {
 				switch(token) {
 					case TerminalTokens.TokenNameint :
@@ -275,7 +275,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			MethodDeclaration methodDeclaration = ast.newMethodDeclaration();
 			methodDeclaration.setConstructor(false);
 			methodDeclaration.setModifiers(this.modifiers);
-			methodDeclaration.setName(ast.newSimpleName(new String(this.name)));
+			methodDeclaration.setName(ast.newSimpleName(this.name));
 			methodDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));
 			// set parameter names and types
 			if (this.parametersNames != null) {
@@ -338,7 +338,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			MethodDeclaration methodDeclaration = ast.newMethodDeclaration();
 			methodDeclaration.setConstructor(true);
 			methodDeclaration.setModifiers(this.modifiers);
-			methodDeclaration.setName(ast.newSimpleName(new String(this.name)));
+			methodDeclaration.setName(ast.newSimpleName(this.name));
 			methodDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(this.sourceStart));
 			// set parameter names and types
 			if (this.parametersNames != null) {
@@ -382,7 +382,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		
 		ASTNode convert() {
 			VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
-			variableDeclarationFragment.setName(ast.newSimpleName(new String(this.name)));
+			variableDeclarationFragment.setName(ast.newSimpleName(this.name));
 			FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
 
 			String currentFieldType = this.type;
@@ -553,7 +553,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 
 		ASTNode convert() {
 			VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
-			variableDeclarationFragment.setName(ast.newSimpleName(new String(this.innerFields[0].name)));
+			variableDeclarationFragment.setName(ast.newSimpleName(this.innerFields[0].name));
 			FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
 
 			for (int j = 1, max2 = this.innerFields.length; j < max2; j++) {

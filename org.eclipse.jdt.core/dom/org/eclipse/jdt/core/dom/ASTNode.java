@@ -1496,7 +1496,7 @@ public abstract class ASTNode {
 			buffer.append(standardToString());
 		}
 		// convert to a string, but lose the extra space in the string buffer by copying
-		return new String(buffer.toString());
+		return buffer.toString();
 	}
 	
 	/**

@@ -55,7 +55,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public String getResult() {
 		// convert to a string, but lose any extra space in the string buffer by copying
-		return new String(buffer.toString());
+		return buffer.toString();
 	}
 	
 	/**

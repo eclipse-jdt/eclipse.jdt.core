@@ -283,16 +283,11 @@ public void setComment(String comment) {
 	fragment();
 	setHasComment(comment != null);
 	/* see 1FVIJAH */
-	if (comment != null) {
-		String commentString = new String(comment);
-		if (commentString.indexOf("@deprecated") >= 0) { //$NON-NLS-1$
-			fFlags= fFlags | IConstants.AccDeprecated;
-			return;
-		}
-
+	if (comment != null && comment.indexOf("@deprecated") >= 0) { //$NON-NLS-1$
+		fFlags= fFlags | IConstants.AccDeprecated;
+		return;
 	}
 	fFlags= fFlags & (~IConstants.AccDeprecated);
-
 }
 /**
  * @see IDOMMember#setFlags(int)

@@ -1319,7 +1319,7 @@ public void illegalStaticModifierForMemberType(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {new String(new String(fieldDecl.name))};
+	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(
 		IProblem.IllegalVisibilityModifierCombinationForField,
 		arguments,
@@ -1552,7 +1552,7 @@ public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBindi
 		// The inherited method %1 cannot hide the public abstract method in %2
 		IProblem.InheritedMethodReducesVisibility,
 		new String[] {
-			new String(concreteSignature.toString()),
+			concreteSignature.toString(),
 			new String(abstractMethods[0].declaringClass.readableName())},
 		new String[] {
 			new String(shortSignature.toString()),
