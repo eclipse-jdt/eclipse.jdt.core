@@ -173,7 +173,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(AnnotationTypeDeclaration node) {
 		return true;
@@ -191,7 +191,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
 		return true;
@@ -551,7 +551,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(EnhancedForStatement node) {
 		return true;
@@ -568,7 +568,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(EnumConstantDeclaration node) {
 		return true;
@@ -585,7 +585,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(EnumDeclaration node) {
 		return true;
@@ -808,7 +808,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(MarkerAnnotation node) {
 		return true;
@@ -844,7 +844,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(MemberValuePair node) {
 		return true;
@@ -931,7 +931,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(Modifier node) {
 		return true;
@@ -949,7 +949,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(NormalAnnotation node) {
 		return true;
@@ -1015,7 +1015,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(ParameterizedType node) {
 		return true;
@@ -1112,7 +1112,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(QualifiedType node) {
 		return true;
@@ -1178,7 +1178,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(SingleMemberAnnotation node) {
 		return true;
@@ -1457,7 +1457,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(TypeParameter node) {
 		return true;
@@ -1538,7 +1538,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public boolean visit(WildcardType node) {
 		return true;
@@ -1551,7 +1551,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(AnnotationTypeDeclaration node) {
 		// default implementation: do nothing
@@ -1564,7 +1564,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(AnnotationTypeMemberDeclaration node) {
 		// default implementation: do nothing
@@ -1835,7 +1835,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(EnhancedForStatement node) {
 		// default implementation: do nothing
@@ -1848,7 +1848,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(EnumConstantDeclaration node) {
 		// default implementation: do nothing
@@ -1861,7 +1861,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(EnumDeclaration node) {
 		// default implementation: do nothing
@@ -2024,7 +2024,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(MarkerAnnotation node) {
 		// default implementation: do nothing
@@ -2050,7 +2050,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(MemberValuePair node) {
 		// default implementation: do nothing
@@ -2113,7 +2113,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(Modifier node) {
 		// default implementation: do nothing
@@ -2126,7 +2126,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(NormalAnnotation node) {
 		// default implementation: do nothing
@@ -2175,7 +2175,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(ParameterizedType node) {
 		// default implementation: do nothing
@@ -2248,7 +2248,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(QualifiedType node) {
 		// default implementation: do nothing
@@ -2297,7 +2297,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(SingleMemberAnnotation node) {
 		// default implementation: do nothing
@@ -2504,7 +2504,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(TypeParameter node) {
 		// default implementation: do nothing
@@ -2565,7 +2565,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 * 
 	 * @param node the node to visit
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public void endVisit(WildcardType node) {
 		// default implementation: do nothing

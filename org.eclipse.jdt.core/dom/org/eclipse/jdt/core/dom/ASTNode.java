@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -647,7 +647,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>EnhancedForStatement</code>.
 	 * @see EnhancedForStatement
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int ENHANCED_FOR_STATEMENT = 70;
 
@@ -655,7 +655,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>EnumDeclaration</code>.
 	 * @see EnumDeclaration
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int ENUM_DECLARATION = 71;
 	
@@ -663,7 +663,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>EnumConstantDeclaration</code>.
 	 * @see EnumConstantDeclaration
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int ENUM_CONSTANT_DECLARATION = 72;
 	
@@ -671,7 +671,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>TypeParameter</code>.
 	 * @see TypeParameter
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int TYPE_PARAMETER = 73;
 
@@ -679,7 +679,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>ParameterizedType</code>.
 	 * @see ParameterizedType
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int PARAMETERIZED_TYPE = 74;
 
@@ -687,7 +687,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>QualifiedType</code>.
 	 * @see QualifiedType
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int QUALIFIED_TYPE = 75;
 	
@@ -695,7 +695,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>WildcardType</code>.
 	 * @see WildcardType
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int WILDCARD_TYPE = 76;
 	
@@ -703,7 +703,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>NormalAnnotation</code>.
 	 * @see NormalAnnotation
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int NORMAL_ANNOTATION = 77;
 	
@@ -711,7 +711,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>MarkerAnnotation</code>.
 	 * @see MarkerAnnotation
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int MARKER_ANNOTATION = 78;
 	
@@ -719,7 +719,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>SingleMemberAnnotation</code>.
 	 * @see SingleMemberAnnotation
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int SINGLE_MEMBER_ANNOTATION = 79;
 	
@@ -727,7 +727,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>MemberValuePair</code>.
 	 * @see MemberValuePair
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int MEMBER_VALUE_PAIR = 80;
 	
@@ -735,7 +735,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>AnnotationTypeDeclaration</code>.
 	 * @see AnnotationTypeDeclaration
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int ANNOTATION_TYPE_DECLARATION = 81;
 	
@@ -743,7 +743,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>AnnotationTypeMemberDeclaration</code>.
 	 * @see AnnotationTypeMemberDeclaration
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int ANNOTATION_TYPE_MEMBER_DECLARATION = 82;
 	
@@ -751,7 +751,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type 
 	 * <code>Modifier</code>.
 	 * @see Modifier
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final int MODIFIER = 83;
 	
@@ -1754,7 +1754,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void unsupportedIn2() {
-	  if (this.ast.apiLevel == AST.JLS2) {
+	  if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 	  	throw new UnsupportedOperationException("Operation not supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1767,7 +1767,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void supportedOnlyIn2() {
-	  if (this.ast.apiLevel != AST.JLS2) {
+	  if (this.ast.apiLevel != AST.JLS2_INTERNAL) {
 	  	throw new UnsupportedOperationException("Operation only supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}

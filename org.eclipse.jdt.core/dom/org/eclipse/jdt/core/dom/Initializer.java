@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,13 +36,12 @@ public class Initializer extends BodyDeclaration {
 	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-    // TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(Initializer.class);
 	
 	/**
 	 * The "modifiers" structural property of this node type (added in JLS3 API).
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
 		internalModifiers2PropertyFactory(Initializer.class);
@@ -66,7 +65,7 @@ public class Initializer extends BodyDeclaration {
 	 * A list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
@@ -98,7 +97,7 @@ public class Initializer extends BodyDeclaration {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2) {
+		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -140,7 +139,7 @@ public class Initializer extends BodyDeclaration {
 			if (get) {
 				return getModifiers();
 			} else {
-				setModifiers(value);
+				internalSetModifiers(value);
 				return 0;
 			}
 		}
@@ -217,8 +216,8 @@ public class Initializer extends BodyDeclaration {
 	ASTNode clone0(AST target) {
 		Initializer result = new Initializer(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.apiLevel == AST.JLS2) {
-			result.setModifiers(getModifiers());
+		if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
+			result.internalSetModifiers(getModifiers());
 		}
 		if (this.ast.apiLevel >= AST.JLS3) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
