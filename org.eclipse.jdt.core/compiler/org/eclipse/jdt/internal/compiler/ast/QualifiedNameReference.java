@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class QualifiedNameReference extends NameReference {
 	
 	public char[][] tokens;
-	public long[] sourcePositions;
+	public long[] sourcePositions;	
 	public FieldBinding[] otherBindings, otherCodegenBindings;
 	int[] otherDepths;
 	public int indexOfFirstFieldBinding;//points (into tokens) for the first token that corresponds to first FieldBinding
@@ -449,8 +449,8 @@ public class QualifiedNameReference extends NameReference {
 				}
 				break;
 			case LOCAL : // reading the first local variable
-				if (!needValue) break; // no value needed
 				lastFieldBinding = null;
+				if (!needValue) break; // no value needed
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
 				// regular local variable read
 				if (localBinding.constant != NotAConstant) {
@@ -760,11 +760,15 @@ public class QualifiedNameReference extends NameReference {
 						FieldBinding fieldBinding = (FieldBinding) binding;
 						MethodScope methodScope = scope.methodScope();
 						if (methodScope.enclosingSourceType() == fieldBinding.declaringClass
-							&& methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl
-							&& fieldBinding.id >= methodScope.fieldDeclarationIndex) {
+								&& methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl
+								&& fieldBinding.id >= methodScope.fieldDeclarationIndex) {
 							if ((!fieldBinding.isStatic() || methodScope.isStatic)
-								&& this.indexOfFirstFieldBinding == 1)
+								&& this.indexOfFirstFieldBinding == 1) {
 								scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
+								}
+						}
+						if (!fieldBinding.isStatic() && this.indexOfFirstFieldBinding == 1) {
+							scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 						}
 						bits &= ~RestrictiveFlagMASK; // clear bits
 						bits |= FIELD;

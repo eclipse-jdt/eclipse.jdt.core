@@ -124,13 +124,9 @@ class CompilationUnitResolver extends Compiler {
 					}
 					checkDeprecated = true;
 					int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
-					char[] comment = scanner.source;
 			
 					deprecated =
-						checkDeprecation(
-							commentSourceStart,
-							commentSourceEnd,
-							comment);
+						this.annotationParser.checkDeprecation(commentSourceStart, commentSourceEnd);
 					break nextComment;
 				}
 				if (deprecated) {

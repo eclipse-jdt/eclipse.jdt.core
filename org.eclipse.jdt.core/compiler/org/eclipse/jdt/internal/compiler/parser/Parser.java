@@ -81,7 +81,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int identifierLengthPtr;
 	protected int[] identifierLengthStack;
 	protected long[] identifierPositionStack;
-	//positions , dimensions , .... (what ever is int) ..... stack
+	//positions , dimensions , .... (int stacks)
 	protected int intPtr;
 	protected int[] intStack;
 	protected int endPosition; //accurate only when used ! (the start position is pushed into intStack while the end the current one)
@@ -99,9 +99,12 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected boolean diet = false; //tells the scanner to jump over some parts of the code/expressions like method bodies
 	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
 	protected int[] variablesCounter;
-	//===DATA===DATA===DATA===DATA===DATA===DATA===//
-	public static byte rhs[] = null;
 
+	// annotation
+	public AnnotationParser annotationParser;
+	public Annotation annotation;
+	
+	public static byte rhs[] = null;
 	public static char asb[] = null;
 	public static char asr[] = null;
 	public static char nasb[] = null;
@@ -165,6 +168,9 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	realBlockStack = new int[30];
 	identifierPositionStack = new long[30];
 	variablesCounter = new int[30];
+	
+	// annotation support
+	this.annotationParser = new AnnotationParser(this);	
 }
 /**
  *
@@ -869,64 +875,13 @@ public void checkAnnotation() {
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
 		if (lastComment >= 0) {
-			if (checkDeprecation(
+			if (this.annotationParser.checkDeprecation(
 					this.scanner.commentStarts[lastComment],
-					this.scanner.commentStops[lastComment] - 1, //stop is one over,
-					this.scanner.source)) {
+					this.scanner.commentStops[lastComment] - 1)) { //stop is one over,
 				checkAndSetModifiers(AccDeprecated);
 			}
 		}
 	}
-}
-protected boolean checkDeprecation(
-	int commentSourceStart,
-	int commentSourceEnd,
-	char[] comment) {
-
-	boolean deprecated = false;
-	boolean oneStar = false;
-	boolean invalidate = false;
-	for (int[] index = new int[] {commentSourceStart + 3}; index[0] < commentSourceEnd - 10;) {
-		char nextCharacter = getNextCharacter(comment, index);
-		switch(nextCharacter) {
-			case '@' :
-				if ((getNextCharacter(comment, index) == 'd')
-					&& (getNextCharacter(comment, index) == 'e')
-					&& (getNextCharacter(comment, index) == 'p')
-					&& (getNextCharacter(comment, index) == 'r')
-					&& (getNextCharacter(comment, index) == 'e')
-					&& (getNextCharacter(comment, index) == 'c')
-					&& (getNextCharacter(comment, index) == 'a')
-					&& (getNextCharacter(comment, index) == 't')
-					&& (getNextCharacter(comment, index) == 'e')
-					&& (getNextCharacter(comment, index) == 'd')) {
-					// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-					nextCharacter = getNextCharacter(comment, index);
-					deprecated = !invalidate && (Character.isWhitespace(nextCharacter) || nextCharacter == '*');
-					if (deprecated) {
-						return true;
-					}
-				}
-				break;
-			case '\n' :
-			case '\r' :
-			case '\f' :
-				oneStar = false;
-				invalidate = false;
-				break;
-			case '*' :
-				if (oneStar) {
-					invalidate = true;
-				}
-				oneStar = true;
-				break;
-			default :
-				if (!CharOperation.isWhitespace(nextCharacter)) {
-					invalidate = true;
-				}
-		}
-	}
-	return deprecated;
 }
 protected void checkNonExternalizedStringLiteral() {
 	if (scanner.wasNonExternalizedStringLiteral) {

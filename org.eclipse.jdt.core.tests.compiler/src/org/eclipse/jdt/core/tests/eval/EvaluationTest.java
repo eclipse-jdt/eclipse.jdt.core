@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.eval;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -378,9 +379,9 @@ protected void evaluateWithExpectedValue(GlobalVariable var, char[] displayStrin
  * Evaluates the given code snippet and makes sure an evaluation result has at least the given warning,
  * and that another evaluation result has the given display string.
  */
-protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnippet, final IProblem expected, final char[] displayString) {
+protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnippet, final IProblem[] expected, final char[] displayString) {
 	class ResultRequestor extends Requestor {
-		boolean gotProblem = false;
+		ArrayList collectedProblems = new ArrayList();
 		boolean gotDisplayString = false;
 		public void acceptResult(EvaluationResult result) {
 			assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
@@ -393,9 +394,7 @@ protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnip
 				assertTrue("Has problem", result.hasProblems());
 				IProblem[] problems = result.getProblems();
 				for (int i = 0; i < problems.length; i++) {
-					if (EvaluationTest.this.equals(expected, problems[i])) {
-						gotProblem = true;
-					}
+						collectedProblems.add(problems[i]);
 				}
 			}
 		}
@@ -406,7 +405,13 @@ protected void evaluateWithExpectedWarningAndDisplayString(final char[] codeSnip
 	} catch (InstallException e) {
 		assertTrue("Target exception " + e.getMessage(), false);
 	}
-	assertTrue("Expected warning", requestor.gotProblem);
+	if (expected.length == requestor.collectedProblems.size()) {
+		for (int i = 0; i < expected.length; i++) {
+			assertTrue("Problem mismatch"+ requestor.collectedProblems.get(i), this.equals(expected[i], (IProblem)requestor.collectedProblems.get(i)));
+		}
+	} else {
+		assertTrue("Wrong problem count", false);
+	}
 	assertTrue("Expected display string", requestor.gotDisplayString);
 }
 private void failNotEquals(String message, char[] expected, char[] actual) {

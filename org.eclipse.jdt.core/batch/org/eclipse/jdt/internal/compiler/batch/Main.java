@@ -282,120 +282,120 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// decode command line arguments
 		try {
 			configure(argv);
-			if (proceed) {
-				if (showProgress)
-					out.println(Main.bind("progress.compiling")); //$NON-NLS-1$
-				for (int i = 0; i < repetitions; i++) {
-					globalProblemsCount = 0;
-					globalErrorsCount = 0;
-					globalWarningsCount = 0;
-					lineCount = 0;
-					exportedClassFilesCounter = 0;
+			if (this.proceed) {
+				if (this.showProgress)
+					this.out.println(Main.bind("progress.compiling")); //$NON-NLS-1$
+				for (int i = 0; i < this.repetitions; i++) {
+					this.globalProblemsCount = 0;
+					this.globalErrorsCount = 0;
+					this.globalWarningsCount = 0;
+					this.lineCount = 0;
+					this.exportedClassFilesCounter = 0;
 
-					if (repetitions > 1) {
-						out.flush();
-						out.println(
+					if (this.repetitions > 1) {
+						this.out.flush();
+						this.out.println(
 							Main.bind(
 								"compile.repetition", //$NON-NLS-1$
 								String.valueOf(i + 1),
-								String.valueOf(repetitions)));
+								String.valueOf(this.repetitions)));
 					} 
 					long startTime = System.currentTimeMillis();
 					// request compilation
 					performCompilation();
-					if (timer) {
+					if (this.timer) {
 
-						time = System.currentTimeMillis() - startTime;
-						if (lineCount != 0) {
-							out.println(
+						this.time = System.currentTimeMillis() - startTime;
+						if (this.lineCount != 0) {
+							this.out.println(
 								Main.bind(
 									"compile.instantTime", 	//$NON-NLS-1$
 									new String[] {
-										String.valueOf(lineCount),
-										String.valueOf(time),
-										String.valueOf(((int)(lineCount * 10000.0 / time)) / 10.0)}));
+										String.valueOf(this.lineCount),
+										String.valueOf(this.time),
+										String.valueOf(((int)(this.lineCount * 10000.0 / this.time)) / 10.0)}));
 						} else {
-							out.println(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
+							this.out.println(Main.bind("compile.totalTime", String.valueOf(this.time))); //$NON-NLS-1$
 						}
 					}
-					if (globalProblemsCount > 0) {
-						if (globalProblemsCount == 1) {
-							err.print(Main.bind("compile.oneProblem")); //$NON-NLS-1$
+					if (this.globalProblemsCount > 0) {
+						if (this.globalProblemsCount == 1) {
+							this.err.print(Main.bind("compile.oneProblem")); //$NON-NLS-1$
 						} else {
-							err.print(
-								Main.bind("compile.severalProblems", String.valueOf(globalProblemsCount))); 	//$NON-NLS-1$
+							this.err.print(
+								Main.bind("compile.severalProblems", String.valueOf(this.globalProblemsCount))); 	//$NON-NLS-1$
 						}
-						err.print(" ("); //$NON-NLS-1$
-						if (globalErrorsCount > 0) {
-							if (globalErrorsCount == 1) {
-								err.print(Main.bind("compile.oneError")); //$NON-NLS-1$
+						this.err.print(" ("); //$NON-NLS-1$
+						if (this.globalErrorsCount > 0) {
+							if (this.globalErrorsCount == 1) {
+								this.err.print(Main.bind("compile.oneError")); //$NON-NLS-1$
 							} else {
-								err.print(
-									Main.bind("compile.severalErrors", String.valueOf(globalErrorsCount))); 	//$NON-NLS-1$
+								this.err.print(
+									Main.bind("compile.severalErrors", String.valueOf(this.globalErrorsCount))); 	//$NON-NLS-1$
 							}
 						}
-						if (globalWarningsCount > 0) {
-							if (globalErrorsCount > 0) {
-								err.print(", "); //$NON-NLS-1$
+						if (this.globalWarningsCount > 0) {
+							if (this.globalErrorsCount > 0) {
+								this.err.print(", "); //$NON-NLS-1$
 							}
-							if (globalWarningsCount == 1) {
-								err.print(Main.bind("compile.oneWarning")); //$NON-NLS-1$
+							if (this.globalWarningsCount == 1) {
+								this.err.print(Main.bind("compile.oneWarning")); //$NON-NLS-1$
 							} else {
-								err.print(
-									Main.bind("compile.severalWarnings", String.valueOf(globalWarningsCount))); 	//$NON-NLS-1$
+								this.err.print(
+									Main.bind("compile.severalWarnings", String.valueOf(this.globalWarningsCount))); 	//$NON-NLS-1$
 							}
 						}
-						err.println(")"); //$NON-NLS-1$
+						this.err.println(")"); //$NON-NLS-1$
 					}
-					if (exportedClassFilesCounter != 0
+					if (this.exportedClassFilesCounter != 0
 						&& (this.showProgress || this.timer || this.verbose)) {
-						if (exportedClassFilesCounter == 1) {
-							out.println(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
+						if (this.exportedClassFilesCounter == 1) {
+							this.out.println(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
 						} else {
-							out.println(
+							this.out.println(
 								Main.bind(
 									"compile.severalClassFilesGenerated", //$NON-NLS-1$
-									String.valueOf(exportedClassFilesCounter)));
+									String.valueOf(this.exportedClassFilesCounter)));
 						}
 					}
 				}
-				if (showProgress)
-					out.println();
+				if (this.showProgress)
+					this.out.println();
 			}
-			if (systemExitWhenFinished) {
-				out.flush();
-				err.flush();
-				System.exit(globalErrorsCount > 0 ? -1 : 0);
+			if (this.systemExitWhenFinished) {
+				this.out.flush();
+				this.err.flush();
+				System.exit(this.globalErrorsCount > 0 ? -1 : 0);
 			}
 		} catch (InvalidInputException e) {
-			err.println(e.getMessage());
-			err.println("------------------------"); //$NON-NLS-1$
+			this.err.println(e.getMessage());
+			this.err.println("------------------------"); //$NON-NLS-1$
 			printUsage();
-			if (systemExitWhenFinished) {
+			if (this.systemExitWhenFinished) {
 				System.exit(-1);
 			}
 			return false;
 		} catch (ThreadDeath e) { // do not stop this one
 			throw e;
 		} catch (Throwable e) { // internal compiler error
-			if (systemExitWhenFinished) {
-				out.flush();
-				err.flush();
+			if (this.systemExitWhenFinished) {
+				this.out.flush();
+				this.err.flush();
 				if (this.log != null) {
-					err.close();
+					this.err.close();
 				}
 				System.exit(-1);
 			}
 			return false;
 			//e.printStackTrace();
 		} finally {
-			out.flush();
-			err.flush();
+			this.out.flush();
+			this.err.flush();
 			if (this.log != null) {
-				err.close();
+				this.err.close();
 			}
 		}
-		if (globalErrorsCount == 0){
+		if (this.globalErrorsCount == 0){
 			return true;
 		} else {
 			return false;
@@ -426,7 +426,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		int bootclasspathCount = 0;
 		int index = -1, filesCount = 0, argCount = argv.length;
 		int mode = Default;
-		repetitions = 0;
+		this.repetitions = 0;
 		boolean printUsageRequired = false;
 		boolean printVersionRequired = false;
 		
@@ -515,39 +515,39 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 
 			if (currentArg.endsWith(SUFFIX_STRING_java)) {
-				if (filenames == null) {
-					filenames = new String[argCount - index];
-					encodings = new String[argCount - index];
-				} else if (filesCount == filenames.length) {
-					int length = filenames.length;
+				if (this.filenames == null) {
+					this.filenames = new String[argCount - index];
+					this.encodings = new String[argCount - index];
+				} else if (filesCount == this.filenames.length) {
+					int length = this.filenames.length;
 					System.arraycopy(
-						filenames,
+						this.filenames,
 						0,
-						(filenames = new String[length + argCount - index]),
+						(this.filenames = new String[length + argCount - index]),
 						0,
 						length);
 					System.arraycopy(
-						encodings,
+						this.encodings,
 						0,
-						(encodings = new String[length + argCount - index]),
+						(this.encodings = new String[length + argCount - index]),
 						0,
 						length);
 				}
-				filenames[filesCount] = currentArg;
-				encodings[filesCount++] = customEncoding;
+				this.filenames[filesCount] = currentArg;
+				this.encodings[filesCount++] = customEncoding;
 				customEncoding = null;
 				mode = Default;
 				continue;
 			}
 			if (currentArg.equals("-log")) { //$NON-NLS-1$
-				if (log != null)
+				if (this.log != null)
 					throw new InvalidInputException(
 						Main.bind("configure.duplicateLog", currentArg)); //$NON-NLS-1$
 				mode = InsideLog;
 				continue;
 			}
 			if (currentArg.equals("-repeat")) { //$NON-NLS-1$
-				if (repetitions > 0)
+				if (this.repetitions > 0)
 					throw new InvalidInputException(
 						Main.bind("configure.duplicateRepeat", currentArg)); //$NON-NLS-1$
 				mode = InsideRepetition;
@@ -567,7 +567,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						Main.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
 				}
 				didSpecifyCompliance = true;
-				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+				this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
 				mode = Default;
 				continue;
 			}
@@ -577,22 +577,22 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
 				}
 				didSpecifyCompliance = true;
-				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+				this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 				mode = Default;
 				continue;
 			}
 			if (currentArg.equals("-d")) { //$NON-NLS-1$
-				if (destinationPath != null)
+				if (this.destinationPath != null)
 					throw new InvalidInputException(
 						Main.bind("configure.duplicateOutputPath", currentArg)); //$NON-NLS-1$
 				mode = InsideDestinationPath;
-				generatePackagesStructure = true;
+				this.generatePackagesStructure = true;
 				continue;
 			}
 			if (currentArg.equals("-classpath") //$NON-NLS-1$
 				|| currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
 				if (pathCount == 0) {
-					classpaths = new String[DEFAULT_SIZE_CLASSPATH];
+					this.classpaths = new String[DEFAULT_SIZE_CLASSPATH];
 				}
 				mode = InsideClasspath;
 				continue;
@@ -607,23 +607,23 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (currentArg.equals("-progress")) { //$NON-NLS-1$
 				mode = Default;
-				showProgress = true;
+				this.showProgress = true;
 				continue;
 			}
 			if (currentArg.equals("-proceedOnError")) { //$NON-NLS-1$
 				mode = Default;
-				proceedOnError = true;
+				this.proceedOnError = true;
 				continue;
 			}
 			if (currentArg.equals("-time")) { //$NON-NLS-1$
 				mode = Default;
-				timer = true;
+				this.timer = true;
 				continue;
 			}
 			if (currentArg.equals("-version") //$NON-NLS-1$
-				|| currentArg.equals("-v")) { //$NON-NLS-1$
+					|| currentArg.equals("-v")) { //$NON-NLS-1$
 				printVersion();
-				proceed = false;
+				this.proceed = false;
 				return;
 			}
 			if (currentArg.equals("-showversion")) { //$NON-NLS-1$
@@ -632,7 +632,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}			
 			if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
 				didSpecifyDeprecation = true;
-				options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+				this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 				continue;
 			}
 			if (currentArg.equals("-help") || currentArg.equals("-?")) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -641,24 +641,24 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (currentArg.equals("-noImportError")) { //$NON-NLS-1$
 				mode = Default;
-				options.put(
+				this.options.put(
 					CompilerOptions.OPTION_ReportInvalidImport,
 					CompilerOptions.WARNING);
 				continue;
 			}
 			if (currentArg.equals("-noExit")) { //$NON-NLS-1$
 				mode = Default;
-				systemExitWhenFinished = false;
+				this.systemExitWhenFinished = false;
 				continue;
 			}
 			if (currentArg.equals("-verbose")) { //$NON-NLS-1$
 				mode = Default;
-				verbose = true;
+				this.verbose = true;
 				continue;
 			}
 			if (currentArg.equals("-referenceInfo")) { //$NON-NLS-1$
 				mode = Default;
-				produceRefInfo = true;
+				this.produceRefInfo = true;
 				continue;
 			}
 			if (currentArg.startsWith("-g")) { //$NON-NLS-1$
@@ -666,25 +666,25 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				String debugOption = currentArg;
 				int length = currentArg.length();
 				if (length == 2) {
-					options.put(
+					this.options.put(
 						CompilerOptions.OPTION_LocalVariableAttribute,
 						CompilerOptions.GENERATE);
-					options.put(
+					this.options.put(
 						CompilerOptions.OPTION_LineNumberAttribute,
 						CompilerOptions.GENERATE);
-					options.put(
+					this.options.put(
 						CompilerOptions.OPTION_SourceFileAttribute,
 						CompilerOptions.GENERATE);
 					continue;
 				}
 				if (length > 3) {
-					options.put(
+					this.options.put(
 						CompilerOptions.OPTION_LocalVariableAttribute,
 						CompilerOptions.DO_NOT_GENERATE);
-					options.put(
+					this.options.put(
 						CompilerOptions.OPTION_LineNumberAttribute,
 						CompilerOptions.DO_NOT_GENERATE);
-					options.put(
+					this.options.put(
 						CompilerOptions.OPTION_SourceFileAttribute,
 						CompilerOptions.DO_NOT_GENERATE);
 					if (length == 7 && debugOption.equals("-g:none")) //$NON-NLS-1$
@@ -694,15 +694,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					while (tokenizer.hasMoreTokens()) {
 						String token = tokenizer.nextToken();
 						if (token.equals("vars")) { //$NON-NLS-1$
-							options.put(
+							this.options.put(
 								CompilerOptions.OPTION_LocalVariableAttribute,
 								CompilerOptions.GENERATE);
 						} else if (token.equals("lines")) { //$NON-NLS-1$
-							options.put(
+							this.options.put(
 								CompilerOptions.OPTION_LineNumberAttribute,
 								CompilerOptions.GENERATE);
 						} else if (token.equals("source")) { //$NON-NLS-1$
-							options.put(
+							this.options.put(
 								CompilerOptions.OPTION_SourceFileAttribute,
 								CompilerOptions.GENERATE);
 						} else {
@@ -737,112 +737,112 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 				disableWarnings();
 				if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
-					options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+					this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 				}
 				
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
 					tokenCounter++;
 					if (token.equals("constructorName")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportMethodWithConstructorName,
 							CompilerOptions.WARNING);
 					} else if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
 							CompilerOptions.WARNING);
 					} else if (token.equals("maskedCatchBlock") || token.equals("maskedCatchBlocks")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportHiddenCatchBlock,
 							CompilerOptions.WARNING);
 					} else if (token.equals("deprecation")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportDeprecation, 
 							CompilerOptions.WARNING);
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 							CompilerOptions.DISABLED);
 					} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportDeprecation, 
 							CompilerOptions.WARNING);
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 							CompilerOptions.ENABLED);
 					} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedLocal, 
 							CompilerOptions.WARNING);
 					} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedParameter,
 							CompilerOptions.WARNING);
 					} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedImport,
 							CompilerOptions.WARNING);
 					} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedPrivateMember,
 							CompilerOptions.WARNING);
 					} else if (token.equals("localHiding")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportLocalVariableHiding,
 							CompilerOptions.WARNING);
 					} else if (token.equals("fieldHiding")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportFieldHiding,
 							CompilerOptions.WARNING);
 					} else if (token.equals("specialParamHiding")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportSpecialParameterHidingField,
 							CompilerOptions.ENABLED);
 					} else if (token.equals("conditionAssign")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
 							CompilerOptions.WARNING);
    					} else if (token.equals("syntheticAccess")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
 							CompilerOptions.WARNING);
 					} else if (token.equals("nls")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
 							CompilerOptions.WARNING);
 					} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
 							CompilerOptions.WARNING);
 					} else if (token.equals("indirectStatic")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportIndirectStaticAccess,
 							CompilerOptions.WARNING);
 					} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportNoEffectAssignment,
 							CompilerOptions.WARNING);
 					} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
 							CompilerOptions.WARNING);
 					} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$ //$NON-NLS-2$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportNoImplicitStringConversion,
 							CompilerOptions.WARNING);
 					} else if (token.equals("semicolon")) {//$NON-NLS-1$ 
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportSuperfluousSemicolon,
 							CompilerOptions.WARNING);
 					} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,
 							CompilerOptions.WARNING);
 					} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
 							CompilerOptions.WARNING);
 					} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportInvalidAnnotation,
 							CompilerOptions.WARNING);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
@@ -856,12 +856,24 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						if (taskTags.length() == 0){
 							throw new InvalidInputException(Main.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
 						}
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_TaskTags,
 							taskTags);
 					} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
-						options.put(
+						this.options.put(
 							CompilerOptions.OPTION_ReportAssertIdentifier,
+							CompilerOptions.WARNING);
+					} else if (token.equals("finally")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally,
+							CompilerOptions.WARNING);
+					} else if (token.equals("unusedThrown")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
+							CompilerOptions.WARNING);
+					} else if (token.equals("unqualifiedField")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
 							CompilerOptions.WARNING);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
@@ -877,7 +889,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				continue;
 			}
 			if (currentArg.equals("-preserveAllLocals")) { //$NON-NLS-1$
-				options.put(
+				this.options.put(
 					CompilerOptions.OPTION_PreserveUnusedLocal,
 					CompilerOptions.PRESERVE);
 				continue;
@@ -885,17 +897,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if (mode == TargetSetting) {
 				didSpecifyTarget = true;
 				if (currentArg.equals("1.1")) { //$NON-NLS-1$
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 				} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_Compliance)) <= ClassFileConstants.JDK1_3) {
-						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+					if (didSpecifyCompliance && CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_Compliance)) <= ClassFileConstants.JDK1_3) {
+						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 					}
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
@@ -903,14 +915,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				continue;
 			}
 			if (mode == InsideLog) {
-				log = currentArg;
+				this.log = currentArg;
 				mode = Default;
 				continue;
 			}
 			if (mode == InsideRepetition) {
 				try {
-					repetitions = Integer.parseInt(currentArg);
-					if (repetitions <= 0) {
+					this.repetitions = Integer.parseInt(currentArg);
+					if (this.repetitions <= 0) {
 						throw new InvalidInputException(Main.bind("configure.repetition", currentArg)); //$NON-NLS-1$
 					}
 				} catch (NumberFormatException e) {
@@ -921,9 +933,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (mode == InsideSource) {
 				if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.source", currentArg)); //$NON-NLS-1$
 				}
@@ -941,13 +953,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					throw new InvalidInputException(
 						Main.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
 				}
-				options.put(CompilerOptions.OPTION_Encoding, currentArg);
+				this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
 				didSpecifyDefaultEncoding = true;
 				mode = Default;
 				continue;
 			}
 			if (mode == InsideDestinationPath) {
-				destinationPath = currentArg;
+				this.destinationPath = currentArg;
 				mode = Default;
 				continue;
 			}
@@ -955,15 +967,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				StringTokenizer tokenizer = new StringTokenizer(currentArg, File.pathSeparator);
 				while (tokenizer.hasMoreTokens()) {
 					int length;
-					if ((length = classpaths.length) <= pathCount) {
+					if ((length = this.classpaths.length) <= pathCount) {
 						System.arraycopy(
-							classpaths,
+							this.classpaths,
 							0,
-							(classpaths = new String[length * 2]),
+							(this.classpaths = new String[length * 2]),
 							0,
 							length);
 					}
-					classpaths[pathCount++] = tokenizer.nextToken();
+					this.classpaths[pathCount++] = tokenizer.nextToken();
 				}
 				mode = Default;
 				continue;
@@ -996,38 +1008,38 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					Main.bind("configure.directoryNotExist", currentArg)); //$NON-NLS-1$
 			FileFinder finder = new FileFinder();
 			try {
-				finder.find(dir, SUFFIX_STRING_JAVA, verbose); //$NON-NLS-1$
+				finder.find(dir, SUFFIX_STRING_JAVA, this.verbose); //$NON-NLS-1$
 			} catch (Exception e) {
 				throw new InvalidInputException(Main.bind("configure.IOError", currentArg)); //$NON-NLS-1$
 			}
-			if (filenames != null) {
+			if (this.filenames != null) {
 				// some source files were specified explicitly
 				String results[] = finder.resultFiles;
 				int length = results.length;
 				System.arraycopy(
-					filenames,
+					this.filenames,
 					0,
-					(filenames = new String[length + filesCount]),
+					(this.filenames = new String[length + filesCount]),
 					0,
 					filesCount);
 				System.arraycopy(
-					encodings,
+					this.encodings,
 					0,
-					(encodings = new String[length + filesCount]),
+					(this.encodings = new String[length + filesCount]),
 					0,
 					filesCount);
-				System.arraycopy(results, 0, filenames, filesCount, length);
+				System.arraycopy(results, 0, this.filenames, filesCount, length);
 				for (int i = 0; i < length; i++) {
-					encodings[filesCount + i] = customEncoding;
+					this.encodings[filesCount + i] = customEncoding;
 				}
 				filesCount += length;
 				customEncoding = null;
 			} else {
-				filenames = finder.resultFiles;
-				filesCount = filenames.length;
-				encodings = new String[filesCount];
+				this.filenames = finder.resultFiles;
+				filesCount = this.filenames.length;
+				this.encodings = new String[filesCount];
 				for (int i = 0; i < filesCount; i++) {
-					encodings[i] = customEncoding;
+					this.encodings[i] = customEncoding;
 				}
 				customEncoding = null;
 			}
@@ -1036,7 +1048,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		if (printUsageRequired || filesCount == 0) {
 			printUsage();
-			proceed = false;
+			this.proceed = false;
 			return;
 		} else {
 			if (printVersionRequired) {
@@ -1046,24 +1058,24 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		if (filesCount != 0)
 			System.arraycopy(
-				filenames,
+				this.filenames,
 				0,
-				(filenames = new String[filesCount]),
+				(this.filenames = new String[filesCount]),
 				0,
 				filesCount);
 		if (pathCount == 0) {
 			// no user classpath specified.
 			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
-				err.println(Main.bind("configure.noClasspath")); //$NON-NLS-1$
+				this.err.println(Main.bind("configure.noClasspath")); //$NON-NLS-1$
 				classProp = System.getProperty("user.dir"); //$NON-NLS-1$
 			}
 			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
-			classpaths = new String[tokenizer.countTokens() + 1];
+			this.classpaths = new String[tokenizer.countTokens() + 1];
 			while (tokenizer.hasMoreTokens()) {
-				classpaths[pathCount++] = tokenizer.nextToken();
+				this.classpaths[pathCount++] = tokenizer.nextToken();
 			}
-			classpaths[pathCount++] = System.getProperty("user.dir");//$NON-NLS-1$
+			this.classpaths[pathCount++] = System.getProperty("user.dir");//$NON-NLS-1$
 		}
 		
 		if (bootclasspathCount == 0) {
@@ -1073,8 +1085,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			 */
 			 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
 			 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-				err.println(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
-				proceed = false;
+				this.err.println(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+				this.proceed = false;
 				return;
 			 } else {
 				 String javaVMName = System.getProperty("java.vm.name");//$NON-NLS-1$
@@ -1133,20 +1145,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			 }
 		}
 
-		if (classpaths == null) {
-			classpaths = new String[0];
+		if (this.classpaths == null) {
+			this.classpaths = new String[0];
 		}
 		/* 
 		 * We put the bootclasspath at the beginning of the classpath entries
 		 */
 		String[] newclasspaths = null;
-		if ((pathCount + bootclasspathCount) != classpaths.length) {
+		if ((pathCount + bootclasspathCount) != this.classpaths.length) {
 			newclasspaths = new String[pathCount + bootclasspathCount];
 		} else {
-			newclasspaths = classpaths;
+			newclasspaths = this.classpaths;
 		}
 		System.arraycopy(
-			classpaths,
+			this.classpaths,
 			0,
 			newclasspaths,
 			bootclasspathCount,
@@ -1160,70 +1172,68 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				0,
 				bootclasspathCount);
 		}
-		classpaths = newclasspaths;
-		for (int i = 0, max = classpaths.length; i < max; i++) {
-			File file = new File(classpaths[i]);
+		this.classpaths = newclasspaths;
+		for (int i = 0, max = this.classpaths.length; i < max; i++) {
+			File file = new File(this.classpaths[i]);
 			if (!file.exists()) { // signal missing classpath entry file
-				err.println(Main.bind("configure.incorrectClasspath", classpaths[i])); //$NON-NLS-1$
-			} /* else {
-				out.println(classpaths[i]);
-			}*/
+				this.err.println(Main.bind("configure.incorrectClasspath", this.classpaths[i])); //$NON-NLS-1$
+			}
 		}
-		if (destinationPath == null) {
-			generatePackagesStructure = false;
-		} else if ("none".equals(destinationPath)) { //$NON-NLS-1$
-			destinationPath = null;
+		if (this.destinationPath == null) {
+			this.generatePackagesStructure = false;
+		} else if ("none".equals(this.destinationPath)) { //$NON-NLS-1$
+			this.destinationPath = null;
 		}
 
 		// target must be 1.4 if source is 1.4
-		if (CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
-				&& CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4
+		if (CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
+				&& CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4
 				&& didSpecifyTarget){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
+				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource14", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 		}
 
 		// target cannot be 1.4 if compliance is 1.3
-		if (CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
-				&& CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_TargetPlatform)) >= ClassFileConstants.JDK1_4
+		if (CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
+				&& CompilerOptions.versionToJdkLevel((String)this.options.get(CompilerOptions.OPTION_TargetPlatform)) >= ClassFileConstants.JDK1_4
 				&& didSpecifyTarget){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 		}
 		
 		// check and set compliance/source/target compatibilities
-		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
-			if (!didSpecifyCompliance) options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-			if (!didSpecifyTarget) options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		} else if (options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)
-			  		&& options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_1)) {
+		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)){
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+			if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+		} else if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)
+			  		&& this.options.get(CompilerOptions.OPTION_TargetPlatform).equals(CompilerOptions.VERSION_1_1)) {
 			  	if (didSpecifyTarget) {
-					throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget11", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+					throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget11", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 			  	} else {
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 			  	}
 		}
 		// compliance must be 1.4 if source is 1.4
-		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
-				&& !options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
+				&& !this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)){ 
+				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource14", (String)this.options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
 		}
 
-		if (log != null) {
+		if (this.log != null) {
 			try {
-				err = new PrintWriter(new FileOutputStream(log, false));
+				this.err = new PrintWriter(new FileOutputStream(this.log, false));
 			} catch (IOException e) {
 				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
 			}
 		} else {
-			showProgress = false;
+			this.showProgress = false;
 		}
 
-		if (repetitions == 0) {
-			repetitions = 1;
+		if (this.repetitions == 0) {
+			this.repetitions = 1;
 		}
 	}
 
 	private void disableWarnings() {
-		Object[] entries = options.entrySet().toArray();
+		Object[] entries = this.options.entrySet().toArray();
 		for (int i = 0, max = entries.length; i < max; i++) {
 			Map.Entry entry = (Map.Entry) entries[i];
 			if (!(entry.getKey() instanceof String))
@@ -1231,10 +1241,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if (!(entry.getValue() instanceof String))
 				continue;
 			if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-				options.put(entry.getKey(), CompilerOptions.IGNORE);
+				this.options.put(entry.getKey(), CompilerOptions.IGNORE);
 			}
 		}
-		options.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
+		this.options.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 	}
 
 	public String extractDestinationPathFromSourceFile(CompilationResult result) {
@@ -1258,12 +1268,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			public void acceptResult(CompilationResult compilationResult) {
 				if (compilationResult.lineSeparatorPositions != null) {
 					int unitLineCount = compilationResult.lineSeparatorPositions.length;
-					lineCount += unitLineCount;
-					lineDelta += unitLineCount;
-					if (showProgress
-						&& lineDelta > 2000) { // in -log mode, dump a dot every 2000 lines compiled
-						out.print('.');
-						lineDelta = 0;
+					Main.this.lineCount += unitLineCount;
+					this.lineDelta += unitLineCount;
+					if (Main.this.showProgress
+						&& this.lineDelta > 2000) { // in -log mode, dump a dot every 2000 lines compiled
+						Main.this.out.print('.');
+						this.lineDelta = 0;
 					}
 				}
 				if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
@@ -1272,41 +1282,41 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					int localErrorCount = 0;
 					for (int i = 0; i < count; i++) {
 						if (problems[i] != null) {
-							globalProblemsCount++;
+							Main.this.globalProblemsCount++;
 							if (localErrorCount == 0)
-								err.println("----------"); //$NON-NLS-1$
-							err.print(
-								globalProblemsCount
+								Main.this.err.println("----------"); //$NON-NLS-1$
+							Main.this.err.print(
+								Main.this.globalProblemsCount
 									+ ". "  //$NON-NLS-1$
 									+ (problems[i].isError()
 										? Main.bind("requestor.error")  //$NON-NLS-1$
 										: Main.bind("requestor.warning")));  //$NON-NLS-1$
 							if (problems[i].isError()) {
-								globalErrorsCount++;
+								Main.this.globalErrorsCount++;
 							} else {
-								globalWarningsCount++;
+								Main.this.globalWarningsCount++;
 							}
-							err.print(" "); //$NON-NLS-1$
-							err.print(
+							Main.this.err.print(" "); //$NON-NLS-1$
+							Main.this.err.print(
 								Main.bind("requestor.in", new String(problems[i].getOriginatingFileName()))); //$NON-NLS-1$
 							try {
-								err.println(
+								Main.this.err.println(
 									((DefaultProblem) problems[i]).errorReportSource(
 										compilationResult.compilationUnit));
-								err.println(problems[i].getMessage());
+								Main.this.err.println(problems[i].getMessage());
 							} catch (Exception e) {
-								err.println(
+								Main.this.err.println(
 									Main.bind("requestor.notRetrieveErrorMessage", problems[i].toString())); //$NON-NLS-1$
 							}
-							err.println("----------"); //$NON-NLS-1$
+							Main.this.err.println("----------"); //$NON-NLS-1$
 							if (problems[i].isError())
 								localErrorCount++;
 						}
 					}
 					// exit?
-					if (systemExitWhenFinished && !proceedOnError && (localErrorCount > 0)) {
-						err.flush();
-						out.flush();
+					if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
+						Main.this.err.flush();
+						Main.this.out.flush();
 						System.exit(-1);
 					}
 				}
@@ -1319,28 +1329,28 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	 */
 	public CompilationUnit[] getCompilationUnits()
 		throws InvalidInputException {
-		int fileCount = filenames.length;
+		int fileCount = this.filenames.length;
 		CompilationUnit[] units = new CompilationUnit[fileCount];
 		HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
 
-		String defaultEncoding = (String) options.get(CompilerOptions.OPTION_Encoding);
+		String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(defaultEncoding)) //$NON-NLS-1$
 			defaultEncoding = null; //$NON-NLS-1$
 
 		for (int i = 0; i < fileCount; i++) {
-			char[] charName = filenames[i].toCharArray();
+			char[] charName = this.filenames[i].toCharArray();
 			if (knownFileNames.get(charName) != null) {
-				throw new InvalidInputException(Main.bind("unit.more", filenames[i])); //$NON-NLS-1$
+				throw new InvalidInputException(Main.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
 			} else {
 				knownFileNames.put(charName, charName);
 			}
-			File file = new File(filenames[i]);
+			File file = new File(this.filenames[i]);
 			if (!file.exists())
-				throw new InvalidInputException(Main.bind("unit.missing", filenames[i])); //$NON-NLS-1$
-			String encoding = encodings[i];
+				throw new InvalidInputException(Main.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
+			String encoding = this.encodings[i];
 			if (encoding == null)
 				encoding = defaultEncoding;
-			units[i] = new CompilationUnit(null, filenames[i], encoding);
+			units[i] = new CompilationUnit(null, this.filenames[i], encoding);
 		}
 		return units;
 	}
@@ -1363,7 +1373,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)	
 		return new IErrorHandlingPolicy() {
 			public boolean proceedOnErrors() {
-				return proceedOnError; // stop if there are some errors 
+				return Main.this.proceedOnError; // stop if there are some errors 
 			}
 			public boolean stopOnFirstError() {
 				return false;
@@ -1375,10 +1385,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	 */
 	public FileSystem getLibraryAccess() {
 
-		String defaultEncoding = (String) options.get(CompilerOptions.OPTION_Encoding);
+		String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(defaultEncoding)) //$NON-NLS-1$
 			defaultEncoding = null; //$NON-NLS-1$	
-		return new FileSystem(classpaths, filenames, defaultEncoding);
+		return new FileSystem(this.classpaths, this.filenames, defaultEncoding);
 	}
 	public Map getOptions() {
 		return this.options;
@@ -1393,7 +1403,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public void outputClassFiles(CompilationResult unitResult) {
 
-		if (!((unitResult == null) || (unitResult.hasErrors() && !proceedOnError))) {
+		if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
 			Enumeration classFiles = unitResult.compiledTypes.elements();
 			if (!this.generatePackagesStructure) {
 				while (classFiles.hasMoreElements()) {
@@ -1408,18 +1418,18 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					CharOperation.replace(relativeName, '/', File.separatorChar);
 					try {
 						ClassFile.writeToDisk(
-							generatePackagesStructure,
-							destinationPath,
+							this.generatePackagesStructure,
+							this.destinationPath,
 							new String(relativeName),
 							classFile.getBytes());
 					} catch (IOException e) {
-						String fileName = destinationPath + new String(relativeName);
+						String fileName = this.destinationPath + new String(relativeName);
 						e.printStackTrace();
-						err.println(Main.bind("output.noClassFileCreated", fileName));  //$NON-NLS-1$
+						this.err.println(Main.bind("output.noClassFileCreated", fileName));  //$NON-NLS-1$
 					}
-					exportedClassFilesCounter++;
+					this.exportedClassFilesCounter++;
 				}
-			} else if (destinationPath != null) {
+			} else if (this.destinationPath != null) {
 				while (classFiles.hasMoreElements()) {
 					// retrieve the key and the corresponding classfile
 					ClassFile classFile = (ClassFile) classFiles.nextElement();
@@ -1431,16 +1441,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					CharOperation.replace(relativeName, '/', File.separatorChar);
 					try {
 						ClassFile.writeToDisk(
-							generatePackagesStructure,
-							destinationPath,
+							this.generatePackagesStructure,
+							this.destinationPath,
 							new String(relativeName),
 							classFile.getBytes());
 					} catch (IOException e) {
-						String fileName = destinationPath + new String(relativeName);
+						String fileName = this.destinationPath + new String(relativeName);
 						e.printStackTrace();
-						err.println(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+						this.err.println(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
 					}
-					exportedClassFilesCounter++;
+					this.exportedClassFilesCounter++;
 				}
 			}
 		}
@@ -1461,21 +1471,21 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		CompilerOptions compilerOptions = batchCompiler.options;
 
 		// set the non-externally configurable options.
-		compilerOptions.setVerboseMode(verbose);
-		compilerOptions.produceReferenceInfo(produceRefInfo);
+		compilerOptions.setVerboseMode(this.verbose);
+		compilerOptions.produceReferenceInfo(this.produceRefInfo);
 		batchCompiler.compile(getCompilationUnits());
 
 		// cleanup
 		environment.cleanup();
 	}
 	public void printUsage() {
-		out.println(Main.bind("misc.usage"));  //$NON-NLS-1$
-		out.flush();
-		err.flush();
+		this.out.println(Main.bind("misc.usage"));  //$NON-NLS-1$
+		this.out.flush();
+		this.err.flush();
 	}
 	public void printVersion() {
-		out.println(Main.bind("misc.version"));  //$NON-NLS-1$
-		out.flush();
-		err.flush();
+		this.out.println(Main.bind("misc.version"));  //$NON-NLS-1$
+		this.out.flush();
+		this.err.flush();
 	}
 }

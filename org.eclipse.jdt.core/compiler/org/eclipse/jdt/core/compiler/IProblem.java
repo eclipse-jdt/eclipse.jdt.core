@@ -42,6 +42,11 @@
  *								   UnnecessaryCast
  *								   UnnecessaryArgumentCast
  *								   UnnecessaryInstanceof
+ *								   FinallyMustCompleteNormally
+ *								   UnusedMethodDeclaredThrownException
+ *								   UnusedConstructorDeclaredThrownException
+ *								   InvalidCatchBlockSequence
+ *								   UnqualifiedFieldAccess
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -261,6 +266,8 @@ public interface IProblem {
 	int UnusedPrivateField = Internal + FieldRelated + 77;
 	/** @since 3.0 */
 	int IndirectAccessToStaticField = Internal + FieldRelated + 78;
+	/** @since 3.0 */
+	int UnqualifiedFieldAccess = Internal + FieldRelated + 79;
 	
 	// blank final fields
 	int FinalFieldAssignment = FieldRelated + 80;
@@ -404,7 +411,16 @@ public interface IProblem {
 	/** @since 3.0 */
 	int UnnecessaryArgumentCast = Internal + TypeRelated + 182;
 	/** @since 3.0 */
-	int UnnecessaryInstanceof	 = Internal + TypeRelated + 183;	
+	int UnnecessaryInstanceof = Internal + TypeRelated + 183;	
+	/** @since 3.0 */
+	int FinallyMustCompleteNormally = Internal + 184;	
+	/** @since 3.0 */
+	int UnusedMethodDeclaredThrownException = Internal + 185;	
+	/** @since 3.0 */
+	int UnusedConstructorDeclaredThrownException = Internal + 186;	
+	/** @since 3.0 */
+	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;	
+
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;
 	int NeedToEmulateFieldWriteAccess = FieldRelated + 191;

@@ -36,17 +36,60 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M3 Build - ?th August 2003
-<br>Project org.eclipse.jdt.core v_368
+Eclipse SDK 3.0M4 Build - ?th September 2003
+<br>Project org.eclipse.jdt.core v_368 
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_368">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added optional compiler problem to signal unqualified access to a non-static field. In order to improve
+code readability, qualifying field accesses is a simple way to syntactically distinguish a field access from 
+a local variable access, and thus avoid resorting to a special naming convention for fields (such as "fField").
+<pre>
+* COMPILER / Reporting Unqualified Access to Field
+*    When enabled, the compiler will issue an error or a warning when a field is access without any qualification.
+*    In order to improve code readability, it should be qualified, e.g. 'x' should rather be written 'this.x'.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
+<li>Added optional compiler problem to signal method/constructor declared thrown checked exception which
+aren't actually raised inside the method/constructor body.
+<pre>
+* COMPILER / Reporting Unused Declared Thrown Exception
+*    When enabled, the compiler will issue an error or a warning when a method or a constructor is declaring a
+*    thrown checked exception, but never actually raises it in its body.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
+<li>Added optional compiler problem to flag situations where a finally block does not complete normally.
+<pre>
+* COMPILER / Reporting Finally Blocks Not Completing Normally
+*    When enabled, the compiler will issue an error or a warning when a finally block does not complete normally.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
+<li>Improved problem description for unreachable catch block problems. Message will now mention the exception type 
+name and better diagnose the cause of the problem. Also changed problem source range 
+to rather highlight the caught exception type instead of entire catch block. 
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40020">40020</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=41604">41604</a>
+Possible Compiler Bug 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22976">22976</a>
+DCR - warning for unused declarations of thrown exceptions
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40736">40736</a>
+JDT compiler fails to compile legitimate Java code.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40020">40020</a>
 Exceptions in console 
+
 
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
@@ -131,6 +174,7 @@ NPE in type hierarchy when opening type
 NPE in TypeHierarchy.packageRegionContainsSamePackageFragment(TypeHierarchy.java:1314) 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40090">40090</a>
 No need to close Java model on shutdown 
+
 
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>

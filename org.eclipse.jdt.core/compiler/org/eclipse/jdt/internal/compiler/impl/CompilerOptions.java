@@ -61,6 +61,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportUnnecessaryTypeCheck = "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
 	public static final String OPTION_ReportUndocumentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
+	public static final String OPTION_ReportFinallyBlockNotCompletingNormally = "org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedDeclaredThrownException = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnqualifiedFieldAccess = "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
@@ -93,8 +96,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
 	 */
-	public static final long UnreachableCode = 0x100L;
-	public static final long ImportProblem = 0x400L;
+	public static final long UnreachableCode = 0x100L; // TODO (philippe) should remove warning tolerance, since must be an error by the spec
+	// TODO (philippe) 0x200L unused?
+	public static final long ImportProblem = 0x400L; // TODO (philippe) should remove warning tolerance, since must be an error by the spec
+	// TODO (philippe) 0x800L unused?
 	public static final long MethodWithConstructorName = 0x1000L;
 	public static final long OverriddenPackageDefaultMethod = 0x2000L;
 	public static final long UsingDeprecatedAPI = 0x4000L;
@@ -119,6 +124,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long UndocumentedEmptyBlock = 0x200000000L;
 	public static final long UnnecessaryTypeCheck = 0x400000000L;
 	public static final long InvalidAnnotation = 0x800000000L;
+	public static final long FinallyBlockNotCompleting = 0x1000000000L;
+	public static final long UnusedDeclaredThrownException = 0x2000000000L;
+	public static final long AnnotationProblem = 0x4000000000L;
+	public static final long UnqualifiedFieldAccess = 0x8000000000L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 
@@ -134,7 +143,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| NonStaticAccessToStatic
 		| NoEffectAssignment
 		| IncompatibleNonInheritedInterfaceMethod
-		| NoImplicitStringConversion;
+		| NoImplicitStringConversion
+		| FinallyBlockNotCompleting;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -404,7 +414,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 						new InputStreamReader(new ByteArrayInputStream(new byte[0]), optionValue);
 						this.defaultEncoding = optionValue;
 					} catch(UnsupportedEncodingException e){
-//						// ignore unsupported encoding
+						// ignore unsupported encoding
 					}
 				}
 				continue;
@@ -452,6 +462,21 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			// Report inconsistent javadoc annotation
 			if(optionID.equals(OPTION_ReportInvalidAnnotation)){
 				updateSeverity(InvalidAnnotation, optionValue);
+				continue;
+			} 
+			// Report finally block not completing normally
+			if(optionID.equals(OPTION_ReportFinallyBlockNotCompletingNormally)){
+				updateSeverity(FinallyBlockNotCompleting, optionValue);
+				continue;
+			} 
+			// Report unused declared thrown exception
+			if(optionID.equals(OPTION_ReportUnusedDeclaredThrownException)){
+				updateSeverity(UnusedDeclaredThrownException, optionValue);
+				continue;
+			} 
+			// Report unqualified field access
+			if(optionID.equals(OPTION_ReportUnqualifiedFieldAccess)){
+				updateSeverity(UnqualifiedFieldAccess, optionValue);
 				continue;
 			} 
 			// Report task
@@ -511,6 +536,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
 		optionsMap.put(OPTION_ReportInvalidAnnotation, getSeverityString(InvalidAnnotation));
+		optionsMap.put(OPTION_ReportFinallyBlockNotCompletingNormally, getSeverityString(FinallyBlockNotCompleting));
+		optionsMap.put(OPTION_ReportUnusedDeclaredThrownException, getSeverityString(UnusedDeclaredThrownException));
+		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(targetJDK)); 
@@ -580,6 +608,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n-uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
 		buf.append("\n-unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
 		buf.append("\n-invalid annotation: ").append(getSeverityString(InvalidAnnotation)); //$NON-NLS-1$
+		buf.append("\n-finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
+		buf.append("\n-unused declared thrown exception: ").append(getSeverityString(UnusedDeclaredThrownException)); //$NON-NLS-1$
 		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$

@@ -194,7 +194,7 @@ public  final boolean atEnd() {
 	return source.length == currentPosition;
 }
 
-private void checkNonExternalizedString()  throws InvalidInputException {
+private void checkNonExternalizedString() {
 	if (currentLine == null) 
 		return;
 	parseTags(currentLine);
@@ -408,11 +408,14 @@ public int getCurrentTokenStartPosition(){
  */
 public final int getLineEnd(int lineNumber) {
 
-	if (lineEnds == null) return -1;
-	if (lineNumber >= lineEnds.length) return -1;
-	if (lineNumber <= 0) return -1;
-	
-	if (lineNumber == lineEnds.length - 1) return eofPosition;
+	if (lineEnds == null) 
+		return -1;
+	if (lineNumber > lineEnds.length+1) 
+		return -1;
+	if (lineNumber <= 0) 
+		return -1;
+	if (lineNumber == lineEnds.length + 1) 
+		return eofPosition;
 	return lineEnds[lineNumber-1]; // next line start one character behind the lineEnd of the previous line
 }
 
@@ -436,11 +439,15 @@ public final int[] getLineEnds() {
  */
 public final int getLineStart(int lineNumber) {
 
-	if (lineEnds == null) return -1;
-	if (lineNumber >= lineEnds.length) return -1;
-	if (lineNumber <= 0) return -1;
+	if (lineEnds == null) 
+		return -1;
+	if (lineNumber > lineEnds.length + 1) 
+		return -1;
+	if (lineNumber <= 0) 
+		return -1;
 	
-	if (lineNumber == 1) return initialPosition;
+	if (lineNumber == 1) 
+		return initialPosition;
 	return lineEnds[lineNumber-2]+1; // next line start one character behind the lineEnd of the previous line
 }
 public final boolean getNextChar(char testedChar) {
@@ -2013,7 +2020,7 @@ final char[] optimizedCurrentTokenSource6() {
 	newEntry6 = max;
 	return r;	
 }
-private void parseTags(NLSLine line) throws InvalidInputException {
+private void parseTags(NLSLine line) {
 	String s = new String(getCurrentTokenSource());
 	int pos = s.indexOf(TAG_PREFIX);
 	int lineLength = line.size();
@@ -2055,7 +2062,7 @@ private void parseTags(NLSLine line) throws InvalidInputException {
 	currentLine = null;
 }
 
-public final void pushLineSeparator() throws InvalidInputException {
+public final void pushLineSeparator() {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
 	final int INCREMENT = 250;
 	

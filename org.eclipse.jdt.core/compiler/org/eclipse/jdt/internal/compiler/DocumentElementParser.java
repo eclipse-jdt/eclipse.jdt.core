@@ -102,13 +102,10 @@ public void checkAnnotation() {
 			continue nextComment;
 		}
 		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
-		char[] comment = scanner.source;
-
 		deprecated =
-			checkDeprecation(
+			this.annotationParser.checkDeprecation(
 				commentSourceStart,
-				commentSourceEnd,
-				comment);
+				commentSourceEnd);
 		break nextComment;
 	}
 	if (deprecated) {

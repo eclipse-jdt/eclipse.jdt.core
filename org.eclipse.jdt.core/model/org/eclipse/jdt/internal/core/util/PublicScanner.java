@@ -190,7 +190,7 @@ public  final boolean atEnd() {
 	return source.length == currentPosition;
 }
 
-private void checkNonExternalizedString()  throws InvalidInputException {
+private void checkNonExternalizedString() {
 	if (currentLine == null) 
 		return;
 	parseTags(currentLine);
@@ -404,11 +404,14 @@ public int getCurrentTokenStartPosition(){
  */
 public final int getLineEnd(int lineNumber) {
 
-	if (lineEnds == null) return -1;
-	if (lineNumber >= lineEnds.length) return -1;
-	if (lineNumber <= 0) return -1;
-	
-	if (lineNumber == lineEnds.length - 1) return eofPosition;
+	if (lineEnds == null) 
+		return -1;
+	if (lineNumber > lineEnds.length+1) 
+		return -1;
+	if (lineNumber <= 0) 
+		return -1;
+	if (lineNumber == lineEnds.length + 1) 
+		return eofPosition;
 	return lineEnds[lineNumber-1]; // next line start one character behind the lineEnd of the previous line
 }
 
@@ -432,11 +435,15 @@ public final int[] getLineEnds() {
  */
 public final int getLineStart(int lineNumber) {
 
-	if (lineEnds == null) return -1;
-	if (lineNumber >= lineEnds.length) return -1;
-	if (lineNumber <= 0) return -1;
+	if (lineEnds == null) 
+		return -1;
+	if (lineNumber > lineEnds.length + 1) 
+		return -1;
+	if (lineNumber <= 0) 
+		return -1;
 	
-	if (lineNumber == 1) return initialPosition;
+	if (lineNumber == 1) 
+		return initialPosition;
 	return lineEnds[lineNumber-2]+1; // next line start one character behind the lineEnd of the previous line
 }
 public final boolean getNextChar(char testedChar) {
@@ -1265,7 +1272,7 @@ public int getNextToken() throws InvalidInputException {
 								if (tokenizeComments) {
 									return TokenNameCOMMENT_LINE;
 								} else {
-									this.currentPosition++;
+									this.currentPosition++; 
 								}
 							}
 							break;
@@ -1605,8 +1612,7 @@ public final void jumpOverMethodBody() {
 										}
 									}
 							} catch (IndexOutOfBoundsException e) {
-								//an eof will them be generated
-							}
+							} //an eof will them be generated
 							break;
 						}
 						if (test > 0) { //traditional and annotation comment
@@ -1707,10 +1713,7 @@ public final void jumpOverMethodBody() {
 
 				default :
 					if (Character.isJavaIdentifierStart(currentCharacter)) {
-						try {
-							scanIdentifierOrKeyword();
-						} catch (InvalidInputException ex) {
-						}
+						scanIdentifierOrKeyword();
 						break;
 					}
 					if (Character.isDigit(currentCharacter)) {
@@ -2013,7 +2016,7 @@ final char[] optimizedCurrentTokenSource6() {
 	newEntry6 = max;
 	return r;	
 }
-private void parseTags(NLSLine line) throws InvalidInputException {
+private void parseTags(NLSLine line) {
 	String s = new String(getCurrentTokenSource());
 	int pos = s.indexOf(TAG_PREFIX);
 	int lineLength = line.size();
@@ -2055,7 +2058,7 @@ private void parseTags(NLSLine line) throws InvalidInputException {
 	currentLine = null;
 }
 
-public final void pushLineSeparator() throws InvalidInputException {
+public final void pushLineSeparator() {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
 	final int INCREMENT = 250;
 	
@@ -2253,7 +2256,7 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 				throw new InvalidInputException(INVALID_ESCAPE);
 	}
 }
-public int scanIdentifierOrKeyword() throws InvalidInputException {
+public int scanIdentifierOrKeyword() {
 	//test keywords
 
 	//first dispatch on the first char.

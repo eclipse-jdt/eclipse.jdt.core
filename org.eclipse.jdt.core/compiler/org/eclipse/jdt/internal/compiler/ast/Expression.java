@@ -318,6 +318,9 @@ public abstract class Expression extends Statement {
 		org.eclipse.jdt.internal.compiler.codegen.CodeStream codeStream,
 		int typeID) {
 
+		if (typeID == T_String && this.constant != NotAConstant && this.constant.stringValue().length() == 0) {
+			return; // optimize str + ""
+		}
 		generateCode(blockScope, codeStream, true);
 		codeStream.invokeStringBufferAppendForType(typeID);
 	}
@@ -346,7 +349,12 @@ public abstract class Expression extends Statement {
 		codeStream.dup();
 		if (typeID == T_String || typeID == T_null) {
 			if (constant != NotAConstant) {
-				codeStream.ldc(constant.stringValue());
+				String stringValue = constant.stringValue();
+				if (stringValue.length() == 0) {  // optimize ""+<str> 
+					codeStream.invokeStringBufferDefaultConstructor();
+					return;
+				}
+				codeStream.ldc(stringValue);
 			} else {
 				generateCode(blockScope, codeStream, true);
 				codeStream.invokeStringValueOf(T_Object);

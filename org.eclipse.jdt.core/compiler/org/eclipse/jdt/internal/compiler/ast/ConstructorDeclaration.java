@@ -122,6 +122,8 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 					}
 				}
 			}
+			// check unreachable catch blocks
+			constructorContext.complainIfUnusedExceptionHandlers(this);
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}

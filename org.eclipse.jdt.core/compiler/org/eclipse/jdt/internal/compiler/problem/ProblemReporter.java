@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class ProblemReporter extends ProblemHandler implements ProblemReasons {
 	
 	public ReferenceContext referenceContext;
+	
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
 	super(policy, options, problemFactory);
 }
@@ -532,6 +533,22 @@ public int computeSeverity(int problemId){
 		case IProblem.UnnecessaryInstanceof:
 			return this.options.getSeverity(CompilerOptions.UnnecessaryTypeCheck);
 			
+		case IProblem.FinallyMustCompleteNormally:
+			return this.options.getSeverity(CompilerOptions.FinallyBlockNotCompleting);
+			
+		case IProblem.UnusedMethodDeclaredThrownException:
+		case IProblem.UnusedConstructorDeclaredThrownException:
+			return this.options.getSeverity(CompilerOptions.UnusedDeclaredThrownException);
+
+		case IProblem.UnqualifiedFieldAccess:
+			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
+			
+		// all problems detected inside annotations are associated with a generic severity			
+//		if (referenceContext.isProcessingAnnotation()) {
+//			return this.options.getSeverity(CompilerOptions.AnnotationProblem);
+//		}
+			
+		// by default, all other problems are errors.
 		default:
 			return Error;
 	}
@@ -903,6 +920,14 @@ public void fieldTypeProblem(SourceTypeBinding type, FieldDeclaration fieldDecl,
 		fieldDecl.type.sourceStart,
 		fieldDecl.type.sourceEnd);
 }
+public void finallyMustCompleteNormally(Block finallyBlock) {
+	this.handle(
+		IProblem.FinallyMustCompleteNormally,
+		NoArgument,
+		NoArgument,
+		finallyBlock.sourceStart,
+		finallyBlock.sourceEnd);
+}
 public void finalMethodCannotBeOverridden(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	this.handle(
 		// Cannot override the final method from %1
@@ -985,6 +1010,18 @@ private void handle(
 			referenceContext, 
 			unitResult); 
 	referenceContext = null;
+}
+public void hiddenCatchBlock(ReferenceBinding exceptionType, AstNode location) {
+	this.handle(
+		IProblem.MaskedCatch,
+		new String[] {
+			new String(exceptionType.readableName()),
+		 }, 
+		new String[] {
+			new String(exceptionType.shortReadableName()),
+		 }, 
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void hidingEnclosingType(TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {new String(typeDecl.name)};
@@ -2065,14 +2102,6 @@ public void localVariableHiding(LocalDeclaration local, Binding otherVariable, b
 			local.sourceEnd);
 	}
 }
-public void maskedExceptionHandler(ReferenceBinding exceptionType, AstNode location) {
-	this.handle(
-		IProblem.MaskedCatch,
-		NoArgument,
-		NoArgument,
-		location.sourceStart,
-		location.sourceEnd);
-}
 public void methodNeedingAbstractModifier(MethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodRequiresBody,
@@ -2097,20 +2126,6 @@ public void methodWithConstructorName(MethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-//public void missingEnclosingInstanceSpecification(ReferenceBinding enclosingType, AstNode location) {
-//	boolean insideConstructorCall =
-//		(location instanceof ExplicitConstructorCall)
-//			&& (((ExplicitConstructorCall) location).accessMode == ExplicitConstructorCall.ImplicitSuper);
-//
-//	this.handle(
-//		insideConstructorCall
-//			? IProblem.MissingEnclosingInstanceForConstructorCall
-//			: IProblem.MissingEnclosingInstance,
-//		new String[] {new String(enclosingType.readableName())},
-//		new String[] {new String(enclosingType.shortReadableName())},
-//		location.sourceStart,
-//		location.sourceEnd);
-//}
 public void missingReturnType(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MissingReturnType,
@@ -2947,6 +2962,14 @@ public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, Typ
 		instanceofExpression.sourceStart,
 		instanceofExpression.sourceEnd);
 }
+public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
+	this.handle(
+		IProblem.UnqualifiedFieldAccess,
+		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
+		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
+		reference.sourceStart,
+		reference.sourceEnd);
+}
 public void unnecessaryEnclosingInstanceSpecification(Expression expression, ReferenceBinding targetType) {
 	this.handle(
 		IProblem.IllegalEnclosingInstanceSpecification,
@@ -2955,6 +2978,18 @@ public void unnecessaryEnclosingInstanceSpecification(Expression expression, Ref
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void unreachableCatchBlock(ReferenceBinding exceptionType, AstNode location) {
+	this.handle(
+		IProblem.UnreachableCatch,
+		new String[] {
+			new String(exceptionType.readableName()),
+		 }, 
+		new String[] {
+			new String(exceptionType.shortReadableName()),
+		 }, 
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void unreachableCode(Statement statement) {
 	this.handle(
 		IProblem.CodeCannotBeReached,
@@ -2962,14 +2997,6 @@ public void unreachableCode(Statement statement) {
 		NoArgument,
 		statement.sourceStart,
 		statement.sourceEnd);
-}
-public void unreachableExceptionHandler(ReferenceBinding exceptionType, AstNode location) {
-	this.handle(
-		IProblem.UnreachableCatch,
-		NoArgument,
-		NoArgument,
-		location.sourceStart,
-		location.sourceEnd);
 }
 public void unresolvableReference(NameReference nameRef, Binding binding) {
 	int severity = Error;
@@ -2998,6 +3025,41 @@ public void unusedArgument(LocalDeclaration localDecl) {
 		arguments,
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
+}
+public void unusedDeclaredThrownException(ReferenceBinding exceptionType, AbstractMethodDeclaration method, AstNode location) {
+	if (method.isConstructor()) {
+		this.handle(
+			IProblem.UnusedConstructorDeclaredThrownException,
+			new String[] {
+				new String(method.binding.declaringClass.readableName()),
+				parametersAsString(method.binding),
+				new String(exceptionType.readableName()),
+			 }, 
+			new String[] {
+				new String(method.binding.declaringClass.shortReadableName()),
+				parametersAsShortString(method.binding),
+				new String(exceptionType.shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);
+	} else {
+		this.handle(
+			IProblem.UnusedMethodDeclaredThrownException,
+			new String[] {
+				new String(method.binding.declaringClass.readableName()),
+				new String(method.selector),
+				parametersAsString(method.binding),
+				new String(exceptionType.readableName()),
+			 }, 
+			new String[] {
+				new String(method.binding.declaringClass.shortReadableName()),
+				new String(method.selector),
+				parametersAsShortString(method.binding),
+				new String(exceptionType.shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);
+	}
 }
 public void unusedImport(ImportReference importRef) {
 	String[] arguments = new String[] { CharOperation.toString(importRef.tokens) };
@@ -3170,19 +3232,6 @@ public void visibilityConflict(MethodBinding currentMethod, MethodBinding inheri
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }
-public void wrongSequenceOfExceptionTypesError(TryStatement statement, int under, int upper) {
-	//the two catch block under and upper are in an incorrect order.
-	//under should be define BEFORE upper in the source
-
-	TypeReference typeRef = statement.catchArguments[under].type;
-	this.handle(
-		IProblem.UnreachableCatch,
-		NoArgument,
-		NoArgument,
-		typeRef.sourceStart,
-		typeRef.sourceEnd);
-}
-
 public void nonExternalizedStringLiteral(AstNode location) {
 	this.handle(
 		IProblem.NonExternalizedStringLiteral,
@@ -3525,5 +3574,23 @@ public void parseErrorInsertToCompletePhrase(
 		arguments,
 		start,
 		end);
+}
+public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBinding exceptionType, int under, TypeBinding hidingExceptionType) {
+	//the two catch block under and upper are in an incorrect order.
+	//under should be define BEFORE upper in the source
+
+	TypeReference typeRef = statement.catchArguments[under].type;
+	this.handle(
+		IProblem.InvalidCatchBlockSequence,
+		new String[] {
+			new String(exceptionType.readableName()),
+			new String(hidingExceptionType.readableName()),
+		 }, 
+		new String[] {
+			new String(exceptionType.shortReadableName()),
+			new String(hidingExceptionType.shortReadableName()),
+		 }, 
+		typeRef.sourceStart,
+		typeRef.sourceEnd);
 }
 }

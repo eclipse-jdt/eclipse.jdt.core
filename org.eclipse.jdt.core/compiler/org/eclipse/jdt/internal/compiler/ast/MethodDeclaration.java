@@ -82,6 +82,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					scope.problemReporter().shouldReturn(returnTypeBinding, this);
 				}
 			}
+			// check unreachable catch blocks
+			methodContext.complainIfUnusedExceptionHandlers(this);
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}

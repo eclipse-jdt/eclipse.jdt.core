@@ -742,9 +742,9 @@ public void test21() {
 					public byte[] getByteContent() throws IOException {
 						return Util.getFileByteContent(new File(OUTPUT_DIR + "/p1/Z.class"));
 					}
-					public char[] getCharContent() throws IOException { return null; }
+					public char[] getCharContent() { return null; }
 					public String getName() { return "Z.class"; }
-					public String getStringContent() throws IOException { return null; }
+					public String getStringContent() { return null; }
 					public String getType() { return "class"; }
 					public String getEncoding() { return null; }
 				}, 
@@ -1772,7 +1772,42 @@ public void test48() {
 		"SUCCESS"
 	);
 }
-
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=41278
+ */
+public void test49() {
+	this.runNegativeTest(
+		new String[] {
+			"pa/Caller.java",
+			"package pa;\n" + 
+			"import pb.Concrete;\n" + 
+			"public class Caller {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Concrete aConcrete = new Concrete(); \n" + 
+			"		aConcrete.callme();\n" + 
+			"	}\n" + 
+			"}\n",
+			"pa/Abstract.java",
+			"package pa;\n" + 
+			"public abstract class Abstract {\n" + 
+			"\n" + 
+			"	protected void callme(){}\n" + 
+			"}\n",
+			"pb/Concrete.java",
+			"package pb;\n" + 
+			"public class Concrete extends pa.Abstract {\n" + 
+			"\n" + 
+			"	protected void callme(){	System.out.println(\"SUCCESS\"); }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in pa\\Caller.java (at line 7)\n" + 
+		"	aConcrete.callme();\n" + 
+		"	          ^^^^^^\n" + 
+		"The method callme() from the type Concrete is not visible\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

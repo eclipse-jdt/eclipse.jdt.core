@@ -85,8 +85,9 @@ public class TryStatement extends SubRoutineStatement {
 						finallyContext = new FinallyFlowContext(flowContext, finallyBlock),
 						flowInfo.copy())
 					.unconditionalInits();
-			if (!subInfo.isReachable()) {
+			if (subInfo == FlowInfo.DEAD_END) {
 				isSubRoutineEscaping = true;
+				scope.problemReporter().finallyMustCompleteNormally(finallyBlock);
 			}
 			this.subRoutineInits = subInfo;
 		}
@@ -109,7 +110,7 @@ public class TryStatement extends SubRoutineStatement {
 		}
 
 		// check unreachable catch blocks
-		handlingContext.complainIfUnusedExceptionHandlers(catchBlocks, scope, this);
+		handlingContext.complainIfUnusedExceptionHandlers(scope, this);
 
 		// process the catch blocks - computing the minimal exit depth amongst try/catch
 		if (catchArguments != null) {
@@ -214,17 +215,7 @@ public class TryStatement extends SubRoutineStatement {
 			new ExceptionLabel[maxCatches =
 				catchArguments == null ? 0 : catchArguments.length];
 		for (int i = 0; i < maxCatches; i++) {
-			boolean preserveCurrentHandler =
-				(preserveExceptionHandler[i
-					/ ExceptionHandlingFlowContext.BitCacheSize]
-						& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize)))
-					!= 0;
-			if (preserveCurrentHandler) {
-				exceptionLabels[i] =
-					new ExceptionLabel(
-						codeStream,
-						catchArguments[i].binding.type);
-			}
+			exceptionLabels[i] = new ExceptionLabel(codeStream, catchArguments[i].binding.type);
 		}
 		if (subRoutineStartLabel != null) {
 			subRoutineStartLabel.codeStream = codeStream;
@@ -251,12 +242,7 @@ public class TryStatement extends SubRoutineStatement {
 		// place end positions of user-defined exception labels
 		if (tryBlockHasSomeCode) {
 			for (int i = 0; i < maxCatches; i++) {
-				boolean preserveCurrentHandler =
-					(preserveExceptionHandler[i / ExceptionHandlingFlowContext.BitCacheSize]
-							& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize))) != 0;
-				if (preserveCurrentHandler) {
-					exceptionLabels[i].placeEnd();
-				}
+				exceptionLabels[i].placeEnd();
 			}
 			/* generate sequence of handler, all starting by storing the TOS (exception
 			thrown) into their own catch variables, the one specified in the source
@@ -266,37 +252,33 @@ public class TryStatement extends SubRoutineStatement {
 				this.exitAnyExceptionHandler();
 			} else {
 				for (int i = 0; i < maxCatches; i++) {
-					boolean preserveCurrentHandler =
-						(preserveExceptionHandler[i / ExceptionHandlingFlowContext.BitCacheSize]
-								& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize))) != 0;
-					if (preserveCurrentHandler) {
-						// May loose some local variable initializations : affecting the local variable attributes
-						if (preTryInitStateIndex != -1) {
-							codeStream.removeNotDefinitelyAssignedVariables(
-								currentScope,
-								preTryInitStateIndex);
-						}
-						exceptionLabels[i].place();
-						codeStream.incrStackSize(1);
-						// optimizing the case where the exception variable is not actually used
-						LocalVariableBinding catchVar;
-						int varPC = codeStream.position;
-						if ((catchVar = catchArguments[i].binding).resolvedPosition != -1) {
-							codeStream.store(catchVar, false);
-							catchVar.recordInitializationStartPC(codeStream.position);
-							codeStream.addVisibleLocalVariable(catchVar);
-						} else {
-							codeStream.pop();
-						}
-						codeStream.recordPositionsFrom(varPC, catchArguments[i].sourceStart);
-						// Keep track of the pcs at diverging point for computing the local attribute
-						// since not passing the catchScope, the block generation will exitUserScope(catchScope)
-						catchBlocks[i].generateCode(scope, codeStream);
+					// May loose some local variable initializations : affecting the local variable attributes
+					if (preTryInitStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(
+							currentScope,
+							preTryInitStateIndex);
 					}
+					exceptionLabels[i].place();
+					codeStream.incrStackSize(1);
+					// optimizing the case where the exception variable is not actually used
+					LocalVariableBinding catchVar;
+					int varPC = codeStream.position;
+					if ((catchVar = catchArguments[i].binding).resolvedPosition != -1) {
+						codeStream.store(catchVar, false);
+						catchVar.recordInitializationStartPC(codeStream.position);
+						codeStream.addVisibleLocalVariable(catchVar);
+					} else {
+						codeStream.pop();
+					}
+					codeStream.recordPositionsFrom(varPC, catchArguments[i].sourceStart);
+					// Keep track of the pcs at diverging point for computing the local attribute
+					// since not passing the catchScope, the block generation will exitUserScope(catchScope)
+					catchBlocks[i].generateCode(scope, codeStream);
+
 					if (i == maxCatches - 1) {
 						this.exitAnyExceptionHandler();
 					}
-					if (!catchExits[i] && preserveCurrentHandler) {
+					if (!catchExits[i]) {
 						if (nonReturningSubRoutine) {
 							codeStream.goto_(subRoutineStartLabel);
 						} else {
@@ -508,8 +490,7 @@ public class TryStatement extends SubRoutineStatement {
 				caughtExceptionTypes[i] = (ReferenceBinding) argumentTypes[i];
 				for (int j = 0; j < i; j++) {
 					if (caughtExceptionTypes[i].isCompatibleWith(argumentTypes[j])) {
-						scope.problemReporter().wrongSequenceOfExceptionTypesError(this, i, j);
-						// cannot return - since may still proceed if unreachable code is ignored (21203)
+						scope.problemReporter().wrongSequenceOfExceptionTypesError(this, caughtExceptionTypes[i], i, argumentTypes[j]);
 					}
 				}
 			}

@@ -300,6 +300,24 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_FINALLY_BLOCK_NOT_COMPLETING = PLUGIN_ID + ".compiler.problem.finallyBlockNotCompletingNormally"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_UNQUALIFIED_FIELD_ACCESS = PLUGIN_ID + ".compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
@@ -1525,6 +1543,26 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning when an empty block is detected and it is not
 	 *    documented with any comment.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
+	 * COMPILER / Reporting Finally Blocks Not Completing Normally
+	 *    When enabled, the compiler will issue an error or a warning when a finally block does not complete normally.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
+	 * COMPILER / Reporting Unused Declared Thrown Exception
+	 *    When enabled, the compiler will issue an error or a warning when a method or a constructor is declaring a
+	 *    thrown checked exception, but never actually raises it in its body.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
+	 * COMPILER / Reporting Unqualified Access to Field
+	 *    When enabled, the compiler will issue an error or a warning when a field is access without any qualification.
+	 *    In order to improve code readability, it should be qualified, e.g. 'x' should rather be written 'this.x'.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *

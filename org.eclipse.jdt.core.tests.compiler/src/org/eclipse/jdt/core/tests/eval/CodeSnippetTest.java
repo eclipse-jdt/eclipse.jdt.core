@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.tests.eval;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
 /**
@@ -220,19 +222,22 @@ public void testFinallyError() {
  * Tests code snippet that include one finally block.
  */
 public void testFinallyOneBlock() {
-	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {
 		"try {",
 		"	return 1;",
 		"} finally {",
 		"	return 2;",
 		"}"}), 
+		new IProblem[] {
+			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 30, 40, 4), 
+		},
 		"2".toCharArray());
 }
 /**
  * Tests code snippet that include 2 finally blocks.
  */
 public void testFinallyTwoBlock() {
-	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {
 		"try {",
 		"	try {",
 		"		return 1;",
@@ -242,6 +247,10 @@ public void testFinallyTwoBlock() {
 		"} finally {",
 		"	return 3;",
 		"}"}), 
+		new IProblem[] {
+			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 40, 51, 5), 
+			newProblem(IProblem.FinallyMustCompleteNormally, ProblemSeverities.Warning, 66, 76, 8), 
+		},
 		"3".toCharArray());
 }
 /**

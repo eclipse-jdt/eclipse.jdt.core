@@ -106,8 +106,9 @@ public class ThisReference extends Reference {
 	public TypeBinding resolveType(BlockScope scope) {
 	
 		constant = NotAConstant;
-		if (!this.isImplicitThis() && !checkAccess(scope.methodScope()))
+		if (!this.isImplicitThis() &&!checkAccess(scope.methodScope())) {
 			return null;
+		}
 		return this.resolvedType = scope.enclosingSourceType();
 	}
 

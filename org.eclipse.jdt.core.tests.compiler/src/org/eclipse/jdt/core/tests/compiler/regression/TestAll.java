@@ -39,16 +39,26 @@ public static Test suite() {
 		addTest(suite, Compliance_1_4.class);	
 	}
 
+	addTest(suite, ArrayTest.class);
+	addTest(suite, AssignmentTest.class);
 	addTest(suite, BatchCompilerTest.class);
+	addTest(suite, BooleanTest.class);
+	addTest(suite, CastTest.class);
 	addTest(suite, ClassFileComparatorTest.class);
 	addTest(suite, ClassFileReaderTest.class);
 	addTest(suite, Compliance_1_3.class);	
+	addTest(suite, ConstantTest.class);
 	addTest(suite, DeprecatedTest.class);
+	addTest(suite, LocalVariableTest.class);
 	addTest(suite, LookupTest.class);
+	addTest(suite, NumericTest.class);
 	addTest(suite, ProblemConstructorTest.class);
-	addTest(suite, UtilTest.class);
 	addTest(suite, ScannerTest.class);
-		
+	addTest(suite, SwitchTest.class);
+	addTest(suite, TryStatementTest.class);
+	addTest(suite, UtilTest.class);
+	addTest(suite, XLargeTest.class);
+
 	return new RegressionTestSetup(suite);
 }
 }

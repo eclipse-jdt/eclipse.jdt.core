@@ -15,6 +15,10 @@ package org.eclipse.jdt.internal.compiler.ast;
  */
 public class Annotation extends AstNode {
 
+	public Argument[] parameters; 						// @param
+	public TypeReference[] thrownExceptions; 	// @throws, @exception
+	public Reference[] references; 						// @see
+	
 	public Annotation(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -24,7 +28,26 @@ public class Annotation extends AstNode {
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer print(int indent, StringBuffer output) {
+		printIndent(indent, output).append("/**\n"); //$NON-NLS-1$
+		if (this.parameters != null) {
+			for (int i = 0, length = this.parameters.length; i < length; i++) {
+				printIndent(indent+1, output).append(" * @param "); //$NON-NLS-1$		
+				this.parameters[i].print(indent, output).append('\n');
+			}
+		}
+		if (this.thrownExceptions != null) {
+			for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
+				printIndent(indent+1, output).append(" * @throws "); //$NON-NLS-1$		
+				this.thrownExceptions[i].print(indent, output).append('\n');
+			}
+		}
+		if (this.references != null) {
+			for (int i = 0, length = this.references.length; i < length; i++) {
+				printIndent(indent+1, output).append(" * @see"); //$NON-NLS-1$		
+				this.references[i].print(indent, output).append('\n');
+			}
+		}
+		printIndent(indent, output).append(" */\n"); //$NON-NLS-1$
 		return output;
 	}
-
 }
