@@ -1604,12 +1604,20 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "ignore"
 	 *
 	 * COMPILER / Reporting Invalid Javadoc Annotation
-	 *    When enabled, the compiler will issue an error or a warning when a javadoc annotation is inconsistent or
-	 *    contains invalid references.
+	 *    When enabled, the compiler will issue an error or a warning when a javadoc annotation is inconsistent,
+	 *    misses a tag entry or contains invalid references.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
+	 * COMPILER / Reporting Missing Javadoc Annotation
+	 *    When enabled, the compiler will signal cases where public class, interface, method, constructor or field
+	 *    (considered as part of the API) has no javadoc annotation.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidAnnotation".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingAnnotation"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 * 
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM

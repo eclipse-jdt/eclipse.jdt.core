@@ -45,7 +45,7 @@ What's new in this drop</h2>
 <li> Remove deprecated previously added API <code>IJavaProject#forceClasspathReload(IProgressMonitor)</code>
 (see comment of v_368 drop below).
 </li>
-<li>Added optional compiler problem to signal when javadoc annotation is inconsistent, misses a tag entry or contains invalid references.
+<li>Added optional compiler problem to signal problems with javadoc annotation.
 <pre>
 	 * COMPILER / Reporting Invalid Javadoc Annotation
 	 *    When enabled, the compiler will issue an error or a warning when a javadoc annotation is inconsistent,
@@ -53,6 +53,14 @@ What's new in this drop</h2>
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
+	 * COMPILER / Reporting Missing Javadoc Annotation
+	 *    When enabled, the compiler will signal cases where public class, interface, method, constructor or field
+	 *    (considered as part of the API) has no javadoc annotation.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidAnnotation".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingAnnotation"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 * 
 </pre>
 </li>
 </ul>

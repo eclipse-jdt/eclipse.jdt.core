@@ -853,6 +853,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportInvalidAnnotation,
 							CompilerOptions.WARNING);
+					} else if (token.equals("missingAnnotation")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportMissingAnnotation,
+							CompilerOptions.ENABLED);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$
 						int start = token.indexOf('(');
