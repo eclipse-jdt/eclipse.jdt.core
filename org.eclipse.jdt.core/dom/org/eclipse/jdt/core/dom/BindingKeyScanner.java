@@ -123,14 +123,24 @@ class BindingKeyScanner {
 					this.token = ARRAY;
 					return this.token;
 				case '<':
-					if (this.index > this.start && this.source[this.start-1] == '.')
-						if (this.source[this.start-2] == '>')
-							this.token = TYPE;
-						else
-							this.token = METHOD;
-					else
-						this.token = TYPE;
-					return this.token;
+					if (this.start > 0) {
+						switch (this.source[this.start-1]) {
+							case '.':
+								if (this.source[this.start-2] == '>')
+									this.token = TYPE;
+								else
+									this.token = METHOD;
+								return this.token;
+							case '%':
+								previousTokenEnd = this.index;
+								this.start = this.index+1;
+								break;
+							default:
+								this.token = TYPE;
+								return this.token;
+						}
+					} 
+					break;
 				case '(':
 					this.token = METHOD;
 					return this.token;

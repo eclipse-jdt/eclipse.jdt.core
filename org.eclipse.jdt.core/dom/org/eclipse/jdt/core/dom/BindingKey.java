@@ -301,7 +301,6 @@ class BindingKey {
 	  * This key's scanner should be positionned on the first type argument name token.
 	  */
 	 ParameterizedGenericMethodBinding getParameterizedGenericMethodBinding(MethodBinding methodBinding, CompilationUnitResolver resolver) {
-	 	this.scanner.index++; // skip percent
 	 	int length = methodBinding.typeVariables().length;
 	 	TypeBinding[] arguments = new TypeBinding[length];
 	 	for (int i = 0; i < length; i++) {
