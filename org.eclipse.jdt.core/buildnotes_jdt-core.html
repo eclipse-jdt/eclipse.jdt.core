@@ -116,6 +116,30 @@ What's new in this drop</h2>
 	</li>
 	</ul>
 </li>
+<li>New API class : org.eclipse.jdt.core.NamingConventions<br>
+This class provides methods for computing Java-specific names.
+<pre>
+package org.eclipse.jdt.core;
+public final class NamingConventions {
+	public static char[] removePrefixAndSuffixForArgumentName(IJavaProject javaProject, char[] argumentName) {...}
+	public static String removePrefixAndSuffixForArgumentName(IJavaProject javaProject, String argumentName) {...}
+	public static char[] removePrefixAndSuffixForFieldName(IJavaProject javaProject, char[] fieldName, int modifiers) {...}
+	public static String removePrefixAndSuffixForFieldName(IJavaProject javaProject, String fieldName, int modifiers) {...}
+	public static char[] removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, char[] localName) {...}
+	public static String removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, String localName) {...}
+	public static char[][] suggestArgumentNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {...}
+	public static String[] suggestArgumentNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {...}
+	public static char[][] suggestFieldNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, int modifiers, char[][] excludedNames) {...}
+	public static String[] suggestFieldNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, int modifiers, String[] excludedNames) {...}
+	public static char[][] suggestLocalVariableNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, char[][] excludedNames) {...}
+	public static String[] suggestLocalVariableNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {...}
+	public static char[] suggestGetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {...}
+	public static String suggestGetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {...}
+	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, char[][] excludedNames) {...}
+	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, String[] excludedNames) {...}
+}
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
