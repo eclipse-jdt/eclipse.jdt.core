@@ -42,7 +42,7 @@ public InputStream getContents() throws CoreException {
 
 	try {
 		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-			System.out.println("[JavaModelJarEntryFile.getContents()] Creating ZipFile on " + this.zipName); //$NON-NLS-1$	
+			System.out.println("(" + Thread.currentThread() + ") [JarEntryFile.getContents()] Creating ZipFile on " + this.zipName); //$NON-NLS-1$	//$NON-NLS-2$
 		}
 		ZipFile zipFile = new ZipFile(this.zipName); 
 		ZipEntry zipEntry = zipFile.getEntry(this.entryName);

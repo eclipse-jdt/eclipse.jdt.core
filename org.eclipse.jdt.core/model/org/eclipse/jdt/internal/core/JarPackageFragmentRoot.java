@@ -320,13 +320,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	} finally {
-		if (jar != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
-			try {
-				jar.close();
-			} catch (IOException e) {
-				// ignore 
-			}
-		}
+		JavaModelManager.getJavaModelManager().closeZipFile(jar);
 	}
 }
 	/**

@@ -187,13 +187,7 @@ private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 				}
 				info = ClassFileReader.read(zip, entryName, true);
 			} finally {
-				if (zip != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
-					try {
-						zip.close();
-					} catch (IOException e) {
-						// ignore 
-					}
-				}
+				JavaModelManager.getJavaModelManager().closeZipFile(zip);
 			}
 			if (info == null) {
 				throw newNotPresentException();

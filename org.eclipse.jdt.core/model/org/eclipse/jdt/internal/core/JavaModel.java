@@ -478,7 +478,7 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 		return externalFile;
 	} else {
 		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-			System.out.println("[JavaModel.getTarget(...)] Checking existence of " + path.toString()); //$NON-NLS-1$
+			System.out.println("(" + Thread.currentThread() + ") [JavaModel.getTarget(...)] Checking existence of " + path.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (externalFile.exists()) {
 			// cache external file
