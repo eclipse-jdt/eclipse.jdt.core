@@ -361,7 +361,7 @@ public final class AST {
 		ICompilationUnit unit,
 		boolean resolveBindings) {
 
-		return parseCompilationUnit(unit, resolveBindings, DefaultWorkingCopyOwner.PRIMARY);
+		return parseCompilationUnit(unit, resolveBindings, null/*use primary owner*/, null/*no progress monitor*/);
 	}
 	
 	/**
@@ -495,7 +495,7 @@ public final class AST {
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
 	 *   and <code>false</code> if bindings are not of interest
 	 * @param owner the owner of working copies that take precedence over underlying 
-	 *   compilation units
+	 *   compilation units, or <code>null</code> if the primary owner should be used
 	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
 	 * @return the compilation unit node
 	 * @exception IllegalArgumentException if the given Java element does not 
@@ -517,7 +517,7 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		if (owner == null) {
-			throw new IllegalArgumentException();
+			owner = DefaultWorkingCopyOwner.PRIMARY;
 		}
 		
 		char[] source = null;
@@ -621,7 +621,7 @@ public final class AST {
 		IClassFile classFile,
 		boolean resolveBindings) {
 			
-		return parseCompilationUnit(classFile, resolveBindings, DefaultWorkingCopyOwner.PRIMARY);
+		return parseCompilationUnit(classFile, resolveBindings, null/*use primary owner*/, null/*no progress monitor*/);
 	}
 	
 	/**
@@ -757,7 +757,7 @@ public final class AST {
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
 	 *   and <code>false</code> if bindings are not of interest
 	 * @param owner the owner of working copies that take precedence over underlying 
-	 *   compilation units
+	 *   compilation units, or <code>null</code> if the primary owner should be used
 	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
 	 * @return the compilation unit node
 	 * @exception IllegalArgumentException if the given Java element does not 
@@ -779,7 +779,7 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		if (owner == null) {
-			throw new IllegalArgumentException();
+			owner = DefaultWorkingCopyOwner.PRIMARY;
 		}
 		char[] source = null;
 		String sourceString = null;
@@ -903,7 +903,7 @@ public final class AST {
 		String unitName,
 		IJavaProject project) {
 		
-		return parseCompilationUnit(source, unitName, project, DefaultWorkingCopyOwner.PRIMARY);
+		return parseCompilationUnit(source, unitName, project, null/*use primary owner*/, null/*no progress monitor*/);
 	}
 				
 	/**
@@ -1054,7 +1054,7 @@ public final class AST {
 	 * @param project the Java project used to resolve names, or 
 	 *    <code>null</code> if bindings are not resolved
 	 * @param owner the owner of working copies that take precedence over underlying 
-	 *   compilation units
+	 *   compilation units, or <code>null</code> if the primary owner should be used
 	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
 	 * @return the compilation unit node
 	 * @see ASTNode#getFlags()
@@ -1082,7 +1082,7 @@ public final class AST {
 			return parseCompilationUnit(source);
 		}
 		if (owner == null) {
-			throw new IllegalArgumentException();
+			owner = DefaultWorkingCopyOwner.PRIMARY;
 		}
 	
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
@@ -1314,7 +1314,7 @@ public final class AST {
 		ICompilationUnit unit,
 		int position,
 		boolean resolveBindings) {
-			return parsePartialCompilationUnit(unit, position, resolveBindings, DefaultWorkingCopyOwner.PRIMARY);
+			return parsePartialCompilationUnit(unit, position, resolveBindings, null/*use primary owner*/, null/*no progress monitor*/);
 	}
 
 	/**
@@ -1514,7 +1514,7 @@ public final class AST {
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
 	 *   and <code>false</code> if bindings are not of interest
 	 * @param owner the owner of working copies that take precedence over underlying 
-	 *   compilation units
+	 *   compilation units, or <code>null</code> if the primary owner should be used
 	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
 	 * @return the abridged compilation unit node
 	 * @exception IllegalArgumentException if the given Java element does not 
@@ -1536,7 +1536,7 @@ public final class AST {
 			throw new IllegalArgumentException();
 		}
 		if (owner == null) {
-			throw new IllegalArgumentException();
+			owner = DefaultWorkingCopyOwner.PRIMARY;
 		}
 		
 		char[] source = null;
