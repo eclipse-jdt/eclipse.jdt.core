@@ -38,6 +38,7 @@ public class TypeDeclaration
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	protected boolean hasBeenGenerated = false;
 	public CompilationResult compilationResult;
+	private MethodDeclaration[] missingAbstractMethods;
 
 	public TypeDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -550,6 +551,73 @@ public class TypeDeclaration
 		return constructor;
 	}
 
+	/**
+	 * INTERNAL USE ONLY - Creates a fake method declaration for the corresponding binding.
+	 * It is used to report errors for missing abstract methods.
+	 */
+	public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding) {
+		TypeBinding[] argumentTypes = methodBinding.parameters;
+		int argumentsLength = argumentTypes.length;
+		//the constructor
+		MethodDeclaration methodDeclaration = new MethodDeclaration(this.compilationResult);
+		methodDeclaration.selector = methodBinding.selector;
+		methodDeclaration.sourceStart = sourceStart;
+		methodDeclaration.sourceEnd = sourceEnd;
+		methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~AccAbstract;
+
+		if (argumentsLength > 0) {
+			String baseName = "arg";
+			Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
+			for (int i = argumentsLength; --i >= 0;) {
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
+			}
+		}
+
+		//adding the constructor in the methods list
+		if (this.missingAbstractMethods == null) {
+			this.missingAbstractMethods = new MethodDeclaration[] { methodDeclaration };
+		} else {
+			MethodDeclaration[] newMethods;
+			System.arraycopy(
+				this.missingAbstractMethods,
+				0,
+				newMethods = new MethodDeclaration[this.missingAbstractMethods.length + 1],
+				1,
+				this.missingAbstractMethods.length);
+			newMethods[0] = methodDeclaration;
+			this.missingAbstractMethods = newMethods;
+		}
+
+		//============BINDING UPDATE==========================
+		methodDeclaration.binding = new MethodBinding(
+				methodDeclaration.modifiers, //methodDeclaration
+				methodBinding.selector,
+				methodBinding.returnType,
+				argumentsLength == 0 ? NoParameters : argumentTypes, //arguments bindings
+				methodBinding.thrownExceptions, //exceptions
+				binding); //declaringClass
+				
+		methodDeclaration.scope = new MethodScope(scope, methodDeclaration, true);
+		methodDeclaration.bindArguments();
+
+/*		if (binding.methods == null) {
+			binding.methods = new MethodBinding[] { methodDeclaration.binding };
+		} else {
+			MethodBinding[] newMethods;
+			System.arraycopy(
+				binding.methods,
+				0,
+				newMethods = new MethodBinding[binding.methods.length + 1],
+				1,
+				binding.methods.length);
+			newMethods[0] = methodDeclaration.binding;
+			binding.methods = newMethods;
+		}*/
+		//===================================================
+
+		return methodDeclaration;
+	}
+	
 	/*
 	 * Find the matching parse node, answers null if nothing found
 	 */
@@ -668,6 +736,8 @@ public class TypeDeclaration
 					methods[i].generateCode(scope, classFile);
 				}
 			}
+			
+			classFile.generateMissingAbstractMethods(this.missingAbstractMethods, scope.referenceCompilationUnit().compilationResult);
 
 			// generate all methods
 			classFile.addSpecialMethods();

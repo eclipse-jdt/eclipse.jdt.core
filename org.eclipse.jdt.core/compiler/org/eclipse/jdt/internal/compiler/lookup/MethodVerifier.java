@@ -6,6 +6,8 @@ package org.eclipse.jdt.internal.compiler.lookup;
  */
 import java.util.*;
 
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -295,7 +297,14 @@ private void checkInheritedMethods(MethodBinding[] methods, int length) {
 			for (int i = length; --i >= 0;)
 				if (!mustImplementAbstractMethod(methods[i]))
 					return;		// in this case, we have already reported problem against the concrete superclass
-			this.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+
+				TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+				if (typeDeclaration != null) {
+					MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(methods[0]);
+					missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+				} else {
+					this.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+				}
 		}
 		return;
 	}
@@ -375,8 +384,15 @@ private void checkMethods() {
 					this.checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
 				} else {
 					if (mustImplementAbstractMethods && index == 0 && matchingInherited[0].isAbstract())
-						if (mustImplementAbstractMethod(matchingInherited[0]))
-							this.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
+						if (mustImplementAbstractMethod(matchingInherited[0])) {
+							TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+							if (typeDeclaration != null) {
+								MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(matchingInherited[0]);
+								missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
+							} else {
+								this.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
+							}
+						}
 				}
 			}
 		}
