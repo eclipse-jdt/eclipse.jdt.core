@@ -24,23 +24,59 @@ import org.eclipse.jdt.internal.core.*;
 /**
  * This class is the entry point for source corrections.
  * 
+ * This class is not intended to be subclassed by client. This class is intended to be instantiated by client.
+ * 
  * @since 2.0 
  */
 public class CorrectionEngine implements ProblemReasons {
 	
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected int correctionStart;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected int correctionEnd;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected int prefixLength;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected ICompilationUnit unit;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected ICorrectionRequestor requestor;
-	
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected static final int CLASSES = 0x00000001;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected static final int INTERFACES = 0x00000002;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected static final int IMPORT = 0x00000004;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected static final int METHOD = 0x00000008;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected static final int FIELD = 0x00000010;
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected static final int LOCAL = 0x00000020;
-	
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected int filter;
 		
 	/**
@@ -271,6 +307,9 @@ public class CorrectionEngine implements ProblemReasons {
 		}
 	}
 
+	/**
+	 * This field is not intended to be use by client.
+	 */
 	protected ICompletionRequestor completionRequestor = new ICompletionRequestor() {
 		public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {}
 		public void acceptClass(char[] packageName,char[] className,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
