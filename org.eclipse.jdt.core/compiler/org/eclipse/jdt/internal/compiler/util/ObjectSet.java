@@ -105,13 +105,13 @@ public final class ObjectSet implements Cloneable {
 				return this.count < ObjectSet.this.elementSize;
 			}
 			public Object nextElement(){
-				do {
-					Object current = ObjectSet.this.elementTable[index++];
+				while (this.index < ObjectSet.this.elementTable.length){
+					Object current = ObjectSet.this.elementTable[this.index++];
 					if (current != null){
 						count++;
 						return current;
 					}
-				} while(this.index < ObjectSet.this.elementTable.length);
+				}
 				return null;
 			}	
 		};
@@ -125,7 +125,7 @@ public final class ObjectSet implements Cloneable {
 
 		int hash = element.hashCode();
 		int length = this.elementTable.length;
-		int index = (hash & 0x7FFFFFFF) % length;
+		int index = (hash  & 0x7FFFFFFF) % length;
 		Object currentElement;
 		while ((currentElement = elementTable[index]) != null) {
 			if (currentElement.equals(element)){
@@ -135,12 +135,12 @@ public final class ObjectSet implements Cloneable {
 				// local rehash - find the last matching element with same hashcode
 				// and move it in place of the current one if any
 				int next = index, lastMatching = -1;
-				while (this.elementTable[next = (next + 1) % length] != null && next != index) {
+				while (this.elementTable[next = ((next + 1) % length)] != null && (next != index)) {
 					if (this.elementTable[next].hashCode() == hash){
 						lastMatching = next;
 					}
 				}
-				if (lastMatching > 0){
+				if (lastMatching >= 0){
 					this.elementTable[index] = this.elementTable[lastMatching];
 					this.elementTable[lastMatching] = null;
 				}
