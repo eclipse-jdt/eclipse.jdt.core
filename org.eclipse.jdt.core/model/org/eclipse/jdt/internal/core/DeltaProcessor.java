@@ -800,6 +800,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				}
 				this.projectsToUpdate.add(element);
 				this.updateRoots(element.getPath(), delta);
+				this.projectsForDependentNamelookupRefresh.add((JavaProject) element);
 			}
 		} else {			
 			addToParentInfo(element);
@@ -960,6 +961,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				this.manager.removePerProjectInfo(
 					(JavaProject) element);
 				this.updateRoots(element.getPath(), delta);
+				this.projectsForDependentNamelookupRefresh.add((JavaProject) element);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				JavaProject project = (JavaProject) element.getJavaProject();
