@@ -99,8 +99,15 @@ private void computeClasspathLocations(
 		switch(entry.getEntryKind()) {
 			case IClasspathEntry.CPE_SOURCE :
 				if (!(target instanceof IContainer)) continue nextEntry;
-				IContainer outputFolder = root.getFolder(
-					entry.getOutputLocation() != null ? entry.getOutputLocation() : javaProject.getOutputLocation());
+				IPath outputLocation = entry.getOutputLocation() != null 
+					? entry.getOutputLocation() 
+					: javaProject.getOutputLocation();
+				IContainer outputFolder;
+				if (javaProject.getProject().getFullPath().equals(outputLocation)){
+					outputFolder = javaProject.getProject();
+				} else {
+					outputFolder = root.getFolder(outputLocation);
+				}
 				if (!outputFolder.exists())
 					createFolder(outputFolder, javaProject.getProject());
 				sLocations.add(
@@ -119,8 +126,15 @@ private void computeClasspathLocations(
 					ClasspathEntry e = (ClasspathEntry) prereqClasspathEntries[j];
 					Object t = JavaModel.getTarget(root, e.getPath(), true);
 					if (t instanceof IContainer && e.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-						IContainer binaryFolder = root.getFolder(
-							e.getOutputLocation() != null ? e.getOutputLocation() : prereqJavaProject.getOutputLocation());
+						IPath prereqOutputLocation = e.getOutputLocation() != null 
+							? e.getOutputLocation() 
+							: prereqJavaProject.getOutputLocation();
+						IContainer binaryFolder;
+						if (prereqJavaProject.getProject().getFullPath().equals(prereqOutputLocation)){
+							binaryFolder = prereqJavaProject.getProject();
+						} else {
+							binaryFolder = root.getFolder(prereqOutputLocation);
+						}
 						if (binaryFolder.exists() && !seen.contains(binaryFolder)) {
 							seen.add(binaryFolder);
 							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true);
