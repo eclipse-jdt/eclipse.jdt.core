@@ -535,7 +535,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * Runs a Java Model Operation
 	 */
-	protected void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
+	public static void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
 		try {
 			if (operation.isReadOnly() || ResourcesPlugin.getWorkspace().isTreeLocked()) {
 				operation.run(monitor);

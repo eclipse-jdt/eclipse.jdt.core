@@ -170,7 +170,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					
 					if (initialization instanceof ArrayInitializer) {
 
-						if ((initializationTypeBinding = this.initialization.resolveTypeExpecting(initializationScope, typeBinding)) 	!= null) {
+						if ((initializationTypeBinding = this.initialization.resolveTypeExpecting(initializationScope, typeBinding)) != null) {
 							((ArrayInitializer) this.initialization).binding = (ArrayBinding) initializationTypeBinding;
 							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
 						}
