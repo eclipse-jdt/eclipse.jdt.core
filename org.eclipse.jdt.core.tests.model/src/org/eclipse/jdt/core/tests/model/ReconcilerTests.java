@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
@@ -27,7 +31,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class ReconcilerTests extends ModifyingResourceTests {
 	
-	protected ICompilationUnit cu;
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
 	
@@ -36,7 +39,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public int problemCount;
 		private char[] unitSource;
 		public ProblemRequestor() {
-			this.initialize(null);
+			initialize(null);
 		}
 		public void acceptProblem(IProblem problem) {
 			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
@@ -123,18 +126,17 @@ protected void assertProblems(String message, String expected) {
  */
 public void setUp() throws Exception {
 	super.setUp();
-	this.cu = getCompilationUnit("Reconciler", "src", "p1", "X.java");
 	this.problemRequestor =  new ProblemRequestor();
-	this.workingCopy = cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+	this.workingCopy = getCompilationUnit("Reconciler/src/p1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 	this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-	this.startDeltas();
+	startDeltas();
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	this.createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-	this.createFolder("/Reconciler/src/p1");
-	this.createFolder("/Reconciler/src/p2");
-	this.createFile(
+	createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+	createFolder("/Reconciler/src/p1");
+	createFolder("/Reconciler/src/p2");
+	createFile(
 		"/Reconciler/src/p1/X.java", 
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -143,6 +145,36 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
+	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL_LIB", "/Reconciler15/lib15.jar"}, "bin");
+	Map options15 = javaProject.getOptions(true);
+	options15.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	options15.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+	options15.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+	javaProject.setOptions(options15);
+	IProject project = javaProject.getProject();
+	Util.createJar(
+		new String[] {
+			"java/util/List.java",
+			"package java.util;\n" +
+			"public class List<T> {\n" +
+			"}",
+			"java/util/Stack.java",
+			"package java.util;\n" +
+			"public class Stack<T> {\n" +
+			"}",
+		},
+		options15,
+		project.getLocation().toOSString() + File.separator + "lib15.jar"
+	);
+	project.refreshLocal(IResource.DEPTH_INFINITE, null);
+	
+}
+private void setUp15WorkingCopy() throws JavaModelException {
+	String contents = this.workingCopy.getSource();
+	this.workingCopy.discardWorkingCopy();
+	this.workingCopy = getCompilationUnit("Reconciler15/src/p1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+	setWorkingCopyContents(contents);
+	this.workingCopy.makeConsistent(null);
 }
 private void setWorkingCopyContents(String contents) throws JavaModelException {
 	this.workingCopy.getBuffer().setContents(contents);
@@ -155,11 +187,11 @@ public void tearDown() throws Exception {
 	if (this.workingCopy != null) {
 		this.workingCopy.discardWorkingCopy();
 	}
-	this.stopDeltas();
+	stopDeltas();
 	super.tearDown();
 }
 public void tearDownSuite() throws Exception {
-	this.deleteProject("Reconciler");
+	deleteProject("Reconciler");
 	super.tearDownSuite();
 }
 /**
@@ -297,7 +329,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	
 	// Add { on partial method
-	this.clearDeltas();
+	clearDeltas();
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -345,34 +377,21 @@ public void testBufferOpenAfterReconcile() throws CoreException {
  * of a method's type parameter change.
  */
 public void testChangeMethodTypeParameters() throws JavaModelException {
-	IJavaProject project = getJavaProject("Reconciler");
-	Map existingOptions = project.getOptions(true);
-	try {
-		Map options = new HashMap();
-		options.putAll(existingOptions);
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-		project.setOptions(options);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		
-		clearDeltas();
-		setWorkingCopyContents(
-			"package p1;\n" +
-			"import p2.*;\n" +
-			"public class X {\n" +
-			"  public <T> void foo() {\n" +
-			"  }\n" +
-			"}");
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		assertDeltas(
-			"Unexpected delta", 
-			"X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"	foo()[*]: {CONTENT}"
-		);
-	} finally {
-		project.setOptions(existingOptions);
-	}
+	setUp15WorkingCopy();
+	clearDeltas();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public <T> void foo() {\n" +
+		"  }\n" +
+		"}");
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {CONTENT}"
+	);
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current
@@ -459,7 +478,7 @@ public void testCloseWorkingCopy() throws JavaModelException {
  */
 public void testConstantReference() throws CoreException {
 	try {
-		this.createFile(
+		createFile(
 			"/Reconciler/src/p1/OS.java",
 			"package p1;\n" +
 			"public class OS {\n" +
@@ -483,7 +502,7 @@ public void testConstantReference() throws CoreException {
 			"----------\n"
 		);
 	} finally {
-		this.deleteFile("/Reconciler/src/p1/OS.java");
+		deleteFile("/Reconciler/src/p1/OS.java");
 	}
 }
 /**
@@ -525,7 +544,7 @@ public void testDeleteTwoMethods() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	
 	// delete the 2 methods
-	this.clearDeltas();
+	clearDeltas();
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -551,7 +570,7 @@ public void testGrowImports() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	
 	// add an import
-	this.clearDeltas();
+	clearDeltas();
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p\n" +
@@ -564,7 +583,7 @@ public void testGrowImports() throws JavaModelException {
 	);
 		
 	// append to import name
-	this.clearDeltas();
+	clearDeltas();
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2\n" +
@@ -607,7 +626,7 @@ public void testMethodWithError01() throws CoreException {
 	);
 
 	// Fix the syntax error
-	this.clearDeltas();
+	clearDeltas();
 	String contents =
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -725,7 +744,7 @@ public void testMethodWithError04() throws CoreException {
  */
 public void testMethodWithError05() throws CoreException {
 	try {
-		this.createFolder("/Reconciler/src/tests");
+		createFolder("/Reconciler/src/tests");
 		String contents =
 			"package tests;	\n"+
 			"abstract class AbstractSearchableSource extends AbstractSource implements SearchableSource {	\n"+
@@ -734,11 +753,11 @@ public void testMethodWithError05() throws CoreException {
 			"		return indexOfImpl(value);	\n"+
 			"	}	\n"+
 			"}	\n";
-		this.createFile(
+		createFile(
 			"/Reconciler/src/tests/AbstractSearchableSource.java", 
 			contents);
 	
-		this.createFile(
+		createFile(
 			"/Reconciler/src/tests/Source.java", 
 			"package tests;	\n"+
 			"interface Source {	\n"+
@@ -746,7 +765,7 @@ public void testMethodWithError05() throws CoreException {
 			"	int size();	\n"+
 			"}	\n");
 	
-		this.createFile(
+		createFile(
 			"/Reconciler/src/tests/AbstractSource.java", 
 			"package tests;	\n"+
 			"abstract class AbstractSource implements Source {	\n"+
@@ -764,7 +783,7 @@ public void testMethodWithError05() throws CoreException {
 			"	}	\n"+
 			"}	\n");
 	
-		this.createFile(
+		createFile(
 			"/Reconciler/src/tests/SearchableSource.java", 
 			"package tests;	\n"+
 			"interface SearchableSource extends Source {	\n"+
@@ -775,7 +794,7 @@ public void testMethodWithError05() throws CoreException {
 		ProblemRequestor pbReq =  new ProblemRequestor();
 		ICompilationUnit wc = compilationUnit.getWorkingCopy(new WorkingCopyOwner() {}, pbReq, null);
 		pbReq.initialize(contents.toCharArray());
-		this.startDeltas();
+		startDeltas();
 		wc.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		String actual = pbReq.problems.toString();
 		String expected = 
@@ -789,11 +808,11 @@ public void testMethodWithError05() throws CoreException {
 			expected,
 			actual);
 	} finally {
-		this.deleteFile("/Reconciler/src/tests/AbstractSearchableSource.java");
-		this.deleteFile("/Reconciler/src/tests/SearchableSource.java");
-		this.deleteFile("/Reconciler/src/tests/Source.java");
-		this.deleteFile("/Reconciler/src/tests/AbstractSource.java");
-		this.deleteFolder("/Reconciler/src/tests");
+		deleteFile("/Reconciler/src/tests/AbstractSearchableSource.java");
+		deleteFile("/Reconciler/src/tests/SearchableSource.java");
+		deleteFile("/Reconciler/src/tests/Source.java");
+		deleteFile("/Reconciler/src/tests/AbstractSource.java");
+		deleteFolder("/Reconciler/src/tests");
 	}
 }
 /*
@@ -810,14 +829,13 @@ public void testMethodWithError06() throws CoreException {
 			"  public.void foo() {\n" +
 			"  }\n" +
 			"}";
-		this.createFile(
+		createFile(
 			"/Reconciler/src/p1/Y.java", 
 			contents
 		);
-		this.cu = getCompilationUnit("Reconciler", "src", "p1", "Y.java");
 		this.problemRequestor =  new ProblemRequestor();
 		this.problemRequestor.initialize(contents.toCharArray());
-		this.workingCopy = this.cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
@@ -828,7 +846,7 @@ public void testMethodWithError06() throws CoreException {
 			"----------\n"
 		);
 	} finally {
-		this.deleteFile("/Reconciler/src/p1/Y.java");
+		deleteFile("/Reconciler/src/p1/Y.java");
 	}
 }
 /*
@@ -845,14 +863,13 @@ public void testMethodWithError07() throws CoreException {
 			"  public.void foo() {\n" +
 			"  }\n" +
 			"}";
-		this.createFile(
+		createFile(
 			"/Reconciler/src/p1/Y.java", 
 			contents
 		);
-		this.cu = getCompilationUnit("Reconciler", "src", "p1", "Y.java");
 		this.problemRequestor =  new ProblemRequestor();
 		this.problemRequestor.initialize(contents.toCharArray());
-		this.workingCopy = this.cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 
 		// Close working copy
 		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed
@@ -870,7 +887,7 @@ public void testMethodWithError07() throws CoreException {
 		"----------\n"
 		);
 	} finally {
-		this.deleteFile("/Reconciler/src/p1/Y.java");
+		deleteFile("/Reconciler/src/p1/Y.java");
 	}
 }
 /*
@@ -898,10 +915,9 @@ public void testMethodWithError08() throws CoreException {
 			"/Reconciler/src/p2/X01.java", 
 			contents
 		);
-		this.cu = getCompilationUnit("Reconciler", "src", "p2", "X01.java");
 		this.problemRequestor =  new ProblemRequestor();
 		this.problemRequestor.initialize(contents.toCharArray());
-		this.workingCopy = this.cu.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler/src/p2/X01.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
 
 		// Close working copy
 		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed
@@ -935,18 +951,16 @@ public void testMethodWithError09() throws CoreException {
 			"	public abstract void bar();	\n"+
 			"}"
 		);
-		workingCopy1.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		workingCopy1.makeConsistent(null);
 		
-		this.cu = getCompilationUnit("Reconciler", "src", "p", "X.java");
 		this.problemRequestor =  new ProblemRequestor();
-		String contents = 
+		this.workingCopy = getCompilationUnit("Reconciler/src/p/X.java").getWorkingCopy(owner, this.problemRequestor, null);
+		setWorkingCopyContents(
 			"package p;\n" +
 			"public class X extends p1.X1 {\n" +
 			"	public void bar(){}	\n"+
-			"}";
-		this.workingCopy = this.cu.getWorkingCopy(owner, this.problemRequestor, null);
-		this.workingCopy.getBuffer().setContents(contents);
-		this.problemRequestor.initialize(contents.toCharArray());
+			"}"
+		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 
 		assertProblems(
@@ -963,13 +977,14 @@ public void testMethodWithError09() throws CoreException {
 /*
  * Scenario of reconciling using a working copy owner
  */
-public void _testMethodWithError10() throws CoreException {
+public void testMethodWithError10() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
-		workingCopy1 = getCompilationUnit("/Reconciler/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
+		createFolder("/Reconciler15/src/test/cheetah");
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
 		workingCopy1.getBuffer().setContents(
 			"package test.cheetah;\n"+
 			"import java.util.List;\n"+
@@ -978,32 +993,31 @@ public void _testMethodWithError10() throws CoreException {
 			"    Stack< List<Object>> stack = new Stack< List<Object> >();\n"+
 			"}\n"
 		);
-		workingCopy1.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		workingCopy1.makeConsistent(null);
 		
-		this.cu = getCompilationUnit("Reconciler", "src", "test.cheetah", "NestedGenericsTest.java");
 		this.problemRequestor =  new ProblemRequestor();
-		String contents = 
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(owner, this.problemRequestor, null);
+		setWorkingCopyContents(
 			"package test.cheetah;\n"+
 			"import java.util.Stack;\n"+
 			"public class NestedGenericsTest {\n"+
 			"    void test() {  \n"+
 			"        Stack s = new NestedGenerics().stack;  \n"+
 			"    }\n"+
-			"}\n";
-		this.workingCopy = this.cu.getWorkingCopy(owner, this.problemRequestor, null);
-		this.workingCopy.getBuffer().setContents(contents);
-		this.problemRequestor.initialize(contents.toCharArray());
+			"}\n"
+		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
-			"----------\n" // shouldn't report problem against p.X
+			"----------\n"
 		);
 	} finally {
 		if (workingCopy1 != null) {
 			workingCopy1.discardWorkingCopy();
 		}
+		deleteFolder("/Reconciler15/src/test");
 	}
 }
 /**
@@ -1020,7 +1034,7 @@ public void testMoveMember() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	this.clearDeltas();
+	clearDeltas();
 	
 	setWorkingCopyContents(
 		"package p1;\n" +
