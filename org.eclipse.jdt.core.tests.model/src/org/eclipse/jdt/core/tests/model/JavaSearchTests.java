@@ -269,7 +269,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 		}
 		return pathString;
 	}
-	protected char[] getSource(IResource resource, IJavaElement element, ICompilationUnit unit) throws JavaModelException {
+	protected char[] getSource(IResource resource, IJavaElement element, ICompilationUnit unit) throws CoreException {
 		char[] contents = CharOperation.NO_CHAR;
 		if ("java".equals(resource.getFileExtension())) {
 			ICompilationUnit cu = (ICompilationUnit)element.getAncestor(IJavaElement.COMPILATION_UNIT);
@@ -277,10 +277,11 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 				// working copy
 				contents = unit.getBuffer().getCharacters();
 			} else {
+				IFile file = ((IFile) resource);
 				contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 					null, 
-					((IFile) resource).getLocation().toFile().getPath(),
-					null).getContents();
+					file.getLocation().toFile().getPath(),
+					file.getCharset()).getContents();
 			}
 		}
 		return contents;

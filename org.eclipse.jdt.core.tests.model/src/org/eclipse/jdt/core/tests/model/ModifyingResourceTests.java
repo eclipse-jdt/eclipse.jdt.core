@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -123,23 +124,20 @@ public static void generateClassFile(String className, String javaSource) throws
 }
 
 protected IFile createFile(String path, InputStream content) throws CoreException {
-	IFile file = this.getFile(path);
+	IFile file = getFile(path);
 	file.create(content, true, null);
 	return file;
 }
 
 protected IFile createFile(String path, byte[] content) throws CoreException {
-	IFile file = this.getFile(path);
-	InputStream input = new ByteArrayInputStream(content);
-	file.create(input, true, null);
-	return file;
+	return createFile(path, new ByteArrayInputStream(content));
 }
 
 protected IFile createFile(String path, String content) throws CoreException {
-	IFile file = this.getFile(path);
-	InputStream input = new ByteArrayInputStream(content.getBytes());
-	file.create(input, true, null);
-	return file;
+	return createFile(path, content.getBytes());
+}
+protected IFile createFile(String path, String content, String charsetName) throws CoreException, UnsupportedEncodingException {
+	return createFile(path, content.getBytes(charsetName));
 }
 protected IFolder createFolder(String path) throws CoreException {
 	final IFolder folder = this.getFolder(path);

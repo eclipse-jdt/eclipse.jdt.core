@@ -446,7 +446,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						newState.removeLocator(typeLocator);
 						return;
 					case IResourceDelta.CHANGED :
-						if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0)
+						if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0
+								&& (sourceDelta.getFlags() & IResourceDelta.ENCODING) == 0)
 							return; // skip it since it really isn't changed
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this changed source file " + typeLocator); //$NON-NLS-1$
@@ -483,7 +484,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						}
 						return;
 					case IResourceDelta.CHANGED :
-						if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0)
+						if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0
+								&& (sourceDelta.getFlags() & IResourceDelta.ENCODING) == 0)
 							return; // skip it since it really isn't changed
 						if (outputFile.exists()) {
 							if (JavaBuilder.DEBUG)

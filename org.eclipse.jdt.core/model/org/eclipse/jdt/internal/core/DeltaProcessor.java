@@ -1667,8 +1667,10 @@ public class DeltaProcessor {
 //				}
 				break;
 			case IResourceDelta.CHANGED :
-				if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
-					&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) {// and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
+				int flags = delta.getFlags();
+				if ((flags & IResourceDelta.CONTENT) == 0  // only consider content change
+					&& (flags & IResourceDelta.ENCODING) == 0 // and encoding change
+					&& (flags & IResourceDelta.MOVED_FROM) == 0) {// and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
 					break;
 				}
 			// fall through
@@ -2188,8 +2190,8 @@ public class DeltaProcessor {
 				return elementType == IJavaElement.PACKAGE_FRAGMENT;
 			case IResourceDelta.CHANGED :
 				int flags = delta.getFlags();
-				if ((flags & IResourceDelta.CONTENT) != 0) {
-					// content has changed
+				if ((flags & IResourceDelta.CONTENT) != 0 || (flags & IResourceDelta.ENCODING) != 0) {
+					// content or encoding has changed
 					element = createElement(delta.getResource(), elementType, rootInfo);
 					if (element == null) return false;
 					updateIndex(element, delta);
@@ -2358,7 +2360,8 @@ public class DeltaProcessor {
 				switch (delta.getKind()) {
 					case IResourceDelta.CHANGED :
 						// no need to index if the content has not changed
-						if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
+						int flags = delta.getFlags();
+						if ((flags & IResourceDelta.CONTENT) == 0 && (flags & IResourceDelta.ENCODING) == 0)
 							break;
 					case IResourceDelta.ADDED :
 						indexManager.addBinary(file, binaryFolderPath);
@@ -2373,7 +2376,8 @@ public class DeltaProcessor {
 				switch (delta.getKind()) {
 					case IResourceDelta.CHANGED :
 						// no need to index if the content has not changed
-						if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
+						int flags = delta.getFlags();
+						if ((flags & IResourceDelta.CONTENT) == 0 && (flags & IResourceDelta.ENCODING) == 0)
 							break;
 					case IResourceDelta.ADDED :
 						indexManager.addSource(file, file.getProject().getFullPath());

@@ -32,6 +32,10 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.tests.model.JavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class EncodingTests extends ModifyingResourceTests {
@@ -605,6 +609,63 @@ public class EncodingTests extends ModifyingResourceTests {
 		String bomSource = bomSourceRef.getSource();
 		assertEquals("BOM UTF-8 source should be idtentical than UTF-8!", source, bomSource);
 	}	
+	
+	/*
+	 * Ensures that a file is reindexed when the encoding changes.
+	 * (regression test for bug 68585 index is out of date after encoding change)
+	 */
+	// TODO (jerome) enable once Platform Core has implemented the encoding change notification
+	public void _test033() throws CoreException {
+		try {
+			createFolder("/Encoding/src/test68585");
+			final String encoding = "UTF-8".equals(wkspEncoding) ? "Cp1252" : "UTF-8";
+			getWorkspace().run(new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					// use a different encoding to make the file unreadable
+					IFile file = null;
+					try {
+						file = createFile(
+							"/Encoding/src/test68585/X.java", 
+							"package  test68585;\n" +
+							"public class X {\n" +
+							"}\n" +
+							"class Yû {}",
+							encoding);
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+						return;
+					}
+					file.setCharset(wkspEncoding, null);
+				}
+			}, 
+			null);
+			
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+			JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+			search(
+				"Yû", 
+				IJavaSearchConstants.TYPE,
+				IJavaSearchConstants.DECLARATIONS,
+				scope, 
+				resultCollector);
+			assertSearchResults("Should not get any result", "", resultCollector);
+			
+			// change encoding so that file is readable
+			getFile("/Encoding/src/test68585/X.java").setCharset(encoding, null);
+			search(
+				"Yû", 
+				IJavaSearchConstants.TYPE,
+				IJavaSearchConstants.DECLARATIONS,
+				scope, 
+				resultCollector);
+			assertSearchResults(
+				"Should have been reindexed", 
+				"src/test68585/X.java test68585.Yû [Yû]",
+				resultCollector);
+		} finally {
+			deleteFolder("/Encoding/src/test68585");
+		}
+	}
 
 	/**
 	 * Test fix for bug 66898: refactor-rename: encoding is not preserved
