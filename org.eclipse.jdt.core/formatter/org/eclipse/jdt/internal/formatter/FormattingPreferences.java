@@ -140,28 +140,28 @@ public class FormattingPreferences {
 	public static final String BLANK_LINES_BEFORE_METHOD = "blank_lines_before_method";	//$NON-NLS-1$
 	public static final String BLANK_LINES_BEFORE_MEMBER_TYPE = "blank_lines_before_member_type";	//$NON-NLS-1$
 	public static final String INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE = "insert_space_after_block_close_brace";	//$NON-NLS-1$
-	public static final String INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE = "insert_space_before_bracket_in_array_type_reference";
-	public static final String INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE = "insert_space_between_brackets_in_array_type_reference";
-	public static final String COMPACT_IF_ALIGNMENT = "compact_if_alignment";
-	public static final String TYPE_DECLARATION_SUPERCLASS_ALIGNMENT = "type_declaration_superclass_alignment";
-	public static final String TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT = "type_declaration_superinterfaces_alignment";
-	public static final String METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = "method_declaration_arguments_alignment";
-	public static final String MESSAGE_SEND_ARGUMENTS_ALIGNMENT = "message_send_arguments_alignment";
-	public static final String MESSAGE_SEND_SELECTOR_ALIGNMENT = "message_send_selector_alignment";
-	public static final String METHOD_THROWS_CLAUSE_ALIGNMENT = "method_throws_clause_alignment";
-	public static final String TYPE_MEMBER_ALIGNMENT = "type_member_alignment";
-	public static final String ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = "allocation_expression_arguments_alignment";
-	public static final String QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = "qualified_allocation_expression_arguments_alignment";
-	public static final String ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = "array_initializer_expressions_alignment";
-	public static final String EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT = "explicit_constructor_arguments_alignment";
-	public static final String CONDITIONAL_EXPRESSION_ALIGNMENT = "conditional_expression_alignment";
+	public static final String INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE = "insert_space_before_bracket_in_array_type_reference";	//$NON-NLS-1$
+	public static final String INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE = "insert_space_between_brackets_in_array_type_reference";	//$NON-NLS-1$
+	public static final String COMPACT_IF_ALIGNMENT = "compact_if_alignment";	//$NON-NLS-1$
+	public static final String TYPE_DECLARATION_SUPERCLASS_ALIGNMENT = "type_declaration_superclass_alignment";	//$NON-NLS-1$
+	public static final String TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT = "type_declaration_superinterfaces_alignment";	//$NON-NLS-1$
+	public static final String METHOD_DECLARATION_ARGUMENTS_ALIGNMENT = "method_declaration_arguments_alignment";	//$NON-NLS-1$
+	public static final String MESSAGE_SEND_ARGUMENTS_ALIGNMENT = "message_send_arguments_alignment";	//$NON-NLS-1$
+	public static final String MESSAGE_SEND_SELECTOR_ALIGNMENT = "message_send_selector_alignment";	//$NON-NLS-1$
+	public static final String METHOD_THROWS_CLAUSE_ALIGNMENT = "method_throws_clause_alignment";	//$NON-NLS-1$
+	public static final String TYPE_MEMBER_ALIGNMENT = "type_member_alignment";	//$NON-NLS-1$
+	public static final String ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = "allocation_expression_arguments_alignment";	//$NON-NLS-1$
+	public static final String QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT = "qualified_allocation_expression_arguments_alignment";	//$NON-NLS-1$
+	public static final String ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT = "array_initializer_expressions_alignment";	//$NON-NLS-1$
+	public static final String EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT = "explicit_constructor_arguments_alignment";	//$NON-NLS-1$
+	public static final String CONDITIONAL_EXPRESSION_ALIGNMENT = "conditional_expression_alignment";	//$NON-NLS-1$
 	// TODO update the code formatter preview with these options
-	public static final String BINARY_EXPRESSION_ALIGNMENT = "binary_expression_alignment";
-	public static final String INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY = "insert_new_line_in_empty_method_body";
-	public static final String INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION = "insert_new_line_in_empty_type_declaration";
-	public static final String INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION = "insert_new_line_in_empty_anonymous_type_declaration";
-	public static final String INSERT_NEW_LINE_IN_EMPTY_BLOCK = "insert_new_line_in_empty_block";
-	public static final String NUMBER_OF_EMPTY_LINES_TO_PRESERVE = "number_of_empty_lines_to_preserve";
+	public static final String BINARY_EXPRESSION_ALIGNMENT = "binary_expression_alignment";	//$NON-NLS-1$
+	public static final String INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY = "insert_new_line_in_empty_method_body";	//$NON-NLS-1$
+	public static final String INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION = "insert_new_line_in_empty_type_declaration";	//$NON-NLS-1$
+	public static final String INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION = "insert_new_line_in_empty_anonymous_type_declaration";	//$NON-NLS-1$
+	public static final String INSERT_NEW_LINE_IN_EMPTY_BLOCK = "insert_new_line_in_empty_block";	//$NON-NLS-1$
+	public static final String NUMBER_OF_EMPTY_LINES_TO_PRESERVE = "number_of_empty_lines_to_preserve";	//$NON-NLS-1$
 
 	/**
 	 * Preferences defaults value	 */	

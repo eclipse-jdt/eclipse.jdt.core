@@ -2081,7 +2081,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
 		
 		// TODO can be removed when the new formatter is officially released.
-		final String NEW_CODE_FORMATTER_ACTIVATION = PLUGIN_ID + ".newformatter.activation";
+		final String NEW_CODE_FORMATTER_ACTIVATION = PLUGIN_ID + ".newformatter.activation";	//$NON-NLS-1$
 		preferences.setDefault(NEW_CODE_FORMATTER_ACTIVATION, DISABLED); //$NON-NLS-1$
 		optionNames.add(NEW_CODE_FORMATTER_ACTIVATION);
 	}
