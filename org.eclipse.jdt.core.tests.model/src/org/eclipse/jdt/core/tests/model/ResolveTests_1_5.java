@@ -33,7 +33,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new ResolveTests_1_5("test0085"));			
+	suite.addTest(new ResolveTests_1_5("test0058"));			
 	return suite;
 }
 
@@ -1239,8 +1239,7 @@ public void test0057() throws JavaModelException {
 		elements
 	);
 }
-//TODO (jerome) check new behavior and reenable
-public void _test0058() throws JavaModelException {
+public void test0058() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0058/Test.java",
 			"package test0058;\n" +
@@ -1263,7 +1262,7 @@ public void _test0058() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo() key=Ltest0058/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V%<Ltest0058/Test<TT1;>;.foo<T2:Ljava/lang/Object;>()V:TT2;> [in Test [in [Working copy] Test.java [in test0058 [in src2 [in Resolve]]]]]",
+		"foo() key=Ltest0058/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V%<Ltest0058/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V:TT2;> [in Test [in [Working copy] Test.java [in test0058 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -1466,8 +1465,7 @@ public void test0066() throws JavaModelException {
 		elements
 	);
 }
-//TODO (jerome) check new behavior and reenable
-public void _test0067() throws JavaModelException {
+public void test0067() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src2/test0067/Test.java",
 			"package test0067;\n" +
@@ -1487,7 +1485,7 @@ public void _test0067() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test(U) key=Ltest0067/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V%<Ltest0067/Test<TT;>;.<U:Ljava/lang/Object;>(TU;)V:TU;> [in Test [in [Working copy] Test.java [in test0067 [in src2 [in Resolve]]]]]",
+		"Test(U) key=Ltest0067/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V%<Ltest0067/Test<Ljava/lang/String;>;.<U:Ljava/lang/Object;>(TU;)V:TU;> [in Test [in [Working copy] Test.java [in test0067 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
