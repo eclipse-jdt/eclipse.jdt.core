@@ -30,7 +30,18 @@ public static Test suite() {
 protected void assertMemento(String expected, IJavaElement element) {
 	String actual = element.getHandleIdentifier();
 	if (!expected.equals(actual)){
-	 	System.out.println(Util.displayString(actual, 2));
+		String escapedExternalJCL = getEscapedExternalJCLPath();
+		int start = actual.indexOf(escapedExternalJCL);
+		if (start != -1) {
+			String firstPart = actual.substring(0, start);
+		 	System.out.print(Util.displayString(firstPart, 2));
+		 	System.out.print(" + getEscapedExternalJCLPath() + ");
+		 	String secondPart = actual.substring(start+escapedExternalJCL.length());
+		 	System.out.print(Util.displayString(secondPart, 0));
+		} else {
+			System.out.print(Util.displayString(actual, 2));
+		}
+	 	System.out.println(",");
 	}
 	assertEquals(
 		"Unexpected memento for " + element,
@@ -41,6 +52,16 @@ protected void assertMemento(String expected, IJavaElement element) {
 		"Unexpected restored element",
 		element,
 		restored);
+}
+protected String getEscapedExternalJCLPath() {
+	String path = getExternalJCLPath().toString();
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0; i < path.length(); i++) {
+		char character = path.charAt(i);
+		if (character == '/') buffer.append('\\');
+		buffer.append(character);
+	}
+	return buffer.toString();
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -205,7 +226,7 @@ public void testExternalJarBinaryFieldMemento() throws JavaModelException {
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
 	IField field = type.getField("field");
 	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X.class[X^field",
+		"=P/"+ getEscapedExternalJCLPath() + "<p(X.class[X^field",
 		field);
 }
 /**
@@ -214,7 +235,7 @@ public void testExternalJarBinaryFieldMemento() throws JavaModelException {
 public void testExternalJarBinaryInnerTypeMemento() throws JavaModelException {
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X$Inner.class").getType();
 	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X$Inner.class[Inner",
+		"=P/" + getEscapedExternalJCLPath() + "<p(X$Inner.class[Inner",
 		type);
 }
 /**
@@ -224,7 +245,7 @@ public void testExternalJarBinaryMethodMemento() throws JavaModelException {
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X.class[X~foo~[Ljava.lang.String;",
+		"=P/" + getEscapedExternalJCLPath() + "<p(X.class[X~foo~[Ljava.lang.String;",
 		method);
 }
 /**
@@ -233,7 +254,7 @@ public void testExternalJarBinaryMethodMemento() throws JavaModelException {
 public void testExternalJarBinaryTypeMemento() throws JavaModelException {	
 	IType type = getClassFile("P", getExternalJCLPathString(), "p", "X.class").getType();
 	assertMemento(
-		"=P/" + getExternalJCLPath() + "<p(X.class[X",
+		"=P/" + getEscapedExternalJCLPath() + "<p(X.class[X",
 		type);	
 }
 /**
@@ -282,7 +303,7 @@ public void testInternalJarBinaryFieldMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	IField field = type.getField("field");
 	assertMemento(
-		"=P/lib/myLib.jar<p(X.class[X^field",
+		"=P/lib\\/myLib.jar<p(X.class[X^field",
 		field);
 }
 /**
@@ -291,7 +312,7 @@ public void testInternalJarBinaryFieldMemento() throws JavaModelException {
 public void testInternalJarBinaryInnerTypeMemento() throws JavaModelException {	
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X$Inner.class").getType();
 	assertMemento(
-		"=P/lib/myLib.jar<p(X$Inner.class[Inner",
+		"=P/lib\\/myLib.jar<p(X$Inner.class[Inner",
 		type);
 }
 /**
@@ -301,7 +322,7 @@ public void testInternalJarBinaryMethodMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
-		"=P/lib/myLib.jar<p(X.class[X~foo~[Ljava.lang.String;",
+		"=P/lib\\/myLib.jar<p(X.class[X~foo~[Ljava.lang.String;",
 		method);
 }
 /**
@@ -310,7 +331,7 @@ public void testInternalJarBinaryMethodMemento() throws JavaModelException {
 public void testInternalJarBinaryTypeMemento() throws JavaModelException {	
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	assertMemento(
-		"=P/lib/myLib.jar<p(X.class[X",
+		"=P/lib\\/myLib.jar<p(X.class[X",
 		type);	
 }
 /**
@@ -460,7 +481,7 @@ public void testPackageFragmentRootMemento4() {
 	IFolder otherLibFolder = getFolder("/OtherProj/lib");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(otherLibFolder);
 	assertMemento(
-		"=P//OtherProj/lib",
+		"=P/\\/OtherProj\\/lib",
 		root);
 }
 /**
@@ -472,7 +493,7 @@ public void testPackageFragmentRootMemento5() {
 	IFile jar = getFile("/P/lib/myLib.jar");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(jar);
 	assertMemento(
-		"=P/lib/myLib.jar",
+		"=P/lib\\/myLib.jar",
 		root);
 }
 /**
@@ -484,7 +505,7 @@ public void testPackageFragmentRootMemento6() {
 	IFile jar = getFile("/OtherProj/lib/myLib.jar");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(jar);
 	assertMemento(
-		"=P//OtherProj/lib/myLib.jar",
+		"=P/\\/OtherProj\\/lib\\/myLib.jar",
 		root);
 }
 /**
@@ -494,7 +515,7 @@ public void testPackageFragmentRootMemento6() {
 public void testPackageFragmentRootMemento7() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("P", getExternalJCLPathString());
 	assertMemento(
-		"=P/" + getExternalJCLPath(),
+		"=P/" + getEscapedExternalJCLPath() + "",
 		root);
 }
 /**
@@ -504,6 +525,16 @@ public void testProjectMemento() {
 	IJavaProject project = getJavaProject("P");
 	assertMemento(
 		"=P",
+		project);
+}
+/**
+ * Tests that a project with special chararcters in its name can be persisted and restored using its memento.
+ * (regression test for bug 47815 Refactoring doesn't work with some project names [refactoring])
+ */
+public void testProjectMemento2() {
+	IJavaProject project = getJavaProject("P (abc) ~");
+	assertMemento(
+		"=P \\(abc) \\~",
 		project);
 }
 /**

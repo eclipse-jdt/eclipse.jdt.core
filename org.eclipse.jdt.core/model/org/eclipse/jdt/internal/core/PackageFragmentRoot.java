@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
@@ -25,6 +24,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -481,7 +481,7 @@ protected char getHandleMementoDelimiter() {
 /*
  * @see JavaElement
  */
-public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
 		case JEM_COUNT:
 			return getHandleUpdatingCountFromMemento(memento, owner);
@@ -528,7 +528,7 @@ public String getHandleMemento(){
 	}
 	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
 	buff.append(getHandleMementoDelimiter());
-	buff.append(path.toString()); 
+	escapeMementoName(buff, path.toString()); 
 	if (this.occurrenceCount > 1) {
 		buff.append(JEM_COUNT);
 		buff.append(this.occurrenceCount);

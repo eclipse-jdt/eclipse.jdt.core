@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
-import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -20,6 +19,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
@@ -74,7 +74,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 		// a local variable has no info
 	}
 
-	public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+	public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 		switch (token.charAt(0)) {
 			case JEM_COUNT:
 				return getHandleUpdatingCountFromMemento(memento, owner);

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +20,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -30,8 +30,9 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
 
+	public static final char JEM_ESCAPE = '\\';
 	public static final char JEM_JAVAPROJECT = '=';
-	public static final char JEM_PACKAGEFRAGMENTROOT = IPath.SEPARATOR;
+	public static final char JEM_PACKAGEFRAGMENTROOT = '/';
 	public static final char JEM_PACKAGEFRAGMENT = '<';
 	public static final char JEM_FIELD = '^';
 	public static final char JEM_METHOD = '~';
@@ -127,6 +128,29 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected boolean equalsDOMNode(IDOMNode node) {
 		return false;
+	}
+	protected void escapeMementoName(StringBuffer buffer, String mementoName) {
+		for (int i = 0, length = mementoName.length(); i < length; i++) {
+			char character = mementoName.charAt(i);
+			switch (character) {
+				case JEM_ESCAPE:
+				case JEM_COUNT:
+				case JEM_JAVAPROJECT:
+				case JEM_PACKAGEFRAGMENTROOT:
+				case JEM_PACKAGEFRAGMENT:
+				case JEM_FIELD:
+				case JEM_METHOD:
+				case JEM_INITIALIZER:
+				case JEM_COMPILATIONUNIT:
+				case JEM_CLASSFILE:
+				case JEM_TYPE:
+				case JEM_PACKAGEDECLARATION:
+				case JEM_IMPORTDECLARATION:
+				case JEM_LOCALVARIABLE:
+					buffer.append(JEM_ESCAPE);
+			}
+			buffer.append(character);
+		}
 	}
 	/**
 	 * @see IJavaElement
@@ -290,12 +314,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * The given token is the current delimiter indicating the type of the next token(s).
 	 * The given working copy owner is used only for compilation unit handles.
 	 */
-	public abstract IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner);
+	public abstract IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner);
 	/*
 	 * Creates a Java element handle from the given memento.
 	 * The given working copy owner is used only for compilation unit handles.
 	 */
-	public IJavaElement getHandleFromMemento(StringTokenizer memento, WorkingCopyOwner owner) {
+	public IJavaElement getHandleFromMemento(MementoTokenizer memento, WorkingCopyOwner owner) {
 		if (!memento.hasMoreTokens()) return this;
 		String token = memento.nextToken();
 		return getHandleFromMemento(token, memento, owner);
@@ -304,7 +328,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Update the occurence count of the receiver and creates a Java element handle from the given memento.
 	 * The given working copy owner is used only for compilation unit handles.
 	 */
-	public IJavaElement getHandleUpdatingCountFromMemento(StringTokenizer memento, WorkingCopyOwner owner) {
+	public IJavaElement getHandleUpdatingCountFromMemento(MementoTokenizer memento, WorkingCopyOwner owner) {
 		this.occurrenceCount = Integer.parseInt(memento.nextToken());
 		if (!memento.hasMoreTokens()) return this;
 		String token = memento.nextToken();
@@ -322,7 +346,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public String getHandleMemento(){
 		StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
 		buff.append(getHandleMementoDelimiter());
-		buff.append(getElementName());
+		escapeMementoName(buff, getElementName());
 		if (this.occurrenceCount > 1) {
 			buff.append(JEM_COUNT);
 			buff.append(this.occurrenceCount);

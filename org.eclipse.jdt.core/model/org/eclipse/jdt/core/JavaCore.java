@@ -67,6 +67,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -975,21 +976,7 @@ public final class JavaCore extends Plugin {
 		if (handleIdentifier == null) {
 			return null;
 		}
-		String delimiters = new String(new char[] {
-			JavaElement.JEM_COUNT,
-			JavaElement.JEM_JAVAPROJECT,
-			JavaElement.JEM_PACKAGEFRAGMENTROOT,
-			JavaElement.JEM_PACKAGEFRAGMENT,
-			JavaElement.JEM_FIELD,
-			JavaElement.JEM_METHOD,
-			JavaElement.JEM_INITIALIZER,
-			JavaElement.JEM_COMPILATIONUNIT,
-			JavaElement.JEM_CLASSFILE,
-			JavaElement.JEM_TYPE,
-			JavaElement.JEM_PACKAGEDECLARATION,
-			JavaElement.JEM_IMPORTDECLARATION,
-			JavaElement.JEM_LOCALVARIABLE});
-		StringTokenizer memento = new StringTokenizer(handleIdentifier, delimiters, true);
+		MementoTokenizer memento = new MementoTokenizer(handleIdentifier);
 		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 		return model.getHandleFromMemento(memento, owner);
 	}

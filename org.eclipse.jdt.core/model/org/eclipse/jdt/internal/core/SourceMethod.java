@@ -91,10 +91,11 @@ public String[] getExceptionTypes() throws JavaModelException {
  */
 public String getHandleMemento() {
 	StringBuffer buff = new StringBuffer(((JavaElement) getParent()).getHandleMemento());
-	buff.append(getHandleMementoDelimiter());
-	buff.append(getElementName());
+	char delimiter = getHandleMementoDelimiter();
+	buff.append(delimiter);
+	escapeMementoName(buff, getElementName());
 	for (int i = 0; i < fParameterTypes.length; i++) {
-		buff.append(getHandleMementoDelimiter());
+		buff.append(delimiter);
 		buff.append(fParameterTypes[i]);
 	}
 	if (this.occurrenceCount > 1) {

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.*;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -27,6 +26,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.BufferCache;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.OverflowingLRUCache;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 import junit.framework.Test;
 
@@ -221,7 +221,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			return 0;
 		}
 
-		public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, WorkingCopyOwner owner) {
+		public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 			return null;
 		}
 		
