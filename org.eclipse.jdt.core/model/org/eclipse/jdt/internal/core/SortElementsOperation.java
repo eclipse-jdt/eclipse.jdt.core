@@ -55,7 +55,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * progress reporting.
 	 */
 	protected int getMainAmountOfWork(){
-		return 3;
+		return fElementsToProcess.length;
 	}
 	
 	/**
@@ -64,22 +64,31 @@ public class SortElementsOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
-			JavaElementDelta delta = newJavaElementDelta();
-			ICompilationUnit unit = ((JavaElement)fElementsToProcess[0]).getCompilationUnit();
-			IBuffer buffer = unit.getBuffer();
-			if (buffer  == null) return;
-			char[] bufferContents = buffer.getCharacters();
-			processElement(unit,bufferContents);
-			unit.save(null, false);
-			boolean isWorkingCopy = unit.isWorkingCopy();
-			if (!isWorkingCopy)
-				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
-			worked(1);
-			if (!isWorkingCopy // if unit is working copy, then save will have already fired the delta
-				&& !Util.isExcluded(unit)
-				&& unit.getParent().exists()) { // if unit is working copy, then save will have already fired the delta
-				delta.changed(unit, IJavaElementDelta.F_CONTENT);
-				addDelta(delta);
+			for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
+				JavaElementDelta delta = newJavaElementDelta();
+				ICompilationUnit unit = ((JavaElement) fElementsToProcess[i]).getCompilationUnit();
+				if (unit == null) {
+					return;
+				}
+				IBuffer buffer = unit.getBuffer();
+				if (buffer  == null) { 
+					return;
+				}
+				char[] bufferContents = buffer.getCharacters();
+				processElement(unit,bufferContents);
+				unit.save(null, false);
+				boolean isWorkingCopy = unit.isWorkingCopy();
+				if (!isWorkingCopy) {
+					this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+				}
+				worked(1);
+				 // if unit is working copy, then save will have already fired the delta
+				if (!isWorkingCopy
+					&& !Util.isExcluded(unit)
+					&& unit.getParent().exists()) {
+					delta.changed(unit, IJavaElementDelta.F_CONTENT);
+					addDelta(delta);
+				}				
 			}
 		} finally {
 			done();
@@ -108,9 +117,7 @@ public class SortElementsOperation extends JavaModelOperation {
 				unit.getElementName(),
 				unit.getJavaProject().getOption(JavaCore.CORE_ENCODING, true)),
 			false);
-		worked(1);
 		unit.getBuffer().setContents(builder.getSource());
-		worked(1);
 	}
 
 	private CompilationUnitDeclaration parseCompilationUnit(ICompilationUnit compilationUnit, char[] source) {
@@ -147,5 +154,28 @@ public class SortElementsOperation extends JavaModelOperation {
 				types[i].parseMethod(parser, compilationUnitDeclaration);
 		}
 		return compilationUnitDeclaration;
+	}
+	/**
+	 * Possible failures:
+	 * <ul>
+	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code></li>.
+	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
+	 * </ul>
+	 * @see IJavaModelStatus
+	 * @see JavaConventions
+	 */
+	public IJavaModelStatus verify() {
+		if (fElementsToProcess.length <= 0) {
+			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
+		}
+		for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
+			if (fElementsToProcess[i] == null) {
+				return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
+			}
+			if (!(fElementsToProcess[i] instanceof IWorkingCopy)) {
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, fElementsToProcess[i]);
+			}
+		}
+		return JavaModelStatus.VERIFIED_OK;
 	}
 }

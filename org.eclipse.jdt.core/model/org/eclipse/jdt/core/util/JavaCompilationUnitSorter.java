@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002 IBM Corp. and others.
+ * Copyright (c) 2003 IBM Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -64,11 +63,11 @@ public class JavaCompilationUnitSorter {
 		return 0;
 	}
 
-	public static void sort(ICompilationUnit compilationUnit, Comparator comparator, IProgressMonitor monitor) throws CoreException {
-		if (comparator == null || compilationUnit == null) {
+	public static void sort(ICompilationUnit[] compilationUnits, Comparator comparator, IProgressMonitor monitor) throws CoreException {
+		if (comparator == null || compilationUnits == null) {
 			return;
 		}
-		SortElementsOperation operation = new SortElementsOperation(new IJavaElement[] { compilationUnit} , comparator);
+		SortElementsOperation operation = new SortElementsOperation(compilationUnits , comparator);
 		operation.run(monitor);	
 	}
 }
