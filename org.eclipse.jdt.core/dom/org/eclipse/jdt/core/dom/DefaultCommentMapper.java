@@ -292,6 +292,7 @@ class DefaultCommentMapper {
 		
 		// Get line of node start position
 		int previousEndLine = scanner.getLineNumber(previousEnd);
+		int nodeStartLine = scanner.getLineNumber(nodeStart);
 		
 		// Find first comment index
 		int idx = getCommentIndex(this.commentIndex, nodeStart, -1);
@@ -309,7 +310,7 @@ class DefaultCommentMapper {
 			int commentStart = comment.getStartPosition();
 			int end = commentStart+comment.getLength();
 			int commentLine = scanner.getLineNumber(commentStart);
-			if (end <= previousEnd || commentLine == previousEndLine) {
+			if (end <= previousEnd || (commentLine == previousEndLine && commentLine != nodeStartLine)) {
 				break;
 			} else if (end < previousStart) { // may be equals => then no scan is necessary
 				scanner.resetTo(end, previousStart);
@@ -344,7 +345,7 @@ class DefaultCommentMapper {
 		if (startIdx != -1) {
 			// Verify that there's no token on the same line before first leading comment
 			int commentStart = this.comments[startIdx].getStartPosition();
-			if (previousEnd < commentStart) {
+			if (previousEnd < commentStart && previousEndLine != nodeStartLine) {
 				int startPosition = previousEnd;
 				scanner.resetTo(previousEnd, commentStart);
 				try {

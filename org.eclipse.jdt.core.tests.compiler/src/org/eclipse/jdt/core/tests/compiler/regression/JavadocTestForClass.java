@@ -24,9 +24,6 @@ public class JavadocTestForClass extends JavadocTest {
 	public JavadocTestForClass(String name) {
 		super(name);
 	}
-	public JavadocTestForClass(String name, String support) {
-		super(name, support);
-	}
 	public static Class javadocTestClass() {
 		return JavadocTestForClass.class;
 	}

@@ -20,9 +20,6 @@ public class JavadocTestForInterface extends JavadocTest {
 	public JavadocTestForInterface(String name) {
 		super(name);
 	}
-	public JavadocTestForInterface(String name, String support) {
-		super(name, support);
-	}
 	public static Class javadocTestClass() {
 		return JavadocTestForInterface.class;
 	}

@@ -20,9 +20,6 @@ public class JavadocTestForConstructor extends JavadocTest {
 	public JavadocTestForConstructor(String name) {
 		super(name);
 	}
-	public JavadocTestForConstructor(String name, String support) {
-		super(name, support);
-	}
 	public static Class javadocTestClass() {
 		return JavadocTestForConstructor.class;
 	}

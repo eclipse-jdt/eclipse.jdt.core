@@ -20,9 +20,6 @@ public class JavadocTestForField extends JavadocTest {
 	public JavadocTestForField(String name) {
 		super(name);
 	}
-	public JavadocTestForField(String name, String support) {
-		super(name, support);
-	}
 	public static Class javadocTestClass() {
 		return JavadocTestForField.class;
 	}

@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -73,72 +72,26 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	public static Test suiteForComplianceLevel(String level, Class testClass) {
 		TestSuite suite = new TestSuite(level);
 		try {
-//			Class[] paramTypes = new Class[] { String.class, String.class };
 			Class[] paramTypes = new Class[] { String.class };
 			Constructor constructor = testClass.getConstructor(paramTypes);
 			// Javadoc ENABLED
 			String support = CompilerOptions.DISABLED;
 			if (DOC_COMMENT_SUPPORT == null) {
 				suite.addTest(suiteForJavadocSupport(level, testClass, constructor, CompilerOptions.ENABLED));
-//				suiteForJavadocSupport(suite, testClass, constructor, CompilerOptions.ENABLED);
 			} else {
 				support =  DOC_COMMENT_SUPPORT;
 			}
 
 			// Javadoc DISABLED
 			suite.addTest(suiteForJavadocSupport(level, testClass, constructor, support));
-//			suiteForJavadocSupport(suite, testClass, constructor, support);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-//		return new RegressionTestSetup(suite, level);
 		return suite;
 	}
 
-	public static Test suiteForJavadocSupport(/*TestSuite suite,*/ String level, Class testClass, Constructor constructor, String support) throws InvocationTargetException, IllegalAccessException, InstantiationException {
-		TestSuite suite = new TestSuite("Doc "+support);
-		if (testNames != null) {
-			for (int i = 0; i < testNames.length; i++) {
-				String meth = "test" + testNames[i];
-//				Object[] params = {meth, support};
-				Object[] params = {meth};
-				suite.addTest((Test)constructor.newInstance(params));
-			}
-		}
-		else if (testNumbers != null) {
-			for (int i = 0; i < testNumbers.length; i++) {
-				String meth = "test";
-				int num = testNumbers[i];
-				if (num < 10) meth += "0";
-				if (num < 100) meth += "0";
-				meth += num;
-//				Object[] params = {meth, support};
-				Object[] params = {meth};
-				suite.addTest((Test)constructor.newInstance(params));
-			}
-		}
-		else if (testRange != null && testRange.length == 2 && testRange[0]>=0 && testRange[0]<=testRange[1]) {
-			for (int i=testRange[0]; i<=testRange[1]; i++) {
-				String meth = "test";
-				if (i<10) meth += "0";
-				if (i<100) meth += "0";
-				meth += i;
-//				Object[] params = {meth, support};
-				Object[] params = {meth};
-				suite.addTest((Test)constructor.newInstance(params));
-			}
-		} else {
-			// Run all tests
-			Method[] methods = testClass.getMethods();
-			for (int i = 0, max = methods.length; i < max; i++) {
-				if (methods[i].getModifiers() == 1 && methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-//					Object[] params = {methods[i].getName(), support};
-					Object[] params = {methods[i].getName()};
-					suite.addTest((Test)constructor.newInstance(params));
-				}
-			}
-		}
-//		return suite;
+	public static Test suiteForJavadocSupport(String level, Class testClass, Constructor constructor, String support) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+		Test suite = suite(testClass, "Doc "+support);
 		return new RegressionTestSetup(suite, level, support);
 	}
 
@@ -152,9 +105,6 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	}
 	
 	public JavadocTest(String name) {
-		this(name, CompilerOptions.ENABLED);
-	}
-	public JavadocTest(String name, String support) {
 		super(name);
 	}
 	/**

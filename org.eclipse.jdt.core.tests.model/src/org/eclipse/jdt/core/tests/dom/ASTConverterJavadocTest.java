@@ -30,10 +30,13 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Name;
@@ -43,6 +46,8 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ASTConverterJavadocTest extends ConverterTestSetup {
 
@@ -107,7 +112,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("testxxxx"));
+		suite.addTest(new ASTConverterJavadocTest("testBug54776"));
 		return suite;
 	}
 
@@ -162,7 +167,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertTrue(title, size==0 || problems.length() > 0);
 		}
 		// put default options on project
-		this.currentProject.setOptions(JavaCore.getOptions());
+		if (this.currentProject != null) this.currentProject.setOptions(JavaCore.getOptions());
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
@@ -1352,12 +1357,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				commentEnd = comment.getStartPosition() + comment.getLength() - 1;
 			}
 			assumeEquals("Method "+node+" does not have the correct length", commentEnd, methodEnd);
-			// Verify first method existence
+			// Verify second method existence
 			node = getASTNode((CompilationUnit) result, 0, 1);
 			assumeNotNull("We should get a non-null ast node", node);
 			assumeTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 			method = (MethodDeclaration) node;
-			// Verify first method extended positions
+			// Verify second method extended positions
 			commentStart = method.getStartPosition();
 			if (indexes[2]>=0) {
 				Comment comment = (Comment) compilUnit.getCommentList().get(indexes[2]);
@@ -1405,6 +1410,36 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void test108() throws JavaModelException {
 		verifyMapper("test108", 8, new int[] {1,3,4,-1});
 	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=54776
+	 */
+	public void testBug54776() throws JavaModelException {
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug54776", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.sourceUnit, false);
+		final CompilationUnit compilUnit = (CompilationUnit) result;
+		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		assumeEquals(this.prefix+"Wrong number of comments", 2, compilUnit.getCommentList().size());
+		ASTNode node = getASTNode((CompilationUnit) result, 0);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
+		TypeDeclaration typeDecl = (TypeDeclaration) node;
+		FieldDeclaration[] fields = typeDecl.getFields();
+		assumeEquals("We should have a field declaration", 1, fields.length);
+		List fragments = fields[0].fragments();
+		assumeEquals("We should have a variable fragment", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assumeTrue("We should get an expression", expression instanceof MethodInvocation);
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		int methodStart = compilUnit.getExtendedStartPosition(methodInvocation);
+		assumeEquals("Method invocation "+methodInvocation+" does not start at the right position", methodStart, 75);
+		int methodLength = compilUnit.getExtendedLength(methodInvocation);
+		assumeEquals("Method invocation "+methodInvocation+" does not have the correct length", methodLength, 15);
+	}
+	/*
+	 * End DefaultCommentMapper verifications
+	 */
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48489
