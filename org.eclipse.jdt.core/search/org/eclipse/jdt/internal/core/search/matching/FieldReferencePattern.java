@@ -141,7 +141,7 @@ protected boolean matchIndexEntry() {
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	locator.reportQualifiedReference(reference.sourceStart, reference.sourceEnd, new char[][] {this.name}, element, accuracy);
+	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, new char[][] {this.name}, element, accuracy);
 }
 /**
  * Returns whether a field reference or name reference will need to be resolved to 

@@ -186,9 +186,21 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		this.matchReportReference((QualifiedNameReference)reference, element, accuracy, locator);
 	} else if (reference instanceof QualifiedTypeReference) {
 		this.matchReportReference((QualifiedTypeReference)reference, element, accuracy, locator);
+	} else if (reference instanceof ArrayTypeReference) {
+		this.matchReportReference((ArrayTypeReference)reference, element, accuracy, locator);
 	} else {
 		super.matchReportReference(reference, element, accuracy, locator);
 	}
+}
+/**
+ * Reports the match of the given array type reference.
+ */
+private void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	char[][] qualifiedName = CharOperation.splitOn('.', 
+		this.qualification == null ? 
+			this.simpleName :
+			CharOperation.concat(this.qualification, this.simpleName, '.'));
+	locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, qualifiedName, element, accuracy);
 }
 /**
  * Reports the match of the given qualified name reference.
@@ -198,14 +210,14 @@ private void matchReportReference(QualifiedNameReference nameRef, IJavaElement e
 		this.qualification == null ? 
 			this.simpleName :
 			CharOperation.concat(this.qualification, this.simpleName, '.'));
-	locator.reportQualifiedReference(nameRef.sourceStart, nameRef.sourceEnd, qualifiedName, element, accuracy);
+	locator.reportAccurateReference(nameRef.sourceStart, nameRef.sourceEnd, qualifiedName, element, accuracy);
 }
 /**
  * Reports the match of the given qualified type reference.
  */
 private void matchReportReference(QualifiedTypeReference typeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	char[][] qualifiedName = CharOperation.splitOn('.', CharOperation.concat(this.qualification, this.simpleName, '.'));
-	locator.reportQualifiedReference(typeRef.sourceStart, typeRef.sourceEnd, qualifiedName, element, accuracy);
+	locator.reportAccurateReference(typeRef.sourceStart, typeRef.sourceEnd, qualifiedName, element, accuracy);
 }
 /**
  * @see AndPattern#resetQuery

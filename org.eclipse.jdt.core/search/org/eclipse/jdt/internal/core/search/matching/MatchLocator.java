@@ -562,9 +562,11 @@ public class MatchLocator implements ITypeRequestor {
 	}
 
 	/**
-	 * Reports the given qualified reference to the search requestor.
+	 * Reports the given reference to the search requestor.
+	 * Finds the accurate positions of the tokens given by qualifiedName
+	 * in the source.
 	 */
-	public void reportQualifiedReference(
+	public void reportAccurateReference(
 		int sourceStart,
 		int sourceEnd,
 		char[][] qualifiedName,
@@ -642,8 +644,9 @@ public class MatchLocator implements ITypeRequestor {
 
 		// accept reference
 		if (reference instanceof QualifiedNameReference
-			|| reference instanceof QualifiedTypeReference) {
-			this.pattern.matchReportReference((AstNode) reference, method, accuracy, this);
+			|| reference instanceof QualifiedTypeReference
+			|| reference instanceof ArrayTypeReference) {
+			this.pattern.matchReportReference(reference, method, accuracy, this);
 		} else
 			if (reference instanceof MessageSend) {
 				// message ref are starting at the selector start
@@ -677,8 +680,9 @@ public class MatchLocator implements ITypeRequestor {
 
 			// accept reference
 			if (reference instanceof QualifiedNameReference
-				|| reference instanceof QualifiedTypeReference) {
-				this.pattern.matchReportReference((AstNode) reference, field, accuracy, this);
+				|| reference instanceof QualifiedTypeReference
+				|| reference instanceof ArrayTypeReference) {
+				this.pattern.matchReportReference(reference, field, accuracy, this);
 			} else
 				if (reference instanceof MessageSend) {
 					// message ref are starting at the selector start
@@ -701,9 +705,10 @@ public class MatchLocator implements ITypeRequestor {
 
 			// accept reference
 			if (reference instanceof QualifiedNameReference
-				|| reference instanceof QualifiedTypeReference) {
+				|| reference instanceof QualifiedTypeReference
+				|| reference instanceof ArrayTypeReference) {
 				this.pattern.matchReportReference(
-					(AstNode) reference,
+					reference,
 					initializer,
 					accuracy,
 					this);

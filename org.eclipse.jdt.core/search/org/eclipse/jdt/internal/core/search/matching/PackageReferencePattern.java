@@ -131,7 +131,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		this.pkgName == null ? 
 			new char[0] :
 			this.pkgName);
-	locator.reportQualifiedReference(reference.sourceStart, reference.sourceEnd, splitName, element, accuracy);
+	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, splitName, element, accuracy);
 }
 /**
  * @see AndPattern#resetQuery
