@@ -42,6 +42,8 @@ Eclipse SDK 3.0M3 Build - ?th July 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Removed optional diagnosis for boolean methods throwing exception, since it proved to be useless as is.
+</li>
 <li>Fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40116">40116</a>
      requires the index format to be changed. Indexes will be automatically regenerated upon
      subsequent search queries (accounting for indexing notification in search progress dialogs).
@@ -49,7 +51,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442">40442</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40514">40514</a>
+ArrayIndexOutOfBoundsException during detection of unnecessary casts
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442">40442</a>
 Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=40116">40116</a>
 Search for references to nested class doesn't find anything 
