@@ -16,7 +16,7 @@
 
 <requires>
     <import plugin="org.eclipse.core.resources"/>
-    <import plugin="org.eclipse.core.runtime.compatibility"/>    
+    <import plugin="org.eclipse.core.runtime"/>    
     <import plugin="org.eclipse.text"/>
     <import plugin="org.apache.ant" optional="true"/>
     <import plugin="org.eclipse.team.core" optional="true"/>

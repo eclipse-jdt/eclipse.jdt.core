@@ -228,4 +228,8 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	protected boolean isMalformed(ASTNode node) {
 		return (node.getFlags() & ASTNode.MALFORMED) != 0;
 	}
+	
+	protected boolean isOriginal(ASTNode node) {
+		return (node.getFlags() & ASTNode.ORIGINAL) != 0;
+	}
 }

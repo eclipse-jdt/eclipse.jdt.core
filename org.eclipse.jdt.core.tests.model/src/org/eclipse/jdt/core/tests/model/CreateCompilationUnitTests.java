@@ -91,7 +91,7 @@ public void testDefaultCU() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		p[*]: {CHILDREN}\n" + 
-			"			Default.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			Default.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				Default[+]: {}"
 	);
 	// CU should have a package statement and type

@@ -17,11 +17,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -769,72 +766,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void updateProjectReferencesIfNecessary() throws JavaModelException {
 		
-		if (!this.canChangeResources) return;
 		if (this.newRawPath == ReuseClasspath || this.newRawPath == UpdateClasspath) return;
-	
-		String[] oldRequired = this.project.projectPrerequisites(this.oldResolvedPath);
-
-		if (this.newResolvedPath == null) {
-			this.newResolvedPath = this.project.getResolvedClasspath(this.newRawPath, null, true, true, null/*no reverse map*/);
-		}
-		String[] newRequired = this.project.projectPrerequisites(this.newResolvedPath);
-	
-		try {		
-			IProject projectResource = this.project.getProject();
-			IProjectDescription description = projectResource.getDescription();
-			 
-			IProject[] projectReferences = description.getDynamicReferences();
-			
-			HashSet oldReferences = new HashSet(projectReferences.length);
-			for (int i = 0; i < projectReferences.length; i++){
-				String projectName = projectReferences[i].getName();
-				oldReferences.add(projectName);
-			}
-			HashSet newReferences = (HashSet)oldReferences.clone();
-	
-			for (int i = 0; i < oldRequired.length; i++){
-				String projectName = oldRequired[i];
-				newReferences.remove(projectName);
-			}
-			for (int i = 0; i < newRequired.length; i++){
-				String projectName = newRequired[i];
-				newReferences.add(projectName);
-			}
-	
-			Iterator iter;
-			int newSize = newReferences.size();
-			
-			checkIdentity: {
-				if (oldReferences.size() == newSize){
-					iter = newReferences.iterator();
-					while (iter.hasNext()){
-						if (!oldReferences.contains(iter.next())){
-							break checkIdentity;
-						}
-					}
-					return;
-				}
-			}
-			String[] requiredProjectNames = new String[newSize];
-			int index = 0;
-			iter = newReferences.iterator();
-			while (iter.hasNext()){
-				requiredProjectNames[index++] = (String)iter.next();
-			}
-			Util.sort(requiredProjectNames); // ensure that if changed, the order is consistent
-			
-			IProject[] requiredProjectArray = new IProject[newSize];
-			IWorkspaceRoot wksRoot = projectResource.getWorkspace().getRoot();
-			for (int i = 0; i < newSize; i++){
-				requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
-			}
-	
-			description.setDynamicReferences(requiredProjectArray);
-			projectResource.setDescription(description, this.progressMonitor);
-	
-		} catch(CoreException e){
-			throw new JavaModelException(e);
-		}
+		// will run now, or be deferred until next pre-auto-build notification if resource tree is locked
+		JavaModelManager.getJavaModelManager().deltaState.performClasspathResourceChange(
+		        project, 
+		        oldResolvedPath, 
+		        newResolvedPath, 
+		        newRawPath, 
+		        canChangeResources);
 	}
 
 	public IJavaModelStatus verify() {

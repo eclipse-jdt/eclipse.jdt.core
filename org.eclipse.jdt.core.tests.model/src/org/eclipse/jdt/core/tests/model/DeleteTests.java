@@ -64,7 +64,7 @@ public void testDeleteAllImports() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				<import container>[-]: {}"
 		);
 	} finally {
@@ -291,7 +291,7 @@ public void testDeleteConstructor() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					X(String)[-]: {}"
 		);
@@ -343,7 +343,7 @@ public void testDeleteField() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					field[-]: {}"
 		);
@@ -401,7 +401,7 @@ public void testDeleteImportDeclaration() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					import q.Y[-]: {}"
 		);
@@ -432,7 +432,7 @@ public void testDeleteMethod() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo()[-]: {}"
 		);
@@ -517,14 +517,14 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		a.b.c[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					import java.util.Vector[-]: {}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					main(String[])[-]: {}\n" + 
 			"					Bar[-]: {}\n" + 
 			"		a.b[*]: {CHILDREN}\n" + 
-			"			Y.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[-]: {}\n" + 
 			"					main(String[])[-]: {}"
@@ -556,7 +556,7 @@ public void testDeletePackageDeclaration() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		a.b.c[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				package a.b.c[-]: {}"
 		);
 	} finally {
@@ -707,7 +707,7 @@ public void testDeleteSyntaxErrorField() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					field[-]: {}"
 		);
@@ -740,7 +740,7 @@ public void testDeleteSyntaxErrorInMethod1() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo()[-]: {}"
 		);
@@ -770,7 +770,7 @@ public void testDeleteSyntaxErrorInMethod2() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo()[-]: {}"
 		);
@@ -801,7 +801,7 @@ public void testDeleteSyntaxErrorInMethod3() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo()[-]: {}"
 		);
@@ -831,7 +831,7 @@ public void testDeleteSyntaxErrorType() throws CoreException {
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[-]: {}"
 		);
 	} finally {
@@ -859,7 +859,7 @@ public void testDeleteType1() throws CoreException{
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[-]: {}"
 		);
 	} finally {
@@ -889,7 +889,7 @@ public void testDeleteType2() throws CoreException {
 			"P1[*]: {CHILDREN}\n" + 
 			"	src[*]: {CHILDREN}\n" + 
 			"		<default>[*]: {CHILDREN}\n" + 
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				X[-]: {}"
 		);
 	} finally {

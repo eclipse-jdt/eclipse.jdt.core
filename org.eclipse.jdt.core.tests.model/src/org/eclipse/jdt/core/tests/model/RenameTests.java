@@ -396,7 +396,7 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
 		"		<default>[*]: {CHILDREN}\n" + 
-		"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 		"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"					fred[+]: {}\n" + 
 		"					bar[-]: {}"
@@ -433,7 +433,7 @@ public void testRenameFieldsMultiStatus() throws CoreException {
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
 		"		<default>[*]: {CHILDREN}\n" + 
-		"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 		"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 		"					multiStatusother[+]: {}\n" + 
 		"					other[-]: {}"

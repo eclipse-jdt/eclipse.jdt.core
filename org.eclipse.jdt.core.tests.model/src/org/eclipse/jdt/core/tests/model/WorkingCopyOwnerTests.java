@@ -210,7 +210,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy.commitWorkingCopy(false, null);
 			assertDeltas(
 				"Unexpected delta",
-				""
+				"P[*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[*]: {PRIMARY RESOURCE}"
 			);
 		} finally {
 			stopDeltas();
@@ -245,8 +248,12 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy.commitWorkingCopy(false, null);
 			assertDeltas(
 				"Unexpected delta",
-				"Y[*]: {CHILDREN | FINE GRAINED}\n" + 
-				"	foo()[+]: {}"
+				"P[*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+				"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+				"					foo()[+]: {}"
 			);
 		} finally {
 			stopDeltas();
@@ -1082,8 +1089,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"X", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.REFERENCES, 
-				SearchPattern.R_EXACT_MATCH,
-				true);
+				SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			new SearchEngine(owner).search(
 				pattern, 
@@ -1119,8 +1125,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"X", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS, 
-				SearchPattern.R_EXACT_MATCH,
-				true);
+				SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			new SearchEngine(owner).search(
 				pattern, 
@@ -1219,8 +1224,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"*", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS, 
-				SearchPattern.R_PATTERN_MATCH,
-				true);
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			new SearchEngine(new ICompilationUnit[] {workingCopy}).search(
 				pattern, 
 				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},

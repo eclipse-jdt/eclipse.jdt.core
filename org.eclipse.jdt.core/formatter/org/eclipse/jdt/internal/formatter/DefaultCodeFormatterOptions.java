@@ -1492,7 +1492,7 @@ public class DefaultCodeFormatterOptions {
 		this.keep_empty_array_initializer_on_one_line = false;
 		this.keep_simple_if_on_one_line = false;
 		this.keep_then_statement_on_same_line = false;
-		this.number_of_empty_lines_to_preserve = 0;
+		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = false;
 		this.tab_size = 4;
 		this.page_width = 80;

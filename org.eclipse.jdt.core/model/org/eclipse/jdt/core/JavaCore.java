@@ -70,6 +70,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.osgi.framework.BundleContext;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -892,12 +893,20 @@ public final class JavaCore extends Plugin {
 	
 	/**
 	 * Creates the Java core plug-in.
-	 * @param pluginDescriptor
-	 * @since 2.1
+	 * <p>
+	 * The plug-in instance is created automatically by the 
+	 * Eclipse platform. Clients must not call.
+	 * </p>
+	 * 
+	 * @since 3.0
 	 */
-	public JavaCore(IPluginDescriptor pluginDescriptor) {
-		super(pluginDescriptor);
+	public JavaCore() {
+		super();
 		JAVA_CORE_PLUGIN = this;
+		
+		// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=60537
+		String option = Platform.getDebugOption(JavaCore.PLUGIN_ID + "/debug"); //$NON-NLS-1$
+		setDebugging(option != null && option.equalsIgnoreCase("true")); //$NON-NLS-1$
 	}
 
 	/**
@@ -1306,7 +1315,7 @@ public final class JavaCore extends Plugin {
 		Plugin jdtCorePlugin = JavaCore.getPlugin();
 		if (jdtCorePlugin == null) return null;
 
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
@@ -1434,7 +1443,7 @@ public final class JavaCore extends Plugin {
 		Plugin jdtCorePlugin = JavaCore.getPlugin();
 		if (jdtCorePlugin == null) return null;
 
-		IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
@@ -3408,7 +3417,7 @@ public final class JavaCore extends Plugin {
 				"CPContainer SET  - setting container\n" + //$NON-NLS-1$
 				"	container path: " + containerPath + '\n' + //$NON-NLS-1$
 				"	projects: {" +//$NON-NLS-1$
-				org.eclipse.jdt.internal.compiler.util.Util.toString( 
+				org.eclipse.jdt.internal.compiler.util.Util.toString(
 					affectedProjects, 
 					new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
 						public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
@@ -3438,7 +3447,8 @@ public final class JavaCore extends Plugin {
 							return buffer.toString();
 						}
 					}) +
-				"\n	}"); //$NON-NLS-1$
+				"\n	}\ninvocation stack trace:"); //$NON-NLS-1$
+				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 		}
 
 		final int projectLength = affectedProjects.length;
@@ -3688,21 +3698,25 @@ public final class JavaCore extends Plugin {
 		getPlugin().savePluginPreferences();
 	}
 
-	/**
+	/* (non-Javadoc)
 	 * Shutdown the JavaCore plug-in.
 	 * <p>
 	 * De-registers the JavaModelManager as a resource changed listener and save participant.
 	 * <p>
-	 * @see org.eclipse.core.runtime.Plugin#shutdown()
+	 * @see org.eclipse.core.runtime.Plugin#stop(BundleContext)
 	 */
-	public void shutdown() {
-
-		savePluginPreferences();
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaState);
-		workspace.removeSaveParticipant(this);
-
-		JavaModelManager.getJavaModelManager().shutdown();
+	public void stop(BundleContext context) throws Exception {
+		try {
+			savePluginPreferences();
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaState);
+			workspace.removeSaveParticipant(this);
+	
+			JavaModelManager.getJavaModelManager().shutdown();
+		} finally {
+			// ensure we call super.stop as the last thing
+			super.stop(context);
+		}
 	}
 
 	/**
@@ -3714,16 +3728,17 @@ public final class JavaCore extends Plugin {
 		JavaModelManager.getJavaModelManager().getIndexManager().reset();
 	}
 
-	/**
-	 * Startup of the JavaCore plug-in.
+	/* (non-Javadoc)
+	 * Startup the JavaCore plug-in.
 	 * <p>
 	 * Registers the JavaModelManager as a resource changed listener and save participant.
 	 * Starts the background indexing, and restore saved classpath variable values.
 	 * <p>
-	 * @throws CoreException
-	 * @see org.eclipse.core.runtime.Plugin#startup()
+	 * @throws Exception
+	 * @see org.eclipse.core.runtime.Plugin#start(BundleContext)
 	 */
-	public void startup() throws CoreException {
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
 		
 		final JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
@@ -3788,7 +3803,6 @@ public final class JavaCore extends Plugin {
 			throw e;
 		}
 	}
-
 
 	/*
 	 * Internal updating of a variable values (null path meaning removal), allowing to change multiple variable values at once.

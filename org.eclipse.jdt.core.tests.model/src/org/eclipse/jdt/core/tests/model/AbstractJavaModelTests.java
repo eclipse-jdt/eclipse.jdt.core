@@ -430,7 +430,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		int matchMode = stringPattern.indexOf('*') != -1 || stringPattern.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
-		return SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchMode, isCaseSensitive);
+		int matchRule = isCaseSensitive ? matchMode | SearchPattern.R_CASE_SENSITIVE : matchMode;
+		return SearchPattern.createPattern(stringPattern, searchFor, limitTo, matchRule);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, boolean[] exportedProject, String projectOutput) throws CoreException {
 		return
@@ -1005,8 +1006,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			patternString, 
 			searchFor,
 			limitTo, 
-			matchMode,
-			true);
+			matchMode | SearchPattern.R_CASE_SENSITIVE);
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},

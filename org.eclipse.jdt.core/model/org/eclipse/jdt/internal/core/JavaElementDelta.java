@@ -668,6 +668,12 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 		buffer.append("CLASSPATH CHANGED"); //$NON-NLS-1$
 		prev = true;
 	}
+	if ((flags & IJavaElementDelta.F_PRIMARY_RESOURCE) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("PRIMARY RESOURCE"); //$NON-NLS-1$
+		prev = true;
+	}
 	return prev;
 }
 /** 
