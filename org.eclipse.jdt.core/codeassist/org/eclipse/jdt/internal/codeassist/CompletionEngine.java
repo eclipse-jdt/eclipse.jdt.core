@@ -40,16 +40,9 @@ import org.eclipse.jdt.internal.compiler.impl.*;
  */
 public final class CompletionEngine
 	extends Engine
-	implements ISearchRequestor, TypeConstants , ITerminalSymbols {
+	implements ISearchRequestor, TypeConstants , ITerminalSymbols , RelevanceConstants {
 	
 	public static boolean DEBUG = false;
-	
-	private final static int R_DEFAULT = 0;
-	private final static int R_CASE = 5;
-	private final static int R_EXPECTED_TYPE = 20;
-	private final static int R_INTERFACE = 5;
-	private final static int R_CLASS = 5;
-	private final static int R_EXCEPTION = 5;
 
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
 	private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray();  //$NON-NLS-1$
