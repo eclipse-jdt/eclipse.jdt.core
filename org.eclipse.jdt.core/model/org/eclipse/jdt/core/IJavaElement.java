@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -112,8 +112,16 @@ public interface IJavaElement extends IAdaptable {
 
 	/**
 	 * Returns whether this Java element exists in the model.
-	 * 
-	 *TODO: Specify that one can navigate to this element from the Java model
+	 * <p>
+	 * Java elements are handle objects that may or may not be backed by an
+	 * actual element. Java elements that are backed by an actual element are
+	 * said to "exist", and this method returns <code>true</code>. 
+	 * It is always the case that if a given Java element exists, then its
+	 * parent also exists (provided it has one). All Java elements that exist
+	 * can be navigated to from the root of the Java model along a chain of
+	 * existing Java elements.
+	 * </p>
+	 *TODO: Verify improved API spec (Specify that one can navigate to this element from the Java model)
 	 *
 	 * @return <code>true</code> if this element exists in the Java model
 	 */
