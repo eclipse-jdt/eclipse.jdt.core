@@ -70,9 +70,10 @@ DOMPackage(char[] document, int[] sourceRange, String name, int[] nameRange) {
 protected void appendFragmentedContents(CharArrayBuffer buffer) {
 	if (fNameRange[0] < 0) {
 		buffer
-			.append("package "/*nonNLS*/)
+			.append("package ") //$NON-NLS-1$
 			.append(fName)
 			.append(';')
+			.append(JavaModelManager.LINE_SEPARATOR)
 			.append(JavaModelManager.LINE_SEPARATOR);
 	} else {
 		buffer
@@ -104,7 +105,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		return ((ICompilationUnit)parent).getPackageDeclaration(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
 }
 /**
@@ -130,6 +131,6 @@ public void setName(String name) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "PACKAGE: "/*nonNLS*/ + getName();
+	return "PACKAGE: " + getName(); //$NON-NLS-1$
 }
 }

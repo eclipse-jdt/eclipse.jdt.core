@@ -249,7 +249,7 @@ public void setNewTypeStructureEntry(TypeStructureEntry newEntry) {
  * For debugging only
  */
 public String toString() {
-	StringBuffer buf = new StringBuffer("ModifiedBuilderType("/*nonNLS*/);
+	StringBuffer buf = new StringBuffer("ModifiedBuilderType("); //$NON-NLS-1$
 	return buf.append(fOldTSEntry.getType().getName()).append(')').toString();
 }
 }

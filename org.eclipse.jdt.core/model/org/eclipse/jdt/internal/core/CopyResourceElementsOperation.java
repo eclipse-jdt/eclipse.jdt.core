@@ -159,7 +159,7 @@ private JavaElementDelta getDeltaFor(IJavaProject javaProject) {
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.copyResourceProgress"/*nonNLS*/);
+	return Util.bind("operation.copyResourceProgress"); //$NON-NLS-1$
 }
 /**
  * Sets the deltas to register the changes resulting from this operation
@@ -342,7 +342,7 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 			}
 			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
 				for (int i = 0; i < resources.length; i++) {
-					if (resources[i].getName().endsWith(".java"/*nonNLS*/)) {
+					if (resources[i].getName().endsWith(".java")) { //$NON-NLS-1$
 						// we only consider potential compilation units
 						ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
 						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
@@ -428,7 +428,7 @@ private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) t
 	if (!seenPackageNode && !defaultPackage) {
 		//the cu was in a default package...no package declaration
 		//create the new package declaration as the first child of the cu
-		IDOMPackage pkg = fFactory.createPackage("package "/*nonNLS*/ + pkgName + ";"/*nonNLS*/ + JavaModelManager.LINE_SEPARATOR);
+		IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
 		domCU.getFirstChild().insertSibling(pkg);
 	}
 }

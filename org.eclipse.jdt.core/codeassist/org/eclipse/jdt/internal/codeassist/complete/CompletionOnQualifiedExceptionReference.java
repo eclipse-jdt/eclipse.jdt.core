@@ -39,12 +39,12 @@ public CompletionOnQualifiedExceptionReference(char[][] previousIdentifiers, cha
 public String toStringExpression(int tab) {
 
 	StringBuffer buffer = new StringBuffer();
-	buffer. append("<CompleteOnException:"/*nonNLS*/);
+	buffer. append("<CompleteOnException:"); //$NON-NLS-1$
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
-		buffer.append("."/*nonNLS*/);
+		buffer.append("."); //$NON-NLS-1$
 	}
-	buffer.append(completionIdentifier).append(">"/*nonNLS*/);
+	buffer.append(completionIdentifier).append(">"); //$NON-NLS-1$
 	return buffer.toString();
 }
 }

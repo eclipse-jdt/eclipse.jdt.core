@@ -33,7 +33,7 @@ class DOMCompilationUnit extends DOMNode implements IDOMCompilationUnit {
  * Creates a new empty COMPILATION_UNIT document fragment.
  */
 DOMCompilationUnit() {
-	fHeader=""/*nonNLS*/;
+	fHeader=""; //$NON-NLS-1$
 }
 /**
  * Creates a new COMPILATION_UNIT on the given range of the document.
@@ -47,7 +47,7 @@ DOMCompilationUnit() {
  */
 DOMCompilationUnit(char[] document, int[] sourceRange) {
 	super(document, sourceRange, null, new int[]{-1, -1});
-	fHeader = ""/*nonNLS*/;
+	fHeader = ""; //$NON-NLS-1$
 }
 /**
  * @see DOMNode#appendContents(CharArrayBuffer)
@@ -75,7 +75,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 		return ((IPackageFragment)parent).getCompilationUnit(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
 }
 /**
@@ -102,7 +102,7 @@ public String getName() {
 		topLevelType= firstType;
 	}
 	if (topLevelType != null) {
-		return topLevelType.getName() + ".java"/*nonNLS*/; 
+		return topLevelType.getName() + ".java";  //$NON-NLS-1$
 	} else {
 		return null;
 	}
@@ -174,6 +174,6 @@ protected void shareContents(DOMNode node) {
  * @see IDOMNode#toString()
  */
 public String toString() {
-	return "COMPILATION_UNIT: "/*nonNLS*/ + getName();
+	return "COMPILATION_UNIT: " + getName(); //$NON-NLS-1$
 }
 }

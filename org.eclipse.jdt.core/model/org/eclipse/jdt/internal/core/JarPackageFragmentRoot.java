@@ -65,7 +65,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		try {
 			verifyAttachSource(zipPath);
 			if (monitor != null) {
-				monitor.beginTask(Util.bind("element.attachingSource"/*nonNLS*/), 2);
+				monitor.beginTask(Util.bind("element.attachingSource"), 2); //$NON-NLS-1$
 			}
 			SourceMapper mapper= null;
 			SourceMapper oldMapper= getSourceMapper();
@@ -377,14 +377,14 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 				Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
 				if (target instanceof IFile){
 					IFile file = (IFile) target;
-					if ("jar"/*nonNLS*/.equalsIgnoreCase(file.getFileExtension()) || "zip"/*nonNLS*/.equalsIgnoreCase(file.getFileExtension())){
+					if ("jar".equalsIgnoreCase(file.getFileExtension()) || "zip".equalsIgnoreCase(file.getFileExtension())){ //$NON-NLS-2$ //$NON-NLS-1$
 						return entry;
 					}
 				}
 				if (target instanceof java.io.File){
 					java.io.File file = (java.io.File) target;
 					String name = file.getName();
-					if (Util.endsWithIgnoreCase(name, ".jar"/*nonNLS*/) || Util.endsWithIgnoreCase(name, ".zip"/*nonNLS*/)){
+					if (Util.endsWithIgnoreCase(name, ".jar") || Util.endsWithIgnoreCase(name, ".zip")){ //$NON-NLS-2$ //$NON-NLS-1$
 						return entry;
 					}
 				}
@@ -405,14 +405,14 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 					if (target instanceof IFile){
 						IFile file = (IFile) target;
 						String name = file.getName();
-						if (Util.endsWithIgnoreCase(name, ".jar"/*nonNLS*/) || Util.endsWithIgnoreCase(name, ".zip"/*nonNLS*/)){
+						if (Util.endsWithIgnoreCase(name, ".jar") || Util.endsWithIgnoreCase(name, ".zip")){ //$NON-NLS-2$ //$NON-NLS-1$
 							return entry;
 						}
 					}
 					if (target instanceof java.io.File){
 						java.io.File file = (java.io.File) target;
 						String name = file.getName();
-						if (Util.endsWithIgnoreCase(name, ".jar"/*nonNLS*/) || Util.endsWithIgnoreCase(name, ".zip"/*nonNLS*/)){
+						if (Util.endsWithIgnoreCase(name, ".jar") || Util.endsWithIgnoreCase(name, ".zip")){ //$NON-NLS-2$ //$NON-NLS-1$
 							return entry;
 						}
 					}
@@ -503,7 +503,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 				if (recommendation != null){
 					propertyString = recommendation.getSourceAttachmentPath().toString() 
 										+ ATTACHMENT_PROPERTY_DELIMITER 
-										+ (recommendation.getSourceAttachmentRootPath() == null ? ""/*nonNLS*/ : recommendation.getSourceAttachmentRootPath().toString());
+										+ (recommendation.getSourceAttachmentRootPath() == null ? "" : recommendation.getSourceAttachmentRootPath().toString()); //$NON-NLS-1$
 					getWorkspace().getRoot().setPersistentProperty(qName, propertyString);
 				}
 			}
@@ -520,7 +520,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 		ZipFile jarFile = null;
 		try {
 			jarFile = getJar();
-			return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: "/*nonNLS*/ + jarFile.getName());
+			return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + jarFile.getName()); //$NON-NLS-1$
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		} finally {

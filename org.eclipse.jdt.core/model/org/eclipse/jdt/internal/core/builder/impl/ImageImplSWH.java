@@ -114,7 +114,7 @@ public IType[] getAllClasses(IImageContext context) {
 		Vector vResult = new Vector();
 //		try {
 			String extension = path.getFileExtension().toLowerCase();
-			if (extension.equals("java"/*nonNLS*/) || extension.equals("class"/*nonNLS*/)) {
+			if (extension.equals("java") || extension.equals("class")) { //$NON-NLS-1$ //$NON-NLS-2$
 				IPath pkgPath = path.removeLastSegments(1);
 				IPackage pkg = fState.getPathMap().packageHandleFromPath(pkgPath);
 				TypeStructureEntry[] tsEntries = fState.getAllTypesForPackage(pkg);

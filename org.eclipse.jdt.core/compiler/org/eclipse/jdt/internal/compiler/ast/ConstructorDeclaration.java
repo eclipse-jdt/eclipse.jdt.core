@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	public ExplicitConstructorCall constructorCall;
-	public final static char[] ConstantPoolName = "<init>"/*nonNLS*/.toCharArray();
+	public final static char[] ConstantPoolName = "<init>".toCharArray(); //$NON-NLS-1$
 	public boolean isDefaultConstructor = false;
 
 	public int referenceCount = 0; // count how many times this constructor is referenced from other local constructors
@@ -257,19 +257,19 @@ public void resolve(ClassScope upperScope) {
 public String toStringStatements(int tab) {
 	/* slow code */
 
-	String s = " {"/*nonNLS*/;
+	String s = " {"; //$NON-NLS-1$
 	if (constructorCall != null) {
-		s = s + "\n"/*nonNLS*/ + constructorCall.toString(tab) + ";"/*nonNLS*/;
+		s = s + "\n" + constructorCall.toString(tab) + ";"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	if (statements != null){
 		for (int i = 0; i < statements.length; i++){
-			s = s + "\n"/*nonNLS*/ + statements[i].toString(tab);
+			s = s + "\n" + statements[i].toString(tab); //$NON-NLS-1$
 			if (!(statements[i] instanceof Block)){
-				s += ";"/*nonNLS*/;
+				s += ";"; //$NON-NLS-1$
 			}
 		}
 	}
-	s+="\n"/*nonNLS*/+tabString(tab == 0 ? 0 : tab - 1)+"}"/*nonNLS*/;
+	s+="\n"+tabString(tab == 0 ? 0 : tab - 1)+"}"; //$NON-NLS-2$ //$NON-NLS-1$
 	return s;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) {

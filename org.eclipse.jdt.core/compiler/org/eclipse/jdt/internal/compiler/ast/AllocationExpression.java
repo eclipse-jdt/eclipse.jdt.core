@@ -139,21 +139,21 @@ public TypeBinding resolveType(BlockScope scope) {
 			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
 				argHasError = true;
 		if (argHasError)
-			return null;
+			return typeBinding;
 	}
 	if (typeBinding == null)
 		return null;
 
 	if (!typeBinding.canBeInstantiated()) {
 		scope.problemReporter().cannotInstantiate(type, typeBinding);
-		return null;
+		return typeBinding;
 	}
 	ReferenceBinding allocatedType = (ReferenceBinding) typeBinding;
 	if (!(binding = scope.getConstructor(allocatedType, argumentTypes, this)).isValidBinding()) {
 		if (binding.declaringClass == null)
 			binding.declaringClass = allocatedType;
 		scope.problemReporter().invalidConstructor(this, binding);
-		return null;
+		return typeBinding;
 	}
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
@@ -172,17 +172,17 @@ public void setFieldIndex(int i) {
 public String toStringExpression() {
 	/* slow code */
 
-	String s = "new "/*nonNLS*/ + type.toString(0);
+	String s = "new " + type.toString(0); //$NON-NLS-1$
 	if (arguments == null)
-		s = s + "()"/*nonNLS*/ ;
+		s = s + "()" ; //$NON-NLS-1$
 	else
-	{	s = s + "("/*nonNLS*/;
+	{	s = s + "("; //$NON-NLS-1$
 		for (int i = 0 ; i < arguments.length ; i++)
 		{	s = s + arguments[i].toStringExpression();
 			if (i == (arguments.length-1))
-				s = s + ")"/*nonNLS*/ ;
+				s = s + ")" ; //$NON-NLS-1$
 			else
-				s = s + ", "/*nonNLS*/; };};
+				s = s + ", "; };}; //$NON-NLS-1$
 	return s ;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

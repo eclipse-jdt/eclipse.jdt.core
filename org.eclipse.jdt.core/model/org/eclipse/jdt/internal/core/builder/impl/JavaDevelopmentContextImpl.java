@@ -18,8 +18,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.IBinaryBroker;
 import org.eclipse.jdt.internal.core.builder.IBuildListener;
 import org.eclipse.jdt.internal.core.builder.IBuildMonitor;
@@ -70,12 +72,12 @@ public class JavaDevelopmentContextImpl implements IDevelopmentContext {
 	/**
 	 * The default package.
 	 */
-	private final IPackage fDefaultPackage = fImage.getPackageHandle("java.lang"/*nonNLS*/, false);
+	private final IPackage fDefaultPackage = fImage.getPackageHandle("java.lang", false); //$NON-NLS-1$
 
 	/**
 	 * The root class handle
 	 */
-	private final IType fRootClass = fDefaultPackage.getClassHandle("Object"/*nonNLS*/);
+	private final IType fRootClass = fDefaultPackage.getClassHandle("Object"); //$NON-NLS-1$
 
 	/**
 	 * Primitive types
@@ -195,7 +197,7 @@ protected Vector getBuildListeners() {
 	}
 public IState getCurrentState() throws NotPresentException {
 	if (fCurrentState == null) {
-		throw new NotPresentException("Internal Error - No current state"/*nonNLS*/);
+		throw new NotPresentException("Internal Error - No current state"); //$NON-NLS-1$
 	}
 	return fCurrentState;
 }
@@ -203,15 +205,7 @@ public IState getCurrentState() throws NotPresentException {
  * Reads the default compiler options.
  */
 protected static ConfigurableOption[] getDefaultCompilerOptions() {
-	ConfigurableOption[] options = Compiler.getDefaultOptions(Locale.getDefault());
-
-	/**
-	 * Ugly because this requires knowledge of the compiler's
-	 * internal problem representation.
-	 */
-	setCompilerOption(options, 11, 1);
-	setCompilerOption(options, 12, 1);
-	return options;
+	return JavaModelManager.getOptions();
 }
 /**
  * Returns the default package handle (java.lang).
@@ -303,7 +297,7 @@ protected IType[] parameterTypesFromSignature(final String signature) {
 		char c = localSig.charAt(position);
 		if (c == 'L' || c == 'Q') {
 			/* its a class type */
-			int endIndex = localSig.indexOf(";"/*nonNLS*/) + 1;
+			int endIndex = localSig.indexOf(";") + 1; //$NON-NLS-1$
 			parmType = classTypeFromName(localSig.substring(position, endIndex));
 			localSig = localSig.substring(endIndex);
 		} else {
@@ -405,17 +399,7 @@ public void setBinaryBroker(IBinaryBroker broker) {
  */
 public void setBuildProgressListener(IProgressListener listener) {
 }
-/**
- * Sets a compiler option.  This seems awkward.
- */
-protected static void setCompilerOption(ConfigurableOption[] options, int optionID, int valueIndex) {
-	for (int i = 0; i < options.length; i++) {
-		if (options[i].getID() == optionID) {
-			options[i].setValueIndex(valueIndex);
-			return;
-		}
-	}
-}
+
 /**
  * setCurrentState method comment.
  */
@@ -429,6 +413,6 @@ public void setCurrentState(IState state) {
 		fProgressMonitor = monitor;
 	}
 	public String toString() {
-		return "a JavaDevelopmentContextImpl("/*nonNLS*/ + fCurrentState + ")"/*nonNLS*/;
+		return "a JavaDevelopmentContextImpl(" + fCurrentState + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

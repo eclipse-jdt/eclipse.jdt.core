@@ -75,6 +75,6 @@ public void setFieldIndex(int index){
 }
 public String toStringExpression(){
 	char[] declaringType = this.evaluationContext.declaringTypeName;
-	return "("/*nonNLS*/ + (declaringType == null ? "<NO DECLARING TYPE>"/*nonNLS*/ : new String(declaringType)) + ")this"/*nonNLS*/;
+	return "(" + (declaringType == null ? "<NO DECLARING TYPE>" : new String(declaringType)) + ")this"; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
 }
 }

@@ -75,7 +75,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
 			return name;
 		}
 		public String toString(){
-			StringBuffer buffer = new StringBuffer("Queue:\n"/*nonNLS*/);
+			StringBuffer buffer = new StringBuffer("Queue:\n"); //$NON-NLS-1$
 			for (int i = this.start; i <= this.end; i++){
 				buffer.append(names[i]).append('\n');		
 			}
@@ -178,6 +178,10 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 		this.nameLookup = project.getNameLookup();
 		this.hierarchyResolver = 
 			new HierarchyResolver(this.searchableEnvironment, this, new DefaultProblemFactory());
+		if (focusType != null) {
+			char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+			this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+		}
 		this.hierarchyResolver.resolve(genericTypes, compilationUnits);
 		if (focusType != null && focusType.getJavaProject().equals(project)) {
 			this.searchableEnvironment.unitToLookInside = null;
@@ -319,7 +323,7 @@ private void createInfoFromClassFile(Openable handle, String osPath, Vector info
  */
 private void createInfoFromClassFileInJar(Openable classFile, Vector infos) throws JavaModelException {
 	IJavaElement pkg = classFile.getParent();
-	String classFilePath = pkg.getElementName().replace('.', '/') + "/"/*nonNLS*/ + classFile.getElementName();
+	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName(); //$NON-NLS-1$
 	IGenericType info = null;
 	java.util.zip.ZipFile zipFile = null;
 	try {
@@ -443,7 +447,7 @@ public static void searchAllPossibleSubTypes(
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptSuperTypeReference(String resourcePath, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface, char[] superQualification, char[] superTypeName, char superClassOrInterface, int modifiers) {
 			pathRequestor.acceptPath(resourcePath);
-			if (resourcePath.endsWith("class"/*nonNLS*/)){
+			if (resourcePath.endsWith("class")){ //$NON-NLS-1$
 				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(resourcePath);
 				if (binaryType == null){
 					binaryType = new HierarchyBinaryType(modifiers, qualification, typeName, enclosingTypeName, classOrInterface);

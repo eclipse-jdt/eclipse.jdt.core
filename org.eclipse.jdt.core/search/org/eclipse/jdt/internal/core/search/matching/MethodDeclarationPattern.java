@@ -70,7 +70,7 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 	}
 }
 public String getPatternName(){
-	return "MethodDeclarationPattern: "/*nonNLS*/;
+	return "MethodDeclarationPattern: "; //$NON-NLS-1$
 }
 /**
  * @see SearchPattern#indexEntryPrefix
@@ -88,117 +88,6 @@ public char[] indexEntryPrefix() {
  */
 protected int matchContainer() {
 	return CLASS;
-}
-/**
- * @see SearchPattern#matches(AstNode, boolean)
- */
-protected boolean matches(AstNode node, boolean resolve) {
-	if (!(node instanceof MethodDeclaration)) return false;
-
-	MethodDeclaration method = (MethodDeclaration)node;
-	
-	// selector
-	if (!this.matchesName(this.selector, method.selector))
-		return false;
-
-	// declaring type
-	MethodBinding binding = method.binding;
-	if (resolve && binding != null) {
-		ReferenceBinding declaringType = binding.declaringClass;
-		if (declaringType != null) {
-			if (!binding.isStatic() && !binding.isPrivate()) {
-				if (!this.matchesAsSubtype(declaringType, this.declaringSimpleName, this.declaringQualification))
-					return false;
-			} else {
-				if (!this.matchesType(this.declaringSimpleName, this.declaringQualification, declaringType))
-					return false;
-			}
-		}
-	}
-
-	// return type
-	if (this.returnQualification == null) {
-		if (this.returnSimpleName != null) {
-			TypeReference methodReturnType = method.returnType;
-			if (methodReturnType != null) {
-				char[][] methodReturnTypeName = methodReturnType.getTypeName();
-				char[] sourceName = this.toArrayName(
-					methodReturnTypeName[methodReturnTypeName.length-1], 
-					methodReturnType.dimensions());
-				if (!this.matchesName(this.returnSimpleName, sourceName))
-					return false;
-			}
-		}
-	} else {
-		if (resolve 
-				&& binding != null 
-				&& !this.matchesType(this.returnSimpleName, this.returnQualification, binding.returnType))
-			return false;
-	}
-		
-	// parameter types
-	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
-	if (parameterCount > -1) {
-		int argumentCount = method.arguments == null ? 0 : method.arguments.length;
-		if (parameterCount != argumentCount)
-			return false;
-	
-		if (resolve && binding != null) {
-			for (int i = 0; i < parameterCount; i++) {
-				char[] qualification = this.parameterQualifications[i];
-				char[] type = this.parameterSimpleNames[i];
-				if (!this.matchesType(type, qualification, binding.parameters[i]))
-					return false;
-			}
-		}
-	}
-
-	return true;
-}
-/**
- * @see SearchPattern#matches(Binding)
- */
-public boolean matches(Binding binding) {
-	if (!(binding instanceof MethodBinding)) return false;
-
-	MethodBinding method = (MethodBinding)binding;
-	
-	// selector
-	if (!this.matchesName(this.selector, method.selector))
-		return false;
-
-	// declaring type
-	ReferenceBinding declaringType = method.declaringClass;
-	if (declaringType != null) {
-		if (!method.isStatic() && !method.isPrivate()) {
-			if (!this.matchesAsSubtype(declaringType, this.declaringSimpleName, this.declaringQualification))
-				return false;
-		} else {
-			if (!this.matchesType(this.declaringSimpleName, this.declaringQualification, declaringType))
-				return false;
-		}
-	}
-
-	// return type
-	if (!this.matchesType(this.returnSimpleName, this.returnQualification, method.returnType)) {
-		return false;
-	}
-		
-	// parameter types
-	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
-	if (parameterCount > -1) {
-		int argumentCount = method.parameters == null ? 0 : method.parameters.length;
-		if (parameterCount != argumentCount)
-			return false;
-		for (int i = 0; i < parameterCount; i++) {
-			char[] qualification = this.parameterQualifications[i];
-			char[] type = this.parameterSimpleNames[i];
-			if (!this.matchesType(type, qualification, method.parameters[i]))
-				return false;
-		}
-	}
-
-	return true;
 }
 /**
  * @see SearchPattern#matchesBinary(Object, Object)
@@ -245,5 +134,105 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 	}
 
 	return true;
+}
+
+/**
+ * @see SearchPattern#matchLevel(AstNode, boolean)
+ */
+public int matchLevel(AstNode node, boolean resolve) {
+	if (!(node instanceof MethodDeclaration)) return IMPOSSIBLE_MATCH;
+
+	MethodDeclaration method = (MethodDeclaration)node;
+
+	if (resolve) {
+		return this.matchLevel(method.binding);
+	} else {
+		// selector
+		if (!this.matchesName(this.selector, method.selector))
+			return IMPOSSIBLE_MATCH;
+
+		// return type
+		TypeReference methodReturnType = method.returnType;
+		if (methodReturnType != null) {
+			char[][] methodReturnTypeName = methodReturnType.getTypeName();
+			char[] sourceName = this.toArrayName(
+				methodReturnTypeName[methodReturnTypeName.length-1], 
+				methodReturnType.dimensions());
+			if (!this.matchesName(this.returnSimpleName, sourceName))
+				return IMPOSSIBLE_MATCH;
+		}
+			
+		// parameter types
+		int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
+		if (parameterCount > -1) {
+			int argumentCount = method.arguments == null ? 0 : method.arguments.length;
+			if (parameterCount != argumentCount)
+				return IMPOSSIBLE_MATCH;
+		}
+
+		return POSSIBLE_MATCH;
+	}
+}
+
+/**
+ * @see SearchPattern#matchLevel(Binding)
+ */
+public int matchLevel(Binding binding) {
+	if (binding == null) return INACCURATE_MATCH;
+	if (!(binding instanceof MethodBinding)) return IMPOSSIBLE_MATCH;
+	int level;
+
+	MethodBinding method = (MethodBinding)binding;
+	
+	// selector
+	if (!this.matchesName(this.selector, method.selector))
+		return IMPOSSIBLE_MATCH;
+
+	// declaring type
+	ReferenceBinding declaringType = method.declaringClass;
+	if (!method.isStatic() && !method.isPrivate()) {
+		level = this.matchLevelAsSubtype(declaringType, this.declaringSimpleName, this.declaringQualification);
+	} else {
+		level = this.matchLevelForType(this.declaringSimpleName, this.declaringQualification, declaringType);
+	}
+	if (level == IMPOSSIBLE_MATCH) {
+		return IMPOSSIBLE_MATCH;
+	}
+
+	// return type
+	int newLevel = this.matchLevelForType(this.returnSimpleName, this.returnQualification, method.returnType);
+	switch (newLevel) {
+		case IMPOSSIBLE_MATCH:
+			return IMPOSSIBLE_MATCH;
+		case ACCURATE_MATCH: // keep previous level
+			break;
+		default: // ie. INACCURATE_MATCH
+			level = newLevel;
+			break;
+	}
+		
+	// parameter types
+	int parameterCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
+	if (parameterCount > -1) {
+		int argumentCount = method.parameters == null ? 0 : method.parameters.length;
+		if (parameterCount != argumentCount)
+			return IMPOSSIBLE_MATCH;
+		for (int i = 0; i < parameterCount; i++) {
+			char[] qualification = this.parameterQualifications[i];
+			char[] type = this.parameterSimpleNames[i];
+			newLevel = this.matchLevelForType(type, qualification, method.parameters[i]);
+			switch (newLevel) {
+				case IMPOSSIBLE_MATCH:
+					return IMPOSSIBLE_MATCH;
+				case ACCURATE_MATCH: // keep previous level
+					break;
+				default: // ie. INACCURATE_MATCH
+					level = newLevel;
+					break;
+			}
+		}
+	}
+
+	return level;
 }
 }

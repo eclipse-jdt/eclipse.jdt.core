@@ -27,7 +27,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	String importName = new String(name);
 	/** name is set to contain the '*' */
 	if (onDemand) {
-		importName+=".*"/*nonNLS*/;
+		importName+=".*"; //$NON-NLS-1$
 	}
 	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
 	addChild(fNode);	

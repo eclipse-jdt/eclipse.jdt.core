@@ -28,17 +28,17 @@ class DeltaImpl implements IDelta {
 	protected IImageContext fContext;
 
 	/* names for checklist items */
-	public static final String fgImage = "Image"/*nonNLS*/;
+	public static final String fgImage = "Image"; //$NON-NLS-1$
 	
-	public static final String fgPackageCategory = "Packages"/*nonNLS*/;
-	public static final String fgTypeCategory = "Types"/*nonNLS*/;
-	public static final String fgBinaryCategory = "Binaries"/*nonNLS*/;
-	public static final String fgMethodCategory = "Methods"/*nonNLS*/;
+	public static final String fgPackageCategory = "Packages"; //$NON-NLS-1$
+	public static final String fgTypeCategory = "Types"; //$NON-NLS-1$
+	public static final String fgBinaryCategory = "Binaries"; //$NON-NLS-1$
+	public static final String fgMethodCategory = "Methods"; //$NON-NLS-1$
 
-	public static final String fgPackage = "Package"/*nonNLS*/;
-	public static final String fgType = "Type"/*nonNLS*/;
-	public static final String fgBinary = "Binary"/*nonNLS*/;
-	public static final String fgMethod = "Method"/*nonNLS*/;
+	public static final String fgPackage = "Package"; //$NON-NLS-1$
+	public static final String fgType = "Type"; //$NON-NLS-1$
+	public static final String fgBinary = "Binary"; //$NON-NLS-1$
+	public static final String fgMethod = "Method"; //$NON-NLS-1$
 
 	/* convenience structure for delta calculation process */
 	class DeltaInfo {
@@ -99,7 +99,7 @@ class DeltaImpl implements IDelta {
 			fNewState = (StateImpl)newState;
 			fOldState = (StateImpl)oldState;
 		} catch (ClassCastException cce) {
-			Assert.isTrue(false, "Internal Error - Invalid states"/*nonNLS*/);
+			Assert.isTrue(false, "Internal Error - Invalid states"); //$NON-NLS-1$
 		}
 		fStatus = CHANGED;
 		fName = fgImage;
@@ -200,7 +200,7 @@ protected int compareBuilderType(BuilderType type) {
 	 */
 	public int compareTo(IDelta anotherDelta) {
 		/* is this used? */
-		Assert.isTrue(false, "TBD"/*nonNLS*/);
+		Assert.isTrue(false, "TBD"); //$NON-NLS-1$
 		return 0;
 	}
 /**
@@ -606,7 +606,7 @@ protected int compareTypes(IType handle) {
 	}
 	protected static void dump(IDelta delta, int depth) {
 		for (int i = 0; i < depth; ++i)
-			System.out.print("  "/*nonNLS*/);
+			System.out.print("  "); //$NON-NLS-1$
 		System.out.println(delta);
 		IDelta[] children = delta.getAffectedSubdeltas();
 		for (int i = 0; i < children.length; ++i) {
@@ -893,23 +893,23 @@ public Enumeration getAffectedPackages() {
 	 * @return java.lang.String
 	 */
 	public String toString() {
-		StringBuffer sb = new StringBuffer("DeltaImpl("/*nonNLS*/);
+		StringBuffer sb = new StringBuffer("DeltaImpl("); //$NON-NLS-1$
 		switch (fStatus) {
-			case ADDED: sb.append("+"/*nonNLS*/);
+			case ADDED: sb.append("+"); //$NON-NLS-1$
 			break;
-			case REMOVED: sb.append("-"/*nonNLS*/);
+			case REMOVED: sb.append("-"); //$NON-NLS-1$
 			break;
-			case CHANGED: sb.append("*"/*nonNLS*/);
+			case CHANGED: sb.append("*"); //$NON-NLS-1$
 			break;
-			case SAME: sb.append("="/*nonNLS*/);
+			case SAME: sb.append("="); //$NON-NLS-1$
 			break;
-			case UNKNOWN: sb.append("?"/*nonNLS*/);
+			case UNKNOWN: sb.append("?"); //$NON-NLS-1$
 			break;
-			default: sb.append("(ERROR)"/*nonNLS*/);
+			default: sb.append("(ERROR)"); //$NON-NLS-1$
 		}
 		if (fKey.isRoot()) {
 			sb.append(fOldState);
-			sb.append("-->"/*nonNLS*/);
+			sb.append("-->"); //$NON-NLS-1$
 			sb.append(fNewState);
 		}
 		else {

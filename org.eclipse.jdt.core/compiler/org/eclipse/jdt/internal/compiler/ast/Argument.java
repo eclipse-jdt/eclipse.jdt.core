@@ -42,14 +42,14 @@ public TypeBinding resolveForCatch(BlockScope scope) {
 public String toString(int tab){
 	/* slow code */
 	
-	String s = ""/*nonNLS*/;
+	String s = ""; //$NON-NLS-1$
 	if (modifiers != AccDefault){
 		s += modifiersString(modifiers);
 	}
 	if (type == null){
-		s += "<no type> "/*nonNLS*/;
+		s += "<no type> "; //$NON-NLS-1$
 	} else {
-		s += type.toString(tab) + " "/*nonNLS*/;
+		s += type.toString(tab) + " "; //$NON-NLS-1$
 	}
 	s += new String(name);
 	return s;

@@ -56,7 +56,7 @@ public class IndictmentSet {
 						fMethodOwners = new Hashtable(11);
 					fMethodOwners.put(owner, owner);
 					fMethodOwnersArray = null;
-					if (i.getName().startsWith("<"/*nonNLS*/)) {
+					if (i.getName().startsWith("<")) { //$NON-NLS-1$
 						fHasConstructorIndictments = true;
 					}
 					break;
@@ -71,7 +71,7 @@ public class IndictmentSet {
 					fAbstractMethodTable.put(i.getKey(), i);
 					break;
 				default:
-					Assert.isTrue(false, "Internal Error - Unexpected kind of indictment"/*nonNLS*/);
+					Assert.isTrue(false, "Internal Error - Unexpected kind of indictment"); //$NON-NLS-1$
 					break;
 			}
 		}
@@ -161,13 +161,13 @@ public void convictAll() {
 	 */
 	public String toString() {
 		return 
-			  "IndictmentSet("/*nonNLS*/
-			+ "\n  hierarchyChange: "/*nonNLS*/ + fHierarchyChange
-			+ "\n  types:\n"/*nonNLS*/ + fTypesTable
-			+ "\n  interfaces:\n"/*nonNLS*/ + fAbstractMethodTable
-			+ "\n  methods:\n"/*nonNLS*/ + fMethodsTable
-			+ "\n  fields:\n"/*nonNLS*/ + fFieldsTable
-			+ "\n)"/*nonNLS*/;
+			  "IndictmentSet(" //$NON-NLS-1$
+			+ "\n  hierarchyChange: " + fHierarchyChange //$NON-NLS-1$
+			+ "\n  types:\n" + fTypesTable //$NON-NLS-1$
+			+ "\n  interfaces:\n" + fAbstractMethodTable //$NON-NLS-1$
+			+ "\n  methods:\n" + fMethodsTable //$NON-NLS-1$
+			+ "\n  fields:\n" + fFieldsTable //$NON-NLS-1$
+			+ "\n)"; //$NON-NLS-1$
 				
 	}
 /**

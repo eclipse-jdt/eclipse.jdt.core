@@ -54,7 +54,7 @@ public CreateCompilationUnitOperation(IPackageFragment parentElement, String nam
  * @exception JavaModelException if unable to create the compilation unit.
  */
 protected void executeOperation() throws JavaModelException {
-	beginTask(Util.bind("operation.createUnitProgress"/*nonNLS*/), 2);
+	beginTask(Util.bind("operation.createUnitProgress"), 2); //$NON-NLS-1$
 	JavaElementDelta delta = newJavaElementDelta();
 	ICompilationUnit unit = getCompilationUnit();
 	IPackageFragment pkg = (IPackageFragment) getParentElement();

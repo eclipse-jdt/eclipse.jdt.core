@@ -55,7 +55,7 @@ protected boolean computeChildren(OpenableElementInfo info) throws JavaModelExce
 		// is actually the package fragment root)
 		if (fResource.getType() == IResource.FOLDER || fResource.getType() == IResource.PROJECT) {
 			Vector vChildren = new Vector(5);
-			computeFolderChildren((IContainer) fResource, ""/*nonNLS*/, vChildren);
+			computeFolderChildren((IContainer) fResource, "", vChildren); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.copyInto(children);
 			info.setChildren(children);
@@ -86,7 +86,7 @@ protected void computeFolderChildren(IContainer folder, String prefix, Vector vC
 				if (prefix.length() == 0) {
 					newPrefix = member.getName();
 				} else {
-					newPrefix = prefix + "."/*nonNLS*/ + member.getName();
+					newPrefix = prefix + "." + member.getName(); //$NON-NLS-1$
 				}
 				// eliminate binary output only if nested inside direct subfolders
 				if (!member.getFullPath().equals(outputLocationPath)) {
@@ -296,12 +296,12 @@ public void refreshChildren() {
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (getElementName().length() == 0) {
-		buffer.append("[project root]"/*nonNLS*/);
+		buffer.append("[project root]"); //$NON-NLS-1$
 	} else {
 		buffer.append(getElementName());
 	}
 	if (info == null) {
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)"); //$NON-NLS-1$
 	}
 }
 }

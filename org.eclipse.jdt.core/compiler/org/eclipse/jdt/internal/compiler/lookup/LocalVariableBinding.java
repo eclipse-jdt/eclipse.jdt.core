@@ -66,18 +66,18 @@ public void recordInitializationStartPC(int pc) {
 public String toString() {
 	String s = super.toString();
 	if (!used)
-		s += "[pos: unused]"/*nonNLS*/;
+		s += "[pos: unused]"; //$NON-NLS-1$
 	else
-		s += "[pos: "/*nonNLS*/ + String.valueOf(resolvedPosition) + "]"/*nonNLS*/;
-	s += "[id:"/*nonNLS*/ + String.valueOf(id) + "]"/*nonNLS*/;
+		s += "[pos: " + String.valueOf(resolvedPosition) + "]"; //$NON-NLS-2$ //$NON-NLS-1$
+	s += "[id:" + String.valueOf(id) + "]"; //$NON-NLS-2$ //$NON-NLS-1$
 	if (initializationCount > 0) {
-		s += "[pc: "/*nonNLS*/;
+		s += "[pc: "; //$NON-NLS-1$
 		for (int i = 0; i < initializationCount; i++) {
 			if (i > 0)
-				s += ", "/*nonNLS*/;
-			s += String.valueOf(initializationPCs[i << 1]) + "-"/*nonNLS*/ + ((initializationPCs[(i << 1) + 1] == -1) ? "?"/*nonNLS*/ : String.valueOf(initializationPCs[(i<< 1) + 1]));
+				s += ", "; //$NON-NLS-1$
+			s += String.valueOf(initializationPCs[i << 1]) + "-" + ((initializationPCs[(i << 1) + 1] == -1) ? "?" : String.valueOf(initializationPCs[(i<< 1) + 1])); //$NON-NLS-2$ //$NON-NLS-1$
 		}
-		s += "]"/*nonNLS*/;
+		s += "]"; //$NON-NLS-1$
 	}
 	return s;
 }

@@ -143,8 +143,10 @@ public void resolve(MethodScope initializationScope) {
 	} 
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, MethodScope scope) {
-	visitor.visit(this, scope);
-	type.traverse(visitor, scope);
-	if (initialization != null) initialization.traverse(visitor, scope);
+	if (visitor.visit(this, scope)) {
+		type.traverse(visitor, scope);
+		if (initialization != null) initialization.traverse(visitor, scope);
+	}
+	visitor.endVisit(this, scope);
 }
 }
