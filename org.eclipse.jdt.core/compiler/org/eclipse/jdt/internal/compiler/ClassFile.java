@@ -1474,7 +1474,9 @@ public class ClassFile
 			// leave space for attribute_length and local_variable_table_length
 			int nameIndex;
 			int descriptorIndex;
-			if (!codeStream.methodDeclaration.isStatic()) {
+			SourceTypeBinding declaringClassBinding = null;
+			final boolean methodDeclarationIsStatic = codeStream.methodDeclaration.isStatic();
+			if (!methodDeclarationIsStatic) {
 				numberOfEntries++;
 				if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 					System.arraycopy(
@@ -1491,15 +1493,20 @@ public class ClassFile
 				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
 				localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 				localContents[localContentsOffset++] = (byte) nameIndex;
+				declaringClassBinding = (SourceTypeBinding) codeStream.methodDeclaration.binding.declaringClass;
 				descriptorIndex =
 					constantPool.literalIndex(
-						codeStream.methodDeclaration.binding.declaringClass.signature());
+						declaringClassBinding.signature());
 				localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 				localContents[localContentsOffset++] = (byte) descriptorIndex;
 				localContents[localContentsOffset++] = 0;// the resolved position for this is always 0
 				localContents[localContentsOffset++] = 0;
 			}
-			for (int i = 0; i < codeStream.allLocalsCounter; i++) {
+			// used to remember the local variable with a generic type
+			int genericLocalVariablesCounter = 0;
+			LocalVariableBinding[] genericLocalVariables = null;
+			
+			for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
 				LocalVariableBinding localVariable = codeStream.locals[i];
 				for (int j = 0; j < localVariable.initializationCount; j++) {
 					int startPC = localVariable.initializationPCs[j << 1];
@@ -1528,7 +1535,15 @@ public class ClassFile
 						nameIndex = constantPool.literalIndex(localVariable.name);
 						localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						localContents[localContentsOffset++] = (byte) nameIndex;
-						descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+						final TypeBinding localVariableTypeBinding = localVariable.type;
+						if (localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable()) {
+							if (genericLocalVariables == null) {
+								// we cannot have more than max locals
+								genericLocalVariables = new LocalVariableBinding[max];
+							}
+							genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+						}
+						descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 						localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						localContents[localContentsOffset++] = (byte) descriptorIndex;
 						int resolvedPosition = localVariable.resolvedPosition;
@@ -1546,6 +1561,76 @@ public class ClassFile
 			localContents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 			localContents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
+			
+			final boolean currentInstanceIsGeneric = 
+				!methodDeclarationIsStatic
+				&& declaringClassBinding != null 
+				&& declaringClassBinding.genericSignature() != null;
+			if (genericLocalVariablesCounter != 0 || currentInstanceIsGeneric) {
+				// add the local variable type table attribute
+				numberOfEntries = genericLocalVariablesCounter + (currentInstanceIsGeneric ? 1 : 0);
+				// reserve enough space
+				if (localContentsOffset + (8 + 10 * numberOfEntries) >= (contentsLength = localContents.length)) {
+					System.arraycopy(
+						contents,
+						0,
+						(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
+						0,
+						contentsLength);
+				}
+				int localVariableTypeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+				localContents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+				localContents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+				value = numberOfEntries * 10 + 2;
+				localContents[localContentsOffset++] = (byte) (value >> 24);
+				localContents[localContentsOffset++] = (byte) (value >> 16);
+				localContents[localContentsOffset++] = (byte) (value >> 8);
+				localContents[localContentsOffset++] = (byte) value;
+				localContents[localContentsOffset++] = (byte) (numberOfEntries >> 8);
+				localContents[localContentsOffset++] = (byte) numberOfEntries;
+				if (currentInstanceIsGeneric) {
+					numberOfEntries++;
+					localContents[localContentsOffset++] = 0; // the startPC for this is always 0
+					localContents[localContentsOffset++] = 0;
+					localContents[localContentsOffset++] = (byte) (code_length >> 8);
+					localContents[localContentsOffset++] = (byte) code_length;
+					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+					localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					localContents[localContentsOffset++] = (byte) nameIndex;
+					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
+					localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+					localContents[localContentsOffset++] = (byte) descriptorIndex;
+					localContents[localContentsOffset++] = 0;// the resolved position for this is always 0
+					localContents[localContentsOffset++] = 0;
+				}
+				
+				for (int i = 0; i < genericLocalVariablesCounter; i++) {
+					LocalVariableBinding localVariable = genericLocalVariables[i];
+					for (int j = 0; j < localVariable.initializationCount; j++) {
+						int startPC = localVariable.initializationPCs[j << 1];
+						int endPC = localVariable.initializationPCs[(j << 1) + 1];
+						if (startPC != endPC) { // only entries for non zero length
+							// now we can safely add the local entry
+							localContents[localContentsOffset++] = (byte) (startPC >> 8);
+							localContents[localContentsOffset++] = (byte) startPC;
+							int length = endPC - startPC;
+							localContents[localContentsOffset++] = (byte) (length >> 8);
+							localContents[localContentsOffset++] = (byte) length;
+							nameIndex = constantPool.literalIndex(localVariable.name);
+							localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							localContents[localContentsOffset++] = (byte) nameIndex;
+							descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+							localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+							localContents[localContentsOffset++] = (byte) descriptorIndex;
+							int resolvedPosition = localVariable.resolvedPosition;
+							localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+							localContents[localContentsOffset++] = (byte) resolvedPosition;
+						}
+					}
+				}
+				attributeNumber++;
+			}
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the localContents array
@@ -1745,10 +1830,16 @@ public class ClassFile
 				localContents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 				localContents[localContentsOffset++] = (byte) localVariableNameIndex;
 				localContentsOffset += 6;
+
 				// leave space for attribute_length and local_variable_table_length
 				int nameIndex;
 				int descriptorIndex;
-				for (int i = 0; i < codeStream.allLocalsCounter; i++) {
+
+				// used to remember the local variable with a generic type
+				int genericLocalVariablesCounter = 0;
+				LocalVariableBinding[] genericLocalVariables = null;
+
+				for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
 					LocalVariableBinding localVariable = codeStream.locals[i];
 					for (int j = 0; j < localVariable.initializationCount; j++) {
 						int startPC = localVariable.initializationPCs[j << 1];
@@ -1777,7 +1868,15 @@ public class ClassFile
 							nameIndex = constantPool.literalIndex(localVariable.name);
 							localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 							localContents[localContentsOffset++] = (byte) nameIndex;
-							descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+							final TypeBinding localVariableTypeBinding = localVariable.type;
+							if (localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable()) {
+								if (genericLocalVariables == null) {
+									// we cannot have more than max locals
+									genericLocalVariables = new LocalVariableBinding[max];
+								}
+								genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+							}
+							descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 							localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 							localContents[localContentsOffset++] = (byte) descriptorIndex;
 							int resolvedPosition = localVariable.resolvedPosition;
@@ -1795,6 +1894,55 @@ public class ClassFile
 				localContents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 				localContents[localVariableTableOffset] = (byte) numberOfEntries;
 				attributeNumber++;
+
+				if (genericLocalVariablesCounter != 0) {
+					// add the local variable type table attribute
+					// reserve enough space
+					if (localContentsOffset + (8 + 10 * genericLocalVariablesCounter) >= (contentsLength = localContents.length)) {
+						System.arraycopy(
+							contents,
+							0,
+							(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
+							0,
+							contentsLength);
+					}
+					int localVariableTypeNameIndex =
+						constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+					localContents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+					localContents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+					value = genericLocalVariablesCounter * 10 + 2;
+					localContents[localContentsOffset++] = (byte) (value >> 24);
+					localContents[localContentsOffset++] = (byte) (value >> 16);
+					localContents[localContentsOffset++] = (byte) (value >> 8);
+					localContents[localContentsOffset++] = (byte) value;
+					localContents[localContentsOffset++] = (byte) (genericLocalVariablesCounter >> 8);
+					localContents[localContentsOffset++] = (byte) genericLocalVariablesCounter;
+					for (int i = 0; i < genericLocalVariablesCounter; i++) {
+						LocalVariableBinding localVariable = genericLocalVariables[i];
+						for (int j = 0; j < localVariable.initializationCount; j++) {
+							int startPC = localVariable.initializationPCs[j << 1];
+							int endPC = localVariable.initializationPCs[(j << 1) + 1];
+							if (startPC != endPC) { // only entries for non zero length
+								// now we can safely add the local entry
+								localContents[localContentsOffset++] = (byte) (startPC >> 8);
+								localContents[localContentsOffset++] = (byte) startPC;
+								int length = endPC - startPC;
+								localContents[localContentsOffset++] = (byte) (length >> 8);
+								localContents[localContentsOffset++] = (byte) length;
+								nameIndex = constantPool.literalIndex(localVariable.name);
+								localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
+								localContents[localContentsOffset++] = (byte) nameIndex;
+								descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+								localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+								localContents[localContentsOffset++] = (byte) descriptorIndex;
+								int resolvedPosition = localVariable.resolvedPosition;
+								localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+								localContents[localContentsOffset++] = (byte) resolvedPosition;
+							}
+						}
+					}
+					attributeNumber++;
+				}
 			}
 		}
 		// update the number of attributes
@@ -2067,7 +2215,10 @@ public class ClassFile
 			localContentsOffset += 6;
 			// leave space for attribute_length and local_variable_table_length
 			int descriptorIndex;
-			if (!codeStream.methodDeclaration.isStatic()) {
+			int nameIndex;
+			SourceTypeBinding declaringClassBinding = null;
+			final boolean methodDeclarationIsStatic = codeStream.methodDeclaration.isStatic();
+			if (!methodDeclarationIsStatic) {
 				numberOfEntries++;
 				if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 					System.arraycopy(
@@ -2081,26 +2232,29 @@ public class ClassFile
 				localContents[localContentsOffset++] = 0;
 				localContents[localContentsOffset++] = (byte) (code_length >> 8);
 				localContents[localContentsOffset++] = (byte) code_length;
-				int nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
 				localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 				localContents[localContentsOffset++] = (byte) nameIndex;
+				declaringClassBinding = (SourceTypeBinding) codeStream.methodDeclaration.binding.declaringClass;
 				descriptorIndex =
-					constantPool.literalIndex(
-						codeStream.methodDeclaration.binding.declaringClass.signature());
+					constantPool.literalIndex(declaringClassBinding.signature());
 				localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 				localContents[localContentsOffset++] = (byte) descriptorIndex;
 				// the resolved position for this is always 0
 				localContents[localContentsOffset++] = 0;
 				localContents[localContentsOffset++] = 0;
 			}
+			// used to remember the local variable with a generic type
+			int genericLocalVariablesCounter = 0;
+			LocalVariableBinding[] genericLocalVariables = null;
+			
 			if (binding.isConstructor()) {
 				ReferenceBinding declaringClass = binding.declaringClass;
 				if (declaringClass.isNestedType()) {
 					NestedTypeBinding methodDeclaringClass = (NestedTypeBinding) declaringClass;
 					argSize = methodDeclaringClass.enclosingInstancesSlotSize;
 					SyntheticArgumentBinding[] syntheticArguments;
-					if ((syntheticArguments = methodDeclaringClass.syntheticEnclosingInstances())
-						!= null) {
+					if ((syntheticArguments = methodDeclaringClass.syntheticEnclosingInstances()) != null) {
 						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
 							LocalVariableBinding localVariable = syntheticArguments[i];
 							if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
@@ -2117,10 +2271,18 @@ public class ClassFile
 							localContents[localContentsOffset++] = 0;
 							localContents[localContentsOffset++] = (byte) (code_length >> 8);
 							localContents[localContentsOffset++] = (byte) code_length;
-							int nameIndex = constantPool.literalIndex(localVariable.name);
+							nameIndex = constantPool.literalIndex(localVariable.name);
 							localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 							localContents[localContentsOffset++] = (byte) nameIndex;
-							descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+							final TypeBinding localVariableTypeBinding = localVariable.type;
+							if (localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable()) {
+								if (genericLocalVariables == null) {
+									// we cannot have more than max locals
+									genericLocalVariables = new LocalVariableBinding[max];
+								}
+								genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+							}
+							descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 							localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 							localContents[localContentsOffset++] = (byte) descriptorIndex;
 							int resolvedPosition = localVariable.resolvedPosition;
@@ -2134,6 +2296,12 @@ public class ClassFile
 			} else {
 				argSize = binding.isStatic() ? 0 : 1;
 			}
+			
+			int genericArgumentsCounter = 0;
+			int[] genericArgumentsNameIndexes = null;
+			int[] genericArgumentsResolvedPositions = null;
+			TypeBinding[] genericArgumentsTypeBindings = null;
+
 			if (method.binding != null) {
 				TypeBinding[] parameters = method.binding.parameters;
 				Argument[] arguments = method.arguments;
@@ -2154,13 +2322,24 @@ public class ClassFile
 						localContents[localContentsOffset++] = 0;
 						localContents[localContentsOffset++] = (byte) (code_length >> 8);
 						localContents[localContentsOffset++] = (byte) code_length;
-						int nameIndex = constantPool.literalIndex(arguments[i].name);
+						nameIndex = constantPool.literalIndex(arguments[i].name);
 						localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						localContents[localContentsOffset++] = (byte) nameIndex;
+						int resolvedPosition = argSize;
+						if (argumentBinding.isParameterizedType() || argumentBinding.isTypeVariable()) {
+							if (genericArgumentsCounter == 0) {
+								// we cannot have more than max locals
+								genericArgumentsNameIndexes = new int[max];
+								genericArgumentsResolvedPositions = new int[max];
+								genericArgumentsTypeBindings = new TypeBinding[max];
+							}
+							genericArgumentsNameIndexes[genericArgumentsCounter] = nameIndex;
+							genericArgumentsResolvedPositions[genericArgumentsCounter] = resolvedPosition;
+							genericArgumentsTypeBindings[genericArgumentsCounter++] = argumentBinding;
+						}
 						descriptorIndex = constantPool.literalIndex(argumentBinding.signature());
 						localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						localContents[localContentsOffset++] = (byte) descriptorIndex;
-						int resolvedPosition = argSize;
 						if ((argumentBinding == BaseTypes.LongBinding)
 							|| (argumentBinding == BaseTypes.DoubleBinding))
 							argSize += 2;
@@ -2180,6 +2359,92 @@ public class ClassFile
 			localContents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 			localContents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
+			
+			final boolean currentInstanceIsGeneric = 
+				!methodDeclarationIsStatic
+				&& declaringClassBinding != null
+				&& declaringClassBinding.genericSignature() != null;
+			if (genericLocalVariablesCounter != 0 || genericArgumentsCounter != 0 || currentInstanceIsGeneric) {
+				// add the local variable type table attribute
+				numberOfEntries = genericLocalVariablesCounter + genericArgumentsCounter + (currentInstanceIsGeneric ? 1 : 0);
+				// reserve enough space
+				if (localContentsOffset + (8 + 10 * numberOfEntries) >= (contentsLength = localContents.length)) {
+					System.arraycopy(
+						contents,
+						0,
+						(localContents = contents = new byte[contentsLength + INCREMENT_SIZE]),
+						0,
+						contentsLength);
+				}
+				int localVariableTypeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+				localContents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+				localContents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+				value = numberOfEntries * 10 + 2;
+				localContents[localContentsOffset++] = (byte) (value >> 24);
+				localContents[localContentsOffset++] = (byte) (value >> 16);
+				localContents[localContentsOffset++] = (byte) (value >> 8);
+				localContents[localContentsOffset++] = (byte) value;
+				localContents[localContentsOffset++] = (byte) (numberOfEntries >> 8);
+				localContents[localContentsOffset++] = (byte) numberOfEntries;
+				if (currentInstanceIsGeneric) {
+					numberOfEntries++;
+					localContents[localContentsOffset++] = 0; // the startPC for this is always 0
+					localContents[localContentsOffset++] = 0;
+					localContents[localContentsOffset++] = (byte) (code_length >> 8);
+					localContents[localContentsOffset++] = (byte) code_length;
+					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+					localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					localContents[localContentsOffset++] = (byte) nameIndex;
+					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
+					localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+					localContents[localContentsOffset++] = (byte) descriptorIndex;
+					localContents[localContentsOffset++] = 0;// the resolved position for this is always 0
+					localContents[localContentsOffset++] = 0;
+				}
+				
+				for (int i = 0; i < genericLocalVariablesCounter; i++) {
+					LocalVariableBinding localVariable = genericLocalVariables[i];
+					for (int j = 0; j < localVariable.initializationCount; j++) {
+						int startPC = localVariable.initializationPCs[j << 1];
+						int endPC = localVariable.initializationPCs[(j << 1) + 1];
+						if (startPC != endPC) { // only entries for non zero length
+							// now we can safely add the local entry
+							localContents[localContentsOffset++] = (byte) (startPC >> 8);
+							localContents[localContentsOffset++] = (byte) startPC;
+							int length = endPC - startPC;
+							localContents[localContentsOffset++] = (byte) (length >> 8);
+							localContents[localContentsOffset++] = (byte) length;
+							nameIndex = constantPool.literalIndex(localVariable.name);
+							localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							localContents[localContentsOffset++] = (byte) nameIndex;
+							descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+							localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+							localContents[localContentsOffset++] = (byte) descriptorIndex;
+							int resolvedPosition = localVariable.resolvedPosition;
+							localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+							localContents[localContentsOffset++] = (byte) resolvedPosition;
+						}
+					}
+				}
+				
+				for (int i = 0; i < genericArgumentsCounter; i++) {
+					localContents[localContentsOffset++] = 0;
+					localContents[localContentsOffset++] = 0;
+					localContents[localContentsOffset++] = (byte) (code_length >> 8);
+					localContents[localContentsOffset++] = (byte) code_length;
+					nameIndex = genericArgumentsNameIndexes[i];
+					localContents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					localContents[localContentsOffset++] = (byte) nameIndex;
+					descriptorIndex = constantPool.literalIndex(genericArgumentsTypeBindings[i].genericTypeSignature());
+					localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+					localContents[localContentsOffset++] = (byte) descriptorIndex;
+					int resolvedPosition = genericArgumentsResolvedPositions[i];
+					localContents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+					localContents[localContentsOffset++] = (byte) resolvedPosition;
+				}				
+				attributeNumber++;
+			}			
 		}
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
 		if (codeAttributeAttributeOffset + 2
@@ -2302,7 +2567,12 @@ public class ClassFile
 			// leave space for attribute_length and local_variable_table_length
 			int nameIndex;
 			int descriptorIndex;
-			for (int i = 0; i < codeStream.allLocalsCounter; i++) {
+
+			// used to remember the local variable with a generic type
+			int genericLocalVariablesCounter = 0;
+			LocalVariableBinding[] genericLocalVariables = null;
+			
+			for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
 				LocalVariableBinding localVariable = codeStream.locals[i];
 				for (int j = 0; j < localVariable.initializationCount; j++) {
 					int startPC = localVariable.initializationPCs[j << 1];
@@ -2331,7 +2601,15 @@ public class ClassFile
 						nameIndex = constantPool.literalIndex(localVariable.name);
 						contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						contents[localContentsOffset++] = (byte) nameIndex;
-						descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+						final TypeBinding localVariableTypeBinding = localVariable.type;
+						if (localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable()) {
+							if (genericLocalVariables == null) {
+								// we cannot have more than max locals
+								genericLocalVariables = new LocalVariableBinding[max];
+							}
+							genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+						}
+						descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 						contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						contents[localContentsOffset++] = (byte) descriptorIndex;
 						int resolvedPosition = localVariable.resolvedPosition;
@@ -2349,6 +2627,57 @@ public class ClassFile
 			contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 			contents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
+
+			if (genericLocalVariablesCounter != 0) {
+				// add the local variable type table attribute
+				numberOfEntries = genericLocalVariablesCounter;
+				// reserve enough space
+				if (localContentsOffset + (8 + 10 * numberOfEntries) >= (contentsLength = contents.length)) {
+					System.arraycopy(
+						contents,
+						0,
+						(contents = contents = new byte[contentsLength + INCREMENT_SIZE]),
+						0,
+						contentsLength);
+				}
+				int localVariableTypeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+				contents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+				contents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+				value = numberOfEntries * 10 + 2;
+				contents[localContentsOffset++] = (byte) (value >> 24);
+				contents[localContentsOffset++] = (byte) (value >> 16);
+				contents[localContentsOffset++] = (byte) (value >> 8);
+				contents[localContentsOffset++] = (byte) value;
+				contents[localContentsOffset++] = (byte) (numberOfEntries >> 8);
+				contents[localContentsOffset++] = (byte) numberOfEntries;
+
+				for (int i = 0; i < genericLocalVariablesCounter; i++) {
+					LocalVariableBinding localVariable = genericLocalVariables[i];
+					for (int j = 0; j < localVariable.initializationCount; j++) {
+						int startPC = localVariable.initializationPCs[j << 1];
+						int endPC = localVariable.initializationPCs[(j << 1) + 1];
+						if (startPC != endPC) { // only entries for non zero length
+							// now we can safely add the local entry
+							contents[localContentsOffset++] = (byte) (startPC >> 8);
+							contents[localContentsOffset++] = (byte) startPC;
+							int length = endPC - startPC;
+							contents[localContentsOffset++] = (byte) (length >> 8);
+							contents[localContentsOffset++] = (byte) length;
+							nameIndex = constantPool.literalIndex(localVariable.name);
+							contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							contents[localContentsOffset++] = (byte) nameIndex;
+							descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+							contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+							contents[localContentsOffset++] = (byte) descriptorIndex;
+							int resolvedPosition = localVariable.resolvedPosition;
+							contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+							contents[localContentsOffset++] = (byte) resolvedPosition;
+						}
+					}
+				}
+				attributeNumber++;
+			}
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array

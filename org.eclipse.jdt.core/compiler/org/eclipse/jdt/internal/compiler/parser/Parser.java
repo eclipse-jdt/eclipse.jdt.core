@@ -7266,6 +7266,11 @@ protected CompilationUnitDeclaration endParse(int act) {
 			this.scanner.foundTaskPositions[i][0], 
 			this.scanner.foundTaskPositions[i][1]);
 	}
+/*	if (this.genericsPtr != -1
+			|| this.genericsIdentifiersLengthPtr != -1
+			|| this.genericsLengthPtr != -1) {
+		throw new RuntimeException();
+	}*/
 	return this.compilationUnit;
 }
 /*

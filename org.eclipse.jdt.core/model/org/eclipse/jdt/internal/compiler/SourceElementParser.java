@@ -454,45 +454,61 @@ public TypeReference getTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
 	 * This variable is a type reference and dim will be its dimensions
 	 */
-	int length;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
-		// single variable reference
+	int length = identifierLengthStack[identifierLengthPtr--];
+	if (length < 0) { //flag for precompiled type reference on base types
+		TypeReference ref = TypeReference.baseTypeReference(-length, dim);
+		ref.sourceStart = intStack[intPtr--];
 		if (dim == 0) {
-			SingleTypeReference ref = 
-				new SingleTypeReference(
-					identifierStack[identifierPtr], 
-					identifierPositionStack[identifierPtr--]);
-			if (reportReferenceInfo) {
-				requestor.acceptTypeReference(ref.token, ref.sourceStart);
-			}
-			return ref;
+			ref.sourceEnd = intStack[intPtr--];
 		} else {
-			ArrayTypeReference ref = 
-				new ArrayTypeReference(
-					identifierStack[identifierPtr], 
-					dim, 
-					identifierPositionStack[identifierPtr--]); 
+			intPtr--; // no need to use this position as it is an array
 			ref.sourceEnd = endPosition;
-			if (reportReferenceInfo) {
-				requestor.acceptTypeReference(ref.token, ref.sourceStart);
-			}
-			return ref;
 		}
+		if (reportReferenceInfo){
+				requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+		}
+		return ref;
 	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			TypeReference ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[intPtr--];
-			if (dim == 0) {
-				ref.sourceEnd = intStack[intPtr--];
-			} else {
-				intPtr--; // no need to use this position as it is an array
-				ref.sourceEnd = endPosition;
-			}
-			if (reportReferenceInfo){
-					requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+		int numberOfIdentifiers = this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr--];
+		if (length != numberOfIdentifiers || this.genericsLengthStack[this.genericsLengthPtr] != 0) {
+			// generic type
+			TypeReference ref = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
+			if (reportReferenceInfo) {
+				if (length == 1 && numberOfIdentifiers == 1) {
+					ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) ref;
+					requestor.acceptTypeReference(parameterizedSingleTypeReference.token, parameterizedSingleTypeReference.sourceStart);
+				} else {
+					ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = (ParameterizedQualifiedTypeReference) ref;
+					requestor.acceptTypeReference(parameterizedQualifiedTypeReference.tokens, parameterizedQualifiedTypeReference.sourceStart, parameterizedQualifiedTypeReference.sourceEnd);
+				}
 			}
 			return ref;
-		} else { //Qualified variable reference
+		} else if (length == 1) {
+			// single variable reference
+			this.genericsLengthPtr--; // pop the 0
+			if (dim == 0) {
+				SingleTypeReference ref = 
+					new SingleTypeReference(
+						identifierStack[identifierPtr], 
+						identifierPositionStack[identifierPtr--]);
+				if (reportReferenceInfo) {
+					requestor.acceptTypeReference(ref.token, ref.sourceStart);
+				}
+				return ref;
+			} else {
+				ArrayTypeReference ref = 
+					new ArrayTypeReference(
+						identifierStack[identifierPtr], 
+						dim, 
+						identifierPositionStack[identifierPtr--]); 
+				ref.sourceEnd = endPosition;
+				if (reportReferenceInfo) {
+					requestor.acceptTypeReference(ref.token, ref.sourceStart);
+				}
+				return ref;
+			}
+		} else {//Qualified variable reference
+			this.genericsLengthPtr--;
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
 			long[] positions = new long[length];
