@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.PerThreadObject;
-
 /**
  * A <code>NameLookup</code> provides name resolution within a Java project.
  * The name lookup facility uses the project's classpath to prioritize the 
@@ -591,17 +590,19 @@ public class NameLookup {
 				unqualifiedName = name;
 			}
 		}
-		String lowerName= name.toLowerCase();
+		String matchName= partialMatch ? name.toLowerCase() : name;
 		for (int i= 0; i < length; i++) {
 			if (requestor.isCanceled())
 				return;
 			IClassFile classFile= classFiles[i];
+			String elementName = classFile.getElementName();
+			if (partialMatch) elementName = elementName.toLowerCase();
+
 			/**
-			 * In the following call to nameMatches we must always send true 
-			 * for the partialMatch argument since name will never have the 
-			 * extension ".class" and the classFile always will.
+			 * Must use startWith because matchName will never have the 
+			 * extension ".class" and the elementName always will.
 			 */
-			if (nameMatches(lowerName, classFile, true)) {
+			if (elementName.startsWith(matchName)) {
 				IType type= null;
 				try {
 					type= classFile.getType();
@@ -658,8 +659,8 @@ public class NameLookup {
 			Map workingCopies = (Map) this.unitsToLookInside.getCurrent();
 			if (workingCopies != null 
 					&& (unitToLookInside = (ICompilationUnit)workingCopies.get(compilationUnit)) != null){
-				compilationUnit = unitToLookInside;
-			}			
+					compilationUnit = unitToLookInside;
+				}
 			if ((unitToLookInside != null && !potentialMemberType) || nameMatches(unitName, compilationUnit, partialMatch)) {
 				IType[] types= null;
 				try {
@@ -704,7 +705,7 @@ public class NameLookup {
  */
 public void setUnitsToLookInside(IWorkingCopy[] unitsToLookInside) {
 	
-	if (unitsToLookInside == null) { 
+	if (unitsToLookInside == null) {
 		this.unitsToLookInside.setCurrent(null); 
 	} else {
 		HashMap workingCopies = new HashMap();
