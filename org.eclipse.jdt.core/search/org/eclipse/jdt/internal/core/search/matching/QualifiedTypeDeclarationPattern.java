@@ -52,7 +52,7 @@ public void decodeIndexKey(char[] key) {
 		this.qualification[this.packageIndex] = '.';
 	}
 
-	this.typeSuffix = key[key.length - 1];
+	decodeModifiers(key[key.length - 1]);
 }
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);

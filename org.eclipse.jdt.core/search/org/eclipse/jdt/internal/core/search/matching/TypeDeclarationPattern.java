@@ -125,7 +125,11 @@ public void decodeIndexKey(char[] key) {
 		this.enclosingTypeNames = CharOperation.equals(ONE_ZERO, names) ? ONE_ZERO_CHAR : CharOperation.splitOn('.', names);
 	}
 
-	this.modifiers = key[key.length - 1]; // implicit cast to int type
+	decodeModifiers(key[key.length - 1]);
+}
+protected void decodeModifiers(char value) {
+	this.modifiers = value; // implicit cast to int type
+
 	// Extract suffix from modifiers instead of index key
 	int kind = this.modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
 	switch (kind) {
