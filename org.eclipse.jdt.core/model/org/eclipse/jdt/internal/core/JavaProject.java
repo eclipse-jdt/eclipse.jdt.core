@@ -1328,8 +1328,7 @@ public class JavaProject
 		if (perProjectInfo != null){
 			if (perProjectInfo.classpath == null // .classpath file could not be read
 				&& generateMarkerOnError 
-				&& fProject.isAccessible() 
-				&& manager.deltaProcessor.hasJavaNature(fProject)) {
+				&& JavaProject.hasJavaNature(fProject)) {
 					this.createClasspathProblemMarker(
 						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()), //$NON-NLS-1$
 						IMarker.SEVERITY_ERROR,
@@ -1556,6 +1555,21 @@ public class JavaProject
 		return fProject.hashCode();
 	}
 
+	/**
+	 * Returns true if the given resource is contained in an open project
+	 * with a java nature, otherwise false.
+	 */
+	public static boolean hasJavaNature(IResource resource) { 
+		// ensure the project has a java nature (if open)
+		IProject project = resource.getProject();
+		try {
+			return project.hasNature(JavaCore.NATURE_ID);
+		} catch (CoreException e) {
+			// project does not exist or is not open
+		}
+		return false;
+	}
+	
 	/**
 	 * Answers true if the project potentially contains any source. A project which has no source is immutable.
 	 */

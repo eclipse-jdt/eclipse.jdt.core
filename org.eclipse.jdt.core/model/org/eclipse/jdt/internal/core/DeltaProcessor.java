@@ -403,7 +403,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					this.addToProjectsToUpdateWithDependents(project);
 					
 					// workaround for bug 15168 circular errors not reported 
-					if (this.hasJavaNature(project)) {
+					if (JavaProject.hasJavaNature(project)) {
 						this.addToParentInfo((JavaProject)JavaCore.create(project));
 					}
 
@@ -415,7 +415,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						
 						// workaround for bug 15168 circular errors not reported 
 						if (project.isOpen()) {
-							if (this.hasJavaNature(project)) {
+							if (JavaProject.hasJavaNature(project)) {
 								this.addToParentInfo((JavaProject)JavaCore.create(project));
 							}
 						} else {
@@ -430,7 +430,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						}
 					} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 						boolean wasJavaProject = this.manager.getJavaModel().findJavaProject(project) != null;
-						boolean isJavaProject = this.hasJavaNature(project);
+						boolean isJavaProject = JavaProject.hasJavaNature(project);
 						if (wasJavaProject != isJavaProject) {
 							// java nature added or removed: remember  project and its dependents
 							this.addToProjectsToUpdateWithDependents(project);
@@ -460,14 +460,14 @@ public class DeltaProcessor implements IResourceChangeListener {
 							}
 						} else {
 							// in case the project was removed then added then changed (see bug 19799)
-							if (this.hasJavaNature(project)) { // need nature check - 18698
+							if (JavaProject.hasJavaNature(project)) { // need nature check - 18698
 								this.addToParentInfo((JavaProject)JavaCore.create(project));
 							}
 						}
 					} else {
 						// workaround for bug 15168 circular errors not reported 
 						// in case the project was removed then added then changed
-						if (this.hasJavaNature(project)) { // need nature check - 18698
+						if (JavaProject.hasJavaNature(project)) { // need nature check - 18698
 							this.addToParentInfo((JavaProject)JavaCore.create(project));
 						}						
 					}					
@@ -589,8 +589,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						break;
 					}
 					IProject proj = (IProject)resource;
-					boolean isOpened = proj.isOpen();
-					if (isOpened && this.hasJavaNature(proj)) {
+					if (JavaProject.hasJavaNature(proj)) {
 						element = JavaCore.create(proj);
 					} else {
 						// java project may have been been closed or removed (look for
@@ -736,7 +735,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 		if (elementType == IJavaElement.JAVA_PROJECT) {
 			// project add is handled by JavaProject.configure() because
 			// when a project is created, it does not yet have a java nature
-			if (delta != null && hasJavaNature((IProject)delta.getResource())) {
+			if (delta != null && JavaProject.hasJavaNature((IProject)delta.getResource())) {
 				addToParentInfo(element);
 				if ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
 					Openable movedFromElement = (Openable)element.getJavaModel().getJavaProject(delta.getMovedFromPath().lastSegment());
@@ -954,7 +953,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						// project's description has changed: need to check if java nature has changed
 						IProject proj = res.getProject();
 						boolean wasJavaProject = JavaModelManager.getJavaModelManager().getJavaModel().findJavaProject(proj) != null;
-						boolean isJavaProject = this.hasJavaNature(proj);
+						boolean isJavaProject = JavaProject.hasJavaNature(proj);
 						if (wasJavaProject != isJavaProject) {
 							return IJavaElement.JAVA_PROJECT;
 						}
@@ -1045,22 +1044,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 		return file.lastModified() + file.length();
 	}
 	
-	/**
-	 * Returns true if the given resource is contained in an open project
-	 * with a java nature, otherwise false.
-	 */
-	protected boolean hasJavaNature(IResource resource) { 
-		// ensure the project has a java nature (if open)
-		IProject project = resource.getProject();
-		if (project.isOpen()) {
-			try {
-				return project.hasNature(JavaCore.NATURE_ID);
-			} catch (CoreException e) {
-				// do nothing
-			}
-		}
-		return false;
-	}
+
 	
 	private void initializeRoots(IJavaModel model) {
 		this.roots = new HashMap();
@@ -1247,7 +1231,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				break;
 			case IResource.PROJECT :
 				// do not visit non-java projects (see bug 16140 Non-java project gets .classpath)
-				if (delta.getKind() == IResourceDelta.CHANGED && this.hasJavaNature(resource)) {
+				if (delta.getKind() == IResourceDelta.CHANGED && JavaProject.hasJavaNature(resource)) {
 					processChildren = true;
 				}
 				break;
@@ -1759,7 +1743,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				IProject rscProject = res.getProject();
 				JavaProject adoptiveProject = (JavaProject)JavaCore.create(rscProject);
 				if (adoptiveProject != null 
-						&& this.hasJavaNature(rscProject)) { // delta iff Java project (18698)
+						&& JavaProject.hasJavaNature(rscProject)) { // delta iff Java project (18698)
 					for (int i = 0; i < length; i++) {
 						if (orphanChildren[i] != null) {
 							try {
@@ -1865,7 +1849,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 								throw newInvalidElementType();
 							}
 							if (res.isOpen()) {
-								if (this.hasJavaNature(res)) {
+								if (JavaProject.hasJavaNature(res)) {
 									this.elementAdded(element, delta, rootInfo);
 									this.indexManager.indexAll(res);
 								}
@@ -1885,7 +1869,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 							IProject res = (IProject)delta.getResource();
 							JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
 							boolean wasJavaProject = javaModel.findJavaProject(res) != null;
-							boolean isJavaProject = this.hasJavaNature(res);
+							boolean isJavaProject = JavaProject.hasJavaNature(res);
 							if (wasJavaProject != isJavaProject) {
 								// project's nature has been added or removed
 								element = this.createElement(res, elementType, rootInfo);
