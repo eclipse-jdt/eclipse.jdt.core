@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
  * Run all java model tests.
  */
-public class AllJavaModelTests extends TestCase {
+public class AllJavaModelTests extends junit.framework.TestCase {
 public AllJavaModelTests(String name) {
 	super(name);
 }
@@ -87,9 +88,10 @@ public static Test suite() {
 	getAllTestClasses();
 
 	// Reset forgotten subsets of tests
-	AbstractJavaModelTests.testsNames = null;
-	AbstractJavaModelTests.testsNumbers = null;
-	AbstractJavaModelTests.testsRange = null;
+	TestCase.TESTS_PREFIX = null;
+	TestCase.TESTS_NAMES = null;
+	TestCase.TESTS_NUMBERS = null;
+	TestCase.TESTS_RANGE = null;
 
 	// creation of method
 	suite.addTest(CreateMembersTests.suite());

@@ -550,7 +550,4 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	public void testPerfDomAstCreationJLS2() throws JavaModelException {
 		runAstCreation(AST.JLS2);
 	}
-	public void testPerfDomAstCreationJLS3() throws JavaModelException {
-		runAstCreation(AST.JLS3);
-	}
 }
