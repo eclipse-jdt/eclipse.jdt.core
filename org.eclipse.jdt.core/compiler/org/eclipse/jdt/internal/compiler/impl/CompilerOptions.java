@@ -94,6 +94,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportNullReference = "org.eclipse.jdt.core.compiler.problem.nullReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportAutoboxing = "org.eclipse.jdt.core.compiler.problem.autoboxing"; //$NON-NLS-1$
 	public static final String OPTION_ReportAnnotationSuperInterface = "org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"; //$NON-NLS-1$
+	public static final String OPTION_ReportMissingOverrideAnnotation = "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"; //$NON-NLS-1$
+	
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
 	public static final String OPTION_ImportRestrictionInclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.include"; //$NON-NLS-1$
 	public static final String OPTION_ImportRestrictionExclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"; //$NON-NLS-1$
@@ -173,6 +175,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long Autoboxing = ASTNode.Bit38L;
 	public static final long AnnotationSuperInterface = ASTNode.Bit39L;
 	public static final long TypeParameterHiding = ASTNode.Bit40L;
+	public static final long MissingOverrideAnnotation = ASTNode.Bit41L;
 
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -196,6 +199,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| ForbiddenReference
 		| AnnotationSuperInterface
 		| TypeParameterHiding
+		| FinalParameterBound
+		| MissingOverrideAnnotation
 		/*| NullReference*/;
 
 	// Debug attributes
@@ -350,6 +355,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportMissingSerialVersion, getSeverityString(MissingSerialVersion));
 		optionsMap.put(OPTION_ReportForbiddenReference, getSeverityString(ForbiddenReference));
 		optionsMap.put(OPTION_ReportVarargsArgumentNeedCast, getSeverityString(VarargsArgumentNeedCast)); 
+		optionsMap.put(OPTION_ReportMissingOverrideAnnotation, getSeverityString(MissingOverrideAnnotation));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 
@@ -628,6 +634,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportNullReference)) != null) updateSeverity(NullReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(Autoboxing, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAnnotationSuperInterface)) != null) updateSeverity(AnnotationSuperInterface, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
 		
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -788,6 +795,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- null reference: ").append(getSeverityString(NullReference)); //$NON-NLS-1$
 		buf.append("\n\t- autoboxing: ").append(getSeverityString(Autoboxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
+		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$		
 		return buf.toString();
 	}
 

@@ -430,6 +430,12 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
+	public static final String COMPILER_PB_MISSING_OVERRIDE_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingOverrideAnnotation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
 	public static final String COMPILER_PB_INCONSISTENT_NULL_CHECK = PLUGIN_ID + ".compiler.problem.inconsistentNullCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -1835,7 +1841,7 @@ public final class JavaCore extends Plugin {
 	 *    bound corresponding to a final type; since final types cannot be further extended, the parameter is pretty useless.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.finalParameterBound"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
+	 *     - default:           "warning"
 	 * 
 	 * COMPILER / Reporting Missing Declaration of serialVersionUID Field on Serializable Class
 	 *    When enabled, the compiler will issue an error or a warning whenever a serializable class is missing a local declaration 
@@ -1870,6 +1876,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
+	 * COMPILER / Reporting Missing @Override Annotation
+	 *    When enabled, the compiler will issue an error or a warning whenever encountering a method
+	 *    declaration which overrides a superclass method but has no @Override annotation.
+	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"                               
+	 * 	
 	 * COMPILER / Reporting Boxing/Unboxing Conversion
 	 *    When enabled, the compiler will issue an error or a warning whenever a boxing or an unboxing
 	 *    conversion is performed.

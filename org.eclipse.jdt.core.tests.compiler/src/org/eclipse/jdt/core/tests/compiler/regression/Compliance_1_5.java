@@ -1119,7 +1119,12 @@ public void test030() {
 		"The method barbar(Object) from the type X2 is not visible\n" + 
 		"----------\n" + 
 		"----------\n" + 
-		"1. WARNING in q\\X2.java (at line 5)\n" + 
+		"1. WARNING in q\\X2.java (at line 4)\n" + 
+		"	protected void bar(Object o) { System.out.println(\"X2.bar(Object)\"); }	\n" + 
+		"	               ^^^^^^^^^^^^^\n" + 
+		"The method bar(Object) of type X2 should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"2. WARNING in q\\X2.java (at line 5)\n" + 
 		"	void barbar(Object o){	System.out.println(\"X2.barbar(Object)\"); }	\n" + 
 		"	     ^^^^^^^^^^^^^^^^\n" + 
 		"The method X2.barbar(Object) does not override the inherited method from X1 since it is private to a different package.\n" + 
@@ -1173,7 +1178,12 @@ public void test031() {
 		"The method barbar(Object) from the type X2 is not visible\n" + 
 		"----------\n" + 
 		"----------\n" + 
-		"1. WARNING in q\\X2.java (at line 5)\n" + 
+		"1. WARNING in q\\X2.java (at line 4)\n" + 
+		"	protected void bar(Object o) { System.out.println(\"X2.bar(Object)\"); }	\n" + 
+		"	               ^^^^^^^^^^^^^\n" + 
+		"The method bar(Object) of type X2 should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"2. WARNING in q\\X2.java (at line 5)\n" + 
 		"	void barbar(Object o){	System.out.println(\"X2.barbar(Object)\"); }	\n" + 
 		"	     ^^^^^^^^^^^^^^^^\n" + 
 		"The method X2.barbar(Object) does not override the inherited method from X1 since it is private to a different package.\n" + 
@@ -1693,6 +1703,11 @@ public void test046() {
 		"	public class X extends Y {\n" + 
 		"	             ^\n" + 
 		"The type X must implement the inherited abstract method Y.foo()\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	public abstract void foo();\n" + 
+		"	                     ^^^^^\n" + 
+		"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
 		"----------\n"
 	);
 }
@@ -1800,6 +1815,12 @@ public void test049() {
 		"	aConcrete.callme();\n" + 
 		"	          ^^^^^^\n" + 
 		"The method callme() from the type Concrete is not visible\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in pb\\Concrete.java (at line 4)\n" + 
+		"	protected void callme(){	System.out.println(\"SUCCESS\"); }\n" + 
+		"	               ^^^^^^^^\n" + 
+		"The method callme() of type Concrete should be tagged with @Override since it actually overrides a superclass method\n" + 
 		"----------\n");
 }
 
@@ -2285,12 +2306,22 @@ public void test065() {
 			"	}	\n"+
 			"}	\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	Z(){	\n" + 
-		"	^^^\n" + 
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	String foo() { return \"Y-foo\"; }	\n" + 
+			"	       ^^^^^\n" + 
+			"The method foo() of type X.Y should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	Z(){	\n" + 
+			"	^^^\n" + 
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 12)\n" + 
+			"	String foo() { return \"Z-foo\"; }	\n" + 
+			"	       ^^^^^\n" + 
+			"The method foo() of type X.Y.Z should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n");
 }
 
 /*
@@ -2604,12 +2635,17 @@ public void test074() {
 			"}	\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 15)\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	public String toString() {	\n" + 
+		"	              ^^^^^^^^^^\n" + 
+		"The method toString() of type Local should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
 		"	System.out.print(new Local());	\n" + 
 		"	                     ^^^^^\n" + 
 		"Local cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 17)\n" + 
+		"3. ERROR in X.java (at line 17)\n" + 
 		"	System.out.println(new Local(){	\n" + 
 		"	                       ^^^^^\n" + 
 		"Local cannot be resolved to a type\n" + 

@@ -1029,13 +1029,15 @@ public interface IProblem {
 	/** @since 3.1 */
 	int DisallowedTargetForAnnotation = TypeRelated + 622;
 	/** @since 3.1 */
-	int MethodMustOverride = TypeRelated + 623;
+	int MethodMustOverride = MethodRelated + 623;
 	/** @since 3.1 */
 	int AnnotationTypeDeclarationCannotHaveConstructor = Syntax + Internal + 624;
 	/** @since 3.1 */
 	int AnnotationValueMustBeAnnotation = Internal + 625;
 	/** @since 3.1 */
 	int AnnotationTypeUsedAsSuperInterface = TypeRelated + 626;
+	/** @since 3.1 */
+	int MissingOverrideAnnotation = MethodRelated + 627;
 	
 	/**
 	 * Corrupted binaries

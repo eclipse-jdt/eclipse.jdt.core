@@ -246,6 +246,11 @@ public class EnumTest extends AbstractComparableTest {
 			"	protected Object clone() { return this; }\n" + 
 			"	                 ^^^^^^^\n" + 
 			"Cannot override the final method from Enum<X>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	protected Object clone() { return this; }\n" + 
+			"	                 ^^^^^^^\n" + 
+			"The method clone() of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}	
 	// check generated #values() method

@@ -133,10 +133,17 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		
 		// check @Override annotation
-		if (this.binding != null 
-				&& (this.binding.tagBits & TagBits.AnnotationOverride) != 0
-				&& (this.binding.modifiers & AccOverriding) == 0) {
-			scope.problemReporter().methodMustOverride(this);
+		if (this.binding != null) {
+			// claims to override, and doesn't actually do so
+			if ((this.binding.tagBits & TagBits.AnnotationOverride) != 0 && (this.binding.modifiers & AccOverriding) == 0) {
+				scope.problemReporter().methodMustOverride(this);
+			}
+			// actually overrides, but did not claim to do so
+			if ((this.binding.tagBits & TagBits.AnnotationOverride) == 0 
+					&& (this.binding.modifiers & AccOverriding) != 0
+					&& scope.environment().options.sourceLevel >= JDK1_5) {
+				scope.problemReporter().missingOverrideAnnotation(this);
+			}
 		}
 				
 		// by grammatical construction, interface methods are always abstract

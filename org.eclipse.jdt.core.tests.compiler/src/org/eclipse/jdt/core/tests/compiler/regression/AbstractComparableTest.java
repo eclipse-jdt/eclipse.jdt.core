@@ -123,6 +123,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.WARNING);
 		return options;
 	}
 

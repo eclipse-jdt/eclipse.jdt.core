@@ -47,43 +47,58 @@ Eclipse SDK 3.1M6 - ?nd February 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li><li>Added optional compiler diagnosis to flag method overriding a superclass method, but missing 
+proper <code>@Override</code> annotation.
+Corresponding problem ID is: <code>IProblem.MissingOverrideAnnotation</code>
+
+<pre>
+* COMPILER / Reporting Missing @Override Annotation
+*    When enabled, the compiler will issue an error or a warning whenever encountering a method
+*    declaration which overrides a superclass method but has no @Override annotation.
+*     - option id:        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"                               
+</pre>
+</li>
 <li>Add API for new completion kind: CompletionProposal.ANNOTATION_ATTRIBUTE_REF.<br>
 <pre>
-	/**
-	 * Completion is a reference to annotation's attribute.
-	 * This kind of completion might occur in a context like
-	 * &lt;code&gt;"@Annot(attr^=value)"&lt;/code&gt; and complete it to
-	 * &lt;code&gt;"@Annot(attribute^=value)"&lt;/code&gt;.
-	 * &lt;p&gt;
-	 * The following additional context information is available
-	 * for this kind of completion proposal at little extra cost:
-	 * &lt;ul&gt;
-	 * &lt;li&gt;{@link #getDeclarationSignature()} -
-	 * the type signature of the annotation that declares the attribute that is referenced
-	 * &lt;/li&gt;
-	 * &lt;li&gt;{@link #getFlags()} -
-	 * the modifiers flags of the attribute that is referenced
-	 * &lt;/li&gt;
-	 * &lt;li&gt;{@link #getName()} -
-	 * the simple name of the attribute that is referenced
-	 * &lt;/li&gt;
-	 * &lt;li&gt;{@link #getSignature()} -
-	 * the type signature of the attribute's type (as opposed to the
-	 * signature of the type in which the referenced attribute
-	 * is declared)
-	 * &lt;/li&gt;
-	 * &lt;/ul&gt;
-	 * &lt;/p&gt;
-	 * 
-	 * @see #getKind()
-	 */
-	 public static final int ANNOTATION_ATTRIBUTE_REF = 13;
+/**
+ * Completion is a reference to annotation's attribute.
+ * This kind of completion might occur in a context like
+ * &lt;code&gt;"@Annot(attr^=value)"&lt;/code&gt; and complete it to
+ * &lt;code&gt;"@Annot(attribute^=value)"&lt;/code&gt;.
+ * &lt;p&gt;
+ * The following additional context information is available
+ * for this kind of completion proposal at little extra cost:
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link #getDeclarationSignature()} -
+ * the type signature of the annotation that declares the attribute that is referenced
+ * &lt;/li&gt;
+ * &lt;li&gt;{@link #getFlags()} -
+ * the modifiers flags of the attribute that is referenced
+ * &lt;/li&gt;
+ * &lt;li&gt;{@link #getName()} -
+ * the simple name of the attribute that is referenced
+ * &lt;/li&gt;
+ * &lt;li&gt;{@link #getSignature()} -
+ * the type signature of the attribute's type (as opposed to the
+ * signature of the type in which the referenced attribute
+ * is declared)
+ * &lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ * 
+ * @see #getKind()
+ */
+ public static final int ANNOTATION_ATTRIBUTE_REF = 13;
 </pre>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85538">85538</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=84562">84562</a>
+[DCR][1.5][options] Optional warning/error to avoid accidental overrides with JDK 5.0
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85538">85538</a>
 [1.5] compiler does not reject cyclic annotation element types
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86141">86141</a>
 [recovery] ClassCastException with annotation of parameter

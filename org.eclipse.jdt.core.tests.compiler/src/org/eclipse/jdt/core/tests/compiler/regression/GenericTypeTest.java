@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 469 };
+//		TESTS_NUMBERS = new int[] { 520 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -508,6 +508,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	foo(new XY());\n" + 
 			"	^^^\n" + 
 			"The method foo(T) in the type X<T> is not applicable for the arguments (XY)\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	public String toString() {\n" + 
+			"	              ^^^^^^^^^^\n" + 
+			"The method toString() of type XY should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}
 	public void test020() {
@@ -523,6 +528,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"    void bar() {\n" + 
 				"        new Y<T>() {\n" + 
+				"            @Override\n" +
 				"            public void pre() {\n" + 
 				"                foo(this);\n" + 
 				"            }\n" + 
@@ -539,7 +545,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
 			"	}.print(\"ESS\");\n" + 
 			"	  ^^^^^\n" + 
 			"The method print(T) in the type Y<T> is not applicable for the arguments (String)\n" + 
@@ -3481,7 +3487,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                    ^^\n" + 
 			"Type mismatch: cannot convert from Class<? extends String> to Class<? extends XY>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 14)\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	public Class <? extends Object> getClass() {\n" + 
+			"	                                ^^^^^^^^^^\n" + 
+			"The method getClass() of type XY should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
 			"	public Class <? extends Object> getClass() {\n" + 
 			"	                                ^^^^^^^^^^\n" + 
 			"Cannot override the final method from Object\n" + 
@@ -6555,22 +6566,32 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    public X foo() { return new X(); }\n" +
 				"}\n"
 			},
-		"----------\n" + 
-		"1. ERROR in SubTypes.java (at line 5)\n" + 
-		"	public X foo() { return new X(); }\n" + 
-		"	         ^^^^^\n" + 
-		"Duplicate method foo() in type B\n" + 
-		"----------\n" + 
-		"2. ERROR in SubTypes.java (at line 6)\n" + 
-		"	public B foo() { return this; }\n" + 
-		"	         ^^^^^\n" + 
-		"Duplicate method foo() in type B\n" + 
-		"----------\n" + 
-		"3. ERROR in SubTypes.java (at line 9)\n" + 
-		"	public X foo() { return new X(); }\n" + 
-		"	         ^^^^^\n" + 
-		"The return type is incompatible with A.foo()\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. WARNING in SubTypes.java (at line 2)\n" + 
+			"	public A foo() { return this; }\n" + 
+			"	         ^^^^^\n" + 
+			"The method foo() of type A should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in SubTypes.java (at line 5)\n" + 
+			"	public X foo() { return new X(); }\n" + 
+			"	         ^^^^^\n" + 
+			"Duplicate method foo() in type B\n" + 
+			"----------\n" + 
+			"3. ERROR in SubTypes.java (at line 6)\n" + 
+			"	public B foo() { return this; }\n" + 
+			"	         ^^^^^\n" + 
+			"Duplicate method foo() in type B\n" + 
+			"----------\n" + 
+			"4. WARNING in SubTypes.java (at line 9)\n" + 
+			"	public X foo() { return new X(); }\n" + 
+			"	         ^^^^^\n" + 
+			"The method foo() of type C should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"5. ERROR in SubTypes.java (at line 9)\n" + 
+			"	public X foo() { return new X(); }\n" + 
+			"	         ^^^^^\n" + 
+			"The return type is incompatible with A.foo()\n" + 
+			"----------\n");
 	}
 	// generic method of raw type
 	public void test244() {
@@ -7252,7 +7273,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	       ^^^^\n" + 
 			"Type safety: The return type List for useList(List) from the type Y needs unchecked conversion to conform to List<String> from the type X\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 10)\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	public List useList(List l) {\n" + 
+			"	            ^^^^^^^^^^^^^^^\n" + 
+			"The method useList(List) of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
 			"	l.add(\"asdf\");\n" + 
 			"	^^^^^^^^^^^^^\n" + 
 			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
@@ -7296,7 +7322,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	public void useList(List l) {\n" + 
+			"	            ^^^^^^^^^^^^^^^\n" + 
+			"The method useList(List) of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
 			"	super.useList(l);\n" + 
 			"	              ^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
@@ -9251,6 +9282,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
 			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	public <T extends Exception> T bar(T t) { return t; }\n" + 
+			"	                               ^^^^^^^^\n" + 
+			"The method bar(T) of type new X<R>(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}	
 	// test wildcard compatibilities
@@ -10108,6 +10144,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
 			"	                                                        ^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(Class<T>) of type X has the same erasure as foo(Class<T>) of type I but does not override it\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 1)\n" + 
+			"	public class X extends Y implements I { public <T> void foo(Class<T> s) {} }\n" + 
+			"	                                                        ^^^^^^^^^^^^^^^\n" + 
+			"The method foo(Class<T>) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 			/*
 			X.java:1: X is not abstract and does not override abstract method <T,S>foo(java.lang.Class<T>) in I
@@ -10185,13 +10226,23 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	Class<? extends String> foo() { return null; }\r\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	Class<? extends String> foo() { return null; }\n" + 
+			"	                        ^^^^^\n" + 
+			"The method foo() of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	Class<? extends String> foo() { return null; }\n" + 
 			"	                        ^^^^^\n" + 
 			"The return type is incompatible with Y.foo()\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\r\n" + 
-			"	Class<? extends String>[] foo2() { return null; }\r\n" + 
+			"3. WARNING in X.java (at line 3)\n" + 
+			"	Class<? extends String>[] foo2() { return null; }\n" + 
+			"	                          ^^^^^^\n" + 
+			"The method foo2() of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 3)\n" + 
+			"	Class<? extends String>[] foo2() { return null; }\n" + 
 			"	                          ^^^^^^\n" + 
 			"The return type is incompatible with Y.foo2()\n" + 
 			"----------\n");
@@ -10636,8 +10687,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public <J extends I> void mm(M1<J> q) { \n" + 
 			"	                          ^^^^^^^^^^^\n" + 
 			"Name clash: The method mm(M1<J>) of type M2<I> has the same erasure as mm(M1<? extends H>) of type M1<H> but does not override it\n" + 
-			"----------\n"
-		);
+			"----------\n" + 
+			"3. WARNING in X.java (at line 41)\n" + 
+			"	class XX            { public String toString() { return \"XX\"; } } \n" + 
+			"	                                    ^^^^^^^^^^\n" + 
+			"The method toString() of type XX should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 42)\n" + 
+			"	class YY extends XX { public String toString() { return \"YY\"; } } \n" + 
+			"	                                    ^^^^^^^^^^\n" + 
+			"The method toString() of type YY should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 43)\n" + 
+			"	class ZZ extends YY { public String toString() { return \"ZZ\"; } } \n" + 
+			"	                                    ^^^^^^^^^^\n" + 
+			"The method toString() of type ZZ should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n");
 	}			
 	// cannot allocate parameterized type with wildcards
 	public void test398() {
@@ -11391,6 +11456,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"			}\n" + 
 				"		}\n" + 
 				"		A<Long> a = new A<Long>() {\n" + 
+				"			@Override\n" +
 				"			Long get() {\n" +
 				"				return new Long(5);\n" + 
 				"			}\n" + 
@@ -14552,7 +14618,7 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}	
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930 - check no warning for using raw member
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930 - check no warning for using raw member
 	public void test518(){
 		runNegativeTest(
 			new String[] {
@@ -14578,4 +14644,43 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85262
+	public void test519(){
+		runConformTest(
+			new String[] {
+				"FooImpl.java",
+				"interface Bar<R extends Foo<R>>  {} \n" + 
+				" \n" + 
+				"class BarImpl<S extends Foo<S>> implements Bar<S> {} \n" + 
+				" \n" + 
+				"interface Foo<T extends Foo<T>> extends Bar<T> {} \n" + 
+				" \n" + 
+				"public class FooImpl<U extends Foo<U>> extends BarImpl<U> implements Foo<U> {}\n" + 
+				"\n"
+			},
+			"");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85262 - variation
+	// TODO (kent) reenable once fixed
+	public void _test520(){
+		runConformTest(
+			new String[] {
+				"Bar.java",
+				"public interface Bar<R extends Foo<R>>  {} \n",
+				"BarImpl.java",
+				"public class BarImpl<S extends Foo<S>> implements Bar<S> {} \n",
+				"Foo.java",
+				"public interface Foo<T extends Foo<T>> extends Bar<T> {} \n",
+			},
+			"");
+		runConformTest(
+			new String[] {
+				"FooImpl.java",
+				"public class FooImpl<U extends Foo<U>> extends BarImpl<U> implements Foo<U> {}\n",
+			},
+			"",
+			null,
+			false, // do not flush output directory
+			null);
+	}		
 }

@@ -681,6 +681,9 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeRawGenericConstructorInvocation:
 			return this.options.getSeverity(CompilerOptions.UncheckedTypeOperation);
 
+		case IProblem.MissingOverrideAnnotation:
+			return this.options.getSeverity(CompilerOptions.MissingOverrideAnnotation);
+			
 		case IProblem.FinalBoundForTypeVariable:
 		    return this.options.getSeverity(CompilerOptions.FinalParameterBound);
 
@@ -933,6 +936,15 @@ public void methodMustOverride(AbstractMethodDeclaration method) {
 	MethodBinding binding = method.binding;
 	this.handle(
 		IProblem.MethodMustOverride,
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
+		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
+		method.sourceStart,
+		method.sourceEnd);
+}
+public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
+	MethodBinding binding = method.binding;
+	this.handle(
+		IProblem.MissingOverrideAnnotation,
 		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
 		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
 		method.sourceStart,

@@ -251,7 +251,12 @@ public void test0006() {
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2> extends Y {\n" + 
+		"	                           ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2> extends Y {\n" + 
 		"	                                               ^\n" + 
 		"Y cannot be resolved to a type\n" + 
@@ -288,7 +293,12 @@ public void test0007() {
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public interface X <T1 extends String, T2> extends Y {\n" + 
+		"	                               ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
 		"	public interface X <T1 extends String, T2> extends Y {\n" + 
 		"	                                                   ^\n" + 
 		"Y cannot be resolved to a type\n" + 
@@ -322,7 +332,12 @@ public void test0008() {
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public <T1 extends String, T2> int foo(){\n" + 
+		"	                   ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> int foo(){\n" + 
 		"	                                   ^^^^^\n" + 
 		"This method must return a result of type int\n" + 
@@ -355,7 +370,12 @@ public void test0009() {
 		expected13ProblemLog;
 	
 	String expected15ProblemLog = 
-		"";
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public <T1 extends String, T2> X(){\n" + 
+		"	                   ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n";
 	
 	runComplianceParserTest(
 		testFiles,
@@ -692,12 +712,17 @@ public void test0017() {
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2> extends Y {\n" + 
+		"	                           ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2> extends Y {\n" + 
 		"	                                               ^\n" + 
 		"Y cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
 		"	#\n" + 
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
@@ -737,7 +762,12 @@ public void test0018() {
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public <T1 extends String, T2> int foo(){\n" + 
+		"	                   ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
 		"	#\n" + 
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
@@ -1379,12 +1409,17 @@ public void test0032() {
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2 extends Y {\n" + 
+		"	                           ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2 extends Y {\n" + 
 		"	                                              ^\n" + 
 		"Syntax error, insert \">\" to complete ReferenceType1\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 1)\n" + 
+		"3. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extends String, T2 extends Y {\n" + 
 		"	                                              ^\n" + 
 		"Y cannot be resolved to a type\n" + 
@@ -1552,7 +1587,12 @@ public void test0036() {
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public <T1 extends String, T2> foo(){\n" + 
+		"	                   ^^^^^^\n" + 
+		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
 		"	public <T1 extends String, T2> foo(){\n" + 
 		"	                               ^^^^^\n" + 
 		"Return type for the method is missing\n" + 
