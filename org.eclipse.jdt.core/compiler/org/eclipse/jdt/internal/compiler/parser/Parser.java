@@ -2842,7 +2842,6 @@ protected void consumeEnumConstantHeader() {
       }
       QualifiedAllocationExpression allocationExpression = new QualifiedAllocationExpression(anonymousType);
       allocationExpression.enumConstant = enumConstant;
-      markEnclosingMemberWithLocalType(); // TODO (olivier) do we really need this?
       
       // fill arguments if needed
       int length;
