@@ -1881,7 +1881,7 @@ public final class JavaCore extends Plugin {
 	 *    declaration which overrides a superclass method but has no @Override annotation.
 	 *     - option id:        "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "warning"                               
+	 *     - default:           "ignore"                               
 	 * 	
 	 * COMPILER / Reporting Boxing/Unboxing Conversion
 	 *    When enabled, the compiler will issue an error or a warning whenever a boxing or an unboxing
