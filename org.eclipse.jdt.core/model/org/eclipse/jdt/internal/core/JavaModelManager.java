@@ -726,15 +726,15 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 		} catch(SAXException e) {
-			throw new IOException(Util.bind("variable.badFormat"/*nonNLS*/));
+			return;
 		} catch(ParserConfigurationException e){
-			reader.close();
-			throw new IOException(Util.bind("variable.badFormat"/*nonNLS*/));
+			return;
 		} finally {
 			reader.close();
 		}
+		if (cpElement == null) return;
 		if (!cpElement.getNodeName().equalsIgnoreCase("variables"/*nonNLS*/)) {
-			throw new IOException(Util.bind("variable.badFormat"/*nonNLS*/));
+			return;
 		}
 		NodeList list= cpElement.getChildNodes();
 		Vector variables = new Vector();
@@ -768,15 +768,15 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 		} catch(SAXException e) {
-			throw new IOException(Util.bind("option.badFormat"/*nonNLS*/));
+			return;
 		} catch(ParserConfigurationException e){
-			reader.close();
-			throw new IOException(Util.bind("option.badFormat"/*nonNLS*/));
+			return;
 		} finally {
 			reader.close();
 		}
+		if (cpElement == null) return;
 		if (!cpElement.getNodeName().equalsIgnoreCase("options"/*nonNLS*/)) {
-			throw new IOException(Util.bind("option.badFormat"/*nonNLS*/));
+			return;
 		}
 		NodeList list= cpElement.getChildNodes();
 		int length= list.getLength();
@@ -795,8 +795,11 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 						option.setValue(value);
 					}
 					else {
-						int valueIndex = Integer.parseInt(element.getAttribute("index"/*nonNLS*/));
-						option.setValueIndex(valueIndex);
+						try {
+							int valueIndex = Integer.parseInt(element.getAttribute("index"/*nonNLS*/));
+							option.setValueIndex(valueIndex);
+						} catch(NumberFormatException e){
+						}
 					}
 					
 				}

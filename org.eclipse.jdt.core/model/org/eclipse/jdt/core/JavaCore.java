@@ -1292,7 +1292,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	private static void setJavaCoreDefaultOptionsValue(Locale locale) {
-		BufferedReader reader;
+		BufferedReader reader = null;
 		try {
 			reader =
 				new BufferedReader(
@@ -1300,8 +1300,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			String line = reader.readLine();
 			while (line != null) {
 				int equalIndex = line.indexOf("=" /*nonNLS*/);
-				if (!line.startsWith("#" /*nonNLS*/
-					) && equalIndex != -1) {
+				if (!line.startsWith("#" /*nonNLS*/) && equalIndex != -1) {
 					String id = line.substring(0, equalIndex).trim();
 
 					ConfigurableOption option = new ConfigurableOption(id, locale);
@@ -1320,10 +1319,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				}
 				line = reader.readLine();
 			}
-			reader.close();
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch(IOException e){
+				}
+			}
 		}
 	}
 
