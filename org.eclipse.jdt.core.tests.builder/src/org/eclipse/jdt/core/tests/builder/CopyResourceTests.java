@@ -36,11 +36,19 @@ public class CopyResourceTests extends Tests {
 		IPath bin = env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
-		env.addFile(src, "Test.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addFile(src, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 		fullBuild();
 		expectingNoProblems();
-		expectingPresenceOf(projectPath.append("Test.txt")); //$NON-NLS-1$
+		expectingPresenceOf(projectPath.append("z.txt")); //$NON-NLS-1$
+
+		env.removeFile(src.append("z.txt")); //$NON-NLS-1$
+		env.addFile(src, "zz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+		incrementalBuild();
+		expectingNoProblems();
+		expectingNoPresenceOf(projectPath.append("z.txt")); //$NON-NLS-1$
+		expectingPresenceOf(projectPath.append("zz.txt")); //$NON-NLS-1$
 	}
 
 	public void testProjectWithBin() {
@@ -49,11 +57,28 @@ public class CopyResourceTests extends Tests {
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
-		env.addFile(src, "Test.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addFile(src, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 		fullBuild();
 		expectingNoProblems();
-		expectingPresenceOf(projectPath.append("bin/Test.txt")); //$NON-NLS-1$
+		expectingPresenceOf(new IPath[] {
+			projectPath.append("z.txt"), //$NON-NLS-1$
+			projectPath.append("bin/z.txt") //$NON-NLS-1$
+		});
+
+		env.removeFile(src.append("z.txt")); //$NON-NLS-1$
+		env.addFile(src, "zz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+		incrementalBuild();
+		expectingNoProblems();
+		expectingNoPresenceOf(new IPath[] {
+			projectPath.append("z.txt"), //$NON-NLS-1$
+			projectPath.append("bin/z.txt") //$NON-NLS-1$
+		});
+		expectingPresenceOf(new IPath[] {
+			projectPath.append("zz.txt"), //$NON-NLS-1$
+			projectPath.append("bin/zz.txt") //$NON-NLS-1$
+		});
 	}
 
 	public void testProjectWithSrcBin() {
@@ -63,13 +88,27 @@ public class CopyResourceTests extends Tests {
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
-		env.addFile(src, "Test.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addFile(src, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 		fullBuild();
 		expectingNoProblems();
 		expectingPresenceOf(new IPath[] {
-			projectPath.append("src/Test.txt"), //$NON-NLS-1$
-			projectPath.append("bin/Test.txt") //$NON-NLS-1$
+			projectPath.append("src/z.txt"), //$NON-NLS-1$
+			projectPath.append("bin/z.txt") //$NON-NLS-1$
+		});
+
+		env.removeFile(src.append("z.txt")); //$NON-NLS-1$
+		env.addFile(src, "zz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+		incrementalBuild();
+		expectingNoProblems();
+		expectingNoPresenceOf(new IPath[] {
+			projectPath.append("src/z.txt"), //$NON-NLS-1$
+			projectPath.append("bin/z.txt") //$NON-NLS-1$
+		});
+		expectingPresenceOf(new IPath[] {
+			projectPath.append("src/zz.txt"), //$NON-NLS-1$
+			projectPath.append("bin/zz.txt") //$NON-NLS-1$
 		});
 	}
 
@@ -91,6 +130,20 @@ public class CopyResourceTests extends Tests {
 			projectPath.append("bin/z.txt"), //$NON-NLS-1$
 			projectPath.append("src2/zz.txt"), //$NON-NLS-1$
 			projectPath.append("bin/zz.txt") //$NON-NLS-1$
+		});
+
+		env.removeFile(src2.append("zz.txt")); //$NON-NLS-1$
+		env.addFile(src2, "zzz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+		incrementalBuild();
+		expectingNoProblems();
+		expectingNoPresenceOf(new IPath[] {
+			projectPath.append("src2/zz.txt"), //$NON-NLS-1$
+			projectPath.append("bin/zz.txt") //$NON-NLS-1$
+		});
+		expectingPresenceOf(new IPath[] {
+			projectPath.append("src2/zzz.txt"), //$NON-NLS-1$
+			projectPath.append("bin/zzz.txt") //$NON-NLS-1$
 		});
 	}
 

@@ -770,9 +770,8 @@ public class TestingEnvironment {
 	 */
 	public void removeFile(IPath filePath) {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		IFolder folder = fWorkspace.getRoot().getFolder(filePath.removeLastSegments(1));
 		try {
-			folder.getFile(filePath.lastSegment()).delete(true, null);
+			fWorkspace.getRoot().getFile(filePath).delete(true, null);
 		} catch (CoreException e) {
 			handle(e);
 		}
