@@ -647,9 +647,11 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 							MethodDeclaration[] methods = ((TypeDeclaration) typeNode).getMethods();
 							for (int j = 0, length = methods.length; j < length; j++) {
 								MethodDeclaration methodDeclaration = methods[j];
-								SimpleName methodName = methodDeclaration.getName();
-								if (methodName.getIdentifier().equals(oldTypeName)) {
-									rewriter.replace(methodName, ast.newSimpleName(newTypeName), null);
+								if (methodDeclaration.isConstructor()) {
+									SimpleName methodName = methodDeclaration.getName();
+									if (methodName.getIdentifier().equals(oldTypeName)) {
+										rewriter.replace(methodName, ast.newSimpleName(newTypeName), null);
+									}
 								}
 							}
 						}
