@@ -42,7 +42,12 @@ public class TypeReferenceMatch extends SearchMatch {
 	}
 
 	/**
-	 * Creates a new type reference match.
+	 * Creates a new type reference match specifying a particular rule.
+	 * <p>
+	 * [TODO (frederic) This method seems unnecessary. The caller can use the
+	 * old constructor and explicitly call setRule. It should be deleted unless
+	 * there is some overriding reason to provide this convenience method.]
+	 * </p>
 	 * 
 	 * @param enclosingElement the inner-most enclosing member that references this type
 	 * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
@@ -53,6 +58,7 @@ public class TypeReferenceMatch extends SearchMatch {
 	 * @param rule the rule which applies on the match
 	 * @param participant the search participant that created the match
 	 * @param resource the resource of the element
+	 * @since 3.1
 	 */
 	public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy,	int offset, int length, boolean insideDocComment, int rule, SearchParticipant participant, IResource resource) {
 		this(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);

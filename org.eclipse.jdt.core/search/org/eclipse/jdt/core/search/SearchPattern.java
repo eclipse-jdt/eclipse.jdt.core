@@ -70,11 +70,11 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	public static final int R_CASE_SENSITIVE = 8;
 	/**
 	 * Match rule: The search pattern matches type parameters for parameterized search results.
-	 * Can be combined to all previous rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}
+	 * Can be combined to all other match rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}
 	 * This rule is not activated by default, so when pattern is List&lt;String&gt;,
-	 * match selection will be only "List&lt;String&gt;" on parameterized type <code>List<String></code>.
-	 * found in the code.
-	 * Reversly, when this is rule is activated, then match selection will be "List".
+	 * match selection will be only "List&lt;String&gt;" on parameterized types <code>List&lt;String&gt;</code>
+	 * found in the code. 
+	 * Conversely, when this rule is activated the match selection will be "List".
 	 * @since 3.1
 	 */
 	public static final int R_ERASURE_MATCH = 16;
@@ -89,6 +89,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @param matchRule one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
 	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
 	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
+	 * [TODO (frederic) Expand spec for matchRule to allow R_ERASURE_MATCH ?
+     * If yes, we have a problem because getMatchRule() locks in set of existing values.]
 	 */
 	public SearchPattern(int matchRule) {
 		this.matchRule = matchRule;
@@ -726,6 +728,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
 	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
+	 * [TODO (frederic) Expand spec for matchRule to allow R_ERASURE_MATCH ?]
 	 */
 	public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchRule) {
 		if (stringPattern == null || stringPattern.length() == 0) return null;
@@ -788,12 +791,12 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
 	 * @param matchRule Same possible values than those described in method {@link #createPattern(String,int,int,int)} plus another possible
-	 * 	new value {@link #R_ERASURE_MATCH} which can be combined with the others. When match rule has {@link #R_ERASURE_MATCH}
-	 * 	bit specified, search engine found all types whose erasure match the given pattern erasure.<br>
-	 * 	By default search engine only finds exact or compatible matches for generic or parameterized types.
+	 * 	new value {@link #R_ERASURE_MATCH} which can be combined with the others. When match rule includes {@link #R_ERASURE_MATCH},
+	 * 	the search engine finds all types whose erasures match the given pattern erasure.
+	 * 	By default, the search engine only finds exact or compatible matches for generic or parameterized types.
+	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 * @see SearchMatch for more details on match rule values when reported (specially {@link SearchMatch#A_COMPATIBLE}
 	 * 	and {@link SearchMatch#A_ERASURE}).
-	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 * @since 3.1
 	 */
 	public static SearchPattern createPattern(IJavaElement element, int limitTo, int matchRule) {
@@ -1379,6 +1382,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @return one of R_EXACT_MATCH, R_PREFIX_MATCH, R_PATTERN_MATCH, R_REGEXP_MATCH combined with R_CASE_SENSITIVE,
 	 *   e.g. R_EXACT_MATCH | R_CASE_SENSITIVE if an exact and case sensitive match is requested, 
 	 *   or R_PREFIX_MATCH if a prefix non case sensitive match is requested.
+	 * [TODO (frederic) I hope R_ERASURE_MATCH doesn't need to be on this list. Because it would be a breaking API change.]
 	 */	
 	public final int getMatchRule() {
 		return this.matchRule;

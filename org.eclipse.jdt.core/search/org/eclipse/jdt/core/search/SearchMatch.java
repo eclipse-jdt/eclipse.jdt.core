@@ -21,6 +21,18 @@ import org.eclipse.jdt.internal.core.JavaElement;
  * merely potential matches (<code>A_INACCURATE</code>). The latter occurs when
  * a compile-time problem prevents the search engine from completely resolving
  * the match.
+ * [TODO (frederic) The class spec speaks of a match being either A_ACCURATE
+ * or A_INACCURATE. The names A_COMPATIBLE and A_ERASURE, their bit values,
+ * and RULE_MASK all suggest that these are additional values that would be
+ * returned by getAccuracy(). If this were true, it would be a *breaking* API
+ * change to the contract for getAccuracy(). But the fact that you added
+ * get/setRule suggests that A_COMPATIBLE and A_ERASURE are only intended to be
+ * used with them, and not affect get/setAccuracy. Assuming this is the case,
+ * the constants should be renamed to start in something other than "A_", and
+ * the specs for get/setRule should specify that these are the allowed values.
+ * The initial value of the getRule() will need to be specified for rules
+ * created via the existing constructor. Also, consider adding a new constructor
+ * that takes rule as a parameter.]
  * </p>
  * <p>
  * This class is intended to be instantiated and subclassed by clients.
@@ -33,6 +45,8 @@ public class SearchMatch {
 	
 	/**
 	 * The search result corresponds an exact match of the search pattern.
+	 * 
+	 * @see #getAccuracy()
 	 */
 	public static final int A_ACCURATE = 0;
 
@@ -40,6 +54,8 @@ public class SearchMatch {
 	 * The search result is potentially a match for the search pattern,
 	 * but the search engine is unable to fully check it (for example, because
 	 * there are errors in the code or the classpath are not correctly set).
+	 * 
+	 * @see #getAccuracy()
 	 */
 	public static final int A_INACCURATE = 1;
 
@@ -56,30 +72,43 @@ public class SearchMatch {
 	 * 		<li><code>List&lt;?&gt;</code></li>
 	 * 	</li>
 	 * 	</ul>
+	 * 
+	 * [TODO (frederic) Should be renamed xxx_RAW where xxx is the new prefix for rule constants.]
+	 * [TODO (frederic) Include @see #getRule() if that is where it is used.]
 	 * @since 3.1
 	 */
 	public static final int A_COMPATIBLE = 2;
 
 	/**
-	 * The search result match and search pattern has only common erasure.
+	 * The search result match and search pattern has only the erasure in common.
 	 * Note this is always the case when either pattern or reference is a raw type.
 	 * Example:
 	 * 	<ul>
 	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
 	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
 	 * 	</ul>
+	 * 
+	 * [TODO (frederic) Should be renamed xxx_RAW where xxx is the new prefix for rule constants.]
+	 * [TODO (frederic) Include @see #getRule() if that is where it is used.]
 	 * @since 3.1
 	 */
 	public static final int A_ERASURE = 4;
 
 	/**
 	 * Rule for raw match: compatible *and* erasure.
+	 * 
+	 * [TODO (frederic) "MASK" is a bit level term, which isn't really necessary in this case.
+	 * It's simple the rule that the clients specify for raw matches.
+	 * Should be renamed xxx_RAW where xxx is the new prefix for rule constants.]
+	 * [TODO (frederic) Include @see #getRule() if that is where it is used.]
 	 * @since 3.1
 	 */
 	public static final int RAW_MASK = A_COMPATIBLE + A_ERASURE;
 
 	/**
 	 * Mask used to get rule signifigant bits.
+	 * 
+	 * [TODO (frederic) This does not need to be API.]
 	 * @since 3.1
 	 */
 	public static final int RULE_MASK = RAW_MASK; // no other values for the while...
@@ -95,6 +124,7 @@ public class SearchMatch {
 	private boolean insideDocComment = false;
 	
 	// store the rule used while reporting the match
+	// [TODO (frederic) For compatibility, this field must have a well-defined default and legal default value.]
 	private int rule;
 
 	/**
@@ -187,6 +217,7 @@ public class SearchMatch {
 	 * 
 	 * @return the rule of the match
 	 * @since 3.1
+	 * [TODO (frederic) Spec needs to include legal return values.]
 	 * TODO (frederic) currently only set to A_COMPATIBLE, A_ERASURE. Should be finalized for M5.
 	 */
 	public final int getRule() {
@@ -274,8 +305,9 @@ public class SearchMatch {
 	/**
 	 * Returns the rule used while creating the match.
 	 * 
-	 * @param rule The rule to set.
+	 * @param rule the rule to set
 	 * @since 3.1
+	 * [TODO (frederic) Spec needs to include legal rule values.]
 	 */
 	public final void setRule(int rule) {
 		this.rule = rule;
@@ -283,6 +315,7 @@ public class SearchMatch {
 
 	/* (non-javadoc)
 	 * @see java.lang.Object#toString()
+	 * [TODO (frederic) probably want to print rule field too.]
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
