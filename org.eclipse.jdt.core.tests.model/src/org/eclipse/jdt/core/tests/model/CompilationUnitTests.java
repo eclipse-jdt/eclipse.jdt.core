@@ -59,7 +59,12 @@ public void setUpSuite() throws Exception {
 		"/** @deprecated\n */" +
 		"interface I {\n" +
 		"  int run();\n" +
-		"}");
+		"}" +
+		"interface I2<E> {\n" +
+		"}" +
+		"class Y<E> implements I2<E> {\n" +
+		"}"
+	);
 	this.cu = getCompilationUnit("/P/src/p/X.java");
 }
 
@@ -353,6 +358,16 @@ public void testCheckInterfaceMethodModifiers() throws JavaModelException {
 	String modifiers = Flags.toString(method.getFlags() & ~Flags.AccVarargs);
 	assertEquals("Expected modifier for " + method.getElementName(), expectedModifiers, modifiers);
 }
+/*
+ * Ensures that IType#getSuperInterfaceTypeSignatures() is correct for a source type.
+ */
+public void testGetSuperInterfaceTypeSignatures() throws JavaModelException {
+	IType type = this.cu.getType("Y");
+	assertStringsEqual(
+		"Unexpected signatures", 
+		"QI2<QE;>;\n",
+		type.getSuperInterfaceTypeSignatures());
+}
 /**
  * Ensure that the same element is returned for the primary element of a
  * compilation unit.
@@ -395,22 +410,22 @@ public void testGetType() {
  */
 public void testGetTypes() throws JavaModelException {
 	IType[] types = this.cu.getTypes();
-	String[] typeNames = new String[] {"X", "I"};
-	String[] flags = new String[] {"public", ""};
-	boolean[] isClass = new boolean[] {true, false};
-	boolean[] isInterface = new boolean[] {false, true};
-	boolean[] isAnnotation = new boolean[] {false, false};
-	boolean[] isEnum = new boolean[] {false, false};
-	String[] superclassName = new String[] {null, null};
-	String[] superclassType = new String[] {null, null};
+	String[] typeNames = new String[] {"X", "I", "I2", "Y"};
+	String[] flags = new String[] {"public", "", "", ""};
+	boolean[] isClass = new boolean[] {true, false, false, true};
+	boolean[] isInterface = new boolean[] {false, true, true, false};
+	boolean[] isAnnotation = new boolean[] {false, false, false, false};
+	boolean[] isEnum = new boolean[] {false, false, false, false};
+	String[] superclassName = new String[] {null, null, null, null};
+	String[] superclassType = new String[] {null, null, null, null};
 	String[][] superInterfaceNames = new String[][] {
-			new String[] {"Runnable"}, new String[0]
+			new String[] {"Runnable"}, new String[0], new String[0], new String[] {"I2<E>"}
 	};
 	String[][] superInterfaceTypes = new String[][] {
-			new String[] {"QRunnable;"}, new String[0]
+			new String[] {"QRunnable;"}, new String[0], new String[0], new String[] {"QI2<QE;>;"}
 	};
 	String[][] formalTypeParameters = new String[][] {
-		new String[0], new String[0]};
+		new String[0], new String[0], new String[] {"E"}, new String[] {"E"}};
 	
 	assertEquals("Wrong number of types returned", typeNames.length, types.length);
 	for (int i = 0; i < types.length; i++) {

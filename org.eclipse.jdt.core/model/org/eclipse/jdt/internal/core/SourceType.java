@@ -430,7 +430,14 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	char[][] names= info.getInterfaceNames();
-	return CharOperation.toStrings(names);
+	if (names == null) {
+		return CharOperation.NO_STRINGS;
+	}
+	String[] strings= new String[names.length];
+	for (int i= 0; i < names.length; i++) {
+		strings[i]= new String(Signature.createTypeSignature(names[i], false));
+	}
+	return strings;
 }
 
 public ITypeParameter[] getTypeParameters() throws JavaModelException {

@@ -475,17 +475,51 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
  */
 public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	char[][] names= info.getInterfaceNames();
-	int length;
-	if (names == null || (length = names.length) == 0) {
-		return NO_STRINGS;
+	char[] genericSignature = info.getGenericSignature();
+	if (genericSignature != null) {
+		ArrayList interfaces = new ArrayList();
+		int signatureLength = genericSignature.length;
+		// skip type parameters
+		int index = 0;
+		if (genericSignature[0] == '<') {
+			int count = 1;
+			while (count > 0 && ++index < signatureLength) {
+				switch (genericSignature[index]) {
+					case '<': 
+						count++;
+						break;
+					case '>':
+						count--;
+						break;
+				}
+			}
+			index++;
+		}
+		// skip superclass
+		index = Util.scanClassTypeSignature(genericSignature, index) + 1;
+		while (index  < signatureLength) {
+			int start = index;
+			index = Util.scanClassTypeSignature(genericSignature, start) + 1;
+			char[] interfaceSig = CharOperation.subarray(genericSignature, start, index);
+			interfaces.add(new String(interfaceSig));
+		}
+		int size = interfaces.size();
+		String[] result = new String[size];
+		interfaces.toArray(result);
+		return result;
+	} else {
+		char[][] names= info.getInterfaceNames();
+		int length;
+		if (names == null || (length = names.length) == 0) {
+			return NO_STRINGS;
+		}
+		names= ClassFile.translatedNames(names);
+		String[] strings= new String[length];
+		for (int i= 0; i < length; i++) {
+			strings[i]= new String(Signature.createTypeSignature(names[i], true));
+		}
+		return strings;
 	}
-	names= ClassFile.translatedNames(names);
-	String[] strings= new String[length];
-	for (int i= 0; i < length; i++) {
-		strings[i]= new String(Signature.createTypeSignature(names[i], true));
-	}
-	return strings;
 }
 
 public ITypeParameter[] getTypeParameters() throws JavaModelException {
