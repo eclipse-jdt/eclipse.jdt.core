@@ -79,13 +79,9 @@
     </ant>
   </target>
 
-  <!-- This target runs the performance test suite. Any actions that need to happen -->
-  <!-- after all the tests have been run should go here. -->
-  <target name="performance" depends="init,performance-suite,cleanup">
-    <ant target="collect" antfile="${library-file}" dir="${eclipse-home}">
-      <property name="includes" value="org*.xml"/>
-      <property name="output-file" value="${plugin-name}.xml"/>
-    </ant>
+
+  <!-- This target runs the performance test suites. -->
+  <target name="performance">
   </target>
 
 </project>
