@@ -52,7 +52,9 @@ public class JavadocTestMixed extends JavadocTest {
 		}
 		if (false) {
 			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestMixed("testBug51626"));
+			ts.addTest(new JavadocTestMixed("testBug52216"));
+			ts.addTest(new JavadocTestMixed("testBug52216a"));
+			ts.addTest(new JavadocTestMixed("testBug52216b"));
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
 		}
 		return setupSuite(testClass());
@@ -2090,5 +2092,61 @@ public class JavadocTestMixed extends JavadocTest {
 					"	}\n" + 
 					"}\n"
 		 });
+	}
+
+	/**
+	 * Test fix for bug 52216.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52216">52216</a>
+	 */
+	public void testBug52216() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					" * Valid ref with white spaces at the end\n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>		   \n" + 
+					"*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+		 });
+	}
+	public void testBug52216a() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"* @see \"Valid ref with white spaces at the end\"	   \n" + 
+					"*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+		 });
+	}
+	public void testBug52216b() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>		   \n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>\n" + 
+					"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>			,\n" + 
+					"* @see \"Valid ref with white spaces at the end\"\n" + 
+					"* @see \"Valid ref with white spaces at the end\"	   \n" + 
+					"* @see \"Invalid ref\"	   .\n" + 
+					"*/\n" + 
+					"public class X {\n" + 
+					"}\n"
+			 },
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>			,\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	* @see \"Invalid ref\"	   .\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+		);
 	}
 }

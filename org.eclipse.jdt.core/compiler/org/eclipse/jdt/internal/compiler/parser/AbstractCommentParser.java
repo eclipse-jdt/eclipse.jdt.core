@@ -611,12 +611,15 @@ public abstract class AbstractCommentParser {
 					int start = this.scanner.getCurrentTokenStartPosition();
 					if (typeRef == null) {
 						consumeToken();
-						if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
-							if (this.kind == DOM_PARSER) {
-								parseTag();
-								pushText(previousPosition, this.index-1);
+						while (Character.isWhitespace(this.source[this.index])) {
+							if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
+								if (this.kind == DOM_PARSER) {
+									parseTag();
+									pushText(previousPosition, this.index-1);
+								}
+								return true;
 							}
-							return true;
+							this.index++;
 						}
 					}
 					if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd);
@@ -628,12 +631,15 @@ public abstract class AbstractCommentParser {
 					if (parseHref()) {
 						if (typeRef == null) {
 							consumeToken();
-							if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
-								if (this.kind == DOM_PARSER) {
-									parseTag();
-									pushText(previousPosition, this.index-1);
+							while (Character.isWhitespace(this.source[this.index])) {
+								if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
+									if (this.kind == DOM_PARSER) {
+										parseTag();
+										pushText(previousPosition, this.index-1);
+									}
+									return true;
 								}
-								return true;
+								this.index++;
 							}
 						}
 						if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd);
