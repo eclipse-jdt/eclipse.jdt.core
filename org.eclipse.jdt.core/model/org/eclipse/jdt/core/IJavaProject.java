@@ -239,11 +239,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * relative absolute path.
 	 * <p>
 	 * The default output location is where class files are ordinarily generated
-	 * (and resource files, copied). Each source classpath entries can also
+	 * (and resource files, copied). Each source classpath entry can also
 	 * specify an output location for the generated class files (and copied
 	 * resource files) corresponding to compilation units under that source
-	 * folder. This makes it possible to arrange that generated class files for
-	 * different source folders to end up in different output folders, and not
+	 * folder. This makes it possible to arrange generated class files for
+	 * different source folders in different output folders, and not
 	 * necessarily the default output folder. This means that the generated
 	 * class files for the project may end up scattered across several folders,
 	 * rather than all in the default output folder (which is more standard).
