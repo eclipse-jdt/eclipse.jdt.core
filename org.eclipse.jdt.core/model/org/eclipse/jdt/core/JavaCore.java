@@ -1165,7 +1165,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (markerHandleId == null) return false;
 		
 		IJavaElement markerElement = JavaCore.create(markerHandleId);
-		while (markerElement != null){
+		while (true){
 			if (element.equals(markerElement)) return true; // external elements may still be equal with different handleIDs.
 			
 			// cycle through enclosing types in case marker is associated with a classfile (15568)
@@ -1173,10 +1173,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				IType enclosingType = ((IClassFile)markerElement).getType().getDeclaringType();
 				if (enclosingType != null){
 					markerElement = enclosingType.getClassFile(); // retry with immediate enclosing classfile
+					continue;
 				}
-			} else {
-				break;
 			}
+			break;
 		}
 		return false;
 	}
@@ -1208,7 +1208,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		if (markerDeltarHandleId == null) return false;
 		
 		IJavaElement markerElement = JavaCore.create(markerDeltarHandleId);
-		while (markerElement != null){
+		while (true){
 			if (element.equals(markerElement)) return true; // external elements may still be equal with different handleIDs.
 			
 			// cycle through enclosing types in case marker is associated with a classfile (15568)
@@ -1216,13 +1216,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				IType enclosingType = ((IClassFile)markerElement).getType().getDeclaringType();
 				if (enclosingType != null){
 					markerElement = enclosingType.getClassFile(); // retry with immediate enclosing classfile
+					continue;
 				}
-			} else {
-				break;
 			}
+			break;
 		}
 		return false;
-
 	}
 
 	/**
