@@ -506,10 +506,11 @@ class TypeBinding implements ITypeBinding {
 					Binding declaringElement = typeVariableBinding.declaringElement;
 					StringBuffer buffer = new StringBuffer();
 					buffer.append(typeVariableBinding.sourceName);
+					buffer.append(':');
 					if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-						buffer.append(this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement).getKey());
+						buffer.append(this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement).getQualifiedName());
 					} else if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
-						buffer.append(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement).getKey());						
+						buffer.append(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement).getName());						
 					}
 					return String.valueOf(buffer);
 				} else if (this.binding.isWildcard()) {
