@@ -1180,8 +1180,11 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
 
-		IClasspathContainer container = JavaModelManager.getJavaModelManager().getClasspathContainer(containerPath, project);
-		if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null;
+	    JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IClasspathContainer container = manager.getClasspathContainer(containerPath, project);
+		if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
+		    return manager.getPreviousSessionContainer(containerPath, project);
+		}
 		return container;			
 	}
 
@@ -1257,9 +1260,12 @@ public final class JavaCore extends Plugin {
 	 * @see #setClasspathVariable(String, IPath)
 	 */
 	public static IPath getClasspathVariable(final String variableName) {
-	
-		IPath variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName);
-		if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle
+
+	    JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IPath variablePath = manager.variableGet(variableName);
+		if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS){
+		    return manager.getPreviousSessionVariable(variableName);
+		}
 		
 		if (variablePath != null) {
 			return variablePath;
@@ -3135,7 +3141,7 @@ public final class JavaCore extends Plugin {
 		IProgressMonitor monitor) {
 
 		try {
-			updateVariableValues(new String[]{ variableName}, new IPath[]{ null }, monitor);
+			JavaModelManager.getJavaModelManager().updateVariableValues(new String[]{ variableName}, new IPath[]{ null }, monitor);
 		} catch (JavaModelException e) {
 			// cannot happen: ignore
 		}
@@ -3363,35 +3369,35 @@ public final class JavaCore extends Plugin {
 			}
 			IClasspathContainer oldContainer = JavaModelManager.getJavaModelManager().containerGet(affectedProject, containerPath);
 			if (oldContainer == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
-				Map previousContainerValues = (Map)JavaModelManager.getJavaModelManager().previousSessionContainers.get(affectedProject);
-				if (previousContainerValues != null){
-					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
-					if (previousContainer != null) {
-						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							StringBuffer buffer = new StringBuffer();
-							buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); //$NON-NLS-1$ 
-							buffer.append("	project: " + affectedProject.getElementName() + '\n'); //$NON-NLS-1$
-							buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
-							buffer.append("	previous value: "); //$NON-NLS-1$
-							buffer.append(previousContainer.getDescription());
-							buffer.append(" {\n"); //$NON-NLS-1$
-							IClasspathEntry[] entries = previousContainer.getClasspathEntries();
-							if (entries != null){
-								for (int j = 0; j < entries.length; j++){
-									buffer.append(" 		"); //$NON-NLS-1$
-									buffer.append(entries[j]); 
-									buffer.append('\n'); 
-								}
-							}
-							buffer.append(" 	}"); //$NON-NLS-1$
-							Util.verbose(buffer.toString());
-						}
-						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 
-					}
-					oldContainer = null; //33695 - cannot filter out restored container, must update affected project to reset cached CP
-				} else {
+//				Map previousContainerValues = (Map)JavaModelManager.getJavaModelManager().previousSessionContainers.get(affectedProject);
+//				if (previousContainerValues != null){
+//					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
+//					if (previousContainer != null) {
+//						if (JavaModelManager.CP_RESOLVE_VERBOSE){
+//							StringBuffer buffer = new StringBuffer();
+//							buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); //$NON-NLS-1$ 
+//							buffer.append("	project: " + affectedProject.getElementName() + '\n'); //$NON-NLS-1$
+//							buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
+//							buffer.append("	previous value: "); //$NON-NLS-1$
+//							buffer.append(previousContainer.getDescription());
+//							buffer.append(" {\n"); //$NON-NLS-1$
+//							IClasspathEntry[] entries = previousContainer.getClasspathEntries();
+//							if (entries != null){
+//								for (int j = 0; j < entries.length; j++){
+//									buffer.append(" 		"); //$NON-NLS-1$
+//									buffer.append(entries[j]); 
+//									buffer.append('\n'); 
+//								}
+//							}
+//							buffer.append(" 	}"); //$NON-NLS-1$
+//							Util.verbose(buffer.toString());
+//						}
+//						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 
+//					}
+//					oldContainer = null; //33695 - cannot filter out restored container, must update affected project to reset cached CP
+//				} else {
 					oldContainer = null;
-				}
+//				}
 			}
 			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){
 				modifiedProjects[i] = null; // filter out this project - container did not change
@@ -3542,7 +3548,7 @@ public final class JavaCore extends Plugin {
 		throws JavaModelException {
 
 		if (variableNames.length != paths.length)	Assert.isTrue(false, "Variable names and paths collections should have the same size"); //$NON-NLS-1$
-		updateVariableValues(variableNames, paths, monitor);
+		JavaModelManager.getJavaModelManager().updateVariableValues(variableNames, paths, monitor);
 	}
 
 	/**
@@ -3674,162 +3680,6 @@ public final class JavaCore extends Plugin {
 		} catch (RuntimeException e) {
 			manager.shutdown();
 			throw e;
-		}
-	}
-
-	/*
-	 * Internal updating of a variable values (null path meaning removal), allowing to change multiple variable values at once.
-	 */
-	private static void updateVariableValues(
-		String[] variableNames,
-		IPath[] variablePaths,
-		IProgressMonitor monitor) throws JavaModelException {
-	
-		if (monitor != null && monitor.isCanceled()) return;
-		
-		if (JavaModelManager.CP_RESOLVE_VERBOSE){
-			Util.verbose(
-				"CPVariable SET  - setting variables\n" + //$NON-NLS-1$
-				"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variableNames) + '\n' +//$NON-NLS-1$
-				"	values: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variablePaths)); //$NON-NLS-1$
-		}
-
-		int varLength = variableNames.length;
-		
-		// gather classpath information for updating
-		final HashMap affectedProjectClasspaths = new HashMap(5);
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		IJavaModel model = manager.getJavaModel();
-	
-		// filter out unmodified variables
-		int discardCount = 0;
-		for (int i = 0; i < varLength; i++){
-			String variableName = variableNames[i];
-			IPath oldPath = JavaModelManager.getJavaModelManager().variableGet(variableName); // if reentering will provide previous session value 
-			if (oldPath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS){
-				IPath previousPath = (IPath)JavaModelManager.getJavaModelManager().previousSessionVariables.get(variableName);
-				if (previousPath != null){
-					if (JavaModelManager.CP_RESOLVE_VERBOSE){
-						Util.verbose(
-							"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" + //$NON-NLS-1$
-							"	variable: "+ variableName + '\n' + //$NON-NLS-1$
-							"	previous value: " + previousPath); //$NON-NLS-1$
-					}
-					JavaModelManager.getJavaModelManager().variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
-				}
-				oldPath = null;  //33695 - cannot filter out restored variable, must update affected project to reset cached CP
-			}
-			if (oldPath != null && oldPath.equals(variablePaths[i])){
-				variableNames[i] = null;
-				discardCount++;
-			}
-		}
-		if (discardCount > 0){
-			if (discardCount == varLength) return;
-			int changedLength = varLength - discardCount;
-			String[] changedVariableNames = new String[changedLength];
-			IPath[] changedVariablePaths = new IPath[changedLength];
-			for (int i = 0, index = 0; i < varLength; i++){
-				if (variableNames[i] != null){
-					changedVariableNames[index] = variableNames[i];
-					changedVariablePaths[index] = variablePaths[i];
-					index++;
-				}
-			}
-			variableNames = changedVariableNames;
-			variablePaths = changedVariablePaths;
-			varLength = changedLength;
-		}
-		
-		if (monitor != null && monitor.isCanceled()) return;
-
-		if (model != null) {
-			IJavaProject[] projects = model.getJavaProjects();
-			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
-				JavaProject project = (JavaProject) projects[i];
-						
-				// check to see if any of the modified variables is present on the classpath
-				IClasspathEntry[] classpath = project.getRawClasspath();
-				for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
-					
-					IClasspathEntry entry = classpath[j];
-					for (int k = 0; k < varLength; k++){
-	
-						String variableName = variableNames[k];						
-						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
-	
-							if (variableName.equals(entry.getPath().segment(0))){
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
-								continue nextProject;
-							}
-							IPath sourcePath, sourceRootPath;
-							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
-								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
-	
-								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/));
-								continue nextProject;
-							}
-						}												
-					}
-				}
-			}
-		}
-		// update variables
-		for (int i = 0; i < varLength; i++){
-			JavaModelManager.getJavaModelManager().variablePut(variableNames[i], variablePaths[i]);
-		}
-		final String[] dbgVariableNames = variableNames;
-				
-		// update affected project classpaths
-		if (!affectedProjectClasspaths.isEmpty()) {
-			try {
-				final boolean canChangeResources = !ResourcesPlugin.getWorkspace().isTreeLocked();
-				JavaCore.run(
-					new IWorkspaceRunnable() {
-						public void run(IProgressMonitor progressMonitor) throws CoreException {
-							// propagate classpath change
-							Iterator projectsToUpdate = affectedProjectClasspaths.keySet().iterator();
-							while (projectsToUpdate.hasNext()) {
-			
-								if (progressMonitor != null && progressMonitor.isCanceled()) return;
-			
-								JavaProject affectedProject = (JavaProject) projectsToUpdate.next();
-
-								if (JavaModelManager.CP_RESOLVE_VERBOSE){
-									Util.verbose(
-										"CPVariable SET  - updating affected project due to setting variables\n" + //$NON-NLS-1$
-										"	project: " + affectedProject.getElementName() + '\n' + //$NON-NLS-1$
-										"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
-								}
-
-								affectedProject
-									.setRawClasspath(
-										affectedProject.getRawClasspath(),
-										SetClasspathOperation.ReuseOutputLocation,
-										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
-										canChangeResources, 
-										(IClasspathEntry[]) affectedProjectClasspaths.get(affectedProject),
-										false, // updating - no need for early validation
-										false); // updating - no need to save
-							}
-						}
-					},
-					null/*no need to lock anything*/,
-					monitor);
-			} catch (CoreException e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					Util.verbose(
-						"CPVariable SET  - FAILED DUE TO EXCEPTION\n" + //$NON-NLS-1$
-						"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames), //$NON-NLS-1$
-						System.err); 
-					e.printStackTrace();
-				}
-				if (e instanceof JavaModelException) {
-					throw (JavaModelException)e;
-				} else {
-					throw new JavaModelException(e);
-				}
-			}
 		}
 	}
 }
