@@ -44,7 +44,7 @@ private boolean noWarn = false;
 	int globalErrorsCount;
 	int globalWarningsCount;
 
-	String versionID = "0.133+ stream 2.0"; //$NON-NLS-1$
+	String versionID = "0.201.1"; //$NON-NLS-1$
 	private static final char[] CLASS_FILE_EXTENSION = ".class".toCharArray(); //$NON-NLS-1$
 
 	int exportedClassFilesCounter;

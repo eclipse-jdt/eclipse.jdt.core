@@ -247,6 +247,7 @@ protected void consumeClassHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -651,6 +652,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
+		markCurrentMethodWithLocalType();
 		blockReal();
 	}
 
@@ -848,7 +850,7 @@ protected void consumeModifiers() {
 protected void consumePackageDeclarationName() {
 	/* persisting javadoc positions */
 	pushOnIntArrayStack(this.getJavaDocPositions());
-	
+
 	super.consumePackageDeclarationName();
 	ImportReference importReference = compilationUnit.currentPackage;
 
