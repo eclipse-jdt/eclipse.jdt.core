@@ -330,6 +330,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 	
 		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ParameterizedType, Object)
+		 * @since 2.2
+		 */
+		public boolean match(ParameterizedType node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(ParenthesizedExpression, Object)
 		 */
 		public boolean match(ParenthesizedExpression node, Object other) {
@@ -365,6 +374,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(QualifiedName, Object)
 		 */
 		public boolean match(QualifiedName node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(QualifiedType, Object)
+		 */
+		public boolean match(QualifiedType node, Object other) {
 			checkPositions(node, other);
 			return super.match(node, other);
 		}
@@ -501,6 +518,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TypeLiteral, Object)
 		 */
 		public boolean match(TypeLiteral node, Object other) {
+			checkPositions(node, other);
+			return super.match(node, other);
+		}
+	
+		/**
+		 * @see org.eclipse.jdt.core.dom.ASTMatcher#match(TypeParameter, Object)
+		 * @since 2.2
+		 */
+		public boolean match(TypeParameter node, Object other) {
 			checkPositions(node, other);
 			return super.match(node, other);
 		}
@@ -1136,7 +1162,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.isDeclaration() == true);
 		fd.setName(ast.newSimpleName("b")); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
-		
 	}		
 
 	public void testQualifiedName() {
@@ -1196,7 +1221,66 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				x.setName((SimpleName) value);
 			}
 		});
+	}		
+
+	public void testQualifiedType() {
+		long previousCount = ast.modificationCount();
+		final QualifiedType x = ast.newQualifiedType(
+			ast.newSimpleType(ast.newSimpleName("q")), //$NON-NLS-1$
+			ast.newSimpleName("i")); //$NON-NLS-1$
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x instanceof Type);
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getQualifier().getParent() == x);
+		assertTrue(x.getName().getParent() == x);
+		assertTrue(x.getName().isDeclaration() == false);
+		assertTrue(x.getNodeType() == ASTNode.QUALIFIED_TYPE);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+
+		genericPropertyTest(x, new Property("Qualifier", true, Type.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleType result = 
+					targetAst.newSimpleType(
+						targetAst.newSimpleName("a")); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newArrayType(result);
+				}
+				return result;
+			}
+			public ASTNode wrap() {
+				QualifiedType s1 = ast.newQualifiedType(x, ast.newSimpleName("z")); //$NON-NLS-1$
+				return s1;
+			}
+			public void unwrap() {
+				QualifiedType s1 = (QualifiedType) x.getParent();
+				s1.setQualifier(ast.newSimpleType(ast.newSimpleName("z"))); //$NON-NLS-1$
+			}
+			public ASTNode get() {
+				return x.getQualifier();
+			}
+			public void set(ASTNode value) {
+				x.setQualifier((Type) value);
+			}
+		});
 		
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
+			}
+		});
 	}		
 
 	public void testNullLiteral() {
@@ -1472,6 +1556,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.isSimpleType());
 		assertTrue(!x.isArrayType());
 		assertTrue(!x.isPrimitiveType());
+		assertTrue(!x.isParameterizedType());
 		assertTrue(x.getNodeType() == ASTNode.SIMPLE_TYPE);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
@@ -1504,6 +1589,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isSimpleType());
 		assertTrue(!x.isArrayType());
 		assertTrue(x.isPrimitiveType());
+		assertTrue(!x.isParameterizedType());
 		assertTrue(x.getNodeType() == ASTNode.PRIMITIVE_TYPE);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
@@ -1577,6 +1663,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(!x.isSimpleType());
 		assertTrue(x.isArrayType());
 		assertTrue(!x.isPrimitiveType());
+		assertTrue(!x.isParameterizedType());
 		assertTrue(x.getNodeType() == ASTNode.ARRAY_TYPE);
 
 		assertTrue(x.getDimensions() == 1);
@@ -1614,6 +1701,61 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getElementType().isPrimitiveType());
 	}		
 
+	public void testParameterizedType() {
+		long previousCount = ast.modificationCount();
+		final ParameterizedType x = ast.newParameterizedType(ast.newSimpleName("String")); //$NON-NLS-1$
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x instanceof Type);
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getName().getParent() == x);
+		assertTrue(!x.isSimpleType());
+		assertTrue(!x.isArrayType());
+		assertTrue(!x.isPrimitiveType());
+		assertTrue(x.isParameterizedType());
+		assertTrue(x.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		assertTrue(x.typeArguments().size() == 0);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+
+		genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((Name) value);
+			}
+		});
+		genericPropertyListTest(x, x.typeArguments(),
+		  new Property("Arguments", true, Type.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				PrimitiveType result = targetAst.newPrimitiveType(PrimitiveType.INT);
+				if (parented) {
+					targetAst.newArrayType(result);
+				}
+				return result;
+			}
+			public ASTNode wrap() {
+				// return Type that embeds x
+				ParameterizedType s1 = ast.newParameterizedType(ast.newSimpleName("foo")); //$NON-NLS-1$
+				s1.typeArguments().add(x);
+				return s1;
+			}
+			public void unwrap() {
+				ParameterizedType s1 = (ParameterizedType) x.getParent();
+				s1.typeArguments().remove(x);
+			}
+		});
+	}		
+	
 	public void testPackageDeclaration() {
 		long previousCount = ast.modificationCount();
 		final PackageDeclaration x = ast.newPackageDeclaration();
@@ -1651,6 +1793,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.isOnDemand() == false);
+		assertTrue(x.isStatic() == false);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.IMPORT_DECLARATION);
 		// make sure that reading did not change modification count
@@ -1680,6 +1823,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.setOnDemand(true);
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.isOnDemand() == true);
+		x.setStatic(true);
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.isStatic() == true);
 	}
 	
 	public void testCompilationUnit() {
@@ -1812,10 +1958,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getModifiers() == Modifier.NONE);
 		assertTrue(x.isInterface() == false);
-		assertTrue(x.getName().getParent() == x);
-		assertTrue(x.getName().isDeclaration() == true);
+		assertTrue(x.isEnumeration() == false);
+		assertTrue(x.typeParameters().size() == 0);
+		assertTrue(x.getSuperclassType() == null);
 		assertTrue(x.getSuperclass() == null);
 		assertTrue(x.getJavadoc() == null);
+		assertTrue(x.superInterfaceTypes().size() == 0);
 		assertTrue(x.superInterfaces().size() == 0);
 		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION);
@@ -1840,6 +1988,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.getModifiers() == Modifier.NONE);
 
+		previousCount = ast.modificationCount();
+		x.setEnumeration(true);	
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue(x.isEnumeration() == true);
+		x.setEnumeration(false);	
+		
 		tJavadocComment(x);
 				
 		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
@@ -1858,33 +2012,93 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Superclass", false, Name.class) { //$NON-NLS-1$
+		genericPropertyListTest(x, x.typeParameters(),
+		  new Property("TypeParameters", true, TypeParameter.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				TypeParameter result = targetAst.newTypeParameter();
 				if (parented) {
-					targetAst.newExpressionStatement(result);
+					targetAst.newMethodDeclaration().typeParameters().add(result);
+				}
+				return result;
+			}
+		});
+		
+		genericPropertyTest(x, new Property("SuperclassType", false, Type.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleType result = targetAst.newSimpleType(targetAst.newSimpleName("foo")); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newArrayType(result);
 				}
 				return result;
 			}
 			public ASTNode get() {
-				return x.getSuperclass();
+				return x.getSuperclassType();
 			}
 			public void set(ASTNode value) {
-				x.setSuperclass((Name) value);
+				x.setSuperclassType((Type) value);
 			}
 		});
 		
-		genericPropertyListTest(x, x.superInterfaces(),
-		  new Property("SuperInterfaces", true, Name.class) { //$NON-NLS-1$
+		// deprecated superclass name property
+		// ensure that changing the name affects the type, and conversely
+		x.setSuperclassType(null);
+		assertTrue(x.getSuperclassType() == null);
+		assertTrue(x.getSuperclass() == null);
+		Name n0 = ast.newSimpleName("n0");
+		Type t0 = ast.newSimpleType(n0);
+		x.setSuperclassType(t0);
+		assertTrue(x.getSuperclassType() == t0);
+		assertTrue(x.getSuperclass() == n0);
+		Name n1 = ast.newSimpleName("n1");
+		x.setSuperclass(n1);
+		assertTrue(x.getSuperclassType() == t0);
+		assertTrue(x.getSuperclass() == n1);
+		x.setSuperclass(null);
+		assertTrue(x.getSuperclassType() == null);
+		assertTrue(x.getSuperclass() == null);
+		
+		genericPropertyListTest(x, x.superInterfaceTypes(),
+		  new Property("SuperInterfaceTypes", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				SimpleType result = targetAst.newSimpleType(targetAst.newSimpleName("foo")); //$NON-NLS-1$
 				if (parented) {
-					targetAst.newExpressionStatement(result);
+					targetAst.newArrayType(result);
 				}
 				return result;
 			}
 		});
 		
+		// deprecated superinterface names property
+		// ensure that changing the name affects the type, and conversely
+		x.superInterfaceTypes().clear();
+		assertTrue(x.superInterfaceTypes().size() == 0);
+		assertTrue(x.superInterfaces().size() == 0);
+		n0 = ast.newSimpleName("n0");
+		t0 = ast.newSimpleType(n0);
+		x.superInterfaceTypes().add(t0);
+		assertTrue(x.superInterfaceTypes().size() == 1);
+		assertTrue(x.superInterfaces().size() == 1);
+		assertTrue(x.superInterfaceTypes().get(0) == t0);
+		assertTrue(x.superInterfaces().get(0) == n0);
+		n1 = ast.newSimpleName("n1");
+		x.superInterfaces().add(n1);
+		assertTrue(x.superInterfaceTypes().size() == 2);
+		assertTrue(x.superInterfaces().size() == 2);
+		assertTrue(x.superInterfaceTypes().get(0) == t0);
+		assertTrue(x.superInterfaces().get(0) == n0);
+		assertTrue(x.superInterfaces().get(1) == n1);
+		assertTrue(n1.getParent() instanceof SimpleType);
+		assertTrue(n1.getParent().getParent() == x);
+		x.superInterfaces().remove(n1);
+		assertTrue(x.superInterfaceTypes().size() == 1);
+		assertTrue(x.superInterfaces().size() == 1);
+		assertTrue(x.superInterfaceTypes().get(0) == t0);
+		assertTrue(x.superInterfaces().get(0) == n0);
+		assertTrue(n1.getParent() == null);
+		x.superInterfaces().remove(n0);
+		assertTrue(x.superInterfaceTypes().size() == 0);
+		assertTrue(x.superInterfaces().size() == 0);
+
 		genericPropertyListTest(x, x.bodyDeclarations(),
 		  new Property("BodyDeclarations", true, BodyDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -1914,7 +2128,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		MethodDeclaration m2 = ast.newMethodDeclaration();
 		TypeDeclaration t1 = ast.newTypeDeclaration();
 		TypeDeclaration t2 = ast.newTypeDeclaration();
+		EnumConstantDeclaration c1 = ast.newEnumConstantDeclaration();
+		EnumConstantDeclaration c2 = ast.newEnumConstantDeclaration();
 
+		x.bodyDeclarations().add(c1);
+		x.bodyDeclarations().add(c2);
 		x.bodyDeclarations().add(ast.newInitializer());
 		x.bodyDeclarations().add(f1);
 		x.bodyDeclarations().add(ast.newInitializer());
@@ -1944,12 +2162,145 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ts.contains(t1));
 		assertTrue(ts.contains(t2));
 		
+		List es = Arrays.asList(x.getEnumConstants());
+		assertTrue(es.size() == 2);
+		assertTrue(es.contains(c1));
+		assertTrue(es.contains(c2));
+		
 		// check that TypeDeclarations in body are classified correctly
 		assertTrue(t1.isLocalTypeDeclaration() == false);
 		assertTrue(t1.isMemberTypeDeclaration() == true);
 		assertTrue(t1.isPackageMemberTypeDeclaration() == false);
 	
 	}	
+	
+	public void testEnumConstantDeclaration() {
+		long previousCount = ast.modificationCount();
+		final EnumConstantDeclaration x = ast.newEnumConstantDeclaration();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x instanceof BodyDeclaration);
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getName().getParent() == x);
+		assertTrue(x.getName().isDeclaration() == true);
+		assertTrue(x.getJavadoc() == null);
+		assertTrue(x.arguments().size()== 0);
+		assertTrue(x.bodyDeclarations().size()== 0);
+		assertTrue(x.getNodeType() == ASTNode.ENUM_CONSTANT_DECLARATION);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+			
+		tJavadocComment(x);
+				
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
+			}
+		});
+				
+		genericPropertyListTest(x, x.arguments(),
+		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode wrap() {
+				AnonymousClassDeclaration s1 = x.getAST().newAnonymousClassDeclaration();
+				s1.bodyDeclarations().add(x);
+				return s1;
+			}
+			public void unwrap() {
+				AnonymousClassDeclaration s1 = (AnonymousClassDeclaration) x.getParent();
+				s1.bodyDeclarations().remove(x);
+			}
+		});
+
+		genericPropertyListTest(x, x.bodyDeclarations(),
+		  new Property("BodyDeclarations", true, BodyDeclaration.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				TypeDeclaration result = targetAst.newTypeDeclaration();
+				if (parented) {
+					CompilationUnit cu = targetAst.newCompilationUnit();
+					cu.types().add(result);
+				}
+				return result;
+			}
+			public ASTNode wrap() {
+				EnumConstantDeclaration s1 = x.getAST().newEnumConstantDeclaration();
+				s1.bodyDeclarations().add(x);
+				return s1;
+			}
+			public void unwrap() {
+				EnumConstantDeclaration s1 = (EnumConstantDeclaration) x.getParent();
+				s1.bodyDeclarations().remove(x);
+			}
+		});
+		
+		// check that TypeDeclarations in body are classified correctly
+		x.bodyDeclarations().clear();
+		TypeDeclaration t1 = ast.newTypeDeclaration();
+		x.bodyDeclarations().add(t1);
+
+		assertTrue(t1.isLocalTypeDeclaration() == false);
+		assertTrue(t1.isMemberTypeDeclaration() == true);
+		assertTrue(t1.isPackageMemberTypeDeclaration() == false);
+	
+	}	
+	
+	public void testTypeParameter() {
+		long previousCount = ast.modificationCount();
+		final TypeParameter x = ast.newTypeParameter();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x instanceof TypeParameter);
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getName().getParent() == x);
+		assertTrue(x.getNodeType() == ASTNode.TYPE_PARAMETER);
+		assertTrue(x.typeBounds().size() == 0);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
+			}
+		});
+		genericPropertyListTest(x, x.typeBounds(),
+		  new Property("TypeBounds", true, Type.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				Type result = targetAst.newSimpleType(targetAst.newSimpleName("foo"));
+				if (parented) {
+					targetAst.newArrayType(result);
+				}
+				return result;
+			}
+		});
+	}		
 	
 	public void testSingleVariableDeclaration() {
 		long previousCount = ast.modificationCount();
@@ -2137,6 +2488,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getModifiers() == Modifier.NONE);
 		assertTrue(x.isConstructor() == false);
+		assertTrue(x.typeParameters().size() == 0);
 		assertTrue(x.getName().getParent() == x);
 		assertTrue(x.getName().isDeclaration() == true);
 		assertTrue(x.getReturnType().getParent() == x);
@@ -2186,6 +2538,17 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		tJavadocComment(x);
 						
+		genericPropertyListTest(x, x.typeParameters(),
+		  new Property("TypeParameters", true, TypeParameter.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				TypeParameter result = targetAst.newTypeParameter();
+				if (parented) {
+					targetAst.newMethodDeclaration().typeParameters().add(result);
+				}
+				return result;
+			}
+		});
+		
 		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
@@ -4356,6 +4719,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		VariableDeclarationExpression variableDeclarationExpression = target.newVariableDeclarationExpression(variableDeclarationFragment3);
 		variableDeclarationExpression.setSourceRange(430, 5);
 		z.add(variableDeclarationExpression);
+		
+		// new for 2.2
+		EnhancedForStatement foreachStatement = target.newEnhancedForStatement();
+		foreachStatement.setSourceRange(500, 5);
+		b.statements().add(foreachStatement);
 
 		ASTNode clone = ASTNode.copySubtree(ast, cu);
 		assertTrue(cu.subtreeMatch(new CheckPositionsMatcher(), clone));
@@ -4600,6 +4968,97 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				x.setBody((Statement) value);
 			}
 		});
+	}
+
+	public void testEnhancedForStatement() {
+		long previousCount = ast.modificationCount();
+		final EnhancedForStatement x = ast.newEnhancedForStatement();
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x instanceof Statement);
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue(x.getType() != null);
+		assertTrue(x.getType().getParent() == x);
+		assertTrue(x.getName() != null);
+		assertTrue(x.getName().getParent() == x);
+		assertTrue(x.getName().isDeclaration() == true);
+		assertTrue(x.getExpression() != null);
+		assertTrue(x.getExpression().getParent() == x);
+		assertTrue(x.getBody().getParent() == x);
+		assertTrue(x.getBody() instanceof Block);
+		assertTrue(((Block) x.getBody()).statements().isEmpty());
+		assertTrue(x.getLeadingComment() == null);
+		assertTrue(x.getNodeType() == ASTNode.ENHANCED_FOR_STATEMENT);
+		// make sure that reading did not change modification count
+		assertTrue(ast.modificationCount() == previousCount);
+
+		tLeadingComment(x);
+		
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleType result = targetAst.newSimpleType(
+					targetAst.newSimpleName("a")); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newArrayType(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getType();
+			}
+			public void set(ASTNode value) {
+				x.setType((Type) value);
+			}
+		});
+		
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
+			public ASTNode sample(AST targetAst, boolean parented) {
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					targetAst.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode get() {
+				return x.getName();
+			}
+			public void set(ASTNode value) {
+				x.setName((SimpleName) value);
+			}
+		});
+		
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
+			public ASTNode sample(AST ast, boolean parented) {
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+				if (parented) {
+					ast.newExpressionStatement(result);
+				}
+				return result;
+			}
+			public ASTNode wrap() {
+				// return Expression that embeds x
+				ClassInstanceCreation s1 = ast.newClassInstanceCreation();
+				AnonymousClassDeclaration a1 = ast.newAnonymousClassDeclaration();
+				s1.setAnonymousClassDeclaration(a1);
+				MethodDeclaration s2 = ast.newMethodDeclaration();
+				a1.bodyDeclarations().add(s2);
+				Block s3 = ast.newBlock();
+				s2.setBody(s3);
+				s3.statements().add(x);
+				return s1;
+			}
+			public void unwrap() {
+				Block s3 = (Block) x.getParent();
+				s3.statements().remove(x);
+			}
+			public ASTNode get() {
+				return x.getExpression();
+			}
+			public void set(ASTNode value) {
+				x.setExpression((Expression) value);
+ 			}
+ 		});
 	}
 
 	public void testConstructorInvocation() {
@@ -5590,7 +6049,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
-		assertTrue(x.getName().getParent() == x);
+		assertTrue(x.getType().getParent() == x);
+		// test deprecated method too
+		assertTrue(x.getName().getParent() == x.getType());
 		assertTrue(x.arguments().isEmpty());
 		assertTrue(x.getAnonymousClassDeclaration() == null);
 		assertTrue(x.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION);
@@ -5623,21 +6084,33 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
+				SimpleType result = targetAst.newSimpleType(targetAst.newSimpleName("foo")); //$NON-NLS-1$
 				if (parented) {
-					targetAst.newExpressionStatement(result);
+					targetAst.newArrayType(result);
 				}
 				return result;
 			}
 			public ASTNode get() {
-				return x.getName();
+				return x.getType();
 			}
 			public void set(ASTNode value) {
-				x.setName((Name) value);
+				x.setType((Type) value);
 			}
 		});
+		
+		// deprecated name property
+		// ensure that changing the name affects the type, and conversely
+		Name n0 = ast.newSimpleName("n0");
+		Type t0 = ast.newSimpleType(n0);
+		x.setType(t0);
+		assertTrue(x.getType() == t0);
+		assertTrue(x.getName() == n0);
+		Name n1 = ast.newSimpleName("n1");
+		x.setName(n1);
+		assertTrue(x.getType() == t0);
+		assertTrue(x.getName() == n1);
 
 		genericPropertyListTest(x, x.arguments(),
 		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$

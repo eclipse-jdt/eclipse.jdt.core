@@ -124,7 +124,9 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ClassInstanceCreation)
 	 */
 	public void endVisit(ClassInstanceCreation node) {
-		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		node.setType(
+			node.getAST().newSimpleType(
+				node.getAST().newSimpleName("XXX"))); //$NON-NLS-1$
 	}
 
 	/**
@@ -268,6 +270,13 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	public void endVisit(PackageDeclaration node) {
 		add(node);
 		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ParameterizedType)
+	 * @since 2.2
+	 */
+	public void endVisit(ParameterizedType node) {
 	}
 
 	/**
@@ -423,6 +432,13 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.TypeLiteral)
 	 */
 	public void endVisit(TypeLiteral node) {
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.TypeParameter)
+	 * @since 2.2
+	 */
+	public void endVisit(TypeParameter node) {
 	}
 
 	/**

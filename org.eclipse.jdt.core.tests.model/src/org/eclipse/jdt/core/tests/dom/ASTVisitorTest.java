@@ -44,6 +44,10 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String E2S;
 	Type T1;
 	String T1S;
+	Type T2;
+	String T2S;
+	ParameterizedType PT1;
+	String PT1S;
 	Statement S1;
 	String S1S;
 	Statement S2;
@@ -78,6 +82,10 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String JD2S;
 	AnonymousClassDeclaration ACD1;
 	String ACD1S;
+	TypeParameter TP1;
+	String TP1S;
+	TypeParameter TP2;
+	String TP2S;
 	
 	final StringBuffer b = new StringBuffer();
 	
@@ -99,6 +107,10 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		E2S = "[(nSYYnS)]"; //$NON-NLS-1$
 		T1 = ast.newSimpleType(ast.newSimpleName("Z")); //$NON-NLS-1$
 		T1S = "[(tS[(nSZZnS)]tS)]"; //$NON-NLS-1$
+		T2 = ast.newSimpleType(ast.newSimpleName("X")); //$NON-NLS-1$
+		T2S = "[(tS[(nSXXnS)]tS)]"; //$NON-NLS-1$
+		PT1 = ast.newParameterizedType(ast.newSimpleName("Z")); //$NON-NLS-1$
+		PT1S = "[(tM[(nSZZnS)]tM)]"; //$NON-NLS-1$
 		S1 = ast.newContinueStatement();
 		S1S = "[(sCNsCN)]"; //$NON-NLS-1$
 		S2 = ast.newBreakStatement();
@@ -158,6 +170,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		JD2 = ast.newJavadoc();
 		JD2.setComment("/**Y*/"); //$NON-NLS-1$
 		JD2S = "[(JD/**Y*//**Y*/JD)]"; //$NON-NLS-1$
+
+		TP1 = ast.newTypeParameter();
+		TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
+		TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
+
+		TP2 = ast.newTypeParameter();
+		TP2.setName(ast.newSimpleName("y")); //$NON-NLS-1$
+		TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
 
 	}
 	
@@ -220,6 +240,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public void endVisit(PrimitiveType node) {
 			b.append(node.getPrimitiveTypeCode().toString());
 			b.append("tP)"); //$NON-NLS-1$
+		}
+		public boolean visit(QualifiedType node) {
+			b.append("(tQ"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(QualifiedType node) {
+			b.append("tQ)"); //$NON-NLS-1$
 		}
 
 		// EXPRESSIONS and STATEMENTS
@@ -326,7 +353,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public void endVisit(ClassInstanceCreation node) {
 			b.append("eCI)"); //$NON-NLS-1$
 		}
-
+		
 		public boolean visit(AnonymousClassDeclaration node) {
 			b.append("(ACD"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -381,6 +408,22 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		}
 		public void endVisit(EmptyStatement node) {
 			b.append("sEM)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(EnhancedForStatement node) {
+			b.append("(sEFR"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(EnhancedForStatement node) {
+			b.append("sEFR)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(EnumConstantDeclaration node) {
+			b.append("(ECD"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(EnumConstantDeclaration node) {
+			b.append("ECD)"); //$NON-NLS-1$
 		}
 
 		public boolean visit(ExpressionStatement node) {
@@ -515,6 +558,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		}
 		public void endVisit(PackageDeclaration node) {
 			b.append("PD)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(ParameterizedType node) {
+			b.append("(tM"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(ParameterizedType node) {
+			b.append("tM)"); //$NON-NLS-1$
 		}
 
 		public boolean visit(ParenthesizedExpression node) {
@@ -667,6 +718,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.append("eTL)"); //$NON-NLS-1$
 		}
 
+		public boolean visit(TypeParameter node) {
+			b.append("(tTP"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(TypeParameter node) {
+			b.append("tTP)"); //$NON-NLS-1$
+		}
+
 		public boolean visit(VariableDeclarationExpression node) {
 			b.append("(eVD"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -755,6 +814,26 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.accept(v1);
 		String result = b.toString();
 		assertTrue("[(tA[(tPcharchartP)]tA)]".equals(result)); //$NON-NLS-1$
+	}
+
+	public void testParameterizedType() {
+		ParameterizedType x1 = ast.newParameterizedType(N1);
+		x1.typeArguments().add(T1);
+		x1.typeArguments().add(T2);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(tM"+N1S+T1S+T2S+"tM)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void testQualifiedType() {
+		QualifiedType x1 = ast.newQualifiedType(T1, N1);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(tQ"+T1S+N1S+"tQ)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	// EXPRESSIONS and STATEMENTS
@@ -878,13 +957,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testClassInstanceCreation() {
 		ClassInstanceCreation x1 = ast.newClassInstanceCreation();
 		x1.setExpression(E1);
-		x1.setName(N1);
+		x1.setType(PT1);
 		x1.setAnonymousClassDeclaration(ACD1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(eCI"+E1S+N1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(result.equals("[(eCI"+E1S+PT1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testAnonymousClassDeclaration() {
 		AnonymousClassDeclaration x1 = ast.newAnonymousClassDeclaration();
@@ -964,6 +1043,20 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(sEMsEM)]")); //$NON-NLS-1$
 	}
+	public void testEnumConstantDeclaration() {
+		EnumConstantDeclaration x1 = ast.newEnumConstantDeclaration();
+		x1.setJavadoc(JD1);
+		x1.setName(N1);
+		x1.arguments().add(E1);
+		x1.arguments().add(E2);
+		x1.bodyDeclarations().add(FD1);
+		x1.bodyDeclarations().add(FD2);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(ECD"+JD1S+N1S+E1S+E2S+FD1S+FD2S+"ECD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 	public void testExpressionStatement() {
 		ExpressionStatement x1 = ast.newExpressionStatement(E1);
 		TestVisitor v1 = new TestVisitor();
@@ -1006,6 +1099,18 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.accept(v1);
 		String result = b.toString();
 		assertTrue(result.equals("[(sFR"+E1S+E2S+N1S+N2S+N3S+S1S+"sFR)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	public void testEnhancedForStatement() {
+		EnhancedForStatement x1 = ast.newEnhancedForStatement();
+		x1.setType(T1);
+		x1.setName(N1);
+		x1.setExpression(E1);
+		x1.setBody(S1);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(sEFR"+T1S+N1S+E1S+S1S+"sEFR)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testIfStatement() {
 		IfStatement x1 = ast.newIfStatement();
@@ -1083,6 +1188,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
+		x1.typeParameters().add(TP1);
 		x1.setReturnType(T1);
 		x1.setName(N1);
 		x1.parameters().add(V1);
@@ -1094,7 +1200,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(MD"+JD1S+T1S+N1S+V1S+V2S+N2S+N3S+B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(result.equals("[(MD"+JD1S+TP1S+T1S+N1S+V1S+V2S+N2S+N3S+B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testMethodInvocation() {
 		MethodInvocation x1 = ast.newMethodInvocation();
@@ -1283,16 +1389,17 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		TypeDeclaration x1 = ast.newTypeDeclaration();
 		x1.setJavadoc(JD1);
 		x1.setName(N1);
-		x1.setSuperclass(N2);
-		x1.superInterfaces().add(N3);
-		x1.superInterfaces().add(ast.newSimpleName("J")); //$NON-NLS-1$
+		x1.typeParameters().add(TP1);
+		x1.setSuperclassType(PT1);
+		x1.superInterfaceTypes().add(T1);
+		x1.superInterfaceTypes().add(T2); //$NON-NLS-1$
 		x1.bodyDeclarations().add(FD1);
 		x1.bodyDeclarations().add(FD2);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(TD"+JD1S+N1S+N2S+N3S+"[(nSJJnS)]"+FD1S+FD2S+"TD)]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		assertTrue(result.equals("[(TD"+JD1S+N1S+TP1S+PT1S+T1S+T2S+FD1S+FD2S+"TD)]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	public void testTypeDeclarationStatement() {
 		TypeDeclarationStatement x1 = ast.newTypeDeclarationStatement(TD1);
@@ -1311,6 +1418,19 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = b.toString();
 		assertTrue(result.equals("[(eTL"+T1S+"eTL)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	public void testTypeParameter() {
+		TypeParameter x1 = ast.newTypeParameter();
+		x1.setName(N1);
+		x1.typeBounds().add(PT1);
+		x1.typeBounds().add(T1);
+		x1.typeBounds().add(T2);
+		TestVisitor v1 = new TestVisitor();
+		b.setLength(0);
+		x1.accept(v1);
+		String result = b.toString();
+		assertTrue(result.equals("[(tTP"+N1S+PT1S+T1S+T2S+"tTP)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	public void testVariableDeclaration() {
 		SingleVariableDeclaration x1 = ast.newSingleVariableDeclaration();
 		x1.setType(T1);

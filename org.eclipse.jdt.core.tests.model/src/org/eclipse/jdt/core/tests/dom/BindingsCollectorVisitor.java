@@ -303,6 +303,15 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ParameterizedType)
+	 * @since 2.2
+	 */
+	public void endVisit(ParameterizedType node) {
+		ITypeBinding typeBinding = node.resolveBinding();
+		collectBindings(node, typeBinding);
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ParenthesizedExpression)
 	 */
 	public void endVisit(ParenthesizedExpression node) {
@@ -462,6 +471,13 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	public void endVisit(TypeLiteral node) {
 		ITypeBinding typeBinding = node.resolveTypeBinding();
 		collectBindings(node, typeBinding);
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(TypeParameter)
+	 * @since 2.2
+	 */
+	public void endVisit(TypeParameter node) {
 	}
 
 	/**

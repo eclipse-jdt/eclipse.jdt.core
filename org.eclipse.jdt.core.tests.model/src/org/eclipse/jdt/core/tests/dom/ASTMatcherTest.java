@@ -48,6 +48,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String E2S;
 	Type T1;
 	String T1S;
+	Type T2;
+	String T2S;
+	ParameterizedType PT1;
+	String PT1S;
 	Statement S1;
 	String S1S;
 	Statement S2;
@@ -82,6 +86,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String JD1S;
 	Javadoc JD2;
 	String JD2S;
+	TypeParameter TP1;
+	String TP1S;
+	TypeParameter TP2;
+	String TP2S;
 	
 	final StringBuffer b = new StringBuffer();
 	
@@ -103,6 +111,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		E2S = "(nSYYnS)"; //$NON-NLS-1$
 		T1 = ast.newSimpleType(ast.newSimpleName("Z")); //$NON-NLS-1$
 		T1S = "(tS(nSZZnS)tS)"; //$NON-NLS-1$
+		T2 = ast.newSimpleType(ast.newSimpleName("Y")); //$NON-NLS-1$
+		T2S = "(tS(nSYYnS)tS)"; //$NON-NLS-1$
+		PT1 = ast.newParameterizedType(ast.newSimpleName("Z")); //$NON-NLS-1$
+		PT1S = "(tM(nSZZnS)tM)"; //$NON-NLS-1$
 		S1 = ast.newContinueStatement();
 		S1S = "(sCNsCN)"; //$NON-NLS-1$
 		S2 = ast.newBreakStatement();
@@ -163,6 +175,13 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		JD2.setComment("/**Y*/"); //$NON-NLS-1$
 		JD2S = "(JD/**Y*//**Y*/JD)"; //$NON-NLS-1$
 
+		TP1 = ast.newTypeParameter();
+		TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
+		TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
+
+		TP2 = ast.newTypeParameter();
+		TP2.setName(ast.newSimpleName("y")); //$NON-NLS-1$
+		TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
 	}
 	
 	protected void tearDown() {
@@ -259,6 +278,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(EmptyStatement node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(EnhancedForStatement node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(EnumConstantDeclaration node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 		public boolean match(ExpressionStatement node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
@@ -304,6 +329,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(PackageDeclaration node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(ParameterizedType node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
 		public boolean match(ParenthesizedExpression node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
@@ -317,6 +345,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(QualifiedName node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(QualifiedType node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(ReturnStatement node, Object other) {
@@ -368,6 +399,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(TypeLiteral node, Object other) {
+			return standardBody(node, other, superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(TypeParameter node, Object other) {
 			return standardBody(node, other, superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(VariableDeclarationExpression node, Object other) {
@@ -468,13 +502,23 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testSimpleType() {
-		Type x1 = ast.newSimpleType(ast.newName(new String[]{"Z"})); //$NON-NLS-1$
+		Type x1 = ast.newSimpleType(N1);
 		basicMatch(x1);
 	}
 
 	public void testArrayType() {
 		Type x0 = ast.newPrimitiveType(PrimitiveType.CHAR);
 		Type x1 = ast.newArrayType(x0);
+		basicMatch(x1);
+	}
+
+	public void testParameterizedType() {
+		ParameterizedType x1 = ast.newParameterizedType(ast.newSimpleName("X")); //$NON-NLS-1$
+		basicMatch(x1);
+	}
+
+	public void testQualifiedType() {
+		Type x1 = ast.newQualifiedType(T1, N1);
 		basicMatch(x1);
 	}
 
@@ -553,7 +597,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testClassInstanceCreation() {
 		ClassInstanceCreation x1 = ast.newClassInstanceCreation();
 		x1.setExpression(E1);
-		x1.setName(N1);
+		x1.setType(PT1);
 		x1.setAnonymousClassDeclaration(ACD1);
 		basicMatch(x1);
 	}
@@ -592,6 +636,24 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testEmptyStatement() {
 		EmptyStatement x1 = ast.newEmptyStatement();
+		basicMatch(x1);
+	}
+	public void testEnhancedForStatement() {
+		EnhancedForStatement x1 = ast.newEnhancedForStatement();
+		x1.setType(T1);
+		x1.setName(N1);
+		x1.setExpression(E1);
+		x1.setBody(S1);
+		basicMatch(x1);
+	}
+	public void testEnumConstantDeclaration() {
+		EnumConstantDeclaration x1 = ast.newEnumConstantDeclaration();
+		x1.setJavadoc(JD1);
+		x1.setName(N1);
+		x1.arguments().add(E1);
+		x1.arguments().add(E2);
+		x1.bodyDeclarations().add(FD1);
+		x1.bodyDeclarations().add(FD2);
 		basicMatch(x1);
 	}
 	public void testExpressionStatement() {
@@ -663,6 +725,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
+		x1.typeParameters().add(TP1);
+		x1.typeParameters().add(TP2);
 		x1.setReturnType(T1);
 		x1.setName(N1);
 		x1.parameters().add(V1);
@@ -792,9 +856,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		TypeDeclaration x1 = ast.newTypeDeclaration();
 		x1.setJavadoc(JD1);
 		x1.setName(N1);
-		x1.setSuperclass(N2);
-		x1.superInterfaces().add(N3);
-		x1.superInterfaces().add(ast.newSimpleName("J")); //$NON-NLS-1$
+		x1.typeParameters().add(TP1);
+		x1.typeParameters().add(TP2);
+		x1.setSuperclassType(PT1);
+		x1.superInterfaceTypes().add(T1);
+		x1.superInterfaceTypes().add(T2);
 		x1.bodyDeclarations().add(FD1);
 		x1.bodyDeclarations().add(FD2);
 		basicMatch(x1);
@@ -806,6 +872,13 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testTypeLiteral() {
 		TypeLiteral x1 = ast.newTypeLiteral();
 		x1.setType(T1);
+		basicMatch(x1);
+	}
+	public void testTypeParameter() {
+		TypeParameter x1 = ast.newTypeParameter();
+		x1.setName(N1);
+		x1.typeBounds().add(T1);
+		x1.typeBounds().add(T2);
 		basicMatch(x1);
 	}
 	public void testVariableDeclarationFragment() {

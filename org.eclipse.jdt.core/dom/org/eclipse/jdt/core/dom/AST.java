@@ -1363,6 +1363,57 @@ public final class AST {
 		return result;
 	}
 
+	/**
+	 * Creates and returns a new unparented parameterized type node with the
+	 * given type name and an empty list of type arguments.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param typeName the name of the class or interface
+	 * @return a new unparented parameterized type node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @since 3.0
+	 */
+	public ParameterizedType newParameterizedType(Name typeName) {
+		ParameterizedType result = new ParameterizedType(this);
+		result.setName(typeName);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented qualified type node with 
+	 * the given qualifier type and name.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param qualifier the qualifier type node
+	 * @param name the simple name being qualified
+	 * @return a new unparented qualified type node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @since 3.0
+	 */
+	public QualifiedType newQualifiedType(Type qualifier, SimpleName name) {
+		QualifiedType result = new QualifiedType(this);
+		result.setQualifier(qualifier);
+		result.setName(name);
+		return result;
+	}
 	//=============================== DECLARATIONS ===========================
 	/**
 	 * Creates an unparented compilation unit node owned by this AST.
@@ -1516,6 +1567,23 @@ public final class AST {
 		return result;
 	}
 	
+	/**
+	 * Creates and returns a new unparented type parameter type node with an
+	 * unspecified type variable name and an empty list of type bounds.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return a new unparented type parameter node
+	 * @since 3.0
+	 */
+	public TypeParameter newTypeParameter() {
+		TypeParameter result = new TypeParameter(this);
+		return result;
+	}
 	//=============================== STATEMENTS ===========================
 	/**
 	 * Creates a new unparented local variable declaration statement node 
@@ -1790,7 +1858,7 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @return a new unparented throw statement node
-	 * @since 2.2
+	 * @since 3.0
 	 */
 	public EnhancedForStatement newEnhancedForStatement() {
 		return new EnhancedForStatement(this);
