@@ -87,13 +87,9 @@
 	</builder>
 </extension>
 
-
 <!-- =================================================================================== -->
-<!-- Extension: Java Markers                                                             -->
+<!-- Extension: Java Problem                                                             -->
 <!-- =================================================================================== -->
-
-<!-- Java problems -->
-
 <extension id="problem" point="org.eclipse.core.resources.markers" name="%javaProblemName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
@@ -103,8 +99,9 @@
 	<attribute name="arguments"/>
 </extension>   
 
-<!-- Java buildpath problems -->
-
+<!-- =================================================================================== -->
+<!-- Extension: Java Buildpath Problem                                                   -->
+<!-- =================================================================================== -->
 <extension id="buildpath_problem" point="org.eclipse.core.resources.markers" name="%buildPathProblemName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
@@ -114,8 +111,9 @@
 	<attribute name="arguments"/>
 </extension>   
 
-<!-- Java transient problems -->
-
+<!-- =================================================================================== -->
+<!-- Extension: Java Transient Problem                                                   -->
+<!-- =================================================================================== -->
 <extension id="transient_problem" point="org.eclipse.core.resources.markers" name="%transientJavaProblemName">
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="false"/>
@@ -124,8 +122,9 @@
 	<attribute name="arguments"/>
 </extension>
 
-<!-- Java tasks -->
-
+<!-- =================================================================================== -->
+<!-- Extension: Java Task                                                                -->
+<!-- =================================================================================== -->
 <extension id="task" name="%javaTaskName" point="org.eclipse.core.resources.markers">
     <super type="org.eclipse.core.resources.taskmarker"/> 
     <persistent value="true"/>
@@ -141,38 +140,56 @@
 	</extraClasspathEntry>
 </extension> 
 
-<!-- Tasks -->
+<!-- =================================================================================== -->
+<!-- Extension: Javac Ant Task                                                           -->
+<!-- =================================================================================== -->
 <extension point="org.eclipse.ant.core.antTasks">
-  <antTask
-  	name="eclipse.checkDebugAttributes"
-	class="org.eclipse.jdt.core.CheckDebugAttributes"
-	library="jdtCompilerAdapter.jar">
-  </antTask>
+	<antTask
+		name="eclipse.checkDebugAttributes"
+		class="org.eclipse.jdt.core.CheckDebugAttributes"
+		library="jdtCompilerAdapter.jar">
+	</antTask>
 </extension>
       
 <!-- =================================================================================== -->
-<!-- Extension: Java file types                                                        -->
+<!-- Extension: User Library Container                                                   -->
 <!-- =================================================================================== -->
-<extension point="org.eclipse.team.core.fileTypes">
-  <fileTypes extension="java" type="text"/>
-  <fileTypes extension="classpath" type="text"/>
-  <fileTypes extension="properties" type="text"/>
-  <fileTypes extension="class" type="binary"/>
-  <fileTypes extension="jar" type="binary"/>
-  <fileTypes extension="jardesc" type="text"/>
-  <fileTypes extension="zip" type="binary"/>
-</extension>
-
-      
-<!-- =================================================================================== -->
-<!-- Extension: User Library Container                                                        -->
-<!-- =================================================================================== -->
-   <extension
-         point="org.eclipse.jdt.core.classpathContainerInitializer">
+<extension
+      point="org.eclipse.jdt.core.classpathContainerInitializer">
       <classpathContainerInitializer
             class="org.eclipse.jdt.internal.core.UserLibraryClasspathContainerInitializer"
             id="org.eclipse.jdt.USER_LIBRARY">
       </classpathContainerInitializer>
    </extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: Java File Types                                                          -->
+<!-- =================================================================================== -->
+<extension point="org.eclipse.team.core.fileTypes">
+	<fileTypes extension="java" type="text"/>
+	<fileTypes extension="classpath" type="text"/>
+	<fileTypes extension="properties" type="text"/>
+	<fileTypes extension="class" type="binary"/>
+	<fileTypes extension="jar" type="binary"/>
+	<fileTypes extension="jardesc" type="text"/>
+	<fileTypes extension="zip" type="binary"/>
+</extension>
+      
+<!-- =================================================================================== -->
+<!-- Extension: Java Content Types                                                       -->
+<!-- =================================================================================== -->
+<extension point="org.eclipse.core.runtime.contentTypes">
+	<!-- declares a content type for Java Properties files -->
+	<content-type id="javaProperties" name="%javaPropertiesName" 
+		base-type="org.eclipse.core.runtime.text"
+		priority="high"				
+		file-extensions="properties"
+		default-charset="ISO-8859-1"/>
+	<!-- Associates .classpath to the XML content type -->
+	<file-association 
+		content-type="org.eclipse.core.runtime.xml" 
+		file-names=".classpath"/>  
+</extension>
+
 
 </plugin>
