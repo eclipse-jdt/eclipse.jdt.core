@@ -81,6 +81,16 @@ public final class Flags {
 		return (flags & AccFinal) != 0;
 	}
 	/**
+	 * Returns whether the given integer includes the <code>interface</code> modifier.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>interface</code> modifier is included
+	 * @since 2.0
+	 */
+	public static boolean isInterface(int flags) {
+		return (flags & AccInterface) != 0;
+	}
+	/**
 	 * Returns whether the given integer includes the <code>native</code> modifier.
 	 *
 	 * @param flags the flags
