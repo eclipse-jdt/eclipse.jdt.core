@@ -72,7 +72,7 @@ public class QualifiedThisReference extends ThisReference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = NotAConstant;
-		this.resolvedType = qualification.resolveType(scope);
+		this.resolvedType = this.qualification.resolveType(scope);
 		if (this.resolvedType == null) return null;
 
 		// the qualification MUST exactly match some enclosing type name

@@ -782,7 +782,9 @@ public void test021() {
 
 				}, 
 				new IIndexerOutput() {
-					public void addDocument(IDocument document) { }
+					public void addDocument(IDocument document) { 
+						// do nothing
+					}
 					public void addRef(char[] word) { 
 						references.append(word);
 						references.append('\n');
@@ -792,6 +794,7 @@ public void test021() {
 					}
 				});
 		} catch(IOException e) {
+			// ignore
 		}
 		String computedReferences = references.toString();
 		boolean check = 
@@ -2249,6 +2252,202 @@ public void test062() {
 		"----------\n"); // expected log
 }
 
+public void test063() {
+	this.runConformTest(
+		new String[] {
+			/* p1/X.java */
+			"p1/X.java",
+			"package p1;	\n"+
+			"public class X {	\n"+
+			"	class Y extends X {}	\n"+
+			"	class Z extends Y {	\n"+
+			"		Z(){	\n"+
+			"			System.out.println(\"SUCCESS\");	\n"+
+			"		}	\n" +
+			"	}	\n" +
+			"	public static void main(String[] arguments) {	\n"+
+			"		new X().new Z();	\n"+
+			"	}	\n"+
+			"}	\n",
+		},
+		"SUCCESS"
+	);
+}
+/**
+ * Allow selection of own enclosing instance arg for super constructor call in 1.3 compliant mode
+ */
+public void test064() {
+	this.runConformTest(
+		new String[] {
+			"Foo.java",
+			"public class Foo {\n" +
+			"	public static void main(String[] args) {\n"+
+			"		System.out.println(\"SUCCESS\");\n"+
+			"	}\n"+
+			"	public class Bar extends Foo {\n" +
+			"		public Bar() {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public class Baz extends Bar {\n" +
+			"		public Baz() {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
+
+public void test065() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n"+
+			"	public static void main(String[] arguments) {	\n"+
+			"		new X().new Y().new Z().bar();	\n"+
+			"	}	\n"+
+			"	String foo() { return \"X-foo\"; }	\n"+
+			"	class Y extends X {	\n"+
+			"		String foo() { return \"Y-foo\"; }	\n"+
+			"		class Z extends Y {	\n"+
+			"			Z(){	\n"+
+			"				//X.this.super();	\n"+
+			"			}	\n"+
+			"			String foo() { return \"Z-foo\"; }	\n"+
+			"			void bar () {	\n"+
+			"				System.out.println(X.this.foo());	\n"+
+			"			}	\n"+
+			"		}	\n"+
+			"	}	\n"+
+			"}	\n"
+		},
+		"X-foo");
+}
+
+/*
+ * Check that anonymous type allocation is denied access to compatible enclosing instance available as constructor argument
+ */
+public void test066() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  X(Object o) {}\n" + 
+			"  class M extends X {\n" + 
+			"    M(){\n" + 
+			"      super(null);\n" + 
+			"    }\n" + 
+			"    M(Object o) {\n" + 
+			"      super(new M(){});\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	super(new M(){});\n" + 
+		"	      ^^^^^^^^^\n" + 
+		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+		"----------\n");
+}
+
+/*
+ * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
+ */
+public void test067() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X(Object o) {\n" + 
+			"	}\n" + 
+			"	class N extends X {\n" + 
+			"		N(Object o) {\n" + 
+			"			super(o);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	class M extends N {\n" + 
+			"		M() {\n" + 
+			"			super(null); //1\n" + 
+			"		}\n" + 
+			"		M(Object o) {\n" + 
+			"			super(new M());//2\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	super(new M());//2\n" + 
+		"	      ^^^^^^^\n" + 
+		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+		"----------\n");
+}
+
+/*
+ * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
+ */
+public void test068() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n"+
+			"		System.out.println(\"SUCCESS\");\n"+
+			"	}\n"+
+			"	class MX1 extends X {\n" + 
+			"		MX1() {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	class MX2 extends MX1 {\n" + 
+			"		MX2() {\n" + 
+			"			super();	// ko\n" + // incorrectly accepted in 1.3
+			"		}\n" + 
+			"		MX2(X x) {\n" + 
+			"			this();		// ok\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+
+/*
+ * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
+ */
+public void test069() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	class MX3 extends X {\n" + 
+			"		MX3(X x) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	class MX4 extends MX3 {\n" + 
+			"		MX4() {\n" + 
+			"			super(new MX4());	// ko\n" + 
+			"		}\n" + 
+			"		MX4(X x) {\n" + 
+			"			this();		// ok\n" + 
+			"		}\n" + 
+			"		MX4(int i) {\n" + 
+			"			this(new MX4());		// ko\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	super(new MX4());	// ko\n" + 
+		"	      ^^^^^^^^^\n" + 
+		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	this(new MX4());		// ko\n" + 
+		"	     ^^^^^^^^^\n" + 
+		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }

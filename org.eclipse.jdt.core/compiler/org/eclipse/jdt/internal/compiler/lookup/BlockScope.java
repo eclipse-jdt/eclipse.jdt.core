@@ -694,41 +694,33 @@ public class BlockScope extends Scope {
 	 * This retrieves the argument that maps to an enclosing instance of the suitable type,
 	 * 	if not found then answers nil -- do not create one
 	 *
-	 *		#implicitThis		  	 					:  the implicit this will be ok
-	 *		#((arg) this$n)								: available as a constructor arg
-	 * 		#((arg) this$n access$m... access$p) 		: available as as a constructor arg + a sequence of synthetic accessors to synthetic fields
-	 * 		#((fieldDescr) this$n access#m... access$p)	: available as a first synthetic field + a sequence of synthetic accessors to synthetic fields
-	 * 		nil 		 														: not found
-	 *	jls 15.9.2
+	 *		#implicitThis		  	 											:  the implicit this will be ok
+	 *		#((arg) this$n)													: available as a constructor arg
+	 * 	#((arg) this$n access$m... access$p) 		: available as as a constructor arg + a sequence of synthetic accessors to synthetic fields
+	 * 	#((fieldDescr) this$n access#m... access$p)	: available as a first synthetic field + a sequence of synthetic accessors to synthetic fields
+	 * 	null 		 															: not found
+	 *	jls 15.9.2 + http://www.ergnosis.com/java-spec-report/java-language/jls-8.8.5.1-d.html
 	 */
 	public Object[] getEmulationPath(
 			ReferenceBinding targetEnclosingType, 
 			boolean onlyExactMatch,
 			boolean ignoreEnclosingArgInConstructorCall) {
-		//TODO: (philippe) investigate why exactly test76 fails if ignoreEnclosingArgInConstructorCall is always false
+				
 		MethodScope currentMethodScope = this.methodScope();
 		SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
 
-		// identity check
-		if (!currentMethodScope.isStatic 
-			&& (!currentMethodScope.isConstructorCall || ignoreEnclosingArgInConstructorCall)
-			&& (sourceType == targetEnclosingType
-				|| (!onlyExactMatch && targetEnclosingType.isSuperclassOf(sourceType)))) {
-			if (currentMethodScope.isConstructorCall) {
-				return NoEnclosingInstanceInConstructorCall;
+		// use 'this' if possible
+		if (!currentMethodScope.isConstructorCall && !currentMethodScope.isStatic) {
+			if (sourceType == targetEnclosingType || (!onlyExactMatch && targetEnclosingType.isSuperclassOf(sourceType))) {
+				return EmulationPathToImplicitThis; // implicit this is good enough
 			}
-			if (currentMethodScope.isStatic){
-				return NoEnclosingInstanceInStaticContext;
-			}
-			return EmulationPathToImplicitThis; // implicit this is good enough
 		}
 		if (!sourceType.isNestedType() || sourceType.isStatic()) { // no emulation from within non-inner types
 			if (currentMethodScope.isConstructorCall) {
 				return NoEnclosingInstanceInConstructorCall;
+			} else if (currentMethodScope.isStatic){
+				return NoEnclosingInstanceInStaticContext;
 			}
-				if (currentMethodScope.isStatic){
-					return NoEnclosingInstanceInStaticContext;
-				}
 			return null;
 		}
 		boolean insideConstructor = currentMethodScope.isInsideInitializerOrConstructor();
@@ -736,6 +728,12 @@ public class BlockScope extends Scope {
 		if (insideConstructor) {
 			SyntheticArgumentBinding syntheticArg;
 			if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, onlyExactMatch)) != null) {
+				// reject allocation and super constructor call
+				if (ignoreEnclosingArgInConstructorCall 
+						&& currentMethodScope.isConstructorCall 
+						&& (sourceType == targetEnclosingType || (!onlyExactMatch && targetEnclosingType.isSuperclassOf(sourceType)))) {
+					return NoEnclosingInstanceInConstructorCall;
+				}
 				return new Object[] { syntheticArg };
 			}
 		}

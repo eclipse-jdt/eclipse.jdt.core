@@ -80,6 +80,18 @@ protected Map getCompilerOptions() {
 		defaultOptions.put(
 			CompilerOptions.OPTION_PreserveUnusedLocal, 
 			CompilerOptions.PRESERVE);
+
+		if (false) { // check that all tests are 1.3 & 1.4 compatible by default (compliance tests must specify which version to use)
+			defaultOptions.put(
+				CompilerOptions.OPTION_Compliance, 
+				CompilerOptions.VERSION_1_3);
+			defaultOptions.put(
+				CompilerOptions.OPTION_Source, 
+				CompilerOptions.VERSION_1_3);
+			defaultOptions.put(
+				CompilerOptions.OPTION_TargetPlatform, 
+				CompilerOptions.VERSION_1_1);
+		}
 		return defaultOptions;
 }
 protected String[] getDefaultClassPaths() {

@@ -1801,24 +1801,28 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
 		ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
-		boolean needEnclosingInstanceNullCheck = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
+		boolean complyTo14 = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
 						
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];
 			if (hasExtraEnclosingInstance && syntheticArgType == targetEnclosingType) {
 				hasExtraEnclosingInstance = false;
 				enclosingInstance.generateCode(currentScope, this, true);
-				if (needEnclosingInstanceNullCheck){
+				if (complyTo14){
 					dup();
 					invokeObjectGetClass(); // will perform null check
 					pop();
 				}
 				
 			} else {
+				// TODO (philippe) should have sender specify how to select enclosing instance 1.3/1.4 flavor 
 				Object[] emulationPath = currentScope.getEmulationPath(
 					syntheticArgType, 
 					false /*not only exact match (that is, allow compatible)*/,
-					targetType.isAnonymousType());
+					complyTo14
+						? (invocationSite instanceof AllocationExpression 
+							|| (invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess()))
+						: invocationSite instanceof AllocationExpression);
 				this.generateOuterAccess(emulationPath, invocationSite, syntheticArgType, currentScope);
 			}
 		}
