@@ -252,7 +252,7 @@ public class CastExpression extends Expression {
 			return true;
 		}
 		if (castType.isBoundParameterizedType() || castType.isGenericType()) {
-			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType)) {
+			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				reportIllegalCast(scope, castType, expressionType);
 				return false; 
 			}
@@ -260,7 +260,7 @@ public class CastExpression extends Expression {
 				scope.problemReporter().unsafeCast(this);
 				return true;
 			}
-			if ((castType.tagBits & TagBits.HasWildcard) == 0) {
+			if ((castType.tagBits & TagBits.HasDirectWildcard) == 0) {
 				if ((!match.isParameterizedType() && !match.isGenericType())
 						|| expressionType.isRawType()) {
 					scope.problemReporter().unsafeCast(this);

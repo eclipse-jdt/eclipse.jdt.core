@@ -322,6 +322,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		scope.addAnonymousType(this.anonymousType, (ReferenceBinding) receiverType);
 		this.anonymousType.resolve(scope);		
 		
+		if ((receiverType.tagBits & TagBits.HasDirectWildcard) != 0) {
+			scope.problemReporter().superTypeCannotUseWildcard(anonymousType.binding, this.type, receiverType);
+		}		
 		// find anonymous super constructor
 		MethodBinding inheritedBinding = scope.getConstructor(this.superTypeBinding, argumentTypes, this);
 		if (!inheritedBinding.isValidBinding()) {

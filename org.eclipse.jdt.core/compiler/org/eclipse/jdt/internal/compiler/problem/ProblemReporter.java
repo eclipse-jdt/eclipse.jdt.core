@@ -286,6 +286,18 @@ public void cannotDireclyInvokeAbstractMethod(MessageSend messageSend, MethodBin
 		messageSend.sourceStart,
 		messageSend.sourceEnd);
 }
+public void cannotExtendEnum(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
+	String name = new String(type.sourceName());
+	String superTypeFullName = new String(superTypeBinding.readableName());
+	String superTypeShortName = new String(superTypeBinding.shortReadableName());
+	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
+	this.handle(
+		IProblem.CannotExtendEnum,
+		new String[] {superTypeFullName, name},
+		new String[] {superTypeShortName, name},
+		superclass.sourceStart,
+		superclass.sourceEnd);
+}
 public void cannotImportPackage(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};
 	this.handle(

@@ -2675,11 +2675,10 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
-			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Bound mismatch: The constructor X(? extends AX) of type X<? extends AX> is not applicable for the arguments (AX<String>). The wildcard parameter ? extends AX has no lower bound, and may actually be more restrictive than argument AX<String>\n" + 
-			"----------\n");		
+			"	                        ^\n" + 
+			"Cannot instantiate the type X<? extends AX>\n" + 
+			"----------\n");	
 	}		
-
 
 	// wilcard may not pass parameter bound check
 	public void test101() {
@@ -8766,7 +8765,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	new E();\n" + 
 			"	    ^\n" + 
-			"Cannot instantiate the type E, since it is not a concrete class\n" + 
+			"Cannot instantiate the type E\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	new E() {\n" + 
@@ -8803,7 +8802,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	new E();\n" + 
 			"	    ^\n" + 
-			"Cannot instantiate the type E, since it is not a concrete class\n" + 
+			"Cannot instantiate the type E\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	new E() {\n" + 
@@ -10527,4 +10526,201 @@ class C extends B implements IDoubles {
 			"----------\n"
 		);
 	}			
+	// cannot allocate parameterized type with wildcards
+	public void test398() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"    X(){\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X<?>();\n" + 
+				"		new X<? extends String>();\n" + 
+				"		new X<?>(){};\n" + 
+				"		new X<? extends String>(){};\n" + 
+				"	}\n" + 
+				"}\n"	,
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	new X<?>();\n" + 
+			"	    ^\n" + 
+			"Cannot instantiate the type X<?>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	new X<? extends String>();\n" + 
+			"	    ^\n" + 
+			"Cannot instantiate the type X<? extends String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	new X<?>(){};\n" + 
+			"	    ^\n" + 
+			"The type new X(){} cannot extend or implement X<?>. A supertype may not specify any wildcard\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	new X<? extends String>(){};\n" + 
+			"	    ^\n" + 
+			"The type new X(){} cannot extend or implement X<? extends String>. A supertype may not specify any wildcard\n" + 
+			"----------\n");
+	}
+	
+	public void test399() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"    T t;\n" + 
+				"    X(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends AX> x = new X<AX<Math>>(new AX<String>());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"    P foo() { return null; }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	X<? extends AX> x = new X<AX<Math>>(new AX<String>());\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X<AX<Math>>(AX<String>) is undefined\n" + 
+			"----------\n");	
+	}
+	
+	public void test400() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"    T t;\n" + 
+				"    X(X<? extends T> xt){\n" + 
+				"        this.t = xt.t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X<? extends AX> x = new X<AX<Math>>(new X<AX<String>>(null));\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class AX<P> {\n" + 
+				"    P foo() { return null; }\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	X<? extends AX> x = new X<AX<Math>>(new X<AX<String>>(null));\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X<AX<Math>>(X<AX<String>>) is undefined\n" + 
+			"----------\n");	
+	}		
+
+	// legal to allocate/inherit from a type with wildcards, as long as non direct arguments
+	public void test401() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	void foo() {\n" + 
+				"		new X<X<?>>();\n" + 
+				"		new X<X<? extends String>>();\n" + 
+				"		new X<X<?>>(){};\n" + 
+				"		new X<X<? extends String>>(){};\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"");	
+	}	
+	
+	// legal to inherit from a type with wildcards, as long as non direct arguments
+	public void test402() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Y<Y<?>> {\n" + 
+				"}\n" + 
+				"class Y<T> {}",
+			},
+			"");	
+	}
+	// check cast between generic types
+	public void test403() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"	\n" + 
+				"	void foo(X<X<? extends String>> xs) {\n" + 
+				"		X<X<String>> x = (X<X<String>>) xs;\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X<X<String>> x = (X<X<String>>) xs;\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from X<X<? extends String>> to X<X<String>>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");	
+	}
+	
+	// check cast between generic types
+	public void test404() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"	\n" + 
+				"	void foo(X<? extends String> xs) {\n" + 
+				"		X<String> x = (X<String>) xs;\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	X<String> x = (X<String>) xs;\n" + 
+			"	              ^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X<? extends String> to X<String> will not check conformance of type arguments at runtime\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");	
+	}		
+
+	// check cast between generic types
+	public void test405() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E> {\n" + 
+				"	\n" + 
+				"	<T> void foo(X<X<T>> xs) {\n" + 
+				"		X<X<String>> x = (X<X<String>>) xs;\n" + 
+				"	}\n" + 
+				"	<T> void bar(X<T> xs) {\n" + 
+				"		X<String> x = (X<String>) xs;\n" + 
+				"	}	\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X<X<String>> x = (X<X<String>>) xs;\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from X<X<T>> to X<X<String>>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	X<String> x = (X<String>) xs;\n" + 
+			"	              ^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X<T> to X<String> will not check conformance of type arguments at runtime\n" + 
+			"----------\n");	
+	}		
 }

@@ -45,6 +45,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#canBeInstantiated()
+	 */
+	public boolean canBeInstantiated() {
+		return ((this.tagBits & HasDirectWildcard) == 0) // cannot instantiate param type with wildcard arguments
+							&& super.canBeInstantiated();
+	}
 	public int bindingType() {
 		return PARAMETERIZED_TYPE;
 	}	
@@ -380,10 +387,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {
 				TypeBinding someArgument = someArguments[i];
-				if (!someArgument.isWildcard() || ((WildcardBinding) someArgument).kind != Wildcard.UNBOUND) {
+				boolean isWildcardArgument = someArgument.isWildcard();
+				if (isWildcardArgument) {
+					this.tagBits |= HasDirectWildcard;
+				}
+				if (!isWildcardArgument || ((WildcardBinding) someArgument).kind != Wildcard.UNBOUND) {
 					this.tagBits |= IsBoundParameterizedType;
 				}
-			    this.tagBits |= someArgument.tagBits & (HasTypeVariable | HasWildcard);
+			    this.tagBits |= someArgument.tagBits & (HasTypeVariable);
 			}
 		}	    
 		this.tagBits |= someType.tagBits & (IsLocalType| IsMemberType | IsNestedType);
@@ -404,7 +415,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        	return ((WildcardBinding) otherType).boundCheck(this);
 	    		
 	    	case Binding.PARAMETERIZED_TYPE :
-	            if ((otherType.tagBits & HasWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+	            if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
 	            	return false; // should have been identical
 	            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
 	            if (this.type != otherParamType.type) 

@@ -57,5 +57,5 @@ public interface TagBits {
 	final int HasUnresolvedMemberTypes = ASTNode.Bit29;
 
 	final int HasTypeVariable = ASTNode.Bit30; // set either for type variables (direct) or parameterized types indirectly referencing type variables
-	final int HasWildcard = ASTNode.Bit31; // set either for wildcards (direct) or parameterized types indirectly referencing wildcards
+	final int HasDirectWildcard = ASTNode.Bit31; // set for parameterized types directly referencing wildcards
 }

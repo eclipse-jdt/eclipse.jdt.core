@@ -929,6 +929,22 @@ public class EnumTest extends AbstractComparisonTest {
 			},
 			"");
 	}	
+	
+	// check Enum cannot be used as supertype (explicitly)
+	public void test027() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Enum {\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X extends Enum {\n" + 
+			"	                       ^^^^\n" + 
+			"The type X may not subclass Enum explicitly\n" + 
+			"----------\n");
+	}		
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

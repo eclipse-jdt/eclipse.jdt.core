@@ -718,8 +718,10 @@ public class ClassScope extends Scope {
 				problemReporter().superclassMustBeAClass(sourceType, superclassRef, superclass);
 			} else if (superclass.isFinal()) {
 				problemReporter().classExtendFinalClass(sourceType, superclassRef, superclass);
-			} else if ((superclass.tagBits & TagBits.HasWildcard) != 0) {
+			} else if ((superclass.tagBits & TagBits.HasDirectWildcard) != 0) {
 				problemReporter().superTypeCannotUseWildcard(sourceType, superclassRef, superclass);
+			} else if (superclass.erasure().id == T_JavaLangEnum) {
+				problemReporter().cannotExtendEnum(sourceType, superclassRef, superclass);
 			} else {
 				// only want to reach here when no errors are reported
 				sourceType.superclass = superclass;
@@ -804,7 +806,7 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextInterface;
 			}
-			if ((superInterface.tagBits & TagBits.HasWildcard) != 0) {
+			if ((superInterface.tagBits & TagBits.HasDirectWildcard) != 0) {
 				problemReporter().superTypeCannotUseWildcard(sourceType, superInterfaceRef, superInterface);
 				sourceType.tagBits |= HierarchyHasProblems;
 				noProblems = false;

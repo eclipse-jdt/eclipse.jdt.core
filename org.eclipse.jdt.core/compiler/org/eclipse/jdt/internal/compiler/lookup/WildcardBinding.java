@@ -39,7 +39,6 @@ public class WildcardBinding extends ReferenceBinding {
 		this.rank = rank;
 	    this.kind = kind;
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
-		this.tagBits |= HasWildcard;
 		this.environment = environment;
 		initialize(genericType, bound);
 

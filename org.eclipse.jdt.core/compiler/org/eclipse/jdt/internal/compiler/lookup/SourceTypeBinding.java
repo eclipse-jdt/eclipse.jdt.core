@@ -750,7 +750,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 			return ((WildcardBinding) otherType).boundCheck(this);
     	
     	case Binding.PARAMETERIZED_TYPE :
-	        if ((otherType.tagBits & HasWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+	        if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
 	        	return false; // should have been identical
 	        ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
 	        if (this != otherParamType.type) 

@@ -212,8 +212,9 @@ public boolean isParameterizedType() {
  * Returns true if the two types are statically known to be different at compile-time,
  * e.g. a type variable is not probably known to be distinct from another type
  */
-public boolean isProvablyDistinctFrom(TypeBinding otherType) {
+public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 	if (this == otherType) return false;
+	if (depth > 1) return true;
 	switch (otherType.bindingType()) {
 		case Binding.TYPE_PARAMETER :
 		case Binding.WILDCARD_TYPE :
@@ -227,7 +228,7 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType) {
 			
 		case Binding.PARAMETERIZED_TYPE :
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
-			if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure())) return true;
+			if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure(), depth)) return true;
 			switch (otherType.bindingType()) {
 				case Binding.GENERIC_TYPE :
 				case Binding.RAW_TYPE :
@@ -236,10 +237,10 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType) {
 					TypeBinding[] arguments = parameterizedType.arguments;
 					if (arguments == null) return false;
 					ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
-					TypeBinding[] otherArguments = otherParameterizedType. arguments;
+					TypeBinding[] otherArguments = otherParameterizedType.arguments;
 					if (otherArguments == null) return false;
 					for (int i = 0, length = arguments.length; i < length; i++) {
-						if (arguments[i].isProvablyDistinctFrom(otherArguments[i])) return true;
+						if (arguments[i].isProvablyDistinctFrom(otherArguments[i], depth+1)) return true;
 					}
 					return false;
 					
@@ -247,7 +248,7 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType) {
 			break;
 
 		case Binding.RAW_TYPE :
-			return this.erasure().isProvablyDistinctFrom(otherType.erasure());
+			return this.erasure().isProvablyDistinctFrom(otherType.erasure(), 0);
 			
 		case Binding.GENERIC_TYPE :
 			return this != otherType.erasure();

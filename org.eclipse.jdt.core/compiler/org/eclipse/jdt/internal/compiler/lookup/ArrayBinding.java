@@ -33,7 +33,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 	if (type instanceof UnresolvedReferenceBinding)
 		((UnresolvedReferenceBinding) type).addWrapper(this);
 	else
-    	this.tagBits |= type.tagBits & (HasTypeVariable | HasWildcard);
+    	this.tagBits |= type.tagBits & (HasTypeVariable | HasDirectWildcard);
 }
 
 public int bindingType() {
@@ -202,7 +202,7 @@ public char[] sourceName() {
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) {
 		this.leafComponentType = resolvedType.isGenericType() ? env.createRawType(resolvedType, resolvedType.enclosingType()) : resolvedType;
-		this.tagBits |= this.leafComponentType.tagBits & (HasTypeVariable | HasWildcard);
+		this.tagBits |= this.leafComponentType.tagBits & (HasTypeVariable | HasDirectWildcard);
 	}
 }
 public String toString() {

@@ -1004,6 +1004,8 @@ public interface IProblem {
 	int CannotDeclareEnumSpecialMethod = MethodRelated + 754;
 	/** @since 3.1 */
 	int IllegalQualifiedEnumConstantLabel = FieldRelated + 755;
+	/** @since 3.1 */
+	int CannotExtendEnum = TypeRelated + 756;
 
 	/**
 	 * Var args

@@ -425,7 +425,7 @@ public abstract class Expression extends Statement {
 			return true;
 		}
 		if (castType.isBoundParameterizedType() || castType.isGenericType()) {
-			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType)) {
+			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				reportIllegalCast(scope, castType, expressionType);
 				return false; 
 			}
