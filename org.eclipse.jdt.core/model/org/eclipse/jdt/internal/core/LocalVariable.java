@@ -124,7 +124,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable, ISourc
 	 * @see ISourceReference
 	 */
 	public String getSource() throws JavaModelException {
-		IOpenable openable = getOpenableParent();
+		IOpenable openable = this.parent.getOpenableParent();
 		IBuffer buffer = openable.getBuffer();
 		if (buffer == null) {
 			return null;
