@@ -255,7 +255,6 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public ReferenceBinding superclass() {
 		if (this.superclass == null) {
-			if (isInterface()) return null;
 			TypeBinding superType = null;
 			if (this.kind == Wildcard.EXTENDS) {
 				superType = this.bound;
