@@ -15,7 +15,7 @@
 <table border=0 cellspacing=5 cellpadding=2 width="100%" >
   <tr> 
     <td align=left width="72%">
-      <font face="Verdana, Arial, Helvetica" size="+3"><b>jdt core - build notes R2.0</font>
+      <font face="Verdana, Arial, Helvetica" size="+3"><b>jdt core - build notes R2.0</b></font>
       <br><font face="Arial, Helvetica, sans-serif" size="-2" color="#8080ff">java development tooling core</font></td>
   </tr>
 	<tr><td>&nbsp;</td></tr>
@@ -243,7 +243,7 @@ They were annoted with intention to discard before 2.0 since were temporarily in
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=19714">19714</a>
-Eclipse crashes: Drag & Drop
+Eclipse crashes: Drag &amp; Drop
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=19794">19794</a>
 Method body change may result in massive recompilation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18983">18983</a>
@@ -733,7 +733,7 @@ What's new in this drop</h2>
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
 	 *     - option id:			"org.eclipse.jdt.core.compiler.maxProblemPerUnit"
-	 *     - possible values:	"<n>" where <n> is zero or a positive integer (if zero then all problems are reported).
+	 *     - possible values:	"&lt;n&gt;" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
 	 *     - default:			"100"
     </pre>
     <li>By default, the Java builder is now aborting build process on projects with classpath problems. This option can be disabled through the Java preferences:
@@ -1261,7 +1261,7 @@ Package view doesn't refresh after JRE switching
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12588">12588</a>
 Good match marked as potential  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13143">13143</a>
-Binary constructor search does not work (ref & decl)  
+Binary constructor search does not work (ref &amp; decl)  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=13807">13807</a>
 null binding returned for fully qualified array declaration
 <h3>
@@ -2430,7 +2430,7 @@ What's new in this drop</h2>
 <li>Resource copy filters : A new setting allows to specify exclusion filters for resource being copied to the output folder..
 	<ul>
 	<li>option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilters"
-	<li>possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
+	<li>possible values:	{ "&lt;name&gt;[,&lt;name&gt;]* } where &lt;name&gt; is a file name pattern (only * wild-cards allowed)
 	<li>default:			"" 
 	</ul>
 </li>
@@ -2880,7 +2880,7 @@ What's new in this drop</h2>
 constructors (i.e. allow them to throw any exceptions).
 <li> The compiler now enforces that interface methods be compatible with Object ones.
 <li> The batch compiler will no longer create package directory structure anymore when the command line
-argument '-d' <tt><destination></tt> is omitted (compliant with standard batch compilers).
+argument '-d' <tt>&lt;destination&gt;</tt> is omitted (compliant with standard batch compilers).
 <li> A type hierarchy that misses a super type is not rooted at Object any longer,
      but the subtype (of the missing type) will be a root (this is the behavior of
      VA/Java and VAME.)
@@ -3572,7 +3572,9 @@ What's new in this drop</h2>
 Problem Reports Fixed</h3>
 <a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5821">5821</a>: Refactor
 Rename renames local variable instead of member in case of name clash
-<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5003>5003</a>:     Review JavaBuilder cancelation handling <br><a href=" http://dev.eclipse.org/bugs/show_bug.cgi?id="5790">5790</a>:
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5003">5003</a>:
+Review JavaBuilder cancelation handling
+<br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5790">5790</a>:
 IJavaProject.hasBuildState() fails with new builder
 <br><a href="http://dev.eclipse.org/bugs/show_bug.cgi?id=5794">5794</a>:
 Polymorphic search doesn't work in dependent projects

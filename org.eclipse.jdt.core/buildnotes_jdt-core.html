@@ -15,7 +15,7 @@
 <table border=0 cellspacing=5 cellpadding=2 width="100%" >
   <tr> 
     <td align=left width="72%">
-      <font face="Verdana, Arial, Helvetica" size="+3"><b>jdt core - build notes 2.1 stream </font>
+      <font face="Verdana, Arial, Helvetica" size="+3"><b>jdt core - build notes 2.1 stream</b></font>
       <br><font face="Arial, Helvetica, sans-serif" size="-2" color="#8080ff">java development tooling core</font></td>
   </tr>
 	<tr><td>&nbsp;</td></tr>
@@ -1382,7 +1382,7 @@ What's new in this drop</h2>
 		one of the proposed prefixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.fieldPrefixes"</li>
-		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where <prefix> is a String without any wild-card</li>
+		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card</li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -1391,7 +1391,7 @@ What's new in this drop</h2>
 		one of the proposed prefixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.staticFieldPrefixes"</li>
-		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where <prefix> is a String without any wild-card</li>
+		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card</li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -1400,7 +1400,7 @@ What's new in this drop</h2>
 		one of the proposed prefixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.localPrefixes"</li>
-		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where <prefix> is a String without any wild-card</li>
+		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card</li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -1409,7 +1409,7 @@ What's new in this drop</h2>
 		one of the proposed prefixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.argumentPrefixes"</li>
-		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where <prefix> is a String without any wild-card</li>
+		<li>possible values: { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card</li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -1418,7 +1418,7 @@ What's new in this drop</h2>
 		one of the proposed suffixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.fieldSuffixes"</li>
-		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where <suffix> is a String without any wild-card </li>
+		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card </li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -1427,7 +1427,7 @@ What's new in this drop</h2>
 		one of the proposed suffixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"</li>
-		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where <suffix> is a String without any wild-card </li>
+		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card </li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -1436,7 +1436,7 @@ What's new in this drop</h2>
 		one of the proposed suffixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.localSuffixes"</li>
-		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where <suffix> is a String without any wild-card </li>
+		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card </li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -1445,7 +1445,7 @@ What's new in this drop</h2>
 		one of the proposed suffixes.<br>
 		<ul>
 		<li>option id: "org.eclipse.jdt.core.codeComplete.argumentSuffixes"</li>
-		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where <suffix> is a String without any wild-card </li>
+		<li>possible values: { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card </li>
 		<li>default: ""</li>
 	 	</ul>
 	</li>
@@ -2797,7 +2797,7 @@ CCE in DefaultBindingResolver
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23597">23597</a>
 cannot resolve a call to a protected superclass method
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23573">23573</a>
-AST: clone & source locations
+AST: clone &amp; source locations
 
 <h3>Problem Reports Closed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22618">22618</a>
@@ -2954,7 +2954,7 @@ a given task tag are looked for inside any type of comments, and reported as cus
 *    one of the corresponding tag inside any comment in Java source code.
 *    Generated task messages will include the tag, and range until the next line separator or comment ending, and will be trimmed.
 *     - option id:			"org.eclipse.jdt.core.taskTags"
-*     - possible values:	{ "<tag>[,<tag>]*" } where <tag> is a String without any wild-card 
+*     - possible values:	{ "&lt;tag&gt;[,&lt;tag&gt;]*" } where &lt;tag&gt; is a String without any wild-card 
 *     - default:			""
 </pre>	 
  </li>
@@ -3003,7 +3003,7 @@ DOM - CCE calling resolveBinding on an on-demand import from a type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22635">22635</a>
 recompile doesn't happen
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23118">23118</a>
-AST: BreakStatement & ContinueStatement: wrong length
+AST: BreakStatement &amp; ContinueStatement: wrong length
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23048">23048</a>
 DOM - lazy initialization of empty loop bodies causes binding resolution to fail
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22203">22203</a>
@@ -3183,7 +3183,7 @@ What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21606">21606</a>
-ImageBuilder deletes & adds rather than overwriting
+ImageBuilder deletes &amp; adds rather than overwriting
 
 <h3>Problem Reports Closed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21282">21282</a>
@@ -3209,7 +3209,7 @@ What's new in this drop</h2>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21580">21580</a>
 VerifyError in 1.4 compliant mode
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=21557">21557</a>
-VM bug prevents valid Java code to be executed on VM < 1.3.1
+VM bug prevents valid Java code to be executed on VM &lt; 1.3.1
 
 <h3>Problem Reports Closed</h3>
 
