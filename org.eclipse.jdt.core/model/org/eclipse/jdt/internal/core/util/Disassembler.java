@@ -135,21 +135,23 @@ public class Disassembler implements IClassFileDisassembler {
 		buffer.append(Util.bind("disassembler.opentypedeclaration")); //$NON-NLS-1$
 		checkSuperFlags(buffer, classFileReader.getAccessFlags(), lineSeparator, 1);
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
-		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
-		if (innerClassesAttribute != null) {
-			disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
-		}
-		IClassFileAttribute[] attributes = classFileReader.getAttributes();
-		length = attributes.length;
-		if (length != 0) {
-			for (int i = 0; i < length; i++) {
-				IClassFileAttribute attribute = attributes[i];
-				if (attribute != innerClassesAttribute
-					&& attribute != sourceAttribute) {
-					disassemble(attribute, buffer, lineSeparator, 0);
-				}
+		if (mode == IClassFileDisassembler.DETAILED) {
+			IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
+			if (innerClassesAttribute != null) {
+				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
 			}
-		}		
+			IClassFileAttribute[] attributes = classFileReader.getAttributes();
+			length = attributes.length;
+			if (length != 0) {
+				for (int i = 0; i < length; i++) {
+					IClassFileAttribute attribute = attributes[i];
+					if (attribute != innerClassesAttribute
+						&& attribute != sourceAttribute) {
+						disassemble(attribute, buffer, lineSeparator, 0);
+					}
+				}
+			}		
+		}
 		writeNewLine(buffer, lineSeparator, 0);
 		buffer.append(Util.bind("disassembler.closetypedeclaration")); //$NON-NLS-1$
 		return buffer.toString();
@@ -482,7 +484,7 @@ public class Disassembler implements IClassFileDisassembler {
 			buffer.append(Util.bind("disassembler.linenumberattributeheader")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, tabNumber + 2);
 			int[][] lineattributesEntries = lineNumberAttribute.getLineNumberTable();
-			for (int i = 0; i < lineAttributeLength; i++) {
+			for (int i = 0; i < lineAttributeLength - 1; i++) {
 				buffer
 					.append(Util.bind("classfileformat.linenumbertablefrom")) //$NON-NLS-1$
 					.append(lineattributesEntries[i][0])
@@ -491,6 +493,12 @@ public class Disassembler implements IClassFileDisassembler {
 					.append(Util.bind("classfileformat.linenumbertableclose")); //$NON-NLS-1$
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 			}
+			buffer
+				.append(Util.bind("classfileformat.linenumbertablefrom")) //$NON-NLS-1$
+				.append(lineattributesEntries[lineAttributeLength - 1][0])
+				.append(Util.bind("classfileformat.linenumbertableto")) //$NON-NLS-1$
+				.append(lineattributesEntries[lineAttributeLength - 1][1])
+				.append(Util.bind("classfileformat.linenumbertableclose")); //$NON-NLS-1$
 		} 
 		ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
 		int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
@@ -499,7 +507,7 @@ public class Disassembler implements IClassFileDisassembler {
 			buffer.append(Util.bind("disassembler.localvariabletableattributeheader")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, tabNumber + 2);
 			ILocalVariableTableEntry[] localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
-			for (int i = 0; i < localVariableAttributeLength; i++) {
+			for (int i = 0; i < localVariableAttributeLength - 1; i++) {
 				ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[i];
 				int startPC = localVariableTableEntry.getStartPC();
 				int length  = localVariableTableEntry.getLength();
@@ -516,6 +524,20 @@ public class Disassembler implements IClassFileDisassembler {
 					.append(Signature.toCharArray(localVariableTableEntry.getDescriptor()));
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 			}
+			ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[localVariableAttributeLength - 1];
+			int startPC = localVariableTableEntry.getStartPC();
+			int length  = localVariableTableEntry.getLength();
+			buffer
+				.append(Util.bind("classfileformat.localvariabletablefrom")) //$NON-NLS-1$
+				.append(startPC)
+				.append(Util.bind("classfileformat.localvariabletableto")) //$NON-NLS-1$
+				.append(startPC + length)
+				.append(Util.bind("classfileformat.localvariabletablelocalname")) //$NON-NLS-1$
+				.append(localVariableTableEntry.getName())
+				.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
+				.append(localVariableTableEntry.getIndex())
+				.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
+				.append(Signature.toCharArray(localVariableTableEntry.getDescriptor()));
 		} 
 	}
 
