@@ -250,6 +250,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 						if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 							System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
 						}
+						// TODO: (jerome) should use JavaModelManager.getZipFile(...) instead
 						zipFile = new ZipFile(zipPath.toOSString());
 						char[] pkgPath = pkg.getElementName().toCharArray();
 						CharOperation.replace(pkgPath, '.', '/');
