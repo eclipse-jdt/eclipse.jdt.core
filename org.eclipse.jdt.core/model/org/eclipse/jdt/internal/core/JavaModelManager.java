@@ -939,7 +939,7 @@ public void saving(ISaveContext context) throws CoreException {
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
 		// optional behaviour
 		// possible value of index 0 is Compute
-		if (!"compute".equals(JavaCore.getOptions().get("org.eclipse.jdt.core.computeJavaBuildOrder"))) return;
+		if (!"compute".equals(JavaCore.getOptions().get("org.eclipse.jdt.core.computeJavaBuildOrder"))) return; //$NON-NLS-1$ //$NON-NLS-2$
 		
 		if (javaBuildOrder == null || javaBuildOrder.length <= 1) return;
 		

@@ -2677,7 +2677,8 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
  *
  */
 public final int searchLineNumber(int position) {
-
+	if (!recordLineSeparator)
+		return 1;
 	if (lineEnds == null)
 		return 1;
 	int length = linePtr+1;

@@ -1218,41 +1218,41 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Hashtable defaultOptions = new Hashtable(10);
 	
 		// Compiler settings
-		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.localVariable", "generate");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.lineNumber", "generate");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.sourceFile", "generate");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.codegen.unusedLocal", "preserve");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform", "1.1");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unreachableCode", "error");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.invalidImport", "error");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod", "warning");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.methodWithConstructorName", "warning");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.deprecation", "warning");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock", "warning");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unusedLocal", "ignore");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unusedParameter", "ignore");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation", "ignore");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral", "ignore");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.assertIdentifier", "ignore");
-		defaultOptions.put("org.eclipse.jdt.core.compiler.source", "1.3");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.localVariable", "generate"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.lineNumber", "generate"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.sourceFile", "generate"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.codegen.unusedLocal", "preserve"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform", "1.1"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unreachableCode", "error"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.invalidImport", "error"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.methodWithConstructorName", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.deprecation", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unusedLocal", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unusedParameter", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.assertIdentifier", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.compiler.source", "1.3"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// JavaCore settings
-		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore");
+		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
 	
 		// Formatter settings
-		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.openingBrace", "do not insert");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.controlStatement", "do not insert");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.clearAll", "preserve one");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.elseIf", "do not insert");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.emptyBlock", "insert");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.lineSplit", "80");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.style.assignment", "normal");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.tabulation.char", "tab");
-		defaultOptions.put("org.eclipse.jdt.core.formatter.tabulation.size", "4");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.openingBrace", "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.controlStatement", "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.clearAll", "preserve one"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.elseIf", "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.emptyBlock", "insert"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.lineSplit", "80"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.style.assignment", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.tabulation.char", "tab"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.formatter.tabulation.size", "4"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// CodeAssist settings
-		defaultOptions.put("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled");
-		defaultOptions.put("org.eclipse.jdt.core.codeComplete.entireWordReplacement", "replace");
+		defaultOptions.put("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+		defaultOptions.put("org.eclipse.jdt.core.codeComplete.entireWordReplacement", "replace"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return defaultOptions;
 	}
