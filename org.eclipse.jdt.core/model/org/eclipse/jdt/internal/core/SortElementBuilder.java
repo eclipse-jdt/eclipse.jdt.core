@@ -947,13 +947,19 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		int nameSourceEnd) {
 			if ((this.currentElement.id & SortJavaElement.TYPE) != 0) {
 				SortFieldDeclaration fieldDeclaration = new SortFieldDeclaration(declarationStart, modifiers, type, name, nameSourceStart);
-				SortElement previousElement = this.currentElement.children[this.currentElement.children_count - 1];
-				if (previousElement.id == SortJavaElement.FIELD && ((SortFieldDeclaration) previousElement).declarationStart == declarationStart) {
-					SortMultipleFielDeclaration multipleFielDeclaration = new SortMultipleFielDeclaration((SortFieldDeclaration) previousElement);
-					multipleFielDeclaration.addField(fieldDeclaration);
-					this.currentElement.children[this.currentElement.children_count - 1] = multipleFielDeclaration;
-				} else if (previousElement.id == SortJavaElement.MULTIPLE_FIELD && ((SortMultipleFielDeclaration) previousElement).declarationStart == declarationStart) {
-					((SortMultipleFielDeclaration) previousElement).addField(fieldDeclaration);
+				SortElement[] currentElementChildren = this.currentElement.children;
+				if (currentElementChildren != null) {
+					SortElement previousElement = this.currentElement.children[this.currentElement.children_count - 1];
+					if (previousElement.id == SortJavaElement.FIELD && ((SortFieldDeclaration) previousElement).declarationStart == declarationStart) {
+						SortMultipleFielDeclaration multipleFielDeclaration = new SortMultipleFielDeclaration((SortFieldDeclaration) previousElement);
+						multipleFielDeclaration.addField(fieldDeclaration);
+						this.currentElement.children[this.currentElement.children_count - 1] = multipleFielDeclaration;
+					} else if (previousElement.id == SortJavaElement.MULTIPLE_FIELD && ((SortMultipleFielDeclaration) previousElement).declarationStart == declarationStart) {
+						((SortMultipleFielDeclaration) previousElement).addField(fieldDeclaration);
+					} else {
+						this.currentElement.addChild(fieldDeclaration);
+						recordLineNumberDifference(fieldDeclaration);
+					}
 				} else {
 					this.currentElement.addChild(fieldDeclaration);
 					recordLineNumberDifference(fieldDeclaration);
