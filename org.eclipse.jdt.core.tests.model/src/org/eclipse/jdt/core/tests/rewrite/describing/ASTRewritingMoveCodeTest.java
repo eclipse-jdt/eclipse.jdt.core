@@ -38,14 +38,14 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 		if (false) {
 			return allTests();
 		} else {
-			TestSuite suite= new TestSuite();
+			TestSuite suite= new Suite("one test");
 			suite.addTest(new ASTRewritingMoveCodeTest("testCopyMultipleNodes"));
 			return suite;
 		}
 	}
 	
 	public void testMove() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -81,7 +81,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}		
 	
 	public void testMoveDeclSameLevelCD() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
@@ -192,7 +192,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testMoveDeclSameLevel() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
@@ -300,7 +300,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	
 
 	public void testMoveDeclDifferentLevelCD() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
@@ -420,7 +420,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testMoveDeclDifferentLevel() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
@@ -535,7 +535,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 
 	public void testMoveStatementsCD() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
@@ -638,7 +638,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}	
 	
 	public void testMoveStatements() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
@@ -726,7 +726,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testCopyFromDeleted() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -782,7 +782,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 
 	public void testChangesInMoveCD() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -851,7 +851,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testChangesInMove() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -921,7 +921,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 
 	public void testSwapCD() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -974,7 +974,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testSwap() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1028,7 +1028,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	
 	
 	public void testMultipleCopiesOfSameNode() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1080,7 +1080,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testCopyMultipleNodes() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1134,7 +1134,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testCopyMultipleNodes0() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1199,7 +1199,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	
 	
 	public void testCopyMultipleNodes1() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1267,7 +1267,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	
 
 	public void testCopyMultipleNodes2() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1316,7 +1316,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testCopyMultipleNodes3() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1378,7 +1378,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testCopyMultipleNodes4() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1442,7 +1442,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 
 	public void testMultipleCopiesOfSameNodeAndMove() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1500,7 +1500,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	
 	
 	public void testMoveForStatementToForBlockCD() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1547,7 +1547,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 	
 	public void testMoveForStatementToForBlock() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -1594,7 +1594,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}	
 		
 	public void testNestedCopies() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");

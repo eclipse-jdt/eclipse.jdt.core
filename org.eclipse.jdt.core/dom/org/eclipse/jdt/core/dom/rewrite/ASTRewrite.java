@@ -76,7 +76,7 @@ import org.eclipse.text.edits.TextEditGroup;
 public class ASTRewrite {
 
 	/** root node for the rewrite: Only nodes under this root are accepted */
-	private AST ast;
+	private final AST ast;
 
 	private final RewriteEventStore eventStore;
 	private final NodeInfoStore nodeStore;
@@ -109,23 +109,25 @@ public class ASTRewrite {
 	 * 
 	 * @return the AST the rewrite was set up on
 	 */
-	public AST getAST() {
+	public final AST getAST() {
 		return this.ast;
 	}
 			
 	/**
 	 * Internal method. Returns the internal event store.
 	 * Clients should not use.
+	 * @return Returns the internal event store. Clients should not use.
 	 */
-	protected RewriteEventStore getRewriteEventStore() {
+	protected final RewriteEventStore getRewriteEventStore() {
 		return this.eventStore;
 	}
 	
 	/**
 	 * Internal method. Returns the internal node info store.
 	 * Clients should not use.
+	 * @return Returns the internal info store. Clients should not use.
 	 */
-	protected NodeInfoStore getNodeStore() {
+	protected final NodeInfoStore getNodeStore() {
 		return this.nodeStore;
 	}
 	
@@ -322,7 +324,7 @@ public class ASTRewrite {
 	 * is not part of this rewriter's AST, or if the property is not a node property,
 	 * or if the described modification is invalid
 	 */
-	public ListRewrite getListRewrite(ASTNode node, ChildListPropertyDescriptor property) {
+	public final ListRewrite getListRewrite(ASTNode node, ChildListPropertyDescriptor property) {
 		if (node == null || property == null) {
 			throw new IllegalArgumentException();
 		}
@@ -357,7 +359,7 @@ public class ASTRewrite {
 		return new TrackedNodePosition(group, node);
 	}	
 			
-	private final void validateIsInsideAST(ASTNode node) {
+	private void validateIsInsideAST(ASTNode node) {
 		if (node.getStartPosition() == -1) {
 			throw new IllegalArgumentException("Node is not an existing node"); //$NON-NLS-1$
 		}

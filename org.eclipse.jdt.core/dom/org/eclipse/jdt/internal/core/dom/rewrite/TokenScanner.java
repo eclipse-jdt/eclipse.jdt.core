@@ -33,9 +33,9 @@ public class TokenScanner {
 	public static final int LEXICAL_ERROR= 20002;
 	public static final int DOCUMENT_ERROR= 20003;
 	
-	private IScanner fScanner;
-	private IDocument fDocument;
-	private int fEndPosition;
+	private final IScanner scanner;
+	private final IDocument document;
+	private final int endPosition;
 	
 	/**
 	 * Creates a TokenScanner
@@ -52,9 +52,9 @@ public class TokenScanner {
 	 * @param document The document used for line information if specified
 	 */
 	public TokenScanner(IScanner scanner, IDocument document) {
-		fScanner= scanner;
-		fEndPosition= fScanner.getSource().length - 1;
-		fDocument= document;
+		this.scanner= scanner;
+		this.endPosition= this.scanner.getSource().length - 1;
+		this.document= document;
 	}
 	
 	/**
@@ -62,10 +62,10 @@ public class TokenScanner {
 	 * @param document The textbuffer to create the scanner on
 	 */
 	public TokenScanner(IDocument document) {
-		fScanner= ToolFactory.createScanner(true, false, false, false);
-		fScanner.setSource(document.get().toCharArray());
-		fDocument= document;
-		fEndPosition= fScanner.getSource().length - 1;
+		this.scanner= ToolFactory.createScanner(true, false, false, false);
+		this.scanner.setSource(document.get().toCharArray());
+		this.document= document;
+		this.endPosition= this.scanner.getSource().length - 1;
 	}		
 		
 	/**
@@ -73,7 +73,7 @@ public class TokenScanner {
 	 * @return IScanner
 	 */
 	public IScanner getScanner() {
-		return fScanner;
+		return this.scanner;
 	}
 	
 	/**
@@ -81,21 +81,21 @@ public class TokenScanner {
 	 * @param offset The offset to set
 	 */
 	public void setOffset(int offset) {
-		fScanner.resetTo(offset, fEndPosition);
+		this.scanner.resetTo(offset, this.endPosition);
 	}
 	
 	/**
 	 * @return Returns the offset after the current token
 	 */	
 	public int getCurrentEndOffset() {
-		return fScanner.getCurrentTokenEndPosition() + 1;
+		return this.scanner.getCurrentTokenEndPosition() + 1;
 	}
 
 	/**
 	 * @return Returns the start offset of the current token
 	 */		
 	public int getCurrentStartOffset() {
-		return fScanner.getCurrentTokenStartPosition();
+		return this.scanner.getCurrentTokenStartPosition();
 	}
 	
 	/**
@@ -116,7 +116,7 @@ public class TokenScanner {
 		int curr= 0;
 		do {
 			try {
-				curr= fScanner.getNextToken();
+				curr= this.scanner.getNextToken();
 				if (curr == ITerminalSymbols.TokenNameEOF) {
 					throw new CoreException(createError(END_OF_FILE, "End Of File", null)); //$NON-NLS-1$
 				}
@@ -138,7 +138,7 @@ public class TokenScanner {
 		int curr= 0;
 		do {
 			try {
-				curr= fScanner.getNextToken();
+				curr= this.scanner.getNextToken();
 			} catch (InvalidInputException e) {
 				throw new CoreException(createError(LEXICAL_ERROR, e.getMessage(), e)); //$NON-NLS-1$
 			}
@@ -372,9 +372,9 @@ public class TokenScanner {
 	}
 	
 	private int getLineOfOffset(int offset) throws CoreException {
-		if (fDocument != null) {
+		if (this.document != null) {
 			try {
-				return fDocument.getLineOfOffset(offset);
+				return this.document.getLineOfOffset(offset);
 			} catch (BadLocationException e) {
 				String message= "Illegal offset: " + offset; //$NON-NLS-1$
 				throw new CoreException(createError(DOCUMENT_ERROR, message, e)); //$NON-NLS-1$
@@ -384,9 +384,9 @@ public class TokenScanner {
 	}
 	
 	private int getLineEnd(int line) throws CoreException {
-		if (fDocument != null) {
+		if (this.document != null) {
 			try {
-				IRegion region= fDocument.getLineInformation(line);
+				IRegion region= this.document.getLineInformation(line);
 				return region.getOffset() + region.getLength();
 			} catch (BadLocationException e) {
 				String message= "Illegal line: " + line; //$NON-NLS-1$

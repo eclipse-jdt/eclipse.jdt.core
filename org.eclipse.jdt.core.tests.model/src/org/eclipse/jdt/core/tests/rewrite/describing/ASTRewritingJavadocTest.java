@@ -35,17 +35,17 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return allTests();
 		} else {
-			TestSuite suite= new TestSuite();
-			suite.addTest(new ASTRewritingJavadocTest("testVariableDeclarationFragment"));
+			TestSuite suite= new Suite("one test");
+			suite.addTest(new ASTRewritingJavadocTest("testMoveTags"));
 			return suite;
 		}
 	}
 	
 	public void testParamName() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -94,7 +94,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 
 	public void testSeeTag1() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -144,7 +144,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testSeeTag2() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -195,7 +195,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	
 	
 	public void testSeeTag3() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -245,7 +245,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testSeeTagParamInsert1() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -298,7 +298,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 
 	public void testSeeTagParamInsert2() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -355,7 +355,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testTagInsert1() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -408,7 +408,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testTagInsert2() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -461,7 +461,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testTagInsert3() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -524,8 +524,63 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
+	public void testTagInsert4() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");			
+		buf.append("     * @param name\n");
+		buf.append("     */\n");
+		buf.append("    public void gee(String name) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		
+		{  // insert method at first position
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
+			
+			Javadoc javadoc= methodDecl.getJavadoc();
+			List tags= javadoc.tags();
+			assertTrue("Has one tag", tags.size() == 1);
+			
+			TagElement newTag= ast.newTagElement();
+			newTag.setTagName("@throws");
+			List fragments= newTag.fragments();
+			fragments.add(ast.newSimpleName("Exception"));
+			TextElement element1 = ast.newTextElement();
+			element1.setText("Description line 1\n * Description line 2");
+			fragments.add(element1);
+
+			rewrite.getListRewrite(javadoc, Javadoc.TAGS_PROPERTY).insertLast(newTag, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");			
+		buf.append("     * @param name\n");
+		buf.append("     * @throws Exception Description line 1\n");
+		buf.append("     * Description line 2\n");	
+		buf.append("     */\n");
+		buf.append("    public void gee(String name) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+
+	}
+	
 	public void testTagRemove1() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -568,7 +623,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 
 	public void testTagRemove2() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -613,7 +668,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testTagRemove3() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -658,7 +713,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testTagRemoveInsert() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -716,7 +771,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testAddJavadoc() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -764,7 +819,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 
 	public void testAddJavadoc2() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -810,7 +865,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	
 	public void testRemoveJavadoc() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -846,7 +901,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 
 	public void testRemoveJavadoc2() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("/**\n");			
@@ -875,7 +930,58 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	public void testMoveTags() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");		
+		buf.append("     * @author Mr X\n");
+		buf.append("     *         and friends\n");
+		buf.append("     * @since 1.1\n");
+		buf.append("     *         maybe less\n");
+		buf.append("     */\n");
+		buf.append("    static {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
 
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+		{
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			Initializer initializer= (Initializer) type.bodyDeclarations().get(0);
+			Javadoc javadoc = initializer.getJavadoc();
+			List tags= javadoc.tags();
+			ASTNode node1 = (ASTNode) tags.get(0);
+			ASTNode placeholder1 = rewrite.createMoveTarget(node1);
+			ASTNode node2 = (ASTNode) tags.get(1);
+			ASTNode placeholder2 = rewrite.createMoveTarget(node2);
+			
+			rewrite.replace(node1, placeholder2, null);
+			rewrite.replace(node2, placeholder1, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");	
+		buf.append("     * @since 1.1\n");
+		buf.append("     *         maybe less\n");
+		buf.append("     * @author Mr X\n");
+		buf.append("     *         and friends\n");
+		buf.append("     */\n");
+		buf.append("    static {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+
+	}
 
 	
 }

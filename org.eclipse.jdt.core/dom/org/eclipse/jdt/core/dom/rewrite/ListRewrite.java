@@ -263,7 +263,7 @@ public final class ListRewrite {
 			throw new IllegalArgumentException();
 		}
 		//validateIsInsideAST(node);
-		CopySourceInfo info= getRewriteStore().markAsRangeCopySource(parent, childProperty, first, last, isMove);
+		CopySourceInfo info= getRewriteStore().markAsRangeCopySource(this.parent, this.childProperty, first, last, isMove);
 	
 		NodeInfoStore nodeStore= this.rewriter.getNodeStore();
 		ASTNode placeholder= nodeStore.newPlaceholderNode(first.getNodeType()); // revisit: could use list type

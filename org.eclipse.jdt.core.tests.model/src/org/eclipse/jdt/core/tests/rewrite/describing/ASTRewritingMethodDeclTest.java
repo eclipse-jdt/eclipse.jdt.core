@@ -38,14 +38,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		if (true) {
 			return allTests();
 		} else {
-			TestSuite suite= new TestSuite();
+			TestSuite suite= new Suite("one test");
 			suite.addTest(new ASTRewritingMethodDeclTest("testMethodDeclChanges"));
 			return suite;
 		}
 	}
 	
 	public void testMethodDeclChanges() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -161,7 +161,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public void testListRemoves() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -272,7 +272,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public void testListInserts() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -460,7 +460,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 	public void testListInsert() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -510,7 +510,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public void testListCombinations() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -620,7 +620,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public void testListCombination() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -671,7 +671,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	
 	public void testMethodBody() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -747,7 +747,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public void testMethodDeclarationExtraDimensions() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -845,7 +845,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	
 	public void testFieldDeclaration() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class A {\n");
@@ -924,7 +924,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 	
 	public void testInitializer() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class A {\n");
@@ -985,7 +985,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	
 	public void testMethodDeclarationParamShuffel() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -1029,7 +1029,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 
 	public void testMethodDeclarationParamShuffel1() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public abstract class E {\n");
@@ -1068,7 +1068,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		
 	public void testMethodDeclaration_bug24916() throws Exception {
 	
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class DD {\n");
@@ -1101,7 +1101,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	public void testMethodComments1() throws Exception {
 	
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 
@@ -1149,7 +1149,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	public void testMethodComments2() throws Exception {
 	
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class DD {\n");
@@ -1206,7 +1206,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	public void testMethodComments3() throws Exception {
 	
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 
@@ -1258,7 +1258,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	public void testBUG_38447() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 
@@ -1307,7 +1307,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	public void testMethodComments4() throws Exception {
 	
 	
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 
@@ -1373,7 +1373,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	
 	public void testInsertFieldAfter() throws Exception {
 
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 

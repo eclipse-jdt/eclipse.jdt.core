@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,24 +10,30 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite;
 
+import java.util.ArrayList;
+
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.ILineTracker;
 import org.eclipse.jface.text.IRegion;
 
+import org.eclipse.text.edits.ReplaceEdit;
+
 /**
  * Helper class to provide String manipulation functions not available in standard JDK.
  */
-public class Strings {
+public class Indents {
 	
-	private Strings() {
+	private Indents() {
 		// don't instanciate
 	}
 	
 	/**
 	 * Indent char is a space char but not a line delimiters.
 	 * <code>== Character.isWhitespace(ch) && ch != '\n' && ch != '\r'</code>
+	 * @param ch
+	 * @return
 	 */
 	public static boolean isIndentChar(char ch) {
 		return Character.isWhitespace(ch) && !isLineDelimiterChar(ch);
@@ -175,6 +181,12 @@ public class Strings {
 	 * Change the indent of, possible muti-line, code range. The current indent is removed, a new indent added.
 	 * The first line of the code will not be changed. (It is considered to have no indent as it might start in
 	 * the middle of a line)
+	 * @param code The code to change the indent of
+	 * @param codeIndentLevel The indent level of the code
+	 * @param tabWidth The current tab width setting
+	 * @param newIndent The new Indent string
+	 * @param lineDelim THe current line delimiter
+	 * @return
 	 */
 	public static String changeIndent(String code, int codeIndentLevel, int tabWidth, String newIndent, String lineDelim) {
 		try {
@@ -206,6 +218,32 @@ public class Strings {
 			// can not happen
 			return code;
 		}
+	}
+	
+	public static ReplaceEdit[] getChangeIndentEdits(String source, int sourceIndentLevel, int tabWidth, String newIndent) {
+	    ArrayList result= new ArrayList();
+		try {
+			ILineTracker tracker= new DefaultLineTracker();
+			tracker.set(source);
+			int nLines= tracker.getNumberOfLines();
+			if (nLines == 1)
+				return (ReplaceEdit[])result.toArray(new ReplaceEdit[result.size()]);
+			for (int i= 1; i < nLines; i++) {
+				IRegion region= tracker.getLineInformation(i);
+				int offset= region.getOffset();
+				String line= source.substring(offset, offset + region.getLength());
+				int length= Indents.computeIndentLength(line, sourceIndentLevel, tabWidth);
+				if (length >= 0) {
+					result.add(new ReplaceEdit(offset, length, newIndent));
+				} else {
+					length= Indents.computeIndent(line, tabWidth);
+					result.add(new ReplaceEdit(offset, length, "")); //$NON-NLS-1$
+				}
+			}
+		} catch (BadLocationException cannotHappen) {
+			// can not happen
+		}
+		return (ReplaceEdit[])result.toArray(new ReplaceEdit[result.size()]);
 	}
 
 }

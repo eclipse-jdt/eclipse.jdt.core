@@ -17,42 +17,42 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
  */
 public class NodeRewriteEvent extends RewriteEvent {
 	
-	private Object fOriginalValue;
-	private Object fNewValue;
+	private Object originalValue;
+	private Object newValue;
 		
 	public NodeRewriteEvent(Object originalValue, Object newValue) {
-		fOriginalValue= originalValue;
-		fNewValue= newValue;
+		this.originalValue= originalValue;
+		this.newValue= newValue;
 	}
 			
 	/**
 	 * @return Returns the new value.
 	 */
 	public Object getNewValue() {
-		return fNewValue;
+		return this.newValue;
 	}
 	
 	/**
 	 * @return Returns the original value.
 	 */
 	public Object getOriginalValue() {
-		return fOriginalValue;
+		return this.originalValue;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.RewriteEvent#getChangeKind()
 	 */
 	public int getChangeKind() {
-		if (fOriginalValue == fNewValue) {
+		if (this.originalValue == this.newValue) {
 			return UNCHANGED;
 		}
-		if (fOriginalValue == null) {
+		if (this.originalValue == null) {
 			return INSERTED;
 		}
-		if (fNewValue == null) {
+		if (this.newValue == null) {
 			return REMOVED;
 		}
-		if (fOriginalValue.equals(fNewValue)) {
+		if (this.originalValue.equals(this.newValue)) {
 			return UNCHANGED;
 		}
 		return REPLACED;
@@ -71,7 +71,7 @@ public class NodeRewriteEvent extends RewriteEvent {
 	 * @param newValue The new value to set.
 	 */
 	public void setNewValue(Object newValue) {
-		fNewValue= newValue;
+		this.newValue= newValue;
 	}
 
 	/* (non-Javadoc)

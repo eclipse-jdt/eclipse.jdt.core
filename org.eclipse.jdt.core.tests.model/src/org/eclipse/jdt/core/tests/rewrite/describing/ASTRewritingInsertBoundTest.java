@@ -42,7 +42,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		if (true) {
 			return allTests();
 		} else {
-			TestSuite suite= new TestSuite();
+			TestSuite suite= new Suite("one test");
 			suite.addTest(new ASTRewritingInsertBoundTest("testRemove3"));
 			return suite;
 		}
@@ -68,7 +68,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testInsert1() throws Exception {
 		// insert first and last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -132,7 +132,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testInsert3() throws Exception {
 		// insert 2 x before 
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -201,7 +201,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testInsert2() throws Exception {
 		// insert 2 x first and 2 x last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -273,7 +273,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testInsert1Before() throws Exception {
 		// insert first and last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -336,7 +336,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testInsert2Before() throws Exception {
 		// insert 2x first and 2 x last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -409,7 +409,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testInsert3Before() throws Exception {
 		// insert 2 x after 
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -476,7 +476,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemove1() throws Exception {
 		// remove first and last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -524,7 +524,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemove2() throws Exception {
 		// remove second
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -575,7 +575,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemove3() throws Exception {
 		// remove 2nd and 3rd
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -623,7 +623,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemove4() throws Exception {
 		// remove all
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -670,7 +670,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert1() throws Exception {
 		// remove first add before first, remove last add after last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -732,7 +732,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert2() throws Exception {
 		// remove first add 2x first, remove last add 2x  last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -805,7 +805,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert3() throws Exception {
 		// remove middle, add before, add after
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -871,7 +871,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert1Before() throws Exception {
 		// remove first add before first, remove last add after last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -934,7 +934,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert2Before() throws Exception {
 		// remove first add 2x first, remove last add 2x  last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1006,7 +1006,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert3Before() throws Exception {
 		// remove middle, add before, add after
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1071,7 +1071,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert4() throws Exception {
 		// remove first and add after first, remove last and add before last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1137,7 +1137,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert4Before() throws Exception {
 		// remove first and add after first, remove last and add before last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1202,7 +1202,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert5() throws Exception {
 		// remove first and add after and before first, remove last and add after and before last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1277,7 +1277,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert5Before() throws Exception {
 		// remove first and add after first, remove last and add before last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1352,7 +1352,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert6() throws Exception {
 		// remove all, add before first and after last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1411,7 +1411,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert6Before() throws Exception {
 		// remove all, add before first and after last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1471,7 +1471,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert7() throws Exception {
 		// remove all, add after first and before last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -1532,7 +1532,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public void testRemoveInsert7Before() throws Exception {
 		// remove all, add after first and before last
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");

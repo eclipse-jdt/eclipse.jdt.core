@@ -40,7 +40,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		if (true) {
 			return allTests();
 		} else {
-			TestSuite suite= new TestSuite();
+			TestSuite suite= new Suite("one test");
 			suite.addTest(new ASTRewritingTrackingTest("testNamesWithPlaceholder"));
 			return suite;
 		}
@@ -48,7 +48,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 	public void testNamesWithDelete() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -115,7 +115,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 	public void testNamesWithInsert() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -187,7 +187,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 	public void testNamesWithReplace() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -264,7 +264,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 	public void testNamesWithMove1() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -339,7 +339,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 	public void testNamesWithMove2() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -407,7 +407,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 	public void testNamesWithMove3() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
@@ -463,7 +463,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	}
 	public void testNamesWithPlaceholder() throws Exception {
 		
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test1", false, null);
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
