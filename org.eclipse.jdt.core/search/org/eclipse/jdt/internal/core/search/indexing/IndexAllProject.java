@@ -76,6 +76,7 @@ public class IndexAllProject extends IndexRequest {
 			IClasspathEntry[] entries = JavaCore.create(this.project).getRawClasspath();
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
+// KJ : what should happen if an index job is cancelled? 3 other calls below...
 				if (this.isCancelled) return false;
 
 				IClasspathEntry entry = entries[i];
@@ -84,6 +85,14 @@ public class IndexAllProject extends IndexRequest {
 					if (sourceFolder != null) {
 						final char[][] patterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
 						if (max == 0) {
+// KJ : Switch to use a proxy visitor?
+//							sourceFolder.accept(new IResourceProxyVisitor() {
+//								public boolean visit(IResourceProxy proxy) {
+//									if (isCancelled) return false;
+//									if (proxy.getType() == IResource.FILE) {
+//										if (Util.isJavaFileName(proxy.getName()) {
+//											IResource resource = proxy.requestResource();
+//											if (resource.getLocation() != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
 							sourceFolder.accept(new IResourceVisitor() {
 								public boolean visit(IResource resource) {
 									if (isCancelled) return false;
@@ -100,6 +109,12 @@ public class IndexAllProject extends IndexRequest {
 								}
 							});
 						} else {
+//							sourceFolder.accept(new IResourceProxyVisitor() {
+//								public boolean visit(IResourceProxy proxy) {
+//									if (isCancelled) return false;
+//									if (proxy.getType() == IResource.FILE) {
+//										if (Util.isJavaFileName(proxy.getName()) {
+//											IResource resource = proxy.requestResource();
 							sourceFolder.accept(new IResourceVisitor() {
 								public boolean visit(IResource resource) {
 									if (isCancelled) return false;
