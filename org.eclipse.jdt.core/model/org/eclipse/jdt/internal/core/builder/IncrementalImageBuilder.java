@@ -321,6 +321,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 	// one on the folder & one on the source file
 	IResource resource = sourceDelta.getResource();
 	if (md.exclusionPatterns != null && Util.isExcluded(resource, md.exclusionPatterns)) return;
+	if (md.binaryFolder.equals(resource)) return; // skip nested output folder when the project is a source folder
 	switch(resource.getType()) {
 		case IResource.PROJECT :
 		case IResource.FOLDER :
