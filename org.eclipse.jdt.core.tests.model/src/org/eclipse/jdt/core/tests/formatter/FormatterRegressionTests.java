@@ -3553,4 +3553,22 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test323", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=45220
+	 */
+	public void test325() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test325", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=45141
+	 */
+	public void test324() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test324", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }
