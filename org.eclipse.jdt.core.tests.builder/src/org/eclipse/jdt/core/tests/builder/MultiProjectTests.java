@@ -494,4 +494,109 @@ public class MultiProjectTests extends Tests {
 
 		JavaCore.setOptions(options);
 	}
+	
+	public void testCycle4() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		
+		JavaCore.setOptions(newOptions);
+		
+		//----------------------------
+		//         Project1
+		//----------------------------
+		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
+		env.addExternalJar(p1, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
+		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
+		
+		//----------------------------
+		//         Project2
+		//----------------------------
+		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
+		env.addExternalJar(p2, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
+		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
+		
+		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"import p1.X;\n"+ //$NON-NLS-1$
+			"import p3.Z;\n"+ //$NON-NLS-1$
+			"public class Y extends Z{\n"+ //$NON-NLS-1$
+			"  public X zork(){\n"+ //$NON-NLS-1$
+			"    X x = foo();\n"+ //$NON-NLS-1$
+			"    x.bar(this);\n"+ //$NON-NLS-1$
+			"    return x;\n"+ //$NON-NLS-1$
+			"  }\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+		//----------------------------
+		//         Project3
+		//----------------------------
+		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
+		env.addExternalJar(p3, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
+		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
+		
+		IPath c3 = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"import p1.X;\n"+ //$NON-NLS-1$
+			"public class Z {\n"+ //$NON-NLS-1$
+			"  public X foo(){\n"+ //$NON-NLS-1$
+			"    return null;\n"+ //$NON-NLS-1$
+			"  }\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		// for Project1
+		env.addRequiredProject(p1, p2);
+		env.addRequiredProject(p1, p3);
+		// for Project2
+		env.addRequiredProject(p2, p1);
+		env.addRequiredProject(p2, p3);
+		// for Project3
+		env.addRequiredProject(p3, p1);
+
+		env.setBuildOrder(new String[]{"P1", "P2", "P3"});
+		fullBuild();
+		
+		expectingCompilingOrder(new String[]{"p2.Y", "p3.Z", "p2.Y"});
+		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));
+		expectingOnlySpecificProblemsFor(p2,new Problem[]{
+			new Problem("p2", "The import p1 cannot be resolved", c2),
+			new Problem("p2", "X cannot be resolved (or is not a valid return type) for the method zork", c2),
+			new Problem("p2", "X cannot be resolved or is not a type", c2),
+			new Problem("p2", "The method foo() is undefined for the type Y", c2),
+			new Problem("p2", "A cycle was detected in the project's classpath.", p2)
+		});
+		expectingOnlySpecificProblemsFor(p3,new Problem[]{
+			new Problem("p3", "X cannot be resolved (or is not a valid return type) for the method foo", c3),
+			new Problem("p3", "The import p1 cannot be resolved", c3),
+			new Problem("p3", "A cycle was detected in the project's classpath.", p3)
+		});
+
+		env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"import p2.Y;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"  public void bar(Y y){\n"+ //$NON-NLS-1$
+			"    y.zork();\n"+ //$NON-NLS-1$
+			"  }\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		incrementalBuild();
+		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y"});;
+		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));
+		expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));
+		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));
+
+		JavaCore.setOptions(options);
+	}
 }
