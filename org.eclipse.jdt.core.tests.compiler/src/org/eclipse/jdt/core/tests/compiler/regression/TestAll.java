@@ -36,6 +36,7 @@ public static Test suite() {
 	standardTests.add(CastTest.class);
 	standardTests.add(ClassFileComparatorTest.class);
 	standardTests.add(ClassFileReaderTest.class);
+	standardTests.add(CollisionCase.class);
 	standardTests.add(ConstantTest.class);
 	standardTests.add(DeprecatedTest.class);
 	standardTests.add(LocalVariableTest.class);
