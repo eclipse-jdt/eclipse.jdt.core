@@ -30,9 +30,13 @@ public interface IImportDeclaration extends IJavaElement, ISourceReference, ISou
 String getElementName();
 /**
  * Returns the modifier flags for this import. The flags can be examined using class
- * <code>Flags</code>.
+ * <code>Flags</code>. Only the static flag is meaningful for import declarations.
  * <p>
- * Since Java 1.5, static imports are allowed.
+ * Note: Static imports are an experimental language feature 
+ * under discussion in JSR-201 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
  * @return the modifier flags for this import
