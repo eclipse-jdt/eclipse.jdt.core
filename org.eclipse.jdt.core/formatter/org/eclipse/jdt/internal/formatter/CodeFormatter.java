@@ -1438,7 +1438,6 @@ public class CodeFormatter implements TerminalSymbols {
 					dumpTab(depth);
 				}
 			}
-			int numberOfSpaces = 0;
 			int max = currentString.length();
 			if (multipleLineCommentCounter != 0) {
 				try {
@@ -1464,10 +1463,6 @@ public class CodeFormatter implements TerminalSymbols {
 				updateMappedPositionsWhileSplitting(
 					beginningOfLineIndex,
 					beginningOfLineIndex + max);
-				int currentMultipleLineNumber = 0;
-				int previousMultipleLineNumber = -1;
-				int currentPositionInCurrentLineBuffer = 0;
-				int numberOfLineBreaksInCurrentMultipleLineComment = 0;
 				for (int i = 0; i < max; i++) {
 					char currentChar = currentString.charAt(i);
 					switch (currentChar) {
@@ -1541,7 +1536,6 @@ public class CodeFormatter implements TerminalSymbols {
 		// perform actual splitting
 		String result[] = splitLine.substrings;
 		int[] splitOperators = splitLine.operators;
-		int[] splitLineStartIndexes = splitLine.startSubstringsIndexes;
 
 		if (result[0].length() == 0) {
 			// when the substring 0 is null, the substring 1 is correctly indented.

@@ -48,7 +48,6 @@ protected IBinaryMethod getBinaryMethod(TypeStructureEntry tsEntry) throws NotPr
 public IType[] getExceptionTypes() {
 	TypeStructureEntry tsEntry = getTypeStructureEntry();
 	char[][] exceptions = getBinaryMethod(tsEntry).getExceptionTypeNames();
-	PackageImpl pkg = fHandle.fOwner.fOwner;
 	int len = exceptions.length;
 	IType[] results = new IType[len];
 	for (int i = 0; i < len; i++) {

@@ -208,7 +208,6 @@ public int size () {
  * @return      the string representation of this OrderedSet
  */
 public String toString () {
-	Object key;
 	StringBuffer buffer = new StringBuffer ();
 	buffer.append ('{');
 	for (int i=0; i<elementCount; i++) {

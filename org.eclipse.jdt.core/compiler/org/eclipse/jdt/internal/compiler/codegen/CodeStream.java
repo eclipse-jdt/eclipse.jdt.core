@@ -1985,7 +1985,6 @@ public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding ac
 			resolvedPosition++;
 	}
 	TypeBinding type;
-	int id;
 	if (methodBinding.isStatic())
 		this.invokestatic(methodBinding);
 	else {

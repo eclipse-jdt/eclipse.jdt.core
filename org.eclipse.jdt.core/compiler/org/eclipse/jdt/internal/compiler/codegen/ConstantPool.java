@@ -941,7 +941,6 @@ public int literalIndex(MethodBinding aMethodBinding) {
 	int index;
 	int nameAndTypeIndex;
 	int classIndex;
-	int nameIndex;
 	int indexWellKnownMethod;
 	if ((indexWellKnownMethod = indexOfWellKnownMethods(aMethodBinding)) == -1) {
 		if (aMethodBinding.declaringClass.isInterface()) {

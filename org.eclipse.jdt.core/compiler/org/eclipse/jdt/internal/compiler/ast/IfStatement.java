@@ -118,7 +118,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if ((bits & IsReachableMASK) == 0) {
 		return;
 	}
-	int pc = codeStream.position, divergePC;
+	int pc = codeStream.position;
 	Label endifLabel = new Label(codeStream);
 
 	// optimizing the then/else part code gen

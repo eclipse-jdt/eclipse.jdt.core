@@ -52,7 +52,6 @@ protected void basicPutBinary(TypeStructureEntry tsEntry, byte[] binary, int crc
 	
 	IContainer container = makeContainersIfNecessary(path.removeLastSegments(1));
 
-	PackageElement element = new PackageElement(type.getPackage(), new SourceEntry(path, null, null));
 	IFile file = container.getFile(new Path(path.lastSegment()));
 	
 	try {

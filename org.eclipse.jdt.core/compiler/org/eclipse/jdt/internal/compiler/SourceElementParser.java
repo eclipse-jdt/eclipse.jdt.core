@@ -204,7 +204,6 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 }
 protected void consumeMethodHeaderName() {
 	// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-	int length;
 	SourceMethodDeclaration md = new SourceMethodDeclaration();
 
 	//name
@@ -934,7 +933,6 @@ public void parseCompilationUnit(
 	int end, 
 	boolean needReferenceInfo) {
 
-	CompilationUnitDeclaration result;
 	reportReferenceInfo = needReferenceInfo;
 	boolean old = diet;
 	if (needReferenceInfo) {
@@ -944,7 +942,7 @@ public void parseCompilationUnit(
 	try {
 		diet = !needReferenceInfo;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
-		result = parse(unit, compilationUnitResult, start, end);
+		parse(unit, compilationUnitResult, start, end);
 	} catch (AbortCompilation e) {
 	} finally {
 		if (scanner.recordLineSeparator) {
@@ -957,7 +955,6 @@ public void parseCompilationUnit(
 	ICompilationUnit unit, 
 	boolean needReferenceInfo) {
 
-	CompilationUnitDeclaration result;
 	boolean old = diet;
 	if (needReferenceInfo) {
 		unknownRefs = new NameReference[10];
@@ -968,7 +965,7 @@ public void parseCompilationUnit(
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
-		result = parse(unit, compilationUnitResult);
+		parse(unit, compilationUnitResult);
 	} catch (AbortCompilation e) {
 	} finally {
 		if (scanner.recordLineSeparator) {
@@ -1014,7 +1011,6 @@ public void parseTypeMemberDeclarations(
 			goForClassBodyDeclarations();
 			/* scanner initialization */
 			scanner.setSourceBuffer(sourceUnit.getContents());
-			int sourceLength = scanner.source.length;
 			scanner.resetTo(start, end);
 			/* unit creation */
 			referenceContext = compilationUnit = unit;
@@ -1053,8 +1049,8 @@ public void parseTypeMemberDeclarations(
 		/* scanner initialization */
 		scanner.setSourceBuffer(contents);
 		scanner.recordLineSeparator = false;
-		int sourceLength = scanner.source.length;
 		scanner.resetTo(start, end);
+
 		/* unit creation */
 		referenceContext = null;
 

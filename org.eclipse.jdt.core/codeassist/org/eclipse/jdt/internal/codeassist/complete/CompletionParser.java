@@ -582,10 +582,8 @@ protected void consumeConstructorHeader() {
 }
 protected void consumeConstructorHeaderName() {
 
-	int index;
-
 	/* no need to take action if not inside assist identifiers */
-	if ((index = indexOfAssistIdentifier()) < 0) {
+	if (indexOfAssistIdentifier() < 0) {
 		super.consumeConstructorHeaderName();
 		return;
 	}
@@ -648,7 +646,6 @@ protected void consumeMethodHeaderName() {
 		super.consumeMethodHeaderName();
 	} else {
 		// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-		int length;
 		CompletionOnMethodName md = new CompletionOnMethodName();
 	
 		//name
@@ -997,7 +994,6 @@ private boolean isAfterArrayType() {
 	// TBD: The following relies on the fact that array dimensions are small: it says that if the
 	//      top of the intStack is less than 11, then it must be a dimension 
 	//      (smallest position of array type in a compilation unit is 11 as in "class X{Y[]")
-	int dim = 0;
 	if ((this.intPtr > -1) && (this.intStack[this.intPtr] < 11)) {
 		return true;
 	}

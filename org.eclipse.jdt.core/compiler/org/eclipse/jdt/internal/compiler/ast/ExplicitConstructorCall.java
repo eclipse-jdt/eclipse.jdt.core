@@ -153,7 +153,7 @@ public class ExplicitConstructorCall
 	 * exact need.
 	 */
 	void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
-		ReferenceBinding invocationType, superType;
+		ReferenceBinding superType;
 
 		// perform some emulation work in case there is some and we are inside a local type only
 		if ((superType = binding.declaringClass).isNestedType()

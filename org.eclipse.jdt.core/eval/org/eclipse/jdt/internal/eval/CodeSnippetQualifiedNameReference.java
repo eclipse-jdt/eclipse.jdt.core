@@ -439,7 +439,6 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			// if the binding declaring class is not visible, need special action
 			// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 			if (delegateThis == null) {
-				CodeSnippetScope localScope = new CodeSnippetScope(scope);
 				if (field.declaringClass != type
 					&& field.declaringClass != null // array.length
 					&& field.constant == NotAConstant

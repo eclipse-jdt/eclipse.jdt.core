@@ -317,8 +317,8 @@ final private void markAsDefinitelyNotAssigned(int position) {
 			if (extraDefiniteInits == null) {
 				return; // nothing to do, it was not yet set 
 			} else {
-				int oldLength; // might need to grow the arrays
-				if (vectorIndex >= (oldLength = extraDefiniteInits.length)) {
+				// might need to grow the arrays
+				if (vectorIndex >= extraDefiniteInits.length) {
 					return; // nothing to do, it was not yet set 
 				}
 			}

@@ -589,9 +589,7 @@ public class ClassFile
 		contentsOffset -= 2;
 		int attributeOffset = contentsOffset;
 		contentsOffset += 2;
-		ReferenceBinding[] thrownsExceptions;
 		int attributeNumber = 0;
-		int contentsLength;
 
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
@@ -1346,7 +1344,6 @@ public class ClassFile
 					int startPC = localVariable.initializationPCs[j << 1];
 					int endPC = localVariable.initializationPCs[(j << 1) + 1];
 					if (startPC != endPC) { // only entries for non zero length
-						int currentLength;
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
 								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
@@ -1595,7 +1592,6 @@ public class ClassFile
 						int startPC = localVariable.initializationPCs[j << 1];
 						int endPC = localVariable.initializationPCs[(j << 1) + 1];
 						if (startPC != endPC) { // only entries for non zero length
-							int currentLength;
 							if (endPC == -1) {
 								localVariable.declaringScope.problemReporter().abortDueToInternalError(
 									Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
@@ -1741,7 +1737,6 @@ public class ClassFile
 			    * according to the table of start line indexes and the pcToSourceMap table
 			    * contained into the codestream
 			    */
-			int index = 0, max = startLineIndexes.length;
 			int lineNumberNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
 			localContents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
@@ -1953,7 +1948,6 @@ public class ClassFile
 						!= null) {
 						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
 							LocalVariableBinding localVariable = syntheticArguments[i];
-							int currentLength;
 							if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 								System.arraycopy(
 									contents,
@@ -1991,7 +1985,6 @@ public class ClassFile
 				if ((parameters != null) && (arguments != null)) {
 					for (int i = 0, max = parameters.length; i < max; i++) {
 						TypeBinding argumentBinding = parameters[i];
-						int currentLength;
 						if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 							System.arraycopy(
 								contents,
@@ -2110,7 +2103,7 @@ public class ClassFile
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
-			int index = 0, max = startLineIndexes.length;
+			int index = 0;
 			int lineNumberNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
 			contents[localContentsOffset++] = (byte) (lineNumberNameIndex >> 8);
@@ -2159,7 +2152,6 @@ public class ClassFile
 					int startPC = localVariable.initializationPCs[j << 1];
 					int endPC = localVariable.initializationPCs[(j << 1) + 1];
 					if (startPC != endPC) { // only entries for non zero length
-						int currentLength;
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
 								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
@@ -2389,8 +2381,6 @@ public class ClassFile
 		}
 		// propagate generation of (problem) member types
 		if (typeDeclaration.memberTypes != null) {
-			CompilationResult result =
-				typeDeclaration.scope.referenceCompilationUnit().compilationResult;
 			for (int i = 0, max = typeDeclaration.memberTypes.length; i < max; i++) {
 				TypeDeclaration memberType = typeDeclaration.memberTypes[i];
 				if (memberType.binding != null) {
@@ -2801,13 +2791,9 @@ public class ClassFile
 		byte[] contents)
 		throws IOException {
 			
-		String fileName;
-		File file;
-		
 		BufferedOutputStream output = new BufferedOutputStream(
 			new FileOutputStream(
-				file =
-					new File((fileName = buildAllDirectoriesInto(outputPath, relativeFileName)))));
+					new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
 		try {
 			output.write(contents);
 		} finally {

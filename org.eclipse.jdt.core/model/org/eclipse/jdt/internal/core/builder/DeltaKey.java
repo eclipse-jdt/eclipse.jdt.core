@@ -81,7 +81,6 @@ public class DeltaKey implements IDeltaKey, Serializable {
 	public boolean equals (Object anObject) {
 		
 		DeltaKey aKey;
-		int result;		
 			
 		/* return true if the same object */
 		if (this == anObject) {

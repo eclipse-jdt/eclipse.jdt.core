@@ -651,7 +651,7 @@ public int getNextToken() throws InvalidInputException {
 
 			// ---------Consume white space and handles startPosition---------
 			int whiteStart = currentPosition;
-			boolean isWhiteSpace, foundWhiteSpaces;
+			boolean isWhiteSpace;
 			do {
 				startPosition = currentPosition;
 				if (((currentCharacter = source[currentPosition++]) == '\\')

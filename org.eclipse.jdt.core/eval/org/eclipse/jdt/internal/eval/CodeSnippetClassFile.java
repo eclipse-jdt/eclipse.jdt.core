@@ -221,7 +221,6 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	}
 	// propagate generation of (problem) member types
 	if (typeDeclaration.memberTypes != null) {
-		CompilationResult result = typeDeclaration.scope.referenceCompilationUnit().compilationResult;
 		for (int i = 0, max = typeDeclaration.memberTypes.length; i < max; i++) {
 			TypeDeclaration memberType = typeDeclaration.memberTypes[i];
 			if (memberType.binding != null) {

@@ -1280,7 +1280,6 @@ public final class CompletionEngine
 
 		boolean staticsOnly = false;
 		// need to know if we're in a static context (or inside a constructor)
-		int tokenLength = token.length;
 		ObjectVector methodsFound = new ObjectVector();
 
 		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
@@ -1950,7 +1949,6 @@ public final class CompletionEngine
 
 		boolean staticsOnly = false;
 		// need to know if we're in a static context (or inside a constructor)
-		int lastPosition = -1;
 		int tokenLength = token.length;
 
 		ObjectVector localsFound = new ObjectVector();

@@ -2022,7 +2022,6 @@ public void staticFieldAccessToNonStaticVariable(FieldReference fieldRef, FieldB
 		fieldRef.sourceEnd); 
 }
 public void staticFieldAccessToNonStaticVariable(QualifiedNameReference nameRef, FieldBinding field){
-	int fieldIndex = nameRef.indexOfFirstFieldBinding - 1;
 	this.handle(
 		NonStaticFieldFromStaticInvocation,
 		new String[] { new String(field.readableName())},

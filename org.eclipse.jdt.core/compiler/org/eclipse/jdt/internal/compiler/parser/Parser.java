@@ -710,8 +710,7 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 						break;
 					case '\'' :
 						{
-							boolean test;
-							if (test = scanner.getNextChar('\\')) {
+							if (scanner.getNextChar('\\')) {
 								scanner.scanEscapeCharacter();
 							} else { // consume next character
 								scanner.unicodeAsBackSlash = false;
@@ -1471,7 +1470,6 @@ protected void consumeClassHeaderImplements() {
 protected void consumeClassHeaderName() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 	TypeDeclaration typeDecl;
-	int length;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
 			typeDecl = new MemberTypeDeclaration();
@@ -1591,7 +1589,7 @@ protected void consumeConstructorDeclaration() {
 	intPtr--;
 
 	//statements
-	int explicitDeclarations = realBlockStack[realBlockPtr--];
+	realBlockPtr--;
 	ExplicitConstructorCall constructorCall = null;
 	Statement[] statements = null;
 	if ((length = astLengthStack[astLengthPtr--]) != 0) {
@@ -2215,7 +2213,6 @@ protected void consumeInterfaceHeaderExtends() {
 protected void consumeInterfaceHeaderName() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 	TypeDeclaration typeDecl;
-	int length;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
 			typeDecl = new MemberTypeDeclaration();
@@ -2424,7 +2421,6 @@ protected void consumeMethodHeaderExtendedDims() {
 }
 protected void consumeMethodHeaderName() {
 	// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-	int length;
 	MethodDeclaration md = new MethodDeclaration();
 
 	//name
@@ -2560,7 +2556,6 @@ protected void consumeMethodInvocationSuper() {
 protected void consumeMethodPushModifiersHeaderName() {
 	// MethodPushModifiersHeaderName ::= Modifiers Type PushModifiers 'Identifier' '('
 	// MethodPushModifiersHeaderName ::= Type PushModifiers 'Identifier' '(' 
-	int length;
 	MethodDeclaration md = new MethodDeclaration();
 
 	//name
@@ -3687,10 +3682,7 @@ protected void consumeStatementIfWithElse() {
 	// IfThenElseStatement ::=  'if' '(' Expression ')' StatementNoShortIf 'else' Statement
 	// IfThenElseStatementNoShortIf ::=  'if' '(' Expression ')' StatementNoShortIf 'else' StatementNoShortIf
 
-	int lengthE, lengthT;
-	lengthE = astLengthStack[astLengthPtr--]; //first decrement
-	lengthT = astLengthStack[astLengthPtr];
-
+	astLengthPtr--; // optimized {..., Then, Else } ==> {..., If }
 	expressionLengthPtr--;
 	//optimize the push/pop
 	Statement elseStatement = (Statement) astStack[astPtr--];
@@ -3788,13 +3780,12 @@ protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
 	//optimize the push/pop
 
-	Expression exp;
 	if (astLengthStack[astLengthPtr] == 0) {
 		astLengthStack[astLengthPtr] = 1;
 		expressionLengthPtr--;
 		astStack[++astPtr] = 
 			new SynchronizedStatement(
-				exp = expressionStack[expressionPtr--], 
+				expressionStack[expressionPtr--], 
 				Block.None, 
 				intStack[intPtr--], 
 				endStatementPosition); 
@@ -3802,7 +3793,7 @@ protected void consumeStatementSynchronized() {
 		expressionLengthPtr--;
 		astStack[astPtr] = 
 			new SynchronizedStatement(
-				exp = expressionStack[expressionPtr--], 
+				expressionStack[expressionPtr--], 
 				(Block) astStack[astPtr], 
 				intStack[intPtr--], 
 				endStatementPosition); 
@@ -6064,7 +6055,8 @@ $end
 }
 protected void ignoreExpressionAssignment() {
 	// Assignment ::= InvalidArrayInitializerAssignement
-	int op = intStack[intPtr--] ; //<--the encoded operator
+	// encoded operator would be: intStack[intPtr]
+	intPtr--;
 	ArrayInitializer arrayInitializer = (ArrayInitializer) expressionStack[expressionPtr--];
 	expressionLengthPtr -- ;
 	// report a syntax error and abort parsing
@@ -6128,9 +6120,7 @@ protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
 		astPtr -= length;
 	}
 
-	// now we know that the top of stack is a constructorDeclaration
-	ConstructorDeclaration cd = (ConstructorDeclaration) astStack[astPtr];
-	
+	// we know that the top of stack is a constructorDeclaration
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
 	flushAnnotationsDefinedPriorTo(endStatementPosition);
 
@@ -6675,7 +6665,6 @@ public CompilationUnitDeclaration parse(
 
 		/* scanner initialization */
 		scanner.setSourceBuffer(sourceUnit.getContents());
-		int sourceLength = scanner.source.length;
 
 		/* unit creation */
 		referenceContext = 
@@ -6709,7 +6698,6 @@ public CompilationUnitDeclaration parse(
 
 		/* scanner initialization */
 		scanner.setSourceBuffer(sourceUnit.getContents());
-		int sourceLength = scanner.source.length;
 		scanner.resetTo(start, end);
 		/* unit creation */
 		referenceContext = 

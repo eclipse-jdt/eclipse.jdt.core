@@ -49,7 +49,6 @@ public String errorReportSource(ICompilationUnit compilationUnit) {
 
 	//regular behavior....(slow code)
 
-	final int AROUND = 60; //increase this value to see more ....
 	final char SPACE = '\u0020';
 	final char MARK = '^';
 	final char TAB = '\t';

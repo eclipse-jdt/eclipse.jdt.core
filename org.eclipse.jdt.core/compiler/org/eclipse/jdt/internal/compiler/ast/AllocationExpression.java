@@ -31,9 +31,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 	}
 	// record some dependency information for exception types
-	int count;
 	ReferenceBinding[] thrownExceptions;
-	if ((count = (thrownExceptions = binding.thrownExceptions).length) != 0) {
+	if (((thrownExceptions = binding.thrownExceptions).length) != 0) {
 		// check exception handling
 		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo, currentScope);
 	}
@@ -99,7 +98,7 @@ public boolean isTypeAccess(){
  * exact need.
  */
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
-	ReferenceBinding invocationType, allocatedType;
+	ReferenceBinding allocatedType;
 
 	// perform some emulation work in case there is some and we are inside a local type only
 	if ((allocatedType = binding.declaringClass).isNestedType() 

@@ -232,7 +232,6 @@ protected void consumeClassHeader() {
 protected void consumeClassHeaderName() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 	TypeDeclaration typeDecl;
-	int length;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
 			typeDecl = new MemberTypeDeclaration();
@@ -265,8 +264,6 @@ protected void consumeClassHeaderName() {
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
-
-	length = 0; // will be updated when reading super-interfaces
 }
 /**
  *
@@ -638,7 +635,6 @@ protected void consumeInterfaceHeader() {
 protected void consumeInterfaceHeaderName() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 	TypeDeclaration typeDecl;
-	int length;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
 			typeDecl = new MemberTypeDeclaration();
@@ -710,7 +706,6 @@ protected void consumeMethodHeader() {
 		intArrayPtr--;
 		return;
 	}
-	int length;
 	MethodDeclaration md = (MethodDeclaration) astStack[astPtr];
 
 	TypeReference returnType = md.returnType;
@@ -813,7 +808,6 @@ protected void consumeMethodHeaderExtendedDims() {
 }
 protected void consumeMethodHeaderName() {
 	// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-	int length;
 	MethodDeclaration md = new MethodDeclaration();
 
 	//name

@@ -64,6 +64,7 @@ public IResource getCorrespondingResource() throws JavaModelException {
  * type (going up the hierarchy from this type);
  */
 public IOpenable getOpenableParent() {
+	// to optimize
 	IJavaElement parent = getParent();
 	if (parent instanceof IOpenable)
 		return (IOpenable) parent;

@@ -285,8 +285,8 @@ public class Util {
 	 */
 	public static byte[] getZipEntryByteContent(ZipEntry ze, ZipFile zip)
 		throws IOException {
+
 		InputStream stream = null;
-		byte classFileBytes[] = null;
 		try {
 			stream = new BufferedInputStream(zip.getInputStream(ze));
 			return getInputStreamAsByteArray(stream, (int) ze.getSize());

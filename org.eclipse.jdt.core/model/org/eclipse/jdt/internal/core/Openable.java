@@ -325,6 +325,21 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 }
 
 /**
+ * 	Open the parent element if necessary
+ * 
+ */
+protected void openParent(IProgressMonitor pm) throws JavaModelException {
+
+	Openable openableParent = (Openable)getOpenableParent();
+	if (openableParent != null) {
+		OpenableElementInfo openableParentInfo = (OpenableElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
+		if (openableParentInfo == null) {
+			openableParent.openWhenClosed(pm, null);
+		}
+	}
+}
+
+/**
  * Open an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
  * Use the given buffer to get the source, or open a new one if null.
  */
@@ -336,15 +351,8 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 		}
 		
 		// 1) Parent must be open - open the parent if necessary
-		Openable openableParent = (Openable)getOpenableParent();
-		if (openableParent != null) {
-			OpenableElementInfo openableParentInfo = (OpenableElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
-			if (openableParentInfo == null) {
-				openableParent.openWhenClosed(pm, null);
-			}
-			// Parent is open. 
-		}
-
+		openParent(pm);
+		
 		// 1.5) Ensure my resource is local
 		IResource resource = getCorrespondingResource();
 		if (resource != null) {
@@ -380,6 +388,7 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 		throw e;
 	}
 }
+
 /**
  * @see IOpenable
  */

@@ -84,7 +84,6 @@ protected void consumeClassDeclaration() {
 protected void consumeClassHeaderName() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 	TypeDeclaration typeDecl;
-	int length;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
 			typeDecl = new MemberTypeDeclaration();
@@ -163,7 +162,6 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 protected void consumeInterfaceHeaderName() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 	TypeDeclaration typeDecl;
-	int length;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
 			typeDecl = new MemberTypeDeclaration();
@@ -173,7 +171,7 @@ protected void consumeInterfaceHeaderName() {
 	} else {
 		// Record that the block has a declaration for local types
 		typeDecl = new LocalTypeDeclaration();
-		markCurrentMethodWithLocalType();
+		markCurrentMethodWithLocalType(); 
 		blockReal();
 	}
 

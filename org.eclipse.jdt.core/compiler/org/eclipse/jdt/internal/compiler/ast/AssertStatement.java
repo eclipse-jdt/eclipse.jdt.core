@@ -74,7 +74,7 @@ public class AssertStatement extends Statement {
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
-		int pc = codeStream.position, divergePC;
+		int pc = codeStream.position;
 	
 		//  codegen here
 		if (this.assertionSyntheticFieldBinding != null) {

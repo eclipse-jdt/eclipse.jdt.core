@@ -450,15 +450,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
 
 		// type checking
-		long startTime = System.currentTimeMillis();
 		unit.resolve();
 
 		// flow analysis
-		startTime = System.currentTimeMillis();
 		unit.analyseCode();
 
 		// code generation
-		startTime = System.currentTimeMillis();
 		unit.generateCode();
 
 		// reference info

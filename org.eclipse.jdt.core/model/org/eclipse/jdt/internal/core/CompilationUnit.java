@@ -544,6 +544,20 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	buf.addBufferChangedListener(this);
 	return buf;
 }
+/*
+ * @see Openable#openParent(IProgressMonitor)
+ */
+protected void openParent(IProgressMonitor pm) throws JavaModelException {
+	try {
+		super.openParent(pm);
+	} catch(JavaModelException e){
+		// allow parent to not exist for fake units defined outside classpath
+		// will be ok for both working copies and compilation units
+		if (!e.isDoesNotExist()){ 
+			throw e;
+		}
+	}
+}
 /**
  * @see IWorkingCopy
  */

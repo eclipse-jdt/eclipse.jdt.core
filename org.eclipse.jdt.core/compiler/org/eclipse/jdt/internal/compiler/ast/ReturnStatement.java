@@ -34,7 +34,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo);
 	}
 	// compute the return sequence (running the finally blocks)
-	FlowContext targetContext;
 	FlowContext traversedContext = flowContext;
 	int subIndex = 0, maxSub = 5;
 	boolean saveValueNeeded = false;
@@ -90,7 +89,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (saveValueNeeded) {
 		prepareSaveValueLocation(currentScope);
 	} else {
-		MethodScope methodScope;
 		if ((!isSynchronized) && (expressionType == BooleanBinding)) {
 			expression.bits |= ValueForReturnMASK;
 		}
