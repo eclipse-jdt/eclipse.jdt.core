@@ -344,7 +344,7 @@ PackageDeclaration ::= PackageDeclarationName ';'
 /.$putCase  consumePackageDeclaration(); $break ./
 /:$readableName PackageDeclaration:/
 
-PackageDeclarationName ::= Modifiers 'package' Name
+PackageDeclarationName ::= Modifiers 'package' PushRealModifiers Name
 /.$putCase  consumePackageDeclarationNameWithModifiers(); $break ./
 /:$readableName PackageDeclarationName:/
 /:$compliance 1.5:/

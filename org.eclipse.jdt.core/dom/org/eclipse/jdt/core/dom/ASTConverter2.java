@@ -283,7 +283,38 @@ class ASTConverter2 extends ASTConverter {
 			return convert((org.eclipse.jdt.internal.compiler.ast.EnumDeclaration) typeDeclaration);
 		}
 		return super.convert(typeDeclaration);
-	}	
+	}
+	
+	public PackageDeclaration convertPackage(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration) {
+		org.eclipse.jdt.internal.compiler.ast.ImportReference importReference = compilationUnitDeclaration.currentPackage;
+		PackageDeclaration packageDeclaration = this.ast.newPackageDeclaration();
+		char[][] tokens = importReference.tokens;
+		int length = importReference.tokens.length;
+		long[] positions = importReference.sourcePositions;
+		int start = (int)(positions[0]>>>32);
+		int end = (int)(positions[length - 1] & 0xFFFFFFFF);
+		Name name = null;
+		if (length > 1) {
+			name = setQualifiedNameNameAndSourceRanges(tokens, positions, importReference);
+		} else {
+			name = this.ast.newSimpleName(new String(tokens[0]));
+			name.setSourceRange(start, end - start + 1);
+		}
+		packageDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
+		packageDeclaration.setName(name);
+		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = importReference.annotations;
+		if (annotations != null && this.ast.apiLevel == AST.LEVEL_3_0) {
+			for (int i = 0, max = annotations.length; i < max; i++) {
+				packageDeclaration.annotations().add(convert(annotations[i]));
+			}
+		}
+		if (this.resolveBindings) {
+			recordNodes(packageDeclaration, importReference);
+			recordNodes(name, compilationUnitDeclaration);
+		}
+		return packageDeclaration;
+	}
+	
 	/**
 	 * @param bodyDeclaration
 	 */

@@ -4457,7 +4457,7 @@ protected void consumeRule(int act) {
 		     consumePackageDeclaration();  
 			break;
  
-    case 83 : if (DEBUG) { System.out.println("PackageDeclarationName ::= Modifiers package Name"); }  //$NON-NLS-1$
+    case 83 : if (DEBUG) { System.out.println("PackageDeclarationName ::= Modifiers package..."); }  //$NON-NLS-1$
 		     consumePackageDeclarationNameWithModifiers();  
 			break;
  

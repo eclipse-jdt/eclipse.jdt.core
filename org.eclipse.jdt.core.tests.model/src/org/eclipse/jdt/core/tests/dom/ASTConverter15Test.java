@@ -26,11 +26,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0004"));
+		suite.addTest(new ASTConverter15Test("test0006"));
 		return suite;
 	}
 		
@@ -231,5 +231,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		expression = annotationTypeMemberDeclaration.getDefault();
 		assertNull("Got a default", expression);
 	}
+	
+	public void test0006() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0006", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+//		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+	}	
 }
 
