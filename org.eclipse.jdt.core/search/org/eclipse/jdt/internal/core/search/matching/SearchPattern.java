@@ -486,7 +486,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 	switch (element.getElementType()) {
 		case IJavaElement.FIELD :
 			IField field = (IField) element; 
-			String fullDeclaringName = field.getDeclaringType().getFullyQualifiedName().replace('$', '.');;
+			String fullDeclaringName = field.getDeclaringType().getFullyQualifiedName().replace('$', '.');
 			lastDot = fullDeclaringName.lastIndexOf('.');
 			char[] declaringSimpleName = (lastDot != -1 ? fullDeclaringName.substring(lastDot + 1) : fullDeclaringName).toCharArray();
 			char[] declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : NO_CHAR;
@@ -589,7 +589,9 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			break;
 		case IJavaElement.TYPE :
 			IType type = (IType) element;
-			searchPattern = createTypePattern(type.getFullyQualifiedName(), limitTo);
+			String packageName = type.getPackageFragment().getElementName();
+			String fullyQualifiedName = packageName + "." + type.getTypeQualifiedName(); // NB: if default package, the fully qualified name as to be ".X" so that createTypePattern(String) creates a pattern with the NO_CHAR qualification
+			searchPattern = createTypePattern(fullyQualifiedName, limitTo);
 			break;
 		case IJavaElement.PACKAGE_DECLARATION :
 		case IJavaElement.PACKAGE_FRAGMENT :
