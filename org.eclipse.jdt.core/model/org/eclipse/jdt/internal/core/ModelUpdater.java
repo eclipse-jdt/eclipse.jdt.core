@@ -90,9 +90,9 @@ public class ModelUpdater {
 				this.projectsToUpdate.add(element.getJavaProject());
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
-				// get rid of namelookup since it holds onto obsolete cached info 
+				// get rid of package fragment cache
 				JavaProject project = (JavaProject) element.getJavaProject();
-				project.resetNameLookup();
+				project.resetCaches();
 				break;
 		}
 	}
@@ -135,9 +135,9 @@ public class ModelUpdater {
 				this.projectsToUpdate.add(element.getJavaProject());
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
-				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
+				// get rid of package fragment cache
 				JavaProject project = (JavaProject) element.getJavaProject();
-				project.resetNameLookup();
+				project.resetCaches();
 				break;
 		}
 	}

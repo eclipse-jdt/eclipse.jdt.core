@@ -201,8 +201,8 @@ public class DeltaProcessor {
 	 */
 	private final ModelUpdater modelUpdater = new ModelUpdater();
 
-	/* A set of IJavaProject whose namelookup caches need to be refreshed */
-	private HashSet namelookupsToRefresh = new HashSet();  
+	/* A set of IJavaProject whose caches need to be reset */
+	private HashSet projectCachesToReset = new HashSet();  
 
 	/*
 	 * A list of IJavaElement used as a scope for external archives refresh during POST_CHANGE.
@@ -886,9 +886,9 @@ public class DeltaProcessor {
 				}
 				this.state.updateRoots(element.getPath(), delta, this);
 				
-				// refresh pkg fragment roots and namelookup of the project (and its dependents)
+				// refresh pkg fragment roots and caches of the project (and its dependents)
 				this.rootsToRefresh.add(element);
-				this.namelookupsToRefresh.add(element);
+				this.projectCachesToReset.add(element);
 			}
 		} else {			
 			if (delta == null || (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) {
@@ -953,15 +953,15 @@ public class DeltaProcessor {
 					// when a root is added, and is on the classpath, the project must be updated
 					JavaProject project = (JavaProject) element.getJavaProject();
 
-					// refresh pkg fragment roots and namelookup of the project (and its dependents)
+					// refresh pkg fragment roots and caches of the project (and its dependents)
 					this.rootsToRefresh.add(project);
-					this.namelookupsToRefresh.add(project);
+					this.projectCachesToReset.add(project);
 					
 					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
-					//refresh namelookup since it holds onto obsolete cached info 
+					// reset project's package fragment cache 
 					project = (JavaProject) element.getJavaProject();
-					this.namelookupsToRefresh.add(project);						
+					this.projectCachesToReset.add(project);						
 
 					// add subpackages
 					if (delta != null){
@@ -1060,23 +1060,23 @@ public class DeltaProcessor {
 			case IJavaElement.JAVA_PROJECT :
 				this.state.updateRoots(element.getPath(), delta, this);
 
-				// refresh pkg fragment roots and namelookup of the project (and its dependents)
+				// refresh pkg fragment roots and caches of the project (and its dependents)
 				this.rootsToRefresh.add(element);
-				this.namelookupsToRefresh.add(element);
+				this.projectCachesToReset.add(element);
 
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				JavaProject project = (JavaProject) element.getJavaProject();
 
-				// refresh pkg fragment roots and namelookup of the project (and its dependents)
+				// refresh pkg fragment roots and caches of the project (and its dependents)
 				this.rootsToRefresh.add(project);
-				this.namelookupsToRefresh.add(project);				
+				this.projectCachesToReset.add(project);				
 
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
-				//refresh namelookup since it holds onto obsolete cached info 
+				// reset package fragment cache
 				project = (JavaProject) element.getJavaProject();
-				this.namelookupsToRefresh.add(project);
+				this.projectCachesToReset.add(project);
 
 				// remove subpackages
 				if (delta != null){
@@ -1610,13 +1610,13 @@ public class DeltaProcessor {
 
 			}
 			refreshPackageFragmentRoots();
-			refreshNamelookups();
+			resetProjectCaches();
 
 			return this.currentDelta;
 		} finally {
 			this.currentDelta = null;
 			this.rootsToRefresh.clear();
-			this.namelookupsToRefresh.clear();
+			this.projectCachesToReset.clear();
 		}
 	}
 	/*
@@ -1718,23 +1718,22 @@ public class DeltaProcessor {
 		}
 	}
 	/*
-	 * Traverse the set of projects which have changed namespace, and refresh their 
-	 * name lookups and their dependents
+	 * Traverse the set of projects which have changed namespace, and reset their 
+	 * caches and their dependents
 	 */
-	private void refreshNamelookups() {
-		Iterator iterator;
-		// update namelookup of dependent projects
-		iterator = this.namelookupsToRefresh.iterator();
+	private void resetProjectCaches() {
+		Iterator iterator = this.projectCachesToReset.iterator();
 		HashSet affectedDependents = new HashSet();
 		while (iterator.hasNext()) {
 			JavaProject project = (JavaProject)iterator.next();
-			project.resetNameLookup();
+			project.resetCaches();
 			addDependentProjects(project.getPath(), affectedDependents);
 		}
+		// reset caches of dependent projects
 		iterator = affectedDependents.iterator();
 		while (iterator.hasNext()) {
 			JavaProject project = (JavaProject) iterator.next();
-			project.resetNameLookup();
+			project.resetCaches();
 		}
 	}
 	/* 
