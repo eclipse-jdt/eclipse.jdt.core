@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added parseCompilationUnit(org.eclipse.jdt.core.IClassFile, boolean)
  ******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
