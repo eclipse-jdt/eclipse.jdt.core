@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
@@ -18,7 +19,9 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  * TODO: remove when removing IBufferFactory
  */
 public class BufferFactoryWrapper extends WorkingCopyOwner {
-	
+
+	public IBufferFactory factory;
+		
 	public BufferFactoryWrapper(IBufferFactory factory) {
 		this.factory = factory;
 	}
@@ -27,6 +30,13 @@ public class BufferFactoryWrapper extends WorkingCopyOwner {
 		BufferFactoryWrapper other = (BufferFactoryWrapper)obj;
 		if (this.factory == null) return other.factory == null;
 		return this.factory.equals(other.factory);
+	}
+	public IBuffer createBuffer(ICompilationUnit workingCopy) {
+		if (this.factory == null) {
+			return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
+		} else {
+			return this.factory.createBuffer(workingCopy);
+		}
 	}
 	public int hashCode() {
 		if (this.factory == null) return 0;

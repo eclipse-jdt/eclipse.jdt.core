@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
 /**
@@ -17,8 +20,22 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  * It also defines the PRIMARY working copy owner that is used by JDT/Core.
  */
 public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
-	public static final WorkingCopyOwner PRIMARY = 
-		new WorkingCopyOwner() {
+
+	/**
+	 * Note this field is temporary public so that JDT/UI can reach in and change the factory. It will disapear before 3.0.
+	 */
+	public IBufferFactory factory; // TODO: remove before 3.0
+		
+	public static final  DefaultWorkingCopyOwner PRIMARY = 
+		new DefaultWorkingCopyOwner() {
+			public IBuffer createBuffer(ICompilationUnit workingCopy) {
+				if (this.factory == null) {
+					return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
+				} else {
+					// TODO: change to use a org.eclipse.text buffer
+					return this.factory.createBuffer(workingCopy);
+				}
+			}			
 			public String toString() {
 				return "Primary owner"; //$NON-NLS-1$
 			}

@@ -464,4 +464,36 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		}
 	}
 
+	/*
+	 * Ensures that searching takes the owner's working copies into account.
+	 */
+	public void testSearch2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+			
+			// remove type X
+			workingCopy.getBuffer().setContents("");
+			workingCopy.makeConsistent(null);
+
+			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+			new SearchEngine(owner).search(
+				getWorkspace(), 
+				"X", 
+				IJavaSearchConstants.TYPE,
+				IJavaSearchConstants.DECLARATIONS, 
+				SearchEngine.createWorkspaceScope(), 
+				resultCollector);
+			assertEquals(
+				"", // should not find any in the owner's context
+				resultCollector.toString());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
 }

@@ -28,11 +28,6 @@ import org.eclipse.jdt.internal.core.BufferManager;
 public abstract class WorkingCopyOwner {
 	
 	/**
-	 * Note this field is temporary public so that JDT/UI can reach in and change the factory. It will disapear before 3.0.
-	 */
-	public IBufferFactory factory; // TODO: remove before 3.0
-
-	/**
 	 * Creates a buffer for the given working copy.
 	 * The new buffer will be initialized with the contents of the underlying file
 	 * if and only if it was not already initialized by the compilation owner (a buffer is 
@@ -43,13 +38,8 @@ public abstract class WorkingCopyOwner {
 	 * @see IBuffer
 	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
-		// TODO: (jerome) default implementation should always return an internal buffer instance so as to allow subsequent owner to reach them (factory should only be used on primary owner)
-		if (this.factory == null) {
-			return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
-		} else {
-			// TODO: change to use a org.eclipse.text buffer
-			return this.factory.createBuffer(workingCopy);
-		}
+		
+		return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
 	}
 
 }
