@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
  * Example: Create basic AST from source string
  * <pre>
  * char[] source = ...;
- * ASTParser parser = ASTParser.newParser3();  // handles JLS3 (J2SE 1.5)
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);  // handles JLS3 (J2SE 1.5)
  * parser.setSource(source);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
