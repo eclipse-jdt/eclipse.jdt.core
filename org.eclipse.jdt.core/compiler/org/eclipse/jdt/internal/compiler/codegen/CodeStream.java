@@ -1767,21 +1767,28 @@ public void generateInlinedValue(boolean inlinedValue) {
 	else
 		this.iconst_0();
 }
-public void generateOuterAccess(Object[] mappingSequence, AstNode invocationSite, Scope scope) {
-	if (mappingSequence == null)
-		return;
-	if (mappingSequence == BlockScope.EmulationPathToImplicitThis) {
-		if (scope.methodScope().isConstructorCall){
-			scope.problemReporter().errorThisSuperInStatic(invocationSite);
+public void generateOuterAccess(Object[] mappingSequence, AstNode invocationSite, Binding target, Scope scope) {
+	if (mappingSequence == null) {
+		if (target instanceof LocalVariableBinding) {
+			scope.problemReporter().needImplementation(); //TODO: should improve
+		} else {
+			scope.problemReporter().noSuchEnclosingInstance((ReferenceBinding)target, invocationSite, false);
 		}
-		this.aload_0();
 		return;
 	}
-	if (mappingSequence[0] instanceof FieldBinding) {
+	if (mappingSequence == BlockScope.NoEnclosingInstanceInConstructorCall) {
+		scope.problemReporter().noSuchEnclosingInstance((ReferenceBinding)target, invocationSite, true);
+		return;
+	} else if (mappingSequence == BlockScope.NoEnclosingInstanceInStaticContext) {
+		scope.problemReporter().noSuchEnclosingInstance((ReferenceBinding)target, invocationSite, false);
+		return;
+	}
+	
+	if (mappingSequence == BlockScope.EmulationPathToImplicitThis) {
+		this.aload_0();
+		return;
+	} else if (mappingSequence[0] instanceof FieldBinding) {
 		FieldBinding fieldBinding = (FieldBinding) mappingSequence[0];
-		if (scope.methodScope().isConstructorCall){
-			scope.problemReporter().errorThisSuperInStatic(invocationSite);
-		}
 		this.aload_0();
 		this.getfield(fieldBinding);
 	} else {
@@ -1796,6 +1803,7 @@ public void generateOuterAccess(Object[] mappingSequence, AstNode invocationSite
 		}
 	}
 }
+
 /**
  * The equivalent code performs a string conversion:
  *
@@ -1855,12 +1863,11 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 				}
 				
 			} else {
-				Object[] emulationPath = currentScope.getCompatibleEmulationPath(syntheticArgType);
-				if (emulationPath == null) {
-					currentScope.problemReporter().missingEnclosingInstanceSpecification(syntheticArgType, invocationSite);
-				} else {
-					this.generateOuterAccess(emulationPath, invocationSite, currentScope);
-				}
+				Object[] emulationPath = currentScope.getEmulationPath(
+					syntheticArgType, 
+					false /*not only exact match (i.e. allow compatible)*/,
+					targetType.isAnonymousType());
+				this.generateOuterAccess(emulationPath, invocationSite, syntheticArgType, currentScope);
 			}
 		}
 		if (hasExtraEnclosingInstance){
@@ -1884,13 +1891,9 @@ public void generateSyntheticOuterArgumentValues(BlockScope currentScope, Refere
 	SyntheticArgumentBinding syntheticArguments[];
 	if ((syntheticArguments = targetType.syntheticOuterLocalVariables()) != null) {
 		for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-			VariableBinding[] emulationPath = currentScope.getEmulationPath(syntheticArguments[i].actualOuterLocalVariable);
-			if (emulationPath == null) {
-				// could not emulate a path to a given outer local variable (internal error)
-				currentScope.problemReporter().needImplementation();
-			} else {
-				this.generateOuterAccess(emulationPath, invocationSite, currentScope);
-			}
+			LocalVariableBinding targetVariable = syntheticArguments[i].actualOuterLocalVariable;
+			VariableBinding[] emulationPath = currentScope.getEmulationPath(targetVariable);
+			this.generateOuterAccess(emulationPath, invocationSite, targetVariable, currentScope);
 		}
 	}
 }

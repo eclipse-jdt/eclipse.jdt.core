@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleNameVector;
 
 public class CompilationUnitScope extends Scope {
+	
 	public LookupEnvironment environment;
 	public CompilationUnitDeclaration referenceContext;
 	public char[][] currentPackageName;
@@ -33,6 +34,8 @@ public class CompilationUnitScope extends Scope {
 	private CompoundNameVector qualifiedReferences;
 	private SimpleNameVector simpleNameReferences;
 	private ObjectVector referencedTypes;
+	
+	HashtableOfType constantPoolNameUsage;
 
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
@@ -182,6 +185,65 @@ void checkAndSetImports() {
 		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
 	imports = resolvedImports;
 }
+/*
+ * INTERNAL USE-ONLY
+ * Innerclasses get their name computed as they are generated, since some may not
+ * be actually outputed if sitting inside unreachable code.
+ */
+public char[] computeConstantPoolName(LocalTypeBinding localType) {
+	if (localType.constantPoolName() != null) {
+		return localType.constantPoolName();
+	}
+	// delegates to the outermost enclosing classfile, since it is the only one with a global vision of its innertypes.
+
+	if (constantPoolNameUsage == null)
+		constantPoolNameUsage = new HashtableOfType();
+
+	ReferenceBinding outerMostEnclosingType = localType.scope.outerMostClassScope().enclosingSourceType();
+	
+	// ensure there is not already such a local type name defined by the user
+	int index = 0;
+	char[] candidateName;
+	while(true) {
+		if (localType.isMemberType()){
+			if (index == 0){
+				candidateName = CharOperation.concat(
+					localType.enclosingType().constantPoolName(),
+					localType.sourceName,
+					'$');
+			} else {
+				// in case of collision, then member name gets extra $1 inserted
+				// e.g. class X { { class L{} new X(){ class L{} } } }
+				candidateName = CharOperation.concat(
+					localType.enclosingType().constantPoolName(),
+					'$',
+					String.valueOf(index).toCharArray(),
+					'$',
+					localType.sourceName);
+			}
+		} else if (localType.isAnonymousType()){
+				candidateName = CharOperation.concat(
+					outerMostEnclosingType.constantPoolName(),
+					String.valueOf(index+1).toCharArray(),
+					'$');
+		} else {
+				candidateName = CharOperation.concat(
+					outerMostEnclosingType.constantPoolName(),
+					'$',
+					String.valueOf(index+1).toCharArray(),
+					'$',
+					localType.sourceName);
+		}						
+		if (constantPoolNameUsage.get(candidateName) != null) {
+			index ++;
+		} else {
+			constantPoolNameUsage.put(candidateName, localType);
+			break;
+		}
+	}
+	return candidateName;
+}
+
 void connectTypeHierarchy() {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
 		topLevelTypes[i].scope.connectTypeHierarchy();

@@ -1365,17 +1365,6 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 		currentMethod.sourceStart(),
 		currentMethod.sourceEnd());
 }
-public void incorrectEnclosingInstanceReference(
-	QualifiedThisReference reference, 
-	TypeBinding qualificationType) {
-		
-	this.handle(
-		IProblem.IncorrectEnclosingInstanceReference, 
-		new String[] { new String(qualificationType.readableName())}, 
-		new String[] { new String(qualificationType.shortReadableName())}, 
-		reference.sourceStart, 
-		reference.sourceEnd); 
-}
 public void incorrectLocationForEmptyDimension(ArrayAllocationExpression expression, int index) {
 	this.handle(
 		IProblem.IllegalDimension,
@@ -1610,6 +1599,15 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		case InheritedNameHidesEnclosingName :
 			flag = IProblem.InheritedFieldHidesEnclosingName;
 			break;
+		case ReceiverTypeNotVisible :
+			this.handle(
+				IProblem.NotVisibleType,
+				new String[] {new String(searchedType.leafComponentType().readableName())},
+				new String[] {new String(searchedType.leafComponentType().shortReadableName())},
+				fieldRef.receiver.sourceStart,
+				fieldRef.receiver.sourceEnd);
+			return;
+			
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -1646,6 +1644,14 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 		case InheritedNameHidesEnclosingName :
 			flag = IProblem.InheritedFieldHidesEnclosingName;
 			break;
+		case ReceiverTypeNotVisible :
+			this.handle(
+				IProblem.NotVisibleType,
+				new String[] {new String(field.declaringClass.leafComponentType().readableName())},
+				new String[] {new String(field.declaringClass.leafComponentType().shortReadableName())},
+				nameRef.sourceStart,
+				nameRef.sourceEnd);
+			return;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -1708,6 +1714,14 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 		case InheritedNameHidesEnclosingName :
 			flag = IProblem.InheritedFieldHidesEnclosingName;
 			break;
+		case ReceiverTypeNotVisible :
+			this.handle(
+				IProblem.NotVisibleType,
+				new String[] {new String(searchedType.leafComponentType().readableName())},
+				new String[] {new String(searchedType.leafComponentType().shortReadableName())},
+				nameRef.sourceStart,
+				nameRef.sourceEnd);
+			return;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -1751,6 +1765,15 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 		case NonStaticReferenceInStaticContext :
 			flag = IProblem.StaticMethodRequested;
 			break;
+		case ReceiverTypeNotVisible :
+			this.handle(
+				IProblem.NotVisibleType,
+				new String[] {new String(method.declaringClass.leafComponentType().readableName())},
+				new String[] {new String(method.declaringClass.leafComponentType().shortReadableName())},
+				messageSend.receiver.sourceStart,
+				messageSend.receiver.sourceEnd);
+			return;
+		
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -2023,20 +2046,20 @@ public void methodWithConstructorName(MethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void missingEnclosingInstanceSpecification(ReferenceBinding enclosingType, AstNode location) {
-	boolean insideConstructorCall =
-		(location instanceof ExplicitConstructorCall)
-			&& (((ExplicitConstructorCall) location).accessMode == ExplicitConstructorCall.ImplicitSuper);
-
-	this.handle(
-		insideConstructorCall
-			? IProblem.MissingEnclosingInstanceForConstructorCall
-			: IProblem.MissingEnclosingInstance,
-		new String[] {new String(enclosingType.readableName())},
-		new String[] {new String(enclosingType.shortReadableName())},
-		location.sourceStart,
-		location.sourceEnd);
-}
+//public void missingEnclosingInstanceSpecification(ReferenceBinding enclosingType, AstNode location) {
+//	boolean insideConstructorCall =
+//		(location instanceof ExplicitConstructorCall)
+//			&& (((ExplicitConstructorCall) location).accessMode == ExplicitConstructorCall.ImplicitSuper);
+//
+//	this.handle(
+//		insideConstructorCall
+//			? IProblem.MissingEnclosingInstanceForConstructorCall
+//			: IProblem.MissingEnclosingInstance,
+//		new String[] {new String(enclosingType.readableName())},
+//		new String[] {new String(enclosingType.shortReadableName())},
+//		location.sourceStart,
+//		location.sourceEnd);
+//}
 public void missingReturnType(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MissingReturnType,
@@ -2170,6 +2193,35 @@ public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, AstNode loc
 		Abort | Error,
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void noSuchEnclosingInstance(TypeBinding targetType, AstNode location, boolean isConstructorCall) {
+
+	int id;
+
+	if (isConstructorCall) {
+		//28 = No enclosing instance of type {0} is available due to some intermediate constructor invocation
+		id = IProblem.EnclosingInstanceInConstructorCall;
+	} else if ((location instanceof ExplicitConstructorCall)
+				&& ((ExplicitConstructorCall) location).accessMode == ExplicitConstructorCall.ImplicitSuper) {
+		//20 = No enclosing instance of type {0} is accessible to invoke the super constructor. Must define a constructor and explicitly qualify its super constructor invocation with an instance of {0} (e.g. x.super() where x is an instance of {0}).
+		id = IProblem.MissingEnclosingInstanceForConstructorCall;
+	} else if (location instanceof AllocationExpression 
+				&& (((AllocationExpression) location).binding.declaringClass.isMemberType()
+					|| (((AllocationExpression) location).binding.declaringClass.isAnonymousType() 
+						&& ((AllocationExpression) location).binding.declaringClass.superclass().isMemberType()))) {
+		//21 = No enclosing instance of type {0} is accessible. Must qualify the allocation with an enclosing instance of type {0} (e.g. x.new A() where x is an instance of {0}).
+		id = IProblem.MissingEnclosingInstance;
+	} else { // default
+		//22 = No enclosing instance of the type {0} is accessible in scope
+		id = IProblem.IncorrectEnclosingInstanceReference;
+	}
+
+	this.handle(
+		id,
+		new String[] { new String(targetType.readableName())}, 
+		new String[] { new String(targetType.shortReadableName())}, 
+		location.sourceStart, 
+		location.sourceEnd); 
 }
 public void notCompatibleTypesError(EqualExpression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());

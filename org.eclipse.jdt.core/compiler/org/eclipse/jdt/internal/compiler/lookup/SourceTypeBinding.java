@@ -171,7 +171,7 @@ public FieldBinding addSyntheticField(ReferenceBinding enclosingType) {
 				SyntheticArgumentBinding.EnclosingInstancePrefix,
 				String.valueOf(enclosingType.depth()).toCharArray()),
 			enclosingType,
-			AccPrivate | AccFinal | AccSynthetic,
+			AccDefault | AccFinal | AccSynthetic,
 			this,
 			Constant.NotAConstant,
 			synthetics[FIELD].size());
@@ -1039,7 +1039,7 @@ void verifyMethods(MethodVerifier verifier) {
 *	or null if one does not exist.
 */
 
-public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, BlockScope scope, boolean onlyExactMatch) {
+public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, boolean onlyExactMatch) {
 
 	if (synthetics == null || synthetics[FIELD] == null) return null;
 	FieldBinding field = (FieldBinding) synthetics[FIELD].get(targetEnclosingType);

@@ -195,7 +195,7 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	
 	/* Answer the synthetic argument for <targetEnclosingType> or null if one does not exist.
 	*/
-	public SyntheticArgumentBinding getSyntheticArgument(ReferenceBinding targetEnclosingType, BlockScope scope, boolean onlyExactMatch) {
+	public SyntheticArgumentBinding getSyntheticArgument(ReferenceBinding targetEnclosingType, boolean onlyExactMatch) {
 
 		if (enclosingInstances == null) return null;		// is null if no enclosing instances are known
 	

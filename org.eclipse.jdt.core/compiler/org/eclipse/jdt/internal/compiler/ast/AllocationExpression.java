@@ -163,14 +163,11 @@ public class AllocationExpression
 			&& currentScope.enclosingSourceType().isLocalType()) {
 
 			if (allocatedType.isLocalType()) {
-				((LocalTypeBinding) allocatedType).addInnerEmulationDependent(
-					currentScope,
-					false,
-					false);
+				((LocalTypeBinding) allocatedType).addInnerEmulationDependent(currentScope, false);
 				// request cascade of accesses
 			} else {
 				// locally propagate, since we already now the desired shape for sure
-				currentScope.propagateInnerEmulation(allocatedType, false, false);
+				currentScope.propagateInnerEmulation(allocatedType, false);
 				// request cascade of accesses
 			}
 		}

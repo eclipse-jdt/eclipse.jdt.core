@@ -451,6 +451,7 @@ public class MethodScope extends BlockScope {
 		s += newLine + "startIndex = " + startIndex; //$NON-NLS-1$
 		s += newLine + "isConstructorCall = " + isConstructorCall; //$NON-NLS-1$
 		s += newLine + "fieldDeclarationIndex = " + fieldDeclarationIndex; //$NON-NLS-1$
+		s += newLine + "referenceContext = " + referenceContext; //$NON-NLS-1$
 		return s;
 	}
 

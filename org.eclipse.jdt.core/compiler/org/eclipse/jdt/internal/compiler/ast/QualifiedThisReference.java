@@ -19,7 +19,7 @@ public class QualifiedThisReference extends ThisReference {
 	
 	public TypeReference qualification;
 	ReferenceBinding currentCompatibleType;
-
+	
 	public QualifiedThisReference(TypeReference name, int sourceStart, int sourceEnd) {
 		super(sourceStart, sourceEnd);
 		qualification = name;
@@ -31,7 +31,6 @@ public class QualifiedThisReference extends ThisReference {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		manageEnclosingInstanceAccessIfNecessary(currentScope);
 		return flowInfo;
 	}
 
@@ -41,27 +40,24 @@ public class QualifiedThisReference extends ThisReference {
 		FlowInfo flowInfo,
 		boolean valueRequired) {
 
-		if (valueRequired) {
-			manageEnclosingInstanceAccessIfNecessary(currentScope);
-		}
 		return flowInfo;
 	}
 
 	protected boolean checkAccess(
 		MethodScope methodScope,
 		TypeBinding targetType) {
-
+//TODO: access check will occur during path emulation...
 		// this/super cannot be used in constructor call
-		if (methodScope.isConstructorCall) {
-			methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
+		if (methodScope.isConstructorCall) { 
+			if (targetType == methodScope.enclosingSourceType()) {
+				methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
+			}
 			return false;
 		}
 
 		// static may not refer to this/super
 		if (methodScope.isStatic) {
-			methodScope.problemReporter().incorrectEnclosingInstanceReference(
-				this,
-				targetType);
+			methodScope.problemReporter().noSuchEnclosingInstance(targetType, this, false);
 			return false;
 		}
 		return true;
@@ -83,13 +79,8 @@ public class QualifiedThisReference extends ThisReference {
 		if (valueRequired) {
 			if ((bits & DepthMASK) != 0) {
 				Object[] emulationPath =
-					currentScope.getExactEmulationPath(currentCompatibleType);
-				if (emulationPath == null) {
-					// internal error, per construction we should have found it
-					currentScope.problemReporter().needImplementation();
-				} else {
-					codeStream.generateOuterAccess(emulationPath, this, currentScope);
-				}
+					currentScope.getEmulationPath(this.currentCompatibleType, true /*only exact match*/, false/*consider enclosing arg*/);
+				codeStream.generateOuterAccess(emulationPath, this, this.currentCompatibleType, currentScope);
 			} else {
 				// nothing particular after all
 				codeStream.aload_0();
@@ -98,45 +89,32 @@ public class QualifiedThisReference extends ThisReference {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
-
-		currentScope.emulateOuterAccess(
-			(SourceTypeBinding) currentCompatibleType,
-			false);
-		// request cascade of accesses
-	}
-
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = NotAConstant;
-		TypeBinding qualificationTb = qualification.resolveType(scope);
-		if (qualificationTb == null)
-			return null;
+		this.resolvedType = qualification.resolveType(scope);
+		if (this.resolvedType == null) return null;
 
 		// the qualification MUST exactly match some enclosing type name
 		// Its possible to qualify 'this' by the name of the current class
 		int depth = 0;
-		currentCompatibleType = scope.referenceType().binding;
-		while (currentCompatibleType != null
-			&& currentCompatibleType != qualificationTb) {
+		this.currentCompatibleType = scope.referenceType().binding;
+		while (this.currentCompatibleType != null
+			&& this.currentCompatibleType != this.resolvedType) {
 			depth++;
-			currentCompatibleType =
-				currentCompatibleType.isStatic() ? null : currentCompatibleType.enclosingType();
+			this.currentCompatibleType = this.currentCompatibleType.isStatic() ? null : this.currentCompatibleType.enclosingType();
 		}
 		bits &= ~DepthMASK; // flush previous depth if any			
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded depth into 8 bits
 
-		if (currentCompatibleType == null) {
-			scope.problemReporter().incorrectEnclosingInstanceReference(
-				this,
-				qualificationTb);
-			return null;
+		if (this.currentCompatibleType == null) {
+			scope.problemReporter().noSuchEnclosingInstance(this.resolvedType, this, false);
+			return this.resolvedType;
 		}
 
 		// Ensure one cannot write code like: B() { super(B.this); }
 		if (depth == 0) {
-			if (!checkAccess(scope.methodScope(), qualificationTb))
-				return null;
+			checkAccess(scope.methodScope(), this.resolvedType);
 		} else {
 			// Could also be targeting an enclosing instance inside a super constructor invocation
 			//	class X {
@@ -147,15 +125,12 @@ public class QualifiedThisReference extends ThisReference {
 
 			MethodScope methodScope = scope.methodScope();
 			while (methodScope != null) {
-				if (methodScope.enclosingSourceType() == currentCompatibleType) {
-					if (!this.checkAccess(methodScope, qualificationTb))
-						return null;
-					break;
-				}
+				if (!this.checkAccess(methodScope, this.resolvedType)) break;
+				if (methodScope.enclosingSourceType() == this.currentCompatibleType) break;
 				methodScope = methodScope.parent.methodScope();
 			}
 		}
-		return this.resolvedType = qualificationTb;
+		return this.resolvedType;
 	}
 
 	public String toStringExpression() {

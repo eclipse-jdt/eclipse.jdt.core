@@ -86,16 +86,6 @@ public CodeSnippetClassFile(
 	accessFlags &= ~AccStrictfp;
 
 	this.enclosingClassFile = enclosingClassFile;
-	// innerclasses get their names computed at code gen time
-	if (aType.isLocalType()) {
-		((LocalTypeBinding) aType).constantPoolName(
-			computeConstantPoolName((LocalTypeBinding) aType));
-		ReferenceBinding[] memberTypes = aType.memberTypes();
-		for (int i = 0, max = memberTypes.length; i < max; i++) {
-			((LocalTypeBinding) memberTypes[i]).constantPoolName(
-				computeConstantPoolName((LocalTypeBinding) memberTypes[i]));
-		}
-	}
 	contents = new byte[INITIAL_CONTENTS_SIZE];
 	// now we continue to generate the bytes inside the contents array
 	contents[contentsOffset++] = (byte) (accessFlags >> 8);

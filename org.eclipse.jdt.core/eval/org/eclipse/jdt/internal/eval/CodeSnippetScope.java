@@ -266,6 +266,11 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	if (receiverType.isBaseType())
 		return null;
 	if (receiverType.isArrayType()) {
+		TypeBinding leafType = receiverType.leafComponentType();
+		if (leafType instanceof ReferenceBinding)
+		if (!((ReferenceBinding)leafType).canBeSeenBy(this)) {
+			return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ReceiverTypeNotVisible);
+		}
 		if (CharOperation.equals(fieldName, LENGTH))
 			return ArrayBinding.LengthField;
 		return null;
@@ -273,7 +278,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 
 	ReferenceBinding currentType = (ReferenceBinding) receiverType;
 	if (!currentType.canBeSeenBy(this))
-		return new ProblemFieldBinding(currentType, fieldName, NotVisible); // *** Need a new problem id - TypeNotVisible?
+		return new ProblemFieldBinding(currentType, fieldName, ReceiverTypeNotVisible);
 
 	FieldBinding field = currentType.getField(fieldName);
 	if (field != null) {
@@ -708,7 +713,7 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 					fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
 				} else if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)) {	
 					// using <classScope> instead of <this> for visibility check does grant all access to innerclass
-					fuzzyProblem = new ProblemMethodBinding(selector, methodBinding.parameters, methodBinding.declaringClass, NotVisible);
+					fuzzyProblem = new ProblemMethodBinding(selector, argumentTypes, methodBinding.declaringClass, NotVisible);
 				}
 			}
 			if (fuzzyProblem == null && !methodBinding.isStatic()) {

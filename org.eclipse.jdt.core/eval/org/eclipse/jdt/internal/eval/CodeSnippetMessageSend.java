@@ -53,15 +53,13 @@ public void generateCode(
 		// outer access ?
 		if (!isStatic && ((bits & DepthMASK) != 0)) {
 			// outer method can be reached through emulation
-			Object[] path =
-				currentScope.getExactEmulationPath(
-					currentScope.enclosingSourceType().enclosingTypeAt(
-						(bits & DepthMASK) >> DepthSHIFT));
+			ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+			Object[] path = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
 			if (path == null) {
 				// emulation was not possible (should not happen per construction)
 				currentScope.problemReporter().needImplementation();
 			} else {
-				codeStream.generateOuterAccess(path, this, currentScope);
+				codeStream.generateOuterAccess(path, this, targetType, currentScope);
 			}
 		} else {
 			receiver.generateCode(currentScope, codeStream, !isStatic);

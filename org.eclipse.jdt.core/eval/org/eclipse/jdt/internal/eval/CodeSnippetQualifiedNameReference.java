@@ -290,12 +290,13 @@ public void generateReadSequence(BlockScope currentScope, CodeStream codeStream)
 				if (lastFieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 					if (!lastFieldBinding.isStatic()) {
 						if ((bits & DepthMASK) != 0) {
-							Object[] emulationPath = currentScope.getExactEmulationPath(currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT));
+							ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+							Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
 							if (emulationPath == null) {
 								// internal error, per construction we should have found it
 								currentScope.problemReporter().needImplementation();
 							} else {
-								codeStream.generateOuterAccess(emulationPath, this, currentScope);
+								codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
 							}
 						} else {
 							generateReceiver(codeStream);
@@ -333,7 +334,7 @@ public void generateReadSequence(BlockScope currentScope, CodeStream codeStream)
 						// emulation was not possible (should not happen per construction)
 						currentScope.problemReporter().needImplementation();
 					} else {
-						codeStream.generateOuterAccess(path, this, currentScope);
+						codeStream.generateOuterAccess(path, this, localBinding, currentScope);
 					}
 				} else {
 					codeStream.load(localBinding);

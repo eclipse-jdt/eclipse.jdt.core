@@ -87,12 +87,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		int pc = codeStream.position;
 		ReferenceBinding allocatedType = binding.declaringClass;
-		if (allocatedType.isLocalType()) {
-			LocalTypeBinding localType = (LocalTypeBinding) allocatedType;
-			localType.constantPoolName(
-				codeStream.classFile.outerMostEnclosingClassFile().computeConstantPoolName(
-					localType));
-		}
 		codeStream.new_(allocatedType);
 		if (valueRequired) {
 			codeStream.dup();
@@ -136,6 +130,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			codeStream.invokespecial(syntheticAccessor);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+
 		if (anonymousType != null) {
 			anonymousType.generateCode(currentScope, codeStream);
 		}
@@ -163,18 +158,10 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			&& currentScope.enclosingSourceType().isLocalType()) {
 
 			if (allocatedType.isLocalType()) {
-				((LocalTypeBinding) allocatedType).addInnerEmulationDependent(
-					currentScope,
-					enclosingInstance != null,
-					false);
-				// request cascade of accesses
+				((LocalTypeBinding) allocatedType).addInnerEmulationDependent(currentScope, enclosingInstance != null);
 			} else {
 				// locally propagate, since we already now the desired shape for sure
-				currentScope.propagateInnerEmulation(
-					allocatedType,
-					enclosingInstance != null,
-					false);
-				// request cascade of accesses
+				currentScope.propagateInnerEmulation(allocatedType, enclosingInstance != null);
 			}
 		}
 	}

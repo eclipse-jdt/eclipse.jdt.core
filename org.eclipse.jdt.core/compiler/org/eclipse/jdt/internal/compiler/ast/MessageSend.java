@@ -45,8 +45,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// must verify that exceptions potentially thrown by this expression are caught in the method
 		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo, currentScope);
 	}
-	// if invoking through an enclosing instance, then must perform the field generation -- only if reachable
-	manageEnclosingInstanceAccessIfNecessary(currentScope);
 	manageSyntheticAccessIfNecessary(currentScope);	
 	return flowInfo;
 }
@@ -66,13 +64,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// outer access ?
 	if (!isStatic && ((bits & DepthMASK) != 0) && receiver.isImplicitThis()){
 		// outer method can be reached through emulation if implicit access
-		Object[] path = currentScope.getExactEmulationPath(currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT));
-		if (path == null) {
-			// emulation was not possible (should not happen per construction)
-			currentScope.problemReporter().needImplementation();
-		} else {
-			codeStream.generateOuterAccess(path, this, currentScope);
-		}
+		ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);		
+		Object[] path = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
+		codeStream.generateOuterAccess(path, this, targetType, currentScope);
 	} else {
 		receiver.generateCode(currentScope, codeStream, !isStatic);
 	}
@@ -124,17 +118,6 @@ public boolean isSuperAccess() {
 }
 public boolean isTypeAccess() {	
 	return receiver != null && receiver.isTypeReference();
-}
-public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
-	if (((bits & DepthMASK) != 0) && !binding.isStatic() && receiver.isImplicitThis()) {
-		ReferenceBinding compatibleType = currentScope.enclosingSourceType();
-		// the declaringClass of the target binding must be compatible with the enclosing
-		// type at <depth> levels outside
-		for (int i = 0, depth = (bits & DepthMASK) >> DepthSHIFT; i < depth; i++) {
-			compatibleType = compatibleType.enclosingType();
-		}
-		currentScope.emulateOuterAccess((SourceTypeBinding) compatibleType, false); // request cascade of accesses
-	}
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 

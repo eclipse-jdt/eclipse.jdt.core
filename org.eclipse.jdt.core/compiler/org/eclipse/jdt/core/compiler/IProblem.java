@@ -22,6 +22,7 @@
  * 								   ObjectCannotHaveSuperTypes
  * 								   MissingSemiColon
  *								   InvalidParenthesizedExpression
+ *								   EnclosingInstanceInConstructorCall
  *								   BytecodeExceeds64KLimitForConstructor
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
@@ -193,6 +194,8 @@ public interface IProblem {
 	int OuterLocalMustBeFinal = Internal + 25;
 	int CannotDefineInterfaceInLocalType = Internal + 26;
 	int IllegalPrimitiveOrArrayTypeForEnclosingInstance = TypeRelated + 27;
+	/** @since 2.1 */
+	int EnclosingInstanceInConstructorCall = Internal + 28;
 	int AnonymousClassCannotExtendFinalClass = TypeRelated + 29;
 
 	// variables
@@ -219,7 +222,6 @@ public interface IProblem {
 	int TooManySyntheticArgumentSlots = Internal + 67;
 	/** @since 2.1 */
 	int TooManyArrayDimensions = Internal + 68;
-
 	/** @since 2.1 */
 	int BytecodeExceeds64KLimitForConstructor = Internal + 69;
 

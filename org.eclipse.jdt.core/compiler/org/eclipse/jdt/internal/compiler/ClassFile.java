@@ -66,7 +66,6 @@ public class ClassFile
 	public static final int INITIAL_HEADER_SIZE = 1000;
 	public static final int INCREMENT_SIZE = 1000;
 	public static final int INNER_CLASSES_SIZE = 5;
-	protected HashtableOfType nameUsage;
 	public CodeStream codeStream;
 	protected int problemLine;	// used to create line number attributes for problem methods
 
@@ -152,15 +151,7 @@ public class ClassFile
 		
 		this.enclosingClassFile = enclosingClassFile;
 		// innerclasses get their names computed at code gen time
-		if (aType.isLocalType()) {
-			((LocalTypeBinding) aType).constantPoolName(
-				computeConstantPoolName((LocalTypeBinding) aType));
-			ReferenceBinding[] memberTypes = aType.memberTypes();
-			for (int i = 0, max = memberTypes.length; i < max; i++) {
-				((LocalTypeBinding) memberTypes[i]).constantPoolName(
-					computeConstantPoolName((LocalTypeBinding) memberTypes[i]));
-			}
-		}
+
 		contents = new byte[INITIAL_CONTENTS_SIZE];
 		// now we continue to generate the bytes inside the contents array
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
@@ -2374,67 +2365,6 @@ public class ClassFile
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
-	}
-
-	/*
-	 * INTERNAL USE-ONLY
-	 * Innerclasses get their name computed as they are generated, since some may not
-	 * be actually outputed if sitting inside unreachable code.
-	 *
-	 * @param localType org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding
-	 */
-	public char[] computeConstantPoolName(LocalTypeBinding localType) {
-		if (localType.constantPoolName() != null) {
-			return localType.constantPoolName();
-		}
-		// delegates to the outermost enclosing classfile, since it is the only one with a global vision of its innertypes.
-		if (enclosingClassFile != null) {
-			return this.outerMostEnclosingClassFile().computeConstantPoolName(localType);
-		}
-		if (nameUsage == null)
-			nameUsage = new HashtableOfType();
-
-		// ensure there is not already such a local type name defined by the user
-		int index = 0;
-		char[] candidateName;
-		while(true) {
-			if (localType.isMemberType()){
-				if (index == 0){
-					candidateName = CharOperation.concat(
-						localType.enclosingType().constantPoolName(),
-						localType.sourceName,
-						'$');
-				} else {
-					// in case of collision, then member name gets extra $1 inserted
-					// e.g. class X { { class L{} new X(){ class L{} } } }
-					candidateName = CharOperation.concat(
-						localType.enclosingType().constantPoolName(),
-						'$',
-						String.valueOf(index).toCharArray(),
-						'$',
-						localType.sourceName);
-				}
-			} else if (localType.isAnonymousType()){
-					candidateName = CharOperation.concat(
-						referenceBinding.constantPoolName(),
-						String.valueOf(index+1).toCharArray(),
-						'$');
-			} else {
-					candidateName = CharOperation.concat(
-						referenceBinding.constantPoolName(),
-						'$',
-						String.valueOf(index+1).toCharArray(),
-						'$',
-						localType.sourceName);
-			}						
-			if (nameUsage.get(candidateName) != null) {
-				index ++;
-			} else {
-				nameUsage.put(candidateName, localType);
-				break;
-			}
-		}
-		return candidateName;
 	}
 
 	/**

@@ -173,16 +173,10 @@ public class ExplicitConstructorCall
 			&& currentScope.enclosingSourceType().isLocalType()) {
 
 			if (superType.isLocalType()) {
-				((LocalTypeBinding) superType).addInnerEmulationDependent(
-					currentScope,
-					qualification != null,
-					true);
-				// request direct access
+				((LocalTypeBinding) superType).addInnerEmulationDependent(currentScope, qualification != null);
 			} else {
 				// locally propagate, since we already now the desired shape for sure
-				currentScope.propagateInnerEmulation(superType, qualification != null, true);
-				// request direct access
-
+				currentScope.propagateInnerEmulation(superType, qualification != null);
 			}
 		}
 	}

@@ -123,9 +123,14 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return flowInfo;
 		try {
+			LocalTypeBinding localType = (LocalTypeBinding) binding;
+			
 			// remember local types binding for innerclass emulation propagation
-			currentScope.referenceCompilationUnit().record((LocalTypeBinding) binding);
+			currentScope.referenceCompilationUnit().record(localType);
 
+			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
+			manageEnclosingInstanceAccessIfNecessary(currentScope);
+			
 			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
 			InitializationFlowContext initializerContext =
 				new InitializationFlowContext(null, this, initializerScope);
@@ -276,18 +281,14 @@ public class TypeDeclaration
 		if (ignoreFurtherInvestigation)
 			return;
 		try {
+			LocalTypeBinding localType = (LocalTypeBinding) binding;
+
 			// remember local types binding for innerclass emulation propagation
-			currentScope.referenceCompilationUnit().record((LocalTypeBinding) binding);
+			currentScope.referenceCompilationUnit().record(localType);
 
-			/* force to emulation of access to direct enclosing instance: only for local members.
-			 * By using the initializer scope, we actually only request an argument emulation, the
-			 * field is not added until actually used. However we will force allocations to be qualified
-			 * with an enclosing instance.
-			 */
-			initializerScope.emulateOuterAccess(
-				(SourceTypeBinding) binding.enclosingType(),
-				false);
-
+			localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
+			manageEnclosingInstanceAccessIfNecessary(currentScope);
+			
 			ReferenceBinding[] defaultHandledExceptions = new ReferenceBinding[] { scope.getJavaLangThrowable()}; // tolerate any kind of exception
 			InitializationFlowContext initializerContext =
 				new InitializationFlowContext(null, this, initializerScope);
@@ -336,7 +337,7 @@ public class TypeDeclaration
 			}
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
-		};
+		}
 	}
 
 	/**
@@ -506,8 +507,7 @@ public class TypeDeclaration
 
 		//the super call inside the constructor
 		if (needExplicitConstructorCall) {
-			constructor.constructorCall =
-				new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
+			constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
 			constructor.constructorCall.sourceStart = sourceStart;
 			constructor.constructorCall.sourceEnd = sourceEnd;
 		}
@@ -779,6 +779,51 @@ public class TypeDeclaration
 		return this.ignoreFurtherInvestigation;
 	}
 
+	/* 
+	 * Access emulation for a local type
+	 * force to emulation of access to direct enclosing instance.
+	 * By using the initializer scope, we actually only request an argument emulation, the
+	 * field is not added until actually used. However we will force allocations to be qualified
+	 * with an enclosing instance.
+	 * 15.9.2
+	 */
+	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
+
+		NestedTypeBinding nestedType = (NestedTypeBinding) binding;
+		
+		MethodScope methodScope = currentScope.methodScope();
+		if (!methodScope.isStatic && !methodScope.isConstructorCall){
+
+			nestedType.addSyntheticArgumentAndField(binding.enclosingType());	
+		}
+		// add superclass enclosing instance arg for anonymous types (if necessary)
+		if (binding.isAnonymousType()) { 
+			ReferenceBinding superclass = binding.superclass;
+			if (superclass.enclosingType() != null && !superclass.isStatic()) {
+				if (!binding.superclass.isLocalType()
+						|| ((NestedTypeBinding)binding.superclass).getSyntheticField(superclass.enclosingType(), true) != null){
+
+					nestedType.addSyntheticArgument(superclass.enclosingType());	
+				}
+			}
+		}
+	}
+	
+	/* 
+	 * Access emulation for a local member type
+	 * force to emulation of access to direct enclosing instance.
+	 * By using the initializer scope, we actually only request an argument emulation, the
+	 * field is not added until actually used. However we will force allocations to be qualified
+	 * with an enclosing instance.
+	 * 
+	 * Local member cannot be static.
+	 */
+	public void manageEnclosingInstanceAccessIfNecessary(ClassScope currentScope) {
+
+		NestedTypeBinding nestedType = (NestedTypeBinding) binding;
+		nestedType.addSyntheticArgumentAndField(binding.enclosingType());
+	}	
+	
 	/**
 	 * A <clinit> will be requested as soon as static fields or assertions are present. It will be eliminated during
 	 * classfile creation if no bytecode was actually produced based on some optimizations/compiler settings.

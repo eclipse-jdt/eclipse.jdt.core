@@ -433,16 +433,9 @@ public class QualifiedNameReference extends NameReference {
 				}
 				if (needValue && !lastFieldBinding.isStatic()) {
 					if ((bits & DepthMASK) != 0) {
-						Object[] emulationPath =
-							currentScope.getExactEmulationPath(
-								currentScope.enclosingSourceType().enclosingTypeAt(
-									(bits & DepthMASK) >> DepthSHIFT));
-						if (emulationPath == null) {
-							// internal error, per construction we should have found it
-							currentScope.problemReporter().needImplementation();
-						} else {
-							codeStream.generateOuterAccess(emulationPath, this, currentScope);
-						}
+						ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+						Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
+						codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
 					} else {
 						generateReceiver(codeStream);
 					}
@@ -461,12 +454,7 @@ public class QualifiedNameReference extends NameReference {
 					if ((bits & DepthMASK) != 0) {
 						// outer local can be reached either through a synthetic arg or a synthetic field
 						VariableBinding[] path = currentScope.getEmulationPath(localBinding);
-						if (path == null) {
-							// emulation was not possible (should not happen per construction)
-							currentScope.problemReporter().needImplementation();
-						} else {
-							codeStream.generateOuterAccess(path, this, currentScope);
-						}
+						codeStream.generateOuterAccess(path, this, localBinding, currentScope);
 					} else {
 						codeStream.load(localBinding);
 					}
@@ -597,23 +585,8 @@ public class QualifiedNameReference extends NameReference {
 		if (((bits & DepthMASK) == 0) || (constant != NotAConstant)) {
 			return;
 		}
-		switch (bits & RestrictiveFlagMASK) {
-			case FIELD :
-				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) binding).isStatic()
-					|| (fieldBinding.constant != NotAConstant))
-					return;
-				ReferenceBinding compatibleType = currentScope.enclosingSourceType();
-				// the declaringClass of the target binding must be compatible with the enclosing
-				// type at <depth> levels outside
-				for (int i = 0, depth = (bits & DepthMASK) >> DepthSHIFT; i < depth; i++) {
-					compatibleType = compatibleType.enclosingType();
-				}
-				currentScope.emulateOuterAccess(compatibleType, false);
-				// request cascade of accesses
-				break;
-			case LOCAL :
-				currentScope.emulateOuterAccess((LocalVariableBinding) binding);
+		if ((bits & RestrictiveFlagMASK) == LOCAL) {
+			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
 		}
 	}
 	public void manageSyntheticReadAccessIfNecessary(

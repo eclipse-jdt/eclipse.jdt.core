@@ -1702,7 +1702,17 @@ protected void consumeConstructorDeclaration() {
 			constructorCall = SuperReference.implicitSuperConstructorCall();
 		}
 	} else {
-		if (!diet){
+		boolean insideFieldInitializer = false;
+		if (diet) {
+			for (int i = nestedType; i > 0; i--){
+				if (variablesCounter[i] > 0) {
+					insideFieldInitializer = true;
+					break;
+				}
+			}
+		}
+		
+		if (!diet || insideFieldInitializer){
 			// add it only in non-diet mode, if diet_bodies, then constructor call will be added elsewhere.
 			constructorCall = SuperReference.implicitSuperConstructorCall();
 		}

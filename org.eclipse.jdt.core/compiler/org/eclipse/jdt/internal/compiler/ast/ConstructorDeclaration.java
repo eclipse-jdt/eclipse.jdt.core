@@ -128,6 +128,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	 * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
 	 */
 	public void generateCode(ClassScope classScope, ClassFile classFile) {
+		
 		int problemResetPC = 0;
 		if (ignoreFurtherInvestigation) {
 			if (this.binding == null)
@@ -251,7 +252,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			MethodScope initializerScope = declaringType.initializerScope;
 			initializerScope.computeLocalVariablePositions(argSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
 
-			boolean needFieldInitializations = constructorCall != null && constructorCall.accessMode != ExplicitConstructorCall.This;
+			boolean needFieldInitializations = constructorCall == null || constructorCall.accessMode != ExplicitConstructorCall.This;
 
 			// post 1.4 source level, synthetic initializations occur prior to explicit constructor call
 			boolean preInitSyntheticFields = scope.environment().options.targetJDK >= CompilerOptions.JDK1_4;
@@ -352,8 +353,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		if (ignoreFurtherInvestigation)
 			return;
 		if (isDefaultConstructor){
-			constructorCall =
-				new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
+			constructorCall = SuperReference.implicitSuperConstructorCall();
 			constructorCall.sourceStart = sourceStart;
 			constructorCall.sourceEnd = sourceEnd; 
 			return;
