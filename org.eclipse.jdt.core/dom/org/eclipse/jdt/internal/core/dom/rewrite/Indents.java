@@ -21,7 +21,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.text.edits.ReplaceEdit;
 
 /**
- * Helper class to provide String manipulation functions not available in standard JDK.
+ * Helper class to provide String manipulation functions dealing with indents
  */
 public class Indents {
 	
@@ -41,8 +41,10 @@ public class Indents {
 
 	/**
 	 * Line delimiter chars are  '\n' and '\r'.
+	 * @param ch The character to test
+	 * @return Returns true if this the character is a line delimiter character
 	 */
-	public static boolean isLineDelimiterChar(char ch) {
+	public static boolean isLineDelimiterChar(char ch) { 
 		return ch == '\n' || ch == '\r';
 	}	
 
@@ -51,6 +53,7 @@ public class Indents {
 	 * 
 	 * @param line the text line
 	 * @param tabWidth the width of the '\t' character.
+	 * @return Returns the indent of the given string.
 	 */
 	public static int computeIndent(String line, int tabWidth) {
 		int result= 0;
@@ -78,6 +81,10 @@ public class Indents {
 	 * Removes the given number of idents from the line. Asserts that the given line 
 	 * has the requested number of indents. If <code>indentsToRemove <= 0</code>
 	 * the line is returned.
+	 * @param line The line to trim the indent
+	 * @param indentsToRemove The indent level to remove
+	 * @param tabWidth The current tab width
+	 * @return
 	 */
 	public static String trimIndent(String line, int indentsToRemove, int tabWidth) {
 		if (line == null || indentsToRemove <= 0)
@@ -147,6 +154,11 @@ public class Indents {
 	 * indents in the given string <code>line</code>. Returns 
 	 * <code>-1<code> if the line isn't prefixed with an indent of
 	 * the given number of indents. 
+	 * @param line
+	 * @param numberOfIndents
+	 * @param tabWidth
+	 * @return Returns the length of the string representing the number of 
+	 * indents
 	 */
 	public static int computeIndentLength(String line, int numberOfIndents, int tabWidth) {
 		Assert.isTrue(numberOfIndents >= 0);
@@ -220,6 +232,16 @@ public class Indents {
 		}
 	}
 	
+	/**
+	 * Change the indent of, possible muti-line, code range. The current indent is removed, a new indent added.
+	 * The first line of the code will not be changed. (It is considered to have no indent as it might start in
+	 * the middle of a line)
+	 * @param source The code to change the indent of
+	 * @param sourceIndentLevel The indent level of the code
+	 * @param tabWidth The current tab width setting
+	 * @param newIndent The new Indent string
+	 * @return Returns the resulting text edits
+	 */
 	public static ReplaceEdit[] getChangeIndentEdits(String source, int sourceIndentLevel, int tabWidth, String newIndent) {
 	    ArrayList result= new ArrayList();
 		try {
