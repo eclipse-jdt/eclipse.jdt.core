@@ -210,7 +210,7 @@ public final class AST {
 	 * into a compilation unit. This method is not intended to be called by clients.
 	 * </p>
 	 * 
-	 * @param unit an internal AST node for a compilation unit declaration
+	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
 	 * @param source the string of the Java compilation unit
 	 * @param options compiler options
 	 * @param monitor the progress monitor used to report progress and request cancelation,
