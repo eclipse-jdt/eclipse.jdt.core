@@ -50,6 +50,11 @@ public class JavaProject extends Openable implements IJavaProject, IProjectNatur
 	 * An empty array of strings indicating that a project doesn't have any prerequesite projects.
 	 */
 	protected static final String[] NO_PREREQUISITES= new String[0];
+	
+	/**
+	 * Whether the underlying file system is case sensitive.
+	 */
+	protected static final boolean IS_CASE_SENSITIVE = !new File("Temp").equals(new File("temp"));
 
 	/**
 	 * The platform project this <code>IJavaProject</code> is based on
@@ -91,27 +96,51 @@ public class JavaProject extends Openable implements IJavaProject, IProjectNatur
  * @see java.io.File for the definition of a canonicalized path
  */
 public static IPath canonicalizedPath(IPath externalPath) {
-	if (externalPath == null) return null;
+		if (externalPath == null)
+			return null;
 
-	// if not external path, return original path
-	if (ResourcesPlugin.getWorkspace().getRoot().findMember(externalPath) != null) {
-		return externalPath;
-	}
-	
-	IPath canonicalPath = null;
-	try {
-		canonicalPath  = new Path(new File(externalPath.toOSString()).getCanonicalPath());
-	} catch (IOException e) {
-		// default to original path
-		return externalPath;
-	}
-	// keep only segments that were in original path and device if it was there
-	IPath result = canonicalPath.removeFirstSegments(canonicalPath.segmentCount() - externalPath.segmentCount());
-	if (externalPath.getDevice() == null) {
-		return result.setDevice(null);
-	} else {
+		if (IS_CASE_SENSITIVE) {
+			return externalPath;
+		}
+
+		// if not external path, return original path
+		if (ResourcesPlugin.getWorkspace().getRoot().findMember(externalPath)
+			!= null) {
+			return externalPath;
+		}
+
+		IPath canonicalPath = null;
+		try {
+			canonicalPath =
+				new Path(new File(externalPath.toOSString()).getCanonicalPath());
+		} catch (IOException e) {
+			// default to original path
+			return externalPath;
+		}
+		
+		IPath result;
+		int canonicalLength = canonicalPath.segmentCount();
+		if (canonicalLength == 0) {
+			// the java.io.File canonicalization failed
+			return externalPath;
+		} else if (externalPath.isAbsolute()) {
+			result = canonicalPath;
+		} else {
+			// if path is relative, remove the first segments that were added by the java.io.File canonicalization
+			// e.g. 'lib/classes.zip' was converted to 'd:/myfolder/lib/classes.zip'
+			int externalLength = externalPath.segmentCount();
+			if (canonicalLength >= externalLength) {
+				result = canonicalPath.removeFirstSegments(canonicalLength - externalLength);
+			} else {
+				return externalPath;
+			}
+		}
+		
+		// keep device only if it was specified (this is because File.getCanonicalPath() converts '/lib/classed.zip' to 'd:/lib/classes/zip')
+		if (externalPath.getDevice() == null) {
+			result = result.setDevice(null);
+		} 
 		return result;
-	}
 }
 	/**
 	 * Compute the file name to use for a given shared property
