@@ -206,10 +206,23 @@ private boolean hasOutputLocationChanged() {
 	return !outputFolder.getLocation().toString().equals(lastState.outputLocationString);
 }
 
-void initializeBuilder() throws CoreException {
+private void createFolder(IContainer folder) throws CoreException {
+	if (!folder.exists()) {
+		IContainer parent = folder.getParent();
+		if (currentProject.getFullPath() != parent.getFullPath())
+			createFolder(parent);
+		((IFolder) folder).create(true, true, null);
+	}
+}
+
+private void initializeBuilder() throws CoreException {
 	this.javaProject = getJavaProject(currentProject);
 	this.workspaceRoot = currentProject.getWorkspace().getRoot();
 	this.outputFolder = (IContainer) workspaceRoot.findMember(javaProject.getOutputLocation());
+	if (this.outputFolder == null) {
+		this.outputFolder = workspaceRoot.getFolder(javaProject.getOutputLocation());
+		createFolder(this.outputFolder);
+	}
 	this.lastState = getLastState();
 
 	/* Some examples of resolved class path entries.
