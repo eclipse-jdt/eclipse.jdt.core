@@ -158,9 +158,8 @@ public IJavaModelStatus verify() {
 	if (!cu.isBasedOn(resource) && !fForce) {
 		return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 	}
-	if (resource.isReadOnly()){
-		return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, original);
-	}
+	// no read-only check, since some repository adapters can change the flag on save
+	// operation.	
 	return JavaModelStatus.VERIFIED_OK;
 }
 }
