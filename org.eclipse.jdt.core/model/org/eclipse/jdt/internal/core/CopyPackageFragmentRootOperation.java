@@ -66,9 +66,11 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		if (root.getKind() == IPackageFragmentRoot.K_BINARY || exclusionPatterns == null) {
 			try {
 				IResource destRes;
-				if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
-						&& (destRes = workspaceRoot.findMember(this.destination)) != null) {
-					destRes.delete(this.updateResourceFlags, fMonitor);
+				if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0) {
+					if (rootEntry.getPath().equals(this.destination)) return;
+					if ((destRes = workspaceRoot.findMember(this.destination)) != null) {
+						destRes.delete(this.updateResourceFlags, fMonitor);
+					}
 				}
 				rootResource.copy(this.destination, this.updateResourceFlags, fMonitor);
 			} catch (CoreException e) {
@@ -237,7 +239,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 					if (this.sibling != null && !foundSibling) {
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.sibling == null ? "null" : this.sibling.toString()); //$NON-NLS-1$
 					}
-					if (foundExistingEntry && (this.updateResourceFlags & IResource.FORCE) == 0) {
+					if (foundExistingEntry && (this.updateModelFlags & IPackageFragmentRoot.REPLACE) == 0) {
 						return new JavaModelStatus(
 							IJavaModelStatusConstants.NAME_COLLISION, 
 							Util.bind("status.nameCollision", this.destination.toString())); //$NON-NLS-1$
