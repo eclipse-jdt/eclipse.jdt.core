@@ -11,27 +11,22 @@ import org.eclipse.jdt.core.search.*;
 
 public class JavaSearchDocument extends SearchDocument {
 	
-	private String documentPath;
-	private SearchParticipant participant;
 	private IFile file;
 	protected byte[] byteContents;
 	protected char[] charContents;
 	
 	public JavaSearchDocument(String documentPath, SearchParticipant participant) {
-		this.documentPath = documentPath;
-		this.participant = participant;
+		super(documentPath, participant);
 	}
 	public JavaSearchDocument(IFile file, SearchParticipant participant) {
-		this.documentPath = file.getFullPath().toString();
-		this.participant = participant;
+		super(file.getFullPath().toString(), participant);
 		this.file = file;
 	}
 	public JavaSearchDocument(java.util.zip.ZipEntry zipEntry, IPath zipFilePath, byte[] contents, SearchParticipant participant) {
-		this.documentPath = zipFilePath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + zipEntry.getName();
+		super(zipFilePath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + zipEntry.getName(), participant);
 		this.byteContents = contents;
-		this.participant = participant;
 	}
-	
+
 	public byte[] getByteContents() {
 		if (this.byteContents != null) return this.byteContents;
 		try {
@@ -66,12 +61,6 @@ public class JavaSearchDocument extends SearchDocument {
 		if (resource != null)
 			return resource.getLocation();
 		return new Path(this.documentPath); // external file
-	}
-	public SearchParticipant getParticipant() {
-		return this.participant;
-	}
-	public String getPath() {
-		return this.documentPath;
 	}
 	public String toString() {
 		return "SearchDocument for " + this.documentPath; //$NON-NLS-1$
