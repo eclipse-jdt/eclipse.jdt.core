@@ -134,8 +134,7 @@ public class DeltaProcessor {
 						JavaProject project = (JavaProject)iterator.next();
 						
 						 // force classpath marker refresh
-						IClasspathEntry[] resolvedClasspath = 
-							project.getResolvedClasspath(true, true);
+						project.getResolvedClasspath(true, true);
 						
 					} catch (JavaModelException e) {
 					}
