@@ -567,6 +567,5 @@ private char[] replace(char toBeReplaced, char newChar, char[] array) {
  */
 public void setFileTypes(String[] fileTypes) {
 	// TODO could we remove it?
-	// do nothing
 }
 }
