@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -30,28 +29,19 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 public WorkingCopySearchTests(String name) {
 	super(name);
 }
-
 public static Test suite() {
-	if (false) {
-		TestSuite suite = new Suite(WorkingCopySearchTests.class.getName());
-		suite.addTest(new WorkingCopySearchTests("testAllTypeNames3"));
-		return suite;
-	}
-	
-	// NOTE: cannot use 'new Suite(WorkingCopySearchTests.class)' as this would include tests from super class
-	TestSuite suite = new Suite(WorkingCopySearchTests.class.getName());
-	
-	suite.addTest(new WorkingCopySearchTests("testAddNewType"));
-	suite.addTest(new WorkingCopySearchTests("testAllTypeNames1"));
-	suite.addTest(new WorkingCopySearchTests("testAllTypeNames2"));
-	suite.addTest(new WorkingCopySearchTests("testAllTypeNames3"));
-	suite.addTest(new WorkingCopySearchTests("testAllTypeNames4"));
-	suite.addTest(new WorkingCopySearchTests("testRemoveType"));
-	suite.addTest(new WorkingCopySearchTests("testMoveType"));
-	suite.addTest(new WorkingCopySearchTests("testHierarchyScopeOnWorkingCopy"));
-	suite.addTest(new WorkingCopySearchTests("testDeclarationOfReferencedTypes"));
-
-	return suite;
+//		return buildTestSuite(WorkingCopySearchTests.class, "testAllTypeNames", null);
+	return buildTestSuite(WorkingCopySearchTests.class);
+}
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//	testsNames = new String[] { "testGenericFieldReferenceAC04" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	testsNumbers = new int[] { 8 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//	testsRange = new int[] { -1, -1 };
 }
 
 /**
@@ -109,7 +99,7 @@ public void testAddNewType() throws CoreException {
 	IJavaSearchScope scope = 
 		SearchEngine.createJavaSearchScope(
 			new IJavaElement[] {this.workingCopy.getParent()});
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	SearchPattern pattern = SearchPattern.createPattern(
 		"NewType",
 		TYPE,
@@ -276,7 +266,7 @@ public void testDeclarationOfReferencedTypes() throws CoreException {
 		null,
 		true,
 		null);
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	searchDeclarationsOfReferencedTypes(
 		method, 
 		resultCollector
@@ -303,7 +293,7 @@ public void testMoveType() throws CoreException {
 		
 		// type X should not be visible in old package
 		IJavaSearchScope scope1 = SearchEngine.createJavaSearchScope(new IJavaElement[] {workingCopy1.getParent()});
-		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+//		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		
 		SearchPattern pattern = SearchPattern.createPattern(
 			"X",
@@ -350,7 +340,7 @@ public void testRemoveType() throws CoreException {
 			new IJavaElement[] {this.workingCopy.getParent()});
 	
 	// type X should not be visible when working copy hides it
-	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	SearchPattern pattern = SearchPattern.createPattern(
 		"X",
 		TYPE,

@@ -1313,23 +1313,21 @@ protected void reportAccurateParameterizedTypeReference(ASTNode typeRef, char[] 
 		}
 		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
 			// extends selection end for parameterized types if necessary
-			try {
-				int count = 0;
-				while (token != TerminalTokens.TokenNameGREATER || count > 0) {
-					token = scanner.getNextToken();
-					switch (token) {
-						case TerminalTokens.TokenNameLESS:
-							count++;
-							break;
-						case TerminalTokens.TokenNameGREATER:
-							count--;
-							break;
-						case TerminalTokens.TokenNameEOF:
-							return;
-					}
+			int count = 0;
+			int ch = -1;
+			while (ch != '>' || count > 0) {
+				ch = scanner.getNextChar();
+				switch (ch) {
+					case '<':
+						count++;
+						break;
+					case '>':
+						count--;
+						break;
+					case -1:
+						// we missed type parameters declarations! => do not report match
+						return;
 				}
-			} catch (InvalidInputException e1) {
-				// ignore
 			}
 			int length = scanner.currentPosition-currentPosition;
 			SearchMatch match = newTypeReferenceMatch(element, accuracy, currentPosition, length, typeRef);

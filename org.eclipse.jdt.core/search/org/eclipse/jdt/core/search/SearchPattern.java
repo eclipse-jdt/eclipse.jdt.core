@@ -1202,6 +1202,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		boolean storeType = true, storeParam = true;
 		int parameterized = 0;
 		int paramPtr = -1;
+		char[] paramName = null;
 		char[][] paramNames = null;
 		int[] wildcards = null;
 		while (token != TerminalTokens.TokenNameEOF) {
@@ -1241,13 +1242,24 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							}
 							break;
 						case TerminalTokens.TokenNameCOMMA:
-							if (parameterized == 1) {
-								paramPtr++;
+							if (parameterized == 1 && storeParam) {
+								if (paramPtr < paramNames.length) {
+									paramNames[paramPtr++] = paramName;
+									paramName = null;
+								}
 								wildcards[paramPtr] = -1;
 							}
 							break;
 						case TerminalTokens.TokenNameGREATER:
-							if (parameterized == 1) storeParam = false;
+							if (parameterized == 1) {
+								if (storeParam) {
+									storeParam = false;
+									if (paramPtr < paramNames.length) {
+										paramNames[paramPtr] = paramName;
+										paramName = null;
+									}
+								}
+							}
 							parameterized--;
 							break;
 						case TerminalTokens.TokenNameLESS:
@@ -1262,14 +1274,17 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							break;
 						case TerminalTokens.TokenNameIdentifier:
 							if (parameterized == 1 && storeParam) {
-								if (paramPtr < paramNames.length) {
-									if (paramNames[paramPtr] == null) {
-										// never store id at this index
-										paramNames[paramPtr] = scanner.getCurrentIdentifierSource();
-									}
+								if (paramName == null) {
+									// never store id at this index
+									paramName = scanner.getCurrentIdentifierSource();
 								} else {
-									// syntax error
+									paramName = CharOperation.concat(paramName, scanner.getCurrentIdentifierSource());
 								}
+							}
+							break;
+						case TerminalTokens.TokenNameDOT:
+							if (parameterized == 1 && storeParam && paramName != null) {
+								paramName = CharOperation.append(paramName, '.');
 							}
 							break;
 					}
