@@ -128,7 +128,9 @@ public class ClassFile
 					| AccNative);
 					
 		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
-		accessFlags |= AccSuper;
+		if (aType.isClass()) {
+			accessFlags |= AccSuper;
+		}
 		
 		this.enclosingClassFile = enclosingClassFile;
 		// innerclasses get their names computed at code gen time
