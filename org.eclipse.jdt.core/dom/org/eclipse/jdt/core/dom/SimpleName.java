@@ -15,9 +15,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-
 /**
  * AST node for a simple name. A simple name is an identifier other than
  * a keyword, boolean literal ("true", "false") or null literal ("null").
@@ -42,13 +39,7 @@ public class SimpleName extends Name {
 	 * The identifier; defaults to a unspecified, legal Java identifier.
 	 */
 	private String identifier = MISSING_IDENTIFIER;
-
-	/**
-	 * Hold a pointer to the ast used to create the node
-	 */
-	private static Scanner scanner = new Scanner();
 	
-
 	/**
 	 * Creates a new AST node for a simple name owned by the given AST.
 	 * The new node has an unspecified, legal Java identifier.
@@ -176,21 +167,24 @@ public class SimpleName extends Name {
 	 *    if not valid
 	 */
 	public static boolean isJavaIdentifier(String identifier) {
-		// FIXME
-		// assert won't be considered as a keyword
-		char[] source = identifier.toCharArray();
-		// the scanner is already initialized
-		scanner.setSourceBuffer(source);
-		scanner.resetTo(0, source.length);
-		try {
-			int tokenType = scanner.getNextToken();
-			switch(tokenType) {
-				case Scanner.TokenNameIdentifier:
-					return true;
-			}
-		} catch(InvalidInputException e) {
+		int len = identifier.length();
+		if (len == 0) {
+			return false;
 		}
-		return false;
+		char c = identifier.charAt(0);
+		if (!Character.isJavaIdentifierStart(c)) {
+			return false;
+		}			
+		for (int i= 1; i < len; i++) {
+			c = identifier.charAt(i);
+			if (!Character.isJavaIdentifierPart(c)) {
+				return false;
+			}	
+		}
+		if (KEYWORDS.contains(identifier)) {
+			return false;
+		}			
+		return true;
 	}
 	
 	/* (omit javadoc for this method)
