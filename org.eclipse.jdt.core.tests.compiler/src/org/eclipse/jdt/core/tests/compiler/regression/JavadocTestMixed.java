@@ -31,18 +31,19 @@ public class JavadocTestMixed extends JavadocTest {
 		return JavadocTestMixed.class;
 	}
 
-	public static Test suite() {
-		return buildSuite(javadocTestClass());
-	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug51529a", "Bug51529b" };
+//		testsNames = new String[] { "Bug53290" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		testsRange = new int[] { 21, 50 };
+	}
+	public static Test suite() {
+		return buildSuite(javadocTestClass());
+//		return buildTestSuite(javadocTestClass(), "testBug53279", null);
 	}
 
 	protected Map getCompilerOptions() {
@@ -1842,8 +1843,8 @@ public class JavadocTestMixed extends JavadocTest {
 				"----------\n" + 
 				"5. ERROR in X.java (at line 9)\n" + 
 				"	*  6) {@link String {} Invalid tag\n" + 
-				"	      ^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid tag\n" + 
+				"	      ^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Missing closing brace for inline tag\n" + 
 				"----------\n"
 		);
 	}
@@ -2270,6 +2271,141 @@ public class JavadocTestMixed extends JavadocTest {
 					"	public void foo(String str) {}\n" +
 					"}\n"
 		 	}
+		);
+	}
+
+	/**
+	 * Test fix for bug 53279: [Javadoc] Compiler should complain when inline tag is not terminated
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53279">53279</a>
+	 */
+	public void testBug53279() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Unterminated inline tags\n" + 
+					"	 *  {@link Object\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	*  {@link Object\n" + 
+				"	   ^^^^^^^^^^^^^\n" + 
+				"Javadoc: Missing closing brace for inline tag\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug53279a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Unterminated inline tags\n" + 
+					"	 *  {@link Object\n" + 
+					"	 * @return int\n" + 
+					"	 */\n" + 
+					"	int foo() {return 0;}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	*  {@link Object\n" + 
+				"	   ^^^^^^^^^^^^^\n" + 
+				"Javadoc: Missing closing brace for inline tag\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug53279b() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Unterminated inline tags\n" + 
+					"	 *  {@link        \n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	*  {@link        \n" + 
+				"	   ^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Missing closing brace for inline tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	*  {@link        \n" + 
+				"	     ^^^^\n" + 
+				"Javadoc: Missing reference\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug53279c() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Unterminated inline tags\n" + 
+					"	 *  {@link\n" + 
+					"	 * @return int\n" + 
+					"	 */\n" + 
+					"	int foo() {return 0;}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	*  {@link\n" + 
+				"	   ^^^^^^\n" + 
+				"Javadoc: Missing closing brace for inline tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	*  {@link\n" + 
+				"	     ^^^^\n" + 
+				"Javadoc: Missing reference\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 53290: [Javadoc] Compiler should complain when tag name is not correct
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53290">53290</a>
+	 */
+	public void testBug53290() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * See as inline tag\n" + 
+					"	 *  {@see Object}\n" + 
+					"	 *  @see Object\n" + 
+					"	 *  @link Object\n" + 
+					"	 *  {@link Object}\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	*  {@see Object}\n" + 
+				"	     ^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	*  @link Object\n" + 
+				"	    ^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n"
 		);
 	}
 }
