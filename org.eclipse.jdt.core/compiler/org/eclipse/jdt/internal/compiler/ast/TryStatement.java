@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -64,7 +65,7 @@ public class TryStatement extends SubRoutineStatement {
 		if (anyExceptionVariable != null) {
 			anyExceptionVariable.useFlag = LocalVariableBinding.USED;
 		}
-		if (returnAddressVariable != null) {
+		if (returnAddressVariable != null) { // TODO (philippe) if subroutine is escaping, unused
 			returnAddressVariable.useFlag = LocalVariableBinding.USED;
 		}
 		InsideSubRoutineFlowContext insideSubContext;
@@ -182,33 +183,33 @@ public class TryStatement extends SubRoutineStatement {
 	}
 
 	/**
-	 * Try statement code generation
-	 *
+	 * Try statement code generation with or without jsr bytecode use
+	 *	post 1.5 target level, cannot use jsr bytecode, must instead inline finally block
+	 * returnAddress is only allocated if jsr is allowed
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
-
-		if (tryBlock.isEmptyBlock()) {
-			if (subRoutineStartLabel != null) {
-				// since not passing the finallyScope, the block generation will exitUserScope(finallyScope)
-				finallyBlock.generateCode(scope, codeStream);
-			}
-			// May loose some local variable initializations : affecting the local variable attributes
-			if (mergedInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					mergedInitStateIndex);
-			}
-			// no local bytecode produced so no need for position remembering
-			return;
-		}
 		int pc = codeStream.position;
-		Label endLabel = new Label(codeStream);
-		boolean requiresNaturalJsr = false;
-
+		final int NoFinally = 0;							// no finally block
+		final int FinallySubroutine = 1; 				// finally is generated as a subroutine (using jsr/ret bytecodes)
+		final int FinallyDoesNotComplete = 2;	// non returning finally is optimized with only one instance of finally block
+		final int FinallyMustBeInlined = 3;			// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
+		int finallyMode;
+		if (subRoutineStartLabel == null) { 
+			finallyMode = NoFinally;
+		} else {
+			if (this.isSubRoutineEscaping) {
+				finallyMode = FinallyDoesNotComplete;
+			} else if (scope.environment().options.targetJDK < ClassFileConstants.JDK1_5) {
+				finallyMode = FinallySubroutine;
+			} else {
+				finallyMode = FinallyMustBeInlined;
+			}
+		}
+		boolean requiresNaturalExit = false;
 		// preparing exception labels
 		int maxCatches;
 		ExceptionLabel[] exceptionLabels =
@@ -226,21 +227,27 @@ public class TryStatement extends SubRoutineStatement {
 		boolean tryBlockHasSomeCode = codeStream.position != pc;
 		// flag telling if some bytecodes were issued inside the try block
 
-		// natural exit: only if necessary
-		boolean nonReturningSubRoutine = subRoutineStartLabel != null && isSubRoutineEscaping; 
-		if ((!tryBlockExit) && tryBlockHasSomeCode) {
-			int position = codeStream.position;
-			if (nonReturningSubRoutine) {
-				codeStream.goto_(subRoutineStartLabel);
-			} else {
-				requiresNaturalJsr = true;
-				codeStream.goto_(endLabel);
-			}
-			codeStream.updateLastRecordedEndPC(position);
-			//goto is tagged as part of the try block
-		}
 		// place end positions of user-defined exception labels
 		if (tryBlockHasSomeCode) {
+			// natural exit may require subroutine invocation (if finally != null)
+			Label naturalExitLabel = new Label(codeStream);
+			if (!tryBlockExit) {
+				int position = codeStream.position;
+				switch(finallyMode) {
+					case FinallySubroutine :
+					case FinallyMustBeInlined :
+						requiresNaturalExit = true;
+						// fall through
+					case NoFinally :
+						codeStream.goto_(naturalExitLabel);
+						break;
+					case FinallyDoesNotComplete :
+						codeStream.goto_(subRoutineStartLabel);
+						break;
+				}
+				codeStream.updateLastRecordedEndPC(position);
+				//goto is tagged as part of the try block
+			}
 			for (int i = 0; i < maxCatches; i++) {
 				exceptionLabels[i].placeEnd();
 			}
@@ -279,20 +286,24 @@ public class TryStatement extends SubRoutineStatement {
 						this.exitAnyExceptionHandler();
 					}
 					if (!catchExits[i]) {
-						if (nonReturningSubRoutine) {
-							codeStream.goto_(subRoutineStartLabel);
-						} else {
-							requiresNaturalJsr = true;
-							codeStream.goto_(endLabel);
+						switch(finallyMode) {
+							case FinallySubroutine :
+							case FinallyMustBeInlined :
+								requiresNaturalExit = true;
+								// fall through
+							case NoFinally :
+								codeStream.goto_(naturalExitLabel);
+								break;
+							case FinallyDoesNotComplete :
+								codeStream.goto_(subRoutineStartLabel);
+								break;
 						}
 					}
 				}
 			}
 			// extra handler for trailing natural exit (will be fixed up later on when natural exit is generated below)
-			ExceptionLabel naturalExitExceptionHandler = null;
-			if (requiresNaturalJsr) {
-				naturalExitExceptionHandler = this.enterAnyExceptionHandler(codeStream);
-			}
+			ExceptionLabel naturalExitExceptionHandler = 
+				finallyMode == FinallySubroutine && requiresNaturalExit ? this.enterAnyExceptionHandler(codeStream) : null;
 						
 			// addition of a special handler so as to ensure that any uncaught exception (or exception thrown
 			// inside catch blocks) will run the finally block
@@ -309,52 +320,81 @@ public class TryStatement extends SubRoutineStatement {
 				}
 
 				codeStream.incrStackSize(1);
-				if (nonReturningSubRoutine) {
-					codeStream.pop();
-					// "if subroutine cannot return, no need to jsr/jump to subroutine since it will be entered in sequence
-				} else {
-					codeStream.store(anyExceptionVariable, false);
-					codeStream.jsr(subRoutineStartLabel);
-					codeStream.load(anyExceptionVariable);
-					codeStream.athrow();
-				}
-				// end of catch sequence, place label that will correspond to the finally block beginning, or end of statement	
-				subRoutineStartLabel.place();
-				if (!nonReturningSubRoutine) {
-					codeStream.incrStackSize(1);
-					codeStream.store(returnAddressVariable, false);
-				}
-				codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
-				// entire sequence for finally is associated to finally block
-				finallyBlock.generateCode(scope, codeStream);
-				if (!nonReturningSubRoutine) {
-					int position = codeStream.position;
-					codeStream.ret(returnAddressVariable.resolvedPosition);
-					codeStream.updateLastRecordedEndPC(position);
-					codeStream.recordPositionsFrom(
-						position,
-						finallyBlock.sourceEnd);
-					// the ret bytecode is part of the subroutine
+				switch(finallyMode) {
+					
+					case FinallySubroutine :
+						codeStream.store(anyExceptionVariable, false);
+						codeStream.jsr(subRoutineStartLabel);
+						codeStream.load(anyExceptionVariable);
+						codeStream.athrow();
+						subRoutineStartLabel.place();
+						codeStream.incrStackSize(1);
+						codeStream.store(returnAddressVariable, false);
+						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
+						finallyBlock.generateCode(scope, codeStream);
+						int position = codeStream.position;
+						codeStream.ret(returnAddressVariable.resolvedPosition);
+						codeStream.updateLastRecordedEndPC(position);
+						codeStream.recordPositionsFrom(
+							position,
+							finallyBlock.sourceEnd);
+						// the ret bytecode is part of the subroutine
+						break;
+						
+					case FinallyMustBeInlined :
+						codeStream.store(anyExceptionVariable, false);
+						this.finallyBlock.generateCode(currentScope, codeStream);
+						codeStream.load(anyExceptionVariable);
+						codeStream.athrow();
+						subRoutineStartLabel.place();
+						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
+						break;
+						
+					case FinallyDoesNotComplete :
+						codeStream.pop();
+						subRoutineStartLabel.place();
+						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
+						finallyBlock.generateCode(scope, codeStream);
+						break;
 				}
 				// will naturally fall into subsequent code after subroutine invocation
-				endLabel.place();
-				if (naturalExitExceptionHandler != null) {
-					int position = codeStream.position;					
-					// fix up natural exit handler
-					naturalExitExceptionHandler.placeStart();
-					codeStream.jsr(subRoutineStartLabel);
-					naturalExitExceptionHandler.placeEnd();
-					codeStream.recordPositionsFrom(
-						position,
-						finallyBlock.sourceStart);					
+				naturalExitLabel.place();
+				if (requiresNaturalExit) {
+					switch(finallyMode) {
+
+						case FinallySubroutine :
+							int position = codeStream.position;					
+							// fix up natural exit handler
+							naturalExitExceptionHandler.placeStart();
+							codeStream.jsr(subRoutineStartLabel);
+							naturalExitExceptionHandler.placeEnd();
+							codeStream.recordPositionsFrom(
+								position,
+								finallyBlock.sourceStart);					
+							break;
+						
+						case FinallyMustBeInlined :
+							// May loose some local variable initializations : affecting the local variable attributes
+							// needed since any exception handler got inlined subroutine
+							if (preTryInitStateIndex != -1) {
+								codeStream.removeNotDefinitelyAssignedVariables(
+									currentScope,
+									preTryInitStateIndex);
+							}
+							// entire sequence for finally is associated to finally block
+							finallyBlock.generateCode(scope, codeStream);
+							break;
+						
+						case FinallyDoesNotComplete :
+							break;
+					}
 				}
 			} else {
-				// no subroutine, simply position end label
-				endLabel.place();
+				// no subroutine, simply position end label (natural exit == end)
+				naturalExitLabel.place();
 			}
 		} else {
 			// try block had no effect, only generate the body of the finally block if any
-			endLabel.place();
 			if (subRoutineStartLabel != null) {
 				finallyBlock.generateCode(scope, codeStream);
 			}
@@ -375,11 +415,17 @@ public class TryStatement extends SubRoutineStatement {
 	public void generateSubRoutineInvocation(
 			BlockScope currentScope,
 			CodeStream codeStream) {
-
+	
 		if (this.isSubRoutineEscaping) {
-			codeStream.goto_(this.subRoutineStartLabel);
+				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
-			codeStream.jsr(this.subRoutineStartLabel);
+			if (currentScope.environment().options.targetJDK < ClassFileConstants.JDK1_5) {
+				// classic subroutine invocation, distinguish case of non-returning subroutine
+				codeStream.jsr(this.subRoutineStartLabel);
+			} else {
+				// cannot use jsr bytecode, then simply inline the subroutine
+				this.finallyBlock.generateCode(currentScope, codeStream);
+			}
 		}
 	}
 
@@ -432,10 +478,12 @@ public class TryStatement extends SubRoutineStatement {
 				MethodScope methodScope = scope.methodScope();
 	
 				// the type does not matter as long as it is not a base type
-				this.returnAddressVariable =
-					new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
-				finallyScope.addLocalVariable(returnAddressVariable);
-				this.returnAddressVariable.constant = NotAConstant; // not inlinable
+				if (upperScope.environment().options.targetJDK < ClassFileConstants.JDK1_5) {
+					this.returnAddressVariable =
+						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
+					finallyScope.addLocalVariable(returnAddressVariable);
+					this.returnAddressVariable.constant = NotAConstant; // not inlinable
+				}
 				this.subRoutineStartLabel = new Label();
 	
 				this.anyExceptionVariable =

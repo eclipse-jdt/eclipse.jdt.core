@@ -825,6 +825,56 @@ public void test023() {
 		true,
 		customOptions);
 }		
+
+// unnecessary cast diagnosis for message receiver (44400)
+public void test024() { 
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public void foo(Object bar) {\n" + 
+			"		System.out.println(((Object) bar).toString());\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(((Object) bar).toString());\n" + 
+		"	                   ^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type Object for expression of type Object\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}		
+
+// unnecessary cast diagnosis for message receiver (44400)
+// variation with field access
+public void test025() { 
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	int i;\n" + 
+			"	public void foo(X bar) {\n" + 
+			"		System.out.println(((X) bar).i);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(((X) bar).i);\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Unnecessary cast to type X for expression of type X\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}		
 public static Class testClass() {
 	return CastTest.class;
 }

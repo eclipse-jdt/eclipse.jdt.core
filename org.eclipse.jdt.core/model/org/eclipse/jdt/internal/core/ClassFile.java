@@ -57,14 +57,9 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
 	private boolean checkAutomaticSourceMapping;
 /*
  * Creates a handle to a class file.
- *
- * @exception IllegalArgumentExcpetion if the name does not end with ".class"
  */
 protected ClassFile(PackageFragment parent, String name) {
 	super(parent, name);
-	if (!Util.isClassFileName(name)) {
-		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
-	}
 	checkAutomaticSourceMapping = false;
 }
 

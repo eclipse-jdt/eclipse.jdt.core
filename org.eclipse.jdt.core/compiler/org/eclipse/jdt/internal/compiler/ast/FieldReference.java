@@ -486,12 +486,22 @@ public class FieldReference extends Reference implements InvocationSite {
 		// and initialized with a (compile time) constant 
 
 		//always ignore receiver cast, since may affect constant pool reference
-		if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		boolean receiverCast = false;
+		if (this.receiver instanceof CastExpression) {
+			this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			receiverCast = true;
+		}
 		this.receiverType = receiver.resolveType(scope);
 		if (this.receiverType == null) {
 			constant = NotAConstant;
 			return null;
 		}
+		if (receiverCast) {
+			 // due to change of declaring class with receiver type, only identity cast should be notified
+			if (((CastExpression)this.receiver).expression.resolvedType == this.receiverType) { 
+						scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
+			}
+		}		
 		// the case receiverType.isArrayType and token = 'length' is handled by the scope API
 		this.codegenBinding = this.binding = scope.getField(this.receiverType, token, this);
 		if (!binding.isValidBinding()) {

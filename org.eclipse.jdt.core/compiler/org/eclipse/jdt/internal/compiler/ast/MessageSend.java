@@ -188,10 +188,18 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 
 	constant = NotAConstant;
-	boolean containsCast = false; 
-	if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+	boolean receiverCast = false, argumentsCast = false; 
+	if (this.receiver instanceof CastExpression) {
+		this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		receiverCast = true;
+	}
 	this.qualifyingType = this.receiverType = receiver.resolveType(scope); 
-	
+	if (receiverCast && this.receiverType != null) {
+		 // due to change of declaring class with receiver type, only identity cast should be notified
+		if (((CastExpression)this.receiver).expression.resolvedType == this.receiverType) { 
+					scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
+		}
+	}
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = NoParameters;
 	if (arguments != null) {
@@ -202,7 +210,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			Expression argument = arguments[i];
 			if (argument instanceof CastExpression) {
 				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-				containsCast = true;
+				argumentsCast = true;
 			}
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
 				argHasError = true;
@@ -267,7 +275,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		for (int i = 0; i < arguments.length; i++) {
 			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 		}
-		if (containsCast) {
+		if (argumentsCast) {
 			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, receiverType, binding, this.arguments, argumentTypes, this);
 		}
 	}

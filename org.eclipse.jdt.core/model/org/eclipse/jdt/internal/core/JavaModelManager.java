@@ -257,9 +257,9 @@ public class JavaModelManager implements ISaveParticipant {
 	
 		if (file.getFileExtension() != null) {
 			String name = file.getName();
-			if (Util.isValidCompilationUnitName(name))
+			if (Util.isJavaFileName(name))
 				return createCompilationUnitFrom(file, project, owner);
-			if (Util.isValidClassFileName(name))
+			if (Util.isClassFileName(name))
 				return createClassFileFrom(file, project);
 			if (Util.isArchiveFileName(name))
 				return createJarPackageFragmentRootFrom(file, project);

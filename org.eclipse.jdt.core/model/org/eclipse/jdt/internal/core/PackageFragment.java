@@ -163,8 +163,12 @@ public boolean equals(Object o) {
 }
 /**
  * @see IPackageFragment#getClassFile(String)
+ * @exception IllegalArgumentExcpetion if the name does not end with ".class"
  */
 public IClassFile getClassFile(String name) {
+	if (!Util.isClassFileName(name)) {
+		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
+	}
 	return new ClassFile(this, name);
 }
 /**
@@ -186,14 +190,19 @@ public IClassFile[] getClassFiles() throws JavaModelException {
 }
 /**
  * @see IPackageFragment#getCompilationUnit(String)
+ * @exception IllegalArgumentExcpetion if the name does not end with ".java"
  */
 public ICompilationUnit getCompilationUnit(String name) {
 	return  getCompilationUnit(name, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see IPackageFragment#getCompilationUnit(String, WorkingCopyOwner)
+ * @exception IllegalArgumentExcpetion if the name does not end with ".java"
  */
 public ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner) {
+	if (!Util.isJavaFileName(name)) {
+		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
+	}
 	CompilationUnit cu = new CompilationUnit(this, name, owner);
 	if (owner == DefaultWorkingCopyOwner.PRIMARY) {
 		return cu;

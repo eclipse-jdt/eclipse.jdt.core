@@ -45,9 +45,6 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
  */
 protected CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner owner) {
 	super(parent, name);
-	if (!Util.isJavaFileName(name)) {
-		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
-	}
 	this.owner = owner;
 }
 /**
