@@ -89,7 +89,10 @@ public class DoStatement extends Statement {
 		FlowInfo mergedInfo;
 		if (isConditionTrue) {
 			mergedInfo = loopingContext.initsOnBreak;
+			/* according to 16.2.10, potential initializations are to be considered in any case
 			if (!mergedInfo.isReachable()) mergedInfo.addPotentialInitializationsFrom(flowInfo.initsWhenFalse());
+			 */
+			mergedInfo.addPotentialInitializationsFrom(flowInfo.initsWhenFalse());
 		} else {
 			// end of loop: either condition false or break
 			mergedInfo =
