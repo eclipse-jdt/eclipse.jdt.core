@@ -802,7 +802,7 @@ public final class CompletionEngine
 			
 			char[] completion = field.name;
 			
-			if(prefixRequired){
+			if(prefixRequired || options.insertQualificationForFieldsAndMethods()){
 				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), field.isStatic());
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
@@ -1437,7 +1437,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			if(prefixRequired){
+			if(prefixRequired || options.insertQualificationForFieldsAndMethods()){
 				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), method.isStatic());
 				completion = CharOperation.concat(prefix,completion,'.');
 			}

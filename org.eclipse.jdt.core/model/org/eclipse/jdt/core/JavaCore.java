@@ -1463,7 +1463,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		// CodeAssist settings
 		defaultOptions.put("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
-
+		defaultOptions.put("org.eclipse.jdt.core.codeComplete.insertQualificationForFieldsAndMethods", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+		
 		return defaultOptions;
 	}
 

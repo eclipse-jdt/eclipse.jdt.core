@@ -14,10 +14,13 @@ public class AssistOptions {
 	 */
 	public static final String OPTION_PerformVisibilityCheck =
 		"org.eclipse.jdt.core.codeComplete.visibilityCheck"; 	//$NON-NLS-1$
+	public static final String OPTION_InsertQualificationForFieldsAndMethods =
+		"org.eclipse.jdt.core.codeComplete.insertQualificationForFieldsAndMethods"; 	//$NON-NLS-1$
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
 
 	private boolean checkVisibility = false;
+	private boolean insertQualificationForFieldsAndMethods = false;
 
 	/** 
 	 * Initializing the assist options with default settings
@@ -51,12 +54,24 @@ public class AssistOptions {
 						this.checkVisibility = false;
 					}
 				continue;
-			}
+			} else if (optionID.equals(OPTION_InsertQualificationForFieldsAndMethods)) {
+				if (optionValue.equals(ENABLED)) {
+					this.insertQualificationForFieldsAndMethods = true;
+				} else
+					if (optionValue.equals(DISABLED)) {
+						this.insertQualificationForFieldsAndMethods = false;
+					}
+				continue;
+			} 
 		}
 	}
 
 	public boolean checkVisibility() {
 		return this.checkVisibility;
+	}
+	
+	public boolean insertQualificationForFieldsAndMethods() {
+		return this.insertQualificationForFieldsAndMethods;
 	}
 
 }
