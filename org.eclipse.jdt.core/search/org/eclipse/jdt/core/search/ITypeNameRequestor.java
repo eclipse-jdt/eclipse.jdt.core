@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.search;
 
 /**
- * A <code>ITypeNameRequestor<code> collects search results from a <code>searchAllTypeNames</code>
+ * A <code>ITypeNameRequestor</code> collects search results from a <code>searchAllTypeNames</code>
  * query to a <code>SearchEngine</code>. Clients must implement this interface and pass
  * an instance to the <code>searchAllTypeNames(...)</code> method. Only top-level and
  * member types are reported. Local types are not reported.
