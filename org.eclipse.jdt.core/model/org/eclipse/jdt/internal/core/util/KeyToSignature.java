@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 /*
  * Converts a binding key into a signature 
  */
-// TODO (jerome) handle secondary types, methods and fields
+// TODO (jerome) handle methods and fields
 public class KeyToSignature extends BindingKeyParser {
 	
 	public static final int SIGNATURE = 0;
@@ -29,6 +29,8 @@ public class KeyToSignature extends BindingKeyParser {
 	private int kind;
 	private ArrayList arguments = new ArrayList();
 	private ArrayList typeParameters = new ArrayList();
+	private int mainTypeStart = -1;
+	private int mainTypeEnd;
 	
 	public KeyToSignature(BindingKeyParser parser) {
 		super(parser);
@@ -43,12 +45,12 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(brakets);
 	}
 		
-	public void consumeLocalType(char[] typeSignature) {
+	public void consumeLocalType(char[] uniqueKey) {
 		this.signature = new StringBuffer();
 		// remove trailing semi-colon as it is added later in comsumeType()
-		typeSignature = CharOperation.subarray(typeSignature, 0, typeSignature.length-1);
-		CharOperation.replace(typeSignature, '/', '.');
-		this.signature.append(typeSignature);
+		uniqueKey = CharOperation.subarray(uniqueKey, 0, uniqueKey.length-1);
+		CharOperation.replace(uniqueKey, '/', '.');
+		this.signature.append(uniqueKey);
 	}
 	
 	public void consumeMethod(char[] selector, char[] methodSignature) {
@@ -90,6 +92,15 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append('L');
 		this.signature.append(CharOperation.replaceOnCopy(fullyQualifiedName, '/', '.'));
 	}
+	
+	public void consumeSecondaryType(char[] simpleTypeName) {
+		this.signature.append('~');
+		this.mainTypeStart = this.signature.lastIndexOf(".") + 1; //$NON-NLS-1$
+		if (this.mainTypeStart == 0)
+			this.mainTypeStart = 1; // default package
+		this.mainTypeEnd = this.signature.length();
+		this.signature.append(simpleTypeName);
+	}
 
 	public void consumeType() {
 		int length = this.typeParameters.size();
@@ -102,6 +113,10 @@ public class KeyToSignature extends BindingKeyParser {
 			}
 			this.signature.append('>');
 			this.typeParameters = new ArrayList();
+		}
+		// remove main type if needed
+		if (this.mainTypeStart != -1) {
+			this.signature.replace(this.mainTypeStart, this.mainTypeEnd, ""); //$NON-NLS-1$
 		}
 		this.signature.append(';');
 	}

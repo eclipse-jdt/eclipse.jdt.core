@@ -515,6 +515,38 @@ public int kind() {
 	return Binding.TYPE;
 }	
 
+public char[] computeUniqueKey() {
+	char[] uniqueKey = super.computeUniqueKey();
+	if (uniqueKey.length == 2) return uniqueKey; // problem type's unique key is "L;"
+	int start = CharOperation.lastIndexOf('/', this.fileName) + 1;
+	int end = CharOperation.lastIndexOf('.', this.fileName);
+	if (end != -1) {
+		char[] mainTypeName = CharOperation.subarray(this.fileName, start, end);
+		start = CharOperation.lastIndexOf('/', uniqueKey) + 1;
+		if (start == 0)
+			start = 1; // start after L
+		end = CharOperation.indexOf('$', uniqueKey, start);
+		if (end == -1)
+			end = CharOperation.indexOf('<', uniqueKey, start);
+		if (end == -1)
+			end = CharOperation.indexOf(';', uniqueKey, start);
+		char[] topLevelType = CharOperation.subarray(uniqueKey, start, end);
+		if (!CharOperation.equals(topLevelType, mainTypeName)) {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(CharOperation.subarray(uniqueKey, 0, start));
+			buffer.append(mainTypeName);
+			buffer.append('~');
+			buffer.append(topLevelType);
+			buffer.append(CharOperation.subarray(uniqueKey, end, uniqueKey.length));
+			int length = buffer.length();
+			uniqueKey = new char[length];
+			buffer.getChars(0, length, uniqueKey, 0);
+			return uniqueKey;
+		}
+	}
+	return uniqueKey;
+}
+
 void faultInTypesForFieldsAndMethods() {
 	fields();
 	methods();

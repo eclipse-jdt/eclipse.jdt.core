@@ -44,7 +44,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test049"));
+			suite.addTest(new BatchASTCreationTests("test042"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -1067,5 +1067,47 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				bindings);
 	}
 	
+	/*
+	 * Ensures that a secondary type binding can be created using its key in ASTRequestor#createBindings.
+	 */
+	public void test052() throws CoreException {
+		try {
+			createFolder("/P/p1");
+			createFile(
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"}\n" +
+				"class Y {\n" +
+				"}"
+			);
+			assertBindingCreated(new String[] {}, "Lp1/X~Y;");
+		} finally {
+			deleteFolder("/P/p1");
+		}
+	}
+
+	/*
+	 * Ensures that an anonymous type binding coming from secondary type can be created using its key in ASTRequestor#createBindings.
+	 */
+	public void test053() throws CoreException {
+		try {
+			createFolder("/P/p1");
+			createFile(
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  void foo() {\n" +
+				"    new Y() {};\n" +
+				"  }\n" +
+				"}"
+			);
+			assertBindingCreated(new String[] {}, "Lp1/X~Y$1;");
+		} finally {
+			deleteFolder("/P/p1");
+		}
+	}
 
 }

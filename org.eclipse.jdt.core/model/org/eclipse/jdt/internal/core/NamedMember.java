@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
@@ -107,14 +108,27 @@ public abstract class NamedMember extends Member {
 	}
 	
 	protected String getKey(IType type) {
-		// TODO (jerome) handle secondary types
 		StringBuffer key = new StringBuffer();
 		key.append('L');
 		String packageName = type.getPackageFragment().getElementName();
 		key.append(packageName.replace('.', '/'));
 		if (packageName.length() > 0)
 			key.append('/');
-		key.append(type.getTypeQualifiedName('$'));
+		String typeQualifiedName = type.getTypeQualifiedName('$');
+		ICompilationUnit cu = (ICompilationUnit) type.getAncestor(IJavaElement.COMPILATION_UNIT);
+		if (cu != null) {
+			String cuName = cu.getElementName();
+			String mainTypeName = cuName.substring(0, cuName.lastIndexOf('.'));
+			int end = typeQualifiedName.indexOf('$');
+			if (end == -1)
+				end = typeQualifiedName.length();
+			String topLevelTypeName = typeQualifiedName.substring(0, end);
+			if (!mainTypeName.equals(topLevelTypeName)) {
+				key.append(mainTypeName);
+				key.append('~');
+			}
+		}
+		key.append(typeQualifiedName);
 		key.append(';');
 		return key.toString();
 	}

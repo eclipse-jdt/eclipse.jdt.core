@@ -96,10 +96,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 		this.compilerBinding = this.methodBinding;
 	}
 	
-	public void consumeLocalType(char[] signature) {
+	public void consumeLocalType(char[] uniqueKey) {
  		LocalTypeBinding[] localTypeBindings  = this.parsedUnit.localTypes;
  		for (int i = 0; i < this.parsedUnit.localTypeCount; i++)
- 			if (CharOperation.equals(signature, localTypeBindings[i].signature())) {
+ 			if (CharOperation.equals(uniqueKey, localTypeBindings[i].computeUniqueKey())) {
  				this.typeBinding = localTypeBindings[i];
 				this.compilerBinding = this.typeBinding;
  				return;
@@ -184,6 +184,13 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (scopeNumber >= this.scope.subscopeCount)
 			return; // malformed key
 		this.scope = (BlockScope) this.scope.subscopes[scopeNumber];
+	}
+	
+	public void consumeSecondaryType(char[] simpleTypeName) {
+		if (this.parsedUnit == null) return;
+		this.typeDeclaration = null; // start from the parsed unit
+		this.typeBinding = getTypeBinding(simpleTypeName);
+		this.compilerBinding = this.typeBinding;
 	}
 	
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {

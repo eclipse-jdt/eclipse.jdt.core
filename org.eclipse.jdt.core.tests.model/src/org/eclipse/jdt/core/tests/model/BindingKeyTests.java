@@ -18,7 +18,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	
 	static {
 //		TESTS_PREFIX = "testInvalidCompilerOptions";
-//		TESTS_NAMES = new String[] { "test008"};
+//		TESTS_NAMES = new String[] { "test010"};
 	}
 
 	public BindingKeyTests(String name) {
@@ -58,9 +58,19 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 
 	/*
-	 * Member type
+	 * Top level type in default package.
 	 */
 	public void test003() {
+		assertBindingKeySignatureEquals(
+			"LClazz;",
+			"LClazz;"
+		);
+	}
+
+	/*
+	 * Member type
+	 */
+	public void test004() {
 		assertBindingKeySignatureEquals(
 			"Lp.X$Member;",
 			"Lp/X$Member;"
@@ -70,7 +80,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	/*
 	 * Member type (2 levels deep)
 	 */
-	public void test004() {
+	public void test005() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X$Member1$Member2;",
 			"Lp1/X$Member1$Member2;"
@@ -80,7 +90,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	/*
 	 * Anonymous type
 	 */
-	public void test005() {
+	public void test006() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X$1;",
 			"Lp1/X$1;"
@@ -90,7 +100,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	/*
 	 * Local type
 	 */
-	public void test006() {
+	public void test007() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X$1$Y;",
 			"Lp1/X$1$Y;"
@@ -100,7 +110,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	/*
 	 * Array type
 	 */
-	public void test007() {
+	public void test008() {
 		assertBindingKeySignatureEquals(
 			"[Lp1.X;",
 			"[Lp1/X;"
@@ -110,7 +120,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	/*
 	 * Generic type
 	 */
-	public void test008() {
+	public void test009() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X<TT;>;",
 			"Lp1/X<TT;>;"
@@ -120,7 +130,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	/*
 	 * Generic type
 	 */
-	public void test009() {
+	public void test010() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X<TT;TU;>;",
 			"Lp1/X<TT;TU;>;"
@@ -130,10 +140,30 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	/*
 	 * Parameterized type
 	 */
-	public void test010() {
+	public void test011() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X<Ljava.lang.String;>;",
 			"Lp1/X<Ljava/lang/String;>;"
+		);
+	}
+
+	/*
+	 * Secondary type
+	 */
+	public void test012() {
+		assertBindingKeySignatureEquals(
+			"Lp1.Secondary;",
+			"Lp1/X~Secondary;"
+		);
+	}
+
+	/*
+	 * Anonymous in a secondary type
+	 */
+	public void test013() {
+		assertBindingKeySignatureEquals(
+			"Lp1.Secondary$1;",
+			"Lp1/X~Secondary$1;"
 		);
 	}
 

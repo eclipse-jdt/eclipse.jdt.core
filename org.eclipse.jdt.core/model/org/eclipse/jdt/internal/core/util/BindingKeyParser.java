@@ -77,6 +77,12 @@ public class BindingKeyParser {
 					|| currentChar == '%');
 		}
 		
+		boolean isAtSecondaryTypeStart() {
+			return 
+				this.index < this.source.length
+				&& this.source[this.index] == '~';
+		}
+		
 		boolean isAtTypeParameterStart() {
 			return 
 				this.index+1 < this.source.length
@@ -128,10 +134,18 @@ public class BindingKeyParser {
 						}
 						break;
 					case ';':
-					case '$':
 						if (this.index == previousTokenEnd) {
 							this.start = this.index+1;
 							previousTokenEnd = this.start;
+						} else {
+							this.token = TYPE;
+							return this.token;
+						}
+						break;
+					case '$':
+					case '~':
+						if (this.index == previousTokenEnd) {
+							this.start = this.index+1;
 						} else {
 							this.token = TYPE;
 							return this.token;
@@ -304,7 +318,7 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
-	public void consumeLocalType(char[] signature) {
+	public void consumeLocalType(char[] uniqueKey) {
 		// default is to do nothing
 	}
 	
@@ -337,6 +351,10 @@ public class BindingKeyParser {
 	}
 	
 	public void consumeScope(int scopeNumber) {
+		// default is to do nothing
+	}
+	
+	public void consumeSecondaryType(char[] simpleTypeName) {
 		// default is to do nothing
 	}
 
@@ -399,6 +417,7 @@ public class BindingKeyParser {
 		if (isPackage())
 			return;
 		consumeTopLevelType();
+		parseSecondaryType();
 		parseInnerType();
 		
 		if (this.scanner.isAtParametersStart()) {
@@ -538,6 +557,11 @@ public class BindingKeyParser {
 	 		typeName = this.scanner.getTokenSource();
 	 		parseParameterizedType(typeName);
 	 	}
+	}
+	
+	private void parseSecondaryType() {
+		if (!this.scanner.isAtSecondaryTypeStart() || this.scanner.nextToken() != Scanner.TYPE) return;
+		consumeSecondaryType(this.scanner.getTokenSource());
 	}
 	
 	private void parseTypeArgument() {
