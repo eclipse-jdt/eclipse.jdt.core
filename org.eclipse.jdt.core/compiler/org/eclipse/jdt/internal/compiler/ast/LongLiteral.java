@@ -29,7 +29,7 @@ public void computeConstant() {
 	
 	long computedValue ;
 	if (source[0] == '0')
-	{	if (length == 1) { 	constant = Constant.fromValue(0);	return;	}
+	{	if (length == 1) { 	constant = Constant.fromValue(0L);	return;	}
 		final int shift,radix;
 		int j ;
 		if ( (source[1] == 'x') | (source[1] == 'X') )
