@@ -51,7 +51,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	static {
 //		TESTS_NUMBERS = new int[] { 9, 10 };
-		TESTS_RANGE = new int[] { 26, -1 };
+//		TESTS_RANGE = new int[] { 26, -1 };
 	}
 
 	public static Test suite() {
