@@ -305,15 +305,15 @@ public class SourceTypeConverter implements CompilerModifiers {
 		/* rebuild identifiers and dimensions */
 		if (identCount == 1) { // simple type reference
 			if (dim == 0) {
-				return new SingleTypeReference(typeSignature, (long) start << 32 + end);
+				return new SingleTypeReference(typeSignature, (((long) start )<< 32) + end);
 			} else {
 				char[] identifier = new char[dimStart];
 				System.arraycopy(typeSignature, 0, identifier, 0, dimStart);
-				return new ArrayTypeReference(identifier, dim, (long) start << 32 + end);
+				return new ArrayTypeReference(identifier, dim, (((long) start) << 32) + end);
 			}
 		} else { // qualified type reference
 			long[] positions = new long[identCount];
-			long pos = (long) start << 32 + end;
+			long pos = (((long) start) << 32) + end;
 			for (int i = 0; i < identCount; i++) {
 				positions[i] = pos;
 			}
