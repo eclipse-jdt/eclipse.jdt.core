@@ -28,6 +28,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 	
 		super(lhs, expression, sourceEnd);
 		lhs.bits &= ~IsStrictlyAssignedMASK; // tag lhs as NON assigned - it is also a read access
+		lhs.bits |= IsCompoundAssignedMASK; // tag lhs as assigned by compound
 		this.operator = operator ;
 	}
 	
