@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -269,12 +269,15 @@ protected RuntimeException internalException(CoreException t) {
 
 protected Compiler newCompiler() {
 	// called once when the builder is initialized... can override if needed
-	return new Compiler(
+	Compiler newCompiler = new Compiler(
 		nameEnvironment,
 		DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 		javaBuilder.javaProject.getOptions(true),
 		this,
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
+	// enable the compiler reference info support
+	newCompiler.options.produceReferenceInfo = true;
+	return newCompiler;
 }
 
 protected boolean isExcludedFromProject(IPath childPath) throws JavaModelException {

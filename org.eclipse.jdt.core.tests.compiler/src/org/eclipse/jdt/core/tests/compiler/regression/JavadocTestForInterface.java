@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,11 +19,11 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForInterface extends JavadocTest {
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			TestSuite ts;
 			//some of the tests depend on the order of this suite.
 			ts = new TestSuite();
-			for (int i = 74; i <= 74; i++) {
+			for (int i = 61; i <= 61; i++) {
 				String meth = "test";
 				if (i < 10) {
 					meth += "0";

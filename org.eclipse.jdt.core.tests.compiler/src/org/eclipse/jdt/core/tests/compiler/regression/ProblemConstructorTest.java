@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,6 +104,32 @@ public void test001() {
 		null,
 		false);
 }
-
-
+// 49843
+public void test002() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public X();\n" + 
+			"    public Y();\n" + 
+			"    \n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public X();\n" + 
+		"	       ^^^\n" + 
+		"This method requires a body instead of a semicolon\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	public Y();\n" + 
+		"	       ^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	public Y();\n" + 
+		"	       ^^^\n" + 
+		"This method requires a body instead of a semicolon\n" + 
+		"----------\n");
+}
 }

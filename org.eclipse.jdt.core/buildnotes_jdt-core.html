@@ -33,11 +33,27 @@
   </tr>
 </table>
 
+<a name="v_398"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M7 Build - ?th January 2004
+<br>Project org.eclipse.jdt.core v_398
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_398">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45060">45060</a>
+Missing external jar prevents build, but jar still in Java model 
+
 <a name="v_397"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M7 Build - ? January 2004
+Eclipse SDK 3.0M7 Build - 13th January 2004
 <br>Project org.eclipse.jdt.core v_397
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_397">cvs</a>).
 <h2>
@@ -57,10 +73,27 @@ What's new in this drop</h2>
 </li>
 <li>Code formatter: If you did change the value of the setting controlling the insertion of a white space between empty arguments of a method declaration,
 then you have to change it again. Indeed, a spelling mistake has been fixed in the constant name. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49530">49530</a>.</li>
+<li>Inline tags are now supported in Javadoc comments:
+<ul><li>{@link} and {@linkplain} tags are now parsed using same rules as for @see tag. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>.
+<br>Because references declared in these tags should be now found during search operation,  the index format had to be changed. Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).</li>
+<li>{@inheritDoc} tag is now parsed. When this tag is present in a method javadoc comment, all missing tags errors are ignored.
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45782">45782</a>.</li>
+</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49760">49760</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49843">49843</a>
+Not reporting error on constructor with no body
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49491">49491</a>
+Add option to toggle warning for Javadoc multiple same name @throws tags
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49260">49260</a>
+Malformed Javadoc Compiler option sensitive to line breaks
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45782">45782</a>
+[DCR] Compiler should take into account {@inheritDoc} tag
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>
+[DCR] Need Javadoc warning for {@link }
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49760">49760</a>
 Splitting up FORMATTER_INSERT_SPACE_WITHIN_MESSAGE_SEND
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49763">49763</a>
 New formatter: Problem with empty statement in while

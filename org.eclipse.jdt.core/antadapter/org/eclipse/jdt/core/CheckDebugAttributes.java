@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ public class CheckDebugAttributes extends Task {
 				throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile")); //$NON-NLS-1$
 			}
 			if (hasDebugAttributes) {
-				this.project.setUserProperty(this.property, "has debug"); //$NON-NLS-1$
+				getProject().setUserProperty(this.property, "has debug"); //$NON-NLS-1$
 			}
 		} catch (IOException e) {
 			throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.ioexception.occured") + this.file); //$NON-NLS-1$

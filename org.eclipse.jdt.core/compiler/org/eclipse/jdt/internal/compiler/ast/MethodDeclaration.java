@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -127,7 +127,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if ((modifiers & AccSemicolonBody) != 0) {
 				if ((modifiers & AccNative) == 0)
 					if ((modifiers & AccAbstract) == 0)
-						scope.problemReporter().methodNeedingAbstractModifier(this);
+						scope.problemReporter().methodNeedBody(this);
 			} else {
 				// the method HAS a body --> abstract native modifiers are forbiden
 				if (((modifiers & AccNative) != 0) || ((modifiers & AccAbstract) != 0))

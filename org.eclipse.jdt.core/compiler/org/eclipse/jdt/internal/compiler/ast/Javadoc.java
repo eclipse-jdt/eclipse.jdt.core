@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ public class Javadoc extends ASTNode {
 	public TypeReference[] thrownExceptions; // @throws, @exception
 	public JavadocReturnStatement returnStatement; // @return
 	public Expression[] references; // @see
+	public boolean inherited = false;
 
 	public Javadoc(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
@@ -119,7 +120,7 @@ public class Javadoc extends ASTNode {
 			this.references[i].resolveType(methScope);
 			try {
 				// see whether we can have a super reference
-				if ((methDecl.isConstructor() || overriding) && !superRef) {
+				if (methDecl != null && (methDecl.isConstructor() || overriding) && !superRef) {
 					if (this.references[i] instanceof JavadocMessageSend) {
 						JavadocMessageSend messageSend = (JavadocMessageSend) this.references[i];
 						// if binding is valid then look if we have a reference to an overriden method/constructor
@@ -158,7 +159,7 @@ public class Javadoc extends ASTNode {
 		}
 		
 		// Store if a reference exists to an overriden method/constructor or the method is in a local type,
-		boolean reportMissing = methDecl == null || !(superRef || (methDecl.binding.declaringClass != null && methDecl.binding.declaringClass.isLocalType()));
+		boolean reportMissing = methDecl == null || !((overriding && this.inherited) || superRef || (methDecl.binding.declaringClass != null && methDecl.binding.declaringClass.isLocalType()));
 
 		// @param tags
 		resolveParamTags(methScope, reportMissing);
@@ -297,6 +298,9 @@ public class Javadoc extends ASTNode {
 
 				if (typeBinding != null && typeBinding.isValidBinding() && typeBinding.isClass()) {
 					// Verify duplicated tags
+					// Disable as we finally allow duplicate throws tags
+					// @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49491">49491</a>
+					/*
 					boolean found = false;
 					for (int j = 0; j < maxRef && !found; j++) {
 						if (typeReferences[j].resolvedType == typeBinding) {
@@ -307,6 +311,8 @@ public class Javadoc extends ASTNode {
 					if (!found) {
 						typeReferences[maxRef++] = typeRef;
 					}
+					*/
+					typeReferences[maxRef++] = typeRef;
 				}
 			}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -103,9 +103,9 @@ public ClasspathJar(ZipFile zipFile) {
 }
 
 public void cleanup() {
-	if (zipFile != null && this.closeZipFileAtEnd) {
+	if (this.zipFile != null && this.closeZipFileAtEnd) {
 		try {
-			zipFile.close();
+			this.zipFile.close();
 		} catch(IOException e) { // ignore it
 		}
 		this.zipFile = null;
@@ -124,7 +124,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	try {
-		ClassFileReader reader = ClassFileReader.read(zipFile, qualifiedBinaryFileName);
+		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) return new NameEnvironmentAnswer(reader);
 	} catch (Exception e) { // treat as if class file is missing
 	}
@@ -132,24 +132,27 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 }
 
 public IPath getProjectRelativePath() {
-	if (resource == null) return null;
-	return	resource.getProjectRelativePath();
+	if (this.resource == null) return null;
+	return	this.resource.getProjectRelativePath();
 }
 
 public boolean isPackage(String qualifiedPackageName) {
-	if (knownPackageNames != null)
-		return knownPackageNames.includes(qualifiedPackageName);
+	if (this.knownPackageNames != null)
+		return this.knownPackageNames.includes(qualifiedPackageName);
 
 	try {
 		if (this.zipFile == null) {
+			if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [ClasspathJar.isPackage(String)] Creating ZipFile on " + zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
+			}
 			this.zipFile = new ZipFile(zipFilename);
 			this.closeZipFileAtEnd = true;
 		}
-		this.knownPackageNames = findPackageSet(zipFile);
+		this.knownPackageNames = findPackageSet(this.zipFile);
 	} catch(Exception e) {
 		this.knownPackageNames = new SimpleSet(); // assume for this build the zipFile is empty
 	}
-	return knownPackageNames.includes(qualifiedPackageName);
+	return this.knownPackageNames.includes(qualifiedPackageName);
 }
 
 public String toString() {

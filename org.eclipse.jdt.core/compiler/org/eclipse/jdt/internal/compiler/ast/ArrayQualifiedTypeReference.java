@@ -34,7 +34,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		return scope.createArrayType(scope.getType(tokens), dimensions);
+		return scope.createArray(scope.getType(tokens), dimensions);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){

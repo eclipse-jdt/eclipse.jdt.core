@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,17 +33,19 @@ public class JavadocTestMixed extends JavadocTest {
 	public static Test suite() {
 		if (false) {
 			TestSuite ts;
+			int[] numbers = { 41 };
 			//some of the tests depend on the order of this suite.
 			ts = new TestSuite();
-			for (int i = 10; i <= 10; i++) {
+			for (int i = 0; i < numbers.length; i++) {
 				String meth = "test";
-				if (i < 10) {
+				int num = numbers[i];
+				if (num < 10) {
 					meth += "0";
 				}
-				if (i < 100) {
+				if (num < 100) {
 					meth += "0";
 				}
-				meth += i;
+				meth += num;
 				ts.addTest(new JavadocTestMixed(meth));
 			}
 			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
@@ -775,6 +777,50 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	^\n"
 				+ "Syntax error on token \"}\", delete this token\n"
 				+ "----------\n");
+	}
+	
+	public void test040() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	/**\n" + 
+					"	/**\n" + 
+					"	/** \n" + 
+					"	 * @param str\n" + 
+					"	 * @param x\n" + 
+					"	 */\n" + 
+					"	public void bar(String str, int x) {\n" + 
+					"	}\n" + 
+					"	public void foo() {\n" + 
+					"		bar(\"toto\", 0 /* block comment inline */);\n" + 
+					"	}\n" + 
+					"}\n" });
+	}
+	
+	public void test041() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * @see String\n" + 
+					"	 * @see #\n" + 
+					"	 * @return String\n" + 
+					"	 */\n" + 
+					"	String bar() {return \"\";}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @see #\n" + 
+				"	       ^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+			);
 	}
 
 	/**
@@ -1530,6 +1576,310 @@ public class JavadocTestMixed extends JavadocTest {
 				"	public void foo() throws IOException {}\n" + 
 				"}\n"
 			}
+		);
+	}
+
+	/**
+	 * Test fix for bug 45782.
+	 * When this bug happened, compiler wrongly complained on missing parameters declaration
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45782">45782</a>
+	 */
+	public void testBug45782() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements Comparable {\n" + 
+					"\n" + 
+					"	/**\n" + 
+					"	 * Overridden method with return value and parameters.\n" + 
+					"	 * {@inheritDoc}\n" + 
+					"	 */\n" + 
+					"	public boolean equals(Object obj) {\n" + 
+					"		return super.equals(obj);\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	/**\n" + 
+					"	 * Overridden method with return value and thrown exception.\n" + 
+					"	 * {@inheritDoc}\n" + 
+					"	 */\n" + 
+					"	public Object clone() throws CloneNotSupportedException {\n" + 
+					"		return super.clone();\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	/**\n" + 
+					"	 * Implemented method (Comparable)  with return value and parameters.\n" + 
+					"	 * {@inheritDoc}\n" + 
+					"	 */\n" + 
+					"	public int compareTo(Object o) { return 0; }\n" + 
+					"}\n"
+			});
+	}
+	public void testBug45782a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Unefficient inheritDoc tag on a method which is neither overridden nor implemented...\n" + 
+					"	 * {@inheritDoc}\n" + 
+					"	 */\n" + 
+					"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+				"	       ^^^\n" + 
+				"Javadoc: Missing tag for return type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+				"	                      ^^^\n" + 
+				"Javadoc: Missing tag for parameter str\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+				"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 49260.
+	 * When this bug happened, compiler wrongly complained on Invalid parameters declaration
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49260">49260</a>
+	 */
+	public void testBug49260() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+					"public final class X {\n" + 
+					"	int bar(String str, int var, Vector list, char[] array) throws IllegalAccessException { return 0; }\n" + 
+					"	/**\n" + 
+					"	 * Valid method reference on several lines\n" + 
+					"	 * @see #bar(String str,\n" + 
+					"	 * 		int var,\n" + 
+					"	 * 		Vector list,\n" + 
+					"	 * 		char[] array)\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n" });
+	}
+
+	/**
+	 * Test fix for bug 48385.
+	 * When this bug happened, compiler does not complain on CharOperation references in @link tags
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>
+	 */
+	public void testBug48385() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+					"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Method outside javaDoc Comment\n" + 
+					"	 *  1) {@link String} tag description not empty\n" + 
+					"	 *  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+					"	 * @param str\n" + 
+					"	 * @param var tag description not empty\n" + 
+					"	 * @param list third param with embedded tag: {@link Vector}\n" + 
+					"	 * @param array fourth param with several embedded tags on several lines:\n" + 
+					"	 *  1) {@link String} tag description not empty\n" + 
+					"	 *  2) {@linkplain CharOperation Label not empty} tag description not empty\n" + 
+					"	 * @throws IllegalAccessException\n" + 
+					"	 * @throws NullPointerException tag description not empty\n" + 
+					"	 * @return an integer\n" + 
+					"	 * @see String\n" + 
+					"	 * @see Vector tag description not empty\n" + 
+					"	 * @see Object tag description includes embedded tags and several lines:\n" + 
+					"	 *  1) {@link String} tag description not empty\n" + 
+					"	 *  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+					"	 */\n" + 
+					"	int foo(String str, int var, Vector list, char[] array) throws IllegalAccessException { return 0; }\n" + 
+					"}\n"},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+				"	             ^^^^^^^^^^^^^\n" + 
+				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 12)\n" + 
+				"	*  2) {@linkplain CharOperation Label not empty} tag description not empty\n" + 
+				"	                  ^^^^^^^^^^^^^\n" + 
+				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 20)\n" + 
+				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+				"	             ^^^^^^^^^^^^^\n" + 
+				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"----------\n"
+		);
+	}
+
+	public void testBug48385And49620() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+					"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Method outside javaDoc Comment\n" + 
+					"	 *  1) {@link\n" + 
+					"	 * 				String} tag description not empty\n" + 
+					"	 *  2) {@link\n" + 
+					"	 * 				CharOperation Label not empty} tag description not empty\n" + 
+					"	 * @param\n" + 
+					"	 * 				str\n" + 
+					"	 * @param\n" + 
+					"	 * 				var tag description not empty\n" + 
+					"	 * @param list third param with embedded tag: {@link\n" + 
+					"	 * 				Vector} but also on several lines: {@link\n" + 
+					"	 * 				CharOperation}\n" + 
+					"	 * @param array fourth param with several embedded tags on several lines:\n" + 
+					"	 *  1) {@link String} tag description not empty\n" + 
+					"	 *  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+					"	 * @throws\n" + 
+					"	 * 					IllegalAccessException\n" + 
+					"	 * @throws\n" + 
+					"	 * 					NullPointerException tag description not empty\n" + 
+					"	 * @return\n" + 
+					"	 * 					an integer\n" + 
+					"	 * @see\n" + 
+					"	 * 			String\n" + 
+					"	 * @see\n" + 
+					"	 * 		Vector\n" + 
+					"	 * 		tag description not empty\n" + 
+					"	 * @see Object tag description includes embedded tags and several lines:\n" + 
+					"	 *  1) {@link String} tag description not empty\n" + 
+					"	 *  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+					"	 */\n" + 
+					"	int foo(String str, int var, Vector list, char[] array) throws IllegalAccessException { return 0; }\n" + 
+					"}\n"},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	* 				CharOperation Label not empty} tag description not empty\n" + 
+				"	  				^^^^^^^^^^^^^\n" + 
+				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 15)\n" + 
+				"	* 				CharOperation}\n" + 
+				"	  				^^^^^^^^^^^^^\n" + 
+				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 18)\n" + 
+				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+				"	             ^^^^^^^^^^^^^\n" + 
+				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 32)\n" + 
+				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
+				"	             ^^^^^^^^^^^^^\n" + 
+				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug48385a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Method outside javaDoc Comment\n" + 
+					"	 *  1) {@link } Missing reference\n" + 
+					"	 *  2) {@link Unknown} Cannot be resolved\n" + 
+					"	 *  3) {@link *} Missing reference\n" + 
+					"	 *  4) {@link #} Invalid reference\n" + 
+					"	 *  5) {@link String } } Valid reference\n" + 
+					"	 *  6) {@link String {} Invalid tag\n" + 
+					"	 * @return int\n" + 
+					"	 */\n" + 
+					"	int foo() {return 0;}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	*  1) {@link } Missing reference\n" + 
+				"	        ^^^^\n" + 
+				"Javadoc: Missing reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	*  2) {@link Unknown} Cannot be resolved\n" + 
+				"	             ^^^^^^^\n" + 
+				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	*  3) {@link *} Missing reference\n" + 
+				"	        ^^^^\n" + 
+				"Javadoc: Missing reference\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	*  4) {@link #} Invalid reference\n" + 
+				"	             ^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
+				"	*  6) {@link String {} Invalid tag\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid tag\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 49491.
+	 * When this bug happened, compiler complained on duplicated throws tag
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49491">49491</a>
+	 */
+	public void testBug49491() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public final class X {\n" + 
+					"	/**\n" + 
+					"	 * Now valid duplicated throws tag\n" + 
+					"	 * @throws IllegalArgumentException First comment\n" + 
+					"	 * @throws IllegalArgumentException Second comment\n" + 
+					"	 * @throws IllegalArgumentException Last comment\n" + 
+					"	 */\n" + 
+					"	void foo() throws IllegalArgumentException {}\n" + 
+					"}\n" });
+	}
+	public void testBug49491a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public final class X {\n" + 
+					"	/**\n" + 
+					"	 * Duplicated param tags should be still flagged\n" + 
+					"	 * @param str First comment\n" + 
+					"	 * @param str Second comment\n" + 
+					"	 * @param str Last comment\n" + 
+					"	 */\n" + 
+					"	void foo(String str) {}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* @param str Second comment\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Duplicate tag for parameter\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* @param str Last comment\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Duplicate tag for parameter\n" + 
+				"----------\n"
 		);
 	}
 }

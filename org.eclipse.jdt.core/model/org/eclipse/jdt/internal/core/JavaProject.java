@@ -2814,7 +2814,10 @@ public class JavaProject
 		}
 		prereqChain.remove(path);
 	}
-		
+	
+	/*
+	 * Update .classpath format markers.
+	 */
 	public void updateClasspathMarkers(Map preferredClasspaths, Map preferredOutputs) {
 		
 		this.flushClasspathProblemMarkers(false/*cycle*/, true/*format*/);

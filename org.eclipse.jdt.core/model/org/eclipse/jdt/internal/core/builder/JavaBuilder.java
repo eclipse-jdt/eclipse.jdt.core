@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -500,8 +500,6 @@ private boolean isWorthBuilding() throws CoreException {
 	if (isClasspathBroken(javaProject.getRawClasspath(), currentProject)) {
 		if (DEBUG)
 			System.out.println("Aborted build because project has classpath errors (incomplete or involved in cycle)"); //$NON-NLS-1$
-
-		JavaModelManager.getJavaModelManager().getDeltaProcessor().addForRefresh(javaProject);
 
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	if (onDemand) {
 		importName+=".*"; //$NON-NLS-1$
 	}
-	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand, modifiers);
+	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
 	addChild(fNode);	
 }
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {

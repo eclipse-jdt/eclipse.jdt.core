@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -292,8 +292,7 @@ public class SourceMapper
 		return typeSigs;
 	}
 	
-	private void computeAllRootPaths(IType type) {
-		IPackageFragmentRoot root = (IPackageFragmentRoot) type.getPackageFragment().getParent();
+	private void computeAllRootPaths(IPackageFragmentRoot root) {
 		if (this.rootPaths == null) {
 			this.rootPaths = new HashSet();
 		}
@@ -792,7 +791,7 @@ public class SourceMapper
 		char[] source = null;
 		
 		if (!areRootPathsComputed) {
-			computeAllRootPaths(type);
+			computeAllRootPaths((IPackageFragmentRoot) type.getPackageFragment().getParent());
 		}
 		
 		if (this.rootPath != null) {

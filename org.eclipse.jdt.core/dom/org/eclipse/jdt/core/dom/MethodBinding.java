@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,17 @@ class MethodBinding implements IMethodBinding {
 	public boolean isConstructor() {
 		return this.binding.isConstructor();
 	}
+	
+	/*
+	 * @see IMethodBinding#isDefaultConstructor()
+	 * @since 3.0
+	 */
+	public boolean isDefaultConstructor() {
+		if (this.binding.declaringClass.isBinaryBinding()) {
+			return false;
+		}
+		return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;
+	}	
 
 	/*
 	 * @see IMethodBinding#isDefaultConstructor()

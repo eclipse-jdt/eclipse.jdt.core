@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,9 +77,6 @@ private void computeClasspathLocations(
 	JavaProject javaProject,
 	SimpleLookupTable binaryLocationsPerProject) throws CoreException {
 
-	/* Update incomplete classpath marker */
-	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath(true/*ignore unresolved variable*/, true/*create markers*/, null/*preferred cp*/, null/*preferred output*/);
-
 	/* Update cycle marker */
 	IMarker cycleMarker = javaProject.getCycleMarker();
 	if (cycleMarker != null) {
@@ -90,6 +87,7 @@ private void computeClasspathLocations(
 			cycleMarker.setAttribute(IMarker.SEVERITY, severity);
 	}
 
+	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath(true/*ignore unresolved variable*/, false/*don't create markers*/, null/*preferred cp*/, null/*preferred output*/);
 	ArrayList sLocations = new ArrayList(classpathEntries.length);
 	ArrayList bLocations = new ArrayList(classpathEntries.length);
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {
