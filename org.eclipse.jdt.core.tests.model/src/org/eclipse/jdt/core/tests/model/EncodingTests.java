@@ -614,8 +614,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Ensures that a file is reindexed when the encoding changes.
 	 * (regression test for bug 68585 index is out of date after encoding change)
 	 */
-	// TODO (jerome) enable once Platform Core has implemented the encoding change notification
-	public void _test033() throws CoreException {
+	public void test033() throws CoreException {
 		try {
 			createFolder("/Encoding/src/test68585");
 			final String encoding = "UTF-8".equals(wkspEncoding) ? "Cp1252" : "UTF-8";
