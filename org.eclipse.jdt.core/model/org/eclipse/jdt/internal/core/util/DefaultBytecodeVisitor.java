@@ -2502,7 +2502,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	}
 
 	/**
-	 * @see IBytecodeVisitor#_multianewarray(int, int, int, IConstantPoolConstant)
+	 * @see IBytecodeVisitor#_multianewarray(int, int, int, IConstantPoolEntry)
 	 */
 	public void _multianewarray(
 		int pc,
@@ -2523,7 +2523,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	}
 
 	/**
-	 * @see IBytecodeVisitor#_new(int, int, IConstantPoolConstant)
+	 * @see IBytecodeVisitor#_new(int, int, IConstantPoolEntry)
 	 */
 	public void _new(int pc, int index, IConstantPoolEntry constantClass) {
 		writeTabs();
@@ -2539,7 +2539,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	}
 
 	/**
-	 * @see IBytecodeVisitor#_newarray(int)
+	 * @see IBytecodeVisitor#_newarray(int, int)
 	 */
 	public void _newarray(int pc, int atype) {
 		writeTabs();
@@ -2715,7 +2715,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	}
 
 	/**
-	 * @see IBytecodeVisitor#_tableswitch(int, int, int, int, int[][])
+	 * @see IBytecodeVisitor#_tableswitch(int, int, int, int, int[])
 	 */
 	public void _tableswitch(
 		int pc, 

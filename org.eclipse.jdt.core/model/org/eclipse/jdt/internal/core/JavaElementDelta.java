@@ -579,7 +579,7 @@ public void sourceDetached(IJavaElement element) {
  * Returns a string representation of this delta's
  * structure suitable for debug purposes.
  *
- * @see toString
+ * @see #toString()
  */
 public String toDebugString(int depth) {
 	StringBuffer buffer = new StringBuffer();

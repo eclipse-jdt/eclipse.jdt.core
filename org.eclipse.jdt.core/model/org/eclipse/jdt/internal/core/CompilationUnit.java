@@ -89,25 +89,25 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor pm) thr
 }
 
 /**
- * @see ICodeAssist
+ * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
  */
 public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
 	codeComplete(this, isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this, offset, requestor);
 }
 /**
- * @see ICodeResolve
+ * @see ICodeAssist#codeSelect(int, int)
  */
 public IJavaElement[] codeSelect(int offset, int length) throws JavaModelException {
 	return super.codeSelect(this, offset, length);
 }
 /**
- * @see IWorkingCopy
+ * @see IWorkingCopy#commit(boolean, IProgressMonitor)
  */
 public void commit(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
 }
 /**
- * @see ISourceManipulation
+ * @see ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
@@ -128,7 +128,7 @@ protected OpenableElementInfo createElementInfo() {
 	return new CompilationUnitElementInfo();
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#createImport(String, IJavaElement, IProgressMonitor)
  */
 public IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
 	CreateImportOperation op = new CreateImportOperation(name, this);
@@ -139,7 +139,7 @@ public IImportDeclaration createImport(String name, IJavaElement sibling, IProgr
 	return getImport(name);
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#createPackageDeclaration(String, IProgressMonitor)
  */
 public IPackageDeclaration createPackageDeclaration(String name, IProgressMonitor monitor) throws JavaModelException {
 	
@@ -148,7 +148,7 @@ public IPackageDeclaration createPackageDeclaration(String name, IProgressMonito
 	return getPackageDeclaration(name);
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#createType(String, IJavaElement, boolean, IProgressMonitor)
  */
 public IType createType(String content, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (!exists()) {
@@ -170,7 +170,7 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 	return (IType) op.getResultElements()[0];
 }
 /**
- * @see ISourceManipulation
+ * @see ISourceManipulation#delete(boolean, IProgressMonitor)
  */
 public void delete(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	IJavaElement[] elements= new IJavaElement[] {this};
@@ -179,7 +179,7 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 /**
  * This is not a working copy, do nothing.
  *
- * @see IWorkingCopy
+ * @see IWorkingCopy#destroy()
  */
 public void destroy() {
 }
@@ -191,13 +191,13 @@ public void destroy() {
  *
  * <p>Compilation units must also check working copy state;
  *
- * @see Object#equals
+ * @see Object#equals(java.lang.Object)
  */
 public boolean equals(Object o) {
 	return super.equals(o) && !((ICompilationUnit)o).isWorkingCopy();
 }
 /**
- * @see JavaElement#equalsDOMNode
+ * @see JavaElement#equalsDOMNode(IDOMNode)
  */
 protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	String name = getElementName();
@@ -219,8 +219,8 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	}
 	return false;
 }
-/*
- * @see IWorkingCopy
+/**
+ * @see IWorkingCopy#findElements(IJavaElement)
  */
 public IJavaElement[] findElements(IJavaElement element) {
 	ArrayList children = new ArrayList();
@@ -266,8 +266,8 @@ public IJavaElement[] findElements(IJavaElement element) {
 		return null;
 	}
 }
-/*
- * @see IWorkingCopy
+/**
+ * @see IWorkingCopy#findPrimaryType()
  */
 public IType findPrimaryType() {
 	String typeName = Signature.getQualifier(this.getElementName());
@@ -279,7 +279,7 @@ public IType findPrimaryType() {
 }
 
 /**
- * @see IWorkingCopy
+ * @see IWorkingCopy#findSharedWorkingCopy(IBufferFactory)
  */
 public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 
@@ -298,6 +298,7 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 
 /**
  * work-around for UI dependency - TOFIX (should be removed)
+ * @see IWorkingCopy#findSharedWorkingCopy()
  */
 public IJavaElement findSharedWorkingCopy() {
 
@@ -337,7 +338,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 	}
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#getAllTypes()
  */
 public IType[] getAllTypes() throws JavaModelException {
 	IJavaElement[] types = getTypes();
@@ -361,13 +362,13 @@ public IType[] getAllTypes() throws JavaModelException {
 	return arrayOfAllTypes;
 }
 /**
- * @see IMember
+ * @see IMember#getCompilationUnit()
  */
 public ICompilationUnit getCompilationUnit() {
 	return this;
 }
 /**
- * @see org.eclipse.jdt.internal.compiler.env.api.ICompilationUnit
+ * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getContents()
  */
 public char[] getContents() {
 	try {
@@ -382,7 +383,7 @@ public char[] getContents() {
  * A compilation unit has a corresponding resource unless it is contained
  * in a jar.
  *
- * @see IJavaElement
+ * @see IJavaElement#getCorrespondingResource()
  */
 public IResource getCorrespondingResource() throws JavaModelException {
 	IPackageFragmentRoot root= (IPackageFragmentRoot)getParent().getParent();
@@ -393,7 +394,7 @@ public IResource getCorrespondingResource() throws JavaModelException {
 	}
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#getElementAt(int)
  */
 public IJavaElement getElementAt(int position) throws JavaModelException {
 
@@ -404,26 +405,23 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 		return e;
 	}
 }
-/**
- * @see org.eclipse.jdt.internal.compiler.env.api.ICompilationUnit
- */
 public char[] getFileName(){
 	return getElementName().toCharArray();
 }
 /**
- * @see JavaElement#getHandleMemento()
+ * @see JavaElement#getHandleMementoDelimiter()
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_COMPILATIONUNIT;
 }
 /**
- * @see ICompilationUnit#getImport
+ * @see ICompilationUnit#getImport(String)
  */
 public IImportDeclaration getImport(String name) {
 	return new ImportDeclaration(getImportContainer(), name);
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#getImportContainer()
  */
 public IImportContainer getImportContainer() {
 	return new ImportContainer(this);
@@ -431,7 +429,7 @@ public IImportContainer getImportContainer() {
 
 
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#getImports()
  */
 public IImportDeclaration[] getImports() throws JavaModelException {
 	IImportContainer container= getImportContainer();
@@ -448,7 +446,7 @@ public IImportDeclaration[] getImports() throws JavaModelException {
 
 }
 /**
- * @see org.eclipse.jdt.internal.compiler.env.api.ICompilationUnit
+ * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getMainTypeName()
  */
 public char[] getMainTypeName(){
 	String name= getElementName();
@@ -459,7 +457,7 @@ public char[] getMainTypeName(){
 /**
  * Returns <code>null</code>, this is not a working copy.
  *
- * @see IWorkingCopy
+ * @see IWorkingCopy#getOriginal(IJavaElement)
  */
 public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 	return null;
@@ -467,7 +465,7 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 /**
  * Returns <code>null</code>, this is not a working copy.
  *
- * @see IWorkingCopy
+ * @see IWorkingCopy#getOriginalElement()
  */
 public IJavaElement getOriginalElement() {
 	return null;
@@ -479,7 +477,7 @@ public IPackageDeclaration getPackageDeclaration(String name) {
 	return new PackageDeclaration(this, name);
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#getPackageDeclarations()
  */
 public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException {
 	ArrayList list = getChildrenOfType(PACKAGE_DECLARATION);
@@ -488,13 +486,13 @@ public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException 
 	return array;
 }
 /**
- * @see org.eclipse.jdt.internal.compiler.env.api.ICompilationUnit
+ * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getPackageName()
  */
 public char[][] getPackageName() {
 	return null;
 }
-/*
- * @see IJavaElement
+/**
+ * @see IJavaElement#getPath()
  */
 public IPath getPath() {
 	PackageFragmentRoot root = this.getPackageFragmentRoot();
@@ -504,8 +502,8 @@ public IPath getPath() {
 		return this.getParent().getPath().append(this.getElementName());
 	}
 }
-/*
- * @see IJavaElement
+/**
+ * @see IJavaElement#getResource()
  */
 public IResource getResource() {
 	PackageFragmentRoot root = this.getPackageFragmentRoot();
@@ -524,7 +522,7 @@ public IProblemRequestor getProblemRequestor(){
 }
 
 /**
- * @see ISourceReference
+ * @see ISourceReference#getSource()
  */
 public String getSource() throws JavaModelException {
 	IBuffer buffer = getBuffer();
@@ -532,19 +530,19 @@ public String getSource() throws JavaModelException {
 	return buffer.getContents();
 }
 /**
- * @see ISourceReference
+ * @see ISourceReference#getSourceRange()
  */
 public ISourceRange getSourceRange() throws JavaModelException {
 	return ((CompilationUnitElementInfo) getElementInfo()).getSourceRange();
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#getType(String)
  */
 public IType getType(String name) {
 	return new SourceType(this, name);
 }
 /**
- * @see ICompilationUnit
+ * @see ICompilationUnit#getTypes()
  */
 public IType[] getTypes() throws JavaModelException {
 	ArrayList list = getChildrenOfType(TYPE);
@@ -553,7 +551,7 @@ public IType[] getTypes() throws JavaModelException {
 	return array;
 }
 /**
- * @see IWorkingCopy
+ * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  */
 public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	
@@ -598,14 +596,14 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 	}
 }
 /**
- * @see IWorkingCopy
+ * @see IWorkingCopy#getWorkingCopy()
  */
 public IJavaElement getWorkingCopy() throws JavaModelException {
 	return this.getWorkingCopy(null, null, null);
 }
 
 /**
- * @see IWorkingCopy
+ * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  */
 public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	WorkingCopy workingCopy = new WorkingCopy((IPackageFragment)getParent(), getElementName(), factory, problemRequestor);
@@ -615,7 +613,7 @@ public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory, 
 }
 
 /**
- * @see Openable
+ * @see Openable#hasBuffer()
  */
 protected boolean hasBuffer() {
 	return true;
@@ -623,7 +621,7 @@ protected boolean hasBuffer() {
 /**
  * If I am not open, return true to avoid parsing.
  *
- * @see IParent 
+ * @see IParent#hasChildren()
  */
 public boolean hasChildren() throws JavaModelException {
 	if (isOpen()) {
@@ -635,31 +633,31 @@ public boolean hasChildren() throws JavaModelException {
 /**
  * Returns false, this is not a working copy.
  *
- * @see IWorkingCopy
+ * @see IWorkingCopy#isBasedOn(IResource)
  */
 public boolean isBasedOn(IResource resource) {
 	return false;
 }
 /**
- * @see IOpenable
+ * @see IOpenable#isConsistent()
  */
 public boolean isConsistent() throws JavaModelException {
 	return fgJavaModelManager.getElementsOutOfSynchWithBuffers().get(this) == null;
 }
 /**
- * @see Openable
+ * @see Openable#isSourceElement()
  */
 protected boolean isSourceElement() {
 	return true;
 }
 /**
- * @see IWorkingCopy
+ * @see IWorkingCopy#isWorkingCopy()
  */
 public boolean isWorkingCopy() {
 	return false;
 }
 /**
- * @see IOpenable
+ * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
 	if (!isConsistent()) {
@@ -670,7 +668,7 @@ public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
 }
 
 /**
- * @see ISourceManipulation
+ * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
@@ -726,7 +724,7 @@ public void offsetSourceRange(int amount) {
 	}
 }
 /**
- * @see Openable
+ * @see Openable#openBuffer(IProgressMonitor)
  */
 protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 
@@ -769,7 +767,7 @@ protected boolean parentExists(){
 }
 
 /**
- * @see IWorkingCopy
+ * @see IWorkingCopy#reconcile()
  */
 public IMarker[] reconcile() throws JavaModelException {
 	// Reconciling is not supported on non working copies
@@ -777,7 +775,7 @@ public IMarker[] reconcile() throws JavaModelException {
 }
 
 /**
- * @see ISourceManipulation
+ * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */
 public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (name == null) {
@@ -791,7 +789,7 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
 /**
  * Does nothing - this is not a working copy.
  *
- * @see IWorkingCopy
+ * @see IWorkingCopy#restore()
  */
 public void restore () throws JavaModelException {
 }
@@ -813,7 +811,7 @@ public void triggerSourceRangeOffset(int amount, int nameStart, int nameEnd) {
 	triggerSourceEndOffset(amount, nameStart, nameEnd);
 }
 /**
- * @see ICodeAssist
+ * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
  * @deprecated - use codeComplete(int, ICompletionRequestor)
  */
 public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
@@ -881,7 +879,7 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 			}
 		});
 }
-/*
+/**
  * @see JavaElement#rootedAt(IJavaProject)
  */
 public IJavaElement rootedAt(IJavaProject project) {

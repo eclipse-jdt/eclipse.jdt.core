@@ -70,7 +70,7 @@ protected IJavaElement generateResultHandle() {
 	return getCompilationUnit().getPackageDeclaration(fName);
 }
 /**
- * @see CreateElementInCUOperation#getMainTaskName
+ * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
 	return Util.bind("operation.createPackageProgress"); //$NON-NLS-1$
@@ -105,7 +105,7 @@ protected void initializeDefaultPosition() {
  * 		package declaration name.
  * </ul>
  * @see IJavaModelStatus
- * @see JavaNamingConventions
+ * @see JavaConventions
  */
 public IJavaModelStatus verify() {
 	IJavaModelStatus status = super.verify();

@@ -870,7 +870,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 * Returns the last built state for the given project, or null if there is none.
 	 * Deserializes the state if necessary.
 	 *
-	 * @private for use by image builder and evaluation support only
+	 * For use by image builder and evaluation support only
 	 */
 	public Object getLastBuiltState(IProject project, IProgressMonitor monitor) {
 		PerProjectInfo info = getPerProjectInfo(project);

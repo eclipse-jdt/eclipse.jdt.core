@@ -1405,7 +1405,7 @@ public class JavaProject
 	 * which form of storage to use appropriately. Shared properties produce real resource files which
 	 * can be shared through a VCM onto a server. Persistent properties are not shareable.
 	 *
-	 * @see JavaProject.setSharedProperty(...)
+	 * @see JavaProject#setSharedProperty(QualifiedName key)
 	 */
 	public String getSharedProperty(QualifiedName key) throws CoreException {
 
@@ -2028,7 +2028,7 @@ public class JavaProject
 	 * shared properties end up in resource files, and thus cannot be modified during
 	 * delta notifications (a CoreException would then be thrown).
 	 * 
-	 * @see JavaProject.getSharedProperty(...)
+	 * @see JavaProject#getSharedProperty(QualifiedName key)
 	 */
 	public void setSharedProperty(QualifiedName key, String value)
 		throws CoreException {

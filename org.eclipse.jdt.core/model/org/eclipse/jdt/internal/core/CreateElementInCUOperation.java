@@ -190,7 +190,7 @@ protected ICompilationUnit getCompilationUnit() {
 /**
  * Returns the amount of work for the main task of this operation for
  * progress reporting.
- * @see executeOperation()
+ * @see #executeOperation()
  */
 protected int getMainAmountOfWork(){
 	return 2;
@@ -198,7 +198,7 @@ protected int getMainAmountOfWork(){
 /**
  * Returns the name of the main task of this operation for
  * progress reporting.
- * @see executeOperation()
+ * @see #executeOperation()
  */
 protected abstract String getMainTaskName();
 /**
@@ -278,7 +278,7 @@ protected void setRelativePosition(IJavaElement sibling, int policy) throws Ille
  *  <li>INVALID_SIBLING - the sibling provided for positioning is not valid.
  * </ul>
  * @see IJavaModelStatus
- * @see JavaNamingConventions
+ * @see JavaConventions
  */
 public IJavaModelStatus verify() {
 	if (getParentElement() == null) {

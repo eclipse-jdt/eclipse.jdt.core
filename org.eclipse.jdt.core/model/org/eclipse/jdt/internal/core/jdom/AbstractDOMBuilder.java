@@ -178,7 +178,7 @@ protected void exitType(int bodyEnd, int declarationEnd) {
 	fNode = type;
 }
 /**
- * @see ILineSeparatorFinder
+ * @see ILineStartFinder#getLineStart(int)
  */
 public int getLineStart(int position) {
 	int lineSeparatorCount = fLineStartPositions.length;

@@ -77,7 +77,7 @@ protected void closing(Object info) throws JavaModelException {
 	}
 }
 /**
- * @see IType#codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor)
+ * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor)
  */
 public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor) throws JavaModelException {
 	if (requestor == null) {
@@ -109,31 +109,31 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	}
 }
 /**
- * @see IType#createField(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
+ * @see IType#createField(String, IJavaElement, boolean, IProgressMonitor)
  */
 public IField createField(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType#createInitializer(String contents, IJavaElement sibling, IProgressMonitor monitor)
+ * @see IType#createInitializer(String, IJavaElement, IProgressMonitor)
  */
 public IInitializer createInitializer(String contents, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType#createMethod(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
+ * @see IType#createMethod(String, IJavaElement, boolean, IProgressMonitor)
  */
 public IMethod createMethod(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType#createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
+ * @see IType#createType(String, IJavaElement, boolean, IProgressMonitor)
  */
 public IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType#findMethods(IMethod method)
+ * @see IType#findMethods(IMethod)
  */
 public IMethod[] findMethods(IMethod method) {
 	try {

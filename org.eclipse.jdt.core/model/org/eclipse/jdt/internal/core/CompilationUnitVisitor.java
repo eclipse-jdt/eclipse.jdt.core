@@ -4,20 +4,26 @@ package org.eclipse.jdt.internal.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.env.*;
+import java.util.Locale;
+import java.util.Map;
+
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.problem.*;
-
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 public class CompilationUnitVisitor extends Compiler {
 	
@@ -39,13 +45,13 @@ public class CompilationUnitVisitor extends Compiler {
 	 *      specify the rules for handling problems (stop on first error or accumulate
 	 *      them all) and at the same time perform some actions such as opening a dialog
 	 *      in UI when compiling interactively.
-	 *      @see org.eclipse.jdt.internal.compiler.api.problem.DefaultErrorHandlingPolicies
+	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
 	 *      
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
 	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
 	 *      responsible for writing out the actual .class files to the file system.
-	 *      @see org.eclipse.jdt.internal.compiler.api.CompilationResult
+	 *      @see org.eclipse.jdt.internal.compiler.CompilationResult
 	 *
 	 *  @param problemFactory org.eclipse.jdt.internal.compiler.api.problem.IProblemFactory
 	 *      Factory used inside the compiler to create problem descriptors. It allows the

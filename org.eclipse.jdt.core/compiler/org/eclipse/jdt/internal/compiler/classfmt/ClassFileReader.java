@@ -42,7 +42,6 @@ public class ClassFileReader extends ClassFileStruct implements AttributeNamesCo
  * 
  * @param fullyInitialize boolean
  * 		Flag to fully initialize the new object
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
  * @exception ClassFormatException
  */
 public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInitialize) throws ClassFormatException {
@@ -210,13 +209,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 }
 
 /**
- * @param classFileBytes byte[]
- * 		Actual bytes of a .class file
+ * @param classFileBytes Actual bytes of a .class file
+ * @param fileName	Actual name of the file that contains the bytes, can be null
  * 
- * @param fileName char[]
- * 		Actual name of the file that contains the bytes, can be null
- * 
- * @return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader
  * @exception ClassFormatException
  */
 public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassFormatException {

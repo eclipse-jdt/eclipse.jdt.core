@@ -5504,7 +5504,7 @@ public final void writeByteAtPos(int pos, byte b) {
 }
 /**
  * Write a unsigned 8 bits value into the byte array
- * @param 
+ * @param b the signed byte
  */
 public final void writeSignedByte(int b) {
 	try {
@@ -5516,7 +5516,7 @@ public final void writeSignedByte(int b) {
 }
 /**
  * Write a signed 16 bits value into the byte array
- * @param 
+ * @param b the signed short
  */
 public final void writeSignedShort(int b) {
 	try {
@@ -5602,7 +5602,7 @@ public final void writeSignedWord(int pos, int value) {
 }
 /**
  * Write a unsigned 8 bits value into the byte array
- * @param 
+ * @param b the unsigned byte
  */
 public final void writeUnsignedByte(int b) {
 	try {
@@ -5614,7 +5614,7 @@ public final void writeUnsignedByte(int b) {
 }
 /**
  * Write a unsigned 16 bits value into the byte array
- * @param 
+ * @param b the unsigned short
  */
 public final void writeUnsignedShort(int b) {
 	try {
@@ -5632,7 +5632,7 @@ public final void writeUnsignedShort(int b) {
 }
 /**
  * Write a unsigned 32 bits value into the byte array
- * @param 
+ * @param value the unsigned word
  */
 public final void writeUnsignedWord(int value) {
 	try {

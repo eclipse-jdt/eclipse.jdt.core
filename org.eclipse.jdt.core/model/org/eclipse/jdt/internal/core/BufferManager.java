@@ -79,7 +79,7 @@ public IBufferFactory getDefaultBufferFactory() {
  * <p> 
  * The <code>Enumeration</code> answered is thread safe.
  *
- * @see OverflowLRUCache
+ * @see OverflowingLRUCache
  * @return Enumeration of IBuffer
  */
 public Enumeration getOpenBuffers() {

@@ -35,7 +35,7 @@ import org.eclipse.jdt.core.IPackageFragment;
  *
  * <p>The default conflict resolution setting is the force flag is <code>false</code>
  *
- * @exception JavaModelOperation An exception is thrown either if the commit could not
+ * A JavaModelOperation exception is thrown either if the commit could not
  * be performed or if the new content of the compilation unit violates some Java Model
  * constraint (e.g. if the new package declaration doesn't match the name of the folder
  * containing the compilation unit).

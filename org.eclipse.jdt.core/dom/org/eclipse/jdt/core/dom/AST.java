@@ -199,10 +199,10 @@ public final class AST {
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
 	 *   and <code>false</code> if bindings are not of interest
 	 * @return the compilation unit node
-	 * @see ASTNode#getFlags
+	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
-	 * @see ASTNode#getStartPositions
-	 * @see ASTNode#getLengths
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
 	 */
 	public static CompilationUnit parseCompilationUnit(
 			ICompilationUnit unit,
@@ -293,10 +293,10 @@ public final class AST {
 	 * @param project the Java project used to resolve names, or 
 	 *    <code>null</code> if bindings are not resolved
 	 * @return the compilation unit node
-	 * @see ASTNode#getFlags
+	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
-	 * @see ASTNode#getStartPositions
-	 * @see ASTNode#getLengths
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
 	 */
 	public static CompilationUnit parseCompilationUnit(
 		char[] source,
@@ -353,10 +353,10 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @param source the string to be parsed as a Java compilation unit
-	 * @see ASTNode#getFlags
+	 * @see ASTNode#getFlags()
 	 * @see ASTNode#MALFORMED
-	 * @see ASTNode#getStartPosition
-	 * @see ASTNode#getLength
+	 * @see ASTNode#getStartPosition()
+	 * @see ASTNode#getLength()
 	 */
 	public static CompilationUnit parseCompilationUnit(char[] source) {
 		if (source == null) {

@@ -618,7 +618,7 @@ protected void exitAbstractMethod(int bodyEnd, int declarationEnd) {
  * Finishes the configuration of the class DOM object which
  * was created by a previous enterClass call.
  *
- * @see IDocumentElementRequestor.exitClass(...);
+ * @see IDocumentElementRequestor#exitClass(int, int)
  */
 public void exitClass(int bodyEnd, int declarationEnd) {
 	exitType(bodyEnd, declarationEnd);
@@ -636,7 +636,7 @@ public void exitConstructor(int bodyEnd, int declarationEnd) {
  * Finishes the configuration of the field DOM object which
  * was created by a previous enterField call.
  *
- * @see IDocumentElementRequestor.exitField(...);
+ * @see IDocumentElementRequestor#exitField(int, int)
  */
 public void exitField(int bodyEnd, int declarationEnd) {
 	DOMField field = (DOMField)fStack.pop();
@@ -663,7 +663,7 @@ public void exitField(int bodyEnd, int declarationEnd) {
  * Finishes the configuration of the interface DOM object which
  * was created by a previous enterInterface call.
  *
- * @see IDocumentElementRequestor.exitInterface(...);
+ * @see IDocumentElementRequestor#exitInterface(int, int)
  */
 public void exitInterface(int bodyEnd, int declarationEnd) {
 	exitType(bodyEnd, declarationEnd);
@@ -672,7 +672,7 @@ public void exitInterface(int bodyEnd, int declarationEnd) {
  * Finishes the configuration of the method DOM object which
  * was created by a previous enterMethod call.
  *
- * @see IDocumentElementRequestor.exitMethod(...);
+ * @see IDocumentElementRequestor#exitMethod(int, int)
  */
 public void exitMethod(int bodyEnd, int declarationEnd) {
 	exitAbstractMethod(bodyEnd, declarationEnd);

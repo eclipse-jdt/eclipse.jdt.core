@@ -40,7 +40,7 @@ protected ClassFile(IPackageFragment parent, String name) {
 }
 
 /**
- * @see ICodeAssist
+ * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
  */
 public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
 	String source = getSource();
@@ -57,7 +57,7 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
 	}
 }
 /**
- * @see ICodeResolve
+ * @see ICodeAssist#codeSelect(int, int)
  */
 public IJavaElement[] codeSelect(int offset, int length) throws JavaModelException {
 	IBuffer buffer = getBuffer();
@@ -504,7 +504,7 @@ public static char[] translatedName(char[] name) {
 }
 
 /**
- * @see ICodeAssist
+ * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
  * @deprecated - should use codeComplete(int, ICompletionRequestor) instead
  */
 public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {

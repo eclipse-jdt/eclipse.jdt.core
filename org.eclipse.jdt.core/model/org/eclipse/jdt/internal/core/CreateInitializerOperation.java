@@ -79,7 +79,7 @@ protected IJavaElement generateResultHandle() {
 	return null;
 }
 /**
- * @see CreateElementInCUOperation#getMainTaskName
+ * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
 	return Util.bind("operation.createInitializerProgress"); //$NON-NLS-1$

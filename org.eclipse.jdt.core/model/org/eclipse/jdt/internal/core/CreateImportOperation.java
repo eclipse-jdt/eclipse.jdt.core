@@ -68,7 +68,7 @@ protected IJavaElement generateResultHandle() {
 	return getCompilationUnit().getImport(fImportName);
 }
 /**
- * @see CreateElementInCUOperation#getMainTaskName
+ * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
 	return Util.bind("operation.createImportsProgress"); //$NON-NLS-1$
@@ -111,7 +111,7 @@ protected void initializeDefaultPosition() {
  *  <li>INVALID_NAME - not a valid import declaration name.
  * </ul>
  * @see IJavaModelStatus
- * @see JavaNamingConventions
+ * @see JavaConventions
  */
 public IJavaModelStatus verify() {
 	IJavaModelStatus status = super.verify();

@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.dom;
  * This interface is not intended to be implemented by clients.
  * </p>
  * 
- * @see ITypeBinding#getDeclaredTypes
+ * @see ITypeBinding#getDeclaredTypes()
  * @since 2.0
  */
 public interface ITypeBinding extends IBinding {
@@ -40,10 +40,9 @@ public interface ITypeBinding extends IBinding {
 	 * @return <code>true</code> if this type binding is for a primitive type,
 	 *   and <code>false</code> otherwise
 	 *
-	 * @see #isArray
-	 * @see #isClass
-	 * @see #isInterface
-	 * @see #wellKnownType
+	 * @see #isArray()
+	 * @see #isClass()
+	 * @see #isInterface()
 	 */
 	public boolean isPrimitive();
 
@@ -72,9 +71,9 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return <code>true</code> if this type binding is for an array type,
 	 *   and <code>false</code> otherwise
-	 * @see #isClass
-	 * @see #isInterface
-	 * @see #isPrimitive
+	 * @see #isClass()
+	 * @see #isInterface()
+	 * @see #isPrimitive()
 	 */
 	public boolean isArray();
 	
@@ -107,9 +106,9 @@ public interface ITypeBinding extends IBinding {
 	 * @return <code>true</code> if this object represents a class,
 	 *    and <code>false</code> otherwise
 	 *
-	 * @see #isArray
-	 * @see #isInterface
-	 * @see #isPrimitive
+	 * @see #isArray()
+	 * @see #isInterface()
+	 * @see #isPrimitive()
 	 */
 	public boolean isClass();
 	
@@ -123,9 +122,9 @@ public interface ITypeBinding extends IBinding {
 	 * @return <code>true</code> if this object represents an interface,
 	 *    and <code>false</code> otherwise
 	 *
-	 * @see #isArray
-	 * @see #isClass
-	 * @see #isPrimitive
+	 * @see #isArray()
+	 * @see #isClass()
+	 * @see #isPrimitive()
 	 */
 	public boolean isInterface();
 	

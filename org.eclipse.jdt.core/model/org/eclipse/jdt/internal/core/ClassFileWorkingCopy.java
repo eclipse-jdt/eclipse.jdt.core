@@ -414,21 +414,21 @@ public IResource getResource() {
 	}
 
 	/**
-	 * @see IWorkingCopy#reconcile()
+	 * @see org.eclipse.jdt.core.IWorkingCopy#reconcile()
 	 */
 	public IMarker[] reconcile() throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see IWorkingCopy#restore()
+	/**
+	 * @see org.eclipse.jdt.core.IWorkingCopy#restore()
 	 */
 	public void restore() throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
+	/**
+	 * @see org.eclipse.jdt.core.ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
 	 */
 	public void copy(
 		IJavaElement container,
@@ -440,16 +440,16 @@ public IResource getResource() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see ISourceManipulation#delete(boolean, IProgressMonitor)
+	/**
+	 * @see org.eclipse.jdt.core.ISourceManipulation#delete(boolean, IProgressMonitor)
 	 */
 	public void delete(boolean force, IProgressMonitor monitor)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
+	/**
+	 * @see org.eclipse.jdt.core.ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
 	 */
 	public void move(
 		IJavaElement container,
@@ -461,24 +461,24 @@ public IResource getResource() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
+	/**
+	 * @see org.eclipse.jdt.core.ISourceManipulation#rename(String, boolean, IProgressMonitor)
 	 */
 	public void rename(String name, boolean replace, IProgressMonitor monitor)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
+	/**
+	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, ICompletionRequestor)
 	 */
 	public void codeComplete(int offset, ICompletionRequestor requestor)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see ICodeAssist#codeSelect(int, int)
+	/**
+	 * @see org.eclipse.jdt.core.ICodeAssist#codeSelect(int, int)
 	 */
 	public IJavaElement[] codeSelect(int offset, int length)
 		throws JavaModelException {
@@ -486,7 +486,7 @@ public IResource getResource() {
 	}
 
 	/**
-	 * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
+	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
 	 * @deprecated
 	 */
 	public void codeComplete(int offset, ICodeCompletionRequestor requestor)
@@ -494,14 +494,14 @@ public IResource getResource() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-	/*
-	 * @see IAdaptable#getAdapter(Class)
+	/**
+	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(Class)
 	 */
 	public Object getAdapter(Class adapter) {
 		return null;
 	}
 
-	/*
+	/**
 	 * @see IJavaElement#getAncestor(int)
 	 */
 	public IJavaElement getAncestor(int ancestorType) {

@@ -1912,9 +1912,10 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 	/**
 	 * Set the positions to map. The mapped positions should be retrieved using the
 	 * getMappedPositions() method.
-	 * @see getMappedPositions()
 	 * @param positions int[]
 	 * @deprecated Set the positions to map using the format(String, int, int[]) method.
+	 * 
+	 * @see #getMappedPositions()
 	 */
 	public void setPositionsToMap(int[] positions) {
 		positionsToMap = positions;

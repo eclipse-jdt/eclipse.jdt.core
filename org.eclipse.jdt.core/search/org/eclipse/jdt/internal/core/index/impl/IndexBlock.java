@@ -63,14 +63,12 @@ public abstract class IndexBlock extends Block {
 	 * Returns whether the block is empty or not (if it doesn't contain any wordEntry).
 	 */
 	public abstract boolean isEmpty();
+
 	/**
 	 * Finds the next wordEntry and stores it in the given entry.
 	 */
-
 	public abstract boolean nextEntry(WordEntry entry);
-	/**
-	 * @see Block#findEntry
-	 */
+
 	public void reset() {
 	}
 }

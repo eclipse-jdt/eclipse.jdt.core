@@ -19,8 +19,8 @@ import java.util.zip.*;
  * are .class files.
  * <p>NOTE: A jar package fragment root may or may not have an associated resource.
  *
- * @see IPackageFragmentRoot
- * @see JarPackageFragmentRootInfo
+ * @see org.eclipse.jdt.core.IPackageFragmentRoot
+ * @see org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo
  */
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	
@@ -608,7 +608,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 }
 
 	/**
-	 * @private - for use by <code>AttachSourceOperation</code> only.
+	 * For use by <code>AttachSourceOperation</code> only.
 	 * Sets the source mapper associated with this jar.
 	 */
 	public void setSourceMapper(SourceMapper mapper) throws JavaModelException {

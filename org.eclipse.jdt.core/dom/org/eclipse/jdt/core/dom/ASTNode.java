@@ -1422,7 +1422,7 @@ public abstract class ASTNode {
 	 * 
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
-	 * @see #getStartPositions
+	 * @see #getStartPosition()
 	 */
 	public int getLength() {
 		return length;

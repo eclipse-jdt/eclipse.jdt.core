@@ -23,18 +23,18 @@ public class SimpleIndexInput extends IndexInput {
 		this.index= index;
 	}
 	/**
-	 * @see IndexInput#clearCache
+	 * @see IndexInput#clearCache()
 	 */
 	public void clearCache() {
 	}
 	/**
-	 * @see IndexInput#close
+	 * @see IndexInput#close()
 	 */
 	public void close() throws IOException {
 		sortedFiles= null;
 	}
 	/**
-	 * @see IndexInput#getCurrentFile
+	 * @see IndexInput#getCurrentFile()
 	 */
 	public IndexedFile getCurrentFile() throws IOException {
 		if (!hasMoreFiles())
@@ -42,7 +42,7 @@ public class SimpleIndexInput extends IndexInput {
 		return currentFile;
 	}
 	/**
-	 * @see IndexInput#getIndexedFile
+	 * @see IndexInput#getIndexedFile(int)
 	 */
 	public IndexedFile getIndexedFile(int fileNum) throws IOException {
 		for (int i= 0; i < sortedFiles.length; i++)
@@ -51,7 +51,7 @@ public class SimpleIndexInput extends IndexInput {
 		return null;
 	}
 	/**
-	 * @see IndexInput#getIndexedFile
+	 * @see IndexInput#getIndexedFile(IDocument)
 	 */
 	public IndexedFile getIndexedFile(IDocument document) throws IOException {
 		String name= document.getName();
@@ -63,32 +63,29 @@ public class SimpleIndexInput extends IndexInput {
 		return null;
 	}
 	/**
-	 * @see IndexInput#getNumFiles
+	 * @see IndexInput#getNumFiles()
 	 */
 	public int getNumFiles() {
 		return index.getNumFiles();
 	}
 	/**
-	 * @see IndexInput#getNumWords
+	 * @see IndexInput#getNumWords()
 	 */
 	public int getNumWords() {
 		return sortedWordEntries.length;
 	}
 	/**
-	 * @see IndexInput#getSource
+	 * @see IndexInput#getSource()
 	 */
 	public Object getSource() {
 		return index;
 	}
-	/**
-	 * @see IndexInput#init
-	 */
 	public void init() {
 		index.init();
 
 	}
 	/**
-	 * @see IndexInput#moveToNextFile
+	 * @see IndexInput#moveToNextFile()
 	 */
 	public void moveToNextFile() throws IOException {
 		filePosition++;
@@ -98,7 +95,7 @@ public class SimpleIndexInput extends IndexInput {
 		currentFile= sortedFiles[filePosition - 1];
 	}
 	/**
-	 * @see IndexInput#moveToNextWordEntry
+	 * @see IndexInput#moveToNextWordEntry()
 	 */
 	public void moveToNextWordEntry() throws IOException {
 		wordPosition++;
@@ -106,7 +103,7 @@ public class SimpleIndexInput extends IndexInput {
 			currentWordEntry= sortedWordEntries[wordPosition - 1];
 	}
 	/**
-	 * @see IndexInput#open
+	 * @see IndexInput#open()
 	 */
 	public void open() throws IOException {
 		sortedWordEntries= index.getSortedWordEntries();
@@ -117,7 +114,7 @@ public class SimpleIndexInput extends IndexInput {
 		setFirstWord();
 	}
 	/**
-	 * @see IndexInput#query
+	 * @see IndexInput#query(String)
 	 */
 	public IQueryResult[] query(String word) throws IOException {
 		char[] wordChar= word.toCharArray();
@@ -128,14 +125,14 @@ public class SimpleIndexInput extends IndexInput {
 			files[i]= getIndexedFile(fileNums[i]);
 		return files;
 	}
-public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
-	return null;
-}
-public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
+	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
 		return null;
-}
+	}
+	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
+			return null;
+	}
 	/**
-	 * @see IndexInput#query
+	 * @see IndexInput#queryInDocumentNames(String)
 	 */
 	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
 		setFirstFile();
@@ -151,7 +148,7 @@ public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOExcept
 		return match;
 	}
 	/**
-	 * @see IndexInput#setFirstFile
+	 * @see IndexInput#setFirstFile()
 	 */
 	protected void setFirstFile() throws IOException {
 		filePosition= 1;
@@ -160,7 +157,7 @@ public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOExcept
 		}
 	}
 	/**
-	 * @see IndexInput#setFirstWord
+	 * @see IndexInput#setFirstWord()
 	 */
 	protected void setFirstWord() throws IOException {
 		wordPosition= 1;

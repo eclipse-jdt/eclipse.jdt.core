@@ -1114,8 +1114,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 	segments
 	 * @return a new container classpath entry
 	 * 
-	 * @see JavaCore#getResolvedClasspathContainer(IPath, IJavaProject)
-	 * @see JavaCore#classpathContainerChanged(IPath, IJavaElement, IProgressMonitor)
+	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
 	 * @see JavaCore#newContainerEntry(IPath, boolean)
 	 * @since 2.0
 	 */

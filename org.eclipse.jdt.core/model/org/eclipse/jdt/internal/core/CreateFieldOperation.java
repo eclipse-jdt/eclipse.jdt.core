@@ -55,7 +55,7 @@ protected IJavaElement generateResultHandle() {
 	return getType().getField(fDOMNode.getName());
 }
 /**
- * @see CreateElementInCUOperation#getMainTaskName
+ * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
 	return Util.bind("operation.createFieldProgress"); //$NON-NLS-1$

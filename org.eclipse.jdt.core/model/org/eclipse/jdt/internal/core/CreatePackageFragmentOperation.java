@@ -95,7 +95,7 @@ protected void executeOperation() throws JavaModelException {
  *	<li>ELEMENT_NOT_PRESENT - the underlying resource for the root is missing
  * </ul>
  * @see IJavaModelStatus
- * @see JavaNamingConventions
+ * @see JavaConventions
  */
 public IJavaModelStatus verify() {
 	if (getParentElement() == null) {
