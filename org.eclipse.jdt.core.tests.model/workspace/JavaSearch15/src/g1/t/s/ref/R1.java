@@ -12,7 +12,7 @@ public class R1 {
 	// Simple name
 	public Generic gen;
 	public Generic<Object> gen_obj;
-	public Generic<Exception> gen_exc;
+	public /**selected node->*/Generic<Exception> gen_exc;
 	public Generic<?> gen_wld;
 	public Generic<? extends Throwable> gen_thr;
 	public Generic<? super RuntimeException> gen_run;

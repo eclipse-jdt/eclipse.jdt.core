@@ -14,7 +14,7 @@ public class R4 {
 	public Generic<Object, Exception, RuntimeException>.Member gen_obj;
 	public Generic<Exception, Exception, RuntimeException>.Member gen_exc;
 	public Generic<?, ?, ?>.Member gen_wld;
-	public Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member gen_thr;
+	public /**selected node->*/Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member gen_thr;
 	public Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.Member gen_run;
 	// Qualified name
 	public g1.t.m.def.Generic.Member qgen;

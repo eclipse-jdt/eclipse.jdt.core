@@ -754,19 +754,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *	</ul>
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 */
-	/* (non-Javadoc) 
-	 * SEARCH_15
-	 * 	Modified to handle generics:
-	 * 		1) Field defined on parameterized types
-	 * 			In this case, we need to split the erasure name and type argument names.
-	 * 			Erasure name is used as type simple name and type argument names
-	 * 			are stored in field reference pattern.
-	 * 		2) Generic types declaration
-	 * 			In this case, type arguments names are got from IType and stored
-	 * 			in instanciated type reference pattern.
-	 * 	Note that no change was done for declaration patterns as the search works well for generics
-	 * 	without any additional information.
-	 */
 	public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 		SearchPattern searchPattern = null;
 		int lastDot;
@@ -782,12 +769,13 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				char[] name = field.getElementName().toCharArray();
 				char[] typeSimpleName;
 				char[] typeQualification;
-				char[] typeSignature = null;
+				String typeSignature;
 				try {
-					char[] signature = field.getTypeSignature().toCharArray();
+					typeSignature = field.getTypeSignature();
+					char[] signature = typeSignature.toCharArray();
 					char[] typeErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
-					if (CharOperation.indexOf(Signature.C_GENERIC_START, signature) >= 0) {
-						typeSignature = signature;
+					if (CharOperation.indexOf(Signature.C_GENERIC_START, signature) < 0) {
+						typeSignature = null;
 					}
 					CharOperation.replace(typeErasure, '$', '.');
 					if ((lastDot = CharOperation.lastIndexOf('.', typeErasure)) == -1) {
@@ -1093,7 +1081,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							type.getElementName().toCharArray(), 
 							type.getPackageFragment().getElementName().toCharArray(),
 							enclosingTypeNames(type),
-							signature == null ? null : signature.toCharArray(),
+							signature,
 							true, /* generic type */
 							limitTo);
 				break;
@@ -1106,7 +1094,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			MatchLocator.setFocus(searchPattern, element);
 		return searchPattern;
 	}
-	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, char[] typeSignature, boolean generic, int limitTo) {
+	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, String typeSignature, boolean generic, int limitTo) {
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS :
 				return new TypeDeclarationPattern(
@@ -1181,10 +1169,12 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 					switch (token) {
 						case TerminalTokens.TokenNameGREATER:
-							paramCount++;
+						case TerminalTokens.TokenNameRIGHT_SHIFT:
+						case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+							paramCount--;
 							break;
 						case TerminalTokens.TokenNameLESS:
-							paramCount--;
+							paramCount++;
 							break;
 					}
 					if (type == null)
@@ -1199,7 +1189,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			}
 		}
 		if (type == null) return null;
-		char[] typeSignature = null;
+		String typeSignature = null;
 		char[] qualificationChars = null, typeChars = null;
 	
 		// extract declaring type infos
@@ -1207,12 +1197,12 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			// get type part and signature
 			char[] typePart = null;
 			try {
-				String signature = Signature.createTypeSignature(type, false);
-				if (signature.indexOf(Signature.C_GENERIC_START) < 0) {
+				typeSignature = Signature.createTypeSignature(type, false);
+				if (typeSignature.indexOf(Signature.C_GENERIC_START) < 0) {
 					typePart = type.toCharArray();
+					typeSignature = null;
 				} else {
-					typeSignature = signature.toCharArray();
-					typePart = Signature.toCharArray(Signature.getTypeErasure(typeSignature));
+					typePart = Signature.toCharArray(Signature.getTypeErasure(typeSignature.toCharArray()));
 				}
 			}
 			catch (IllegalArgumentException iae) {

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 
@@ -26,8 +27,9 @@ public class JavaSearchPattern extends SearchPattern {
 	 */
 	int matchMode;
 	
-	// Type signature for parameterized types search
-	char[] typeSignature;
+	// Signatures and arguments for parameterized types search
+	char[][] typeSignatures;
+	char[][][] typeArguments;
 
 	protected JavaSearchPattern(int patternKind, int matchRule) {
 		super(matchRule);
@@ -46,6 +48,93 @@ public class JavaSearchPattern extends SearchPattern {
 
 	boolean isCaseSensitive () {
 		return this.isCaseSensitive;
+	}
+	
+	/**
+	 * Returns whether the pattern includess type arguments information or not.
+	 * @return true if pattern has signature *and* type arguments
+	 */
+	public boolean isParameterized() {
+		return this.typeSignatures != null && this.typeArguments != null;
+	}
+
+	/* (non-Javadoc)
+	 * Compute a IJavaElement signature or a string pattern signature to store
+	 * its type arguments. Recurse when signature is qualified to store signatures and
+	 * type arguments also for of all enclosing types.
+	 */
+	void computeSignature(String signature) {
+		// In case of IJavaElement signature, replace '/' by '.'
+		char[] source = signature.replace('/','.').toCharArray();
+
+		// Init counters and arrays
+		char[][] signatures = new char[10][];
+		int signaturesCount = 0;
+		int[] lengthes = new int [10];
+		int typeArgsCount = 0;
+		int paramOpening = 0;
+		boolean parameterized = false;
+		
+		// Scan each signature character
+		for (int idx=0, ln = source.length; idx < ln; idx++) {
+			switch (source[idx]) {
+				case '>':
+					paramOpening--;
+					if (paramOpening == 0)  {
+						if (signaturesCount == lengthes.length) {
+							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
+							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
+						}
+						lengthes[signaturesCount] = typeArgsCount;
+						typeArgsCount = 0;
+					}
+					break;
+				case '<':
+					paramOpening++;
+					if (paramOpening == 1) {
+						typeArgsCount = 0;
+						parameterized = true;
+					}
+					break;
+				case '*':
+				case ';':
+					if (paramOpening == 1) typeArgsCount++;
+					break;
+				case '.':
+					if (paramOpening == 0)  {
+						if (signaturesCount == lengthes.length) {
+							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
+							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
+						}
+						signatures[signaturesCount] = new char[idx+1];
+						System.arraycopy(source, 0, signatures[signaturesCount], 0, idx);
+						signatures[signaturesCount][idx] = Signature.C_SEMICOLON;
+						signaturesCount++;
+					}
+					break;
+			}
+		}
+		
+		// Store signatures and type arguments
+		this.typeSignatures = new char[signaturesCount+1][];
+		if (parameterized)
+			this.typeArguments = new char[signaturesCount+1][][];
+		this.typeSignatures[0] = source;
+		if (parameterized) {
+			this.typeArguments[0] = Signature.getTypeArguments(source);
+			if (lengthes[signaturesCount] != this.typeArguments[0].length) {
+				// TODO (frederic) abnormal signature => should raise an error
+			}
+		}
+		for (int i=1, j=signaturesCount-1; i<=signaturesCount; i++, j--){
+			this.typeSignatures[i] = signatures[j];
+			if (parameterized) {
+				this.typeArguments[i] = Signature.getTypeArguments(signatures[j]);
+				if (lengthes[j] != this.typeArguments[i].length) {
+					// TODO (frederic) abnormal signature => should raise an error
+				}
+			}
+		}
 	}
 
 	/*
@@ -72,9 +161,9 @@ public class JavaSearchPattern extends SearchPattern {
 	}
 	protected StringBuffer print(StringBuffer output) {
 		output.append(", "); //$NON-NLS-1$
-		if (this.typeSignature != null) {
+		if (this.typeSignatures != null && this.typeSignatures.length > 0) {
 			output.append("signature:\""); //$NON-NLS-1$
-			output.append(this.typeSignature);
+			output.append(this.typeSignatures[0]);
 			output.append("\", "); //$NON-NLS-1$
 		}
 		switch(getMatchMode()) {

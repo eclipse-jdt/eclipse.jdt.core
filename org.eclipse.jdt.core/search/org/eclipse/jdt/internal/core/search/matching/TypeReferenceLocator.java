@@ -131,7 +131,7 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 	super.matchLevelAndReportImportRef(importRef, refBinding, locator);
 }
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	if (this.pattern.shouldExtendSelection()) {
+	if (this.pattern.isParameterized()) {
 		// do not report import ref for generic patterns...
 		return;
 	}
@@ -164,7 +164,19 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 			if (resolveLevelForType(typeBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = importRef.sourcePositions;
-					int start = (int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32);
+					// index now depends on pattern type signature
+					int index = lastIndex;
+					if (this.pattern.qualification != null) {
+						if (this.pattern.typeSignatures != null) {
+							if (this.pattern.typeSignatures.length > 1) {
+								index = lastIndex - (this.pattern.typeSignatures.length - 1);
+							}
+						} else {
+							index = lastIndex - this.pattern.segmentsSize;
+						}
+					}
+					if (index < 0) index = 0;
+					int start = (int) ((positions[index]) >>> 32);
 					int end = (int) positions[lastIndex];
 					SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, start, end-start+1, importRef);
 					locator.report(match);
@@ -186,15 +198,16 @@ protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement el
 			return;
 		}
 	}
-	TypeBinding refBinding = arrayRef.resolvedType;
-	int refinedAccuracy = accuracy;
-	if (this.pattern != null && this.pattern.typeSignature != null && refBinding.isParameterizedType()) {
-		ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)refBinding;
-		refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.typeSignature, locator);
-		if (refinedAccuracy == -1) return; // refined accuracy shows an impossible match...
-		if (this.pattern.shouldExtendSelection() && parameterizedBinding.arguments != null) {
+	if (arrayRef.resolvedType != null) {
+		TypeBinding refBinding = arrayRef.resolvedType.leafComponentType();
+		int refinedAccuracy = accuracy;
+		if (this.pattern != null && this.pattern.isParameterized() && refBinding.isParameterizedType()) {
+			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)refBinding;
+			refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.typeArguments, locator);
+			if (refinedAccuracy == -1) return; // refined accuracy shows an impossible match...
 			// specific report accurate match for parameterized types
-			locator.reportAccurateParameterizedTypeReference(arrayRef, this.pattern.simpleName, element, refinedAccuracy);
+			ParameterizedSingleTypeReference paramTypeRef = (ParameterizedSingleTypeReference) arrayRef;
+			locator.reportAccurateParameterizedTypeReference(paramTypeRef, this.pattern.simpleName, arrayRef.sourceStart, paramTypeRef.typeArguments, element, refinedAccuracy);
 			return;
 		}
 	}
@@ -286,18 +299,29 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 			if (resolveLevelForType(refBinding) != IMPOSSIBLE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = qTypeRef.sourcePositions;
-					int start = (int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32);
+					// index now depends on pattern type signature
+					int index = lastIndex;
+					if (this.pattern.qualification != null) {
+						if (this.pattern.typeSignatures != null) {
+							if (this.pattern.typeSignatures.length > 1) {
+								index = lastIndex - (this.pattern.typeSignatures.length - 1);
+							}
+						} else {
+							index = lastIndex - this.pattern.segmentsSize;
+						}
+					}
+					if (index < 0) index = 0;
+					int start = (int) ((positions[index]) >>> 32);
 					int end = (int) positions[lastIndex];
 					int refinedAccuracy = accuracy;
-					if (this.pattern != null && this.pattern.typeSignature != null && refBinding.isParameterizedType()) {
+					if (this.pattern != null && this.pattern.isParameterized() && refBinding.isParameterizedType()) {
 						ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)refBinding;
-						refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.typeSignature, locator);
+						refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.typeArguments, locator);
 						if (refinedAccuracy == -1) return; // refined accuracy shows an impossible match...
-						if (this.pattern.shouldExtendSelection() && parameterizedBinding.arguments != null) {
-							// specific report accurate match for parameterized types
-							locator.reportAccurateParameterizedTypeReference(qTypeRef, this.pattern.simpleName, element, refinedAccuracy);
-							return;
-						}
+						// specific report accurate match for parameterized types
+						TypeReference[] typeArguments = qTypeRef instanceof ParameterizedQualifiedTypeReference ? ((ParameterizedQualifiedTypeReference) qTypeRef).typeArguments[lastIndex] : null;
+						locator.reportAccurateParameterizedTypeReference(qTypeRef, this.pattern.simpleName, start, typeArguments, element, refinedAccuracy);
+						return;
 					}
 					SearchMatch match = locator.newTypeReferenceMatch(element, refinedAccuracy, start, end-start+1, qTypeRef);
 					locator.report(match);
@@ -495,9 +519,9 @@ protected int resolveLevelForType(TypeBinding typeBinding) {
 	return resolveLevelForType(
 			this.pattern.simpleName,
 			this.pattern.qualification,
-			this.pattern.typeSignature,
+			this.pattern.typeArguments,
+			0,
 			((InternalSearchPattern)this.pattern).mustResolve,
-			this.pattern.declaration,
 			typeBinding);
 }
 /**

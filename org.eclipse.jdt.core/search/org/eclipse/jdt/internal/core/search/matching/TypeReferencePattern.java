@@ -19,12 +19,10 @@ public class TypeReferencePattern extends AndPattern implements IIndexConstants 
 protected char[] qualification;
 protected char[] simpleName;
 	
-// extra infos for bindings
-protected boolean declaration;	// show whether the search is based on a declaration or an instance
-
 protected char[] currentCategory;
 
 /* Optimization: case where simpleName == null */
+public int segmentsSize;
 protected char[][] segments;
 protected int currentSegment;
 
@@ -40,20 +38,24 @@ public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRu
 		this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
 	else
 		this.segments = null;
+	
+	if (this.segments == null)
+		if (this.qualification == null)
+			this.segmentsSize =  0;
+		else
+			this.segmentsSize =  CharOperation.occurencesOf('.', this.qualification) + 1;
+	else
+		this.segmentsSize = this.segments.length;
 
 	((InternalSearchPattern)this).mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
 /*
  * Instanciate a type reference pattern with additional information for generics search
  */
-public TypeReferencePattern(char[] qualification, char[] simpleName, char[] signature, boolean fromJavaElement, int matchRule) {
+public TypeReferencePattern(char[] qualification, char[] simpleName, String signature, boolean fromJavaElement, int matchRule) {
 	this(qualification, simpleName,matchRule);
 
-	if (signature != null) {
-		this.typeSignature = signature;
-		CharOperation.replace(this.typeSignature, '/', '.');
-	}
-	this.declaration = fromJavaElement;
+	if (signature != null) computeSignature(signature);
 }
 TypeReferencePattern(int matchRule) {
 	super(TYPE_REF_PATTERN, matchRule);
@@ -91,15 +93,6 @@ protected void resetQuery() {
 	/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */
 	if (this.segments != null)
 		this.currentSegment = this.segments.length - 1;
-}
-/*
- * Show if selection should be extended. While selecting text on a search match, we nee to extend
- * it if the pattern is on an parameterized type which have non-null type arguments.
- * For example, when search match is on List<String>, extension has to be extended to include
- * type arguments until the closing '>'.
- */
-protected boolean shouldExtendSelection() {
-	return !this.declaration && this.typeSignature != null;
 }
 protected StringBuffer print(StringBuffer output) {
 	output.append("TypeReferencePattern: qualification<"); //$NON-NLS-1$

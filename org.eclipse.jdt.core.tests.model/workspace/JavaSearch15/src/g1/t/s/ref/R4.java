@@ -19,7 +19,7 @@ public class R4 {
 	// Qualified name
 	public g1.t.s.def.Generic.Member qgen;
 	public g1.t.s.def.Generic<Object>.Member qgen_obj;
-	public g1.t.s.def.Generic<Exception>.Member qgen_exc;
+	public /**selected node->*/g1.t.s.def.Generic<Exception>.Member qgen_exc;
 	public g1.t.s.def.Generic<?>.Member qgen_wld;
 	public g1.t.s.def.Generic<? extends Throwable>.Member qgen_thr;
 	public g1.t.s.def.Generic<? super RuntimeException>.Member qgen_run;

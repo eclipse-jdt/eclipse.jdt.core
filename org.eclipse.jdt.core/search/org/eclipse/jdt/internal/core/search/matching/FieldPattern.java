@@ -24,9 +24,6 @@ protected char[] declaringSimpleName;
 protected char[] typeQualification;
 protected char[] typeSimpleName;
 
-// Additional information for generics search
-protected boolean declaration;	// show whether the search is based on a declaration or an instance
-
 protected static char[][] REF_CATEGORIES = { REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { REF, FIELD_DECL };
 protected static char[][] DECL_CATEGORIES = { FIELD_DECL };
@@ -67,15 +64,12 @@ public FieldPattern(
 	char[] declaringSimpleName,	
 	char[] typeQualification, 
 	char[] typeSimpleName,
-	char[] signature,
+	String signature,
 	int matchRule) {
 
 	this(findDeclarations, readAccess, writeAccess, name, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName, matchRule);
 
-	if (signature != null) {
-		this.typeSignature = signature;
-		CharOperation.replace(this.typeSignature, '/', '.');
-	}
+	if (signature != null) computeSignature(signature);
 }
 public void decodeIndexKey(char[] key) {
 	this.name = key;

@@ -686,10 +686,10 @@ protected void getMethodBodies(CompilationUnitDeclaration unit) {
 		this.parser.scanner.linePtr = oldLinePtr;
 	}
 }
-protected TypeBinding getType(char[] typeName) {
+protected TypeBinding getType(Object typeKey, char[] typeName) {
 	if (this.unitScope == null || typeName == null || typeName.length == 0) return null;
 	// Try to get binding from cache
-	Binding binding = (Binding) this.bindings.get(typeName);
+	Binding binding = (Binding) this.bindings.get(typeKey);
 	if (binding != null) {
 		if (binding instanceof TypeBinding && binding.isValidBinding())
 			return (TypeBinding) binding;
@@ -698,8 +698,8 @@ protected TypeBinding getType(char[] typeName) {
 	// Get binding from unit scope
 	char[][] compoundName = CharOperation.splitOn('.', typeName);
 	TypeBinding typeBinding = this.unitScope.getType(compoundName, compoundName.length);
-	this.bindings.put(typeName, typeBinding);
-	return typeBinding;
+	this.bindings.put(typeKey, typeBinding);
+	return typeBinding.isValidBinding() ? typeBinding : null;
 }
 public MethodBinding getMethodBinding(IMethod method) {
 	if (this.unitScope == null) return null;
@@ -712,8 +712,8 @@ public MethodBinding getMethodBinding(IMethod method) {
 	}
 	//	Get binding from unit scope
 	MethodBinding methodBinding = null;
-	char[] typeName = method.getDeclaringType().getElementName().toCharArray();
-	TypeBinding declaringTypeBinding = getType(typeName);
+	String typeName = method.getDeclaringType().getElementName();
+	TypeBinding declaringTypeBinding = getType(typeName, typeName.toCharArray());
 	if (declaringTypeBinding != null) {
 		if (declaringTypeBinding.isArrayType()) {
 			declaringTypeBinding = declaringTypeBinding.leafComponentType();
@@ -1360,55 +1360,90 @@ protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaEl
 /**
  * @since 3.1
  * Finds the accurate positions of the sequence of tokens given by qualifiedName
- * in the source and reports a reference to this this qualified name
+ * in the source and reports a reference to this parameterized type name
  * to the search requestor.
  */
-protected void reportAccurateParameterizedTypeReference(ASTNode typeRef, char[] name, IJavaElement element, int accuracy) throws CoreException {
+protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, char[] name, int start, TypeReference[] typeArguments, IJavaElement element, int accuracy) throws CoreException {
 	if (accuracy == -1) return;
 	if (!encloses(element)) return;
 
-	// compute source positions of the qualified reference 
-	Scanner scanner = this.parser.scanner;
-	scanner.setSource(this.currentPossibleMatch.getContents());
-	int sourceStart = typeRef.sourceStart;
-	int sourceEnd = scanner.eofPosition;
-	scanner.resetTo(sourceStart, sourceEnd);
+	// If there's type arguments, look for end (ie. char '>') of last one.
+	int end = typeRef.sourceEnd;
+	if (typeArguments != null) {
 
-	int token = -1;
-	int currentPosition;
-	do {
-		currentPosition = scanner.currentPosition;
-		try {
-			token = scanner.getNextToken();
-		} catch (InvalidInputException e) {
-			// ignore
+		// Initialize scanner
+		Scanner scanner = this.parser.scanner;
+		char[] source = this.currentPossibleMatch.getContents();
+		scanner.setSource(source);
+		scanner.resetTo(end, source.length-1);
+
+		// Set scanner position at end of last type argument
+		int depth = 0;
+		for (int i=typeArguments.length-1; i>=0; i--) {
+			if (typeArguments[i] != null) {
+				depth = resetScannerAfterLastTypeArgumentEnd(typeArguments[i], scanner, depth)+1;
+				break;
+			}
 		}
-		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
-			// extends selection end for parameterized types if necessary
-			int count = 0;
-			int ch = -1;
-			while (ch != '>' || count > 0) {
-				ch = scanner.getNextChar();
-				switch (ch) {
-					case '<':
-						count++;
-						break;
-					case '>':
-						count--;
-						break;
-					case -1:
-						// we missed type parameters declarations! => do not report match
-						return;
+
+		// Now, scan to search next closing '>'
+		while (depth-- > 0) {
+			while (!scanner.atEnd()) {
+				if (scanner.getNextChar() == '>') {
+					end = scanner.currentPosition - 1;
+					break;
 				}
 			}
-			int length = scanner.currentPosition-currentPosition;
-			SearchMatch match = newTypeReferenceMatch(element, accuracy, currentPosition, length, typeRef);
-			report(match);
-			return;
 		}
-	} while (token != TerminalTokens.TokenNameEOF);
-	SearchMatch match = newTypeReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, typeRef);
+	}
+	
+	// Report match
+	SearchMatch match = newTypeReferenceMatch(element, accuracy, start, end-start+1, typeRef);
 	report(match);
+}
+/* (non-Javadoc)
+ * Reset scanner after last type argument end. This may be called recursively for nested parameterized
+ * type arguments.
+ * Returns depth of nesting for the last argument.
+ */
+private int resetScannerAfterLastTypeArgumentEnd(TypeReference typeRef, Scanner scanner, int depth) {
+	// Default end is current type argument end
+	int end = typeRef.sourceEnd;
+	// Get last list of type arguments for parameterized qualified type reference
+	TypeReference[] typeArguments = null;
+	if (typeRef instanceof ParameterizedQualifiedTypeReference) {
+		ParameterizedQualifiedTypeReference pqtRef = (ParameterizedQualifiedTypeReference) typeRef;
+		TypeReference[] last = null;
+		for (int i=pqtRef.typeArguments.length-1; i>=0 && last==null; i++) {
+			last = pqtRef.typeArguments[i];
+		}
+		// If no children arguments then current type reference is the last type argument
+		if (last == null) {
+			scanner.resetTo(end+1, scanner.eofPosition-1);
+			return depth;
+		}
+		typeArguments = last;
+	}
+	// Get last type argument for single type reference of last list of argument of parameterized qualified type reference
+	if (typeRef instanceof ParameterizedSingleTypeReference || typeArguments != null) {
+		if (typeArguments == null) {
+			typeArguments = ((ParameterizedSingleTypeReference)typeRef).typeArguments;
+		}
+		TypeReference last = null;
+		for (int i=typeArguments.length-1; i>=0 && last==null; i++) {
+			last = typeArguments[i];
+		}
+		// If no child argument then current type reference is the last type argument
+		if (last == null) {
+			scanner.resetTo(end+1, scanner.eofPosition-1);
+			return depth;
+		}
+		// Loop on last type argument to find its last type argument...
+		return resetScannerAfterLastTypeArgumentEnd(last, scanner, depth+1);
+	}
+	// Current type reference is not parameterized. So, it is the last type argument
+	scanner.resetTo(end+1, scanner.eofPosition-1);
+	return depth;
 }
 /**
  * Finds the accurate positions of each valid token in the source and

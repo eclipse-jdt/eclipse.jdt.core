@@ -12,7 +12,7 @@ public class R2 {
 	// Simple name
 	public NonGeneric.GenericMember gen;
 	public NonGeneric.GenericMember<Object> gen_obj;
-	public NonGeneric.GenericMember<Exception> gen_exc;
+	public /**selected node->*/NonGeneric.GenericMember<Exception> gen_exc;
 	public NonGeneric.GenericMember<?> gen_wld;
 	public NonGeneric.GenericMember<? extends Throwable> gen_thr;
 	public NonGeneric.GenericMember<? super RuntimeException> gen_run;
