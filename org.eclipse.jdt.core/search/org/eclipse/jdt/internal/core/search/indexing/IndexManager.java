@@ -157,6 +157,8 @@ public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boole
 					return index;
 				} catch (IOException e) {
 					// failed to read the existing file or its no longer compatible
+					if (VERBOSE)
+						JobManager.verbose("-> cannot reuse existing index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 					index = null;
 				}
 			}
@@ -308,6 +310,9 @@ private void rebuildIndex(String indexName, IPath path) {
 	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
 	if (target == null) return;
 
+	if (VERBOSE)
+		JobManager.verbose("-> request to rebuild index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+
 	updateIndexState(indexName, REBUILDING_STATE);
 	IndexRequest request = null;
 	if (target instanceof IProject) {
@@ -337,12 +342,18 @@ public synchronized IIndex recreateIndex(IPath path) {
 
 		// Path is already canonical
 		String indexPath = computeIndexName(path);
+		if (VERBOSE)
+			JobManager.verbose("-> recreating index: "+indexPath+" for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 		index = new Index(indexPath, "Index for " + path.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
 		indexes.put(path, index);
 		monitors.put(index, monitor);
 		return index;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
+		if (VERBOSE) {
+			JobManager.verbose("-> failed to recreate index for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+			e.printStackTrace();
+		}
 		return null;
 	}
 }
