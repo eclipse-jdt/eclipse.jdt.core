@@ -12,23 +12,17 @@ package org.eclipse.jdt.core.dom.rewrite;
 
 import java.util.Iterator;
 import java.util.Map;
-
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
-
 import org.eclipse.jface.text.IDocument;
-
 import org.eclipse.jdt.core.JavaCore;
-
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
-import org.eclipse.jdt.internal.core.dom.rewrite.GenericVisitor;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
@@ -137,7 +131,7 @@ public class ASTRewrite {
 		
 		ASTNode rootNode= getRootNode();
 		if (rootNode != null) {
-			validateASTNotModified(rootNode);
+			//validateASTNotModified(rootNode);
 			
 			getRewriteEventStore().markMovedNodesRemoved();
 
@@ -186,6 +180,7 @@ public class ASTRewrite {
 		return node;
 	}
 	
+	/*
 	private void validateASTNotModified(ASTNode root) throws IllegalArgumentException {
 		GenericVisitor isModifiedVisitor= new GenericVisitor() {
 			protected boolean visitNode(ASTNode node) {
@@ -197,6 +192,7 @@ public class ASTRewrite {
 		};
 		root.accept(isModifiedVisitor);
 	}
+	*/
 		
 	/**
 	 * Removes the given node from its parent in this rewriter. The AST itself
