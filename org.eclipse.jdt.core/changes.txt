@@ -113,6 +113,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  3279      Severe -  JM - Source found, even though sourcepath is false (1GELAVB)
   3434      Deleting a project from the ws removes it from the buildpath! (1GKZNBS)  
   5021      Refactoring trashed my code  
   5136		ArrayIndexOutOfBoundsException when a field declaration is an anonymous class 

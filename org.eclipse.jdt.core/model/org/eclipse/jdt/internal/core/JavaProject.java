@@ -126,7 +126,26 @@ public class JavaProject
 			return result;
 		}
 	}
-
+	
+	protected void closing(Object info) throws JavaModelException {
+		IClasspathEntry[] entries = getRawClasspath();
+		for (int i = 0; i < entries.length; i++) {
+			if(entries[i].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				IPackageFragmentRoot[] roots = getPackageFragmentRoots(entries[i]);
+				for (int j = 0; j < roots.length; j++) {
+					if(roots[j] instanceof JarPackageFragmentRoot){
+						JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) roots[j];
+						try {
+							jarRoot.getWorkspace().getRoot().setPersistentProperty(jarRoot.getSourceAttachmentPropertyName(), null); // loose info - will be recomputed
+						} catch(CoreException ce){
+						}
+					}
+				}
+			}		
+		}
+		super.closing(info);
+	}
+	
 	/**
 	 * Compute the file name to use for a given shared property
 	 */
