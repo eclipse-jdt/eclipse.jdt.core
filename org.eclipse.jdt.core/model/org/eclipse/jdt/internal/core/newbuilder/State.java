@@ -26,7 +26,7 @@ int buildNumber;
 int lastStructuralBuildNumber;
 SimpleLookupTable structuralBuildNumbers;
 
-static final byte VERSION = 0x0001;
+static final byte VERSION = 0x0002;
 
 State() {
 }
@@ -143,12 +143,17 @@ static State read(DataInputStream in) throws IOException {
 	for (int i = 0; i < length; i++)
 		newState.structuralBuildNumbers.put(in.readUTF(), new Integer(in.readInt()));
 
+	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(readNames(in), false);
 	length = in.readInt();
 	char[][][] internedQualifiedNames = new char[length][][];
-	for (int i = 0; i < length; i++)
-		internedQualifiedNames[i] = readNames(in);
+	for (int i = 0; i < length; i++) {
+		int qLength = in.readInt();
+		char[][] qName = new char[qLength][];
+		for (int j = 0; j < qLength; j++)
+			qName[j] = internedSimpleNames[in.readInt()];
+		internedQualifiedNames[i] = qName;
+	}
 	internedQualifiedNames = ReferenceCollection.internQualifiedNames(internedQualifiedNames);
-	char[][] internedSimpleNames = ReferenceCollection.internSimpleNames(readNames(in), false);
 
 	length = in.readInt();
 	newState.references = new SimpleLookupTable(length);
@@ -240,8 +245,14 @@ void write(DataOutputStream out) throws IOException {
 			char[][][] qNames = collection.qualifiedNameReferences;
 			for (int j = 0, qLength = qNames.length; j < qLength; j++) {
 				char[][] qName = qNames[j];
-				if (!internedQualifiedNames.contains(qName)) // remember the names have been interned
+				if (!internedQualifiedNames.contains(qName)) { // remember the names have been interned
 					internedQualifiedNames.add(qName);
+					for (int k = 0, sLength = qName.length; k < sLength; k++) {
+						char[] sName = qName[k];
+						if (!internedSimpleNames.contains(sName)) // remember the names have been interned
+							internedSimpleNames.add(sName);
+					}
+				}
 			}
 			char[][] sNames = collection.simpleNameReferences;
 			for (int j = 0, sLength = sNames.length; j < sLength; j++) {
@@ -251,13 +262,19 @@ void write(DataOutputStream out) throws IOException {
 			}
 		}
 	}
-	length = internedQualifiedNames.size();
-	out.writeInt(length);
-	for (int i = 0; i < length; i++)
-		writeNames((char[][]) internedQualifiedNames.get(i), out);
 	char[][] internedArray = new char[internedSimpleNames.size()][];
 	internedSimpleNames.toArray(internedArray);
 	writeNames(internedArray, out);
+	// now write the interned qualified names as arrays of interned simple names
+	length = internedQualifiedNames.size();
+	out.writeInt(length);
+	for (int i = 0; i < length; i++) {
+		char[][] qName = (char[][]) internedQualifiedNames.get(i);
+		int qLength = qName.length;
+		out.writeInt(qLength);
+		for (int j = 0; j < qLength; j++)
+			out.writeInt(internedSimpleNames.indexOf(qName[j]));
+	}
 
 	length = references.size();
 	out.writeInt(length);
