@@ -427,6 +427,10 @@ public class ClassFile
 		// Now we can generate all entries into the byte array
 		// First the accessFlags
 		int accessFlags = fieldBinding.getAccessFlags();
+		if (targetJDK < ClassFileConstants.JDK1_5) {
+		    // pre 1.5, synthetic was an attribute, not a modifier
+		    accessFlags &= ~AccSynthetic;
+		}		
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
 		contents[contentsOffset++] = (byte) accessFlags;
 		// Then the nameIndex
@@ -525,7 +529,7 @@ public class ClassFile
 					}
 			}
 		}
-		if (fieldBinding.isSynthetic()) {
+		if (this.targetJDK < ClassFileConstants.JDK1_5 && fieldBinding.isSynthetic()) {
 			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
 				System.arraycopy(
 					contents,

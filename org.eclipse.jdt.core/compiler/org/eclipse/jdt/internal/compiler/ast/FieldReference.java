@@ -423,18 +423,19 @@ public class FieldReference extends Reference implements InvocationSite {
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-		if (this.codegenBinding.declaringClass != this.receiverType
+		TypeBinding rawReceiverType = this.receiverType.rawType();
+		if (this.codegenBinding.declaringClass != rawReceiverType
 			&& !this.receiverType.isArrayType()
 			&& this.codegenBinding.declaringClass != null // array.length
 			&& this.codegenBinding.constant == NotAConstant
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& this.codegenBinding.declaringClass.id != T_Object)
 			//no change for Object fields (in case there was)
-				|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
+				|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
 			this.codegenBinding =
 				currentScope.enclosingSourceType().getUpdatedFieldBinding(
 					this.codegenBinding,
-					(ReferenceBinding) this.receiverType);
+					(ReferenceBinding) rawReceiverType);
 		}
 	}
 

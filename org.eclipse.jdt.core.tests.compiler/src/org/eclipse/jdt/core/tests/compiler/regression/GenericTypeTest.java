@@ -721,6 +721,81 @@ public void test028() {
 		"SUCCESS");
 }
 
+public void test029() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    T t;\n" + 
+			"    X() {\n" + 
+			"    }\n" + 
+			"    T foo(T a, T b) {\n" + 
+			"        T s;\n" + 
+			"        s = t = a;\n" + 
+			"		s = t += b;\n" + 
+			"		return t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(new X<String>().foo(\"SUC\", \"CESS\"));\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	s = t += b;\n" + 
+		"	    ^^^^^^\n" + 
+		"The operator += is undefined for the argument type(s) , \n" + 
+		"----------\n");
+}
+
+public void test030() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    T t;\n" + 
+			"    X() {\n" + 
+			"    }\n" + 
+			"    T foo(T a) {\n" + 
+			"        T s;\n" + 
+			"        s = t = a;\n" + 
+			"		return t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(new X<String>().foo(\"SUCCESS\"));\n" + 
+			"    }\n" + 
+			"}\n" ,
+		},
+		"SUCCESS");
+}
+
+public void test031() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<String>(\"OUTER\").bar();\n" + 
+			"    }\n" + 
+			"    void bar() {\n" + 
+			"        new X<String>(\"INNER\") {\n" + 
+			"            void run() {\n" + 
+			"                String s = t = \"SUC\";\n" + 
+			"                s = t+= \"CESS\";\n" + 
+			"		        System.out.println(t);\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n" ,
+		},
+		"SUCCESS");
+}
+
+
 
 //public void test028() {
 //	this.runConformTest(
