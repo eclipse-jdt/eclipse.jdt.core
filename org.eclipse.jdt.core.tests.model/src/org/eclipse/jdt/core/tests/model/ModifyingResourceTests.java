@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.core.JavaElement;
 
@@ -42,6 +43,30 @@ public class ModifyingResourceTests extends AbstractJavaModelTests {
 	
 public ModifyingResourceTests(String name) {
 	super(name);
+}
+protected void assertDeltas(String message, String expected) {
+	StringBuffer buffer = new StringBuffer();
+	IJavaElementDelta[] deltas = this.deltaListener.deltas;
+	for (int i=0, length= deltas.length; i<length; i++) {
+		IJavaElementDelta[] projects = deltas[i].getAffectedChildren();
+		for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
+			buffer.append(projects[j]);
+			if (j != projectsLength-1) {
+				buffer.append("\n");
+			}
+		}
+		if (i != length-1) {
+			buffer.append("\n\n");
+		}
+	}
+	String actual = buffer.toString();
+	if (!expected.equals(actual)){
+	 	System.out.println(Util.displayString(actual, 2));
+	}
+	assertEquals(
+		message,
+		expected,
+		actual);
 }
 /**
  * E.g. <code>
@@ -139,24 +164,6 @@ protected ICompilationUnit getCompilationUnit(String path) {
 }
 protected IClassFile getClassFile(String path) {
 	return (IClassFile)JavaCore.create(this.getFile(path));
-}
-
-protected String getDeltas() {
-	StringBuffer buffer = new StringBuffer();
-	IJavaElementDelta[] deltas = this.deltaListener.deltas;
-	for (int i=0, length= deltas.length; i<length; i++) {
-		IJavaElementDelta[] projects = deltas[i].getAffectedChildren();
-		for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
-			buffer.append(projects[j]);
-			if (j != projectsLength-1) {
-				buffer.append("\n");
-			}
-		}
-		if (i != length-1) {
-			buffer.append("\n\n");
-		}
-	}
-	return buffer.toString();
 }
 protected IFile getFile(String path) {
 	return getWorkspaceRoot().getFile(new Path(path));

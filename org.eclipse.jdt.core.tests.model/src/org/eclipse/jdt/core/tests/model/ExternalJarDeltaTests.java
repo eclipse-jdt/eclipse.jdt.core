@@ -92,10 +92,10 @@ public void testExternalJar0() throws CoreException {
 		
 		copy(f2, f);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"", 
-			this.getDeltas());
+			""
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -132,11 +132,11 @@ public void testExternalJarChanged1() throws CoreException {
 		copy(f2, f);
 		this.getJavaModel().refreshExternalArchives(null,null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}", 
-			this.getDeltas());
+			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -172,11 +172,11 @@ public void testExternalJarChanged2() throws CoreException {
 		copy(f2, f);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}", 
-			this.getDeltas());
+			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -214,11 +214,11 @@ public void testExternalJarChanged3() throws CoreException {
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}", 
-			this.getDeltas());
+			"	"+pPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -251,11 +251,11 @@ public void testExternalJarAdded1() throws CoreException {
 		copy(f2, f);
 		this.getJavaModel().refreshExternalArchives(null,null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[+]: {}", 
-			this.getDeltas());
+			"	"+pPath+"[+]: {}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -288,11 +288,11 @@ public void testExternalJarAdded2() throws CoreException {
 		copy(f2, f);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[+]: {}", 
-			this.getDeltas());
+			"	"+pPath+"[+]: {}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -326,11 +326,11 @@ public void testExternalJarAdded3() throws CoreException {
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[+]: {}", 
-			this.getDeltas());
+			"	"+pPath+"[+]: {}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -364,11 +364,11 @@ public void testExternalJarRemoved1() throws CoreException {
 		deleteFile(f);
 		this.getJavaModel().refreshExternalArchives(null,null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[-]: {}", 
-			this.getDeltas());
+			"	"+pPath+"[-]: {}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -402,11 +402,11 @@ public void testExternalJarRemoved2() throws CoreException {
 		deleteFile(f);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[-]: {}", 
-			this.getDeltas());
+			"	"+pPath+"[-]: {}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -441,11 +441,11 @@ public void testExternalJarRemoved3() throws CoreException {
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
-			"	"+pPath+"[-]: {}", 
-			this.getDeltas());
+			"	"+pPath+"[-]: {}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {
@@ -488,7 +488,7 @@ public void testExternalJarInternalExternalJar() throws CoreException {
 		
 		String deltaPath = externalFooPath.toString();
 		deltaPath = Character.toUpperCase(deltaPath.charAt(0)) + deltaPath.substring(1);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n"+
 			"	foo.jar[*]: {REMOVED FROM CLASSPATH}\n"+
@@ -496,8 +496,8 @@ public void testExternalJarInternalExternalJar() throws CoreException {
 			"	ResourceDelta(/P/.classpath)[*]\n"+
 			"\n"+
 			"P[*]: {CHILDREN}\n"+
-			"	"+deltaPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}", 
-			this.getDeltas());
+			"	"+deltaPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
 	} catch (IOException e) {
 	} finally {
 		if(f != null) {

@@ -160,13 +160,13 @@ public void testAddCuInDefaultPkg1() throws CoreException {
 		this.createFile("P/X.java",
 			"public class X {\n" +
 			"}");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		[default][*]: {CHILDREN}\n" +
-			"			X.java[+]: {}", 
-			this.getDeltas());
+			"			X.java[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -183,13 +183,13 @@ public void testAddCuInDefaultPkg2() throws CoreException {
 		this.createFile("P/src/X.java",
 			"public class X {\n" +
 			"}");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
 			"		[default][*]: {CHILDREN}\n" +
-			"			X.java[+]: {}", 
-			this.getDeltas());
+			"			X.java[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -204,10 +204,10 @@ public void testAddFileToNonJavaProject() throws CoreException {
 		this.createProject("P");
 		this.startDeltas();
 		this.createFile("/P/toto.txt", "");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"", 
-			this.getDeltas());
+			""
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -222,10 +222,10 @@ public void testAddJavaNature() throws CoreException {
 		this.createProject("P");
 		this.startDeltas();
 		this.addJavaNature("P");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"P[+]: {}", 
-			this.getDeltas());
+			"P[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -239,10 +239,10 @@ public void testAddJavaProject() throws CoreException {
 	try {
 		this.startDeltas();
 		this.createJavaProject("P", new String[] {""}, "");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"P[+]: {}", 
-			this.getDeltas());
+			"P[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -256,7 +256,7 @@ public void testAddNonJavaProject() throws CoreException {
 	try {
 		this.startDeltas();
 		this.createProject("P");
-		assertEquals("Should get no delta", "", this.getDeltas());
+		assertDeltas("Should get no delta", "");
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -267,12 +267,12 @@ public void testAddPackageSourceIsBin() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "src");
 		this.startDeltas();
 		this.createFolder("P/src/x");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
-			"		x[+]: {}", 
-			this.getDeltas());
+			"		x[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -352,7 +352,7 @@ public void testBatchOperation() throws CoreException {
 				}
 			},
 			null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
@@ -360,8 +360,8 @@ public void testBatchOperation() throws CoreException {
 			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				B[+]: {}\n" +
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					i[+]: {}", 
-			this.getDeltas());
+			"					i[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -381,12 +381,12 @@ public void testChangeRootKind() throws CoreException {
 			new IClasspathEntry[] {
 				JavaCore.newLibraryEntry(new Path("/P/src"), null, null, false)
 			});
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
-			"	ResourceDelta(/P/.classpath)[*]", 
-			this.getDeltas());
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -403,13 +403,13 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
 		this.startDeltas();
 		copy = (IWorkingCopy)unit.getSharedWorkingCopy(null, null, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		[default][*]: {CHILDREN}\n" +
-			"			[Working copy] X.java[+]: {}", 
-			this.getDeltas());
+			"			[Working copy] X.java[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		if (copy != null) copy.destroy();
@@ -426,10 +426,10 @@ public void testCloseJavaProject() throws CoreException {
 		IProject project = this.getProject("P");
 		this.startDeltas();
 		project.close(null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"P[-]: {}", 
-			this.getDeltas());
+			"P[-]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -445,10 +445,10 @@ public void testCloseNonJavaProject() throws CoreException {
 		IProject project = this.getProject("P");
 		this.startDeltas();
 		project.close(null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"", 
-			this.getDeltas());
+			""
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -468,11 +468,11 @@ public void testCloseNonJavaProjectUpdateDependent() throws CoreException {
 		IProject project = this.getProject("SP");
 		this.startDeltas();
 		project.close(null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"JP[*]: {CHILDREN}\n" +
-			"	x.jar[-]: {}", 
-			this.getDeltas());
+			"	x.jar[-]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("SP");
@@ -490,13 +490,13 @@ public void testDestroySharedWorkingCopy() throws CoreException {
 		copy = (IWorkingCopy)unit.getSharedWorkingCopy(null, null, null);
 		this.startDeltas();
 		copy.destroy();
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		[default][*]: {CHILDREN}\n" +
-			"			[Working copy] X.java[-]: {}", 
-			this.getDeltas());
+			"			[Working copy] X.java[-]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -839,14 +839,14 @@ public void testMergeResourceDeltas() throws CoreException {
 			},
 			null
 		);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		[default][*]: {CHILDREN}\n" +
 			"			X.java[+]: {}\n" +
-			"	ResourceDelta(/P/Y.txt)[+]", 
-			this.getDeltas());
+			"	ResourceDelta(/P/Y.txt)[+]"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -871,15 +871,15 @@ public void testMoveCuInEnclosingPkg() throws CoreException {
 		
 		this.startDeltas();
 		cu.move(pkg, null, null, true, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
 			"			A.java[-]: {MOVED_TO(A.java [in x [in [project root] [in P]]])}\n" +
 			"		x[*]: {CHILDREN}\n" +
-			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in [project root] [in P]]])}", 
-			this.getDeltas());
+			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in [project root] [in P]]])}"
+		);
 		assertEquals(
 			"Unexpected children for package x",
 			"x\n" +
@@ -919,13 +919,13 @@ public void testModifyMethodBodyAndSave() throws CoreException {
 		
 		this.startDeltas();
 		workingCopy.commit(true, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
-			"			A.java[*]: {CONTENT | FINE GRAINED}", 
-			this.getDeltas());
+			"			A.java[*]: {CONTENT | FINE GRAINED}"
+		);
 	} finally {
 		this.stopDeltas();
 		if (workingCopy != null) {
@@ -948,12 +948,12 @@ public void testMoveResInDotNamedFolder() throws CoreException {
 		
 		this.startDeltas();
 		file.move(project.getFullPath().append("test.txt"), true, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CONTENT}\n" +
 			"	ResourceDelta(/P/test.txt)[+]\n" +
-			"	ResourceDelta(/P/x.y)[*]", 
-			this.getDeltas());
+			"	ResourceDelta(/P/x.y)[*]"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -971,10 +971,10 @@ public void testOpenJavaProject() throws CoreException {
 		project.close(null);
 		this.startDeltas();
 		project.open(null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"P[+]: {}", 
-			this.getDeltas());
+			"P[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -991,10 +991,10 @@ public void testOpenNonJavaProject() throws CoreException {
 		project.close(null);
 		this.startDeltas();
 		project.open(null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"", 
-			this.getDeltas());
+			""
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1025,14 +1025,14 @@ public void testOverwriteClasspath() throws CoreException {
 			}
 		};
 		this.getWorkspace().run(run, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" +
 			"	src[*]: {ADDED TO CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
-			"	ResourceDelta(/P/.classpath2)[-]", 
-			this.getDeltas());
+			"	ResourceDelta(/P/.classpath2)[-]"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1047,10 +1047,10 @@ public void testRemoveJavaNature() throws CoreException {
 		this.createJavaProject("P", new String[] {""}, "");
 		this.startDeltas();
 		this.removeJavaNature("P");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"P[-]: {}", 
-			this.getDeltas());
+			"P[-]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1072,12 +1072,12 @@ public void testRemoveAddJavaProject() throws CoreException {
 				}
 			},
 			null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CONTENT}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
-			"	ResourceDelta(/P/.project)[*]", 
-			this.getDeltas());
+			"	ResourceDelta(/P/.project)[*]"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1088,10 +1088,10 @@ public void testRemoveJavaProject() throws CoreException {
 		this.createJavaProject("P", new String[] {""}, "");
 		this.startDeltas();
 		this.deleteProject("P");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"P[-]: {}", 
-			this.getDeltas());
+			"P[-]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 	}
@@ -1104,10 +1104,10 @@ public void testRemoveNonJavaProject() throws CoreException {
 		this.createProject("P");
 		this.startDeltas();
 		this.deleteProject("P");
-		assertEquals(
+		assertDeltas(
 			"Should get no delta", 
-			"", 
-			this.getDeltas());
+			""
+		);
 	} finally {
 		this.stopDeltas();
 	}
@@ -1124,11 +1124,11 @@ public void testRemoveNonJavaProjectUpdateDependent() throws CoreException {
 		this.createJavaProject("JP", new String[] {""}, new String[] {"/SP/x.jar"}, "");
 		this.startDeltas();
 		this.deleteProject("SP");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"JP[*]: {CHILDREN}\n" +
-			"	x.jar[-]: {}", 
-			this.getDeltas());
+			"	x.jar[-]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("SP");
@@ -1146,10 +1146,10 @@ public void testRemoveNonJavaProjectUpdateDependent2() throws CoreException {
 		this.createJavaProject("JP", new String[] {""}, new String[] {"/SP/missing"}, "");
 		this.startDeltas();
 		this.deleteProject("SP");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"", 
-			this.getDeltas());
+			""
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("SP");
@@ -1165,11 +1165,11 @@ public void testRenameJavaProject() throws CoreException {
 		this.createJavaProject("P", new String[] {""}, "");
 		this.startDeltas();
 		this.renameProject("P", "P1");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[-]: {MOVED_TO(P1)}\n" +
-			"P1[+]: {MOVED_FROM(P)}", 
-			this.getDeltas());
+			"P1[+]: {MOVED_FROM(P)}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1198,7 +1198,7 @@ public void testRenameMethodAndSave() throws CoreException {
 		
 		this.startDeltas();
 		workingCopy.commit(true, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
@@ -1206,8 +1206,8 @@ public void testRenameMethodAndSave() throws CoreException {
 			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo2[+]: {}\n" +
-			"					foo1[-]: {}", 
-			this.getDeltas());
+			"					foo1[-]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		if (workingCopy != null) {
@@ -1224,10 +1224,10 @@ public void testRenameProject() throws CoreException {
 		this.createProject("P");
 		this.startDeltas();
 		this.renameProject("P", "P1");
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta", 
-			"", 
-			this.getDeltas());
+			""
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1250,20 +1250,20 @@ public void testSaveWorkingCopy() throws CoreException {
 		copy.getType("X").createMethod("void foo() {}", null, true, null);
 		this.startDeltas();
 		copy.save(null, true);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta after saving working copy", 
-			"", 
-			this.getDeltas());
+			""
+		);
 		copy.commit(true, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta after committing working copy", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		[default][*]: {CHILDREN}\n" +
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo[+]: {}", 
-			this.getDeltas());
+			"					foo[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		if (copy != null) copy.destroy();
@@ -1283,12 +1283,12 @@ public void testSetClasspathVariable1() throws CoreException {
 		this.createJavaProject("P", new String[] {""}, new String[] {"LIB"}, "");
 		this.startDeltas();
 		JavaCore.setClasspathVariables(new String[] {"LIB"}, new IPath[] {new Path("/LibProj/otherlib.jar")}, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta after setting classpath variable", 
 			"P[*]: {CHILDREN}\n" +
 			"	mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
-			"	otherlib.jar[*]: {ADDED TO CLASSPATH}", 
-			this.getDeltas());
+			"	otherlib.jar[*]: {ADDED TO CLASSPATH}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
@@ -1348,15 +1348,15 @@ public void testWorkingCopyCommit() throws CoreException {
 		copy.save(null, false);
 		this.startDeltas();
 		copy.commit(true, null);
-		assertEquals(
+		assertDeltas(
 			"Unexpected delta after commit", 
 			"P[*]: {CHILDREN}\n" +
 			"	[project root][*]: {CHILDREN}\n" +
 			"		x.y[*]: {CHILDREN}\n" +
 			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo[+]: {}", 
-			this.getDeltas());
+			"					foo[+]: {}"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");

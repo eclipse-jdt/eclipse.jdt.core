@@ -79,4 +79,14 @@ protected void toString(int tab, StringBuffer buffer) {
 		((JavaElement)children[i]).toString(tab, buffer);
 	}
 }
+/**
+ *  Debugging purposes
+ */
+protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append(this.tabString(tab));
+	buffer.append("[import container]"); //$NON-NLS-1$
+	if (info == null) {
+		buffer.append(" (not open)"); //$NON-NLS-1$
+	}
+}
 }

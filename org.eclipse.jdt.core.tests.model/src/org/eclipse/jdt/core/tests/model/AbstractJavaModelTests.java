@@ -198,6 +198,15 @@ protected IJavaProject createJavaProject(final String projectName, final String[
 			}
 			for (int i= 0; i < libLength; i++) {
 				String lib = libraries[i];
+				if (lib.equals("JCL_LIB")) {
+					// ensure JCL variables are set
+					if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
+						JavaCore.setClasspathVariables(
+							new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+							new Path[] {new Path(getExternalJCLPath()), new Path(getExternalJCLSourcePath()), new Path(getExternalJCLRootSourcePath())},
+							null);
+					}
+				}
 				if (JavaCore.getClasspathVariable(lib) != null) {
 					entries[sourceLength+i] = JavaCore.newVariableEntry(new Path(lib), null, null);
 				} else {
