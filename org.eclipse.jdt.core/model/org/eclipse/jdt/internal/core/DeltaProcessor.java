@@ -421,6 +421,7 @@ public class DeltaProcessor {
 									this.removeFromParentInfo(javaProject);
 									this.manager.removePerProjectInfo(javaProject);
 								}
+								this.state.rootsAreStale = true;
 							} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 								boolean wasJavaProject = this.manager.getJavaModel().findJavaProject(project) != null;
 								boolean isJavaProject = JavaProject.hasJavaNature(project);

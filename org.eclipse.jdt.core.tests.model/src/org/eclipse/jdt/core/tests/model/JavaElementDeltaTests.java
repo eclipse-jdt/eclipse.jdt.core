@@ -135,6 +135,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testAddCuInDefaultPkg2"));
 	suite.addTest(new JavaElementDeltaTests("testMoveCuInEnclosingPkg"));
 	suite.addTest(new JavaElementDeltaTests("testCompilationUnitRemoveAndAdd"));
+	suite.addTest(new JavaElementDeltaTests("testAddCuAfterProjectOpen"));
 	
 	// commit/save working copies
 	suite.addTest(new JavaElementDeltaTests("testModifyMethodBodyAndSave"));
@@ -274,6 +275,43 @@ public void testAddCuInDefaultPkg2() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");
+	}
+}
+/*
+ * Add cu after opening its project
+ * (regression test for 56870 copied file not shown in package explorer / java browser [ccp])
+ */
+public void testAddCuAfterProjectOpen() throws CoreException {
+	try {
+		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src"}, "bin");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src"}, "bin");
+		this.createFile("P2/src/X.java",
+			"public class X {\n" +
+			"}");
+		IProject project = p2.getProject();
+		project.close(null);
+		
+		// invalidate roots
+		p1.setRawClasspath(new IClasspathEntry[] {}, null);
+		
+		// open project
+		project.open(null);
+		
+		this.startDeltas();
+		this.createFile("P2/src/Y.java",
+			"public class Y {\n" +
+			"}");
+		assertDeltas(
+			"Unexpected delta", 
+			"P2[*]: {CHILDREN}\n" +
+			"	src[*]: {CHILDREN}\n" +
+			"		<default>[*]: {CHILDREN}\n" +
+			"			Y.java[+]: {}"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 /*
