@@ -559,11 +559,11 @@ private void getAllSupertypes0(IType type, ArrayList supers) {
 public IType[] getAllTypes() {
 	IType[] classes = getAllClasses();
 	int classesLength = classes.length;
-	IType[] interfaces = getAllInterfaces();
-	int interfacesLength = interfaces.length;
+	IType[] allInterfaces = getAllInterfaces();
+	int interfacesLength = allInterfaces.length;
 	IType[] all = new IType[classesLength + interfacesLength];
 	System.arraycopy(classes, 0, all, 0, classesLength);
-	System.arraycopy(interfaces, 0, all, classesLength, interfacesLength);
+	System.arraycopy(allInterfaces, 0, all, classesLength, interfacesLength);
 	return all;
 }
 
@@ -651,9 +651,9 @@ private IType[] getImplementingClasses0(IType interfce) {
 		} catch (JavaModelException npe) {
 			continue;
 		}
-		IType[] interfaces = (IType[]) this.typeToSuperInterfaces.get(type);
-		for (int i = 0; i < interfaces.length; i++) {
-			IType iFace = interfaces[i];
+		IType[] types = (IType[]) this.typeToSuperInterfaces.get(type);
+		for (int i = 0; i < types.length; i++) {
+			IType iFace = types[i];
 			if (iFace.equals(interfce)) {
 				iMenters.add(type);
 			}
@@ -739,11 +739,11 @@ public IType getSuperclass(IType type) {
  * @see ITypeHierarchy
  */
 public IType[] getSuperInterfaces(IType type) {
-	IType[] interfaces = (IType[]) this.typeToSuperInterfaces.get(type);
-	if (interfaces == null) {
+	IType[] types = (IType[]) this.typeToSuperInterfaces.get(type);
+	if (types == null) {
 		return NO_TYPE;
 	}
-	return interfaces;
+	return types;
 }
 /**
  * @see ITypeHierarchy
@@ -949,8 +949,8 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 			// then the type hierarchy has changed
 			IJavaElement[] pkgs = this.packageRegion.getElements();
 			for (int i = 0; i < pkgs.length; i++) {
-				IJavaProject project = pkgs[i].getJavaProject();
-				if (project != null && project.equals(element)) {
+				IJavaProject javaProject = pkgs[i].getJavaProject();
+				if (javaProject != null && javaProject.equals(element)) {
 					return true;
 				}
 			}
@@ -995,9 +995,9 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 					IPath rootPath = root.getPath();
 					IJavaElement[] elements = this.projectRegion.getElements();
 					for (int i = 0; i < elements.length; i++) {
-						IJavaProject project = (IJavaProject)elements[i];
+						IJavaProject javaProject = (IJavaProject)elements[i];
 						try {
-							IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true);
 							for (int j = 0; j < classpath.length; j++) {
 								IClasspathEntry entry = classpath[j];
 								if (entry.getPath().equals(rootPath)) {

@@ -24,14 +24,10 @@ public class ClassFormatException extends Exception {
 	public static final int INVALID_ARGUMENTS_FOR_INVOKEINTERFACE = 5;
 	public static final int INVALID_BYTECODE = 6;
 	
-	private int errorID;
-	
 	/**
 	 * Constructor for ClassFormatException.
 	 */
 	public ClassFormatException(int errorID) {
-		super();
-		this.errorID = errorID;
 	}
 
 	/**
