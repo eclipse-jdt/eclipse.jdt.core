@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
@@ -117,8 +116,8 @@ class AddJarFileToIndex extends IndexRequest {
 					JobManager.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 
-				IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
-				int max = results == null ? 0 : results.length;
+				String[] paths = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
+				int max = paths == null ? 0 : paths.length;
 				if (max != 0) {
 					/* check integrity of the existing index file
 					 * if the length is equal to 0, we want to index the whole jar again
@@ -129,7 +128,7 @@ class AddJarFileToIndex extends IndexRequest {
 					String DELETED = "DELETED"; //$NON-NLS-1$
 					SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 					for (int i = 0; i < max; i++)
-						indexedFileNames.put(results[i].getPath(), DELETED);
+						indexedFileNames.put(paths[i], DELETED);
 					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 						// iterate each entry to index it
 						ZipEntry ze = (ZipEntry) e.nextElement();

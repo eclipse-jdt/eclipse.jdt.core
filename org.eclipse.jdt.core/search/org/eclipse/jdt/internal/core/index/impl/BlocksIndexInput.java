@@ -17,8 +17,6 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.index.IDocument;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -211,21 +209,21 @@ public class BlocksIndexInput extends IndexInput {
 	/**
 	 * @see IndexInput#query(String)
 	 */
-	public IQueryResult[] query(String word) throws IOException {
+	public String[] query(String word) throws IOException {
 		open();
 		int[] fileNums= getMatchingFileNumbers(word.toCharArray());
 		int size= fileNums.length;
-		IQueryResult[] files= new IQueryResult[size];
+		String[] paths= new String[size];
 		for (int i= 0; i < size; ++i) {
-			files[i]= getIndexedFile(fileNums[i]);
+			paths[i]= getIndexedFile(fileNums[i]).getPath();
 		}
-		return files;
+		return paths;
 	}
 	/**
 	 * If no prefix is provided in the pattern, then this operation will have to walk
 	 * all the entries of the whole index.
 	 */
-	public IEntryResult[] queryEntriesMatching(char[] pattern/*, boolean isCaseSensitive*/) throws IOException {
+	public EntryResult[] queryEntriesMatching(char[] pattern/*, boolean isCaseSensitive*/) throws IOException {
 		open();
 	
 		if (pattern == null || pattern.length == 0) return null;
@@ -235,7 +233,7 @@ public class BlocksIndexInput extends IndexInput {
 			case -1 :
 				WordEntry entry = getEntry(pattern);
 				if (entry == null) return null;
-				return new IEntryResult[]{ new EntryResult(entry.getWord(), entry.getRefs()) };
+				return new EntryResult[]{ new EntryResult(entry.getWord(), entry.getRefs()) };
 			case 0 :
 				blockNums = summary.getAllBlockNums();
 				break;
@@ -245,7 +243,7 @@ public class BlocksIndexInput extends IndexInput {
 		}
 		if (blockNums == null || blockNums.length == 0)	return null;
 				
-		IEntryResult[] entries = new IEntryResult[5];
+		EntryResult[] entries = new EntryResult[5];
 		int count = 0;
 		for (int i = 0, max = blockNums.length; i < max; i++) {
 			IndexBlock block = getIndexBlock(blockNums[i]);
@@ -254,9 +252,8 @@ public class BlocksIndexInput extends IndexInput {
 			WordEntry entry = new WordEntry();
 			while (block.nextEntry(entry)) {
 				if (CharOperation.match(entry.getWord(), pattern, true)) {
-					if (count == entries.length){
-						System.arraycopy(entries, 0, entries = new IEntryResult[count*2], 0, count);
-					}
+					if (count == entries.length)
+						System.arraycopy(entries, 0, entries = new EntryResult[count*2], 0, count);
 					entries[count++] = new EntryResult(entry.getWord(), entry.getRefs());
 					found = true;
 				} else {
@@ -264,25 +261,24 @@ public class BlocksIndexInput extends IndexInput {
 				}
 			}
 		}
-		if (count != entries.length){
-			System.arraycopy(entries, 0, entries = new IEntryResult[count], 0, count);
-		}
+		if (count != entries.length)
+			System.arraycopy(entries, 0, entries = new EntryResult[count], 0, count);
 		return entries;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.index.impl.IndexInput#queryEntries(char[], int)
 	 */
-	public IEntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException {
+	public EntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException {
 		// TODO should evolve to provide different flavors of matching
 		return queryEntriesPrefixedBy(pattern);
 	}
-	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
+	public EntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
 		open();
 		
 		int blockLoc = summary.getFirstBlockLocationForPrefix(prefix);
 		if (blockLoc < 0) return null;
 			
-		IEntryResult[] entries = new IEntryResult[5];
+		EntryResult[] entries = new EntryResult[5];
 		int count = 0;
 		while(blockLoc >= 0){
 			IndexBlock block = getIndexBlock(summary.getBlockNum(blockLoc));
@@ -292,7 +288,7 @@ public class BlocksIndexInput extends IndexInput {
 			while (block.nextEntry(entry)) {
 				if (CharOperation.prefixEquals(prefix, entry.getWord())) {
 					if (count == entries.length){
-						System.arraycopy(entries, 0, entries = new IEntryResult[count*2], 0, count);
+						System.arraycopy(entries, 0, entries = new EntryResult[count*2], 0, count);
 					}
 					entries[count++] = new EntryResult(entry.getWord(), entry.getRefs());
 					found = true;
@@ -305,11 +301,11 @@ public class BlocksIndexInput extends IndexInput {
 		}
 		if (count == 0) return null;
 		if (count != entries.length){
-			System.arraycopy(entries, 0, entries = new IEntryResult[count], 0, count);
+			System.arraycopy(entries, 0, entries = new EntryResult[count], 0, count);
 		}
 		return entries;
 	}
-	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
+	public String[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
 		open();
 		
 		int blockLoc = summary.getFirstBlockLocationForPrefix(prefix);
@@ -342,30 +338,30 @@ public class BlocksIndexInput extends IndexInput {
 			blockLoc = summary.getNextBlockLocationForPrefix(prefix, blockLoc);				
 		}
 		/* extract indexed files */
-		IQueryResult[] files = new IQueryResult[count];
+		String[] paths = new String[count];
 		Object[] indexedFiles = fileMatches.valueTable;
 		for (int i = 0, index = 0, max = indexedFiles.length; i < max; i++){
 			IndexedFile indexedFile = (IndexedFile) indexedFiles[i];
 			if (indexedFile != null){
-				files[index++] = indexedFile;
+				paths[index++] = indexedFile.getPath();
 			}
 		}	
-		return files;
+		return paths;
 	}
 	/**
 	 * @see IndexInput#queryInDocumentNames(String)
 	 */
-	public IQueryResult[] queryInDocumentNames(String word) throws IOException {
+	public String[] queryInDocumentNames(String word) throws IOException {
 		open();
 		ArrayList matches= new ArrayList();
 		setFirstFile();
 		while (hasMoreFiles()) {
 			IndexedFile file= getCurrentFile();
 			if (file.getPath().indexOf(word) != -1)
-				matches.add(file);
+				matches.add(file.getPath());
 			moveToNextFile();
 		}
-		IQueryResult[] match= new IQueryResult[matches.size()];
+		String[] match= new String[matches.size()];
 		matches.toArray(match);
 		return match;
 	}

@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -57,8 +56,8 @@ public class IndexBinaryFolder extends IndexRequest {
 			monitor.enterRead(); // ask permission to read
 			saveIfNecessary(index, monitor);
 
-			IQueryResult[] results = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
-			int max = results == null ? 0 : results.length;
+			String[] paths = index.queryInDocumentNames(""); // all file names //$NON-NLS-1$
+			int max = paths == null ? 0 : paths.length;
 			final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
@@ -81,7 +80,7 @@ public class IndexBinaryFolder extends IndexRequest {
 				}, IResource.NONE);
 			} else {
 				for (int i = 0; i < max; i++)
-					indexedFileNames.put(results[i].getPath(), DELETED);
+					indexedFileNames.put(paths[i], DELETED);
 
 				final long indexLastModified = index.getIndexFile().lastModified();
 				this.folder.accept(

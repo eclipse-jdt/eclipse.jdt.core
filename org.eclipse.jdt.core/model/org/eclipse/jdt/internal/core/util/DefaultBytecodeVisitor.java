@@ -1698,6 +1698,8 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				break;
 			case IConstantPoolConstant.CONSTANT_String :
 				appendOutputForConstantString(constantPoolEntry);
+			case IConstantPoolConstant.CONSTANT_Class :
+				appendOutputForConstantClass(constantPoolEntry);
 		}
 		writeNewLine();
 	}
@@ -2334,6 +2336,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		this.buffer
 			.append("<Float ") //$NON-NLS-1$
 			.append(constantPoolEntry.getFloatValue())
+			.append(">"); //$NON-NLS-1$
+	}
+	
+	private void appendOutputForConstantClass(IConstantPoolEntry constantPoolEntry) {
+		this.buffer
+			.append("<Class ") //$NON-NLS-1$
+			.append(returnConstantClassName(constantPoolEntry))
 			.append(">"); //$NON-NLS-1$
 	}
 

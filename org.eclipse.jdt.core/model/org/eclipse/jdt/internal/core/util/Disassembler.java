@@ -789,7 +789,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		try {
 			codeAttribute.traverse(visitor);
 		} catch(ClassFormatException e) {
-			// ignore
+			dumpTab(tabNumber + 2, buffer);
+			buffer.append("Class format Exception");//$NON-NLS-1$
+			writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		}
 		int exceptionTableLength = codeAttribute.getExceptionTableLength();
 		if (exceptionTableLength != 0) {

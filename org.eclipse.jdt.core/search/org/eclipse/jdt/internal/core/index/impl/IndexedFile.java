@@ -12,14 +12,13 @@ package org.eclipse.jdt.internal.core.index.impl;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.core.index.IDocument;
-import org.eclipse.jdt.internal.core.index.IQueryResult;
 
 /**
  * An indexedFile associates a number to a document path, and document properties. 
  * It is what we add into an index, and the result of a query.
  */
 
-public class IndexedFile implements IQueryResult {
+public class IndexedFile {
 	public String path;
 	protected int fileNumber;
 

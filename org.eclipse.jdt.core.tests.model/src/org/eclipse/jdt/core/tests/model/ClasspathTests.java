@@ -1417,6 +1417,29 @@ public void testClasspathValidation32() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+
+/**
+ * Checks it is illegal for a source folder to be nested in an output folder (42579)
+ */
+public void testClasspathValidation33() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/dir/src"), new IPath[]{new Path("src2/")}, new Path("/P/dir"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"Cannot nest 'P/dir/src' inside output folder 'P/dir'.",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
 /**
  * Setting the classpath with two entries specifying the same path
  * should fail.

@@ -678,7 +678,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		outputLocations[0] = projectOutputLocation;
 		
 		// retrieve and check output locations
-		IPath potentialNestedOutput = null;
+		IPath potentialNestedOutput = null; // for error reporting purpose
 		int sourceEntryCount = 0;
 		boolean disableExclusionPatterns = JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true));
 		boolean disableCustomOutputLocations = JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true));
@@ -730,10 +730,12 @@ public class ClasspathEntry implements IClasspathEntry {
 			}	
 		}	
 		// allow custom output nesting in project's output if all source entries have a custom output
-		if (potentialNestedOutput != null && sourceEntryCount > outputCount-1) {
+		if (sourceEntryCount <= outputCount-1) {
+		    allowNestingInOutputLocations[0] = true;
+		} else if (potentialNestedOutput != null) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", potentialNestedOutput.makeRelative().toString(), outputLocations[0].makeRelative().toString())); //$NON-NLS-1$
 		}
-		
+
 		for (int i = 0 ; i < length; i++) {
 			IClasspathEntry resolvedEntry = classpath[i];
 			IPath path = resolvedEntry.getPath();
@@ -769,8 +771,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			int kind = entry.getEntryKind();
 			
 			// Build some common strings for status message
-			boolean epStartsWithProject = entryPath.segment(0).toString().equals(projectName);
-			String entryPathMsg = epStartsWithProject ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
+			boolean isProjectRelative = entryPath.segment(0).toString().equals(projectName);
+			String entryPathMsg = isProjectRelative ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
 	
 			// complain if duplicate path
 			if (!pathes.add(entryPath)){
@@ -832,15 +834,13 @@ public class ClasspathEntry implements IClasspathEntry {
 		    }
 
 		    // prevent nesting entry inside output location - when distinct from project or a source folder
-			int index;
-			if ((index = Util.indexOfEnclosingPath(entryPath, outputLocations, outputCount)) != -1) {
-				if (!allowNestingInOutputLocations[index]) {
-					// allow nesting in project's output if all source entries have a custom output
-					if (index != 0 || sourceEntryCount > outputCount - 1) {
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.makeRelative().toString(), outputLocations[index].makeRelative().toString())); //$NON-NLS-1$
-					}
+		    for (int j = 0; j < outputCount; j++){
+		        if (allowNestingInOutputLocations[j]) continue;
+		        IPath currentOutput = outputLocations[j];
+				if (currentOutput.isPrefixOf(entryPath)) {
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.makeRelative().toString(), currentOutput.makeRelative().toString())); //$NON-NLS-1$
 				}
-			}
+		    }			
 		}
 		// ensure that no specific output is coincidating with another source folder (only allowed if matching current source folder)
 		// 36465 - for 2.0 backward compatibility, only check specific output locations (the default can still coincidate)
@@ -854,8 +854,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			int kind = entry.getEntryKind();
 
 			// Build some common strings for status message
-			boolean epStartsWithProject = entryPath.segment(0).toString().equals(projectName);
-			String entryPathMsg = epStartsWithProject ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
+			boolean isProjectRelative = entryPath.segment(0).toString().equals(projectName);
+			String entryPathMsg = isProjectRelative ? entryPath.removeFirstSegments(1).toString() : entryPath.makeRelative().toString();
 	
 			if (kind == IClasspathEntry.CPE_SOURCE) {
 				IPath output = entry.getOutputLocation();
