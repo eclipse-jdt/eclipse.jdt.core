@@ -13,14 +13,12 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.io.*;
 import java.util.HashMap;
 
-import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
+import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
 
 public class SuperTypeReferencePattern extends SearchPattern {
@@ -48,7 +46,7 @@ protected boolean checkOnlySuperinterfaces; // used for IMPLEMENTORS
  */
 public HashMap entryResults;
 
-private static final IEntryResult[] NO_ENTRY_RESULT = new IEntryResult[0];
+private static final EntryResult[] NO_ENTRY_RESULT = new EntryResult[0];
 
 public static char[] createIndexKey(
 	int modifiers,
@@ -208,7 +206,7 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 	/* narrow down a set of entries using prefix criteria */
-	IEntryResult[] entries = (IEntryResult[]) this.entryResults.get(input);
+	EntryResult[] entries = (EntryResult[]) this.entryResults.get(input);
 	if (entries == null) {
 		entries = input.queryEntriesPrefixedBy(SUPER_REF);
 		if (entries == null)
@@ -223,7 +221,7 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 	int length = name == null ? 0 : name.length;
 	nextEntry: for (int i = 0, max = entries.length; i < max; i++) {
 		/* check that the entry is a super ref to the super simple name */
-		IEntryResult entry = entries[i];
+		EntryResult entry = entries[i];
 		if (name != null) {
 			char[] word = entry.getWord();
 			if (slash + length >= word.length) continue;

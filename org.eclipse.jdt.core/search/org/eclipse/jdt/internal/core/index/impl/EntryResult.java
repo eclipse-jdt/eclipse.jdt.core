@@ -11,9 +11,8 @@
 package org.eclipse.jdt.internal.core.index.impl;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 
-public class EntryResult implements IEntryResult {
+public class EntryResult {
 	private char[] word;
 	private int[]  fileRefs;
 	

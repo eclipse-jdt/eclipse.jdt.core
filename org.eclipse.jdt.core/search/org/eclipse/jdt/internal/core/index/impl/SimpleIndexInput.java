@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.core.index.IDocument;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 
 /**
  * A simpleIndexInput is an input on an in memory Index. 
@@ -133,10 +132,10 @@ public class SimpleIndexInput extends IndexInput {
 			paths[i]= getIndexedFile(fileNums[i]).getPath();
 		return paths;
 	}
-	public IEntryResult[] queryEntries(char[] pattern, int matchRule) {
+	public EntryResult[] queryEntries(char[] pattern, int matchRule) {
 		return null;
 	}
-	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) {
+	public EntryResult[] queryEntriesPrefixedBy(char[] prefix) {
 		return null;
 	}
 	public String[] queryFilesReferringToPrefix(char[] prefix) {

@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.internal.core.index.IDocument;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IIndexer;
 
@@ -241,7 +240,7 @@ public class Index implements IIndex {
 			input.close();
 		}
 	}
-	public IEntryResult[] queryEntries(char[] prefix) throws IOException {
+	public EntryResult[] queryEntries(char[] prefix) throws IOException {
 		//save();
 		IndexInput input= new BlocksIndexInput(indexFile);
 		try {

@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.IOException;
 
 import org.eclipse.jdt.internal.core.index.IDocument;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 
 
 /**
@@ -114,8 +113,8 @@ public abstract class IndexInput {
 	 * Returns the list of the files containing the given word in the index.
 	 */
 	public abstract String[] query(String word) throws IOException;
-	public abstract IEntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException;
-	public abstract IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException;
+	public abstract EntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException;
+	public abstract EntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException;
 	public abstract String[] queryFilesReferringToPrefix(char[] prefix) throws IOException;
 	/**
 	 * Returns the list of the files whose name contain the given word in the index.

@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
+import org.eclipse.jdt.internal.core.index.impl.EntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
@@ -47,7 +47,7 @@ protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor,
 	do {
 		queryKey = encodeIndexKey();
 		char[] pattern = CharOperation.concat(category, queryKey);
-		IEntryResult[] entries = input.queryEntries(pattern, SearchPattern.R_PREFIX_MATCH);
+		EntryResult[] entries = input.queryEntries(pattern, SearchPattern.R_PREFIX_MATCH);
 		if (entries == null) break;
 
 		int numFiles = input.getNumFiles();
@@ -57,7 +57,7 @@ protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor,
 			if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 			/* retrieve and decode entry */	
-			IEntryResult entry = entries[i];
+			EntryResult entry = entries[i];
 			char[] word = entry.getWord();
 			char[] indexKey = CharOperation.subarray(word, category.length, word.length);
 			indexRecord = getIndexRecord();

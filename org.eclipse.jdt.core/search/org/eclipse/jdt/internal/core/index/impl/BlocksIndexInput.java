@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.index.IDocument;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -224,7 +223,7 @@ public class BlocksIndexInput extends IndexInput {
 	 * If no prefix is provided in the pattern, then this operation will have to walk
 	 * all the entries of the whole index.
 	 */
-	public IEntryResult[] queryEntriesMatching(char[] pattern/*, boolean isCaseSensitive*/) throws IOException {
+	public EntryResult[] queryEntriesMatching(char[] pattern/*, boolean isCaseSensitive*/) throws IOException {
 		open();
 	
 		if (pattern == null || pattern.length == 0) return null;
@@ -234,7 +233,7 @@ public class BlocksIndexInput extends IndexInput {
 			case -1 :
 				WordEntry entry = getEntry(pattern);
 				if (entry == null) return null;
-				return new IEntryResult[]{ new EntryResult(entry.getWord(), entry.getRefs()) };
+				return new EntryResult[]{ new EntryResult(entry.getWord(), entry.getRefs()) };
 			case 0 :
 				blockNums = summary.getAllBlockNums();
 				break;
@@ -244,7 +243,7 @@ public class BlocksIndexInput extends IndexInput {
 		}
 		if (blockNums == null || blockNums.length == 0)	return null;
 				
-		IEntryResult[] entries = new IEntryResult[5];
+		EntryResult[] entries = new EntryResult[5];
 		int count = 0;
 		for (int i = 0, max = blockNums.length; i < max; i++) {
 			IndexBlock block = getIndexBlock(blockNums[i]);
@@ -253,9 +252,8 @@ public class BlocksIndexInput extends IndexInput {
 			WordEntry entry = new WordEntry();
 			while (block.nextEntry(entry)) {
 				if (CharOperation.match(entry.getWord(), pattern, true)) {
-					if (count == entries.length){
-						System.arraycopy(entries, 0, entries = new IEntryResult[count*2], 0, count);
-					}
+					if (count == entries.length)
+						System.arraycopy(entries, 0, entries = new EntryResult[count*2], 0, count);
 					entries[count++] = new EntryResult(entry.getWord(), entry.getRefs());
 					found = true;
 				} else {
@@ -263,25 +261,24 @@ public class BlocksIndexInput extends IndexInput {
 				}
 			}
 		}
-		if (count != entries.length){
-			System.arraycopy(entries, 0, entries = new IEntryResult[count], 0, count);
-		}
+		if (count != entries.length)
+			System.arraycopy(entries, 0, entries = new EntryResult[count], 0, count);
 		return entries;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.index.impl.IndexInput#queryEntries(char[], int)
 	 */
-	public IEntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException {
+	public EntryResult[] queryEntries(char[] pattern, int matchRule) throws IOException {
 		// TODO should evolve to provide different flavors of matching
 		return queryEntriesPrefixedBy(pattern);
 	}
-	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
+	public EntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException {
 		open();
 		
 		int blockLoc = summary.getFirstBlockLocationForPrefix(prefix);
 		if (blockLoc < 0) return null;
 			
-		IEntryResult[] entries = new IEntryResult[5];
+		EntryResult[] entries = new EntryResult[5];
 		int count = 0;
 		while(blockLoc >= 0){
 			IndexBlock block = getIndexBlock(summary.getBlockNum(blockLoc));
@@ -291,7 +288,7 @@ public class BlocksIndexInput extends IndexInput {
 			while (block.nextEntry(entry)) {
 				if (CharOperation.prefixEquals(prefix, entry.getWord())) {
 					if (count == entries.length){
-						System.arraycopy(entries, 0, entries = new IEntryResult[count*2], 0, count);
+						System.arraycopy(entries, 0, entries = new EntryResult[count*2], 0, count);
 					}
 					entries[count++] = new EntryResult(entry.getWord(), entry.getRefs());
 					found = true;
@@ -304,7 +301,7 @@ public class BlocksIndexInput extends IndexInput {
 		}
 		if (count == 0) return null;
 		if (count != entries.length){
-			System.arraycopy(entries, 0, entries = new IEntryResult[count], 0, count);
+			System.arraycopy(entries, 0, entries = new EntryResult[count], 0, count);
 		}
 		return entries;
 	}

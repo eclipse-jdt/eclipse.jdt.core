@@ -25,11 +25,8 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.impl.BlocksIndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
+import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.PathCollector;
@@ -124,7 +121,7 @@ public abstract class InternalSearchPattern {
 		// TODO per construction the queryKey will always be the most specific prefix. This should evolve to be the search pattern directly, using proper match rule
 		// ideally the index query API should be defined to avoid the need for concatenating the category to the key
 		char[] pattern = CharOperation.concat(category, queryKey);
-		IEntryResult[] entries = input.queryEntries(pattern, SearchPattern.R_PREFIX_MATCH);
+		EntryResult[] entries = input.queryEntries(pattern, SearchPattern.R_PREFIX_MATCH);
 		if (entries == null) return;
 
 		/* only select entries which actually match the entire search pattern */
@@ -132,7 +129,7 @@ public abstract class InternalSearchPattern {
 			if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 			/* retrieve and decode entry */	
-			IEntryResult entry = entries[iMatch];
+			EntryResult entry = entries[iMatch];
 			char[] word = entry.getWord();
 			char[] indexKey = CharOperation.subarray(word, category.length, word.length);
 			SearchPattern indexRecord = getIndexRecord();

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core.index;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.jdt.internal.core.index.impl.EntryResult;
+
 /**
  * An IIndex is the interface used to generate an index file, and to make queries on
  * this index.
@@ -42,7 +44,7 @@ public interface IIndex {
 	/**
 	 * Returns all entries for a given word.
 	 */
-	IEntryResult[] queryEntries(char[] pattern) throws IOException;
+	EntryResult[] queryEntries(char[] pattern) throws IOException;
 	/**
 	 * Returns the paths of the documents whose names contain the given word.
 	 */
