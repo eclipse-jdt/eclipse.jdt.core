@@ -85,6 +85,15 @@ public final class TagElement extends ASTNode implements IDocElement {
 	public static final String TAG_AUTHOR = "@author"; //$NON-NLS-1$
 
 	/**
+	 * Standard inline doc tag name (value {@value}).
+	 * <p>
+	 * Note that this tag first appeared in J2SE 5.
+	 * </p>
+	 * @since 3.1
+	 */
+	public static final String TAG_CODE = "@code"; //$NON-NLS-1$
+
+	/**
 	 * Standard doc tag name (value {@value}).
 	 */
 	public static final String TAG_DEPRECATED = "@deprecated"; //$NON-NLS-1$
@@ -113,6 +122,15 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * Standard inline doc tag name (value {@value}).
 	 */
 	public static final String TAG_LINKPLAIN = "@linkplain"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 * <p>
+	 * Note that this tag first appeared in J2SE 5.
+	 * </p>
+	 * @since 3.1
+	 */
+	public static final String TAG_LITERAL = "@literal"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
