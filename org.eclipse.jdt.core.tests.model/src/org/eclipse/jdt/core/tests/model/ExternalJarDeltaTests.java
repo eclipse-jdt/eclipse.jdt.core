@@ -400,23 +400,22 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 		IPath externalFooPath = fooIFile.getLocation();
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(externalFooPath, null, null)});
 		
-		f = new File(externalFooPath.toString());
+		f = new File(externalFooPath.toOSString());
 		f.createNewFile();
 		touch(f);
 		
 		this.getJavaModel().refreshExternalArchives(null,null);
 		
-		String deltaPath = externalFooPath.toOSString();
-		deltaPath = Character.toUpperCase(deltaPath.charAt(0)) + deltaPath.substring(1);
+		String externalFooPathString = f.getCanonicalPath();
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n"+
 			"	foo.jar[*]: {REMOVED FROM CLASSPATH}\n"+
-			"	"+deltaPath+"[+]: {}\n"+
+			"	"+externalFooPathString+"[+]: {}\n"+
 			"	ResourceDelta(/P/.classpath)[*]\n"+
 			"\n"+
 			"P[*]: {CHILDREN}\n"+
-			"	"+deltaPath+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+			"	"+externalFooPathString+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
 		);
 	} finally {
 		if(f != null) {
