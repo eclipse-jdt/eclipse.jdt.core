@@ -84,7 +84,7 @@ public void testExpressionInInnerClass() {
 		"	}",
 		"}",
 		"return new X().foo();"}), 
-		newProblem(IProblem.ParsingError, Error, 27, 27, 3)); // Syntax error on token "+"
+		newProblem(IProblem.InvalidExpressionAsStatement, Error, 25, 25, 3)); // Syntax error on token "+"
 }
 /**
  * Test extra closing curly bracket.
