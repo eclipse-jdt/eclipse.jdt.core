@@ -1540,26 +1540,42 @@ public static String getReturnType(String methodSignature) throws IllegalArgumen
  * @since 2.0
  */
 public static char[] getSimpleName(char[] name) {
-	int lastDot = -1;
+
+	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
 	int depth = 0;
 	int length = name.length;
-	for (int i = 0; i < length; i++) {
+	lastDotLookup: for (int i = length -1; i >= 0; i--) {
 		switch (name[i]) {
-			case C_DOT:
-				if (depth == 0) lastDot = i;
+			case '.':
+				if (depth == 0) {
+					lastDot = i;
+					break lastDotLookup;
+				}
 				break;
-			case C_GENERIC_START:
-				depth++;
-				break;
-			case C_GENERIC_END:
+			case '<':
 				depth--;
+				if (depth == 0) lastGenericStart = i;
+				break;
+			case '>':
+				if (depth == 0) lastGenericEnd = i;
+				depth++;
 				break;
 		}
 	}
-	if (lastDot == -1) {
-		return name;
+	if (lastGenericStart < 0) {
+		if (lastDot < 0) {
+			return name;
+		}
+		return  CharOperation.subarray(name, lastDot + 1, length);
 	}
-	return CharOperation.subarray(name, lastDot + 1, length);
+	StringBuffer buffer = new StringBuffer(10);
+	int nameStart = lastDot < 0 ? 0 : lastDot+1;
+	buffer.append(name, nameStart, lastGenericStart - nameStart);
+	appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
+	buffer.append(name, lastGenericEnd+1, length-lastGenericEnd-1); // copy trailing portion, may contain dimensions	
+	char[] result = new char[length = buffer.length()];
+	buffer.getChars(0, length, result, 0);
+	return result;	
 }
 /**
  * Returns the last segment of the given dot-separated qualified name.
@@ -1609,19 +1625,19 @@ public static String getSimpleName(String name) {
 		return name.substring(lastDot + 1, length);
 	}
 	StringBuffer buffer = new StringBuffer(10);
-	buffer.append(name.substring(lastDot < 0 ? 0 : lastDot+1, lastGenericStart));
-	appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
-	for (int i = lastGenericEnd+1; i < length; i++) { // copy trailing portion, may contain dimensions
-		buffer.append(name.charAt(i));
-	}
+	char[] nameChars = name.toCharArray();
+	int nameStart = lastDot < 0 ? 0 : lastDot+1;
+	buffer.append(nameChars, nameStart, lastGenericStart - nameStart);
+	appendArgumentSimpleNames(nameChars, lastGenericStart, lastGenericEnd, buffer);
+	buffer.append(nameChars, lastGenericEnd+1, length-lastGenericEnd-1); // copy trailing portion, may contain dimensions	
 	return buffer.toString();
 }
 
-private static void appendSimpleName(String name, int start, int end, StringBuffer buffer) {
+private static void appendSimpleName(char[] name, int start, int end, StringBuffer buffer) {
 	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
 	int depth = 0;
 	lastDotLookup: for (int i = end; i >= start; i--) {
-		switch (name.charAt(i)) {
+		switch (name[i]) {
 			case '.':
 				if (depth == 0) {
 					lastDot = i;
@@ -1638,22 +1654,22 @@ private static void appendSimpleName(String name, int start, int end, StringBuff
 				break;
 		}
 	}
-	buffer.append(name.substring(lastDot < 0 ? start : lastDot+1, lastGenericStart < 0 ? end+1 : lastGenericStart));
+	int nameStart = lastDot < 0 ? start : lastDot+1;
+	int nameEnd = lastGenericStart < 0 ? end+1 : lastGenericStart;
+	buffer.append(name, nameStart, nameEnd - nameStart);
 	if (lastGenericStart >= 0) {
 		appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
-		for (int i = lastGenericEnd+1; i <= end; i++) { // copy trailing portion, may contain dimensions
-			buffer.append(name.charAt(i));
-		}	
+		buffer.append(name, lastGenericEnd+1, end - lastGenericEnd); // copy trailing portion, may contain dimensions
 	}
 }
 // <x.y.z, a.b<c>.d<e.f>> --> <z,d<f>>
-private static void appendArgumentSimpleNames(String name, int start, int end, StringBuffer buffer) {
+private static void appendArgumentSimpleNames(char[] name, int start, int end, StringBuffer buffer) {
 	buffer.append('<');
 	int depth = 0;
 	int argumentStart = -1;
 	int argumentCount = 0;
 	for (int i = start; i <= end; i++) {
-		switch(name.charAt(i)) {
+		switch(name[i]) {
 			case '<' :
 				depth++;
 				if (depth == 1) {
