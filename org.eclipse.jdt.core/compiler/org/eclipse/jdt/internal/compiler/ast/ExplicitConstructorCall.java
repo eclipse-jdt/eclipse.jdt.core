@@ -264,7 +264,7 @@ public class ExplicitConstructorCall
 					discardEnclosingInstance = true;
 				} else {
 					TypeBinding qTb = qualification.resolveTypeExpecting(scope, enclosingType);
-					qualification.implicitWidening(qTb, qTb);
+					qualification.computeConversion(scope, qTb, qTb);
 				}
 			}
 
@@ -298,7 +298,7 @@ public class ExplicitConstructorCall
 					int length = arguments.length;
 					TypeBinding[] paramTypes = binding.parameters;
 					for (int i = 0; i < length; i++) {
-						arguments[i].implicitWidening(paramTypes[i], argumentTypes[i]);
+						arguments[i].computeConversion(scope, paramTypes[i], argumentTypes[i]);
 					}
 					if (argsContainCast) {
 						CastExpression.checkNeedForArgumentCasts(scope, null, receiverType, binding, this.arguments, argumentTypes, this);

@@ -151,9 +151,9 @@ public class ArrayInitializer extends Expression {
 	
 					// Compile-time conversion required?
 					if (expression.isConstantValueOfTypeAssignableToType(expressionTb, expectedElementsTb)) {
-						expression.implicitWidening(expectedElementsTb, expressionTb);
+						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else if (BaseTypeBinding.isWidening(expectedElementsTb.id, expressionTb.id)) {
-						expression.implicitWidening(expectedElementsTb, expressionTb);
+						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else {
 						scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionTb, expectedElementsTb);
 						return null;

@@ -182,17 +182,17 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 						if ((initializationTypeBinding = this.initialization.resolveTypeExpecting(initializationScope, typeBinding)) != null) {
 							((ArrayInitializer) this.initialization).binding = (ArrayBinding) initializationTypeBinding;
-							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
+							this.initialization.computeConversion(initializationScope, typeBinding, initializationTypeBinding);
 						}
 					} else if ((initializationTypeBinding = this.initialization.resolveType(initializationScope)) != null) {
 
 						if (this.initialization.isConstantValueOfTypeAssignableToType(initializationTypeBinding, typeBinding)
 							|| (typeBinding.isBaseType() && BaseTypeBinding.isWidening(typeBinding.id, initializationTypeBinding.id))) {
 
-							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
+							this.initialization.computeConversion(initializationScope, typeBinding, initializationTypeBinding);
 
 						}	else if (initializationTypeBinding.isCompatibleWith(typeBinding)) {
-							this.initialization.implicitWidening(typeBinding, initializationTypeBinding);
+							this.initialization.computeConversion(initializationScope, typeBinding, initializationTypeBinding);
 
 						} else {
 							initializationScope.problemReporter().typeMismatchError(initializationTypeBinding, typeBinding, this);

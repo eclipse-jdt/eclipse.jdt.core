@@ -240,7 +240,7 @@ public class SwitchStatement extends Statement {
 			TypeBinding testType = expression.resolveType(upperScope);
 			if (testType == null)
 				return;
-			expression.implicitWidening(testType, testType);
+			expression.computeConversion(upperScope, testType, testType);
 			if (!(expression.isConstantValueOfTypeAssignableToType(testType, IntBinding))) {
 				if (!testType.isCompatibleWith(IntBinding)) {
 					upperScope.problemReporter().incorrectSwitchType(expression, testType);

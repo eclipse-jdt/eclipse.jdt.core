@@ -490,6 +490,9 @@ public int computeSeverity(int problemId){
 		case IProblem.UnqualifiedFieldAccess:
 			return this.options.getSeverity(CompilerOptions.UnqualifiedFieldAccess);
 
+		case IProblem.UnsafeRawOperation:
+			return this.options.getSeverity(CompilerOptions.UnsafeRawOperation);
+
 		/*
 		 * Javadoc syntax errors
 		 */
@@ -3169,10 +3172,10 @@ public void typeMismatchError(TypeBinding resultType, TypeBinding expectedType, 
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void typeMismatchErrorActualTypeExpectedType(Expression expression, TypeBinding constantType, TypeBinding expectedType) {
-	String constantTypeName = new String(constantType.readableName());
+public void typeMismatchErrorActualTypeExpectedType(Expression expression, TypeBinding actualType, TypeBinding expectedType) {
+	String constantTypeName = new String(actualType.readableName());
 	String expectedTypeName = new String(expectedType.readableName());
-	String constantTypeShortName = new String(constantType.shortReadableName());
+	String constantTypeShortName = new String(actualType.shortReadableName());
 	String expectedTypeShortName = new String(expectedType.shortReadableName());
 	if (constantTypeShortName.equals(expectedTypeShortName)){
 		constantTypeShortName = constantTypeName;
@@ -3361,14 +3364,13 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		nameRef.sourceStart,
 		end);
 }
-public void unsafeRawAssignment(Assignment assignment, TypeBinding leftType, TypeBinding rightType) {
+public void unsafeRawType(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
-		IProblem.UndefinedName,
-		arguments,
-		arguments,
-		severity,
-		nameRef.sourceStart,
-		end);    
+		IProblem.UnsafeRawOperation,
+		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
+		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
+		expression.sourceStart,
+		expression.sourceEnd);    
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 

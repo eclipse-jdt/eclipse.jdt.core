@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -72,6 +73,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportUnusedDeclaredThrownException = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnqualifiedFieldAccess = "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnsafeRawOperation = "org.eclipse.jdt.core.compiler.problem.unsafeRawOperation"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
@@ -115,39 +117,36 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
 	 */
-	// 0x100L unused
-	// 0x200L unused
-	// 0x400L unused
-	// 0x800L unused
-	public static final long MethodWithConstructorName = 0x1000L;
-	public static final long OverriddenPackageDefaultMethod = 0x2000L;
-	public static final long UsingDeprecatedAPI = 0x4000L;
-	public static final long MaskedCatchBlock = 0x8000L;
-	public static final long UnusedLocalVariable = 0x10000L;
-	public static final long UnusedArgument = 0x20000L;
-	public static final long NoImplicitStringConversion = 0x40000L;
-	public static final long AccessEmulation = 0x80000L;
-	public static final long NonExternalizedString = 0x100000L;
-	public static final long AssertUsedAsAnIdentifier = 0x200000L;
-	public static final long UnusedImport = 0x400000L;
-	public static final long NonStaticAccessToStatic = 0x800000L;
-	public static final long Task = 0x1000000L;
-	public static final long NoEffectAssignment = 0x2000000L;
-	public static final long IncompatibleNonInheritedInterfaceMethod = 0x4000000L;
-	public static final long UnusedPrivateMember = 0x8000000L;
-	public static final long LocalVariableHiding = 0x10000000L;
-	public static final long FieldHiding = 0x20000000L;
-	public static final long AccidentalBooleanAssign = 0x40000000L;
-	public static final long SuperfluousSemicolon = 0x80000000L;
-	public static final long IndirectStaticAccess = 0x100000000L;
-	public static final long UndocumentedEmptyBlock = 0x200000000L;
-	public static final long UnnecessaryTypeCheck = 0x400000000L;
-	public static final long InvalidJavadoc = 0x800000000L;
-	public static final long FinallyBlockNotCompleting = 0x1000000000L;
-	public static final long UnusedDeclaredThrownException = 0x2000000000L;
-	public static final long UnqualifiedFieldAccess = 0x4000000000L;
-	public static final long MissingJavadocTags = 0x8000000000L;
-	public static final long MissingJavadocComments  = 0x10000000000L;
+	public static final long MethodWithConstructorName = ASTNode.Bit1;
+	public static final long OverriddenPackageDefaultMethod = ASTNode.Bit2;
+	public static final long UsingDeprecatedAPI = ASTNode.Bit3;
+	public static final long MaskedCatchBlock = ASTNode.Bit4;
+	public static final long UnusedLocalVariable = ASTNode.Bit5;
+	public static final long UnusedArgument = ASTNode.Bit6;
+	public static final long NoImplicitStringConversion = ASTNode.Bit7;
+	public static final long AccessEmulation = ASTNode.Bit8;
+	public static final long NonExternalizedString = ASTNode.Bit9;
+	public static final long AssertUsedAsAnIdentifier = ASTNode.Bit10;
+	public static final long UnusedImport = ASTNode.Bit11;
+	public static final long NonStaticAccessToStatic = ASTNode.Bit12;
+	public static final long Task = ASTNode.Bit13;
+	public static final long NoEffectAssignment = ASTNode.Bit14;
+	public static final long IncompatibleNonInheritedInterfaceMethod = ASTNode.Bit15;
+	public static final long UnusedPrivateMember = ASTNode.Bit16;
+	public static final long LocalVariableHiding = ASTNode.Bit17;
+	public static final long FieldHiding = ASTNode.Bit18;
+	public static final long AccidentalBooleanAssign = ASTNode.Bit19;
+	public static final long SuperfluousSemicolon = ASTNode.Bit20;
+	public static final long MissingJavadocComments  = ASTNode.Bit21;
+	public static final long MissingJavadocTags = ASTNode.Bit22;
+	public static final long UnqualifiedFieldAccess = ASTNode.Bit23;
+	public static final long UnusedDeclaredThrownException = ASTNode.Bit24;
+	public static final long FinallyBlockNotCompleting = ASTNode.Bit25;
+	public static final long InvalidJavadoc = ASTNode.Bit26;
+	public static final long UnnecessaryTypeCheck = ASTNode.Bit27;
+	public static final long UndocumentedEmptyBlock = ASTNode.Bit28;
+	public static final long IndirectStaticAccess = ASTNode.Bit29;
+	public static final long UnsafeRawOperation = ASTNode.Bit30;
 
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -163,7 +162,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| IncompatibleNonInheritedInterfaceMethod
 		| NoImplicitStringConversion
 		| FinallyBlockNotCompleting
-		| AssertUsedAsAnIdentifier;
+		| AssertUsedAsAnIdentifier
+		| UnsafeRawOperation;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -297,6 +297,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownException, getSeverityString(UnusedDeclaredThrownException));
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, this.reportUnusedDeclaredThrownExceptionWhenOverriding ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
+		optionsMap.put(OPTION_ReportUnsafeRawOperation, getSeverityString(UnsafeRawOperation));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 

@@ -213,7 +213,7 @@ public class ReturnStatement extends Statement {
 	
 		if (methodType != null && expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
 			// dealing with constant
-			expression.implicitWidening(methodType, expressionType);
+			expression.computeConversion(scope, methodType, expressionType);
 			return;
 		}
 		if (expressionType == VoidBinding) {
@@ -221,7 +221,7 @@ public class ReturnStatement extends Statement {
 			return;
 		}
 		if (methodType != null && expressionType.isCompatibleWith(methodType)) {
-			expression.implicitWidening(methodType, expressionType);
+			expression.computeConversion(scope, methodType, expressionType);
 			return;
 		}
 		if (methodType != null){

@@ -1827,7 +1827,8 @@ public void test057() {
 	}
 	// raw type: assignments 
 	public void test065() {
-	    // TODO raise severity of unchecked warning to ERROR
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1841,11 +1842,19 @@ public void test057() {
 			"		X<IOException> xioe = new X<IOException>(); // ok\n" + 
 			"		\n" + 
 			"		X x2 = xioe;\n" + 
-			"		X<IOException> xioe2 = x; // unchecked\n" + 
+			"		X<IOException> xioe2 = x; // unsafe\n" + 
 			"	}\n" + 
 			"}\n", 
 			},
-		"unchecked warning assigning raw type X to X<IOException>");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	X<IOException> xioe2 = x; // unsafe\n" + 
+		"	                       ^\n" + 
+		"Unsafe type operation: Should not use expression of raw type X in place of X<IOException>. References to generic type X<T> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
 	}
 
 	// JSR14-v10[§2.4]: Valid right-shift symbol

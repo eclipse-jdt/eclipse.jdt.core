@@ -223,7 +223,7 @@ public class IfStatement extends Statement {
 	public void resolve(BlockScope scope) {
 
 		TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);
-		condition.implicitWidening(type, type);
+		condition.computeConversion(scope, type, type);
 		if (thenStatement != null)
 			thenStatement.resolve(scope);
 		if (elseStatement != null)

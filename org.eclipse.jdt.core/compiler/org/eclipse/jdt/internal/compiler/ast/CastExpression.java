@@ -76,7 +76,7 @@ public class CastExpression extends Expression {
 		if (castType.isBaseType()) {
 			if (expressionType.isBaseType()) {
 				if (expressionType == castType) {
-					expression.implicitWidening(castType, expressionType);
+					expression.computeConversion(scope, castType, expressionType);
 					constant = expression.constant; //use the same constant
 					return false;
 				}

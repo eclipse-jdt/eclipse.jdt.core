@@ -107,7 +107,7 @@ public TypeBinding resolveType(BlockScope blockScope) {
 		if (!type.isValidBinding())
 			return null; // already reported error
 	} else {
-		this.resolvedType = type = getTypeBinding(blockScope);
+		type = this.resolvedType = getTypeBinding(blockScope);
 		if (!type.isValidBinding()) {
 			reportInvalidType(blockScope);
 			return null;
@@ -132,7 +132,7 @@ public TypeBinding resolveType(ClassScope classScope) {
 		if (!type.isValidBinding())
 			return null; // already reported error
 	} else {
-		this.resolvedType = type = getTypeBinding(classScope);
+		type = this.resolvedType = getTypeBinding(classScope);
 		if (!type.isValidBinding()) {
 			reportInvalidType(classScope);
 			return null;

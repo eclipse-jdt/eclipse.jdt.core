@@ -183,17 +183,18 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				TypeBinding initializationType = initialization.resolveTypeExpecting(scope, typeBinding);
 				if (initializationType != null) {
 					((ArrayInitializer) initialization).binding = (ArrayBinding) initializationType;
-					initialization.implicitWidening(typeBinding, initializationType);
+					initialization.computeConversion(scope, typeBinding, initializationType);
 				}
 			} else {
 				TypeBinding initializationType = initialization.resolveType(scope);
 				if (initializationType != null) {
 					if (initialization.isConstantValueOfTypeAssignableToType(initializationType, typeBinding)
 						|| (typeBinding.isBaseType() && BaseTypeBinding.isWidening(typeBinding.id, initializationType.id))
-						|| initializationType.isCompatibleWith(typeBinding))
-						initialization.implicitWidening(typeBinding, initializationType);
-					else
+						|| initializationType.isCompatibleWith(typeBinding)) {
+						initialization.computeConversion(scope, typeBinding, initializationType);
+					} else {
 						scope.problemReporter().typeMismatchError(initializationType, typeBinding, this);
+					}
 				}
 			}
 

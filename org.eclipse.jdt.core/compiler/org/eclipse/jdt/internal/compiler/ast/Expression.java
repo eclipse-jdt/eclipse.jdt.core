@@ -44,6 +44,36 @@ public abstract class Expression extends Statement {
 	}
 
 	/**
+	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
+	 * Also check unsafe type operations.
+	 */ 
+	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+
+		if (runtimeTimeType == null || compileTimeType == null)
+			return;
+
+		switch (runtimeTimeType.id) {
+			case T_byte :
+			case T_short :
+			case T_char :
+				this.implicitConversion = (T_int << 4) + compileTimeType.id;
+				break;
+			case T_String :
+			case T_float :
+			case T_boolean :
+			case T_double :
+			case T_int : //implicitConversion may result in i2i which will result in NO code gen
+			case T_long :
+				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
+				break;
+			default : // regular object ref
+				if (compileTimeType.isRawType() && runtimeTimeType.isParameterizedType()) {
+				    scope.problemReporter().unsafeRawType(this, compileTimeType, runtimeTimeType);
+				}			    
+		}
+	}	
+	
+	/**
 	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
 	 * since it is not strictly equivalent to the definition of constant expressions.
 	 * In particular, some side-effects may be required to occur (only the end value
@@ -368,31 +398,6 @@ public abstract class Expression extends Statement {
 			codeStream.invokeStringValueOf(typeID);
 		}
 		codeStream.invokeStringBufferStringConstructor();
-	}
-
-	// Base types need that the widening is explicitly done by the compiler using some bytecode like i2f
-	// TODO (philippe) method should be renamed into #implicitConversion(...)
-	public void implicitWidening(TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
-
-		if (runtimeTimeType == null || compileTimeType == null)
-			return;
-
-		switch (runtimeTimeType.id) {
-			case T_byte :
-			case T_short :
-			case T_char :
-				this.implicitConversion = (T_int << 4) + compileTimeType.id;
-				break;
-			case T_String :
-			case T_float :
-			case T_boolean :
-			case T_double :
-			case T_int : //implicitConversion may result in i2i which will result in NO code gen
-			case T_long :
-				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
-				break;
-			default : //nothing on regular object ref
-		}
 	}
 
 	public boolean isCompactableOperation() {

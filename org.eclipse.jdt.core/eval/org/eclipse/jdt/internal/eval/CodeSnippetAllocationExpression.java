@@ -194,7 +194,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (this.arguments != null) {
 		for (int i = 0; i < this.arguments.length; i++) {
-			this.arguments[i].implicitWidening(this.binding.parameters[i], argumentTypes[i]);
+			this.arguments[i].computeConversion(scope, this.binding.parameters[i], argumentTypes[i]);
 		}
 	}
 	return allocatedType;

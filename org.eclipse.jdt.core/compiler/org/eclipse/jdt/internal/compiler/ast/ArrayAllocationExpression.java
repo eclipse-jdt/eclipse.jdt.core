@@ -149,7 +149,7 @@ public class ArrayAllocationExpression extends Expression {
 			if (dimensions[i] != null) {
 				TypeBinding dimensionType = dimensions[i].resolveTypeExpecting(scope, IntBinding);
 				if (dimensionType != null) {
-					dimensions[i].implicitWidening(IntBinding, dimensionType);
+					dimensions[i].computeConversion(scope, IntBinding, dimensionType);
 				}
 			}
 		}

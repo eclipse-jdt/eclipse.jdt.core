@@ -293,7 +293,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length; i++) {
-			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
+			arguments[i].computeConversion(scope, binding.parameters[i], argumentTypes[i]);
 		}
 		if (argumentsCast) {
 			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, receiverType, binding, this.arguments, argumentTypes, this);

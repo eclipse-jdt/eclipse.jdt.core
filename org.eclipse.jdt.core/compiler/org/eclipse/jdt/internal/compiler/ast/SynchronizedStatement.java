@@ -160,7 +160,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, AccDefault, false);
 		scope.addLocalVariable(synchroVariable);
 		synchroVariable.constant = NotAConstant; // not inlinable
-		expression.implicitWidening(type, type);
+		expression.computeConversion(scope, type, type);
 		block.resolveUsing(scope);
 	}
 

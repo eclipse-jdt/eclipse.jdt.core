@@ -260,7 +260,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				}
 				if (arguments != null) {
 					for (int i = 0; i < arguments.length; i++) {
-						arguments[i].implicitWidening(this.binding.parameters[i], argumentTypes[i]);
+						arguments[i].computeConversion(scope, this.binding.parameters[i], argumentTypes[i]);
 					}
 					if (argsContainCast) {
 						CastExpression.checkNeedForArgumentCasts(scope, null, allocationType, binding, this.arguments, argumentTypes, this);
@@ -316,7 +316,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// anonymous class. We do it here while the constructor of the inner is then easier.
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
-				arguments[i].implicitWidening(inheritedBinding.parameters[i], argumentTypes[i]);
+				arguments[i].computeConversion(scope, inheritedBinding.parameters[i], argumentTypes[i]);
 			}
 			if (argsContainCast) {
 				CastExpression.checkNeedForArgumentCasts(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, this);

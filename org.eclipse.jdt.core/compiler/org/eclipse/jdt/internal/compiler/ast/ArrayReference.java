@@ -197,7 +197,7 @@ public class ArrayReference extends Reference {
 		}
 		TypeBinding positionType = position.resolveTypeExpecting(scope, IntBinding);
 		if (positionType != null) {
-			position.implicitWidening(IntBinding, positionType);
+			position.computeConversion(scope, IntBinding, positionType);
 		}
 		return this.resolvedType;
 	}

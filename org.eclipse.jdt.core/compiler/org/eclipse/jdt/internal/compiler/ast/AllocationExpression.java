@@ -258,7 +258,7 @@ public class AllocationExpression
 
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
-				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
+				arguments[i].computeConversion(scope, binding.parameters[i], argumentTypes[i]);
 			}
 			if (argsContainCast) {
 				CastExpression.checkNeedForArgumentCasts(scope, null, allocationType, binding, this.arguments, argumentTypes, this);

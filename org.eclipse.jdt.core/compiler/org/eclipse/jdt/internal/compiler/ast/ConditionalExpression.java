@@ -302,7 +302,7 @@ public class ConditionalExpression extends OperatorExpression {
 			constant = condConstant.booleanValue() ? trueConstant : falseConstant;
 		}
 		if (valueIfTrueType == valueIfFalseType) { // harmed the implicit conversion 
-			valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
+			valueIfTrue.computeConversion(scope, valueIfTrueType, valueIfTrueType);
 			valueIfFalse.implicitConversion = valueIfTrue.implicitConversion;
 			if (valueIfTrueType == BooleanBinding) {
 				this.optimizedIfTrueConstant = valueIfTrue.optimizedBooleanConstant();
@@ -326,16 +326,16 @@ public class ConditionalExpression extends OperatorExpression {
 			// (Short x Byte) or (Byte x Short)"
 			if ((valueIfTrueType == ByteBinding && valueIfFalseType == ShortBinding)
 				|| (valueIfTrueType == ShortBinding && valueIfFalseType == ByteBinding)) {
-				valueIfTrue.implicitWidening(ShortBinding, valueIfTrueType);
-				valueIfFalse.implicitWidening(ShortBinding, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, ShortBinding, valueIfTrueType);
+				valueIfFalse.computeConversion(scope, ShortBinding, valueIfFalseType);
 				return this.resolvedType = ShortBinding;
 			}
 			// <Byte|Short|Char> x constant(Int)  ---> <Byte|Short|Char>   and reciprocally
 			if ((valueIfTrueType == ByteBinding || valueIfTrueType == ShortBinding || valueIfTrueType == CharBinding)
 					&& (valueIfFalseType == IntBinding
 						&& valueIfFalse.isConstantValueOfTypeAssignableToType(valueIfFalseType, valueIfTrueType))) {
-				valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
-				valueIfFalse.implicitWidening(valueIfTrueType, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, valueIfTrueType, valueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfTrueType, valueIfFalseType);
 				return this.resolvedType = valueIfTrueType;
 			}
 			if ((valueIfFalseType == ByteBinding
@@ -343,35 +343,35 @@ public class ConditionalExpression extends OperatorExpression {
 					|| valueIfFalseType == CharBinding)
 					&& (valueIfTrueType == IntBinding
 						&& valueIfTrue.isConstantValueOfTypeAssignableToType(valueIfTrueType, valueIfFalseType))) {
-				valueIfTrue.implicitWidening(valueIfFalseType, valueIfTrueType);
-				valueIfFalse.implicitWidening(valueIfFalseType, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, valueIfFalseType, valueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfFalseType, valueIfFalseType);
 				return this.resolvedType = valueIfFalseType;
 			}
 			// Manual binary numeric promotion
 			// int
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_int)
 					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_int)) {
-				valueIfTrue.implicitWidening(IntBinding, valueIfTrueType);
-				valueIfFalse.implicitWidening(IntBinding, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, IntBinding, valueIfTrueType);
+				valueIfFalse.computeConversion(scope, IntBinding, valueIfFalseType);
 				return this.resolvedType = IntBinding;
 			}
 			// long
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_long)
 					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_long)) {
-				valueIfTrue.implicitWidening(LongBinding, valueIfTrueType);
-				valueIfFalse.implicitWidening(LongBinding, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, LongBinding, valueIfTrueType);
+				valueIfFalse.computeConversion(scope, LongBinding, valueIfFalseType);
 				return this.resolvedType = LongBinding;
 			}
 			// float
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_float)
 					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_float)) {
-				valueIfTrue.implicitWidening(FloatBinding, valueIfTrueType);
-				valueIfFalse.implicitWidening(FloatBinding, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, FloatBinding, valueIfTrueType);
+				valueIfFalse.computeConversion(scope, FloatBinding, valueIfFalseType);
 				return this.resolvedType = FloatBinding;
 			}
 			// double
-			valueIfTrue.implicitWidening(DoubleBinding, valueIfTrueType);
-			valueIfFalse.implicitWidening(DoubleBinding, valueIfFalseType);
+			valueIfTrue.computeConversion(scope, DoubleBinding, valueIfTrueType);
+			valueIfFalse.computeConversion(scope, DoubleBinding, valueIfFalseType);
 			return this.resolvedType = DoubleBinding;
 		}
 		// Type references (null null is already tested)
@@ -384,13 +384,13 @@ public class ConditionalExpression extends OperatorExpression {
 			return null;
 		}
 		if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
-			valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
-			valueIfFalse.implicitWidening(valueIfTrueType, valueIfFalseType);
+			valueIfTrue.computeConversion(scope, valueIfTrueType, valueIfTrueType);
+			valueIfFalse.computeConversion(scope, valueIfTrueType, valueIfFalseType);
 			return this.resolvedType = valueIfTrueType;
 		}
 		if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
-			valueIfTrue.implicitWidening(valueIfFalseType, valueIfTrueType);
-			valueIfFalse.implicitWidening(valueIfFalseType, valueIfFalseType);
+			valueIfTrue.computeConversion(scope, valueIfFalseType, valueIfTrueType);
+			valueIfFalse.computeConversion(scope, valueIfFalseType, valueIfFalseType);
 			return this.resolvedType = valueIfFalseType;
 		}
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(
