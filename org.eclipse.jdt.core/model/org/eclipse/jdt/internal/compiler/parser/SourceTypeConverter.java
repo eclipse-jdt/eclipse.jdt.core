@@ -385,7 +385,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 
 		/* convert type parameters */
 		char[][] typeParameterNames = sourceType.getTypeParameterNames();
-		if (typeParameterNames != null) {
+		if (typeParameterNames != null && typeParameterNames.length > 0) { // TODO (jerome) fix once ISourceType's spec & SourceTypeElementInfo match
 			int parameterCount = typeParameterNames.length;
 			char[][][] typeParameterBounds = sourceType.getTypeParameterBounds();
 			type.typeParameters = new TypeParameter[parameterCount];
