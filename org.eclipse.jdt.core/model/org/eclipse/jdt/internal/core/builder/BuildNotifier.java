@@ -121,58 +121,53 @@ protected String problemsMessage() {
 	int numFixed = fixedErrorCount + fixedWarningCount;
 	if (numNew == 0 && numFixed == 0) return ""; //$NON-NLS-1$
 
+	boolean displayBoth = numNew > 0 && numFixed > 0;
 	StringBuffer buffer = new StringBuffer();
 	buffer.append('(');
-	if (numNew == 0) {
-		// (Fixed: x errors, y warnings)
-		buffer.append(Util.bind("build.fixedHeader")); //$NON-NLS-1$
-		buffer.append(' ');
-		if (fixedErrorCount > 0) {
-			if (fixedErrorCount == 1)
-				buffer.append(Util.bind("build.oneError")); //$NON-NLS-1$
-			else
-				buffer.append(Util.bind("build.multipleErrors", String.valueOf(fixedErrorCount))); //$NON-NLS-1$
-			if (fixedWarningCount > 0)
-				buffer.append(',').append(' ');
-		}
-		if (fixedWarningCount > 0) {
-			if (fixedWarningCount == 1)
-				buffer.append(Util.bind("build.oneWarning")); //$NON-NLS-1$
-			else
-				buffer.append(Util.bind("build.multipleWarnings", String.valueOf(fixedWarningCount))); //$NON-NLS-1$
-		}
-	} else if (numFixed == 0) {
-		// (Found: x errors, y warnings)
+	if (numNew > 0) {
+		// (Found x errors + y warnings)
 		buffer.append(Util.bind("build.foundHeader")); //$NON-NLS-1$
 		buffer.append(' ');
-		if (newErrorCount > 0) {
+		if (displayBoth || newErrorCount > 0) {
 			if (newErrorCount == 1)
 				buffer.append(Util.bind("build.oneError")); //$NON-NLS-1$
 			else
 				buffer.append(Util.bind("build.multipleErrors", String.valueOf(newErrorCount))); //$NON-NLS-1$
-			if (newWarningCount > 0)
-				buffer.append(',').append(' ');
+			if (displayBoth || newWarningCount > 0)
+				buffer.append(" + "); //$NON-NLS-1$
 		}
-		if (newWarningCount > 0) {
+		if (displayBoth || newWarningCount > 0) {
 			if (newWarningCount == 1)
 				buffer.append(Util.bind("build.oneWarning")); //$NON-NLS-1$
 			else
 				buffer.append(Util.bind("build.multipleWarnings", String.valueOf(newWarningCount))); //$NON-NLS-1$
 		}
-	} else {
-		// (Found/fixed: x/y errors, x/y warnings)
-		buffer.append(Util.bind("build.foundFixedHeader")); //$NON-NLS-1$
+		if (numFixed > 0)
+			buffer.append(", "); //$NON-NLS-1$
+	}
+	if (numFixed > 0) {
+		// (Fixed x errors + y warnings) or (Found x errors + y warnings, Fixed x + y)
+		buffer.append(Util.bind("build.fixedHeader")); //$NON-NLS-1$
 		buffer.append(' ');
-
-		if (newErrorCount > 0 || fixedErrorCount > 0) {
-			String plusMinus = String.valueOf(newErrorCount) + "/" + String.valueOf(fixedErrorCount); //$NON-NLS-1$
-			buffer.append(Util.bind("build.multipleErrors", plusMinus)); //$NON-NLS-1$
-			if (fixedWarningCount > 0 || newWarningCount > 0)
-				buffer.append(',').append(' ');
-		}
-		if (newWarningCount > 0 || fixedWarningCount > 0) {
-			String plusMinus = String.valueOf(newWarningCount) + "/" + String.valueOf(fixedWarningCount); //$NON-NLS-1$
-			buffer.append(Util.bind("build.multipleWarnings", plusMinus)); //$NON-NLS-1$
+		if (displayBoth) {
+			buffer.append(String.valueOf(fixedErrorCount));
+			buffer.append(" + "); //$NON-NLS-1$
+			buffer.append(String.valueOf(fixedWarningCount));
+		} else {
+			if (fixedErrorCount > 0) {
+				if (fixedErrorCount == 1)
+					buffer.append(Util.bind("build.oneError")); //$NON-NLS-1$
+				else
+					buffer.append(Util.bind("build.multipleErrors", String.valueOf(fixedErrorCount))); //$NON-NLS-1$
+				if (fixedWarningCount > 0)
+					buffer.append(" + "); //$NON-NLS-1$
+			}
+			if (fixedWarningCount > 0) {
+				if (fixedWarningCount == 1)
+					buffer.append(Util.bind("build.oneWarning")); //$NON-NLS-1$
+				else
+					buffer.append(Util.bind("build.multipleWarnings", String.valueOf(fixedWarningCount))); //$NON-NLS-1$
+			}
 		}
 	}
 	buffer.append(')');
