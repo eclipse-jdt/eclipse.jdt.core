@@ -8,6 +8,7 @@ What's new in this drop
 
 PRs Fixed in this Release (since 1.0NL stream)
 
+1GGYL32: ITPJCORE:ALL - Default supertypes are not visible when qualified
 1GDFJK0: IVJIDT:WIN2000 - Using 'synchronized' produces invalid exception table values in class, causes "Illegal exception table range" exception, VAJ 3.5+ 
 1GGAK6G: ITPJCORE:ALL - Incorrect javadoc comment in JavaElement 
 1GF9L3K: ITPDUI:ALL - Eval - Private array resolution failure 
