@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
@@ -438,12 +439,18 @@ class TypeBinding implements ITypeBinding {
 		}
 		
 		if (isTopLevel() || isMember()) {
-			StringBuffer stringBuffer = new StringBuffer();
-			stringBuffer
-				.append(this.binding.qualifiedPackageName())
-				.append('.')
-				.append(this.binding.qualifiedSourceName());
-			return stringBuffer.toString();
+			PackageBinding packageBinding = this.binding.getPackage();
+			
+			if (packageBinding == null || packageBinding.compoundName == CharOperation.NO_CHAR_CHAR) {
+				return new String(this.binding.qualifiedSourceName());
+			} else {
+				StringBuffer stringBuffer = new StringBuffer();
+				stringBuffer
+					.append(this.binding.qualifiedPackageName())
+					.append('.')
+					.append(this.binding.qualifiedSourceName());
+				return stringBuffer.toString();
+			}
 		}
 		return NO_NAME;
 	}
