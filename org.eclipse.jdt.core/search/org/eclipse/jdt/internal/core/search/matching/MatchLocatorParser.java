@@ -149,6 +149,13 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		this.matchSet.checkMatching(this.astStack[this.astPtr]);
 	}
 }
+protected TypeReference copyDims(TypeReference typeRef, int dim) {
+	TypeReference result = super.copyDims(typeRef, dim);
+	if (this.matchSet != null && this.matchSet.removePossibleMatch(typeRef) != null) {
+		this.matchSet.addPossibleMatch(result);
+	}
+	return result;
+}
 protected TypeReference getTypeReference(int dim) {
 	TypeReference typeRef = super.getTypeReference(dim);
 	if (this.matchSet != null) { 

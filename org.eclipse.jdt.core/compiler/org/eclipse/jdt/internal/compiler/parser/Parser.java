@@ -1033,6 +1033,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		dispatchDeclarationInto(length);
 		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
+		if (anonymousTypeDeclaration.allocation != null) {
+			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
+		}
 		astPtr--;
 		astLengthPtr--;
 		
@@ -1892,7 +1895,7 @@ protected void consumeEnterVariable() {
 			type.sourceEnd = typeSourceEnd;
 			declaration.type = type;
 		} else {
-			declaration.type = type.copyDims(dimension);
+			declaration.type = this.copyDims(type, dimension);
 		}
 	}
 	variablesCounter[nestedType]++;
@@ -2397,7 +2400,7 @@ protected void consumeMethodHeaderExtendedDims() {
 			returnType.sourceEnd = sourceEnd;
 			md.returnType = returnType;
 		} else {
-			md.returnType = md.returnType.copyDims(dims);
+			md.returnType = this.copyDims(md.returnType, dims);
 		}
 		if (currentToken == TokenNameLBRACE){ 
 			md.bodyStart = endPosition + 1;
@@ -4312,6 +4315,9 @@ protected void consumeVariableDeclarators() {
 protected void consumeVariableInitializers() {
 	// VariableInitializers ::= VariableInitializers ',' VariableInitializer
 	concatExpressionLists();
+}
+protected TypeReference copyDims(TypeReference typeRef, int dim) {
+	return typeRef.copyDims(dim);
 }
 protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
 	return new FieldDeclaration(null, name, sourceStart, sourceEnd);

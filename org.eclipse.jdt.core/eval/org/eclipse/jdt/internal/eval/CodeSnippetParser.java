@@ -66,6 +66,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		dispatchDeclarationInto(length);
 		AnonymousLocalTypeDeclaration anonymousTypeDeclaration = (AnonymousLocalTypeDeclaration) astStack[astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
+		if (anonymousTypeDeclaration.allocation != null) {
+			anonymousTypeDeclaration.allocation.sourceEnd = endStatementPosition;
+		}		
 		astPtr--;
 		astLengthPtr--;
 
@@ -253,7 +256,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 				positions);
 			int dimCount = CharOperation.occurencesOf('[', this.evaluationContext.localVariableTypeNames[i]);
 			if (dimCount > 0) {
-				typeReference = typeReference.copyDims(dimCount);
+				typeReference = this.copyDims(typeReference, dimCount);
 			}
 			NameReference init = new SingleNameReference(
 									CharOperation.concat(LOCAL_VAR_PREFIX, this.evaluationContext.localVariableNames[i]), position);
