@@ -191,11 +191,19 @@ public TypeBinding resolveType(BlockScope scope) {
 		boolean argHasError = false; // typeChecks all arguments 
 		int length = arguments.length;
 		argumentTypes = new TypeBinding[length];
-		for (int i = 0; i < length; i++)
-			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
+		for (int i = 0; i < length; i++){
+			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null){
 				argHasError = true;
-		if (argHasError)
+			}
+		}
+		if (argHasError){
+			MethodBinding closestMethod = null;
+			if(receiverType instanceof ReferenceBinding) {
+				// record any selector match, for clients who may still need hint about possible method match
+				this.codegenBinding = this.binding = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
+			}			
 			return null;
+		}
 	}
 	if (this.receiverType == null)
 		return null;
@@ -220,6 +228,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		scope.problemReporter().invalidMethod(this, binding);
+		// record the closest match, for clients who may still need hint about possible method match
+		if (binding.problemId() == ProblemReasons.NotFound){
+			this.codegenBinding = this.binding = ((ProblemMethodBinding)binding).closestMatch;
+		}
 		return null;
 	}
 	if (!binding.isStatic()) {
