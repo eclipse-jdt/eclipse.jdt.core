@@ -3,34 +3,17 @@
 <!-- =================================================================================== -->
 <!-- JDT/CORE Plug-in Manifest                                                           -->
 <!-- =================================================================================== -->
-<plugin
-    name = "%pluginName"
-    id = "org.eclipse.jdt.core"
-    version = "3.1.0"
-    provider-name = "%providerName"
-    class="org.eclipse.jdt.core.JavaCore">
+<plugin>
 
 <!-- =================================================================================== -->
 <!-- Prerequisite Plug-ins                                                               -->
 <!-- =================================================================================== -->
 
-<requires>
-    <import plugin="org.eclipse.core.resources"/>
-    <import plugin="org.eclipse.core.runtime"/>    
-    <import plugin="org.eclipse.text"/>
-    <import plugin="org.apache.ant" optional="true"/>
-    <import plugin="org.eclipse.team.core" optional="true"/>
-</requires>
-	
+
 <!-- =================================================================================== -->
 <!-- Runtime Libraries                                                                   -->
 <!-- =================================================================================== -->
 
-<runtime>
-  <library name="jdtcore.jar">  
-     <export name="*"/>
-  </library> 
-</runtime>
 
 <!-- =================================================================================== -->
 <!-- Extension Point: Initializers of Classpath Variables                                -->
