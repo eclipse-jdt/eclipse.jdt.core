@@ -699,7 +699,7 @@ public abstract class Scope
 		int lastPosition = -1;
 		FieldBinding visibleField = null;
 		boolean keepLooking = true;
-		boolean notVisible = false;
+		FieldBinding notVisibleField = null;
 		// we could hold onto the not visible field for extra error reporting
 		while (keepLooking) {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
@@ -726,7 +726,8 @@ public abstract class Scope
 					else
 						return new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, Ambiguous);
 				} else {
-					notVisible = true;
+					if (notVisibleField == null)
+						notVisibleField = field;
 				}
 			}
 		}
@@ -773,8 +774,8 @@ public abstract class Scope
 
 		if (visibleField != null)
 			return visibleField;
-		if (notVisible)
-			return new ProblemFieldBinding(currentType, fieldName, NotVisible);
+		if (notVisibleField != null)
+			return new ProblemFieldBinding(notVisibleField, currentType, fieldName, NotVisible);
 		return null;
 	}
 
