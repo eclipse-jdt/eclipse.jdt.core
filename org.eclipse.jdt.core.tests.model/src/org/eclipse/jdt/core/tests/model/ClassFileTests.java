@@ -130,8 +130,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Z.class").getType();
 		assertStringsEqual(
 			"Unexpected type parameters",
-			"T:Ljava.lang.Object;\n" + 
-			":Lgeneric.I<-TT;>;\n",
+			"T:Ljava.lang.Object;:Lgeneric.I<-TT;>;\n",
 			type.getTypeParameterSignatures());
 	}
 	
