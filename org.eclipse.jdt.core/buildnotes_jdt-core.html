@@ -32,6 +32,7 @@
 	</td>
   </tr>
 </table>
+
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -43,7 +44,17 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29621">29621</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29636">29636</a>
+First anonymous type should be named X$1
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29638">29638</a>
+No field initializations on Object
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27413">27413</a>
+Should we reject that code?
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29211">29211</a>
+Should check the visibility of the array type before accessing its length field
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29213">29213</a>
+Should check the visibility of the array type before calling a method
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29621">29621</a>
 Wrong Delta When Adding to Filtered Folder 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29637">29637</a>
 Default debug attributes don't match with javac
@@ -57,14 +68,19 @@ Simplify AST creation for an IClassFile (minor)
 Excluded folder on project not returned by Java Model 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27485">27485</a>
 SearchEngine returns wrong java element when searching in an archive that is included by two distinct java projects. 
-   
+ 
 <h3>Problem Reports Closed</h3>
-
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29501">29501</a>
+Uninitialized variable warning does not analyze the program thoroughly enough
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29394">29394</a>
+suboptimal handling closing/opening projects in autobuild
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29009">29009</a>
+ClassCircularityError in RequiredPluginsInitializer
 
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 2.1 Build - 15h January 2003
+Eclipse SDK 2.1 Build - 15th January 2003
 <br>Project org.eclipse.jdt.core v_291a
 <h2>
 What's new in this drop</h2>
@@ -158,8 +174,6 @@ Missing one unit in package view
 <h3>Problem Reports Closed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25980">25980</a>
 NullPointerException during Refactor/Move operation 
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29374">29374</a>
-Excluded folder on project not returned by Java Model
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29343">29343</a>
 [M4] Scribbling on missing return statement needs to go on a diet
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29197">29197</a>
