@@ -572,7 +572,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				beginToCompile(new ICompilationUnit[] { sourceUnit });
 				// process all units (some more could be injected in the loop by the lookup environment)
 				unit = unitsToProcess[0];
-				getMethodBodies(unit, 0);
 			} else {
 				// initial type binding creation
 				lookupEnvironment.buildTypeBindings(unit);
@@ -580,6 +579,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				// binding resolution
 				lookupEnvironment.completeTypeBindings();
 			}
+			getMethodBodies(unit, 0);
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();

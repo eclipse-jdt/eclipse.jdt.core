@@ -28,6 +28,9 @@ public class DefaultProblemFactory implements IProblemFactory {
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
+public DefaultProblemFactory() {
+	this(Locale.getDefault());
+}
 /**
  * @param loc the locale used to get the right message
  */
@@ -168,7 +171,4 @@ public static String[] loadMessageTemplates(Locale loc) {
 	return templates;
 }
 
-public DefaultProblemFactory() {
-	this(Locale.getDefault());
-}
 }

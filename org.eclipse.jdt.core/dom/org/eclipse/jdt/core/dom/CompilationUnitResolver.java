@@ -148,7 +148,7 @@ class CompilationUnitResolver extends Compiler {
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
-				getProblemFactory(fileName, visitor));
+				new DefaultProblemFactory());
 
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -213,38 +213,14 @@ class CompilationUnitResolver extends Compiler {
 		return compilationUnitDeclaration;
 	}
 
-	protected static IProblemFactory getProblemFactory(final char[] fileName, final IAbstractSyntaxTreeVisitor visitor) {
-
-		return new DefaultProblemFactory(Locale.getDefault()) {
-			public IProblem createProblem(
-				char[] originatingFileName,
-				int problemId,
-				String[] problemArguments,
-				String[] messageArguments,
-				int severity,
-				int startPosition,
-				int endPosition,
-				int lineNumber) {
-
-				IProblem problem =
-					super.createProblem(
-						originatingFileName,
-						problemId,
-						problemArguments,
-						messageArguments,
-						severity,
-						startPosition,
-						endPosition,
-						lineNumber);
-				// only consider problems associated with resolved file
-				if (CharOperation.equals(originatingFileName, fileName)){
-					visitor.acceptProblem(problem);
-				}
-				return problem;
-			}
-		};
+	private static void reportProblems(CompilationUnitDeclaration unit, IAbstractSyntaxTreeVisitor visitor) {
+		CompilationResult unitResult = unit.compilationResult;
+		IProblem[] problems = unitResult.getAllProblems();
+		for (int i = 0, problemLength = problems == null ? 0 : problems.length; i < problemLength; i++) {
+			visitor.acceptProblem(problems[i]);				
+		}	
 	}
-
+	
 	public static CompilationUnitDeclaration resolve(
 		char[] source,
 		String unitName,
@@ -258,7 +234,7 @@ class CompilationUnitResolver extends Compiler {
 				getHandlingPolicy(),
 				javaProject.getOptions(true),
 				getRequestor(),
-				getProblemFactory(unitName.toCharArray(), visitor));
+				new DefaultProblemFactory());
 	
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -274,6 +250,7 @@ class CompilationUnitResolver extends Compiler {
 					true, // method verification
 					true, // analyze code
 					true); // generate code
+			reportProblems(unit, visitor);
 			return unit;
 		} finally {
 			if (unit != null) {
@@ -296,7 +273,7 @@ class CompilationUnitResolver extends Compiler {
 				getHandlingPolicy(),
 				javaProject.getOptions(true),
 				getRequestor(),
-				getProblemFactory(unitName.toCharArray(), visitor));
+				new DefaultProblemFactory());
 	
 		CompilationUnitDeclaration unit = null;
 		try {
@@ -312,6 +289,7 @@ class CompilationUnitResolver extends Compiler {
 					true, // method verification
 					true, // analyze code
 					true); // generate code
+			reportProblems(unit, visitor);					
 			return unit;
 		} finally {
 			if (unit != null) {

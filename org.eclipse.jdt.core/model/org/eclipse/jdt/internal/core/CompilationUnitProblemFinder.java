@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 /**
@@ -133,56 +131,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 		};
 	}
 
-	protected static IProblemFactory getProblemFactory(
-		final char[] fileName, 
-		final IProblemRequestor problemRequestor,
-		final IProgressMonitor monitor) {
-
-		return new DefaultProblemFactory(Locale.getDefault()) {
-			public IProblem createProblem(
-				char[] originatingFileName,
-				int problemId,
-				String[] problemArguments,
-				String[] messageArguments,
-				int severity,
-				int startPosition,
-				int endPosition,
-				int lineNumber) {
-
-				if (monitor != null && monitor.isCanceled()){
-					throw new AbortCompilation(true, null); // silent abort
-				}
-				
-				IProblem problem =
-					super.createProblem(
-						originatingFileName,
-						problemId,
-						problemArguments,
-						messageArguments,
-						severity,
-						startPosition,
-						endPosition,
-						lineNumber);
-				// only report local problems
-				if (CharOperation.equals(originatingFileName, fileName)){
-					if (JavaModelManager.VERBOSE){
-						System.out.println("PROBLEM FOUND while reconciling : "+problem.getMessage());//$NON-NLS-1$
-					}
-					problemRequestor.acceptProblem(problem);
-				}
-				if (monitor != null && monitor.isCanceled()){
-					throw new AbortCompilation(true, null); // silent abort
-				}
-
-				return problem;
-			}
-		};
-	}
-
 	public static CompilationUnitDeclaration process(
 		CompilationUnitDeclaration unit,
 		ICompilationUnit unitElement, 
 		IProblemRequestor problemRequestor,
+		IProblemFactory problemFactory,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
@@ -195,7 +148,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 				getHandlingPolicy(),
 				project.getOptions(true),
 				getRequestor(),
-				getProblemFactory(fileName, problemRequestor, monitor));
+				problemFactory);
 
 		try {
 			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
@@ -223,6 +176,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 					true, // analyze code
 					true); // generate code
 			}
+			reportProblems(unit, problemRequestor, monitor);
 			return unit;
 		} finally {
 			if (unit != null) {
@@ -231,13 +185,28 @@ public class CompilationUnitProblemFinder extends Compiler {
 			problemFinder.lookupEnvironment.reset();			
 		}
 	}
+
 	public static CompilationUnitDeclaration process(
 		ICompilationUnit unitElement, 
 		IProblemRequestor problemRequestor,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null, unitElement, problemRequestor, monitor);
+		return process(null, unitElement, problemRequestor, new DefaultProblemFactory(), monitor);
 	}
+
+	
+	private static void reportProblems(CompilationUnitDeclaration unit, IProblemRequestor problemRequestor, IProgressMonitor monitor) {
+		CompilationResult unitResult = unit.compilationResult;
+		IProblem[] problems = unitResult.getAllProblems();
+		for (int i = 0, problemLength = problems == null ? 0 : problems.length; i < problemLength; i++) {
+			if (JavaModelManager.VERBOSE){
+				System.out.println("PROBLEM FOUND while reconciling : "+problems[i].getMessage());//$NON-NLS-1$
+			}
+			if (monitor != null && monitor.isCanceled()) break;
+			problemRequestor.acceptProblem(problems[i]);				
+		}
+	}
+
 }	
 
