@@ -31,7 +31,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -221,8 +220,8 @@ public void indexAll(IProject project) {
 	// Also request indexing of binaries on the classpath
 	// determine the new children
 	try {
-		IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-		IJavaProject javaProject = ((JavaModel) model).getJavaProject(project);	
+		JavaModel model = (JavaModel) JavaModelManager.getJavaModelManager().getJavaModel();
+		IJavaProject javaProject = model.getJavaProject(project);	
 		// only consider immediate libraries - each project will do the same
 		// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
 		// will be run in the current thread.
@@ -233,8 +232,13 @@ public void indexAll(IProject project) {
 				this.indexLibrary(entry.getPath(), project);
 		}
 	} catch(JavaModelException e){ // cannot retrieve classpath info
-	}	
-	this.request(new IndexAllProject(project, this));
+	}
+
+	// check if the same request is not already in the queue
+	IndexRequest request = new IndexAllProject(project, this);
+	for (int i = this.jobEnd; i >= this.jobStart; i--)
+		if (request.equals(this.awaitingJobs[i])) return;
+	this.request(request);
 }
 /**
  * Trigger addition of a library to an index
@@ -251,6 +255,7 @@ public void indexLibrary(IPath path, IProject referingProject) {
 		// remember the timestamp of this library
 		long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
 		JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));
+		//TODO: (jerome) why this side-effect likely breaking external JAR update support
 		request = new AddJarFileToIndex(path, this, referingProject.getName());
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder)target, this, referingProject);
@@ -259,10 +264,8 @@ public void indexLibrary(IPath path, IProject referingProject) {
 	}
 
 	// check if the same request is not already in the queue
-	for (int i = this.jobEnd; i >= this.jobStart; i--) {
-		IJob job = this.awaitingJobs[i];
-		if (job != null && request.equals(job)) return;
-	}
+	for (int i = this.jobEnd; i >= this.jobStart; i--)
+		if (request.equals(this.awaitingJobs[i])) return;
 	this.request(request);
 }
 /**
@@ -431,7 +434,18 @@ public void saveIndex(IIndex index) throws IOException {
 			JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
 		index.save();
 	}
-	updateIndexState(index.getIndexFile().getPath(), SAVED_STATE);
+	String indexName = index.getIndexFile().getPath();
+	if (this.jobEnd > this.jobStart) {
+		Object indexPath = indexNames.keyForValue(indexName);
+		if (indexPath != null) {
+			for (int i = this.jobEnd; i > this.jobStart; i--) { // skip the current job
+				IJob job = this.awaitingJobs[i];
+				if (job instanceof IndexRequest)
+					if (((IndexRequest) job).indexPath.equals(indexPath)) return;
+			}
+		}
+	}
+	updateIndexState(indexName, SAVED_STATE);
 }
 /**
  * Commit all index memory changes to disk
@@ -469,6 +483,9 @@ public void saveIndexes() {
 	needToSave = false;
 }
 public void shutdown() {
+	if (VERBOSE)
+		JobManager.verbose("Shutdown"); //$NON-NLS-1$
+
 	IndexSelector indexSelector = new IndexSelector(new JavaWorkspaceScope(), null, this);
 	IIndex[] selectedIndexes = indexSelector.getIndexes();
 	SimpleLookupTable knownPaths = new SimpleLookupTable();
