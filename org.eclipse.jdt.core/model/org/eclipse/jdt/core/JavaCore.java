@@ -2023,12 +2023,28 @@ public final class JavaCore extends Plugin {
 		    defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
 		}
 		// get encoding through resource plugin
-		defaultOptions.put(CORE_ENCODING, ResourcesPlugin.getEncoding()); 
+		defaultOptions.put(CORE_ENCODING, getEncoding());
 		// backward compatibility
 		defaultOptions.put(COMPILER_PB_INVALID_IMPORT, ERROR);		
 		defaultOptions.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
 		
 		return defaultOptions;
+	}
+
+	/**
+	 * Returns the workspace root default charset encoding.
+	 * 
+	 * @return the name of the default charset encoding for workspace root.
+	 * @see IContainer#getDefaultCharset()
+	 * @see ResourcesPlugin#getEncoding()
+	 * @since 3.0
+	 */
+	public static String getEncoding() {
+		try {
+			return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
+		} catch (CoreException e) {
+			return ResourcesPlugin.getEncoding();
+		} 
 	}
 
 	/**
@@ -2056,7 +2072,7 @@ public final class JavaCore extends Plugin {
 	public static String getOption(String optionName) {
 		
 		if (CORE_ENCODING.equals(optionName)){
-			return ResourcesPlugin.getEncoding();
+			return getEncoding();
 		}
 		// backward compatibility
 		if (COMPILER_PB_INVALID_IMPORT.equals(optionName)
@@ -2123,7 +2139,7 @@ public final class JavaCore extends Plugin {
 				}
 			}
 			// get encoding through resource plugin
-			options.put(CORE_ENCODING, ResourcesPlugin.getEncoding());
+			options.put(CORE_ENCODING, getEncoding()); 
 			// backward compatibility
 			options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
 			options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
@@ -2706,7 +2722,9 @@ public final class JavaCore extends Plugin {
 			if (sourceAttachmentPath.isEmpty()) {
 				sourceAttachmentPath = null; // treat empty path as none
 			} else if (!sourceAttachmentPath.isAbsolute()) {
-				Assert.isTrue(false, "Source attachment path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+				Assert.isTrue(false, "Source attachment path '" //$NON-NLS-1$
+						+ sourceAttachmentPath
+						+ "' for IClasspathEntry must be absolute"); //$NON-NLS-1$
 			}
 		}
 		return new ClasspathEntry(

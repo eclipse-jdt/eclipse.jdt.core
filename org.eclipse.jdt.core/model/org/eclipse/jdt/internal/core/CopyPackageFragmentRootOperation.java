@@ -191,13 +191,23 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			case IClasspathEntry.CPE_CONTAINER:
 				return JavaCore.newContainerEntry(entry.getPath(), entry.isExported());
 			case IClasspathEntry.CPE_LIBRARY:
-				return JavaCore.newLibraryEntry(this.destination, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.isExported());
+				try {
+					return JavaCore.newLibraryEntry(this.destination, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.isExported());
+				} catch (Assert.AssertionFailedException e) {
+					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
+					throw new JavaModelException(status);
+				}
 			case IClasspathEntry.CPE_PROJECT:
 				return JavaCore.newProjectEntry(entry.getPath(), entry.isExported());
 			case IClasspathEntry.CPE_SOURCE:
 				return JavaCore.newSourceEntry(this.destination, entry.getInclusionPatterns(), entry.getExclusionPatterns(), entry.getOutputLocation());
 			case IClasspathEntry.CPE_VARIABLE:
-				return JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.isExported());
+				try {
+					return JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.isExported());
+				} catch (Assert.AssertionFailedException e) {
+					IJavaModelStatus status = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
+					throw new JavaModelException(status);
+				}
 			default:
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this.getElementToProcess()));
 		}

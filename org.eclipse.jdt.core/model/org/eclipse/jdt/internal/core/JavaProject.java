@@ -1826,7 +1826,16 @@ public class JavaProject
 				
 				case IClasspathEntry.CPE_VARIABLE :
 				
-					IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
+					IClasspathEntry resolvedEntry = null;
+					try {
+						resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
+					} catch (Assert.AssertionFailedException e) {
+						// Catch the assertion failure and throw java model exception instead
+						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
+						// if ignoredUnresolvedEntry is false, status is set by by ClasspathEntry.validateClasspathEntry
+						// called above as validation was needed
+						if (!ignoreUnresolvedEntry) throw new JavaModelException(status);
+					}
 					if (resolvedEntry == null) {
 						if (!ignoreUnresolvedEntry) throw new JavaModelException(status);
 					} else {

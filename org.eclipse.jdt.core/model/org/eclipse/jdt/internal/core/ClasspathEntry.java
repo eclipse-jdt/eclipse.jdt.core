@@ -980,7 +980,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * a status object with code <code>IStatus.OK</code> if the entry is fine (that is, if the
 	 * given classpath entry denotes a valid element to be referenced onto a classpath).
 	 * 
-	 * @param javaProject the given java project
+	 * @param project the given java project
 	 * @param entry the given classpath entry
 	 * @param checkSourceAttachment a flag to determine if source attachement should be checked
 	 * @param recurseInContainers flag indicating whether validation should be applied to container entries recursively
@@ -990,12 +990,12 @@ public class ClasspathEntry implements IClasspathEntry {
 		
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();			
 		IPath path = entry.getPath();
-
+	
 		// Build some common strings for status message
 		String projectName = project.getElementName();
 		boolean pathStartsWithProject = path.segment(0).toString().equals(projectName);
 		String entryPathMsg = pathStartsWithProject ? path.removeFirstSegments(1).toString() : path.makeRelative().toString();
-
+	
 		switch(entry.getEntryKind()){
 	
 			// container entry check
@@ -1039,7 +1039,13 @@ public class ClasspathEntry implements IClasspathEntry {
 			// variable entry check
 			case IClasspathEntry.CPE_VARIABLE :
 				if (path != null && path.segmentCount() >= 1){
-					entry = JavaCore.getResolvedClasspathEntry(entry);
+					try {
+						entry = JavaCore.getResolvedClasspathEntry(entry);
+					} catch (Assert.AssertionFailedException e) {
+						// Catch the assertion failure and throw java model exception instead
+						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
+					}
 					if (entry == null){
 						return new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, project, path);
 					}
@@ -1047,7 +1053,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				} else {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalVariablePath", path.makeRelative().toString(), projectName));					 //$NON-NLS-1$
 				}
-
+	
 			// library entry check
 			case IClasspathEntry.CPE_LIBRARY :
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
@@ -1095,7 +1101,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryPath", path.makeRelative().toString(), projectName)); //$NON-NLS-1$
 				}
 				break;
-
+	
 			// project entry check
 			case IClasspathEntry.CPE_PROJECT :
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
@@ -1122,7 +1128,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalProjectPath", path.segment(0).toString(), projectName)); //$NON-NLS-1$
 				}
 				break;
-
+	
 			// project source folder
 			case IClasspathEntry.CPE_SOURCE :
 				if (((entry.getInclusionPatterns() != null && entry.getInclusionPatterns().length > 0)
