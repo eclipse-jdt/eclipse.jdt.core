@@ -79,8 +79,12 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 		case SearchPattern.R_PATTERN_MATCH :
 			return CharOperation.match(pattern, word, false);
 		case SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE :
+			// avoid message send by comparing first character
+			if (pattern[0] != word[0]) return false;
 			return CharOperation.equals(pattern, word);
 		case SearchPattern.R_PREFIX_MATCH + SearchPattern.R_CASE_SENSITIVE :
+			// avoid message send by comparing first character
+			if (pattern[0] != word[0]) return false;
 			return CharOperation.prefixEquals(pattern, word);
 		case SearchPattern.R_PATTERN_MATCH + SearchPattern.R_CASE_SENSITIVE :
 			return CharOperation.match(pattern, word, true);
