@@ -113,9 +113,9 @@ public MethodBinding[] availableMethods() {
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 // char[] signature = null;
-	char[] signature = binaryType.getSignature();
+	char[] binaryTypeSignature = binaryType.getSignature();
 	// TODO do we only care about signature based on a certain compliance level?
-	if (signature == null) {
+	if (binaryTypeSignature == null) {
 		char[] superclassName = binaryType.getSuperclassName();
 		if (superclassName != null)
 			// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
@@ -134,7 +134,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 	} else {
 		// ClassSignature = ParameterPart(optional) super_TypeSignature interface_signature
-		SignatureWrapper wrapper = new SignatureWrapper(signature, 0);
+		SignatureWrapper wrapper = new SignatureWrapper(binaryTypeSignature, 0);
 		if (wrapper.signature[wrapper.start] == '<') {
 			// ParameterPart = '<' ParameterSignature(s) '>'
 			wrapper.start++; // skip '<'
@@ -202,11 +202,11 @@ private void createFields(IBinaryField[] iFields) {
 			for (int i = 0; i < size; i++) {
 				IBinaryField field = iFields[i];
 // char[] signature = null;
-				char[] signature = field.getSignature();
+				char[] binaryFieldSignature = field.getSignature();
 				// TODO do we only care about signature based on a certain compliance level?
-				TypeBinding type = signature == null
+				TypeBinding type = binaryFieldSignature == null
 					? environment.getTypeFromSignature(field.getTypeName(), 0, -1)
-					: environment.getTypeFromTypeSignature(new SignatureWrapper(signature, 0), this.typeVariables, NoTypeVariables);
+					: environment.getTypeFromTypeSignature(new SignatureWrapper(binaryFieldSignature, 0), this.typeVariables, NoTypeVariables);
 				this.fields[i] =
 					new FieldBinding(
 						field.getName(),
@@ -225,9 +225,9 @@ private MethodBinding createMethod(IBinaryMethod method) {
 	TypeBinding returnType = null;
 
 // char[] signature = null;
-	char[] signature = method.getSignature();
+	char[] binaryMethodSignature = method.getSignature();
 	// TODO do we only care about signature based on a certain compliance level?
-	if (signature == null) { // no generics
+	if (binaryMethodSignature == null) { // no generics
 		char[] methodSignature = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 		int numOfParams = 0;
 		char nextChar;
@@ -272,7 +272,7 @@ private MethodBinding createMethod(IBinaryMethod method) {
 			returnType = environment.getTypeFromSignature(methodSignature, index + 1, -1);   // index is currently pointing at the ')'
 	} else {
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
-		SignatureWrapper wrapper = new SignatureWrapper(signature, 0);
+		SignatureWrapper wrapper = new SignatureWrapper(binaryMethodSignature, 0);
 		TypeVariableBinding[] staticVariables = NoTypeVariables;
 		if (wrapper.signature[wrapper.start] == '<') {
 			// <A::Ljava/lang/annotation/Annotation;>(Ljava/lang/Class<TA;>;)TA;
