@@ -163,7 +163,7 @@ protected String problemsMessage() {
 			return '(' + numFixed == 1 ? Util.bind("build.oneProblemFixed"/*nonNLS*/, String.valueOf(numFixed)) : Util.bind("build.problemsFixed"/*nonNLS*/, String.valueOf(numFixed)) + ')';
 		} else {
 			return '(' + (numFixed == 1 ? Util.bind("build.oneProblemFixed"/*nonNLS*/, String.valueOf(numFixed)) : Util.bind("build.problemsFixed"/*nonNLS*/, String.valueOf(numFixed)))
-					+ ", "
+					+ ", "/*nonNLS*/
 					+ (numNew == 1 ? Util.bind("build.oneProblemFound"/*nonNLS*/, String.valueOf(numNew)) : Util.bind("build.problemsFound"/*nonNLS*/, String.valueOf(numNew))) + ')';
 		}
 }
