@@ -1262,7 +1262,8 @@ public abstract class ASTNode {
 	 * which may be different from the ASTs of the given node. 
 	 * Even if the given node has a parent, the result node will be unparented.
 	 * <p>
-	 * Note that client properties are not carried over to the new nodes.
+	 * Source range information on the original nodes is automatically copied to the new
+	 * nodes. Client properties (<code>properties</code>) are not carried over.
 	 * </p>
 	 * 
 	 * @param target the AST that is to own the nodes in the result
@@ -1285,7 +1286,8 @@ public abstract class ASTNode {
 	 * Even if the nodes in the list have parents, the nodes in the result
 	 * will be unparented.
 	 * <p>
-	 * Note that client properties are not carried over to the new nodes.
+	 * Source range information on the original nodes is automatically copied to the new
+	 * nodes. Client properties (<code>properties</code>) are not carried over.
 	 * </p>
 	 * 
 	 * @param target the AST that is to own the nodes in the result

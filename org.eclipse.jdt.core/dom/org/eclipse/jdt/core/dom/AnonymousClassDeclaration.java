@@ -60,6 +60,7 @@ public class AnonymousClassDeclaration extends ASTNode {
 	 */
 	ASTNode clone(AST target) {
 		AnonymousClassDeclaration result = new AnonymousClassDeclaration(target);
+		result.setSourceRange(getStartPosition(), getLength());
 		result.bodyDeclarations().addAll(
 			ASTNode.copySubtrees(target, bodyDeclarations()));
 		return result;
