@@ -624,8 +624,11 @@ private boolean mustImplementAbstractMethod(MethodBinding abstractMethod) {
 		while (superclass.isAbstract() && superclass != declaringClass)
 			superclass = superclass.superclass(); // find the first concrete superclass or the abstract declaringClass
 	} else {
-		if (this.type.implementsInterface(declaringClass, false))
-			return !this.type.isAbstract();
+		if (this.type.implementsInterface(declaringClass, false)) {
+			if (this.type.isAbstract()) return false; // leave it for the subclasses
+			if (!superclass.implementsInterface(declaringClass, true)) // only if a superclass does not also implement the interface
+				return true;
+		}
 		while (superclass.isAbstract() && !superclass.implementsInterface(declaringClass, false))
 			superclass = superclass.superclass(); // find the first concrete superclass or the superclass which implements the interface
 	}
