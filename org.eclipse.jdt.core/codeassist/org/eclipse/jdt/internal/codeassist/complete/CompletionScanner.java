@@ -187,7 +187,7 @@ public int getNextToken() throws InvalidInputException {
 				startPosition = whiteStart;
 				return TokenNameWHITESPACE;
 			}
-			//little trick to get out in the middle of a source comptuation
+			//little trick to get out in the middle of a source computation
 			if (currentPosition > eofPosition){
 				/* might be completing at eof (e.g. behind a dot) */
 				if (completionIdentifier == null && 
