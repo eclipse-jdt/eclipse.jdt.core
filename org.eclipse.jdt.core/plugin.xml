@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <plugin
-    name = "Java Development Tools Core"
+    name = "%pluginName"
     id = "org.eclipse.jdt.core"
     version = "0.9"
     provider-name = "Object Technology International, Inc."
@@ -21,7 +21,7 @@
 <extension 
 	point="org.eclipse.core.resources.natures" 
 	id="javanature"
-	name="Java Nature">
+	name="%javaNatureName">
 	<runtime>
 		<run class="org.eclipse.jdt.internal.core.JavaProject">
 		</run>
@@ -31,7 +31,7 @@
 <extension 
 	point="org.eclipse.core.resources.builders" 
 	id="javabuilder"
-	name="Java Builder">
+	name="%javaBuilderName">
 	<builder>
 		<run class="org.eclipse.jdt.internal.core.builder.impl.JavaBuilder">
 			<!-- Debug Information. Local variable attribute. Generate|Do not generate -->
@@ -55,19 +55,19 @@
 	</builder>
 </extension>
 
-<extension id="problem" point="org.eclipse.core.resources.markers" name="Java Problem">
+<extension id="problem" point="org.eclipse.core.resources.markers" name="%javaProblemName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="true"/>
 	<attribute name="id"/>
 	<attribute name="flags"/>
 </extension>   
-<extension id="buildpath_problem" point="org.eclipse.core.resources.markers" name="Build path Problem">
+<extension id="buildpath_problem" point="org.eclipse.core.resources.markers" name="%buildPathProblemName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="true"/>
 </extension>   
-<extension id="transient_problem" point="org.eclipse.core.resources.markers" name="Transient Java Problem">
+<extension id="transient_problem" point="org.eclipse.core.resources.markers" name="%transientJavaProblemName">
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="false"/>
 	<attribute name="id"/>
