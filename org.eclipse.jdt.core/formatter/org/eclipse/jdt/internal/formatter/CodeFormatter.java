@@ -737,6 +737,7 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 									case TokenNamefinally :
 									case TokenNamewhile :
 									case TokenNamedo :
+									case TokenNamesynchronized :
 										clearNonBlockIndents = true;
 									default :
 										break;
