@@ -287,18 +287,8 @@ public class ExplicitConstructorCall
 			if ((binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope))
 					scope.problemReporter().deprecatedMethod(binding, this);
-
-				// see for user-implicit widening conversion 
-				if (arguments != null) {
-					int length = arguments.length;
-					TypeBinding[] paramTypes = binding.parameters;
-					for (int i = 0; i < length; i++) {
-						arguments[i].computeConversion(scope, paramTypes[i], argumentTypes[i]);
-					}
-					if (argsContainCast) {
-						CastExpression.checkNeedForArgumentCasts(scope, null, receiverType, binding, this.arguments, argumentTypes, this);
-					}
-				}
+				if (this.arguments != null)
+					checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 				if (binding.isPrivate()) {
 					binding.modifiers |= AccPrivateUsed;
 				}				

@@ -827,14 +827,20 @@ public interface IProblem {
 	/** @since 3.0 */
 	int ReferenceToForwardTypeVariable = TypeRelated + 528;
     /** @since 3.0 */
-	int UnsafeRawConstructorInvocation = TypeRelated + 529;
+	int BoundsMustBeAnInterface = TypeRelated + 529;	
     /** @since 3.0 */
-	int UnsafeRawMethodInvocation = TypeRelated + 530;
+	int UnsafeRawConstructorInvocation = TypeRelated + 530;
     /** @since 3.0 */
-	int UnsafeRawAssignment = TypeRelated + 531;
+	int UnsafeRawMethodInvocation = TypeRelated + 531;
     /** @since 3.0 */
-	int BoundsMustBeAnInterface = TypeRelated + 532;
-
+	int UnsafeRawFieldAccess = TypeRelated + 532;
+    /** @since 3.0 */
+	int UnsafeRawAssignment = TypeRelated + 533;
+    /** @since 3.0 */
+	int UnsafeConstructorWithRawArguments = TypeRelated + 534;
+    /** @since 3.0 */
+	int UnsafeMethodWithRawArguments = TypeRelated + 535;
+	
 	/**
 	 * Foreach
 	 */

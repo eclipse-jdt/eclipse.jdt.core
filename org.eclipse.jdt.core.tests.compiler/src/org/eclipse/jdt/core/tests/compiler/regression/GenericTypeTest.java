@@ -2283,22 +2283,32 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n",
 			},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	X x = new X((A)null, (A)null);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: The constructor X(A<String>, A<String>) should not be applied for the arguments (A, A). References to generic types should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
 		"	A a = new A((A)null);\n" + 
 		"	      ^^^^^^^^^^^^^^\n" + 
 		"The constructor A(P) is not visible\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"3. WARNING in X.java (at line 10)\n" + 
+		"	x.foo(a);\n" + 
+		"	^^^^^^^^\n" + 
+		"Unsafe type operation: The method foo(A<String>) in the type X should not be applied for the arguments (A). References to generic types should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
 		"	a.print(x);\n" + 
 		"	  ^^^^^\n" + 
 		"The method print(P) from the type A is not visible\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 12)\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
 		"	A<String> as = new A<String>(null);\n" + 
 		"	               ^^^^^^^^^^^^^^^^^^^\n" + 
 		"The constructor A<String>(P) is not visible\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 13)\n" + 
+		"6. ERROR in X.java (at line 13)\n" + 
 		"	as.print(\"hello\");\n" + 
 		"	   ^^^^^\n" + 
 		"The method print(P) from the type A<String> is not visible\n" + 
@@ -2487,4 +2497,75 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"----------\n"
 		);
 	}
+	public void test084() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    X(AX<String> a, AX<String> b) {\n" + 
+				"    }\n" + 
+				"    void foo(AX<String> a) {\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X x = new X((AX)null, (AX)null);\n" + 
+				"        AX a = new AX((AX)null);\n" + 
+				"        AX a2 = new AX(null);\n" + 
+				"		x.foo(a);\n" + 
+				"		a.foo(a);\n" + 
+				"		a.bar(a);\n" + 
+				"		AX<String> as = new AX<String>(null);\n" + 
+				"		as.print(a);\n" + 
+				"		as.bar(a);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class AX <P> {\n" + 
+				"    AX(AX<P> ax){}\n" + 
+				"    AX(P p){}\n" + 
+				"    void print(P p){}\n" + 
+				"    void foo(AX rawAx){}\n" + 
+				"    void bar(AX<P> ax){}\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X x = new X((AX)null, (AX)null);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: The constructor X(AX<String>, AX<String>) should not be applied for the arguments (AX, AX). References to generic types should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	AX a = new AX((AX)null);\n" + 
+		"	       ^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not invoke the constructor AX(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	AX a2 = new AX(null);\n" + 
+		"	        ^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not invoke the constructor AX(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 10)\n" + 
+		"	x.foo(a);\n" + 
+		"	^^^^^^^^\n" + 
+		"Unsafe type operation: The method foo(AX<String>) in the type X should not be applied for the arguments (AX). References to generic types should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 12)\n" + 
+		"	a.bar(a);\n" + 
+		"	^^^^^^^^\n" + 
+		"Unsafe type operation: Should not invoke the method bar(AX<P>) of raw type AX. References to generic type AX<P> should be parameterized\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 13)\n" + 
+		"	AX<String> as = new AX<String>(null);\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor AX<String>(AX<String>) is ambiguous\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 14)\n" + 
+		"	as.print(a);\n" + 
+		"	   ^^^^^\n" + 
+		"The method print(String) in the type AX<String> is not applicable for the arguments (AX)\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 15)\n" + 
+		"	as.bar(a);\n" + 
+		"	^^^^^^^^^\n" + 
+		"Unsafe type operation: The method bar(AX<P>) in the type AX<String> should not be applied for the arguments (AX). References to generic types should be parameterized\n" + 
+		"----------\n");
+	}		
 }

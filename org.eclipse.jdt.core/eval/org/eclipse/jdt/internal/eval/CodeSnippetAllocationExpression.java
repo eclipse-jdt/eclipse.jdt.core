@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.CastExpression;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -123,13 +125,19 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.resolvedType = this.type.resolveType(scope); // will check for null after args are resolved
 
 	// buffering the arguments' types
+	boolean argsContainCast = false;
 	TypeBinding[] argumentTypes = NoParameters;
 	if (this.arguments != null) {
 		boolean argHasError = false;
 		int length = this.arguments.length;
 		argumentTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			if ((argumentTypes[i] = this.arguments[i].resolveType(scope)) == null) {
+			Expression argument = this.arguments[i];
+			if (argument instanceof CastExpression) {
+				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+				argsContainCast = true;
+			}
+			if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
 				argHasError = true;
 			}
 		}
@@ -186,10 +194,24 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(this.binding, scope)) {
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 	}
-	if (this.arguments != null) {
-		for (int i = 0; i < this.arguments.length; i++) {
-			this.arguments[i].computeConversion(scope, this.binding.parameters[i], argumentTypes[i]);
+	boolean warnRawArgs = false;
+	if (arguments != null) {
+		for (int i = 0; i < arguments.length; i++) {
+		    TypeBinding parameterType = binding.parameters[i];
+		    TypeBinding argumentType = argumentTypes[i];
+			arguments[i].computeConversion(scope, parameterType, argumentType);
+			if (argumentType != parameterType && argumentType.isRawType() && parameterType.isParameterizedType()) {
+			    warnRawArgs = true;
+			}
 		}
+		if (argsContainCast) {
+			CastExpression.checkNeedForArgumentCasts(scope, null, allocatedType, binding, this.arguments, argumentTypes, this);
+		}
+	}
+	if (allocatedType.isRawType() && this.binding.hasSubstitutedParameters()) {
+	    scope.problemReporter().unsafeRawInvocation(this, allocatedType, this.binding);
+	} else if (warnRawArgs) {
+	    scope.problemReporter().unsafeInvocationWithRawArguments(this, allocatedType, this.binding, argumentTypes);
 	}
 	return allocatedType;
 }

@@ -500,7 +500,10 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UnsafeRawConstructorInvocation:
 		case IProblem.UnsafeRawMethodInvocation:
+		case IProblem.UnsafeRawFieldAccess:
 		case IProblem.UnsafeRawAssignment:
+		case IProblem.UnsafeConstructorWithRawArguments:
+		case IProblem.UnsafeMethodWithRawArguments:
 			return this.options.getSeverity(CompilerOptions.UnsafeRawOperation);
 
 		/*
@@ -3380,7 +3383,7 @@ public void unsafeRawAssignment(Expression expression, TypeBinding expressionTyp
 		expression.sourceStart,
 		expression.sourceEnd);    
 }
-public void unsafeRawInvocation(ASTNode location, ReferenceBinding receiverType, MethodBinding method) {
+public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method) {
     if (method.isConstructor()) {
 		this.handle(
 			IProblem.UnsafeRawConstructorInvocation,
@@ -3410,6 +3413,41 @@ public void unsafeRawInvocation(ASTNode location, ReferenceBinding receiverType,
 				parametersAsString(method.original().parameters, true),
 				new String(receiverType.shortReadableName()),
 				new String(receiverType.erasure().shortReadableName()),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    }
+}
+public void unsafeInvocationWithRawArguments(ASTNode location, TypeBinding receiverType, MethodBinding method, TypeBinding[] argumentTypes) {
+    if (method.isConstructor()) {
+		this.handle(
+			IProblem.UnsafeConstructorWithRawArguments,
+			new String[] {
+				new String(receiverType.readableName()),
+				parametersAsString(method.original().parameters, false),
+				parametersAsString(argumentTypes, false),
+			 }, 
+			new String[] {
+				new String(receiverType.shortReadableName()),
+				parametersAsString(method.original().parameters, true),
+				parametersAsString(argumentTypes, true),
+			 }, 
+			location.sourceStart,
+			location.sourceEnd);    
+    } else {
+		this.handle(
+			IProblem.UnsafeMethodWithRawArguments,
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.original().parameters, false),
+				new String(receiverType.readableName()),
+				parametersAsString(argumentTypes, false),
+			 }, 
+			new String[] {
+				new String(method.selector),
+				parametersAsString(method.original().parameters, true),
+				new String(receiverType.shortReadableName()),
+				parametersAsString(argumentTypes, true),
 			 }, 
 			location.sourceStart,
 			location.sourceEnd);    

@@ -85,7 +85,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		if (isMethodUseDeprecated(this.binding, scope)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
 		}
-
+		// TODO (frederic) add support for unsafe type operation warning
 		return allocationType;
 	}
 	

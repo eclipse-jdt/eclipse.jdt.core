@@ -123,7 +123,25 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		super();
 	}
-
+	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
+		boolean warnRawArgs = false;
+		for (int i = 0; i < arguments.length; i++) {
+		    TypeBinding parameterType = method.parameters[i];
+		    TypeBinding argumentType = argumentTypes[i];
+			arguments[i].computeConversion(scope, parameterType, argumentType);
+			if (argumentType != parameterType && argumentType.isRawType() && parameterType.isParameterizedType()) {
+			    warnRawArgs = true;
+			}
+		}
+		if (argsContainCast) {
+			CastExpression.checkNeedForArgumentCasts(scope, receiver, receiverType, method, arguments, argumentTypes, invocationSite);
+		}
+		if (receiverType.isRawType() && method.hasSubstitutedParameters()) {
+		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, receiverType, method);
+		} else if (warnRawArgs) {
+		    scope.problemReporter().unsafeInvocationWithRawArguments((ASTNode)invocationSite, receiverType, method, argumentTypes);
+		}
+	}
 	public ASTNode concreteStatement() {
 		return this;
 	}

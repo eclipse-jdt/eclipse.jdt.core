@@ -250,17 +250,8 @@ public class AllocationExpression
 		}
 		if (isMethodUseDeprecated(binding, scope))
 			scope.problemReporter().deprecatedMethod(binding, this);
-		if (allocationType.isRawType() && this.binding.hasSubstitutedParameters()) {
-		    scope.problemReporter().unsafeRawInvocation(this, allocationType, this.binding);
-		}
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				arguments[i].computeConversion(scope, binding.parameters[i], argumentTypes[i]);
-			}
-			if (argsContainCast) {
-				CastExpression.checkNeedForArgumentCasts(scope, null, allocationType, binding, this.arguments, argumentTypes, this);
-			}
-		}
+		if (this.arguments != null)
+			checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
 		return allocationType;
 	}
 

@@ -205,7 +205,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 
 	constant = NotAConstant;
-	boolean receiverCast = false, argumentsCast = false; 
+	boolean receiverCast = false, argsContainCast = false; 
 	if (this.receiver instanceof CastExpression) {
 		this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		receiverCast = true;
@@ -227,7 +227,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			Expression argument = arguments[i];
 			if (argument instanceof CastExpression) {
 				argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
-				argumentsCast = true;
+				argsContainCast = true;
 			}
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
 				argHasError = true;
@@ -288,14 +288,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, binding);
 		}		
 	}
-	if (arguments != null) {
-		for (int i = 0; i < arguments.length; i++) {
-			arguments[i].computeConversion(scope, binding.parameters[i], argumentTypes[i]);
-		}
-		if (argumentsCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, receiverType, binding, this.arguments, argumentTypes, this);
-		}
-	}
+	if (this.arguments != null) 
+		checkInvocationArguments(scope, this.receiver, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
+
 	//-------message send that are known to fail at compile time-----------
 	if (binding.isAbstract()) {
 		if (receiver.isSuper()) {

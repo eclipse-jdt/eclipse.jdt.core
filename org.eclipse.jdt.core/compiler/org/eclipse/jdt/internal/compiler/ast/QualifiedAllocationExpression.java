@@ -258,14 +258,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				if (isMethodUseDeprecated(binding, scope)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
-				if (arguments != null) {
-					for (int i = 0; i < arguments.length; i++) {
-						arguments[i].computeConversion(scope, this.binding.parameters[i], argumentTypes[i]);
-					}
-					if (argsContainCast) {
-						CastExpression.checkNeedForArgumentCasts(scope, null, allocationType, binding, this.arguments, argumentTypes, this);
-					}
-				}
+				if (this.arguments != null)
+					checkInvocationArguments(scope, null, allocationType, binding, this.arguments, argumentTypes, argsContainCast, this);
 			} else {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocationType;
@@ -302,6 +296,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
 			return this.resolvedType = anonymousType.binding;
 		}
+		// TODO (philippe) no deprecation check?
 		if (enclosingInstance != null) {
 			if (!enclosingInstanceType.isCompatibleWith(inheritedBinding.declaringClass.enclosingType())) {
 				scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
@@ -311,17 +306,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				return this.resolvedType = anonymousType.binding;
 			}
 		}
-
-		// this promotion has to be done somewhere: here or inside the constructor of the
-		// anonymous class. We do it here while the constructor of the inner is then easier.
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				arguments[i].computeConversion(scope, inheritedBinding.parameters[i], argumentTypes[i]);
-			}
-			if (argsContainCast) {
-				CastExpression.checkNeedForArgumentCasts(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, this);
-			}
-		}
+		if (this.arguments != null)
+			checkInvocationArguments(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this);
+		
 		// Update the anonymous inner class : superclass, interface  
 		binding = anonymousType.createsInternalConstructorWithBinding(inheritedBinding);
 		return this.resolvedType = anonymousType.binding; // 1.2 change
