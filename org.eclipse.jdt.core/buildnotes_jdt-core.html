@@ -41,6 +41,11 @@ What's new in this drop</h2>
 			</li>
 		</ul>
 	</li>
+	<li> If the completion is inside a type in a catch or throws clause the relevance grow when the type is an exception
+		(if the name of the type contain <code>exception</code> or <code>error</code>).
+	</li>
+	<li> If the completion is inside a throw statement the relevance grow when the proposal is an exception.
+	</li>
 	<li>The background indexer now recovers from internal crash. If this happens, 
 	    a new thread is created and a consistency check is done on all indexes.
 	</li>
@@ -54,7 +59,11 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14767">14767</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=4970">4970</a>
+Automatic Code Assist needs to be smarter #6
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=8651">8651</a>
+Code assist should offer exception instead of any class
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14767">14767</a>
 bug in IJavaProject.findType(String, String)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=14642">14642</a>
 StringIndexOutOfBoundsException when attempting to view some classes 

@@ -49,8 +49,13 @@ public final class CompletionEngine
 	private static int EXPECTEDTYPEMATCHRELEVANCE = 20;
 	private static int INTERFACERELEVANCE = 5;
 	private static int CLASSRELEVANCE = 5;
+	private static int EXCEPTIONRELEVANCE = 5;
 	
 	TypeBinding[] expectedTypes;
+	
+	boolean assistNodeIsClass;
+	boolean assistNodeIsException;
+	boolean assistNodeIsInterface;
 	
 	AssistOptions options;
 	CompletionParser parser;
@@ -195,6 +200,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForCaseMatching(token, className);
 			relevance += computeRelevanceForExpectingType(packageName, className);
 			relevance += computeRelevanceForClass();
+			relevance += computeRelevanceForException(className);
 		}
 
 		requestor.acceptClass(
@@ -365,6 +371,10 @@ public final class CompletionEngine
 				if (astNode instanceof CompletionOnSingleTypeReference) {
 
 					token = ((CompletionOnSingleTypeReference) astNode).token;
+					
+					assistNodeIsClass = astNode instanceof CompletionOnClassReference;
+					assistNodeIsException = astNode instanceof CompletionOnExceptionReference;
+					assistNodeIsInterface = astNode instanceof CompletionOnInterfaceReference;
 
 					// can be the start of a qualified type name
 					if (qualifiedBinding == null) {
@@ -445,6 +455,11 @@ public final class CompletionEngine
 							if (astNode instanceof CompletionOnQualifiedTypeReference) {
 
 							insideQualifiedReference = true;
+							
+							assistNodeIsClass = astNode instanceof CompletionOnQualifiedClassReference;
+							assistNodeIsException = astNode instanceof CompletionOnQualifiedExceptionReference;
+							assistNodeIsInterface = astNode instanceof CompletionOnQualifiedInterfaceReference;
+							
 							CompletionOnQualifiedTypeReference ref =
 								(CompletionOnQualifiedTypeReference) astNode;
 							token = ref.completionIdentifier;
@@ -1741,14 +1756,23 @@ public final class CompletionEngine
 		}
 	}
 	private int computeRelevanceForClass(){
-		if(parser.assistNodeIsClass) {
+		if(assistNodeIsClass) {
 			return CLASSRELEVANCE;
 		}
 		return 0;
 	}
 	private int computeRelevanceForInterface(){
-		if(parser.assistNodeIsInterface) {
+		if(assistNodeIsInterface) {
 			return INTERFACERELEVANCE;
+		}
+		return 0;
+	}
+	private int computeRelevanceForException(char[] proposalName){
+		
+		if(assistNodeIsException &&
+			(CharOperation.match("*exception*".toCharArray(), proposalName, false) ||
+			CharOperation.match("*error*".toCharArray(), proposalName, false))) {
+			return EXCEPTIONRELEVANCE;
 		}
 		return 0;
 	}
@@ -1762,7 +1786,6 @@ public final class CompletionEngine
 		} 
 		return 0;
 	}
-	
 	private int computeRelevanceForExpectingType(char[] packageName, char[] typeName){
 		if(expectedTypes != null) {
 			for (int i = 0; i < expectedTypes.length; i++) {
