@@ -120,7 +120,7 @@ public void add(IJavaElement element) throws JavaModelException {
 	}
 	
 	if (root != null) {
-		if (root.isArchive()) {
+		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
 			this.addEnclosingProjectOrJar(root.getPath());
 		} else {
 			this.addEnclosingProjectOrJar(root.getJavaProject().getProject().getFullPath());
