@@ -53,16 +53,28 @@ public static Test suite() {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
 	    ArrayList tests_1_3 = (ArrayList)standardTests.clone();
 		tests_1_3.add(Compliance_1_3.class);
+		// Reset forgotten subsets tests
+		AbstractRegressionTest.testsNames = null;
+		AbstractRegressionTest.testsNumbers= null;
+		AbstractRegressionTest.testsRange = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_3, RegressionTestSetup.class, tests_1_3));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
 	    ArrayList tests_1_4 = (ArrayList)standardTests.clone();
 		tests_1_4.add(AssertionTest.class);
 		tests_1_4.add(Compliance_1_4.class);
+		// Reset forgotten subsets tests
+		AbstractRegressionTest.testsNames = null;
+		AbstractRegressionTest.testsNumbers= null;
+		AbstractRegressionTest.testsRange = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_4, RegressionTestSetup.class, tests_1_4));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
+		// Reset forgotten subsets tests
+		AbstractRegressionTest.testsNames = null;
+		AbstractRegressionTest.testsNumbers= null;
+		AbstractRegressionTest.testsRange = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
 	// Add Javadoc test suites
