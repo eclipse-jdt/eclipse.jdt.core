@@ -312,7 +312,11 @@ public final class AST {
      * </p>
      * 
  	 * @param level the API level; one of the LEVEL constants
-	 * @return new AST instance following the specified set of API rules. 
+	 * @return new AST instance following the specified set of API rules.
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the API level is not one of the LEVEL constants</li>
+	 * </ul>
      * @since 3.0
 	 */
 	public static AST newAST(int level) {
@@ -1082,7 +1086,7 @@ public final class AST {
 	 */
 	public ITypeBinding resolveWellKnownType(String name) {
 		if (name == null) {
-			throw new IllegalArgumentException();
+			return null;
 		}
 		return getBindingResolver().resolveWellKnownType(name);
 	}
@@ -1324,6 +1328,10 @@ public final class AST {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
+	 * <li>the element type is null</li>
+	 * <li>the element type is an array type</li>
+	 * <li>the number of dimensions is lower than 1</li>
+	 * <li>the number of dimensions is greater than 1000</li>
 	 * </ul>
 	 */
 	public ArrayType newArrayType(Type elementType, int dimensions) {
@@ -1407,11 +1415,6 @@ public final class AST {
 	 * type bound.
 	 * 
 	 * @return a new unparented wildcard type node
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.0
@@ -1444,11 +1447,6 @@ public final class AST {
 	 * unspecified name.
 	 * 
 	 * @return the new unparented package declaration node
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
 	 */
 	public PackageDeclaration newPackageDeclaration() {
 		PackageDeclaration result = new PackageDeclaration(this);
@@ -1461,11 +1459,6 @@ public final class AST {
 	 * of a type with an unspecified name.
 	 * 
 	 * @return the new unparented import declaration node
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
 	 */
 	public ImportDeclaration newImportDeclaration() {
 		ImportDeclaration result = new ImportDeclaration(this);
@@ -1857,6 +1850,7 @@ public final class AST {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
+	 * <li>the variable declaration fragment is null</li>
 	 * </ul>
 	 */
 	public VariableDeclarationStatement
@@ -2172,6 +2166,7 @@ public final class AST {
 	 * @param literal the token for the numeric literal as it would 
 	 *    appear in Java source code
 	 * @return a new unparented number literal node
+	 * @exception IllegalArgumentException if the literal is null
 	 */
 	public NumberLiteral newNumberLiteral(String literal) {
 		if (literal == null) {
@@ -2318,6 +2313,8 @@ public final class AST {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
+	 * <li>the given fragment is null</li>
+	 * <li>a cycle in would be created</li>
 	 * </ul>
 	 */
 	public VariableDeclarationExpression
@@ -2351,6 +2348,7 @@ public final class AST {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
+	 * <li>the given fragment is null</li>
 	 * </ul>
 	 */
 	public FieldDeclaration newFieldDeclaration(VariableDeclarationFragment fragment) {
