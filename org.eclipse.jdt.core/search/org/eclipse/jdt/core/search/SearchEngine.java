@@ -64,7 +64,7 @@ public SearchEngine() {
  * their original compilation units in the subsequent search operations.
  * <p>
  * Note that passing an empty working copy will be as if the original compilation
- * unit had been deleted.
+ * unit had been deleted.</p>
  * 
  * @param workingCopies the working copies that take precedence over their original compilation units
  * @since 2.0
@@ -118,9 +118,9 @@ public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
  * this package fragment root will be included.
  * If an element is an IPackageFragment, then only the compilation unit and class 
  * files of this package fragment will be included. Subpackages will NOT be 
- * included.
+ * included.</p>
  * <p>
- * In other words, this is equivalent to using SearchEngine.createJavaSearchScope(elements, true)
+ * In other words, this is equivalent to using SearchEngine.createJavaSearchScope(elements, true).</p>
  *
  * @param elements the java elements the scope is limited to
  * @return a new java search scope
@@ -187,33 +187,34 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  *	Examples:
  *	<ul>
  * 		<li>search for case insensitive references to <code>Object</code>:
- *			<code>createSearchPattern("Object", TYPE, REFERENCES, false);</code>
+ *			<code>createSearchPattern("Object", TYPE, REFERENCES, false);</code></li>
  *  	<li>search for case sensitive references to exact <code>Object()</code> constructor:
- *			<code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code>
+ *			<code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code></li>
  *  	<li>search for implementers of <code>java.lang.Runnable</code>:
- *			<code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code>
+ *			<code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code></li>
+ *  </ul>
  * @param searchFor determines the nature of the searched elements
  *	<ul>
- * 		<li><code>IJavaSearchConstants.CLASS</code>: only look for classes
- *		<li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces
- * 		<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces
- *		<li><code>IJavaSearchConstants.FIELD</code>: look for fields
- *		<li><code>IJavaSearchConstants.METHOD</code>: look for methods
- *		<li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors
- *		<li><code>IJavaSearchConstants.PACKAGE</code>: look for packages
+ * 		<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
+ *		<li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces</li>
+ * 		<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
+ *		<li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
+ *		<li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
+ *		<li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
+ *		<li><code>IJavaSearchConstants.PACKAGE</code>: look for packages</li>
  *	</ul>
  * @param limitTo determines the nature of the expected matches
  *	<ul>
  * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
  * 			element. In case the element is a method, declarations of matching methods in subtypes will also
- *  		be found, allowing to find declarations of abstract methods, etc.
+ *  		be found, allowing to find declarations of abstract methods, etc.</li>
  *
- *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.
+ *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
  *
  *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
- *  		above.
+ *  		above.</li>
  *
- *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.
+ *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
  *	</ul>
  *
  * @param isCaseSensitive indicates whether the search is case sensitive or not.
