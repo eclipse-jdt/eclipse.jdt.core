@@ -53,6 +53,7 @@ public abstract class AbstractCommentParser {
 	protected int index, endComment, lineEnd;
 	protected int textStart, memberStart;
 	protected int tagSourceStart, tagSourceEnd;
+	protected int inlineTagStart;
 	protected Parser sourceParser;
 	protected Object returnStatement;
 	protected boolean lineStarted = false, inlineTagStarted = false;
@@ -104,6 +105,7 @@ public abstract class AbstractCommentParser {
 			this.currentTokenType = -1;
 			this.scanner.resetTo(this.index, this.endComment);
 			this.inlineTagStarted = false;
+			this.inlineTagStart = -1;
 			this.lineStarted = false;
 			this.returnStatement = null;
 			this.inherited = false;
@@ -113,7 +115,7 @@ public abstract class AbstractCommentParser {
 			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.endComment : javadocStart + 3;
 			this.textStart = -1;
 			char nextCharacter= 0, previousChar;
-			int charPosition = -1, inlineStartPosition = 0;
+			int charPosition = -1;
 			
 			// Loop on each comment character
 			while (this.index < this.endComment) {
@@ -152,7 +154,7 @@ public abstract class AbstractCommentParser {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
-								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(inlineStartPosition, charPosition);
+								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(this.inlineTagStart, charPosition);
 								validComment = false;
 							} else {
 								if (previousChar == '{') {
@@ -231,9 +233,9 @@ public abstract class AbstractCommentParser {
 					case '{' :
 						if (this.inlineTagStarted) {
 							this.inlineTagStarted = false;
-							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(inlineStartPosition, this.index);
+							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(this.inlineTagStart, this.index);
 						} else {
-							inlineStartPosition = previousPosition;
+							this.inlineTagStart = previousPosition;
 						}
 						break;
 					case '*' :
