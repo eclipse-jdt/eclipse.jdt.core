@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.Map;
+
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
@@ -155,7 +157,27 @@ public void testOriginalIsOpen() throws CoreException {
 			original.isOpen());
 	}
 }
-
+public void testIsOnClasspath() throws CoreException {
+	ICompilationUnit workingCopy = null;
+	try {
+		this.createProject("SimpleProject");
+		this.createFolder("/SimpleProject/src/junit/test");
+		String source = 
+			"package junit.test;\n" +
+			"public class X {\n" +
+			"}";
+		IFile file = this.createFile("/P1/src/junit/test/X.java", source);
+		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+		workingCopy = (ICompilationUnit) cu.getWorkingCopy();
+		assertTrue("working copy shouldn't be on classpath (1/2)", workingCopy.getJavaProject().isOnClasspath(workingCopy));
+		Map options = workingCopy.getJavaProject().getOptions(true); // bug 31799
+		assertTrue("working copy should still not be on classpath (2/2)", workingCopy.getJavaProject().isOnClasspath(workingCopy));
+		
+	} finally {
+		if (workingCopy != null) workingCopy.destroy();
+		this.deleteProject("SimpleProject");
+	}
+}
 
 
 }
