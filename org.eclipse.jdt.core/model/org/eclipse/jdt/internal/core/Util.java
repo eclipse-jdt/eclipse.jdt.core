@@ -1290,6 +1290,7 @@ public class Util {
 	 * Separate all the arguments of a String made by getProblemArgumentsForMarker
 	 */
 	public static String[] getProblemArgumentsFromMarker(String argumentsString){
+		if (argumentsString == null) return null;
 		int index = argumentsString.indexOf(':');
 		if(index == -1)
 			return null;

@@ -410,4 +410,19 @@ public class CorrectionEngine implements ProblemReasons {
 		public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance) {}
 		public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd, int relevance) {}
 	};
+	
+	/**
+	 * Helper method for decoding problem marker attributes. Returns an array of String arguments
+	 * extracted from the problem marker "arguments" attribute, or <code>null</code> if the marker 
+	 * "arguments" attribute is missing or ill-formed.
+	 * 
+	 * @param problemMarker
+	 * 		the problem marker to decode arguments from.
+	 * @return an array of String arguments, or <code>null</code> if unable to extract arguments
+	 * @since 2.1
+	 */
+	public static String[] getProblemArguments(IMarker problemMarker){
+		String argumentsString = problemMarker.getAttribute(IJavaModelMarker.ARGUMENTS, null);
+		return Util.getProblemArgumentsFromMarker(argumentsString);
+	}	
 }
