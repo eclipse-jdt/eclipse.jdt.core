@@ -1492,20 +1492,22 @@ protected void consumeMethodHeaderParameters() {
 		/* check if current awaiting identifier is the completion identifier */
 		if ((index = this.indexOfAssistIdentifier()) > -1) {
 
-			RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
-			/* filter out cases where scanner is still inside type header */
-			if (!recoveredMethod.foundOpeningBrace) {
-				AbstractMethodDeclaration method = recoveredMethod.methodDeclaration;
-				if(method.thrownExceptions == null
-					&& CharOperation.prefixEquals(identifierStack[index], Keywords.THROWS)) {
-					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-						identifierStack[index],
-						identifierPositionStack[index],
-						Keywords.THROWS);
-					method.thrownExceptions = new TypeReference[]{completionOnKeyword};
-					recoveredMethod.foundOpeningBrace = true;
-					this.assistNode = completionOnKeyword;
-					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+			if (currentElement instanceof RecoveredMethod){
+				RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
+				/* filter out cases where scanner is still inside type header */
+				if (!recoveredMethod.foundOpeningBrace) {
+					AbstractMethodDeclaration method = recoveredMethod.methodDeclaration;
+					if(method.thrownExceptions == null
+						&& CharOperation.prefixEquals(identifierStack[index], Keywords.THROWS)) {
+						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+							identifierStack[index],
+							identifierPositionStack[index],
+							Keywords.THROWS);
+						method.thrownExceptions = new TypeReference[]{completionOnKeyword};
+						recoveredMethod.foundOpeningBrace = true;
+						this.assistNode = completionOnKeyword;
+						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+					}
 				}
 			}
 		}
