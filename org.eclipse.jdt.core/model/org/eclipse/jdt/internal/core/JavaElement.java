@@ -251,11 +251,13 @@ protected IDOMNode followPath(ArrayList path, int position, IDOMNode node) {
  * @see IJavaElement
  */
 public IJavaElement getAncestor(int ancestorType) {
+	
 	IJavaElement element = this;
-	while (element != null && element.getElementType() != ancestorType) {
+	while (element != null) {
+		if (element.getElementType() == ancestorType)  return element;
 		element= element.getParent();
 	}
-	return element;				
+	return null;				
 }
 /**
  * @see IParent 
