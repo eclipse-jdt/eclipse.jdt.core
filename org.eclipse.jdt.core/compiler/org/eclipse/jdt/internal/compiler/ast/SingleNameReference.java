@@ -186,6 +186,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
 		if ((bits & FIELD) != 0) {
 			// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
+			if (!this.binding.isValidBinding()) return;
 			FieldBinding originalBinding = ((FieldBinding)this.binding).original();
 			if (originalBinding != this.binding) {
 			    // extra cast needed if method return type has type variable

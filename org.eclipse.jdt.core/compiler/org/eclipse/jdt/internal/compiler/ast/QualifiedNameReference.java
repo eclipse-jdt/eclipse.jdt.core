@@ -264,8 +264,14 @@ public class QualifiedNameReference extends NameReference {
 	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
 		
 		// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
+		FieldBinding field;
 		int length = this.otherBindings == null ? 0 : this.otherBindings.length;
-		FieldBinding field = length == 0 ? (FieldBinding)this.binding : this.otherBindings[length-1];
+		if (length == 0) {
+			if (!this.binding.isValidBinding()) return;
+			field = (FieldBinding) this.binding;
+		} else {
+			field  = this.otherBindings[length-1];
+		}
 		FieldBinding originalBinding = field.original();
 		if (originalBinding != field) {
 		    // extra cast needed if method return type has type variable

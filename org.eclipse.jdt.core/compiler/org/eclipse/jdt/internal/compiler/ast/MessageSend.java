@@ -56,6 +56,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
  */
 public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
 	// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
+	if (!this.binding.isValidBinding()) return;
 	MethodBinding originalBinding = this.binding.original();
 	if (originalBinding != this.binding) {
 	    // extra cast needed if method return type has type variable
