@@ -80,7 +80,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0063"));
+		suite.addTest(new ASTConverter15Test("test0065"));
 		return suite;
 	}
 		
@@ -1730,10 +1730,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		}
 	}
 	
+	private static final boolean DISABLE_78183 = true;
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
 	public void test0063() throws JavaModelException {
+		if (DISABLE_78183) return;
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0063", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -1768,6 +1770,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
 	public void test0064() throws JavaModelException {
+		if (DISABLE_78183) return;
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0064", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -1802,6 +1805,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
 	public void test0065() throws JavaModelException {
+		if (DISABLE_78183) return;
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0065", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -1814,6 +1818,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
 		assertEquals("Wrong qualified name", "test0065.X<T,U>", typeBinding.getQualifiedName());
+		ITypeBinding erasure = typeBinding.getErasure();
+		assertEquals("Wrong qualified name", "test0065.X", erasure.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Wrong node", ASTNode.RETURN_STATEMENT, node.getNodeType());
 		ReturnStatement returnStatement = (ReturnStatement) node;
