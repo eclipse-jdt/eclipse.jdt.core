@@ -9049,7 +9049,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertEquals("Wrong size", 1, initializers.size());
 	}
 	/**
-	 * ForStatement ==> ForStatement
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
 	 */
 	public void test0362() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0362", "Test.java");
