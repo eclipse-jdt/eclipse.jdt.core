@@ -86,14 +86,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		fJProject1 = setUpJavaProject("Rewrite");
-		fSourceFolder = this.getPackageFragmentRoot("Rewrite", "src");
+		fJProject1 = createJavaProject("P", new String[] {"src"}, "bin");
+		fSourceFolder = this.getPackageFragmentRoot("P", "src");
 		
 		waitUntilIndexesReady();
 	}
 	
 	protected void tearDown() throws Exception {
-		deleteProject("Rewrite");
+		deleteProject("P");
 		super.tearDown();
 	}
 	

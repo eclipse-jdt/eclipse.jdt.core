@@ -61,8 +61,8 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		
-		fJProject1 = setUpJavaProject("Rewrite");
-		fSourceFolder = this.getPackageFragmentRoot("Rewrite", "src");
+		fJProject1 = createJavaProject("P", new String[] {"src"}, "bin");
+		fSourceFolder = this.getPackageFragmentRoot("P", "src");
 		
 		Hashtable options = JavaCore.getOptions();
 		this.oldOptions = (Hashtable)options.clone();
@@ -73,7 +73,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		waitUntilIndexesReady();
 	}
 	public void tearDownSuite() throws Exception {
-		deleteProject("Rewrite");
+		deleteProject("P");
 		JavaCore.setOptions(this.oldOptions);
 		super.tearDownSuite();
 	}
