@@ -21,9 +21,75 @@ public class AllJavaModelTests extends TestCase {
 public AllJavaModelTests(String name) {
 	super(name);
 }
+static Class[] getAllTestClasses() {
+	return new Class[] {
+		CreateMembersTests.class,
+		JavaConventionTests.class,
+		JavaProjectTests.class,
+		CompilationUnitTests.class,
+		AttachSourceTests.class,
+		JavaSearchTests.class,
+		JavaSearchMultipleProjectsTests.class,
+		WorkingCopySearchTests.class,
+		JavaSearchJavadocTests.class,
+		SearchTests.class,
+		WorkingCopyTests.class,
+		WorkingCopyNotInClasspathTests.class,
+		HierarchyOnWorkingCopiesTests.class,
+		JavaModelTests.class,
+		EncodingTests.class,
+		ClassNameTests.class,
+		BufferTests.class,
+		NameLookupTests2.class,
+		ClasspathTests.class,
+		JavaElementDeltaTests.class,
+		ExternalJarDeltaTests.class,
+		ExistenceTests.class,
+		ResolveTests.class,
+		CompletionTests.class,
+		CompletionTests2.class,
+		SnippetCompletionTests.class,
+		NamingConventionTests.class,
+		CodeCorrectionTests.class,
+		OptionTests.class,
+		TypeHierarchyTests.class,
+		TypeHierarchyNotificationTests.class,
+		TypeHierarchySerializationTests.class,
+		TypeResolveTests.class,
+		ReconcilerTests.class,
+		CopyMoveElementsTests.class,
+		CopyMoveResourcesTests.class,
+		RenameTests.class,
+		ExclusionPatternsTests.class,
+		InclusionPatternsTests.class,
+		SignatureTests.class,
+		ClasspathInitializerTests.class,
+		FactoryTests.class,
+		MementoTests.class,
+		SortCompilationUnitElementsTests.class,
+		RootManipulationsTests.class,
+		OverflowingCacheTests.class,
+		WorkingCopyOwnerTests.class,
+		DeleteTests.class,
+		LocalElementTests.class,
+		GetSourceTests.class,
+		CreatePackageTests.class,
+		CreateCompilationUnitTests.class
+	};
+}
 public static Test suite() {
 	TestSuite suite = new TestSuite(AllJavaModelTests.class.getName());
+
 	// Enter each test here, grouping the tests that are related
+
+	// Hack to load all classes before computing their suite of test cases
+	// this allow to reset test cases subsets while running all Java Model tests...
+	getAllTestClasses();
+
+	// Reset forgotten subsets of tests
+	AbstractJavaModelTests.testsNames = null;
+	AbstractJavaModelTests.testsNumbers = null;
+	AbstractJavaModelTests.testsRange = null;
 
 	// creation of method
 	suite.addTest(CreateMembersTests.suite());
@@ -156,7 +222,7 @@ public static Test suite() {
 
 	// Create compilation units tests
 	suite.addTest(CreateCompilationUnitTests.suite());
-	
+
 	includeDeprecatedJDOMTests(suite);
 
 	return suite;
