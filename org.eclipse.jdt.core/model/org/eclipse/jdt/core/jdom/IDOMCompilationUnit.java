@@ -59,6 +59,8 @@ public void setHeader(String comment);
 /**
  * The <code>IDOMCompilationNode</code> refinement of this <code>IDOMNode</code>
  * method has no effect (the name is computed from the types declared within it).
+ * 
+ * @param name the given name
  */
 public void setName(String name);
 }

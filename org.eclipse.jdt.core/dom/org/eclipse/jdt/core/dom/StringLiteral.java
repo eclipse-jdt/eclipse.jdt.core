@@ -186,7 +186,7 @@ public class StringLiteral extends Expression {
 	 * string literal token acceptable to <code>setEscapedLiteral</code>.
 	 * </p>
 	 * 
-	 * @param literal the string value without enclosing double quotes and 
+	 * @param value the string value without enclosing double quotes and 
 	 *    embedded escapes
 	 * @exception IllegalArgumentException if the argument is incorrect
 	 */

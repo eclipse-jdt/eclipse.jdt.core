@@ -44,7 +44,9 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	String logFileName;
 	
 	/**
-	 * Performs a compile using the JDT batch compiler 
+	 * Performs a compile using the JDT batch compiler
+	 * @throws BuildException if anything wrong happen during the compilation
+	 * @return boolean true if the compilation is ok, false otherwise
 	 */
 	public boolean execute() throws BuildException {
 		attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.usingJDTCompiler"), Project.MSG_VERBOSE); //$NON-NLS-1$

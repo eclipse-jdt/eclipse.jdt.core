@@ -346,9 +346,9 @@ class BindingResolver {
 	 * 
 	 * @param importDeclaration the import declaration of interest
 	 * @return the binding for the given package declaration, or 
-	 * @return the package binding (for on-demand imports) or type binding
-	 *    (for single-type imports), or <code>null</code> if no binding is
-	 *    available
+	 *         the package binding (for on-demand imports) or type binding
+	 *         (for single-type imports), or <code>null</code> if no binding is
+	 *         available
 	 */
 	IBinding resolveImport(ImportDeclaration importDeclaration) {
 		return null;

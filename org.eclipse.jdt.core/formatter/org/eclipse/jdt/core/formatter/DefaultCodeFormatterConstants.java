@@ -2158,6 +2158,7 @@ public class DefaultCodeFormatterConstants {
 	 * <p>Returns the default settings.</p>
 	 * 
 	 * <p>This is subject to change before 3.0.</p>
+	 * @return the default settings
 	 * @since 3.0
 	 */
 	public static Map getDefaultSettings() {
@@ -2168,6 +2169,7 @@ public class DefaultCodeFormatterConstants {
 	 * <p>Returns the settings according to the Java conventions.</p>
 	 * 
 	 * <p>This is subject to change before 3.0.</p>
+	 * @return the settings according to the Java conventions
 	 * @since 3.0
 	 */
 	public static Map getJavaConventionsSettings() {
@@ -2176,6 +2178,9 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * @deprecated use getForceWrapping(String value) instead
+	 * @param options the given options
+	 * @param key the given key
+	 * @return true if the given options is force, false otherwise
 	 */
 	public static boolean getForceWrapping(Map options, String key) {
 		Object option = options.get(key);
@@ -2216,6 +2221,9 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * @deprecated use getIndentStyle(String value) instead
+	 * @param options the given options
+	 * @param key the given key
+	 * @return the indent style
 	 */
 	public static int getIndentStyle(Map options, String key) {
 		Object option = options.get(key);
@@ -2268,6 +2276,9 @@ public class DefaultCodeFormatterConstants {
 	
 	/**
 	 * @deprecated Use getWrappingStyle(String value) instead
+	 * @param options the given options
+	 * @param key the given key
+	 * @return the wrapping style
 	 */
 	public static int getWrappingStyle(Map options, String key) {
 		Object option = options.get(key);
@@ -2335,6 +2346,9 @@ public class DefaultCodeFormatterConstants {
 	
 	/**
 	 * @deprecated Use setIndentStyle(String value, int indentStyle) instead
+	 * @param options the given options
+	 * @param key the given key
+	 * @param indentStyle the given indent style
 	 */
 	public static void setIndentStyle(Map options, String key, int indentStyle) {
 		Object option = options.get(key);
@@ -2404,6 +2418,9 @@ public class DefaultCodeFormatterConstants {
 	}
 	/**
 	 * @deprecated Use setForceWrapping(String value, boolean force) instead
+	 * @param options the given options
+	 * @param key the given key
+	 * @param forceSplit the given force style
 	 */
 	public static void setForceWrapping(Map options, String key, boolean forceSplit) {
 		Object option = options.get(key);
@@ -2454,6 +2471,9 @@ public class DefaultCodeFormatterConstants {
 	
 	/**
 	 * @deprecated use setWrappingStyle(String value, int wrappingStyle) instead
+	 * @param options the given options
+	 * @param key the given key
+	 * @param splitStyle the given split style
 	 */
 	public static void setWrappingStyle(Map options, String key, int splitStyle) {
 		Object option = options.get(key);

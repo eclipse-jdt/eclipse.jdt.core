@@ -35,6 +35,8 @@ public String getInitializer();
  * The <code>IDOMField</code> refinement of this <code>IDOMNode</code>
  * method returns the name of this field. The syntax for the name of a field
  * corresponds to VariableDeclaratorId (JLS2 8.3).
+ * 
+ * @return the name of this field
  */
 public String getName();
 /**
@@ -60,6 +62,7 @@ public void setInitializer(String initializer);
  * method sets the name of this field. The syntax for the name of a field
  * corresponds to VariableDeclaratorId (JLS2 8.3).
  *
+ * @param name the given name
  * @exception IllegalArgumentException if <code>null</code> is specified
  */
 public void setName(String name) throws IllegalArgumentException;

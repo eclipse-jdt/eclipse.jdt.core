@@ -23,6 +23,9 @@ public interface IDOMPackage extends IDOMNode {
  * method returns the name of this package declaration, or <code>null</code>
  * if it has none. The syntax for a package name corresponds to PackageName
  * as defined by PackageDeclaration (JLS2 7.4).
+ * 
+ * @return the name of this package declaration, or <code>null</code>
+ *         if it has none
  */
 public String getName();
 /**
@@ -31,6 +34,8 @@ public String getName();
  * name corresponds to PackageName as defined by PackageDeclaration (JLS2 7.4).
  * A <code>null</code> name indicates an empty package declaration; that is,
  * <code>getContents</code> returns the empty string.
+ * 
+ * @param name the given name
  */
 public void setName(String name);
 }

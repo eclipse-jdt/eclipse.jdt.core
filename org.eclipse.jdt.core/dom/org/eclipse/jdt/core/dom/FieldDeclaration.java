@@ -124,6 +124,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * static, final, volatile, and transient. Note that deprecated is not included.
 	 * </p>
 	 * 
+	 * @return the modifiers explicitly specified on this declaration
 	 * @since 2.0
 	 */ 
 	public int getModifiers() {
@@ -138,6 +139,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * static, final, volatile, and transient. Note that deprecated is not included.
 	 * </p>
 	 * 
+	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @since 2.0
 	 */ 
 	public void setModifiers(int modifiers) {

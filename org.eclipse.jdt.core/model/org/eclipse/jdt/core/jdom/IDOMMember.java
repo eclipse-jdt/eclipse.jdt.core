@@ -47,7 +47,7 @@ public int getFlags();
  *
  * @param comment the comment, including comment delimiters, or 
  *   <code>null</code> indicating this member should have no associated comment
- * @see #setFlags
+ * @see #setFlags(int)
  */
 public void setComment(String comment);
 /**

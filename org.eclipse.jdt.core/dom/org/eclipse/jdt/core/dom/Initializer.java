@@ -93,6 +93,7 @@ public class Initializer extends BodyDeclaration {
 	 * Note that static is the only meaningful modifier for an initializer.
 	 * </p>
 	 * 
+	 * @return the modifiers explicitly specified on this declaration
 	 * @since 2.0
 	 */ 
 	public int getModifiers() {
@@ -106,6 +107,7 @@ public class Initializer extends BodyDeclaration {
 	 * Note that static is the only meaningful modifier for an initializer.
 	 * </p>
 	 * 
+	 * @param modifiers the given modifiers
 	 * @since 2.0
 	 */ 
 	public void setModifiers(int modifiers) {

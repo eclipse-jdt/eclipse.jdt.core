@@ -117,6 +117,7 @@ public interface IScanner {
 	 * (for instance, 'assert' is a keyword in 1.4).
 	 * 
 	 * @throws InvalidInputException in case a lexical error was detected while reading the current token
+	 * @return the next token
 	 */
 	int getNextToken() throws InvalidInputException;
 

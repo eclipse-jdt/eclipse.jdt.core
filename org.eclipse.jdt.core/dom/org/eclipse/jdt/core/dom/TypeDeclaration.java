@@ -188,6 +188,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * static, final, abstract, and strictfp. Note that deprecated is not included.
 	 * </p>
 	 * 
+	 * @return the modifiers explicitly specified on this declaration
 	 * @since 2.0
 	 */ 
 	public int getModifiers() {
@@ -202,6 +203,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * static, final, abstract, and strictfp. Note that deprecated is not included.
 	 * </p>
 	 * 
+	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
 	 * @since 2.0
 	 */ 
 	public void setModifiers(int modifiers) {
