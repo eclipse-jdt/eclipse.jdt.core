@@ -317,7 +317,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	public boolean isDefaultConstructor() {
 
-		return isDefaultConstructor;
+		return this.isDefaultConstructor;
 	}
 
 	public boolean isInitializationMethod() {
@@ -388,11 +388,16 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		return output;
 	}
 	
-	public void resolveMissingAnnotation() {
-		if (!isDefaultConstructor && (this.modifiers & AccPublic) != 0) {
+	public void resolveAnnotation() {
+		
+		if (this.binding == null || this.annotation != null) {
+			super.resolveAnnotation();
+			return;
+		}
+		if (!isDefaultConstructor && (this.binding.modifiers & AccPublic) != 0) {
 			this.scope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceStart+this.selector.length-1, true);
 		}
-	}
+	}	
 
 	/*
 	 * Type checking for constructor, just another method, except for special check

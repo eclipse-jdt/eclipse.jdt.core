@@ -353,22 +353,20 @@ public abstract class AbstractMethodDeclaration
 			bindArguments(); 
 			bindThrownExceptions();
 			resolveStatements();
-			
-			// Resolve annotation
-			if (this.annotation != null) {
-				if (this.binding != null) {
-					this.annotation.resolve(this.scope);
-				}
-			} else {
-				resolveMissingAnnotation();
-			}
+			resolveAnnotation();
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
 		} 
 	}
 
-	public void resolveMissingAnnotation() {
-		if ((this.modifiers & AccPublic) != 0) {
+	public void resolveAnnotation() {
+		
+		if (this.binding == null) return;
+		if (this.annotation != null) {
+				this.annotation.resolve(this.scope);
+				return;
+		}
+		if (this.binding.isPublic()) {
 			this.scope.problemReporter().annotationMissingForPublic(this.sourceStart, this.sourceStart+this.selector.length-1, true);
 		}
 	}
