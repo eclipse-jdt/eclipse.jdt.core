@@ -48,19 +48,16 @@ import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.Prefix;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.CopyPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.StringPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
-import org.eclipse.jdt.internal.core.util.Util;
 
 
 /**
  * Infrastructure to support code modifications. Existing code must stay untouched, new code
- * added with correct formatting, moved code left with the users formattings / comments.
+ * added with correct formatting, moved code left with the user's formatting / comments.
  * Idea:
  * - Get the AST for existing code 
  * - Describe changes
  * - This visitor analyses the changes or annotations and generates text edits
- * (text manipulation API) that describe the required code changes. See test
- * cases in org.eclipse.jdt.ui.tests / package org.eclipse.jdt.ui.tests.
- * astrewrite for examples
+ * (text manipulation API) that describe the required code changes. 
  */
 public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
@@ -72,9 +69,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	final IDocument fDocument; // used from inner classes
 	
 	private final ASTRewriteFormatter fFormatter;
-	RewriteEventStore fEventStore;
-	private NodeInfoStore fNodeInfos;
-	private CompilationUnit fAstRoot;
+	final RewriteEventStore fEventStore;
+	private final NodeInfoStore fNodeInfos;
+	private final CompilationUnit fAstRoot;
 	
 	/*
 	 * Constructor for ASTRewriteAnalyzer.
@@ -2601,7 +2598,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	void handleException(Throwable e) {
-		Util.log(e, e.getMessage());
-		throw new RewriteRuntimeException(e);
+		IllegalArgumentException runtimeException= new IllegalArgumentException("Document does not match the AST"); //$NON-NLS-1$
+		runtimeException.initCause(e);
+		throw runtimeException;
 	}
 }
