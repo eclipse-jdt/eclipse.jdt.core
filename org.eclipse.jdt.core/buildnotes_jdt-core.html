@@ -43,14 +43,15 @@ Eclipse SDK 3.0M9 Build - ?th May 2004
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added new flag IJavaElementDelta.F_PRIMARY_RESOURCE that is set when the resource of a primary working copy 
-     changes (or when it is added or removed).</li>
-<li>Removed dependency on org.eclipse.runtime.compatibility.</li>
-<li>Tuned the diagnosis for unnecessary else statements to tolerate else-if constructs.</li>
+<li>The org.eclipse.jdt.core.jdom package has been deprecated. The JDOM was made obsolete by 
+      the addition in 2.0 of the more powerful, fine-grained DOM/AST API found in the 
+      org.eclipse.jdt.core.dom package.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61270">61270</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61148">61148</a>
+deprecate JDOM API 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61270">61270</a>
 Wrong delta when copying a package that overrides another package 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61181">61181</a>
 Task tag starting with double-/ (//) causes compile error
@@ -79,15 +80,14 @@ Eclipse SDK 3.0M9 Build - 4th May 2004
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>The org.eclipse.jdt.core.jdom package has been deprecated. The JDOM was made obsolete by 
-      the addition in 2.0 of the more powerful, fine-grained DOM/AST API found in the 
-      org.eclipse.jdt.core.dom package.</li>
+<li>Added new flag IJavaElementDelta.F_PRIMARY_RESOURCE that is set when the resource of a primary working copy 
+     changes (or when it is added or removed).</li>
+<li>Removed dependency on org.eclipse.runtime.compatibility.</li>
+<li>Tuned the diagnosis for unnecessary else statements to tolerate else-if constructs.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61148">61148</a>
-deprecate JDOM API 
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60687">60687</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60687">60687</a>
 NPE in JavaCore.getEncoding
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60581">60581</a>
 "Java AST creation" error.
