@@ -60,6 +60,24 @@ public JavaProjectElementInfo() {
  * Compute the non-java resources contained in this java project.
  */
 private Object[] computeNonJavaResources(JavaProject project) {
+	// determine if src == project and/or if bin == project
+	IPath projectPath = project.getProject().getFullPath();
+	boolean srcIsProject = false;
+	boolean binIsProject = false;
+	try {
+		IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+		for (int i = 0; i < classpath.length; i++) {
+			IClasspathEntry entry = classpath[i];
+			if (projectPath.equals(entry.getPath())) {
+				srcIsProject = true;
+				break;
+			}
+		}
+		binIsProject = projectPath.equals(project.getOutputLocation());
+	} catch (JavaModelException e) {
+		// ignore
+	}
+	
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
@@ -68,10 +86,20 @@ private Object[] computeNonJavaResources(JavaProject project) {
 			IResource res = members[i];
 			switch (res.getType()) {
 				case IResource.FILE :
-					String extension = res.getProjectRelativePath().getFileExtension();
 					// check if this file might be a jar or a zip inside the build path
 					IPath resFullPath = res.getFullPath();
 					if (project.findPackageFragmentRoot(resFullPath) == null) {
+						String extension = res.getFileExtension();
+						if (extension != null) extension = extension.toLowerCase();
+						// ignore .java file if src == project
+						if (srcIsProject && "java".equals(extension)) { //$NON-NLS-1$
+							break;
+						}
+						// ignore .class file if bin == project
+						if (binIsProject && "class".equals(extension)) { //$NON-NLS-1$
+							break;
+						}
+						// else add non java resource
 						if (nonJavaResources.length == nonJavaResourcesCounter) {
 							// resize
 							System.arraycopy(
