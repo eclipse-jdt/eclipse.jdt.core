@@ -7,6 +7,12 @@
 * NON-BREAKING API CHANGES *******************************
 **********************************************************
 
+  * Added API to set both the classpath and the output location at once.
+  	IJavaProject.setRawClasspath(
+  		IClasspathEntry[] newClasspath, 
+  		IPath newOutputLocation, 
+  		IProgressMonitor monitor)
+  	
   * ICodeCompletionRequestor got deprecated, should use ICompletionRequestor
     instead to obtain:
      (1) - local variable name suggestions
@@ -107,10 +113,11 @@
   * CodeAssist provides argument names in method completions.
   * CodeAssist completes on method declarations (just enter selector prefix)  
   * Project can contribute more than their output folder, using exported classpath entries.
-  * CodeAssist inserts qualification on field/method/type references in case of ambiguities.
+  * CodeAssist inserts qualification on field/method/type references in case of ambiguities (optionally these
+    qualification can be forced to occur).
   * CodeAssist optionally performs visibility checks (see JavaCore option: "org.eclipse.jdt.core.codeComplete.visibilityCheck").
   * OpenOnSelection can now locate selected declarations.
-  * Search can narrow field read/write references.
+  * Search can narrow field read/write access.
   * Assertions support enabled: by default the compiler is 1.3 compliant, but it can 
     optionally be turned into source 1.4 mode cf. JavaCore options.
   * Evaluation in binaries is functional

@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IMarker;
  * </p>
  *
  * @see ICodeAssist
+ * @since 2.0
  */
 public interface ICompletionRequestor {
 /**

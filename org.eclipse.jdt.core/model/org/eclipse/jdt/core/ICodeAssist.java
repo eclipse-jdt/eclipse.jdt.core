@@ -28,7 +28,8 @@ public interface ICodeAssist {
 	 * </ul>
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
-	 */
+	 * @since 2.0
+	 * 	 */
 	void codeComplete(int offset, ICompletionRequestor requestor)
 		throws JavaModelException;
 	/**

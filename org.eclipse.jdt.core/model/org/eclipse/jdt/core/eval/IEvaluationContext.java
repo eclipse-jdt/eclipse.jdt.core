@@ -102,6 +102,7 @@ public interface IEvaluationContext {
 	 *	  <li>The position specified is less than -1 or is greater than the snippet's
 	 *	    length (INDEX_OUT_OF_BOUNDS)</li>
 	 *  </ul>
+	 * @since 2.0
 	 */
 	public void codeComplete(
 		String codeSnippet,
