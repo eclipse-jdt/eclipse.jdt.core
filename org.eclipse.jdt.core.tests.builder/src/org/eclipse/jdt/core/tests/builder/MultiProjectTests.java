@@ -132,6 +132,77 @@ public class MultiProjectTests extends Tests {
 		expectingSpecificProblemFor(b, new Problem("B.foo()", "x cannot be resolved or is not a field", b)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	public void testCompileOrder() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		
+		JavaCore.setOptions(newOptions);
+		
+		//----------------------------
+		//         Project1
+		//----------------------------
+		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
+		env.addExternalJar(p1, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
+		IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
+		
+		IPath c1 = env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"  W w;\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		//----------------------------
+		//         Project2
+		//----------------------------
+		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
+		env.addExternalJar(p2, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
+		IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
+		
+		IPath c2 = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Y {\n"+ //$NON-NLS-1$
+			"  W w;\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+
+		//----------------------------
+		//         Project3
+		//----------------------------
+		IPath p3 = env.addProject("P3"); //$NON-NLS-1$
+		env.addExternalJar(p3, Util.getJavaClassLib());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
+		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
+		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
+		
+		IPath c3 = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"public class Z {\n"+ //$NON-NLS-1$
+			"  W w;\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		env.setBuildOrder(new String[]{"P1", "P3", "P2"});
+		fullBuild();
+		
+		expectingCompilingOrder(new String[]{"p1.X", "p3.Z", "p2.Y"});
+		IPath workspaceRootPath = env.getWorkspaceRootPath();
+		expectingOnlySpecificProblemsFor(workspaceRootPath,new Problem[]{
+				new Problem("p3", "W cannot be resolved (or is not a valid type) for the field Z.w", c3),
+				new Problem("p2", "W cannot be resolved (or is not a valid type) for the field Y.w", c2),
+				new Problem("p1", "W cannot be resolved (or is not a valid type) for the field X.w", c1)
+		});	
+		JavaCore.setOptions(options);
+	}
+	
 	public void testCycle1() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
@@ -174,7 +245,6 @@ public class MultiProjectTests extends Tests {
 			"import p1.X;\n"+ //$NON-NLS-1$
 			"import p3.Z;\n"+ //$NON-NLS-1$
 			"public class Y extends Z{\n"+ //$NON-NLS-1$
-			"  Z z;\n"+ //$NON-NLS-1$
 			"  public X zork(){\n"+ //$NON-NLS-1$
 			"    X x = foo();\n"+ //$NON-NLS-1$
 			"    x.bar(this);\n"+ //$NON-NLS-1$
@@ -193,7 +263,7 @@ public class MultiProjectTests extends Tests {
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 		
-		env.addClass(root1, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
@@ -212,7 +282,10 @@ public class MultiProjectTests extends Tests {
 		// for Project3
 		env.addRequiredProject(p3, p1);
 
+		env.setBuildOrder(new String[]{"P1", "P2", "P3"});
 		fullBuild();
+		
+		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});
 		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));
 		expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));
 		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));
@@ -262,7 +335,6 @@ public class MultiProjectTests extends Tests {
 			"import p1.X;\n"+ //$NON-NLS-1$
 			"import p3.Z;\n"+ //$NON-NLS-1$
 			"public class Y extends Z{\n"+ //$NON-NLS-1$
-		//	"  Z z;\n"+ //$NON-NLS-1$
 			"  public X zork(){\n"+ //$NON-NLS-1$
 			"    X x = foo();\n"+ //$NON-NLS-1$
 			"    x.bar(this);\n"+ //$NON-NLS-1$
@@ -281,7 +353,7 @@ public class MultiProjectTests extends Tests {
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 		
-		env.addClass(root1, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
@@ -300,7 +372,10 @@ public class MultiProjectTests extends Tests {
 		// for Project3
 		env.addRequiredProject(p3, p1);
 
+		env.setBuildOrder(new String[]{"P1", "P2", "P3"});
 		fullBuild();
+		
+		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});
 		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));
 		expectingOnlySpecificProblemsFor(p2,new Problem[]{
 				new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2),
@@ -353,7 +428,6 @@ public class MultiProjectTests extends Tests {
 			"import p1.X;\n"+ //$NON-NLS-1$
 			"import p3.Z;\n"+ //$NON-NLS-1$
 			"public class Y extends Z{\n"+ //$NON-NLS-1$
-		//	"  Z z;\n"+ //$NON-NLS-1$
 			"  public X zork(){\n"+ //$NON-NLS-1$
 			"    X x = foo();\n"+ //$NON-NLS-1$
 			"    x.bar(this);\n"+ //$NON-NLS-1$
@@ -372,7 +446,7 @@ public class MultiProjectTests extends Tests {
 		IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
 		env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
 		
-		env.addClass(root1, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"import p1.X;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
@@ -391,7 +465,10 @@ public class MultiProjectTests extends Tests {
 		// for Project3
 		env.addRequiredProject(p3, p1);
 
+		env.setBuildOrder(new String[]{"P1", "P2", "P3"});
 		fullBuild();
+		
+		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});
 		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));
 		expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the project's classpath.", p2));
 		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));
@@ -407,13 +484,14 @@ public class MultiProjectTests extends Tests {
 			);
 		incrementalBuild();
 		
+		expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z"});;
 		expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the project's classpath.", p1));
 		expectingOnlySpecificProblemsFor(p2,new Problem[]{
 				new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2),
 				new Problem("p2", "A cycle was detected in the project's classpath.", p2)
 		});
 		expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the project's classpath.", p3));
-		
+
 		JavaCore.setOptions(options);
 	}
 }

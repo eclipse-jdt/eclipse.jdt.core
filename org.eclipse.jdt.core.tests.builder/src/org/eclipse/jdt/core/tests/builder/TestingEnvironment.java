@@ -809,6 +809,18 @@ public class TestingEnvironment {
 //			checkAssertion("JavaModelException", false); //$NON-NLS-1$
 //		}
 //	}
+	
+	public void setBuildOrder(String[] projects) {
+		try {
+			IWorkspace w = getWorkspace();
+			IWorkspaceDescription d = w.getDescription();
+			d.setBuildOrder(projects);
+			w.setDescription(d);
+		} catch (CoreException e) {
+			e.printStackTrace();
+			checkAssertion("CoreException", false); //$NON-NLS-1$
+		}
+	}
 
 	public void setClasspath(IPath projectPath, IClasspathEntry[] entries) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
