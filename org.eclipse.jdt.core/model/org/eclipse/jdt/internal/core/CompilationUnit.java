@@ -165,6 +165,12 @@ public boolean canBeRemovedFromCache() {
 	return super.canBeRemovedFromCache();
 }
 /*
+ * @see Openable#canBufferBeRemovedFromCache
+ */
+public boolean canBufferBeRemovedFromCache(IBuffer buffer) {
+	if (isWorkingCopy()) return false; // working copy buffers should remain in the cache until working copy is destroyed
+	return super.canBufferBeRemovedFromCache(buffer);
+}/*
  * @see IOpenable#close
  */
 public void close() throws JavaModelException {

@@ -78,6 +78,12 @@ public boolean canBeRemovedFromCache() {
 		return false;
 	}
 }
+/*
+ * Returns whether the buffer of this element can be removed from the Java model cache to make space.
+ */
+public boolean canBufferBeRemovedFromCache(IBuffer buffer) {
+	return !buffer.hasUnsavedChanges();
+}
 /**
  * Close the buffer associated with this element, if any.
  */
