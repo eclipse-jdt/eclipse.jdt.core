@@ -107,7 +107,7 @@ public abstract class Scope
 		}
 		return null; // may answer null if no method around
 	}
-	
+
 	/* Answer the receiver's enclosing source type.
 	*/
 	public final SourceTypeBinding enclosingSourceType() {
@@ -178,21 +178,21 @@ public abstract class Scope
 		if (receiverType.isBaseType()) return null;
 		if (receiverType.isArrayType()) {
 			TypeBinding leafType = receiverType.leafComponentType();
-			if (leafType instanceof ReferenceBinding)
-			if (!((ReferenceBinding)leafType).canBeSeenBy(this)) {
-				return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ReceiverTypeNotVisible);
+			if (leafType instanceof ReferenceBinding) {
+				if (!((ReferenceBinding) leafType).canBeSeenBy(this))
+					return new ProblemFieldBinding((ReferenceBinding)leafType, fieldName, ReceiverTypeNotVisible);
 			}
 			if (CharOperation.equals(fieldName, LENGTH))
 				return ArrayBinding.LengthField;
 			return null;
 		}
-	
+
 		compilationUnitScope().recordTypeReference(receiverType);
-	
+
 		ReferenceBinding currentType = (ReferenceBinding) receiverType;
 		if (!currentType.canBeSeenBy(this))
 			return new ProblemFieldBinding(currentType, fieldName, ReceiverTypeNotVisible);
-	
+
 		FieldBinding field = currentType.getField(fieldName);
 		if (field != null) {
 			if (field.canBeSeenBy(currentType, invocationSite, this))
@@ -223,7 +223,7 @@ public abstract class Scope
 			}
 			if ((currentType = currentType.superclass()) == null)
 				break;
-	
+
 			if ((field = currentType.getField(fieldName)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -236,7 +236,7 @@ public abstract class Scope
 				}
 			}
 		}
-	
+
 		// walk all visible interfaces to find ambiguous references
 		if (interfacesToVisit != null) {
 			ProblemFieldBinding ambiguous = null;
@@ -270,7 +270,7 @@ public abstract class Scope
 					}
 				}
 			}
-	
+
 			// bit reinitialization
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
@@ -280,7 +280,7 @@ public abstract class Scope
 			if (ambiguous != null)
 				return ambiguous;
 		}
-	
+
 		if (visibleField != null)
 			return visibleField;
 		if (notVisible)
