@@ -167,7 +167,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */
-	public void testModelAnonymousType() throws JavaModelException {
+	public void testAnonymousType() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  Object foo() {\n" +
@@ -190,7 +190,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a local type is correct.
 	 */
-	public void testModelLocalType() throws JavaModelException {
+	public void testLocalType() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -213,7 +213,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a member type is correct.
 	 */
-	public void testModelMemberType() throws JavaModelException {
+	public void testMemberType() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  /*start*/class Y {\n" +
@@ -234,7 +234,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a top level type is correct.
 	 */
-	public void testModelTopLevelType1() throws JavaModelException {
+	public void testTopLevelType1() throws JavaModelException {
 		ASTNode node = buildAST(
 			"/*start*/public class X {\n" +
 			"}/*end*/"
@@ -254,7 +254,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a top level type is correct
 	 * (the top level type being in another compilation unit)
 	 */
-	public void testModelTopLevelType2() throws CoreException {
+	public void testTopLevelType2() throws CoreException {
 		try {
 			createFile(
 				"/P/Y.java",
@@ -283,7 +283,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a top level type is correct
 	 * (the top level type being in a jar)
 	 */
-	public void testModelTopLevelType3() throws CoreException {
+	public void testTopLevelType3() throws CoreException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  /*start*/String/*end*/ field;\n" +
