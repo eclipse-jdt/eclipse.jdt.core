@@ -57,8 +57,8 @@ What's new in this drop</h2>
 public boolean hasResourceChanged();
 </pre>
 </li>
-<li>Added APIs on <code>IType</code> to create hierarchies using <code>ICompilationUnit</code> instead of
-     <code>IWorkingCopy</code>:
+<li>Added APIs on <code>IType</code> to create hierarchies using <code>ICompilationUnits</code> instead of
+     <code>IWorkingCopies</code>:
 <pre>
 /**
  * Creates and returns a type hierarchy for this type containing
@@ -96,6 +96,23 @@ ITypeHierarchy newSupertypeHierarchy(ICompilationUnit[] workingCopies, IProgress
  * @since 3.0
  */
 ITypeHierarchy newTypeHierarchy(ICompilationUnit[] workingCopies, IProgressMonitor monitor) throws JavaModelException;
+</pre>
+<li>Added API on <code>SearchEngine</code> to create a search engine using 
+	 <code>ICompilationUnits</code> instead of <code>IWorkingCopies</code>:
+<pre>
+/**
+ * Creates a new search engine with a list of working copies that will take precedence over 
+ * their original compilation units in the subsequent search operations.
+ *
+ * Note that passing an empty working copy will be as if the original compilation
+ * unit had been deleted.
+ *
+ * Since 3.0 the given working copies take precedence over primary working copies (if any).
+ * 
+ * @param workingCopies the working copies that take precedence over their original compilation units
+ * @since 3.0
+ */
+public SearchEngine(ICompilationUnit[] workingCopies) {...}
 </pre>
 </li>
 </ul>
