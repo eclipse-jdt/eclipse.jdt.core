@@ -223,7 +223,7 @@ public String toString(int tab) {
 		result.append(tabString(tab));
 		result.append(" "); //$NON-NLS-1$
 	}
-	result.append(typeDeclaration.print(tab + 1, result));
+	typeDeclaration.print(tab + 1, result);
 	if (this.memberTypes != null) {
 		for (int i = 0; i < this.memberTypeCount; i++) {
 			result.append("\n"); //$NON-NLS-1$

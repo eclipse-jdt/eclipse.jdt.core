@@ -98,7 +98,7 @@ public int sourceEnd(){
 public String toString(int tab){
 	StringBuffer buffer = new StringBuffer(tabString(tab));
 	buffer.append("Recovered field:\n"); //$NON-NLS-1$
-	buffer.append(fieldDeclaration.print(tab + 1, buffer));
+	fieldDeclaration.print(tab + 1, buffer);
 	if (this.anonymousTypes != null) {
 		for (int i = 0; i < this.anonymousTypeCount; i++){
 			buffer.append("\n"); //$NON-NLS-1$
