@@ -1320,7 +1320,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_open_paren_in_parenthesized_expression = false;
 		this.insert_space_before_opening_brace_in_array_initializer = false;
 		this.insert_space_before_postfix_operator = false;
-		this.insert_space_before_prefix_operator = true;
+		this.insert_space_before_prefix_operator = false;
 		this.insert_space_before_question_in_conditional = true;
 		this.insert_space_before_semicolon = false;
 		this.insert_space_before_switch_condition = true;
