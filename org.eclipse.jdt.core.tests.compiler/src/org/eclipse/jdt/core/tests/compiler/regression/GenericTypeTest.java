@@ -8400,7 +8400,17 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"	class Item <E> {}\n" + 
 				"}\n"
 			},
-			"should also report illegal construct on init of j field");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" + 
+			"	                       ^\n" + 
+			"Type mismatch: cannot convert from X<Exception>.Item<Thread> to X<String>.Item<Thread>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	X.Item k = new X.Item();\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
+			"No enclosing instance of type X<T> is accessible. Must qualify the allocation with an enclosing instance of type X<T> (e.g. x.new A() where x is an instance of X<T>).\n" + 
+			"----------\n");
 	}
 	// 75400
 	// TODO (philippe) reenable once fixed
