@@ -301,11 +301,12 @@ public ICompilationUnit getCompilationUnit() {
  * @exception JavaModelException if the element is not present or not accessible
  */
 public JavaElementInfo getElementInfo() throws JavaModelException {
-	synchronized(JavaModelManager.getJavaModelManager()){
-		Object info = JavaModelManager.getJavaModelManager().getInfo(this);
+	JavaModelManager manager;
+	synchronized(manager = JavaModelManager.getJavaModelManager()){
+		Object info = manager.getInfo(this);
 		if (info == null) {
 			openHierarchy();
-			info= JavaModelManager.getJavaModelManager().getInfo(this);
+			info= manager.getInfo(this);
 			if (info == null) {
 				throw newNotPresentException();
 			}
