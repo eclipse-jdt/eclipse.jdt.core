@@ -1683,18 +1683,18 @@ class ASTConverter {
 	public Statement convert(ExplicitConstructorCall statement) {
 		Statement newStatement;
 		if (statement.isSuperAccess() || statement.isSuper() || statement.isImplicitSuper()) {
-			SuperConstructorInvocation superConstructorInvocaTion = this.ast.newSuperConstructorInvocation();
+			SuperConstructorInvocation superConstructorInvocation = this.ast.newSuperConstructorInvocation();
 			if (statement.qualification != null) {
-				superConstructorInvocaTion.setExpression(convert(statement.qualification));
+				superConstructorInvocation.setExpression(convert(statement.qualification));
 			}
 			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = statement.arguments;
 			if (arguments != null) {
 				int length = arguments.length;
 				for (int i = 0; i < length; i++) {
-					superConstructorInvocaTion.arguments().add(convert(arguments[i]));
+					superConstructorInvocation.arguments().add(convert(arguments[i]));
 				}
 			}
-			newStatement = superConstructorInvocaTion;
+			newStatement = superConstructorInvocation;
 		} else {
 			ConstructorInvocation constructorInvocation = this.ast.newConstructorInvocation();
 			org.eclipse.jdt.internal.compiler.ast.Expression[] arguments = statement.arguments;

@@ -396,6 +396,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (expression instanceof ParenthesizedExpression) {
 			ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
 			return this.resolveExpressionType(parenthesizedExpression.getExpression());
+		} else if (expression instanceof ConditionalExpression) {
+			org.eclipse.jdt.internal.compiler.ast.ConditionalExpression conditionalExpression = (org.eclipse.jdt.internal.compiler.ast.ConditionalExpression) this.newAstToOldAst.get(expression);
+			return this.getTypeBinding(conditionalExpression.typeBinding);
 		}
 		return super.resolveExpressionType(expression);
 	}
