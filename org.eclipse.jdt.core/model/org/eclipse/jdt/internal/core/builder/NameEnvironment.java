@@ -259,6 +259,7 @@ private void createFolder(IContainer folder) throws CoreException {
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
 	if (initialTypeNames != null) {
+		// TODO (kent) should use a hash set to avoid linear search once massive source set is being processed
 		for (int i = 0, l = initialTypeNames.length; i < l; i++) {
 			if (qualifiedTypeName.equals(initialTypeNames[i])) {
 				if (isIncrementalBuild)
