@@ -6339,4 +6339,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}			
+	// 69375 - equivalence of wildcards
+	public void test230() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		List<? extends Integer> li= null;\n" + 
+				"		List<? extends Number> ln= null;\n" + 
+				"		ln = li;\n" + 
+				"		li= ln;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	li= ln;\n" + 
+			"	    ^^\n" + 
+			"Type mismatch: cannot convert from List<? extends Number> to List<? extends Integer>\n" + 
+			"----------\n");
+	}			
 }
