@@ -41,7 +41,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isPrimitive()
 	 */
 	public boolean isPrimitive() {
-		return binding.isBaseType();
+		return !isNullType() && binding.isBaseType();
 	}
 
 	/*
