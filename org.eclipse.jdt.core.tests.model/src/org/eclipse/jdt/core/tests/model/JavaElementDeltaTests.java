@@ -1488,17 +1488,17 @@ public void testMoveCuInEnclosingPkg() throws CoreException {
 			"		x[*]: {CHILDREN}\n" +
 			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in [project root] [in P]]])}"
 		);
-		assertEquals(
+		assertElementDescendants(
 			"Unexpected children for package x",
 			"x\n" +
 			"  A.java\n" +
 			"    package x\n" +
 			"    class A",
-			this.expandAll(pkg));
-		assertEquals(
+			pkg);
+		assertElementDescendants(
 			"Unexpected children for package x.y",
 			"x.y",
-			this.expandAll(this.getPackage("P/x/y")));
+			this.getPackage("P/x/y"));
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P");

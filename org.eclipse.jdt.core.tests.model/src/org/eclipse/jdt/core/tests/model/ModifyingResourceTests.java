@@ -83,6 +83,16 @@ protected void assertDeltas(String message, String expected) {
 		expected,
 		actual);
 }
+protected void assertElementDescendants(String message,  String expected, IJavaElement element) throws CoreException {
+	String actual = expandAll(element);
+	if (!expected.equals(actual)){
+	 	System.out.println(Util.displayString(actual, 4));
+	}
+	assertEquals(
+		message,
+		expected,
+		actual);
+}
 /**
  * E.g. <code>
  * org.eclipse.jdt.tests.core.ModifyingResourceTests.generateClassFile(

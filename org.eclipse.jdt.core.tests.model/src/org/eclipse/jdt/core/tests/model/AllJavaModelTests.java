@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.jdt.internal.core.CompilationUnit;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -144,8 +146,13 @@ public static Test suite() {
 	// Working copy owner tests
 	suite.addTest(WorkingCopyOwnerTests.suite());
 
-	//Delete Java element tests
+	// Delete Java element tests
 	suite.addTest(DeleteTests.suite());
+	
+	// Local element tests
+	if (CompilationUnit.USE_LOCAL_ELEMENTS) {
+		suite.addTest(LocalElementTests.suite());
+	}
 	
 	return suite;
 }
