@@ -310,7 +310,7 @@ public void validateImports(ICodeSnippetRequestor requestor) throws JavaModelExc
 	}
 }
 /**
- * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String codeSnippet, int position, final ICodeCompletionRequestor requestor) 
+ * @see IEvaluationContext#codeComplete(String codeSnippet, int position, ICodeCompletionRequestor requestor)
  * @deprecated - use codeComplete(String, int, ICompletionRequestor) instead
  */
 public void codeComplete(String codeSnippet, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {

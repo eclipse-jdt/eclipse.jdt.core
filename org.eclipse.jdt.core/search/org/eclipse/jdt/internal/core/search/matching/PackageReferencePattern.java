@@ -38,7 +38,6 @@ public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSens
 }
 /**
  * ref/name (where name is the last segment of the package name)
- * @see SearchPattern#decodeIndexEntry(IEntryResult entryResult)
  */ 
 public void decodeIndexEntry(IEntryResult entryResult){
 

@@ -1230,10 +1230,10 @@ public abstract class ASTNode {
 	
 	/**
 	 * The <code>ASTNode</code> implementation of this <code>Object</code>
-	 * method uses object identity (==). Use <code>subtreeEquals</code> to
+	 * method uses object identity (==). Use <code>subtreeMatch</code> to
 	 * compare two subtrees for equality.
 	 * 
-	 * @see #subtreeEquals
+	 * @see #subtreeMatch(ASTMatcher matcher, Object other)
 	 */
 	public final boolean equals(Object obj) {
 		return this == obj; // equivalent to Object.equals

@@ -127,7 +127,7 @@ public IMethod createMethod(String contents, IJavaElement sibling, boolean force
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
- * @see IType# createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
+ * @see IType#createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
  */
 public IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
