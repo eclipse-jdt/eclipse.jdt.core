@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 public class CompletionRequestorWrapper implements ICompletionRequestor {
 	static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
@@ -60,14 +61,14 @@ public void acceptClass(char[] packageName, char[] className, char[] completionN
 /**
  * See ICompletionRequestor
  */
-public void acceptError(IMarker problemMarker) {
+public void acceptError(IProblem error) {
 	
 	if(CompletionEngine.DEBUG) {
 		System.out.print("COMPLETION - acceptError("); //$NON-NLS-1$
-		System.out.print(problemMarker);
+		System.out.print(error);
 		System.out.println(")"); //$NON-NLS-1$
 	}
-	this.clientRequestor.acceptError(problemMarker);
+	this.clientRequestor.acceptError(error);
 }
 /**
  * See ICompletionRequestor

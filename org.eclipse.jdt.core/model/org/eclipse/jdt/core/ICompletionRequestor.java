@@ -5,6 +5,7 @@ package org.eclipse.jdt.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
  * A completion requestor accepts results as they are computed and is aware
@@ -101,9 +102,9 @@ void acceptClass(
 	int completionEnd);
 /**
  * Code assist notification of a compilation error detected during completion.
- *  @param error org.eclipse.core.resources.IMarker
- *      Only problems which are categorized as errors are notified to the requestor,
- *		warnings are silently ignored.
+ *  @param error org.eclipse.jdt.core.compiler.IProblem
+ *      Only problems which are categorized as non-sytax errors are notified to the 
+ *     requestor, warnings are silently ignored.
  *		In case an error got signaled, no other completions might be available,
  *		therefore the problem message should be presented to the user.
  *		The source positions of the problem are related to the source where it was
@@ -111,7 +112,7 @@ void acceptClass(
  *		during the code assist process).
  *      Note: the problem knows its originating file name.
  */
-void acceptError(IMarker marker);
+void acceptError(IProblem error);
 /**
  * Code assist notification of a field completion.
  * @param declaringTypePackageName char[]

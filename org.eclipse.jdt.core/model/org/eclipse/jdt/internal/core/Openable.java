@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -484,8 +484,20 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
 			}
-			public void acceptError(IMarker marker) {
-				requestor.acceptError(marker);
+			public void acceptError(IProblem error) {
+				if (true) return; // was disabled in 1.0
+
+				try {
+					IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
+					marker.setAttribute(IJavaModelMarker.ID, error.getID());
+					marker.setAttribute(IMarker.CHAR_START, error.getSourceStart());
+					marker.setAttribute(IMarker.CHAR_END, error.getSourceEnd() + 1);
+					marker.setAttribute(IMarker.LINE_NUMBER, error.getSourceLineNumber());
+					marker.setAttribute(IMarker.MESSAGE, error.getMessage());
+					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+					requestor.acceptError(marker);
+				} catch(CoreException e){
+				}
 			}
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);

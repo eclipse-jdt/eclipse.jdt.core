@@ -253,7 +253,7 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			}
 		}
-		public void acceptError(IMarker marker) {}
+		public void acceptError(IProblem error) {}
 		public void acceptField(char[] declaringTypePackageName,char[] declaringTypeName,char[] name,char[] typePackageName,char[] typeName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
 			if((filter & FIELD) != 0) {
 				requestor.acceptField(

@@ -157,30 +157,12 @@ public ICompletionRequestor getCompletionRequestor(final ICompletionRequestor or
 						|| CharOperation.equals(className, CodeSnippetToCuMapper.this.varClassName))) return;
 			originalRequestor.acceptClass(packageName, className, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);
 		}
-		public void acceptError(IMarker problemMarker) {
+		public void acceptError(IProblem error) {
 
-			try {
-				String attr = (String) problemMarker.getAttribute(IMarker.CHAR_START);
-				int start = Integer.parseInt(attr);
-				problemMarker.setAttribute(IMarker.CHAR_START, start - startPosOffset);	
-			} catch(CoreException e){
-			} catch(NumberFormatException e){
-			}
-			try {
-				String attr = (String) problemMarker.getAttribute(IMarker.CHAR_END);
-				int end = Integer.parseInt(attr);
-				problemMarker.setAttribute(IMarker.CHAR_END, end - startPosOffset);	
-			} catch(CoreException e){
-			} catch(NumberFormatException e){
-			}
-			try {
-				String attr = (String) problemMarker.getAttribute(IMarker.LINE_NUMBER);
-				int line = Integer.parseInt(attr);
-				problemMarker.setAttribute(IMarker.LINE_NUMBER, line - lineNumberOffset);	
-			} catch(CoreException e){
-			} catch(NumberFormatException e){
-			}
-			originalRequestor.acceptError(problemMarker);
+			error.setSourceStart(error.getSourceStart() - startPosOffset);
+			error.setSourceEnd(error.getSourceEnd() - startPosOffset);
+			error.setSourceLineNumber(error.getSourceLineNumber() - lineNumberOffset);
+			originalRequestor.acceptError(error);
 		}
 		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 			originalRequestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);

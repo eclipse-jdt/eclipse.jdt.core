@@ -125,34 +125,17 @@ public final class CompletionEngine
 
 		options = new AssistOptions(settings);
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		ProblemReporter problemReporter =
-			new ProblemReporter(
+
+		ProblemReporter problemReporter = new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				compilerOptions,
-				new DefaultProblemFactory(Locale.getDefault())) {
-			public void record(IProblem problem, CompilationResult unitResult) {
-				if (problem.getID() != IProblem.UnmatchedBracket) {
-					unitResult.record(problem);
-					
-					if (true) return; // work-around PR 1GD9RLP: ITPJCORE:WIN2000 - Code assist is slow
-					if (problem.isWarning()) return;
-					try {
-						IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-						marker.setAttribute(IJavaModelMarker.ID, problem.getID());
-						marker.setAttribute(IMarker.CHAR_START, problem.getSourceStart());
-						marker.setAttribute(IMarker.CHAR_END, problem.getSourceEnd() + 1);
-						marker.setAttribute(IMarker.LINE_NUMBER, problem.getSourceLineNumber());
-						//marker.setAttribute(IMarker.LOCATION, "#" + error.getSourceLineNumber());
-						marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
-						marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-				
-						CompletionEngine.this.requestor.acceptError(marker);
-				
-					} catch(CoreException e){
+				new DefaultProblemFactory(Locale.getDefault()) {
+					public void record(IProblem problem, CompilationResult unitResult) {
+						if (problem.isError() && (problem.getID() & IProblem.Syntax) != 0) {
+							CompletionEngine.this.requestor.acceptError(problem);
+						}
 					}
-				}
-			}
-		};
+				});
 		this.parser =
 			new CompletionParser(problemReporter, compilerOptions.assertMode);
 		this.lookupEnvironment =

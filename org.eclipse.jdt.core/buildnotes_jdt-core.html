@@ -15,7 +15,6 @@ Eclipse SDK Build 200203?? - ??th March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> ICompletionRequestor.acceptError(IProblem) </li>
 <li> Performance improvement:
      <ul>
      	<li> Search doesn't populate the Java Model any longer. Thus the memory
@@ -36,6 +35,7 @@ What's new in this drop</h2>
 	<br>This allows some Java API to report failures in a lighter way than generating markers. Marker based API have been
 	deprecated (note that due to some deadlock in client code, some of these API did not even produce markers, e.g. reconciling). In addition to
 	surfacing problem descriptions, IProblem exposes all the IDs for the Java problem markers (attribute "id" on markers of type "org.eclipse.jdt.core.problem")</li>
+<li> Changed error reporting method for <code>ICompletionRequestor</code> to surface IProblems instead of IMarkers.</li>
 </ul>
 <h3>
 Problem Reports Fixed</h3>
