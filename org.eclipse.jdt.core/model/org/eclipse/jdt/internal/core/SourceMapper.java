@@ -98,8 +98,8 @@ public class SourceMapper extends ReferenceInfoAdapter implements ISourceElement
 	/**
 	 * imports references
 	 */
-	private char[][] imports;
-	private int importsCounter;
+	private Hashtable importsTable;
+	private Hashtable importsCounterTable;
 	
 	/**
 	 * Enclosing type information
@@ -120,19 +120,27 @@ public SourceMapper(IPath zipPath, String rootPath, JavaModel model) {
 	}
 	fJavaModel= model;
 	fSourceRanges= new Hashtable();
+	importsTable = new Hashtable();
+	importsCounterTable = new Hashtable();
 }
 /**
  * @see ISourceElementRequestor
  */
 public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand) {
-	if (this.imports == null) {
-		this.imports = new char[5][];
-		this.importsCounter = 0;
+	char[][] imports = (char[][]) this.importsTable.get(fType);
+	int importsCounter;
+	if (imports == null) {
+		imports = new char[5][];
+		importsCounter = 0;
+	} else {
+		importsCounter = ((Integer) this.importsCounterTable.get(fType)).intValue();
 	}
-	if (this.imports.length == this.importsCounter) {
-		System.arraycopy(this.imports, 0, (this.imports = new char[this.importsCounter * 2][]), 0, this.importsCounter);
+	if (imports.length == importsCounter) {
+		System.arraycopy(imports, 0, (imports = new char[importsCounter * 2][]), 0, importsCounter);
 	}
-	this.imports[this.importsCounter++] = name;
+	imports[importsCounter++] = name;
+	this.importsTable.put(fType, imports);
+	this.importsCounterTable.put(fType, new Integer(importsCounter));
 }
 /**
  * @see ISourceElementRequestor
@@ -449,7 +457,8 @@ public void mapSource(IType type, char[] contents) {
 public ISourceRange mapSource(IType type, char[] contents, IJavaElement searchedElement) {
 	fType= (BinaryType)type;
 
-	this.imports = null;
+	this.importsTable.remove(fType);
+	this.importsCounterTable.remove(fType);
 	this.searchedElement = searchedElement;
 	this.types = new IType[1];
 	this.typeDeclarationStarts = new int[1];
@@ -521,12 +530,17 @@ protected void setSourceRange(IJavaElement element, SourceRange sourceRange, Sou
 }
 
 /**
- * Return a char[][] array containing the imports of the attached source for an IType
+ * Return a char[][] array containing the imports of the attached source for the fType binary
  */
-public char[][] getImports() {
-	if (this.imports != null && this.imports.length != this.importsCounter) {
-		System.arraycopy(this.imports, 0, (this.imports = new char[this.importsCounter][]), 0, this.importsCounter);
+public char[][] getImports(BinaryType type) {
+	char[][] imports = (char[][]) this.importsTable.get(type);
+	if (imports != null) {
+		int importsCounter = ((Integer) this.importsCounterTable.get(type)).intValue();
+ 		if (imports.length != importsCounter) {
+			System.arraycopy(imports, 0, (imports = new char[importsCounter][]), 0, importsCounter);
+ 		}
 	}
-	return this.imports;
+	this.importsTable.put(type, imports);
+	return imports;
 }
 }

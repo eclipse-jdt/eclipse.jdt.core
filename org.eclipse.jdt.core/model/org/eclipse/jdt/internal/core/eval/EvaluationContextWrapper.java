@@ -7,14 +7,14 @@ package org.eclipse.jdt.internal.core.eval;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.impl.JavaBuilder;
@@ -144,9 +144,9 @@ public void evaluateCodeSnippet(
 			SourceMapper sourceMapper = ((ClassFile) declaringType.getClassFile()).getSourceMapper();
 			if (sourceMapper != null) {
 				declaringType.getSource(); // do the mapping and initialize the imports
-				char[][] imports = sourceMapper.getImports();
+				char[][] imports = sourceMapper.getImports((BinaryType) declaringType);
 				if (imports != null) {
-					this.context.setImports(sourceMapper.getImports());
+					this.context.setImports(imports);
 				}
 			}
 		}

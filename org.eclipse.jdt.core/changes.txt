@@ -12,6 +12,11 @@ What's new in this drop (since 0.9)
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GHUW7T: ITPJCORE:WIN2000 - Build Problem
+1GFQT1W: ITPJUI:WIN2000 - Error changing classpath to not use /bin
+1GHU4PK: ITPJCORE:WINNT - NoSuchMethodError when running program
+1GHONAX: ITPJCORE:WIN2000 - Compiler uses different name lookup for refactoring
+1GEJYAJ: ITPJCORE:WIN2000 - Compiler - Binding of QualifiedNameReference is null
 1GHFHWR: ITPJCORE:ALL - Assertions: CodeAssist and Selection need to be updated
 1GHFHXG: ITPJCORE:ALL - Assertions: Add optional warning on assert identifier
 1GCZ9VM: ITPJCORE:WIN2000 - DCR - Compiler - Batch compiler should be API
