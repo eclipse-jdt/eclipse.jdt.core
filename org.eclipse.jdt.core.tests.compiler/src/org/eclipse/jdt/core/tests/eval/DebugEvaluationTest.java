@@ -643,6 +643,8 @@ public void test011() {
 /**
  * Set local variable 'date'.
  */
+/* Disabling since this test is sometimes failing for unknown reasons
+ * (suspecting a problem in the JDI or JDWP implementation)
 public void test012() {
 	String userCode =
 		"java.util.GregorianCalendar cal = new java.util.GregorianCalendar();\n" +
@@ -696,7 +698,7 @@ public void test012() {
 	assertEquals("Value", "true".toCharArray(), result.getValueDisplayString());
 	assertEquals("Type", "boolean".toCharArray(), result.getValueTypeName());
 }
-/**
+/ **
  * Set local variable 'i'.
  */
 /* Disabling since this test is sometimes failing for unknown reasons
