@@ -6,6 +6,8 @@ package org.eclipse.jdt.internal.core.index.impl;
  */
 import java.io.*;
 import java.util.*;
+
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.index.*;
 
 /**

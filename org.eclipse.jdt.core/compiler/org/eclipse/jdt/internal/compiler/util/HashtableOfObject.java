@@ -14,7 +14,7 @@ public final class HashtableOfObject implements Cloneable {
 	public char[] keyTable[];
 	public Object valueTable[];
 
-	int elementSize; // number of elements in the table
+	public int elementSize; // number of elements in the table
 	int threshold;
 
 	public HashtableOfObject() {
@@ -117,8 +117,7 @@ public final class HashtableOfObject implements Cloneable {
 
 	private void rehash() {
 
-		HashtableOfObject newHashtable = new HashtableOfObject(elementSize * 2);
-		// double the number of expected elements
+		HashtableOfObject newHashtable = new HashtableOfObject(elementSize * 2);		// double the number of expected elements
 		char[] currentKey;
 		for (int i = keyTable.length; --i >= 0;)
 			if ((currentKey = keyTable[i]) != null)
