@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -1571,6 +1572,11 @@ public class EnumTest extends AbstractComparableTest {
 			},
 			""
 		);
+		String expectedOutput = 
+			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
+			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
+			"public abstract enum X extends java.lang.Enum {\n"; 
+
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String actualOutput = null;
 		try {
@@ -1580,21 +1586,18 @@ public class EnumTest extends AbstractComparableTest {
 					classFileBytes,
 					"\n",
 					ClassFileBytesDisassembler.DETAILED); 
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
 		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e) {
 			assertTrue("IOException", false);
 		}
-		
-		String expectedOutput = 
-			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
-			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
-			"public abstract enum X extends java.lang.Enum {\n"; 
-			
-		if (actualOutput.indexOf(expectedOutput) == -1) {
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
-		}
-		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 
 	/**
@@ -1910,4 +1913,94 @@ public class EnumTest extends AbstractComparableTest {
 			"Duplicate method getSquare() in type X\n" + 
 			"----------\n");
     }
+    
+    /**
+     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83648
+     */
+    public void test068() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "public enum X {\n" +
+                "    A(1, 3), B(1, 3), C(1, 3) { }\n" +
+                "   	;\n" +
+                "    public X(int i, int j) { }\n" +
+                "}",
+            },
+            "----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public X(int i, int j) { }\n" + 
+			"	       ^^^^^^^^^^^^^^^\n" + 
+			"Illegal modifier for the enum constructor; only private is permitted.\n" + 
+			"----------\n");
+    }
+    
+    /**
+     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83648
+     */
+    public void test069() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "public enum X {\n" +
+                "    A(1, 3), B(1, 3), C(1, 3) { }\n" +
+                "   	;\n" +
+                "    protected X(int i, int j) { }\n" +
+                "}",
+            },
+            "----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	protected X(int i, int j) { }\n" + 
+			"	          ^^^^^^^^^^^^^^^\n" + 
+			"Illegal modifier for the enum constructor; only private is permitted.\n" + 
+			"----------\n");
+    }
+    
+	public void test070() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" +
+				"    PLUS {\n" +
+				"        double eval(double x, double y) { return x + y; }\n" +
+				"    };\n" +
+				"\n" +
+				"    // Perform the arithmetic X represented by this constant\n" +
+				"    abstract double eval(double x, double y);\n" +
+				"}"
+			},
+			""
+		);
+		String expectedOutput = 
+			"  // Method descriptor  #16 (Ljava/lang/String;I)V\n" + 
+			"  // Stack: 3, Locals: 3\n" + 
+			"  private X(String arg, int arg);\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  aload_1 [local_1]\n" + 
+			"    2  iload_2 [local_2]\n" + 
+			"    3  invokespecial java/lang/Enum.<init>(Ljava/lang/String;I)V [25]\n" + 
+			"    6  return\n";
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+	}
 }

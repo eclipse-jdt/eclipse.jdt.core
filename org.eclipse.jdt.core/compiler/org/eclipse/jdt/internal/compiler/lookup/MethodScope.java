@@ -66,16 +66,21 @@ public class MethodScope extends BlockScope {
 	private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 		
 		int modifiers = methodBinding.modifiers;
+		final ReferenceBinding methodBindingDeclaringClass = methodBinding.declaringClass;
 		if ((modifiers & AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForMethod(
-				methodBinding.declaringClass,
+				methodBindingDeclaringClass,
 				(AbstractMethodDeclaration) referenceContext);
 
 		if (((ConstructorDeclaration) referenceContext).isDefaultConstructor) {
-			if (methodBinding.declaringClass.isPublic())
-				modifiers |= AccPublic;
-			else if (methodBinding.declaringClass.isProtected())
-				modifiers |= AccProtected;
+			if (methodBindingDeclaringClass.isEnum()) {
+				modifiers = AccPrivate;
+			} else {
+				if (methodBindingDeclaringClass.isPublic())
+					modifiers |= AccPublic;
+				else if (methodBindingDeclaringClass.isProtected())
+					modifiers |= AccProtected;
+			}
 		}
 
 		// after this point, tests on the 16 bits reserved.
@@ -84,7 +89,12 @@ public class MethodScope extends BlockScope {
 		// check for abnormal modifiers
 		int unexpectedModifiers =
 			~(AccPublic | AccPrivate | AccProtected | AccStrictfp);
-		if ((realModifiers & unexpectedModifiers) != 0)
+
+		if (methodBindingDeclaringClass.isEnum() && !((ConstructorDeclaration) referenceContext).isDefaultConstructor) {
+			unexpectedModifiers = ~AccPrivate;
+			if ((realModifiers & unexpectedModifiers) != 0)
+				problemReporter().illegalModifierForEnumConstructor((AbstractMethodDeclaration) referenceContext);
+		} else if ((realModifiers & unexpectedModifiers) != 0)
 			problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) referenceContext);
 		else if (
 			(((AbstractMethodDeclaration) referenceContext).modifiers & AccStrictfp) != 0)
@@ -95,7 +105,7 @@ public class MethodScope extends BlockScope {
 		int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);
 		if ((accessorBits & (accessorBits - 1)) != 0) {
 			problemReporter().illegalVisibilityModifierCombinationForMethod(
-				methodBinding.declaringClass,
+				methodBindingDeclaringClass,
 				(AbstractMethodDeclaration) referenceContext);
 
 			// need to keep the less restrictive
@@ -111,7 +121,7 @@ public class MethodScope extends BlockScope {
 		}
 
 		// if the receiver's declaring class is a private nested type, then make sure the receiver is not private (causes problems for inner type emulation)
-		if (methodBinding.declaringClass.isPrivate())
+		if (methodBindingDeclaringClass.isPrivate())
 			if ((modifiers & AccPrivate) != 0)
 				modifiers &= ~AccPrivate;
 

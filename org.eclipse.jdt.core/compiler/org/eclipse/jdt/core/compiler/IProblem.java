@@ -1062,6 +1062,8 @@ public interface IProblem {
 	int EnumAbstractMethodMustBeImplemented = MethodRelated + 758;
 	/** @since 3.1 */
 	int EnumSwitchCannotTargetField = FieldRelated + 759;
+	/** @since 3.1 */
+	int IllegalModifierForEnumConstructor = MethodRelated + 760;
 
 	/**
 	 * Var args

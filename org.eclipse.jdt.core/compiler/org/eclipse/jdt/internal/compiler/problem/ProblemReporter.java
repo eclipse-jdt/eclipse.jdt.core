@@ -1602,6 +1602,14 @@ public void illegalModifierForEnum(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalModifierForEnumConstructor(AbstractMethodDeclaration constructor) {
+	this.handle(
+		IProblem.IllegalModifierForEnumConstructor,
+		NoArgument,		
+		NoArgument,	
+		constructor.sourceStart,
+		constructor.sourceEnd);
+}
 public void illegalModifierForLocalEnum(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
