@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="export-executable" default="build" basedir="..">
 
-	<property name="gcc-path" value="d:/gcc/gcc-3.4" />
-	<property name="binaryname" value="ejavac" />
+	<property name="gcc-path" value="C:/java_tools/thisiscool-gcc/gcc-4.0" />
+	<property name="binaryname" value="ejavac40" />
 	<property name="dest" value="../../bingcj/" />
 	<property name="work" value="${dest}tmp/" />
 	<property name="gcj_script_name" value="export-executable.xml"/>
@@ -17,11 +17,6 @@
 		<copy todir="${work}">
 		    <fileset dir="batch/" excludes='**/*.html' />
 		</copy>
-		
-		<copy todir="${work}">
-		    <fileset dir="../GcjHelper/" includes='**/*.java' />
-		</copy>
-		
 		<copy todir="${work}">
 		    <fileset dir="compiler/" excludes='**/*.html' />
 		</copy>
