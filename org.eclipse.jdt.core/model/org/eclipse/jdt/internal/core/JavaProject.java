@@ -962,10 +962,14 @@ public class JavaProject
 	public NameLookup getNameLookup() throws JavaModelException {
 
 		JavaProjectElementInfo info = getJavaProjectElementInfo();
-		if (info.getNameLookup() == null) {
-			info.setNameLookup(new NameLookup(this));
+		// lock on the project info to avoid race condition
+		synchronized(info){
+			NameLookup nameLookup;
+			if ((nameLookup = info.getNameLookup()) == null){
+				info.setNameLookup(nameLookup = new NameLookup(this));
+			}
+			return nameLookup;
 		}
-		return info.getNameLookup();
 	}
 
 	/**

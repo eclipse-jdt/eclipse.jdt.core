@@ -76,7 +76,7 @@ private void deletePackageFragment(IPackageFragment frag)
 		for (int i = 0, length = remainingFiles.length; i < length; i++) {
 			IResource file = remainingFiles[i];
 			if (file instanceof IFile) {
-				this.deleteResource(file, true);
+				this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
 			} else {
 				isEmpty = false;
 			}
@@ -101,7 +101,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	switch (element.getElementType()) {
 		case IJavaElement.CLASS_FILE :
 		case IJavaElement.COMPILATION_UNIT :
-			deleteResource(element.getCorrespondingResource(), fForce);
+			deleteResource(element.getCorrespondingResource(), fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT :
 			deletePackageFragment((IPackageFragment) element);

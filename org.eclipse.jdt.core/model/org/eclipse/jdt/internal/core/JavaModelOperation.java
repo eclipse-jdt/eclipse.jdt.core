@@ -259,11 +259,9 @@ protected void deleteEmptyPackageFragment(
 /**
  * Convenience method to delete a resource
  */
-protected void deleteResource(IResource resource, boolean force) throws JavaModelException {
+protected void deleteResource(IResource resource,int flags) throws JavaModelException {
 	try {
-		resource.delete(
-			force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
-			getSubProgressMonitor(1));
+		resource.delete(flags, getSubProgressMonitor(1));
 		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);

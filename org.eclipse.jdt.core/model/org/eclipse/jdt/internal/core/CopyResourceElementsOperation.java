@@ -236,22 +236,18 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 			if (destFile.exists()) {
 				if (fForce) {
 					// we can remove it
-					deleteResource(destFile, false);
+					deleteResource(destFile, IResource.KEEP_HISTORY);
 				} else {
 					// abort
 					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 				}
 			}
+			int flags = newContent != null ? IResource.NONE : IResource.KEEP_HISTORY;
+			if (fForce) flags |= IResource.FORCE;
 			if (this.isMove()) {
-				sourceResource.move(
-					destFile.getFullPath(),
-					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-					getSubProgressMonitor(1));
+				sourceResource.move(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 			} else {
-				sourceResource.copy(
-					destFile.getFullPath(), 
-					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
-					getSubProgressMonitor(1));
+				sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 			}
 			this.hasModifiedResource = true;
 		} catch (JavaModelException e) {
@@ -380,7 +376,7 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 					IResource destinationResource = getWorkspace().getRoot().findMember(destPath.append(resources[i].getName()));
 					if (destinationResource != null) {
 						if (fForce) {
-							deleteResource(destinationResource, false);
+							deleteResource(destinationResource, IResource.KEEP_HISTORY);
 						} else {
 							throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 						}
@@ -394,7 +390,7 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 					if (destinationResource != null) {
 						if (fForce) {
 							// we need to delete this resource if this operation wants to override existing resources
-							deleteResource(destinationResource, false);
+							deleteResource(destinationResource, IResource.KEEP_HISTORY);
 						} else {
 							throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
 						}
@@ -438,7 +434,7 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 			for (int i = 0, length = remaingFiles.length; i < length; i++) {
 				IResource file = remaingFiles[i];
 				if (file instanceof IFile) {
-					this.deleteResource(file, true);
+					this.deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
 				} else {
 					isEmpty = false;
 				}
