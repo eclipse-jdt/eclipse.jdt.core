@@ -32,6 +32,7 @@ public MethodBinding createsInternalConstructorWithBinding(MethodBinding inherit
 	cd.sourceStart = sourceStart;
 	cd.sourceEnd = sourceEnd;
 	cd.modifiers = modifiers & AccVisibilityMASK;
+	cd.isDefaultConstructor = true;
 
 	if (argumentsLength > 0) {
 		Argument[] arguments = (cd.arguments = new Argument[argumentsLength]);
