@@ -79,11 +79,12 @@ public class ClassLiteralAccess extends Expression {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			return null;
 		}
-		if (scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
+		ReferenceBinding classType = scope.getJavaLangClass();
+		if (classType.isGenericType()) {
 		    // Integer.class is of type Class<Integer>
-		    this.resolvedType = scope.createParameterizedType(scope.getJavaLangClass(), new TypeBinding[]{ targetType });
+		    this.resolvedType = scope.createParameterizedType(classType, new TypeBinding[]{ targetType });
 		} else {
-		    this.resolvedType = scope.getJavaLangClass();
+		    this.resolvedType = classType;
 		}
 		return this.resolvedType;
 	}
