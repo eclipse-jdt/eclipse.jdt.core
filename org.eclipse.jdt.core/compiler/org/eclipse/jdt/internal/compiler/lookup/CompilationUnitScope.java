@@ -336,6 +336,16 @@ void faultInImports() {
 					continue nextImport;
 				}
 				typesBySimpleNames.put(compoundName[compoundName.length - 1], referenceBinding);
+			} else if (importBinding instanceof FieldBinding) {
+				for (int j = 0; j < index; j++) {
+					ImportBinding resolved = resolvedImports[j];
+					if (resolved.isStatic() && resolved.resolvedImport instanceof FieldBinding) {
+						if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
+							problemReporter().duplicateImport(importReference);
+							continue nextImport;
+						}
+					}
+				}
 			}
 			resolvedImports[index++] = new ImportBinding(compoundName, false, importBinding, importReference);
 		}

@@ -732,10 +732,11 @@ public abstract class Scope
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
-					if (visibleField == null)
-						visibleField = field;
-					else
+					if (visibleField != null)
 						return new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, Ambiguous);
+					if (!currentType.canBeSeenBy(this))
+						return new ProblemFieldBinding(currentType, fieldName, ReceiverTypeNotVisible);
+					visibleField = field;
 				} else {
 					notVisible = true;
 				}
@@ -745,6 +746,7 @@ public abstract class Scope
 		// walk all visible interfaces to find ambiguous references
 		if (interfacesToVisit != null) {
 			ProblemFieldBinding ambiguous = null;
+			ProblemFieldBinding nonVisibleType = null;
 			done : for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
@@ -755,7 +757,10 @@ public abstract class Scope
 						unitScope.recordTypeReference(anInterface);
 						if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 							if (visibleField == null) {
-								visibleField = field;
+								if (anInterface.canBeSeenBy(this))
+									visibleField = field;
+								else
+									nonVisibleType = new ProblemFieldBinding(anInterface, fieldName, ReceiverTypeNotVisible);
 							} else {
 								ambiguous = new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, Ambiguous);
 								break done;
@@ -778,6 +783,8 @@ public abstract class Scope
 				for (int j = 0, length = interfaces.length; j < length; j++)
 					interfaces[j].tagBits &= ~InterfaceVisited;
 			}
+			if (nonVisibleType != null)
+				return nonVisibleType;
 			if (ambiguous != null)
 				return ambiguous;
 		}
@@ -1844,11 +1851,24 @@ public abstract class Scope
 					if (importBinding.isStatic()) {
 						Binding resolvedImport = importBinding.resolvedImport;
 						MethodBinding possible = null;
-						if (resolvedImport instanceof MethodBinding && !importBinding.onDemand) {
-							MethodBinding staticMethod = (MethodBinding) resolvedImport;
-							if (CharOperation.equals(staticMethod.selector, selector))
-								// answers closest approximation, may not check argumentTypes or visibility
-								possible = findMethod(staticMethod.declaringClass, staticMethod.selector, argumentTypes, invocationSite);
+						if (!importBinding.onDemand && importBinding.isStatic()) {
+							if (resolvedImport instanceof MethodBinding) {
+								MethodBinding staticMethod = (MethodBinding) resolvedImport;
+								if (CharOperation.equals(staticMethod.selector, selector))
+									// answers closest approximation, may not check argumentTypes or visibility
+									possible = findMethod(staticMethod.declaringClass, selector, argumentTypes, invocationSite);
+							} else if (resolvedImport instanceof FieldBinding) {
+								// check to see if there are also methods with the same name
+								FieldBinding staticField = (FieldBinding) resolvedImport;
+								if (CharOperation.equals(staticField.name, selector)) {
+									// must find the importRef's type again since the field can be from an inherited type
+									char[][] importName = importBinding.reference.tokens;
+									TypeBinding referencedType = getType(importName, importName.length - 1);
+									if (referencedType != null)
+										// answers closest approximation, may not check argumentTypes or visibility
+										possible = findMethod((ReferenceBinding) referencedType, selector, argumentTypes, invocationSite);
+								}
+							}
 						} else if (resolvedImport instanceof ReferenceBinding && importBinding.onDemand) {
 							// answers closest approximation, may not check argumentTypes or visibility
 							possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);

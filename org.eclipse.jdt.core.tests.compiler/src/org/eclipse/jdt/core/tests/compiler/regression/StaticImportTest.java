@@ -107,6 +107,44 @@ public class StaticImportTest extends AbstractComparableTest {
 				"public class Z extends ZZ {}\n",
 			},
 			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.C;\n" + 
+				"public class X { int i = C; }\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A extends B implements I {}\n" +
+				"class B implements I {}\n",
+				"p/I.java",
+				"package p;\n" + 
+				"public interface I { public static int C = 1; }\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.C;\n" + 
+				"public class X { int i = C; }\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A implements I {}\n" +
+				"interface I { public static int C = 1; }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static p.A.C;\n" + 
+			"	              ^^^^^\n" + 
+			"The import p.A.C cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	public class X { int i = C; }\n" + 
+			"	                         ^\n" + 
+			"C cannot be resolved\n" + 
+			"----------\n"
+			// C in p.I is not defined in a public class or interface; cannot be accessed from outside package
+		);
 	}
 
 	public void test004() { // test static vs. instance
@@ -736,6 +774,113 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	              ^^^\n" + 
 			"The method foo() is undefined for the type X\n" + 
 			"----------\n"
+		);
+	}
+
+	public void test022() { // test field/method collisions
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.F;\n" + 
+				"import static p.B.F;\n" + 
+				"public class X {\n" + 
+				"	int i = F;\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A { public static class F {} }\n",
+				"p/B.java",
+				"package p;\n" + 
+				"public class B { public static int F = 2; }\n",
+			},
+			""
+			// no collision between field and member type
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.F;\n" + 
+				"import static p.B.F;\n" + 
+				"public class X {\n" + 
+				"	int i = F + F();\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A { public static int F() { return 1; } }\n",
+				"p/B.java",
+				"package p;\n" + 
+				"public class B { public static int F = 2; }\n",
+			},
+			""
+			// no collision between field and method
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.F;\n" + 
+				"import static p.B.F;\n" + 
+				"public class X {\n" + 
+				"	int i = F;\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A { public static int F = 1; }\n",
+				"p/B.java",
+				"package p;\n" + 
+				"public class B { public static int F = 2; }\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	import static p.B.F;\n" + 
+			"	              ^^^^^\n" + 
+			"The import p.B.F collides with another import statement\n" + 
+			"----------\n"
+			// F is already defined in a single-type import
+		);
+	}
+
+	public void test023() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.C;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(C);\n" +
+				"		System.out.print(C());\n" +
+				"	}\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A {\n" +
+				"	public static int C = 1;\n" +
+				"	public static int C() { return C + 3; }\n" +
+				"}\n"
+			},
+			"14"
+		);
+		this.runConformTest( // extra inheritance hiccup for method lookup
+			new String[] {
+				"X.java",
+				"import static p.A.C;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(C);\n" +
+				"		System.out.print(C());\n" +
+				"	}\n" +
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A extends B {\n" +
+				"	public static int C() { return C + 3; }\n" +
+				"}\n",
+				"p/B.java",
+				"package p;\n" + 
+				"public class B {\n" +
+				"	public static int C = 1;\n" +
+				"}\n"
+			},
+			"14"
 		);
 	}
 }
