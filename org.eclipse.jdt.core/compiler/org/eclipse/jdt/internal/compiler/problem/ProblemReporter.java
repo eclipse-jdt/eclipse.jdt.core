@@ -2283,13 +2283,25 @@ public void operatorOnlyValidOnNumericType(CompoundAssignment  assignment, TypeB
 		assignment.sourceStart,
 		assignment.sourceEnd);
 }
-public void overridesDeprecatedMethod(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+public void overridesDeprecatedMethod(MethodBinding localMethod, MethodBinding inheritedMethod) {
 	this.handle(
 		IProblem.OverridingDeprecatedMethod,
-		new String[] {new String(inheritedMethod.declaringClass.readableName())},
-		new String[] {new String(inheritedMethod.declaringClass.shortReadableName())},
-		currentMethod.sourceStart(),
-		currentMethod.sourceEnd());
+		new String[] {
+			new String(
+					CharOperation.concat(
+						localMethod.declaringClass.readableName(),
+						localMethod.readableName(),
+						'.')),
+			new String(inheritedMethod.declaringClass.readableName())},
+		new String[] {
+			new String(
+					CharOperation.concat(
+						localMethod.declaringClass.shortReadableName(),
+						localMethod.shortReadableName(),
+						'.')),
+			new String(inheritedMethod.declaringClass.shortReadableName())},
+		localMethod.sourceStart(),
+		localMethod.sourceEnd());
 }
 public void overridesPackageDefaultMethod(MethodBinding localMethod, MethodBinding inheritedMethod) {
 	this.handle(
