@@ -32,6 +32,7 @@ class AddFolderToIndex extends IndexRequest {
 		super(project.getFullPath(), manager);
 		this.folderPath = folderPath;
 		this.project = project;
+		this.inclusionPatterns = inclusionPatterns;
 		this.exclusionPatterns = exclusionPatterns;
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
@@ -52,26 +53,42 @@ class AddFolderToIndex extends IndexRequest {
 
 			final IPath container = this.containerPath;
 			final IndexManager indexManager = this.manager;
-			folder.accept(
-				new IResourceProxyVisitor() {
-					public boolean visit(IResourceProxy proxy) /* throws CoreException */{
-						switch(proxy.getType()) {
-							case IResource.FILE :
-								if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
-									IResource resource = proxy.requestResource();
-									if (!Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
-										indexManager.addSource((IFile)resource, container);
-								}
+			if (this.exclusionPatterns == null && this.inclusionPatterns == null) {
+				folder.accept(
+					new IResourceProxyVisitor() {
+						public boolean visit(IResourceProxy proxy) /* throws CoreException */{
+							if (proxy.getType() == IResource.FILE) {
+								if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName()))
+									indexManager.addSource((IFile) proxy.requestResource(), container);
 								return false;
-							case IResource.FOLDER :
-								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
-									return false;
+							}
+							return true;
 						}
-						return true;
-					}
-				},
-				IResource.NONE
-			);
+					},
+					IResource.NONE
+				);
+			} else {
+				folder.accept(
+					new IResourceProxyVisitor() {
+						public boolean visit(IResourceProxy proxy) /* throws CoreException */{
+							switch(proxy.getType()) {
+								case IResource.FILE :
+									if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
+										IResource resource = proxy.requestResource();
+										if (!Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
+											indexManager.addSource((IFile)resource, container);
+									}
+									return false;
+								case IResource.FOLDER :
+									if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+										return false;
+							}
+							return true;
+						}
+					},
+					IResource.NONE
+				);
+			}
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to add " + this.folderPath + " to index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$

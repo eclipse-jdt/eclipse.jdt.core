@@ -108,16 +108,19 @@ public class IndexAllProject extends IndexRequest {
 											case IResource.FILE :
 												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 													IFile file = (IFile) proxy.requestResource();
-													if (file.getLocation() != null && (!Util.isExcluded(file, inclusionPatterns, exclusionPatterns)))
-														indexedFileNames.put(new JavaSearchDocument(file, null).getPath(), file);
+													if (file.getLocation() == null) return false;
+													if (exclusionPatterns != null || inclusionPatterns != null)
+														if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
+															return false;
+													indexedFileNames.put(new JavaSearchDocument(file, null).getPath(), file);
 												}
 												return false;
 											case IResource.FOLDER :
-												if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+												if (exclusionPatterns != null || inclusionPatterns != null)
+													if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+														return false;
+												if (hasOutputs && outputs.contains(proxy.requestFullPath()))
 													return false;
-												if (hasOutputs && outputs.contains(proxy.requestFullPath())) {
-													return false;
-												}
 										}
 										return true;
 									}
@@ -134,21 +137,23 @@ public class IndexAllProject extends IndexRequest {
 												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 													IFile file = (IFile) proxy.requestResource();
 													IPath location = file.getLocation();
-													if (location != null && (!Util.isExcluded(file, inclusionPatterns, exclusionPatterns))) {
-														String path = new JavaSearchDocument(file, null).getPath();
-														indexedFileNames.put(path,
-															indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
-																? (Object) file
-																: (Object) OK);
-													}
+													if (location == null) return false;
+													if (exclusionPatterns != null || inclusionPatterns != null)
+														if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
+															return false;
+													String path = new JavaSearchDocument(file, null).getPath();
+													indexedFileNames.put(path,
+														indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
+															? (Object) file
+															: (Object) OK);
 												}
 												return false;
 											case IResource.FOLDER :
-												if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+												if (exclusionPatterns != null || inclusionPatterns != null)
+													if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
+														return false;
+												if (hasOutputs && outputs.contains(proxy.requestFullPath()))
 													return false;
-												if (hasOutputs && outputs.contains(proxy.requestFullPath())) {
-													return false;
-												}
 										}
 										return true;
 									}
