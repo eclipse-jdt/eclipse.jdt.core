@@ -404,6 +404,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * 
 	 * @return the constructor binding, or <code>null</code> if the binding
 	 *    cannot be resolved
+	 * @since 3.1
 	 */	
 	public IMethodBinding resolveConstructorBinding() {
 		return this.ast.getBindingResolver().resolveConstructor(this);
