@@ -134,6 +134,10 @@ public int hashCode() {
 					manager.remove(name, this.project.getFullPath());
 				}
 			}
+
+			// request to save index when all class files have been indexed
+			manager.request(new SaveIndex(manager, this.folder.getFullPath()));
+			
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$

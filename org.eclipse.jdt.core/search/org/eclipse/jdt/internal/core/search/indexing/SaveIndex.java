@@ -20,18 +20,18 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 /*
  * Save the index of a project.
  */
-public class SaveProjectIndex extends IndexRequest {
+public class SaveIndex extends IndexRequest {
 
 	IndexManager manager;
-	IPath projectPath;
+	IPath path;
 	
-	public SaveProjectIndex(IndexManager manager, IPath projectPath) {
+	public SaveIndex(IndexManager manager, IPath projectPath) {
 		this.manager = manager;
-		this.projectPath = projectPath;
+		this.path = projectPath;
 	}
 	
 	public boolean belongsTo(String jobFamily) {
-		return jobFamily.equals(this.projectPath.segment(0));
+		return jobFamily.equals(this.path.segment(0));
 	}
 
 	public boolean execute(IProgressMonitor progressMonitor) {
@@ -39,7 +39,7 @@ public class SaveProjectIndex extends IndexRequest {
 		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 		
 		try {
-			IIndex index = this.manager.getIndex(this.projectPath, true /*reuse index file*/, false /*don't create if none*/);
+			IIndex index = this.manager.getIndex(this.path, true /*reuse index file*/, false /*don't create if none*/);
 			/* ensure no concurrent write access to index */
 			if (index == null)
 				return COMPLETE;
@@ -54,7 +54,7 @@ public class SaveProjectIndex extends IndexRequest {
 			}
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to save index " + this.projectPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				JobManager.verbose("-> failed to save index " + this.path + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
 			return FAILED;
@@ -62,7 +62,7 @@ public class SaveProjectIndex extends IndexRequest {
 		return COMPLETE;
 	}
 	public String toString() {
-		return "saving index for " + this.projectPath; //$NON-NLS-1$
+		return "saving index for " + this.path; //$NON-NLS-1$
 	}	
 
 }

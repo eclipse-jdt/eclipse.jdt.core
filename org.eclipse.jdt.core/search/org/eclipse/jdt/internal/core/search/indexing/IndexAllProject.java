@@ -132,7 +132,7 @@ public int hashCode() {
 			}
 			
 			// request to save index when all cus have been indexed
-			manager.request(new SaveProjectIndex(manager, projectPath));
+			manager.request(new SaveIndex(manager, projectPath));
 			
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
