@@ -156,6 +156,7 @@ public static Test suite() {
  */
 private void setContainerStartupState(IJavaProject project) throws JavaModelException {
 	waitUntilIndexesReady();
+	waitForAutoBuild();
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	manager.previousSessionContainers = manager.containers;
 	manager.containers = new HashMap(5);
@@ -167,6 +168,7 @@ private void setContainerStartupState(IJavaProject project) throws JavaModelExce
  */
 private void setVariableStartupState(String[] variableValues, IJavaProject project) throws JavaModelException {
 	waitUntilIndexesReady();
+	waitForAutoBuild();
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	manager.previousSessionVariables = new HashMap(5);
 	for (int i = 0, length = variableValues.length; i < length; i++)
