@@ -173,7 +173,9 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	private int synchronizedBlockSourceStart;
 	protected int[] variablesCounter;
 
-	public Javadoc javadoc;	public JavadocParser javadocParser;	static {
+	public Javadoc javadoc;
+	public JavadocParser javadocParser;
+	static {
 		try{
 			initTables();
 		} catch(java.io.IOException ex){
