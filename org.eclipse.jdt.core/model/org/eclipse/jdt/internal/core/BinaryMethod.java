@@ -111,20 +111,27 @@ public boolean equals(Object o) {
 public String[] getExceptionTypes() throws JavaModelException {
 	if (this.exceptionTypes == null) {
 		IBinaryMethod info = (IBinaryMethod) getElementInfo();
-		char[][] eTypeNames = info.getExceptionTypeNames();
-		if (eTypeNames == null || eTypeNames.length == 0) {
-			this.exceptionTypes = NO_TYPES;
-		} else {
-			eTypeNames = ClassFile.translatedNames(eTypeNames);
-			this.exceptionTypes = new String[eTypeNames.length];
-			for (int j = 0, length = eTypeNames.length; j < length; j++) {
-				// 1G01HRY: ITPJCORE:WINNT - method.getExceptionType not in correct format
-				int nameLength = eTypeNames[j].length;
-				char[] convertedName = new char[nameLength + 2];
-				System.arraycopy(eTypeNames[j], 0, convertedName, 1, nameLength);
-				convertedName[0] = 'L';
-				convertedName[nameLength + 1] = ';';
-				this.exceptionTypes[j] = new String(convertedName);
+		char[] genericSignature = info.getGenericSignature();
+		CharOperation.replace(genericSignature, '/', '.');
+		if (genericSignature != null) {
+			this.exceptionTypes = Signature.getThrownExceptionTypes(new String(genericSignature));
+		}
+		if (this.exceptionTypes == null || this.exceptionTypes.length == 0) {
+			char[][] eTypeNames = info.getExceptionTypeNames();
+			if (eTypeNames == null || eTypeNames.length == 0) {
+				this.exceptionTypes = NO_TYPES;
+			} else {
+				eTypeNames = ClassFile.translatedNames(eTypeNames);
+				this.exceptionTypes = new String[eTypeNames.length];
+				for (int j = 0, length = eTypeNames.length; j < length; j++) {
+					// 1G01HRY: ITPJCORE:WINNT - method.getExceptionType not in correct format
+					int nameLength = eTypeNames[j].length;
+					char[] convertedName = new char[nameLength + 2];
+					System.arraycopy(eTypeNames[j], 0, convertedName, 1, nameLength);
+					convertedName[0] = 'L';
+					convertedName[nameLength + 1] = ';';
+					this.exceptionTypes[j] = new String(convertedName);
+				}
 			}
 		}
 	}
@@ -249,7 +256,10 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 public String getReturnType() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	if (this.returnType == null) {
-		String returnTypeName= Signature.getReturnType(new String(info.getMethodDescriptor()));
+		char[] genericSignature = info.getGenericSignature();
+		char[] signature = genericSignature == null ? info.getMethodDescriptor() : genericSignature;
+		CharOperation.replace(signature, '/', '.');
+		String returnTypeName= Signature.getReturnType(new String(signature));
 		this.returnType= new String(ClassFile.translatedName(returnTypeName.toCharArray()));
 	}
 	return this.returnType;
