@@ -139,13 +139,19 @@ public class AssertStatement extends Statement {
 	
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope) {
 
-		// need assertion flag: $assertionsDisabled on outer most source type
-		ClassScope outerMostClassScope = currentScope.outerMostClassScope();
-		SourceTypeBinding sourceTypeBinding = outerMostClassScope.enclosingSourceType();
-		this.assertionSyntheticFieldBinding = sourceTypeBinding.addSyntheticField(this, currentScope);
+		// need assertion flag: $assertionsDisabled on outer most source clas
+		// (in case of static member of interface, will use the outermost static member - bug 22334)
+		SourceTypeBinding outerMostClass = currentScope.enclosingSourceType();
+		while (outerMostClass.isNestedType()){
+			ReferenceBinding enclosing = outerMostClass.enclosingType();
+			if (enclosing == null || enclosing.isInterface()) break;
+			outerMostClass = (SourceTypeBinding) enclosing;
+		}
+
+		this.assertionSyntheticFieldBinding = outerMostClass.addSyntheticField(this, currentScope);
 
 		// find <clinit> and enable assertion support
-		TypeDeclaration typeDeclaration = outerMostClassScope.referenceType();
+		TypeDeclaration typeDeclaration = outerMostClass.scope.referenceType();
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 		for (int i = 0, max = methods.length; i < max; i++) {
 			AbstractMethodDeclaration method = methods[i];
