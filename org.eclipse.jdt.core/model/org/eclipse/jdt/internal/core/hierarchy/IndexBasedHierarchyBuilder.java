@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.CreateTypeHierarchyOperation;
 import org.eclipse.jdt.internal.core.HandleFactory;
 import org.eclipse.jdt.internal.core.IPathRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -230,6 +231,23 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	IType focusType = this.getType();
 		
+	// substitute compilation units with working copies
+	HashMap wcPaths = new HashMap(); // a map from path to working copies
+	int wcLength;
+	IWorkingCopy[] workingCopies = this.getWokingCopies();
+	if (workingCopies != null && (wcLength = workingCopies.length) > 0) {
+		String[] newPaths = new String[wcLength];
+		for (int i = 0; i < wcLength; i++) {
+			IWorkingCopy workingCopy = workingCopies[i];
+			String path = workingCopy.getOriginalElement().getPath().toString();
+			wcPaths.put(path, workingCopy);
+			newPaths[i] = path;
+		}
+		int potentialSubtypesLength = allPotentialSubTypes.length;
+		System.arraycopy(allPotentialSubTypes, 0, allPotentialSubTypes = new String[potentialSubtypesLength+wcLength], 0, potentialSubtypesLength);
+		System.arraycopy(newPaths, 0, allPotentialSubTypes, potentialSubtypesLength, wcLength);
+	}
+			
 	int length = allPotentialSubTypes.length;
 
 	// inject the compilation unit of the focus type (so that types in
@@ -281,11 +299,17 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 			// skip duplicate paths (e.g. if focus path was injected when it was already a potential subtype)
 			if (i > 0 && resourcePath.equals(allPotentialSubTypes[i-1])) continue;
 			
-			Openable handle = 
-				resourcePath.equals(focusPath) ? 
-					focusCU :
-					factory.createOpenable(resourcePath);
-			if (handle == null) continue; // match is outside classpath
+			Openable handle;
+			IWorkingCopy workingCopy = (IWorkingCopy)wcPaths.get(resourcePath);
+			if (workingCopy != null) {
+				handle = (Openable)workingCopy;
+			} else {
+				handle = 
+					resourcePath.equals(focusPath) ? 
+						focusCU :
+						factory.createOpenable(resourcePath);
+				if (handle == null) continue; // match is outside classpath
+			}
 			
 			IJavaProject project = handle.getJavaProject();
 			if (currentProject == null) {
@@ -405,6 +429,13 @@ protected IType getHandle(IGenericType genericType) {
 		return type;
 	} else
 		return super.getHandle(genericType);
+}
+private IWorkingCopy[] getWokingCopies() {
+	if (this.hierarchy.progressMonitor instanceof CreateTypeHierarchyOperation) {
+		return ((CreateTypeHierarchyOperation)this.hierarchy.progressMonitor).workingCopies;
+	} else {
+		return null;
+	}
 }
 /**
  * Find the set of candidate subtypes of a given type.

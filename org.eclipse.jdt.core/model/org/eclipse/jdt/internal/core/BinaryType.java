@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -419,18 +420,40 @@ public boolean isInterface() throws JavaModelException {
  * @see IType#newSupertypeHierarchy(IProgressMonitor monitor)
  */
 public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, SearchEngine.createWorkspaceScope(), false);
+	return this.newSupertypeHierarchy(null, monitor);
+}
+/**
+ * @see IType#newSupertypeHierarchy(IWorkingCopy[], IProgressMonitor)
+ */
+public ITypeHierarchy newSupertypeHierarchy(
+	IWorkingCopy[] workingCopies,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+		
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
 	runOperation(op, monitor);
 	return op.getResult();
 }
+
 /**
  * @see IType#newTypeHierarchy(IProgressMonitor monitor)
  */
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, SearchEngine.createWorkspaceScope(), true);
+	return newTypeHierarchy((IWorkingCopy[])null, monitor);
+}
+/**
+ * @see IType#newTypeHierarchy(IWorkingCopy[], IProgressMonitor)
+ */
+public ITypeHierarchy newTypeHierarchy(
+	IWorkingCopy[] workingCopies,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
 	runOperation(op, monitor);
 	return op.getResult();
 }
+
 /**
  * @see IType#newTypeHierarchy(IJavaProject project, IProgressMonitor monitor)
  */
@@ -440,6 +463,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	}
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
 		this, 
+		null, // no working copies
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), 
 		true);
 	runOperation(op, monitor);

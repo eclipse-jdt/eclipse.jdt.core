@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.hierarchy.RegionBasedTypeHierarchy;
@@ -38,7 +39,10 @@ public class CreateTypeHierarchyOperation extends JavaModelOperation {
 	/**
 	 * The generated type hierarchy
 	 */
-	protected TypeHierarchy fTypeHierarchy;
+	protected TypeHierarchy typeHierarchy;
+	
+	public IWorkingCopy[] workingCopies;
+	
 /**
  * Constructs an operation to create a type hierarchy for the
  * given type within the specified region, in the context of
@@ -46,28 +50,29 @@ public class CreateTypeHierarchyOperation extends JavaModelOperation {
  */
 public CreateTypeHierarchyOperation(IType element, IRegion region, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
 	super(element);
-	fTypeHierarchy = new RegionBasedTypeHierarchy(region, project, element, computeSubtypes);
+	this.typeHierarchy = new RegionBasedTypeHierarchy(region, project, element, computeSubtypes);
 }
 /**
  * Constructs an operation to create a type hierarchy for the
- * given type.
+ * given type and working copies.
  */
-public CreateTypeHierarchyOperation(IType element, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
+public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
 	super(element);
-	fTypeHierarchy = new TypeHierarchy(element, scope, computeSubtypes);
+	this.typeHierarchy = new TypeHierarchy(element, scope, computeSubtypes);
+	this.workingCopies = workingCopies;
 }
 /**
  * Performs the operation - creates the type hierarchy
  * @exception JavaModelException The operation has failed.
  */
 protected void executeOperation() throws JavaModelException {
-	fTypeHierarchy.refresh(this);
+	this.typeHierarchy.refresh(this);
 }
 /**
  * Returns the generated type hierarchy.
  */
 public ITypeHierarchy getResult() {
-	return fTypeHierarchy;
+	return this.typeHierarchy;
 }
 /**
  * @see JavaModelOperation
@@ -84,13 +89,13 @@ public boolean isReadOnly() {
  */
 public IJavaModelStatus verify() {
 	IJavaElement elementToProcess= getElementToProcess();
-	if (elementToProcess == null && !(fTypeHierarchy instanceof RegionBasedTypeHierarchy)) {
+	if (elementToProcess == null && !(this.typeHierarchy instanceof RegionBasedTypeHierarchy)) {
 		return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 	}
 	if (elementToProcess != null && !elementToProcess.exists()) {
 		return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, elementToProcess);
 	}
-	IJavaProject project = fTypeHierarchy.javaProject();
+	IJavaProject project = this.typeHierarchy.javaProject();
 	if (project != null && !project.exists()) {
 		return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, project);
 	}

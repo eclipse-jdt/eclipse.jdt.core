@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -323,18 +324,40 @@ public boolean isInterface() throws JavaModelException {
  * @see IType
  */
 public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, SearchEngine.createWorkspaceScope(), false);
+	return this.newSupertypeHierarchy(null, monitor);
+}
+/**
+ * @see IType#newSupertypeHierarchy(IWorkingCopy[], IProgressMonitor)
+ */
+public ITypeHierarchy newSupertypeHierarchy(
+	IWorkingCopy[] workingCopies,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
 	runOperation(op, monitor);
 	return op.getResult();
 }
+
 /**
  * @see IType
  */
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, SearchEngine.createWorkspaceScope(), true);
+	return this.newTypeHierarchy((IWorkingCopy[])null, monitor);
+}
+/**
+ * @see IType#newTypeHierarchy(IWorkingCopy[], IProgressMonitor)
+ */
+public ITypeHierarchy newTypeHierarchy(
+	IWorkingCopy[] workingCopies,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+		
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
 	runOperation(op, monitor);
 	return op.getResult();
 }
+
 /**
  * @see IType
  */
@@ -345,6 +368,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
 		this, 
+		null, // no working copies
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), 
 		true);
 	runOperation(op, monitor);

@@ -417,6 +417,23 @@ boolean isInterface() throws JavaModelException;
 ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException;
 /**
  * Creates and returns a type hierarchy for this type containing
+ * this type and all of its supertypes, considering types in the given 
+ * working copies. In other words, the list of working copies will take 
+ * precedence over their original compilation units in the workspace.
+ * <p>
+ * Note that passing an empty working copy will be as if the original compilation
+ * unit had been deleted.
+ *
+ * @param workingCopies the working copies that take precedence over their original compilation units
+ * @param monitor the given progress monitor
+ * @return a type hierarchy for this type containing this type and all of its supertypes
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource.
+ * @since 2.0
+ */
+ITypeHierarchy newSupertypeHierarchy(IWorkingCopy[] workingCopies, IProgressMonitor monitor) throws JavaModelException;
+/**
+ * Creates and returns a type hierarchy for this type containing
  * this type, all of its supertypes, and all its subtypes in the workspace.
  *
  * @exception JavaModelException if this element does not exist or if an
@@ -426,6 +443,24 @@ ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelE
  * this type, all of its supertypes, and all its subtypes in the workspace
  */
 ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException;
+/**
+ * Creates and returns a type hierarchy for this type containing
+ * this type, all of its supertypes, and all its subtypes in the workspace, 
+ * considering types in the given working copies. In other words, the list of working 
+ * copies that will take precedence over their original compilation units in the workspace.
+ * <p>
+ * Note that passing an empty working copy will be as if the original compilation
+ * unit had been deleted.
+ *
+ * @param workingCopies the working copies that take precedence over their original compilation units
+ * @param monitor the given progress monitor
+ * @return a type hierarchy for this type containing
+ * this type, all of its supertypes, and all its subtypes in the workspace
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource.
+ * @since 2.0
+ */
+ITypeHierarchy newTypeHierarchy(IWorkingCopy[] workingCopies, IProgressMonitor monitor) throws JavaModelException;
 /**
  * Creates and returns a type hierarchy for this type containing
  * this type, all of its supertypes, and all its subtypes 
