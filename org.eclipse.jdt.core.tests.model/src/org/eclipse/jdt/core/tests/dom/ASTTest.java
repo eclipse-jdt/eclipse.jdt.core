@@ -707,28 +707,16 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	abstract class Property {
 		
 		/**
-		 * The property name.
-		 */
-		private String propertyName; // TODO: (olivier) is this used?
-		
-		/**
 		 * Indicates whether this property is compulsory, in that every node
 		 * must have a value at all times.
 		 */
 		private boolean compulsory;
 		
 		/**
-		 * The type of node allowed as a child.
-		 */
-		private Class nodeType; // TODO: (olivier) is this used?
-
-		/**
 		 * Creates a new property with the given name.
 		 */
 		Property(String propertyName, boolean compulsory, Class nodeType) {
-			this.propertyName = propertyName;
 			this.compulsory = compulsory;
-			this.nodeType = nodeType;
 		}
 		
 		/**
