@@ -45,8 +45,8 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-	//	TESTS_PREFIX =  "testVarargs";
-//		TESTS_NAMES = new String[] { "testBug80223" };
+//		TESTS_PREFIX =  "testBug82088";
+//		TESTS_NAMES = new String[] { "testBug82088" };
 //		TESTS_NUMBERS = new int[] { 81084 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -1094,5 +1094,68 @@ public class JavaSearchBugsTests extends AbstractJavaModelTests implements IJava
 			"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" + 
 			"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList2] EXACT_MATCH",
 			this.resultCollector);
+	}
+
+	/**
+	 * Test fix for bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
+	 */
+	public void testBug82088method() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/JavaSearchBugs/src/b82088/m/Test.java",
+				"package b82088.m;\n" +
+				"/**\n" + 
+				" * @see #setA(A)\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"	A a;\n" + 
+				"	public void setA(A a) {\n" + 
+				"		this.a = a;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class A {}\n"
+				);
+			IType type = workingCopy.getType("A");
+			search(type, REFERENCES);
+			assertSearchResults(
+				"src/b82088/m/Test.java b82088.m.Test [A] EXACT_MATCH\n" + 
+				"src/b82088/m/Test.java b82088.m.Test.a [A] EXACT_MATCH\n" + 
+				"src/b82088/m/Test.java void b82088.m.Test.setA(A) [A] EXACT_MATCH"
+			);
+		}
+		finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	public void testBug82088constructor() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/JavaSearchBugs/src/b82088/c/Test.java",
+				"package b82088.c;\n" +
+				"/**\n" + 
+				" * @see #Test(A)\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"	A a;\n" + 
+				"	Test(A a) {\n" + 
+				"		this.a = a;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class A {}\n"
+				);
+			IType type = workingCopy.getType("A");
+			search(type, REFERENCES);
+			assertSearchResults(
+				"src/b82088/c/Test.java b82088.c.Test [A] EXACT_MATCH\n" + 
+				"src/b82088/c/Test.java b82088.c.Test.a [A] EXACT_MATCH\n" + 
+				"src/b82088/c/Test.java b82088.c.Test(A) [A] EXACT_MATCH"
+			);
+		}
+		finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

@@ -130,11 +130,28 @@ public void checkComment() {
 					TypeReference typeRef = (TypeReference) messageSend.receiver;
 					this.patternLocator.match(typeRef, this.nodeSet);
 				}
+				if (messageSend.arguments != null) {
+					for (int a=0,al=messageSend.arguments.length; a<al; a++) {
+						JavadocArgumentExpression argument = (JavadocArgumentExpression) messageSend.arguments[a];
+						if (argument.argument != null && argument.argument.type != null) {
+							this.patternLocator.match(argument.argument.type, this.nodeSet);
+						}
+					}
+				}
 			} else if (reference instanceof JavadocAllocationExpression) {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
 				this.patternLocator.match(constructor, this.nodeSet);
 				if (constructor.type != null && !constructor.type.isThis()) {
 					this.patternLocator.match(constructor.type, this.nodeSet);
+				}
+				if (constructor.arguments != null) {
+					for (int a=0,al=constructor.arguments.length; a<al; a++) {
+						this.patternLocator.match(constructor.arguments[a], this.nodeSet);
+						JavadocArgumentExpression argument = (JavadocArgumentExpression) constructor.arguments[a];
+						if (argument.argument != null && argument.argument.type != null) {
+							this.patternLocator.match(argument.argument.type, this.nodeSet);
+						}
+					}
 				}
 			}
 		}
