@@ -283,7 +283,7 @@ public final class CompletionEngine
 			//		findKeywords(token, modifiers, scope); // could be the start of a field, method or member type
 			findTypesAndPackages(token, scope);
 			
-			if(field.modifiers == CompilerModifiers.AccDefault) {
+			if(!field.isLocalVariable && field.modifiers == CompilerModifiers.AccDefault) {
 				findMethods(token,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false);
 			}
 		} else {
@@ -1224,6 +1224,9 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
 
+			if (method.isDefaultAbstract())
+				continue next;
+
 			if (method.isConstructor())
 				continue next;
 
@@ -1364,6 +1367,9 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 
 			MethodBinding method = methods[f];
+			if (method.isDefaultAbstract())
+				continue next;
+			
 			if (method.isConstructor())
 				continue next;
 				
@@ -1666,7 +1672,7 @@ public final class CompletionEngine
 			currentType = currentType.superclass();
 		}
 	}
-	
+
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){
 		ReferenceBinding bindingType = method.declaringClass;
 
@@ -1706,8 +1712,8 @@ public final class CompletionEngine
 				if(answer.isSourceType()) {
 					ISourceType sourceType = answer.getSourceTypes()[0];
 					ISourceMethod[] sourceMethods = sourceType.getMethods();
-
-					for(int i = 0; i < sourceMethods.length ; i++){
+					int len = sourceMethods == null ? 0 : sourceMethods.length;
+					for(int i = 0; i < len ; i++){
 						ISourceMethod sourceMethod = sourceMethods[i];
 						char[][] argTypeNames = sourceMethod.getArgumentTypeNames();
 
