@@ -1556,7 +1556,7 @@ protected void consumeClassHeaderNameWithTypeParameters() {
 		blockReal();
 	}
 
-	// consume type parameters
+	// TODO consume type parameters
 	astPtr-= astLengthStack[astLengthPtr--];
 	//highlight the name of the type
 	long pos = identifierPositionStack[identifierPtr];
@@ -1852,7 +1852,7 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 	long selectorSource = identifierPositionStack[identifierPtr--];
 	identifierLengthPtr--;
 
-	// consume type parameters
+	// TODO consume type parameters
 	astPtr-= astLengthStack[astLengthPtr--];
 	
 	//modifiers
@@ -2679,7 +2679,7 @@ protected void consumeInterfaceHeaderNameWithTypeParameters() {
 		blockReal();
 	}
 
-	// consume type parameters
+	// TODO consume type parameters
 	astPtr-= astLengthStack[astLengthPtr--];
 	
 	//highlight the name of the type
@@ -2969,7 +2969,7 @@ protected void consumeMethodHeaderNameWithTypeParameters() {
 	//type
 	md.returnType = getTypeReference(intStack[intPtr--]);
 	
-	// consume type parameters
+	// TODO consume type parameters
 	astPtr-= astLengthStack[astLengthPtr--];
 	
 	//modifiers
