@@ -78,8 +78,8 @@ public class Javadoc extends ASTNode {
 		}
 
 		// @throws/@exception tags
-		int throwsTagsNbre = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
-		for (int i = 0; i < throwsTagsNbre; i++) {
+		int throwsTagsLength = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
+		for (int i = 0; i < throwsTagsLength; i++) {
 			TypeReference typeRef = this.thrownExceptions[i];
 			int start, end;
 			if (typeRef instanceof JavadocSingleTypeReference) {
@@ -98,8 +98,8 @@ public class Javadoc extends ASTNode {
 		}
 
 		// @see tags
-		int seeTagsNbre = this.references == null ? 0 : this.references.length;
-		for (int i = 0; i < seeTagsNbre; i++) {
+		int seeTagsLength = this.references == null ? 0 : this.references.length;
+		for (int i = 0; i < seeTagsLength; i++) {
 			this.references[i].resolveType(classScope);
 		}
 	}
@@ -114,9 +114,9 @@ public class Javadoc extends ASTNode {
 		boolean overriding = methDecl == null ? false : (methDecl.binding.modifiers & (AccImplementing+AccOverriding)) != 0;
 
 		// @see tags
-		int seeTagsNbre = this.references == null ? 0 : this.references.length;
+		int seeTagsLength = this.references == null ? 0 : this.references.length;
 		boolean superRef = false;
-		for (int i = 0; i < seeTagsNbre; i++) {
+		for (int i = 0; i < seeTagsLength; i++) {
 			this.references[i].resolveType(methScope);
 			try {
 				// see whether we can have a super reference
@@ -255,11 +255,11 @@ public class Javadoc extends ASTNode {
 	 */
 	private void resolveThrowsTags(MethodScope methScope, boolean reportMissing) {
 		AbstractMethodDeclaration md = methScope.referenceMethod();
-		int throwsTagsNbre = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
+		int throwsTagsLength = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
 
 		// If no referenced method (field initializer for example) then report a problem for each throws tag
 		if (md == null) {
-			for (int i = 0; i < throwsTagsNbre; i++) {
+			for (int i = 0; i < throwsTagsLength; i++) {
 				TypeReference typeRef = this.thrownExceptions[i];
 				int start = typeRef.sourceStart;
 				int end = typeRef.sourceEnd;
@@ -276,62 +276,58 @@ public class Javadoc extends ASTNode {
 		}
 
 		// If no throws tags then report a problem for each method thrown exception
-		int thrownExceptionSize = md.thrownExceptions == null ? 0 : md.thrownExceptions.length;
-		if (throwsTagsNbre == 0) {
+		int boundExceptionLength = (md.binding == null || md.binding.thrownExceptions == null) ? 0 : md.binding.thrownExceptions.length;
+		int thrownExceptionLength = md.thrownExceptions == null ? 0 : md.thrownExceptions.length;
+		if (throwsTagsLength == 0) {
 			if (reportMissing) {
-				for (int i = 0; i < thrownExceptionSize; i++) {
-					TypeReference typeRef = md.thrownExceptions[i];
-					if (typeRef.resolvedType != null && typeRef.resolvedType.isValidBinding()) { // flag only valid class name
-						methScope.problemReporter().javadocMissingThrowsTag(typeRef, md.binding.modifiers);
+				for (int i = 0; i < boundExceptionLength; i++) {
+					ReferenceBinding exceptionBinding = md.binding.thrownExceptions[i];
+					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
+						int j=i;
+						boolean diff=true;
+						while (j<thrownExceptionLength && (diff=exceptionBinding != md.thrownExceptions[j++].resolvedType));
+						if (!diff) {
+							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[j-1], md.binding.modifiers);
+						}
 					}
 				}
 			}
 		} else {
 			int maxRef = 0;
-			TypeReference[] typeReferences = new TypeReference[throwsTagsNbre];
+			TypeReference[] typeReferences = new TypeReference[throwsTagsLength];
 
 			// Scan all @throws tags
-			for (int i = 0; i < throwsTagsNbre; i++) {
+			for (int i = 0; i < throwsTagsLength; i++) {
 				TypeReference typeRef = this.thrownExceptions[i];
 				typeRef.resolve(methScope);
 				TypeBinding typeBinding = typeRef.resolvedType;
 
 				if (typeBinding != null && typeBinding.isValidBinding() && typeBinding.isClass()) {
-					// Verify duplicated tags
-					// Disable as we finally allow duplicate throws tags
-					// @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49491">49491</a>
-					/*
-					boolean found = false;
-					for (int j = 0; j < maxRef && !found; j++) {
-						if (typeReferences[j].resolvedType == typeBinding) {
-							methScope.problemReporter().javadocDuplicatedThrowsClassName(typeRef, md.binding.modifiers);
-							found = true;
-						}
-					}
-					if (!found) {
-						typeReferences[maxRef++] = typeRef;
-					}
-					*/
 					typeReferences[maxRef++] = typeRef;
 				}
 			}
 
 			// Look for undocumented thrown exception
-			for (int i = 0; i < thrownExceptionSize; i++) {
-				TypeReference exception = md.thrownExceptions[i];
+			for (int i = 0; i < boundExceptionLength; i++) {
+				ReferenceBinding exceptionBinding = md.binding.thrownExceptions[i];
 				boolean found = false;
 				for (int j = 0; j < maxRef && !found; j++) {
 					if (typeReferences[j] != null) {
 						TypeBinding typeBinding = typeReferences[j].resolvedType;
-						if (exception.resolvedType == typeBinding) {
+						if (exceptionBinding == typeBinding) {
 							found = true;
 							typeReferences[j] = null;
 						}
 					}
 				}
 				if (!found && reportMissing) {
-					if (exception.resolvedType != null && exception.resolvedType.isValidBinding()) { // flag only valid class name
-						methScope.problemReporter().javadocMissingThrowsTag(exception, md.binding.modifiers);
+					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
+						int k=i;
+						boolean diff=true;
+						while (k<thrownExceptionLength && (diff=exceptionBinding != md.thrownExceptions[k++].resolvedType));
+						if (!diff) {
+							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[k-1], md.binding.modifiers);
+						}
 					}
 				}
 			}
@@ -342,7 +338,7 @@ public class Javadoc extends ASTNode {
 				if (typeRef != null) {
 					boolean compatible = false;
 					// thrown exceptions subclasses are accepted
-					for (int j = 0; j<thrownExceptionSize && !compatible; j++) {
+					for (int j = 0; j<thrownExceptionLength && !compatible; j++) {
 						TypeBinding exceptionBinding = md.thrownExceptions[j].resolvedType;
 						if (exceptionBinding != null) {
 							compatible = typeRef.resolvedType.isCompatibleWith(exceptionBinding);
