@@ -11800,4 +11800,29 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}		
+	
+	public void test441() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Number> {\n" + 
+				"    T[] array;\n" + 
+				"    X(int s) {\n" + 
+				"        array = (T[]) new Number[s];   // Unnecessary cast from Number[] to T[]\n" + 
+				"        array = new Number[s];   // Type mismatch: cannot convert from Number[] to T[]\n" + 
+				"     }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	array = (T[]) new Number[s];   // Unnecessary cast from Number[] to T[]\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Number[] to T[] is actually checking against the erased type Number[]\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	array = new Number[s];   // Type mismatch: cannot convert from Number[] to T[]\n" + 
+			"	        ^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Number[] to T[]\n" + 
+			"----------\n");
+	}		
 }
