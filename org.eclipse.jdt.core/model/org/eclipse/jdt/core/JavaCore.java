@@ -2361,7 +2361,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			manager.configurePluginDebugOptions();
-			
+
+			// request state folder creation (workaround 19885)
+			JavaCore.getPlugin().getStateLocation();
+
 			// retrieve variable values
 			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(new JavaModelManager.PluginPreferencesListener());
 			manager.loadVariables();
