@@ -1966,4 +1966,21 @@ public void test0089() throws JavaModelException {
 	);
 
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83489
+public void test0090() throws JavaModelException {
+	IJavaElement[] elements = selectAfter(
+			"/Resolve/src2/test0090/Test.java",
+			"package test0090;\n" +
+			"public class Test {\n" +
+			"  <T>Test(T t) {}\n" +
+			"}",
+			"T");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"<T> [in Test(T) [in Test [in [Working copy] Test.java [in test0090 [in src2 [in Resolve]]]]]]",
+		elements
+	);
+
+}
 }

@@ -829,7 +829,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.requestor.acceptMethodTypeParameter(
 					enclosingMethod.declaringClass.qualifiedPackageName(),
 					enclosingMethod.declaringClass.qualifiedSourceName(),
-					enclosingMethod.selector,
+					enclosingMethod.isConstructor()
+							? enclosingMethod.declaringClass.sourceName()
+							: enclosingMethod.selector,
 					enclosingMethod.sourceStart(),
 					enclosingMethod.sourceEnd(),
 					typeVariableBinding.sourceName(),
