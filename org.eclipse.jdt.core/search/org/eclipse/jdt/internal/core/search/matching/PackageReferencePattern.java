@@ -17,6 +17,8 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -32,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
@@ -116,12 +119,27 @@ public boolean isDeclaringPackageFragment(IPackageFragment packageFragment, Refe
 		// retrieve the actual file name from the full path (sources are generally only containing it already)
 		CharOperation.replace(fileName, '/', '\\');
 		fileName = CharOperation.lastSegment(fileName, '\\');
-		if (typeBinding.isBinaryBinding()) {
-			IClassFile classfile = packageFragment.getClassFile(new String(fileName));
-			return classfile.exists();
-		} else {
-			ICompilationUnit unit = packageFragment.getCompilationUnit(new String(fileName));
-			return unit.exists();
+		
+		try { 
+			switch (packageFragment.getKind()) {
+				case IPackageFragmentRoot.K_SOURCE :
+					if (!Util.isJavaFileName(fileName) || !packageFragment.getCompilationUnit(new String(fileName)).exists()) {
+						return false; // unit doesn't live in selected package
+					}
+					break;
+				case IPackageFragmentRoot.K_BINARY :
+//					if (Util.isJavaFileName(fileName)) { // binary with attached source
+//						int length = fileName.length;
+//						System.arraycopy(fileName, 0, fileName = new char[length], 0, length - 4); // copy all but extension
+//						System.arraycopy(SuffixConstants.SUFFIX_class, 0, fileName, length - 4, 4);
+//					}
+					if (!Util.isClassFileName(fileName) || !packageFragment.getClassFile(new String(fileName)).exists()) {
+						return false; // classfile doesn't live in selected package
+					}
+					break;
+			}
+		} catch(JavaModelException e) {
+			// unable to determine kind; tolerate this match
 		}
 	}
 	return true; // by default, do not eliminate 
