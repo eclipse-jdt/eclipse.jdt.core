@@ -1,9 +1,13 @@
-/*
- * Created on Jun 12, 2003
- *
- * To change this generated comment go to 
- * Window>Preferences>Java>Code Generation>Code Template
- */
+/*******************************************************************************
+ * Copyright (c) 2003 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -14,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 /**
- * @author oliviert
+ * Subclass of the parser used to parse different code snippets
  */
 public class CodeFormatterParser extends Parser {
 
