@@ -307,7 +307,18 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 							break;
 						}
 					}
-					if (sameParameters) return methodHandle;
+					if (sameParameters) {
+						IJavaProject project = type.getJavaProject();
+						// check if the method's project is the same as the type's project
+						// they could be different in the case of a jar shared by several projects
+						// (the handles are equals and thus the java model cache contains only one of them)
+						// see bug 7945 Search results not selected in external jar  
+						if (!project.equals(methodHandle.getJavaProject())) {
+							return type.getMethod(selector, parameterTypes);
+						} else {
+							return methodHandle;
+						}
+					}
 				}
 			}
 			return null;
