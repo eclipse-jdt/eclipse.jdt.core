@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IPluginDescriptor;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.util.ClassFormatException;
@@ -63,19 +62,16 @@ public class ToolFactory {
 				IExtension[] extensions =  extension.getExtensions();
 				for(int i = 0; i < extensions.length; i++){
 					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-						IPluginDescriptor plugin = extension.getDeclaringPluginDescriptor();
-						if (plugin.isPluginActivated()) {
-							for(int j = 0; j < configElements.length; j++){
-								try {
-									Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
-									if (execExt instanceof ICodeFormatter){
-										// use first contribution found
-										return (ICodeFormatter)execExt;
-									}
-								} catch(CoreException e){
-								}
+					for(int j = 0; j < configElements.length; j++){
+						try {
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							if (execExt instanceof ICodeFormatter){
+								// use first contribution found
+								return (ICodeFormatter)execExt;
 							}
+						} catch(CoreException e){
 						}
+					}
 				}	
 			}
 		// no proper contribution found, use default formatter			

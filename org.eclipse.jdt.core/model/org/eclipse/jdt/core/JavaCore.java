@@ -809,23 +809,20 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IExtension[] extensions =  extension.getExtensions();
 			for(int i = 0; i < extensions.length; i++){
 				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-					IPluginDescriptor plugin = extension.getDeclaringPluginDescriptor();
-					if (plugin.isPluginActivated()) {
-						for(int j = 0; j < configElements.length; j++){
-							try {
-								String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
-								if (variable.equals(varAttribute)) {
-									if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-										System.out.println("CPVariable INIT - found initializer: "+variable+" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
-									}						
-									Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
-									if (execExt instanceof ClasspathVariableInitializer){
-										return (ClasspathVariableInitializer)execExt;
-									}
-								}
-							} catch(CoreException e){
+				for(int j = 0; j < configElements.length; j++){
+					try {
+						String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
+						if (variable.equals(varAttribute)) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+								System.out.println("CPVariable INIT - found initializer: "+variable+" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+							}						
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							if (execExt instanceof ClasspathVariableInitializer){
+								return (ClasspathVariableInitializer)execExt;
 							}
 						}
+					} catch(CoreException e){
+					}
 					}
 			}	
 		}
