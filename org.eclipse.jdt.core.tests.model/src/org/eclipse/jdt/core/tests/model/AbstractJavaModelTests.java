@@ -74,6 +74,7 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 		buffer.toString()
 	);
 }
+
 public static void assertEquals(String message, String expected, String actual) {
 	if (expected == null && actual == null)
 		return;
@@ -96,6 +97,30 @@ protected void assertResourcesEqual(String message, String expected, Object[] re
 		expected,
 		buffer.toString()
 	);
+}
+/*
+ * Asserts that the given actual source (usually coming from a file content) is equal to the expected one.
+ * Note that 'expected' is assumed to have the '\n' line separator. 
+ * The line separators in 'actual' are converted to '\n' before the comparison.
+ */
+protected void assertSourceEquals(String message, String expected, String actual) {
+	if (actual == null) {
+		assertEquals(message, expected, null);
+		return;
+	}
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, length = actual.length(); i < length; i++) {
+		char car = actual.charAt(i);
+		if (car == '\r') {
+			buffer.append('\n');
+			if (i < length-1 && actual.charAt(i+1) == '\n') {
+				i++; // skip \n after \r
+			}
+		} else {
+			buffer.append(car);
+		}
+	}
+	assertEquals(message, expected, buffer.toString());
 }
 /**
  * Ensures the elements are present after creation.

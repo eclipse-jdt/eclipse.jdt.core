@@ -290,13 +290,13 @@ public void testChangeContent() throws CoreException {
 		"}";
 	this.copy.getBuffer().setContents(newContents);
 	this.copy.reconcile();
-	assertEquals(
+	assertSourceEquals(
 		"Unexpected working copy contents",
 		newContents,
 		this.copy.getBuffer().getContents());
 	
 	this.copy.commit(true, null);
-	assertEquals(
+	assertSourceEquals(
 		"Unexpected original cu contents",
 		newContents,
 		this.cu.getBuffer().getContents());
@@ -650,12 +650,12 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
 		assertTrue("A should not exist", !classA.exists());
 		assertTrue("B.A should exist", classB.getType("A").exists());
 		assertTrue("Buffer for A should not be null", this.copy.getBuffer() != null);
-		assertEquals("Invalid content for A", 
+		assertSourceEquals("Invalid content for A", 
 			"package x.y;\n" +
 			"import java.io.File;\n",
 			this.copy.getBuffer().getContents());
 		assertTrue("Buffer for B should not be null", copy2.getBuffer() != null);
-		assertEquals("Invalid content for B", 
+		assertSourceEquals("Invalid content for B", 
 			"package x.y;\n" +
 			"public class B {\n" +
 			"public class A {\n" +
@@ -764,7 +764,7 @@ public void testNonExistingCU() throws JavaModelException {
 	try {
 		// getBuffer()
 		copy = (IWorkingCopy)cu.getWorkingCopy();
-		assertEquals("Buffer should be empty", "", ((IOpenable)copy).getBuffer().getContents());
+		assertSourceEquals("Buffer should be empty", "", ((IOpenable)copy).getBuffer().getContents());
 		
 		// exists()
 		assertTrue("Working copy should exists", ((IJavaElement)copy).exists());

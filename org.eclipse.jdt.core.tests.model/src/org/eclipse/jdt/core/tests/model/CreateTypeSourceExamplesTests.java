@@ -18,8 +18,6 @@ import junit.framework.Test;
 public class CreateTypeSourceExamplesTests extends AbstractJavaModelTests {
 	IDOMFactory domFactory;
 
-	static final String LINE_SEPARATOR = System.getProperty("line.separator");
-
 public CreateTypeSourceExamplesTests(String name) {
 	super(name);
 }
@@ -37,10 +35,10 @@ public void testCreateClassWithExtends() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
 	type.setSuperclass("Bar");
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public class Foo extends Bar {" + LINE_SEPARATOR +
-		"}" + LINE_SEPARATOR,
+		"public class Foo extends Bar {\n" +
+		"}\n",
 		type.getContents());
 }
 /**
@@ -50,10 +48,10 @@ public void testCreateClassWithImplements() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
 	type.setSuperInterfaces(new String[] {"ISomething", "IOtherwise"});
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public class Foo implements ISomething, IOtherwise {" + LINE_SEPARATOR +
-		"}" + LINE_SEPARATOR,
+		"public class Foo implements ISomething, IOtherwise {\n" +
+		"}\n",
 		type.getContents());
 }
 
@@ -64,7 +62,7 @@ public void testCreateClassWithImplements() {
 public void testCreateClassWithImplements2() {
 	IDOMType type= this.domFactory.createType("class A implements I1 {\n}");
 	type.addSuperInterface("I2");
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
 		"class A implements I1, I2 {\n}",
 		type.getContents());
@@ -77,7 +75,7 @@ public void testCreateClassWithImplements2() {
 public void testCreateClassWithImplements3() {
 	IDOMType type= this.domFactory.createType("class A {\n}");
 	type.setSuperInterfaces(new String[] {"I1", "I2"});
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
 		"class A implements I1, I2 {\n}",
 		type.getContents());
@@ -90,7 +88,7 @@ public void testCreateClassWithImplements3() {
 public void testCreateClassWithImplements4() {
 	IDOMType type= this.domFactory.createType("class A implements I1{\n}");
 	type.addSuperInterface("I2");
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
 		"class A implements I1, I2{\n}",
 		type.getContents());
@@ -103,10 +101,10 @@ public void testCreateClassWithModifiers() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
 	type.setFlags(IConstants.AccPublic | IConstants.AccFinal);
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public final class Foo {" + LINE_SEPARATOR +
-		"}" + LINE_SEPARATOR,
+		"public final class Foo {\n" +
+		"}\n",
 		type.getContents());
 }
 /**
@@ -115,10 +113,10 @@ public void testCreateClassWithModifiers() {
 public void testCreateEmptyClass() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public class Foo {" + LINE_SEPARATOR +
-		"}" + LINE_SEPARATOR,
+		"public class Foo {\n" +
+		"}\n",
 		type.getContents());
 }
 /**
@@ -130,10 +128,10 @@ public void testCreateEmptyInterface() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
 	type.setClass(false);
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public interface Foo {" + LINE_SEPARATOR +
-		"}" + LINE_SEPARATOR,
+		"public interface Foo {\n" +
+		"}\n",
 		type.getContents());
 }
 }

@@ -19,9 +19,6 @@ public class CreateMethodSourceExamplesTests extends AbstractJavaModelTests {
 	
 	IDOMFactory domFactory;
 
-	static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	
-	
 public CreateMethodSourceExamplesTests(String name) {
 	super(name);
 }
@@ -39,10 +36,10 @@ public static Test suite() {
 public void testCreateEmptyInterfaceMethod() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	method.setBody(";" + LINE_SEPARATOR);
-	assertEquals(
+	method.setBody(";\n");
+	assertSourceEquals(
 		"source code incorrect", 
-		"public void foo();" + LINE_SEPARATOR,
+		"public void foo();\n",
 		method.getContents());
 }
 /**
@@ -51,10 +48,10 @@ public void testCreateEmptyInterfaceMethod() {
 public void testCreateEmptyMethod() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public void foo() {" + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR,
+		"public void foo() {\n" +
+		"}\n",
 		method.getContents());
 }
 /**
@@ -65,10 +62,10 @@ public void testCreateMethodWithAbstractModifier() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setFlags(IConstants.AccPublic| IConstants.AccAbstract);
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public abstract void foo() {" + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR,
+		"public abstract void foo() {\n" + 
+		"}\n",
 		method.getContents());
 	
 }
@@ -80,14 +77,14 @@ public void testCreateMethodWithBody() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setBody(
-		" {" + LINE_SEPARATOR + 
-		"\t...method body..." + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR);
-	assertEquals(
+		" {\n" + 
+		"\t...method body...\n" + 
+		"}\n");
+	assertSourceEquals(
 		"source code incorrect", 
-		"public void foo() {" + LINE_SEPARATOR + 
-		"\t...method body..." + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR,
+		"public void foo() {\n" + 
+		"\t...method body...\n" + 
+		"}\n",
 		method.getContents());
 
 }
@@ -99,10 +96,10 @@ public void testCreateMethodWithModifiers() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setFlags(IConstants.AccPublic| IConstants.AccStatic);
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public static void foo() {" + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR,
+		"public static void foo() {\n" + 
+		"}\n",
 		method.getContents());
 
 }
@@ -117,10 +114,10 @@ public void testCreateMethodWithModifiersAndExceptions() {
 	method.setExceptions(new String[]
 		{"java.lang.IllegalArgumentException",
 		 "java.io.FileNotFoundExcpetion"});
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"private void foo() throws java.lang.IllegalArgumentException, java.io.FileNotFoundExcpetion {" + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR,
+		"private void foo() throws java.lang.IllegalArgumentException, java.io.FileNotFoundExcpetion {\n" + 
+		"}\n",
 		method.getContents());
 
 }
@@ -134,10 +131,10 @@ public void testCreateMethodWithParameters() {
 	method.setParameters(
 		new String[] {"String", "int", "char[]"}, 
 		new String[] {"name", "number", "buffer"});
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public void foo(String name, int number, char[] buffer) {" + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR,
+		"public void foo(String name, int number, char[] buffer) {\n" + 
+		"}\n",
 		method.getContents());
 }
 /**
@@ -148,10 +145,10 @@ public void testCreateMethodWithReturnType() {
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
 	method.setReturnType("String");
-	assertEquals(
+	assertSourceEquals(
 		"source code incorrect", 
-		"public String foo() {" + LINE_SEPARATOR + 
-		"}" + LINE_SEPARATOR,
+		"public String foo() {\n" +
+		"}\n",
 		method.getContents());
 }
 }

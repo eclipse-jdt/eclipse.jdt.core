@@ -78,36 +78,35 @@ public void tearDownSuite() throws Exception {
 public void testChangeSourceAttachmentFile() throws CoreException {
 	IClassFile cf = this.root.getPackageFragment("x.y").getClassFile("A.class");
 	IMethod method = cf.getType().getMethod("foo", new String[] {});
-	String lineSeparator = System.getProperty("line.separator");
 	
 	// check initial source
-	assertEquals(
+	assertSourceEquals(
 		"unexpected initial source for foo()",
-		"public void foo() {" + lineSeparator +
+		"public void foo() {\n" +
 		"	}",
 		method.getSource());
 
 	// replace source attachment file
 	this.swapFiles("AttachSourceTests/attachsrc.zip", "AttachSourceTests/attachsrc.new.zip");
-	assertEquals(
+	assertSourceEquals(
 		"unexpected source for foo() after replacement",
-		"public void foo() {" + lineSeparator +
-		"		System.out.println(\"foo\");" + lineSeparator +
+		"public void foo() {\n" +
+		"		System.out.println(\"foo\");\n" +
 		"	}",
 		method.getSource());
 		
 	// delete source attachment file
 	this.deleteFile("AttachSourceTests/attachsrc.zip");
-	assertEquals(
+	assertSourceEquals(
 		"unexpected source for foo() after deletion",
 		null,
 		method.getSource());
 		
 	// add source attachment file back
 	this.moveFile("AttachSourceTests/attachsrc.new.zip", "AttachSourceTests/attachsrc.zip");
-	assertEquals(
+	assertSourceEquals(
 		"unexpected source for foo() after addition",
-		"public void foo() {" + lineSeparator +
+		"public void foo() {\n" +
 		"	}",
 		method.getSource());
 }
@@ -198,7 +197,7 @@ public void testGetNameRange() throws JavaModelException {
 
 	assertTrue("source code does not exist for the entire attached compilation unit", start != -1 && end != -1);
 	String source= objectCF.getSource().substring(start, end + 1);
-	assertEquals("name should be 'A'", "A", source);
+	assertSourceEquals("name should be 'A'", "A", source);
 }
 /**
  * Retrieves the source attachment paths for jar root.
@@ -232,10 +231,9 @@ public void testLibFolder() throws JavaModelException {
 	this.attachSource(root, "/AttachSourceTests/srcLib", "");
 	
 	IClassFile cf = root.getPackageFragment("p").getClassFile("X.class");
-	String lineSeparator = System.getProperty("line.separator");
-	assertEquals(
+	assertSourceEquals(
 		"Unexpected source for class file",
-		"package p;" + lineSeparator +		"public class X {" + lineSeparator +		"	public void foo() {" + lineSeparator +		"	}" + lineSeparator +		"}",
+		"package p;\n" +		"public class X {\n" +		"	public void foo() {\n" +		"	}\n" +		"}",
 		cf.getSource());
 }
 /**

@@ -106,7 +106,7 @@ public void testAppend() throws CoreException {
 		int oldLength= buffer.getLength();
 		buffer.append("\nclass B {}");
 		assertBufferEvent(oldLength, 0, "\nclass B {}");
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n" +
 			"public class A {\n" +
@@ -133,7 +133,7 @@ public void testAppendReadOnly() throws CoreException {
 		buffer.getUnderlyingResource().setReadOnly(true);
 		buffer.append("\nclass B {}");
 		assertTrue("unexpected event", this.event == null);
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n" +
 			"public class A {\n" +
@@ -199,7 +199,7 @@ public void testDeleteBeginning() throws CoreException {
 	try {
 		buffer.replace(0, 13, "");
 		assertBufferEvent(0, 13, null);
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"public class A {\n" +
 			"}",
@@ -224,7 +224,7 @@ public void testDeleteMiddle() throws CoreException {
 		// delete "public "
 		buffer.replace(13, 7, "");
 		assertBufferEvent(13, 7, null);
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n" +
 			"class A {\n" +
@@ -250,7 +250,7 @@ public void testDeleteEnd() throws CoreException {
 		// delete "public class A {\n}"
 		buffer.replace(13, 18, "");
 		assertBufferEvent(13, 18, null);
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n",
 			buffer.getContents()
@@ -303,9 +303,9 @@ public void testGetText() throws CoreException {
 		"}"
 	);
 	try {
-		assertEquals("Unexpected text (1)", "p", buffer.getText(0, 1));
-		assertEquals("Unexpected text (2)", "public", buffer.getText(13, 6));
-		assertEquals("Unexpected text (3)", "", buffer.getText(10, 0));
+		assertSourceEquals("Unexpected text (1)", "p", buffer.getText(0, 1));
+		assertSourceEquals("Unexpected text (2)", "public", buffer.getText(13, 6));
+		assertSourceEquals("Unexpected text (3)", "", buffer.getText(10, 0));
 	} finally {
 		this.deleteBuffer(buffer);
 	}
@@ -323,7 +323,7 @@ public void testInsertBeginning() throws CoreException {
 	try {
 		buffer.replace(0, 0, "/* copyright mycompany */\n");
 		assertBufferEvent(0, 0, "/* copyright mycompany */\n");
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"/* copyright mycompany */\n" +
 			"package x.y;\n" +
@@ -349,7 +349,7 @@ public void testReplaceBeginning() throws CoreException {
 	try {
 		buffer.replace(0, 13, "package other;\n");
 		assertBufferEvent(0, 13, "package other;\n");
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package other;\n" +
 			"public class A {\n" +
@@ -375,7 +375,7 @@ public void testReplaceMiddle() throws CoreException {
 		// replace "public class A" after the \n of package statement
 		buffer.replace(13, 14, "public class B");
 		assertBufferEvent(13, 14, "public class B");
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n" +
 			"public class B {\n" +
@@ -402,7 +402,7 @@ public void testReplaceEnd() throws CoreException {
 		int end = buffer.getLength();
 		buffer.replace(end-1, 1, "}\n");
 		assertBufferEvent(end-1, 1, "}\n");
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n" +
 			"public class A {\n" +
@@ -428,7 +428,7 @@ public void testInsertMiddle() throws CoreException {
 		// insert after the \n of package statement
 		buffer.replace(13, 0, "/* class comment */\n");
 		assertBufferEvent(13, 0, "/* class comment */\n");
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n" +
 			"/* class comment */\n" +
@@ -456,7 +456,7 @@ public void testInsertEnd() throws CoreException {
 		int end = buffer.getLength();
 		buffer.replace(end, 0, "\nclass B {}");
 		assertBufferEvent(end, 0, "\nclass B {}");
-		assertEquals(
+		assertSourceEquals(
 			"unexpected buffer contents",
 			"package x.y;\n" +
 			"public class A {\n" +
@@ -500,7 +500,8 @@ public void testCreateImport() throws CoreException {
 	}
 }
 /**
- * Verify the buffer changed event 
+ * Verify the buffer changed event.
+ * The given text must contain '\n' line separators.
  */
 protected void assertBufferEvent(int offset, int length, String text) {
 	assertTrue("event should not be null", this.event != null);
@@ -509,7 +510,7 @@ protected void assertBufferEvent(int offset, int length, String text) {
 	if (text == null) {
 		assertTrue("text should be null", this.event.getText() == null);
 	} else {
-		assertEquals("unexpected text", text, this.event.getText());
+		assertSourceEquals("unexpected text", text, this.event.getText());
 	}
 }
 }

@@ -87,7 +87,7 @@ public void testDeprecatedFlag() throws JavaModelException {
 public void testGetContentsForNotPresent() throws JavaModelException {
 	CompilationUnit cu= (CompilationUnit)getCompilationUnit("/P/src/p/Absent.java");
 	
-	assertEquals("Unexpected contents for non present cu", "", new String(cu.getContents()));
+	assertSourceEquals("Unexpected contents for non present cu", "", new String(cu.getContents()));
 }
 /**
  * Tests Java element retrieval via source position 
@@ -189,7 +189,7 @@ public void testGetImports() throws JavaModelException {
 		"Length container range not correct",
 		imprts[imprts.length-1].getSourceRange().getOffset() + imprts[imprts.length-1].getSourceRange().getLength(),
 		containerRange.getOffset() + containerRange.getLength());
-	assertEquals("Source not correct", 
+	assertSourceEquals("Source not correct", 
 		"import p2.*;\n" +
 		"import p3.Z;",
 		container.getSource());

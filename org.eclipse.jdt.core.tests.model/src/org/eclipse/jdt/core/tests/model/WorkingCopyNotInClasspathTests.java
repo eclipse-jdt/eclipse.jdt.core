@@ -78,7 +78,7 @@ public void testCommit() throws CoreException {
 	this.workingCopy.commit(false, null);
 	
 	IFile originalFile = (IFile)original.getResource();
-	assertEquals(
+	assertSourceEquals(
 		"Unexpected contents", 
 		newContents, 
 		new String(Util.getResourceContentsAsCharArray(originalFile)));
