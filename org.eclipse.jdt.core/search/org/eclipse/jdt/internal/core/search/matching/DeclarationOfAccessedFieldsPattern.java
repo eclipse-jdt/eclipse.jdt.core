@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.core.search.matching;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.HashSet;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IField;
@@ -22,10 +23,9 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 
 public class DeclarationOfAccessedFieldsPattern extends FieldReferencePattern {
-	ObjectSet knownFields;
+	HashSet knownFields;
 public DeclarationOfAccessedFieldsPattern(
 	char[] name, 
 	int matchMode, 
@@ -48,7 +48,7 @@ public DeclarationOfAccessedFieldsPattern(
 		readAccess,
 		writeAccess);
 	this.needsResolve = true;
-	this.knownFields = new ObjectSet();
+	this.knownFields = new HashSet();
 }
 
 /**

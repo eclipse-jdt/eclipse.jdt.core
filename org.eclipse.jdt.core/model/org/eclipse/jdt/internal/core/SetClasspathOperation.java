@@ -6,13 +6,11 @@ package org.eclipse.jdt.internal.core;
  */
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashSet;
 import java.util.Iterator;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 
 /**
  * This operation sets an <code>IJavaProject</code>'s classpath.
@@ -431,12 +429,12 @@ public class SetClasspathOperation extends JavaModelOperation {
 			 
 			IProject[] projectReferences = description.getReferencedProjects();
 			
-			ObjectSet oldReferences = new ObjectSet(projectReferences.length);
+			HashSet oldReferences = new HashSet(projectReferences.length);
 			for (int i = 0; i < projectReferences.length; i++){
 				String projectName = projectReferences[i].getName();
 				oldReferences.add(projectName);
 			}
-			ObjectSet newReferences = (ObjectSet)oldReferences.clone();
+			HashSet newReferences = (HashSet)oldReferences.clone();
 
 			for (int i = 0; i < oldRequired.length; i++){
 				String projectName = oldRequired[i];
@@ -449,16 +447,15 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 			IProject[] requiredProjectArray = new IProject[newReferences.size()];
 			IWorkspaceRoot wksRoot = project.getWorkspace().getRoot();
-			Enumeration enum = newReferences.elements();
+			Iterator iter = newReferences.iterator();
 			int index = 0;
-			while (enum.hasMoreElements()){
-				String newName = (String)enum.nextElement();
+			while (iter.hasNext()){
+				String newName = (String)iter.next();
 				requiredProjectArray[index++] = wksRoot.getProject(newName);
 			}
 			description.setReferencedProjects(requiredProjectArray);
 			project.setDescription(description, this.fMonitor);
 
-		} catch(CloneNotSupportedException e) {
 		} catch(CoreException e){
 		}
 	}

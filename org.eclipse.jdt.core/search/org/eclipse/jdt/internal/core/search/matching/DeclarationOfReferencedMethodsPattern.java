@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.core.search.matching;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.HashSet;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
@@ -21,10 +22,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodReferencePattern {
-	ObjectSet knownMethods;
+	HashSet knownMethods;
 	
 public DeclarationOfReferencedMethodsPattern(
 	char[] selector, 
@@ -50,7 +50,7 @@ public DeclarationOfReferencedMethodsPattern(
 		parameterSimpleNames,
 		declaringType);
 	this.needsResolve = true;
-	this.knownMethods = new ObjectSet();
+	this.knownMethods = new HashSet();
 }
 
 /**

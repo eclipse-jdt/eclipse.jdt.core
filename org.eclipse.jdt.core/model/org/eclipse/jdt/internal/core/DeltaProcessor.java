@@ -22,13 +22,12 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * This class is used by <code>JavaModelManager</code> to convert
@@ -48,7 +47,7 @@ public class DeltaProcessor {
 	protected IndexManager indexManager =
 		JavaModelManager.ENABLE_INDEXING ? new IndexManager() : null;
 		
-	ObjectSet projectsToUpdate = new ObjectSet();
+	HashSet projectsToUpdate = new HashSet();
 
 	public static boolean VERBOSE = false;
 
@@ -302,7 +301,7 @@ public class DeltaProcessor {
 			} catch (JavaModelException e) {
 				return null;
 			}
-			Vector jars = new Vector();
+			ArrayList jars = new ArrayList();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				IJavaProject project = projects[i];
 				// Create a jar package fragment root only if on the classpath
@@ -323,7 +322,7 @@ public class DeltaProcessor {
 			if (size == 0)
 				return null;
 			Openable[] result = new Openable[size];
-			jars.copyInto(result);
+			jars.toArray(result);
 			return result;
 		} else {
 			Openable element = (Openable) JavaCore.create(resource);
@@ -561,15 +560,15 @@ public class DeltaProcessor {
 			}
 			
 			// update package fragment roots of projects that were affected
-			Enumeration elements = this.projectsToUpdate.elements();
-			while (elements.hasMoreElements()) {
-				JavaProject project = (JavaProject)elements.nextElement();
+			Iterator iter = this.projectsToUpdate.iterator();
+			while (iter.hasNext()) {
+				JavaProject project = (JavaProject)iter.next();
 				project.updatePackageFragmentRoots();
 			}
 	
 			return filterRealDeltas(translatedDeltas);
 		} finally {
-			this.projectsToUpdate = new ObjectSet();
+			this.projectsToUpdate = new HashSet();
 		}
 	}
 	

@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
-import org.eclipse.jdt.internal.compiler.util.ObjectSet;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.core.search.indexing.*;
@@ -22,6 +21,7 @@ import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -152,7 +152,7 @@ public class JavaProject
 	public IPackageFragmentRoot[] computePackageFragmentRoots(boolean retrieveExportedRoots) {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
-		computePackageFragmentRoots(accumulatedRoots, new ObjectSet(5), true, true, retrieveExportedRoots);
+		computePackageFragmentRoots(accumulatedRoots, new HashSet(5), true, true, retrieveExportedRoots);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
 		return rootArray;
@@ -165,7 +165,7 @@ public class JavaProject
 	 */
 	public void computePackageFragmentRoots(
 		ObjectVector accumulatedRoots, 
-		ObjectSet rootIDs, 
+		HashSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
 		boolean retrieveExportedRoots) {
@@ -196,7 +196,7 @@ public class JavaProject
 	public void computePackageFragmentRoots(
 		IClasspathEntry entry,
 		ObjectVector accumulatedRoots, 
-		ObjectSet rootIDs, 
+		HashSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
 		boolean retrieveExportedRoots) {
@@ -1176,7 +1176,7 @@ public class JavaProject
 //		if (infoPath != null) return infoPath;
 		
 		ObjectVector accumulatedEntries = new ObjectVector();		
-		computeExpandedClasspath(this, ignoreUnresolvedVariable, generateMarkerOnError, new ObjectSet(5), accumulatedEntries);
+		computeExpandedClasspath(this, ignoreUnresolvedVariable, generateMarkerOnError, new HashSet(5), accumulatedEntries);
 		
 		IClasspathEntry[] expandedPath = new IClasspathEntry[accumulatedEntries.size()];
 		accumulatedEntries.copyInto(expandedPath);
@@ -1193,7 +1193,7 @@ public class JavaProject
 		JavaProject initialProject, 
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError,
-		ObjectSet visitedProjects, 
+		HashSet visitedProjects, 
 		ObjectVector accumulatedEntries) throws JavaModelException {
 		
 		if (visitedProjects.contains(this)) return; // break cycles if any

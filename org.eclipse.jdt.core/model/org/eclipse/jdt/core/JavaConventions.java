@@ -11,7 +11,7 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.compiler.util.ObjectSet;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -395,7 +395,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 	}
 	if (!hasSource) allowNestingInOutput = true; // if no source, then allowed
 	
-	ObjectSet pathes = new ObjectSet(length);
+	HashSet pathes = new HashSet(length);
 	
 	// check all entries
 	for (int i = 0 ; i < length; i++) {
