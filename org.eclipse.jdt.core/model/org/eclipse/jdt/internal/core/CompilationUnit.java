@@ -68,13 +68,12 @@ public void accept(ASTVisitor visitor) throws JavaModelException {
  */
 public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	IPath path = this.getPath();
-	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, path, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
 	if (perWorkingCopyInfo == null) {
 		// close cu and its children
 		close();
 
-		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(this, path, problemRequestor);
+		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(this, problemRequestor);
 		operation.runOperation(monitor);
 	}
 }
@@ -721,7 +720,7 @@ public IPath getPath() {
  * Note: the use count of the per working copy info is NOT incremented.
  */
 public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
-	return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, getPath(), false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
+	return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
 }
 /*
  * @see ICompilationUnit#getPrimary()
@@ -823,13 +822,12 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	
 	CompilationUnit workingCopy = new CompilationUnit((PackageFragment)getParent(), getElementName(), workingCopyOwner);
-	IPath path = getPath();
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = 
-		manager.getPerWorkingCopyInfo(workingCopy, path, false/*don't create*/, true/*record usage*/, null/*not used since don't create*/);
+		manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true/*record usage*/, null/*not used since don't create*/);
 	if (perWorkingCopyInfo != null) {
 		return perWorkingCopyInfo.getWorkingCopy(); // return existing handle instead of the one created above
 	}
-	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, path, problemRequestor);
+	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, problemRequestor);
 	op.runOperation(monitor);
 	return workingCopy;
 }

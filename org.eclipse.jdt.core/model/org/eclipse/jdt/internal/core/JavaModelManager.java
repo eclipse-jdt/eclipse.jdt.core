@@ -458,7 +458,7 @@ public class JavaModelManager implements ISaveParticipant {
 	protected Map perProjectInfos = new HashMap(5);
 	
 	/**
-	 * Table from WorkingCopyOwner to a table of IPath (working copy's path) to PerWorkingCopyInfo.
+	 * Table from WorkingCopyOwner to a table of ICompilationUnit (working copy handle) to PerWorkingCopyInfo.
 	 * NOTE: this object itself is used as a lock to synchronize creation/removal of per working copy infos
 	 */
 	protected Map perWorkingCopyInfos = new HashMap(5);
@@ -648,11 +648,10 @@ public class JavaModelManager implements ISaveParticipant {
 	public synchronized int discardPerWorkingCopyInfo(CompilationUnit workingCopy) throws JavaModelException {
 		synchronized(perWorkingCopyInfos) {
 			WorkingCopyOwner owner = workingCopy.owner;
-			Map pathToPerWorkingCopyInfos = (Map)this.perWorkingCopyInfos.get(owner);
-			if (pathToPerWorkingCopyInfos == null) return -1;
+			Map workingCopyToInfos = (Map)this.perWorkingCopyInfos.get(owner);
+			if (workingCopyToInfos == null) return -1;
 			
-			IPath path = workingCopy.getPath();
-			PerWorkingCopyInfo info = (PerWorkingCopyInfo)pathToPerWorkingCopyInfos.get(path);
+			PerWorkingCopyInfo info = (PerWorkingCopyInfo)workingCopyToInfos.get(workingCopy);
 			if (info == null) return -1;
 			
 			if (--info.useCount == 0) {
@@ -663,8 +662,8 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 
 				// remove per working copy info
-				pathToPerWorkingCopyInfos.remove(path);
-				if (pathToPerWorkingCopyInfos.isEmpty()) {
+				workingCopyToInfos.remove(workingCopy);
+				if (workingCopyToInfos.isEmpty()) {
 					this.perWorkingCopyInfos.remove(owner);
 				}
 
@@ -815,19 +814,19 @@ public class JavaModelManager implements ISaveParticipant {
 	 * If recordUsage, increment the per-working copy info's use count.
 	 * Returns null if it doesn't exist and not create.
 	 */
-	public PerWorkingCopyInfo getPerWorkingCopyInfo(CompilationUnit workingCopy, IPath path, boolean create, boolean recordUsage, IProblemRequestor problemRequestor) {
+	public PerWorkingCopyInfo getPerWorkingCopyInfo(CompilationUnit workingCopy,boolean create, boolean recordUsage, IProblemRequestor problemRequestor) {
 		synchronized(perWorkingCopyInfos) { // use the perWorkingCopyInfo collection as its own lock
 			WorkingCopyOwner owner = workingCopy.owner;
-			Map pathToPerWorkingCopyInfos = (Map)this.perWorkingCopyInfos.get(owner);
-			if (pathToPerWorkingCopyInfos == null && create) {
-				pathToPerWorkingCopyInfos = new HashMap();
-				this.perWorkingCopyInfos.put(owner, pathToPerWorkingCopyInfos);
+			Map workingCopyToInfos = (Map)this.perWorkingCopyInfos.get(owner);
+			if (workingCopyToInfos == null && create) {
+				workingCopyToInfos = new HashMap();
+				this.perWorkingCopyInfos.put(owner, workingCopyToInfos);
 			}
 
-			PerWorkingCopyInfo info = pathToPerWorkingCopyInfos == null ? null : (PerWorkingCopyInfo) pathToPerWorkingCopyInfos.get(path);
+			PerWorkingCopyInfo info = workingCopyToInfos == null ? null : (PerWorkingCopyInfo) workingCopyToInfos.get(workingCopy);
 			if (info == null && create) {
 				info= new PerWorkingCopyInfo(workingCopy, problemRequestor);
-				pathToPerWorkingCopyInfos.put(path, info);
+				workingCopyToInfos.put(workingCopy, info);
 			}
 			if (info != null && recordUsage) info.useCount++;
 			return info;
@@ -917,15 +916,15 @@ public class JavaModelManager implements ISaveParticipant {
 			ICompilationUnit[] primaryWCs = addPrimary && owner != DefaultWorkingCopyOwner.PRIMARY 
 				? getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false) 
 				: null;
-			Map pathToPerWorkingCopyInfos = (Map)perWorkingCopyInfos.get(owner);
-			if (pathToPerWorkingCopyInfos == null) return primaryWCs;
+			Map workingCopyToInfos = (Map)perWorkingCopyInfos.get(owner);
+			if (workingCopyToInfos == null) return primaryWCs;
 			int primaryLength = primaryWCs == null ? 0 : primaryWCs.length;
-			int size = pathToPerWorkingCopyInfos.size(); // note size is > 0 otherwise pathToPerWorkingCopyInfos would be null
+			int size = workingCopyToInfos.size(); // note size is > 0 otherwise pathToPerWorkingCopyInfos would be null
 			ICompilationUnit[] result = new ICompilationUnit[primaryLength + size];
 			if (primaryWCs != null) {
 				System.arraycopy(primaryWCs, 0, result, 0, primaryLength);
 			}
-			Iterator iterator = pathToPerWorkingCopyInfos.values().iterator();
+			Iterator iterator = workingCopyToInfos.values().iterator();
 			int index = primaryLength;
 			while(iterator.hasNext()) {
 				result[index++] = ((JavaModelManager.PerWorkingCopyInfo)iterator.next()).getWorkingCopy();
