@@ -640,7 +640,7 @@ public class ClassFile
 			contents[contentsOffset++] = methodIndexByte2;
 			attributeNumber++;			
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType) {
 			TypeDeclaration typeDeclaration = referenceBinding.scope.referenceContext;
 			if (typeDeclaration != null) {
 				final Annotation[] annotations = typeDeclaration.annotations;
@@ -814,7 +814,7 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) signatureIndex;
 			attributesNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType) {
 			FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
 			if (fieldDeclaration != null) {
 				Annotation[] annotations = fieldDeclaration.annotations;
@@ -3110,8 +3110,7 @@ public class ClassFile
 			case T_String :
 				contents[contentsOffset++] = (byte) 's';
 				int stringValueIndex =
-					constantPool.literalIndex(
-						((StringConstant) constant).stringValue());
+					constantPool.literalIndex(((StringConstant) constant).stringValue().toCharArray());
 				if (stringValueIndex == -1) {
 					if (!creatingProblemType) {
 						// report an error and abort: will lead to a problem type classfile creation
@@ -3240,7 +3239,7 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) signatureIndex;
 			attributeNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType) {
 			AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
 			if (methodDeclaration != null) {
 				Annotation[] annotations = methodDeclaration.annotations;
