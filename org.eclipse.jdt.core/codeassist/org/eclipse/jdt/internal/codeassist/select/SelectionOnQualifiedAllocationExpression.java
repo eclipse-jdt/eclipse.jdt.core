@@ -37,7 +37,8 @@ public SelectionOnQualifiedAllocationExpression(AnonymousLocalTypeDeclaration an
 public TypeBinding resolveType(BlockScope scope) {
 	super.resolveType(scope);
 
-	if (binding == null || !binding.isValidBinding())
+	// tolerate non visible match
+	if (binding == null || !(binding.isValidBinding() || binding.problemId() == ProblemReasons.NotVisible))
 		throw new SelectionNodeFound();
 	if (anonymousType == null)
 		throw new SelectionNodeFound(binding);

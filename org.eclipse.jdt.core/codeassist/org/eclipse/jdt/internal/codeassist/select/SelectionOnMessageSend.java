@@ -27,30 +27,31 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionOnMessageSend extends MessageSend {
-public TypeBinding resolveType(BlockScope scope) {
-	super.resolveType(scope);
 
-	if (binding == null || !binding.isValidBinding())
-		throw new SelectionNodeFound();
-	else
-		throw new SelectionNodeFound(binding);
-}
-public String toStringExpression() {
-	/*slow code*/
+	public TypeBinding resolveType(BlockScope scope) {
+		super.resolveType(scope);
 
-	String s = "<SelectOnMessageSend:"; //$NON-NLS-1$
-	if (receiver != ThisReference.ThisImplicit)
-		s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
-	s = s + new String(selector) + "("; //$NON-NLS-1$
-	if (arguments != null) {
-		for (int i = 0; i < arguments.length; i++) {
-			s += arguments[i].toStringExpression();
-			if (i != arguments.length - 1) {
-				s += ", "; //$NON-NLS-1$
-			}
-		};
+		// tolerate non visible match
+		if (binding == null || !(binding.isValidBinding() || binding.problemId() == ProblemReasons.NotVisible))
+			throw new SelectionNodeFound();
+		else
+			throw new SelectionNodeFound(binding);
 	}
-	s = s + ")>"; //$NON-NLS-1$
-	return s;
-}
+
+	public String toStringExpression() {
+		String s = "<SelectOnMessageSend:"; //$NON-NLS-1$
+		if (receiver != ThisReference.ThisImplicit)
+			s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
+		s = s + new String(selector) + "("; //$NON-NLS-1$
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				s += arguments[i].toStringExpression();
+				if (i != arguments.length - 1) {
+					s += ", "; //$NON-NLS-1$
+				}
+			};
+		}
+		s = s + ")>"; //$NON-NLS-1$
+		return s;
+	}
 }

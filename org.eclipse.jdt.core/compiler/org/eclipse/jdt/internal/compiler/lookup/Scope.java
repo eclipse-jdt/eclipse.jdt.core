@@ -184,7 +184,7 @@ public abstract class Scope
 		}
 		ReferenceBinding currentType = (ReferenceBinding) receiverType;
 		if (!currentType.canBeSeenBy(this))
-			return new ProblemFieldBinding(fieldName, NotVisible);
+			return new ProblemFieldBinding(currentType, fieldName, NotVisible);
 		// *** Need a new problem id - TypeNotVisible?
 
 		compilationUnitScope().addTypeReference(currentType);
@@ -193,7 +193,7 @@ public abstract class Scope
 			if (field.canBeSeenBy(currentType, invocationSite, this))
 				return field;
 			else
-				return new ProblemFieldBinding(fieldName, NotVisible);
+				return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
 		}
 		// collect all superinterfaces of receiverType until the field is found in a supertype
 		ReferenceBinding[][] interfacesToVisit = null;
@@ -225,7 +225,7 @@ public abstract class Scope
 					if (visibleField == null)
 						visibleField = field;
 					else
-						return new ProblemFieldBinding(fieldName, Ambiguous);
+						return new ProblemFieldBinding(visibleField.declaringClass, fieldName, Ambiguous);
 				} else {
 					notVisible = true;
 				}
@@ -245,7 +245,7 @@ public abstract class Scope
 							if (visibleField == null) {
 								visibleField = field;
 							} else {
-								ambiguous = new ProblemFieldBinding(fieldName, Ambiguous);
+								ambiguous = new ProblemFieldBinding(visibleField.declaringClass, fieldName, Ambiguous);
 								break done;
 							}
 						} else {
@@ -277,7 +277,7 @@ public abstract class Scope
 		if (visibleField != null)
 			return visibleField;
 		if (notVisible)
-			return new ProblemFieldBinding(fieldName, NotVisible);
+			return new ProblemFieldBinding(currentType, fieldName, NotVisible);
 		return null;
 	}
 

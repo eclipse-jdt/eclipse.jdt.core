@@ -253,14 +253,14 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 
 	ReferenceBinding currentType = (ReferenceBinding) receiverType;
 	if (!currentType.canBeSeenBy(this))
-		return new ProblemFieldBinding(fieldName, NotVisible); // *** Need a new problem id - TypeNotVisible?
+		return new ProblemFieldBinding(currentType, fieldName, NotVisible); // *** Need a new problem id - TypeNotVisible?
 
 	FieldBinding field = currentType.getField(fieldName);
 	if (field != null) {
 		if (canBeSeenByForCodeSnippet(field, currentType, invocationSite, this))
 			return field;
 		else
-			return new ProblemFieldBinding(fieldName, NotVisible);
+			return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
 	}
 
 	// collect all superinterfaces of receiverType until the field is found in a supertype
@@ -287,7 +287,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 				if (visibleField == null)
 					visibleField = field;
 				else
-					return new ProblemFieldBinding(fieldName, Ambiguous);
+					return new ProblemFieldBinding(visibleField.declaringClass, fieldName, Ambiguous);
 			} else {
 				notVisible = true;
 			}
@@ -307,7 +307,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 						if (visibleField == null) {
 							visibleField = field;
 						} else {
-							ambiguous = new ProblemFieldBinding(fieldName, Ambiguous);
+							ambiguous = new ProblemFieldBinding(visibleField.declaringClass, fieldName, Ambiguous);
 							break done;
 						}
 					} else {
@@ -334,7 +334,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	if (visibleField != null)
 		return visibleField;
 	if (notVisible)
-		return new ProblemFieldBinding(fieldName, NotVisible);
+		return new ProblemFieldBinding(currentType, fieldName, NotVisible);
 	return null;
 }
 // Internal use only
@@ -549,7 +549,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		invocationSite.setFieldIndex(currentIndex);
 		if ((binding = findFieldForCodeSnippet(typeBinding, nextName, invocationSite)) != null) {
 			if (!binding.isValidBinding())
-				return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
+				return new ProblemFieldBinding(((FieldBinding)binding).declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 			break; // binding is now a field
 		}
 		if ((binding = findMemberType(nextName, typeBinding)) == null)
@@ -561,7 +561,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 	if ((mask & FIELD) != 0 && (binding instanceof FieldBinding)) { // was looking for a field and found a field
 		FieldBinding field = (FieldBinding) binding;
 		if (!field.isStatic())
-			return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
+			return new ProblemFieldBinding(field.declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
 		return binding;
 	}
 	if ((mask & TYPE) != 0 && (binding instanceof ReferenceBinding)) { // was looking for a type and found a type
@@ -627,7 +627,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 public FieldBinding getFieldForCodeSnippet(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite) {
 	FieldBinding field = findFieldForCodeSnippet(receiverType, fieldName, invocationSite);
 	if (field == null)
-		return new ProblemFieldBinding(fieldName, NotFound);
+		return new ProblemFieldBinding(receiverType instanceof ReferenceBinding ? (ReferenceBinding) receiverType : null, fieldName, NotFound);
 	else
 		return field;
 }

@@ -417,7 +417,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		invocationSite.setFieldIndex(currentIndex);
 		if ((binding = findField(typeBinding, nextName, invocationSite)) != null) {
 			if (!binding.isValidBinding())
-				return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
+				return new ProblemFieldBinding(((FieldBinding)binding).declaringClass,CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 			break; // binding is now a field
 		}
 		if ((binding = findMemberType(nextName, typeBinding)) == null)
@@ -429,7 +429,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 	if ((mask & FIELD) != 0 && (binding instanceof FieldBinding)) { // was looking for a field and found a field
 		FieldBinding field = (FieldBinding) binding;
 		if (!field.isStatic())
-			return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
+			return new ProblemFieldBinding(field.declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
 		return binding;
 	}
 	if ((mask & TYPE) != 0 && (binding instanceof ReferenceBinding)) { // was looking for a type and found a type
@@ -475,9 +475,9 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 			char[] nextName = compoundName[currentIndex++];
 			if ((binding = findField(typeBinding, nextName, invocationSite)) != null) {
 				if (!binding.isValidBinding())
-					return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
+					return new ProblemFieldBinding(((FieldBinding) binding).declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 				if (!((FieldBinding) binding).isStatic())
-					return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
+					return new ProblemFieldBinding(((FieldBinding) binding).declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
 				break foundField; // binding is now a field
 			}
 			if ((binding = findMemberType(nextName, typeBinding)) == null)
@@ -492,10 +492,10 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 	while (currentIndex < length) {
 		TypeBinding typeBinding = variableBinding.type;
 		if (typeBinding == null)
-			return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex+1), NotFound);
+			return new ProblemFieldBinding(null, CharOperation.subarray(compoundName, 0, currentIndex+1), NotFound);
 		variableBinding = findField(typeBinding, compoundName[currentIndex++], invocationSite);
 		if (variableBinding == null)
-			return new ProblemFieldBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
+			return new ProblemFieldBinding(null, CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
 		if (!variableBinding.isValidBinding())
 			return variableBinding;
 	}
@@ -553,7 +553,7 @@ public Binding getBinding(char[] name, int mask, InvocationSite invocationSite) 
 					LocalVariableBinding variableBinding = ((BlockScope) scope).findVariable(name); // looks in this scope only
 					if (variableBinding != null) {
 						if (foundField != null && foundField.isValidBinding())
-							return new ProblemFieldBinding(name, InheritedNameHidesEnclosingName);
+							return new ProblemFieldBinding(foundField.declaringClass, name, InheritedNameHidesEnclosingName);
 						if (depth > 0)
 							invocationSite.setDepth(depth);
 						return variableBinding;
@@ -572,16 +572,16 @@ public Binding getBinding(char[] name, int mask, InvocationSite invocationSite) 
 								return fieldBinding;
 							else
 								// make the user qualify the field, likely wants the first inherited field (javac generates an ambiguous error instead)
-								return new ProblemFieldBinding(name, InheritedNameHidesEnclosingName);
+								return new ProblemFieldBinding(fieldBinding.declaringClass, name, InheritedNameHidesEnclosingName);
 						}
 
 						ProblemFieldBinding insideProblem = null;
 						if (fieldBinding.isValidBinding()) {
 							if (!fieldBinding.isStatic()) {
 								if (insideConstructorCall) {
-									insideProblem = new ProblemFieldBinding(name, NonStaticReferenceInConstructorInvocation);
+									insideProblem = new ProblemFieldBinding(fieldBinding.declaringClass, name, NonStaticReferenceInConstructorInvocation);
 								} else if (insideStaticContext) {
-									insideProblem = new ProblemFieldBinding(name, NonStaticReferenceInStaticContext);
+									insideProblem = new ProblemFieldBinding(fieldBinding.declaringClass, name, NonStaticReferenceInStaticContext);
 								}
 							}
 							if (enclosingType == fieldBinding.declaringClass) { // found a valid field in the 'immediate' scope (ie. not inherited)
@@ -593,7 +593,7 @@ public Binding getBinding(char[] name, int mask, InvocationSite invocationSite) 
 								}
 								if (foundField.isValidBinding()) // if a valid field was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
 									if (foundField.declaringClass != fieldBinding.declaringClass) // ie. have we found the same field - do not trust field identity yet
-										return new ProblemFieldBinding(name, InheritedNameHidesEnclosingName);
+										return new ProblemFieldBinding(fieldBinding.declaringClass, name, InheritedNameHidesEnclosingName);
 							}
 						}
 
@@ -945,7 +945,7 @@ public Object[] getExactEmulationPath(ReferenceBinding targetEnclosingType) {
 public FieldBinding getField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite) {
 	FieldBinding field = findField(receiverType, fieldName, invocationSite);
 	if (field == null)
-		return new ProblemFieldBinding(fieldName, NotFound);
+		return new ProblemFieldBinding(receiverType instanceof ReferenceBinding ? (ReferenceBinding)receiverType : null, fieldName, NotFound);
 	else
 		return field;
 }

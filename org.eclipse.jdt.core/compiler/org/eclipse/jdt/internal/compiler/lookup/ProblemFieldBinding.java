@@ -10,10 +10,11 @@ public class ProblemFieldBinding extends FieldBinding {
 	private int problemId;
 // NOTE: must only answer the subset of the name related to the problem
 
-public ProblemFieldBinding(char[][] compoundName, int problemId) {
-	this(CharOperation.concatWith(compoundName, '.'), problemId);
+public ProblemFieldBinding(ReferenceBinding declaringClass, char[][] compoundName, int problemId) {
+	this(declaringClass, CharOperation.concatWith(compoundName, '.'), problemId);
 }
-public ProblemFieldBinding(char[] name, int problemId) {
+public ProblemFieldBinding(ReferenceBinding declaringClass, char[] name, int problemId) {
+	this.declaringClass = declaringClass;
 	this.name = name;
 	this.problemId = problemId;
 }

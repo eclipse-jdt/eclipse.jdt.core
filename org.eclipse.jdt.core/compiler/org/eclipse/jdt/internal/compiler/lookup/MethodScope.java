@@ -219,11 +219,11 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 		return field;
 
 	if (invocationSite instanceof SingleNameReference)
-		return new ProblemFieldBinding(fieldName, NonStaticReferenceInConstructorInvocation);
+		return new ProblemFieldBinding(field.declaringClass, fieldName, NonStaticReferenceInConstructorInvocation);
 	if (invocationSite instanceof QualifiedNameReference) { // look to see if the field is the first binding
 		QualifiedNameReference name = (QualifiedNameReference) invocationSite;
 		if (name.binding == null) // only true when the field is the fieldbinding at the beginning of name's tokens
-			return new ProblemFieldBinding(fieldName, NonStaticReferenceInConstructorInvocation);
+			return new ProblemFieldBinding(field.declaringClass, fieldName, NonStaticReferenceInConstructorInvocation);
 	}
 	return field;
 }

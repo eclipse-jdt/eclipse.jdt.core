@@ -33,14 +33,13 @@ public SelectionOnFieldReference(char[] source , long pos) {
 public TypeBinding resolveType(BlockScope scope) {
 	super.resolveType(scope);
 
-	if (binding == null || !binding.isValidBinding())
+	// tolerate non visible match
+	if (binding == null || !(binding.isValidBinding() || binding.problemId() == ProblemReasons.NotVisible))
 		throw new SelectionNodeFound();
 	else
 		throw new SelectionNodeFound(binding);
 }
 public String toStringExpression(){
-	/* slow code */
-	
 	return 	"<SelectionOnFieldReference:"  //$NON-NLS-1$
 			+ super.toStringExpression() 
 			+ ">"; //$NON-NLS-1$
