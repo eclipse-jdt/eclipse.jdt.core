@@ -104,7 +104,7 @@ public void acceptResult(CompilationResult result) {
 						if (duplicateTypeNames == null)
 							duplicateTypeNames = new ArrayList();
 						duplicateTypeNames.add(compoundName);
-						createErrorFor(compilationUnit.resource, Util.bind("build.duplicateClassFile", new String(typeName))); //$NON-NLS-1$
+						createProblemFor(compilationUnit.resource, Util.bind("build.duplicateClassFile", new String(typeName)), JavaCore.ERROR); //$NON-NLS-1$
 						continue;
 					}
 					newState.recordLocatorForType(qualifiedTypeName, typeLocator);
@@ -116,7 +116,7 @@ public void acceptResult(CompilationResult result) {
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
 			Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
-			createErrorFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile")); //$NON-NLS-1$
+			createProblemFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
 		}
 	}
 }
@@ -207,13 +207,11 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	notifier.checkCancel();
 }
 
-protected void createErrorFor(IResource resource, String message) {
+protected void createProblemFor(IResource resource, String message, String problemSeverity) {
 	try {
 		IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		int severity = IMarker.SEVERITY_ERROR;
-		if (message.equals(Util.bind("build.duplicateResource"))) //$NON-NLS-1$
-			if (JavaCore.WARNING.equals(javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true)))
-				severity = IMarker.SEVERITY_WARNING;
+		int severity = problemSeverity.equals(JavaCore.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
+
 		marker.setAttributes(
 			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END},
 			new Object[] {message, new Integer(severity), new Integer(0), new Integer(1)});

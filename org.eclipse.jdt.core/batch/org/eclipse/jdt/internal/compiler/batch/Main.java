@@ -143,23 +143,32 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 		message = new String(messageWithNoDoubleQuotes);
 
-		if (bindings == null)
-			return message;
-
 		int length = message.length();
 		int start = -1;
 		int end = length;
-		StringBuffer output = new StringBuffer(80);
+		StringBuffer output = null;
 		while (true) {
 			if ((end = message.indexOf('{', start)) > -1) {
+				if (output == null) output = new StringBuffer(80);
 				output.append(message.substring(start + 1, end));
 				if ((start = message.indexOf('}', end)) > -1) {
 					int index = -1;
 					try {
 						index = Integer.parseInt(message.substring(end + 1, start));
 						output.append(bindings[index]);
-					} catch (NumberFormatException nfe) {
-						output.append(message.substring(end + 1, start + 1));
+					} catch (NumberFormatException nfe) { // could be nested message ID {compiler.name}
+						String argId = message.substring(end + 1, start);
+						boolean done = false;
+						if (!id.equals(argId)) {
+							String argMessage = null;
+							try {
+								argMessage = bundle.getString(argId);
+								output.append(argMessage);
+								done = true;
+							} catch (MissingResourceException e) {
+							}
+						}
+						if (!done) output.append(message.substring(end + 1, start + 1));
 					} catch (ArrayIndexOutOfBoundsException e) {
 						output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
 					}
@@ -168,6 +177,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					break;
 				}
 			} else {
+				if (output == null) return message;
 				output.append(message.substring(start + 1, length));
 				break;
 			}
@@ -383,7 +393,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								"compile.repetition", //$NON-NLS-1$
 								String.valueOf(i + 1),
 								String.valueOf(repetitions)));
-					}
+					} 
 					long startTime = System.currentTimeMillis();
 					// request compilation
 					performCompilation();
@@ -511,9 +521,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		int index = -1, filesCount = 0, argCount = argv.length;
 		int mode = Default;
 		repetitions = 0;
-		boolean versionIDRequired = false;
 		boolean printUsageRequired = false;
-
+		boolean printVersionRequired = false;
+		
 		boolean didSpecifyCompliance = false;
 		boolean didSpecifyDefaultEncoding = false;
 		boolean didSpecifyTarget = false;
@@ -704,15 +714,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				continue;
 			}
 			if (currentArg.equals("-version") //$NON-NLS-1$
-				|| currentArg.equals("-v")) { //$NON-NLS-1$ //$NON-NLS-2$
-				versionIDRequired = true;
-				continue;
+				|| currentArg.equals("-v")) { //$NON-NLS-1$
+				printVersionRequired = true;
+				proceed = false;
+				return;
 			}
+			if (currentArg.equals("-showversion")) { //$NON-NLS-1$
+				printVersionRequired = true;
+				continue;
+			}			
 			if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
 				options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 				continue;
 			}
-			if (currentArg.equals("-help")) { //$NON-NLS-1$
+			if (currentArg.equals("-help") || currentArg.equals("-?")) { //$NON-NLS-1$ //$NON-NLS-2$
 				printUsageRequired = true;
 				continue;
 			}
@@ -900,7 +915,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						options.put(
 							CompilerOptions.OPTION_ReportMethodWithConstructorName,
 							CompilerOptions.WARNING);
-					} else if (token.equals("packageDefaultMethod")) { //$NON-NLS-1$
+					} else if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
 							CompilerOptions.WARNING);
@@ -970,11 +985,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						options.put(
 							CompilerOptions.OPTION_ReportNoEffectAssignment,
 							CompilerOptions.WARNING);
-					} else if (token.equals("interfaceNonInherited")) { //$NON-NLS-1$
+					} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
 							CompilerOptions.WARNING);
-					} else if (token.equals("noImplicitStringConversion")) {//$NON-NLS-1$
+					} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportNoImplicitStringConversion,
 							CompilerOptions.WARNING);
@@ -1167,24 +1182,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			mode = Default;
 			continue;
 		}
-
-		/*
-		 * Standalone options
-		 */
-		if (versionIDRequired) {
-			out.println(Main.bind("misc.version",  //$NON-NLS-1$
-				new String[]{
-					Main.bind("compiler.name"), //$NON-NLS-1$
-					Main.bind("compiler.version"), //$NON-NLS-1$
-					Main.bind("compiler.copyright") })); //$NON-NLS-1$
-			proceed = false;
-			return;
-		}
-
-		if (printUsageRequired) {
+		if (printUsageRequired || filesCount == 0) {
 			printUsage();
 			proceed = false;
 			return;
+		} else {
+			if (printVersionRequired) {
+				printVersion();
+				if (!proceed) return;
+			}
 		}
 
 		if (filesCount != 0)
@@ -1316,10 +1322,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			destinationPath = null;
 		}
 
-		if (filenames == null) {
-			printUsage();
-			return;
-		}
 		// target must be 1.4 if source is 1.4
 		if (CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
 				&& CompilerOptions.versionToJdkLevel((String)options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4
@@ -1599,13 +1601,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		environment.cleanup();
 	}
 	public void printUsage() {
-		out.println(Main.bind("misc.usage",  //$NON-NLS-1$
-			new String[]{
-				Main.bind("compiler.name"), //$NON-NLS-1$
-				Main.bind("compiler.version"), //$NON-NLS-1$
-				Main.bind("compiler.copyright") })); //$NON-NLS-1$
+		out.println(Main.bind("misc.usage"));  //$NON-NLS-1$
 		out.flush();
 		err.flush();
 	}
-
+	public void printVersion() {
+		out.println(Main.bind("misc.version"));  //$NON-NLS-1$
+		out.flush();
+		err.flush();
+	}
 }

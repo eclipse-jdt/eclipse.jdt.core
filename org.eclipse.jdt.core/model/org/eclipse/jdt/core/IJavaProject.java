@@ -12,6 +12,7 @@
  *                               added findPackageFragmentRoots(IClasspathEntry)
  *     IBM Corporation - added isOnClasspath(IResource)
  *     IBM Corporation - added setOption(String, String)
+ *     IBM Corporation - added forceClasspathReload(IProgressMonitor)
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -182,6 +183,31 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IType findType(String packageName, String typeQualifiedName) throws JavaModelException;
 
+	/**
+	 * Force the project to reload its <code>.classpath</code> file from disk and update the classpath accordingly.
+	 * Usually, a change to the <code>.classpath</code> file is automatically noticed and reconciled at the next 
+	 * resource change notification event. If required to consider such a change prior to the next automatic
+	 * refresh, then this functionnality should be used to trigger a refresh. In particular, if a change to the file is performed,
+	 * during an operation where this change needs to be reflected before the operation ends, then an explicit refresh is
+	 * necessary.
+	 * 
+	 * @param monitor a progress monitor for reporting operation progress
+	 * @exception JavaModelException if the classpath could not be updated. Reasons
+	 * include:
+	 * <ul>
+	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> Two or more entries specify source roots with the same or overlapping paths (NAME_COLLISION)
+	 * <li> A entry of kind <code>CPE_PROJECT</code> refers to this project (INVALID_PATH)
+	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 *	<li>The output location path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
+	 *	<li>The output location path is not an absolute path (<code>RELATIVE_PATH</code>)
+	 *  <li>The output location path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
+	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
+	 * </ul>
+	 * @since 3.0
+	 */
+	void forceClasspathReload(IProgressMonitor monitor) throws JavaModelException;
+	
 	/**
 	 * Returns all of the existing package fragment roots that exist
 	 * on the classpath, in the order they are defined by the classpath.
