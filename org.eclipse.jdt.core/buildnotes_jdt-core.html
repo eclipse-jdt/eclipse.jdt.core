@@ -35,12 +35,28 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 2.1 Build - ?th February 2003
+Eclipse SDK 2.1 Build - 20th February 2003
 <br>Project org.eclipse.jdt.core v_299
 <h2>
 What's new in this drop</h2>
 <ul>
 <li>Added helper method to extract problem marker arguments: <code>CorrectionEngine.getProblemArguments(IMarker problemMarker)</code>
+<li>Added 2 settings to disable classpath enhancements which could affect 2.0 clients.
+<pre>
+* JAVACORE / Enabling Usage of Classpath Exclusion Patterns
+*    When set to "disabled", no entry on a project classpath can be associated with
+*    an exclusion pattern.
+*     - option id:         "org.eclipse.jdt.core.classpath.exclusionPatterns"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "enabled"
+* 
+* JAVACORE / Enabling Usage of Classpath Multiple Output Locations
+*    When set to "disabled", no entry on a project classpath can be associated with
+*    a specific output location, preventing thus usage of multiple output locations.
+*     - option id:         "org.eclipse.jdt.core.classpath.multipleOutputLocations"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "enabled"
+</pre>
 <li>Removed temporary 2.1 API :
     <ul>
      <li><code>IPackageFragmentRoot.computeSourceAttachmentRootPath(IPath sourceAttachmentPath)</code>
