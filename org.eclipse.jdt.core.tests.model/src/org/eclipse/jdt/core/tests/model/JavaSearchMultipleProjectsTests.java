@@ -36,8 +36,9 @@ public static Test suite() {
 }
 protected void tearDown() throws Exception {
 	// Cleanup caches
-	JavaModelManager.Containers = new HashMap(5);
-	JavaModelManager.Variables = new HashMap(5);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.containers = new HashMap(5);
+	manager.variables = new HashMap(5);
 
 	super.tearDown();
 }

@@ -1154,8 +1154,8 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
 
-		IClasspathContainer container = JavaModelManager.containerGet(project, containerPath);
-		if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+		IClasspathContainer container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
+		if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 
 		if (container == null){
 			final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
@@ -1164,7 +1164,7 @@ public final class JavaCore extends Plugin {
 					System.out.println("CPContainer INIT - triggering initialization of: ["+project.getElementName()+"] " + containerPath + " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 					new Exception("FAKE exception for dumping current CPContainer (["+project.getElementName()+"] "+ containerPath+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 				}
-				JavaModelManager.containerPut(project, containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
+				JavaModelManager.getJavaModelManager().containerPut(project, containerPath, JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 				boolean ok = false;
 				try {
 					// wrap initializer call with Safe runnable in case initializer would be causing some grief
@@ -1178,11 +1178,11 @@ public final class JavaCore extends Plugin {
 					});
 					
 					// retrieve value (if initialization was successful)
-					container = JavaModelManager.containerGet(project, containerPath);
-					if (container == JavaModelManager.ContainerInitializationInProgress) return null; // break cycle
+					container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
+					if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 					ok = true;
 				} finally {
-					if (!ok) JavaModelManager.containerPut(project, containerPath, null); // flush cache
+					if (!ok) JavaModelManager.getJavaModelManager().containerPut(project, containerPath, null); // flush cache
 				}
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.print("CPContainer INIT - after resolution: ["+project.getElementName()+"] " + containerPath + " --> "); //$NON-NLS-2$//$NON-NLS-1$//$NON-NLS-3$
@@ -1275,8 +1275,8 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IPath getClasspathVariable(final String variableName) {
 	
-		IPath variablePath = JavaModelManager.variableGet(variableName);
-		if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle
+		IPath variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName);
+		if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 		
 		if (variablePath != null) {
 			return variablePath;
@@ -1289,7 +1289,7 @@ public final class JavaCore extends Plugin {
 				System.out.println("CPVariable INIT - triggering initialization of: " + variableName+ " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$
 				new Exception("FAKE exception for dumping current CPVariable ("+variableName+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$
 			}
-			JavaModelManager.variablePut(variableName, JavaModelManager.VariableInitializationInProgress); // avoid initialization cycles
+			JavaModelManager.getJavaModelManager().variablePut(variableName, JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
 				// wrap initializer call with Safe runnable in case initializer would be causing some grief
@@ -1301,14 +1301,14 @@ public final class JavaCore extends Plugin {
 						initializer.initialize(variableName);
 					}
 				});
-				variablePath = JavaModelManager.variableGet(variableName); // initializer should have performed side-effect
-				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle (initializer did not init or reentering call)
+				variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName); // initializer should have performed side-effect
+				if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle (initializer did not init or reentering call)
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
 				}
 				ok = true;
 			} finally {
-				if (!ok) JavaModelManager.variablePut(variableName, null); // flush cache
+				if (!ok) JavaModelManager.getJavaModelManager().variablePut(variableName, null); // flush cache
 			}
 		} else {
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
@@ -1374,7 +1374,7 @@ public final class JavaCore extends Plugin {
 	 * @see #setClasspathVariable(String, IPath)
 	 */
 	public static String[] getClasspathVariableNames() {
-		return JavaModelManager.variableNames();
+		return JavaModelManager.getJavaModelManager().variableNames();
 	}
 
 	/**
@@ -2014,7 +2014,7 @@ public final class JavaCore extends Plugin {
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
 		Preferences preferences = getPlugin().getPluginPreferences();
-		HashSet optionNames = JavaModelManager.OptionNames;
+		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// initialize preferences to their default
 		Iterator iterator = optionNames.iterator();
@@ -2080,7 +2080,7 @@ public final class JavaCore extends Plugin {
 			return ERROR;
 		}
 		String propertyName = optionName;
-		if (JavaModelManager.OptionNames.contains(propertyName)){
+		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
 			Preferences preferences = getPlugin().getPluginPreferences();
 			return preferences.getString(propertyName).trim();
 		} else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
@@ -2114,7 +2114,7 @@ public final class JavaCore extends Plugin {
 		Plugin plugin = getPlugin();
 		if (plugin != null) {
 			Preferences preferences = getPlugin().getPluginPreferences();
-			HashSet optionNames = JavaModelManager.OptionNames;
+			HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 			
 			// initialize preferences to their default
 			Iterator iterator = optionNames.iterator();
@@ -2311,7 +2311,7 @@ public final class JavaCore extends Plugin {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		if (owner == null) owner = DefaultWorkingCopyOwner.PRIMARY;
 		ICompilationUnit[] result = manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
-		if (result == null) return JavaModelManager.NoWorkingCopy;
+		if (result == null) return JavaModelManager.NO_WORKING_COPY;
 		return result;
 	}
 		
@@ -2321,7 +2321,7 @@ public final class JavaCore extends Plugin {
 	protected void initializeDefaultPluginPreferences() {
 		
 		Preferences preferences = getPluginPreferences();
-		HashSet optionNames = JavaModelManager.OptionNames;
+		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// Compiler settings
 		Map compilerOptionsMap = new CompilerOptions().getMap(); // compiler defaults
@@ -3372,7 +3372,7 @@ public final class JavaCore extends Plugin {
 	
 			IJavaProject affectedProject = affectedProjects[i];
 			IClasspathContainer newContainer = respectiveContainers[i];
-			if (newContainer == null) newContainer = JavaModelManager.ContainerInitializationInProgress; // 30920 - prevent infinite loop
+			if (newContainer == null) newContainer = JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS; // 30920 - prevent infinite loop
 			boolean found = false;
 			if (JavaProject.hasJavaNature(affectedProject.getProject())){
 				IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
@@ -3386,19 +3386,19 @@ public final class JavaCore extends Plugin {
 			}
 			if (!found){
 				modifiedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't yet Java project
-				JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
+				JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
 				continue;
 			}
-			IClasspathContainer oldContainer = JavaModelManager.containerGet(affectedProject, containerPath);
-			if (oldContainer == JavaModelManager.ContainerInitializationInProgress) {
-				Map previousContainerValues = (Map)JavaModelManager.PreviousSessionContainers.get(affectedProject);
+			IClasspathContainer oldContainer = JavaModelManager.getJavaModelManager().containerGet(affectedProject, containerPath);
+			if (oldContainer == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
+				Map previousContainerValues = (Map)JavaModelManager.getJavaModelManager().previousSessionContainers.get(affectedProject);
 				if (previousContainerValues != null){
 					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
 					if (previousContainer != null) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
 							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer.getDescription()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						}
-						JavaModelManager.containerPut(affectedProject, containerPath, previousContainer); 
+						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 
 					}
 					oldContainer = null; //33695 - cannot filter out restored container, must update affected project to reset cached CP
 				} else {
@@ -3411,7 +3411,7 @@ public final class JavaCore extends Plugin {
 			}
 			remaining++; 
 			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
-			JavaModelManager.containerPut(affectedProject, containerPath, newContainer);
+			JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
 		}
 		
 		if (remaining == 0) return;
@@ -3459,7 +3459,7 @@ public final class JavaCore extends Plugin {
 		} finally {
 			for (int i = 0; i < projectLength; i++) {
 				if (respectiveContainers[i] == null) {
-					JavaModelManager.containerPut(affectedProjects[i], containerPath, null); // reset init in progress marker
+					JavaModelManager.getJavaModelManager().containerPut(affectedProjects[i], containerPath, null); // reset init in progress marker
 				}
 			}
 		}
@@ -3574,7 +3574,7 @@ public final class JavaCore extends Plugin {
 		Enumeration keys = newOptions.keys();
 		while (keys.hasMoreElements()){
 			String key = (String)keys.nextElement();
-			if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
+			if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
 			if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
 			String value = (String)newOptions.get(key);
 			preferences.setValue(key, value);
@@ -3676,14 +3676,14 @@ public final class JavaCore extends Plugin {
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
 			String variableName = variableNames[i];
-			IPath oldPath = JavaModelManager.variableGet(variableName); // if reentering will provide previous session value 
-			if (oldPath == JavaModelManager.VariableInitializationInProgress){
-				IPath previousPath = (IPath)JavaModelManager.PreviousSessionVariables.get(variableName);
+			IPath oldPath = JavaModelManager.getJavaModelManager().variableGet(variableName); // if reentering will provide previous session value 
+			if (oldPath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS){
+				IPath previousPath = (IPath)JavaModelManager.getJavaModelManager().previousSessionVariables.get(variableName);
 				if (previousPath != null){
 					if (JavaModelManager.CP_RESOLVE_VERBOSE){
 						System.out.println("CPVariable INIT - reentering access to variable: " + variableName+ " during its initialization, will see previous value: "+ previousPath); //$NON-NLS-1$ //$NON-NLS-2$
 					}
-					JavaModelManager.variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
+					JavaModelManager.getJavaModelManager().variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
 				}
 				oldPath = null;  //33695 - cannot filter out restored variable, must update affected project to reset cached CP
 			}
@@ -3744,7 +3744,7 @@ public final class JavaCore extends Plugin {
 		}
 		// update variables
 		for (int i = 0; i < varLength; i++){
-			JavaModelManager.variablePut(variableNames[i], variablePaths[i]);
+			JavaModelManager.getJavaModelManager().variablePut(variableNames[i], variablePaths[i]);
 		}
 		final String[] dbgVariableNames = variableNames;
 				

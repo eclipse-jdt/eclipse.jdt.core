@@ -57,18 +57,20 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Classpath variables pool
 	 */
-	public static HashMap Variables = new HashMap(5);
-	public static HashMap PreviousSessionVariables = new HashMap(5);
-	public static HashSet OptionNames = new HashSet(20);
-	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
-	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
-	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
+	public HashMap variables = new HashMap(5);
+	public HashMap previousSessionVariables = new HashMap(5);
+	private ThreadLocal variableInitializationInProgress = new ThreadLocal();
 		
 	/**
 	 * Classpath containers pool
 	 */
-	public static HashMap Containers = new HashMap(5);
-	public static HashMap PreviousSessionContainers = new HashMap(5);
+	public HashMap containers = new HashMap(5);
+	public HashMap previousSessionContainers = new HashMap(5);
+	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
+
+	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
+	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
+	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
 
 	/**
 	 * Name of the extension point for contributing classpath variable initializers
@@ -93,8 +95,8 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
-	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
-	public final static IClasspathContainer ContainerInitializationInProgress = new IClasspathContainer() {
+	public final static IPath VARIABLE_INITIALIZATION_IN_PROGRESS = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
+	public final static IClasspathContainer CONTAINER_INITIALIZATION_IN_PROGRESS = new IClasspathContainer() {
 		public IClasspathEntry[] getClasspathEntries() { return null; }
 		public String getDescription() { return "Container Initialization In Progress"; } //$NON-NLS-1$
 		public int getKind() { return 0; }
@@ -117,8 +119,10 @@ public class JavaModelManager implements ISaveParticipant {
 	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 
-	public final static ICompilationUnit[] NoWorkingCopy = new ICompilationUnit[0];
+	public final static ICompilationUnit[] NO_WORKING_COPY = new ICompilationUnit[0];
 	
+	public HashSet optionNames = new HashSet(20);
+
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -155,37 +159,67 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 
-	public static IClasspathContainer containerGet(IJavaProject project, IPath containerPath) {	
-		Map projectContainers = (Map)Containers.get(project);
+	public synchronized IClasspathContainer containerGet(IJavaProject project, IPath containerPath) {	
+		// check initialization in progress first
+		HashSet projectInitializations = containerInitializationInProgress(project);
+		if (projectInitializations.contains(containerPath)) {
+			return CONTAINER_INITIALIZATION_IN_PROGRESS;
+		}
+		
+		Map projectContainers = (Map)this.containers.get(project);
 		if (projectContainers == null){
 			return null;
 		}
 		IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
 		return container;
 	}
-
-	public static void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
-
-		Map projectContainers = (Map)Containers.get(project);
-		if (projectContainers == null){
-			projectContainers = new HashMap(1);
-			Containers.put(project, projectContainers);
+	
+	/*
+	 * Returns the set of container paths for the given project that are being initialized in the current thread.
+	 */
+	private HashSet containerInitializationInProgress(IJavaProject project) {
+		Map initializations = (Map)this.containerInitializationInProgress.get();
+		if (initializations == null) {
+			initializations = new HashMap();
+			this.containerInitializationInProgress.set(initializations);
 		}
-
-		if (container == null) {
-			projectContainers.remove(containerPath);
-			Map previousContainers = (Map)PreviousSessionContainers.get(project);
-			if (previousContainers != null){
-				previousContainers.remove(containerPath);
-			}
-		} else {
-			projectContainers.put(containerPath, container);
+		HashSet projectInitializations = (HashSet)initializations.get(project);
+		if (projectInitializations == null) {
+			projectInitializations = new HashSet();
+			initializations.put(project, projectInitializations);
 		}
+		return projectInitializations;
+	}
 
-		// do not write out intermediate initialization value
-		if (container == JavaModelManager.ContainerInitializationInProgress) {
+	public synchronized void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
+
+		// set/unset the initialization in progress
+		HashSet projectInitializations = containerInitializationInProgress(project);
+		if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+			projectInitializations.add(containerPath);
+			
+			// do not write out intermediate initialization value
 			return;
+		} else {
+			projectInitializations.remove(containerPath);
+
+			Map projectContainers = (Map)this.containers.get(project);
+			if (projectContainers == null){
+				projectContainers = new HashMap(1);
+				this.containers.put(project, projectContainers);
+			}
+	
+			if (container == null) {
+				projectContainers.remove(containerPath);
+				Map previousContainers = (Map)this.previousSessionContainers.get(project);
+				if (previousContainers != null){
+					previousContainers.remove(containerPath);
+				}
+			} else {
+				projectContainers.put(containerPath, container);
+			}
 		}
+		
 		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
 		String containerKey = CP_CONTAINER_PREFERENCES_PREFIX+project.getElementName() +"|"+containerPath;//$NON-NLS-1$
 		String containerString = CP_ENTRY_IGNORE;
@@ -431,7 +465,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * The singleton manager
 	 */
-	private final static JavaModelManager Manager= new JavaModelManager();
+	private final static JavaModelManager MANAGER= new JavaModelManager();
 
 	/**
 	 * Infos cache.
@@ -594,9 +628,9 @@ public class JavaModelManager implements ISaveParticipant {
 				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
 				String newValue = (String)event.getNewValue();
 				if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
-					Variables.put(varName, new Path(newValue));
+					getJavaModelManager().variables.put(varName, new Path(newValue));
 				} else {
-					Variables.remove(varName);
+					getJavaModelManager().variables.remove(varName);
 				}
 			}
 			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
@@ -802,7 +836,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns the singleton JavaModelManager
 	 */
 	public final static JavaModelManager getJavaModelManager() {
-		return Manager;
+		return MANAGER;
 	}
 
 	/**
@@ -1095,8 +1129,8 @@ public class JavaModelManager implements ISaveParticipant {
 				String varName = propertyName.substring(variablePrefixLength);
 				IPath varPath = new Path(preferences.getString(propertyName).trim());
 				
-				Variables.put(varName, varPath); 
-				PreviousSessionVariables.put(varName, varPath);
+				this.variables.put(varName, varPath); 
+				this.previousSessionVariables.put(varName, varPath);
 			}
 			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
 				recreatePersistedContainer(propertyName, preferences.getString(propertyName), true/*add to container values*/);
@@ -1106,16 +1140,16 @@ public class JavaModelManager implements ISaveParticipant {
 		String[] registeredVariables = getRegisteredVariableNames();
 		for (int i = 0; i < registeredVariables.length; i++) {
 			String varName = registeredVariables[i];
-			Variables.put(varName, null); // reset variable, but leave its entry in the Map, so it will be part of variable names.
+			this.variables.put(varName, null); // reset variable, but leave its entry in the Map, so it will be part of variable names.
 		}
 		// override persisted values for containers which have a registered initializer
 		String[] registeredContainerIDs = getRegisteredContainerIDs();
 		for (int i = 0; i < registeredContainerIDs.length; i++) {
 			String containerID = registeredContainerIDs[i];
-			Iterator projectIterator = Containers.keySet().iterator();
+			Iterator projectIterator = this.containers.keySet().iterator();
 			while (projectIterator.hasNext()){
 				IJavaProject project = (IJavaProject)projectIterator.next();
-				Map projectContainers = (Map)Containers.get(project);
+				Map projectContainers = (Map)this.containers.get(project);
 				if (projectContainers != null){
 					Iterator containerIterator = projectContainers.keySet().iterator();
 					while (containerIterator.hasNext()){
@@ -1216,7 +1250,7 @@ public class JavaModelManager implements ISaveParticipant {
 			final IPath containerPath = new Path(propertyName.substring(index+1).trim());
 			
 			if (containerString == null || containerString.equals(CP_ENTRY_IGNORE)) {
-				containerPut(project, containerPath, null);
+				getJavaModelManager().containerPut(project, containerPath, null);
 			} else {
 				final IClasspathEntry[] containerEntries = project.decodeClasspath(containerString, false, false);
 				if (containerEntries != null && containerEntries != JavaProject.INVALID_CLASSPATH) {
@@ -1239,12 +1273,12 @@ public class JavaModelManager implements ISaveParticipant {
 
 					};
 					if (addToContainerValues) {
-						containerPut(project, containerPath, container);
+						getJavaModelManager().containerPut(project, containerPath, container);
 					}
-					Map projectContainers = (Map)PreviousSessionContainers.get(project);
+					Map projectContainers = (Map)getJavaModelManager().previousSessionContainers.get(project);
 					if (projectContainers == null){
 						projectContainers = new HashMap(1);
-						PreviousSessionContainers.put(project, projectContainers);
+						getJavaModelManager().previousSessionContainers.put(project, projectContainers);
 					}
 					projectContainers.put(containerPath, container);
 				}
@@ -1501,14 +1535,31 @@ public class JavaModelManager implements ISaveParticipant {
 		// Note: no need to close the Java model as this just removes Java element infos from the Java model cache
 	}
 		
-	public static IPath variableGet(String variableName){
-		return (IPath)Variables.get(variableName);
+	public synchronized IPath variableGet(String variableName){
+		// check initialization in progress first
+		HashSet initializations = variableInitializationInProgress();
+		if (initializations.contains(variableName)) {
+			return VARIABLE_INITIALIZATION_IN_PROGRESS;
+		}
+		return (IPath)this.variables.get(variableName);
 	}
 
-	public static String[] variableNames(){
-		int length = Variables.size();
+	/*
+	 * Returns the set of variable names that are being initialized in the current thread.
+	 */
+	private HashSet variableInitializationInProgress() {
+		HashSet initializations = (HashSet)this.variableInitializationInProgress.get();
+		if (initializations == null) {
+			initializations = new HashSet();
+			this.variableInitializationInProgress.set(initializations);
+		}
+		return initializations;
+	}
+
+	public synchronized String[] variableNames(){
+		int length = this.variables.size();
 		String[] result = new String[length];
-		Iterator vars = Variables.keySet().iterator();
+		Iterator vars = this.variables.keySet().iterator();
 		int index = 0;
 		while (vars.hasNext()) {
 			result[index++] = (String) vars.next();
@@ -1516,20 +1567,27 @@ public class JavaModelManager implements ISaveParticipant {
 		return result;
 	}
 	
-	public static void variablePut(String variableName, IPath variablePath){		
+	public synchronized void variablePut(String variableName, IPath variablePath){		
 
-		// update cache - do not only rely on listener refresh		
-		if (variablePath == null) {
-			Variables.remove(variableName);
-			PreviousSessionVariables.remove(variableName);
+		// set/unset the initialization in progress
+		HashSet initializations = variableInitializationInProgress();
+		if (variablePath == VARIABLE_INITIALIZATION_IN_PROGRESS) {
+			initializations.add(variableName);
+			
+			// do not write out intermediate initialization value
+			return;
 		} else {
-			Variables.put(variableName, variablePath);
+			initializations.remove(variableName);
+
+			// update cache - do not only rely on listener refresh		
+			if (variablePath == null) {
+				this.variables.remove(variableName);
+				this.previousSessionVariables.remove(variableName);
+			} else {
+				this.variables.put(variableName, variablePath);
+			}
 		}
 
-		// do not write out intermediate initialization value
-		if (variablePath == JavaModelManager.VariableInitializationInProgress){
-			return;
-		} 
 		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
 		String variableString = variablePath == null ? CP_ENTRY_IGNORE : variablePath.toString();
