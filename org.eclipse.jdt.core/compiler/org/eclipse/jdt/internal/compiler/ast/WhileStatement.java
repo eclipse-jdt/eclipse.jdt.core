@@ -140,7 +140,7 @@ public class WhileStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
-		breakLabel.codeStream = codeStream;
+		breakLabel.initialize(codeStream);
 
 		// generate condition
 		if (continueLabel == null) {
@@ -154,7 +154,7 @@ public class WhileStatement extends Statement {
 					true);
 			}
 		} else {
-			continueLabel.codeStream = codeStream;
+			continueLabel.initialize(codeStream);
 			if (!(((condition.constant != NotAConstant)
 				&& (condition.constant.booleanValue() == true))
 				|| (action == null)

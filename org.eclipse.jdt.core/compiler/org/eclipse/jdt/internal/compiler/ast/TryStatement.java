@@ -218,7 +218,7 @@ public class TryStatement extends SubRoutineStatement {
 			exceptionLabels[i] = new ExceptionLabel(codeStream, catchArguments[i].binding.type);
 		}
 		if (subRoutineStartLabel != null) {
-			subRoutineStartLabel.codeStream = codeStream;
+			subRoutineStartLabel.initialize(codeStream);
 			this.enterAnyExceptionHandler(codeStream);
 		}
 		// generate the try block

@@ -820,7 +820,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("semicolon")) {//$NON-NLS-1$ 
 						this.options.put(
-							CompilerOptions.OPTION_ReportSuperfluousSemicolon,
+							CompilerOptions.OPTION_ReportEmptyStatement,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
 						this.options.put(

@@ -49,6 +49,8 @@ public class EmptyStatement extends Statement {
 	public void resolve(BlockScope scope) {
 		if ((bits & IsUsefulEmptyStatementMASK) == 0) {
 			scope.problemReporter().superfluousSemicolon(this.sourceStart, this.sourceEnd);
+		} else {
+			scope.problemReporter().emptyControlFlowStatement(this.sourceStart, this.sourceEnd);
 		}
 	}
 

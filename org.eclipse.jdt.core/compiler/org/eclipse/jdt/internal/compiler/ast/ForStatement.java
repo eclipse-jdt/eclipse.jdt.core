@@ -184,9 +184,9 @@ public class ForStatement extends Statement {
 		// label management
 		Label actionLabel = new Label(codeStream);
 		Label conditionLabel = new Label(codeStream);
-		breakLabel.codeStream = codeStream;
+		breakLabel.initialize(codeStream);
 		if (continueLabel != null) {
-			continueLabel.codeStream = codeStream;
+			continueLabel.initialize(codeStream);
 		}
 		// jump over the actionBlock
 		if ((condition != null)

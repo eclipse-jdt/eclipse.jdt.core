@@ -85,7 +85,7 @@ public class LabeledStatement extends Statement {
 		
 		int pc = codeStream.position;
 		if (targetLabel != null) {
-			targetLabel.codeStream = codeStream;
+			targetLabel.initialize(codeStream);
 			if (statement != null) {
 				statement.generateCode(currentScope, codeStream);
 			}

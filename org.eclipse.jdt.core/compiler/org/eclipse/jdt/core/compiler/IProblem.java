@@ -68,6 +68,7 @@
  *								   JavadocMissing
  *								   JavadocInvalidTag
  *								   JavadocMessagePrefix
+ *								   EmptyControlFlowStatement
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -445,6 +446,8 @@ public interface IProblem {
 	int UnusedConstructorDeclaredThrownException = Internal + 186;	
 	/** @since 3.0 */
 	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;	
+	/** @since 3.0 */
+	int EmptyControlFlowStatement = Internal + TypeRelated + 188;	
 
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;

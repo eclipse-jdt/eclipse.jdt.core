@@ -110,9 +110,9 @@ public class DoStatement extends Statement {
 		// labels management
 		Label actionLabel = new Label(codeStream);
 		actionLabel.place();
-		breakLabel.codeStream = codeStream;
+		breakLabel.initialize(codeStream);
 		if (continueLabel != null) {
-			continueLabel.codeStream = codeStream;
+			continueLabel.initialize(codeStream);
 		}
 
 		// generate action

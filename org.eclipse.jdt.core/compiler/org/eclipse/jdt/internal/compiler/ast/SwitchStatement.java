@@ -109,7 +109,7 @@ public class SwitchStatement extends Statement {
 			int pc = codeStream.position;
 	
 			// prepare the labels and constants
-			breakLabel.codeStream = codeStream;
+			breakLabel.initialize(codeStream);
 			CaseLabel[] caseLabels = new CaseLabel[caseCount];
 			int[] constants = new int[caseCount];
 			boolean needSwitch = caseCount != 0;
