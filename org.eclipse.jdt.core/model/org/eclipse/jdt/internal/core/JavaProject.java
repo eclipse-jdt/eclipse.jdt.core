@@ -1650,29 +1650,34 @@ public class JavaProject
 
 	/**
 	 * Reset the collection of package fragment roots (local ones) - only if opened.
+	 * Need to check *all* package fragment roots in order to reset NameLookup
 	 */
 	public void updatePackageFragmentRoots(){
 		
 			if (this.isOpen()) {
-
 				try {
-					IPackageFragmentRoot[] oldRoots = getPackageFragmentRoots();
-					IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(false);
-					checkIdentical: {
-						if (oldRoots.length == newRoots.length){
-							for (int i = 0, length = oldRoots.length; i < length; i++){
-								if (!oldRoots[i].equals(newRoots[i])){
-									break checkIdentical;
-								}
-							}
-							return; // no need to update
-						}	
-					}
 					JavaProjectElementInfo info = getJavaProjectElementInfo();
+
+					NameLookup lookup = info.getNameLookup();
+					if (lookup != null){
+						IPackageFragmentRoot[] oldRoots = lookup.fPackageFragmentRoots;
+						IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(true);
+						checkIdentical: { // compare all pkg fragment root lists
+							if (oldRoots.length == newRoots.length){
+								for (int i = 0, length = oldRoots.length; i < length; i++){
+									if (!oldRoots[i].equals(newRoots[i])){
+										break checkIdentical;
+									}
+								}
+								return; // no need to update
+							}	
+						}
+						info.setNameLookup(null); // discard name lookup (hold onto roots)
+					}				
+					info.setNonJavaResources(null);
 					info.setChildren(
 						computePackageFragmentRoots(false));		
-					info.setNameLookup(null); // discard name lookup (hold onto roots)
-					info.setNonJavaResources(null);
+
 				} catch(JavaModelException e){
 					try {
 						close(); // could not do better
