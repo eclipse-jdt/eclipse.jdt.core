@@ -78,6 +78,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * Used when an IPath corresponds to more than one root */
 	Map otherRoots;
 	
+	/* A table from IPath (a source attachment path from a classpath entry) to IPath (a root path) */
+	Map sourceAttachments;
+
 	/* The java element that was last created (see createElement(IResource). 
 	 * This is used as a stack of java elements (using getParent() to pop it, and 
 	 * using the various get*(...) to push it. */
@@ -1378,6 +1381,9 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				return false;
 			}
 		} else {
+			// check source attachment change
+			this.checkSourceAttachmentChange(delta, res);
+			
 			// not yet inside a package fragment root
 			processChildren = true;
 		}
@@ -1531,6 +1537,32 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			return currentProject != null && elementType != -1;
 		}
 	}
+	private void checkSourceAttachmentChange(IResourceDelta delta, IResource res) {
+		IPath rootPath = (IPath)this.sourceAttachments.get(res.getFullPath());
+		if (rootPath != null) {
+			IJavaProject projectOfRoot = (IJavaProject)this.roots.get(rootPath);
+			if (projectOfRoot != null) {
+				IPackageFragmentRoot root = projectOfRoot.getPackageFragmentRoot(ResourcesPlugin.getWorkspace().getRoot().getFile(rootPath));
+				try {
+					// close the root so that source attachement cache is flushed
+					root.close();
+				} catch (JavaModelException e) {
+				}
+				switch (delta.getKind()) {
+					case IResourceDelta.ADDED:
+						fCurrentDelta.sourceAttached(root);
+						break;
+					case IResourceDelta.CHANGED:
+						fCurrentDelta.sourceDetached(root);
+						fCurrentDelta.sourceAttached(root);
+						break;
+					case IResourceDelta.REMOVED:
+						fCurrentDelta.sourceDetached(root);
+						break;
+				}
+			} 
+		}
+	}
 	/**
 	 * Update the classpath markers and cycle markers for the projects to update.
 	 */
@@ -1644,6 +1676,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 private void initializeRoots(IJavaModel model) {
 	this.roots = new HashMap();
 	this.otherRoots = new HashMap();
+	this.sourceAttachments = new HashMap();
 	IJavaProject[] projects;
 	try {
 		projects = ((JavaModel)model).getOldJavaProjectsList();
@@ -1663,6 +1696,8 @@ private void initializeRoots(IJavaModel model) {
 		for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
 			IClasspathEntry entry = classpath[j];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+			
+			// root path
 			IPath path = entry.getPath();
 			if (this.roots.get(path) == null) {
 				this.roots.put(path, project);
@@ -1673,6 +1708,27 @@ private void initializeRoots(IJavaModel model) {
 					this.otherRoots.put(path, set);
 				}
 				set.add(project);
+			}
+			
+			// source attachment path
+			if (entry.getEntryKind() != IClasspathEntry.CPE_LIBRARY) continue;
+			QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + path.toOSString()); //$NON-NLS-1$;
+			String propertyString = null;
+			try {
+				propertyString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(qName);
+			} catch (CoreException e) {
+				continue;
+			}
+			IPath sourceAttachmentPath;
+			if (propertyString != null) {
+				int index= propertyString.lastIndexOf(JarPackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
+				if (index < 0) continue;
+				sourceAttachmentPath = new Path(propertyString.substring(0, index));
+			} else {
+				sourceAttachmentPath = entry.getSourceAttachmentPath();
+			}
+			if (sourceAttachmentPath != null) {
+				this.sourceAttachments.put(sourceAttachmentPath, path);
 			}
 		}
 	}
