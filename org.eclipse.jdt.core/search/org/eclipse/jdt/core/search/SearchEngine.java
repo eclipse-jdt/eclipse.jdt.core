@@ -68,7 +68,7 @@ public class SearchEngine {
 		/**
 		 * @see org.eclipse.jdt.core.search.SearchRequestor#acceptSearchMatch(org.eclipse.jdt.core.search.SearchMatch)
 		 */
-		public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
+		public void acceptSearchMatch(SearchMatch match) throws CoreException {
 			this.resultCollector.accept(
 				match.getResource(),
 				match.getOffset(),
@@ -76,7 +76,6 @@ public class SearchEngine {
 				(IJavaElement) match.getElement(),
 				match.getAccuracy()
 			);
-			return true;
 		}
 		/**
 		 * @see org.eclipse.jdt.core.search.SearchRequestor#beginReporting()

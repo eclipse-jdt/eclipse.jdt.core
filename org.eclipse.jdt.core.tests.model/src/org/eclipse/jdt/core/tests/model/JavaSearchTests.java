@@ -41,7 +41,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 	public boolean showProject;
 	public boolean showContext;
 	public boolean showInsideDoc;
-	public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
+	public void acceptSearchMatch(SearchMatch match) throws CoreException {
 		try {
 			if (results.length() > 0) results.append("\n");
 			IResource resource = match.getResource();
@@ -172,7 +172,6 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 			results.append("\n");
 			results.append(e.toString());
 		}
-		return true;
 	}
 	private void append(IField field) throws JavaModelException {
 		append(field.getDeclaringType());
@@ -690,7 +689,7 @@ public void testConstructorReferenceInFieldInitializer() throws CoreException {
 public void testCoreException() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	SearchRequestor resultCollector = new SearchRequestor() {
-		public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
+		public void acceptSearchMatch(SearchMatch match) throws CoreException {
 			throw new CoreException(new JavaModelStatus(-1, "test"));
 		}
 		public void beginReporting() {}
