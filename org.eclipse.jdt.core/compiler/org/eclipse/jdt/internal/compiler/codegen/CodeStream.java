@@ -1839,16 +1839,20 @@ public void generateStringAppend(BlockScope blockScope, Expression oper1, Expres
  */
 public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, ReferenceBinding targetType, Expression enclosingInstance, AstNode invocationSite) {
 
-	// perform some emulation work in case there is some and we are inside a local type only
+	// supplying enclosing instance for the anonymous type's superclass
+	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? targetType.superclass() : targetType;
 	boolean hasExtraEnclosingInstance = enclosingInstance != null;
-	ReferenceBinding[] syntheticArgumentTypes;
+	if (hasExtraEnclosingInstance 
+			&& (!checkedTargetType.isNestedType() || checkedTargetType.isStatic())) {
+		currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, checkedTargetType);
+		return;
+	}
 
+	// perform some emulation work in case there is some and we are inside a local type only
+	ReferenceBinding[] syntheticArgumentTypes;
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
-		ReferenceBinding targetEnclosingType = targetType.isAnonymousType() ? 
-				targetType.superclass().enclosingType() // supplying enclosing instance for the anonymous type's superclass
-				: targetType.enclosingType();
-
+		ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
 		boolean needEnclosingInstanceNullCheck = currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4;
 						
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
@@ -1871,11 +1875,7 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 			}
 		}
 		if (hasExtraEnclosingInstance){
-			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
-		}
-	} else { // we may still have an enclosing instance to consider
-		if (hasExtraEnclosingInstance) {
-			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
+			currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, checkedTargetType);
 		}
 	}
 }
