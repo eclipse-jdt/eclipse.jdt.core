@@ -814,8 +814,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 
-	// TODO missing == case
-	public void _test023() { // 78849
+	public void test023() { // 78849
 		this.runConformTest(
 			new String[] {
 				"X.java",

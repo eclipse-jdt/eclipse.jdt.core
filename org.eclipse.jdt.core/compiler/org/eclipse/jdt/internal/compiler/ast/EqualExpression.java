@@ -417,15 +417,37 @@ public class EqualExpression extends BinaryExpression {
 			return null;
 		}
 	
+		// autoboxing support
+		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
+		boolean unboxedLeft = false, unboxedRight = false;
+		if (use15specifics) {
+			if (!leftType.isBaseType()) {
+				TypeBinding unboxedType = scope.computeBoxingType(leftType);
+				if (unboxedType != leftType) {
+					leftType = unboxedType;
+					unboxedLeft = true;
+				}
+			}
+			if (!rightType.isBaseType()) {
+				TypeBinding unboxedType = scope.computeBoxingType(rightType);
+				if (unboxedType != rightType) {
+					rightType = unboxedType;
+					unboxedRight = true;
+				}
+			}
+		}
 		// both base type
 		if (leftType.isBaseType() && rightType.isBaseType()) {
+			int leftTypeID = leftType.id;
+			int rightTypeID = rightType.id;
+	
 			// the code is an int
 			// (cast)  left   == (cast)  right --> result
 			//  0000   0000       0000   0000      0000
 			//  <<16   <<12       <<8    <<4       <<0
-			int operatorSignature = OperatorSignatures[EQUAL_EQUAL][ (leftType.id << 4) + rightType.id];
-			left.implicitConversion = operatorSignature >>> 12;
-			right.implicitConversion = (operatorSignature >>> 4) & 0x000FF;
+			int operatorSignature = OperatorSignatures[EQUAL_EQUAL][ (leftTypeID << 4) + rightTypeID];
+			left.implicitConversion =  (unboxedLeft ? UNBOXING : 0) | (operatorSignature >>> 12);
+			right.implicitConversion =  (unboxedRight ? UNBOXING : 0) | ((operatorSignature >>> 4) & 0x000FF);
 			bits |= operatorSignature & 0xF;		
 			if ((operatorSignature & 0x0000F) == T_undefined) {
 				constant = Constant.NotAConstant;
