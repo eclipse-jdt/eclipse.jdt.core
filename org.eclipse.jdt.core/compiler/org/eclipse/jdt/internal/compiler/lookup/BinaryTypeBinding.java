@@ -524,6 +524,13 @@ public FieldBinding[] fields() {
 	return fields;
 }
 
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#genericTypeSignature()
+ */
+public char[] genericTypeSignature() {
+	return computeGenericTypeSignature(this.typeVariables);
+}
+
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	int argCount = argumentTypes.length;
