@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.jdt.internal.core.util.KeyKind;
 import org.eclipse.jdt.internal.core.util.KeyToSignature;
 
 /**
@@ -48,12 +49,45 @@ public class BindingKey {
 	 * If this binding key doesn't represent a parameterized type or a pamaterized method,
 	 * returns an empty array.
 	 * 
-	 * @return the the type argument signatures 
+	 * @return the type argument signatures 
 	 */
 	public String[] getTypeArguments() {
 		KeyToSignature keyToSignature = new KeyToSignature(this.key, KeyToSignature.TYPE_ARGUMENTS);
 		keyToSignature.parse();
 		return keyToSignature.getTypeArguments();
+	}
+	
+	/**
+	 * Returns whether this binding key represents a raw type.
+	 * 
+	 * @return whether this binding key represents a raw type
+	 */
+	public boolean isRawType() {
+		KeyKind kind = new KeyKind(this.key);
+		kind.parse();
+		return (kind.flags & KeyKind.F_RAW_TYPE) != 0;
+	}
+	
+	/**
+	 * Returns whether this binding key represents a parameterized type, or if its declaring type is a parameterized type.
+	 * 
+	 * @return whether this binding key represents a parameterized type
+	 */
+	public boolean isParameterizedType() {
+		KeyKind kind = new KeyKind(this.key);
+		kind.parse();
+		return (kind.flags & KeyKind.F_PARAMETERIZED_TYPE) != 0;
+	}
+	
+	/**
+	 * Returns whether this binding key represents a parameterized method, or if its declaring method is a parameterized method.
+	 * 
+	 * @return whether this binding key represents a parameterized method
+	 */
+	public boolean isParameterizedMethod() {
+		KeyKind kind = new KeyKind(this.key);
+		kind.parse();
+		return (kind.flags & KeyKind.F_PARAMETERIZED_METHOD) != 0;
 	}
 	
 	/**

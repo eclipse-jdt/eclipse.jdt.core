@@ -66,15 +66,15 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(pkgName);
 	}
 	
-	public void consumeParameterizedType(char[] simpleTypeName) {
+	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		if (simpleTypeName != null) {
 			// member type
 			this.signature.append('.');
 			this.signature.append(simpleTypeName);
 		}
-		int length = this.arguments.size();
-		if (length > 0) {
+		if (!isRaw) {
 			this.signature.append('<');
+			int length = this.arguments.size();
 			for (int i = 0; i < length; i++) {
 				this.signature.append(this.arguments.get(i));
 			}

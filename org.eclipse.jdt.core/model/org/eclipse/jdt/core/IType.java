@@ -783,12 +783,13 @@ public interface IType extends IMember {
 	 */
 	boolean isMember() throws JavaModelException;
 	/**
-	 * Returns whether this type represents a parameterized type.
+	 * Returns whether this type represents a resolved type.
+	 * If a type is resoved, its key contains resolved information.
 	 * 
-	 * @return whether this type represents a parameterized type.
+	 * @return whether this type represents a resolved type.
 	 * @since 3.1
 	 */
-	boolean isParameterized();
+	boolean isResolved();
 	/**
 	 * Loads a previously saved ITypeHierarchy from an input stream. A type hierarchy can
 	 * be stored using ITypeHierachy#store(OutputStream).

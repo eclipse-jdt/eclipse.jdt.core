@@ -202,9 +202,9 @@ public boolean isMainMethod() throws JavaModelException {
 	return this.isMainMethod(this);
 }
 /* (non-Javadoc)
- * @see org.eclipse.jdt.core.IMethod#isParameterized()
+ * @see org.eclipse.jdt.core.IMethod#isResolved()
  */
-public boolean isParameterized() {
+public boolean isResolved() {
 	return false;
 }
 /**

@@ -10,39 +10,33 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.JavaModelException;
-
 /**
- * Handle representing a binary type that is parameterized.
- * The uniqueKey contains the genericTypeSignature of the parameterized type.
+ * Handle representing a source field that is resolved.
+ * The uniqueKey contains the genericSignature of the resolved field. Use BindingKey to decode it.
  */
-public class ParameterizedBinaryType extends BinaryType {
+public class ResolvedSourceField extends SourceField {
 	
 	private String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedBinaryType(JavaElement parent, String name, String uniqueKey) {
+	public ResolvedSourceField(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
 		this.uniqueKey = uniqueKey;
 	}
-
-	public String getFullyQualifiedParameterizedName() throws JavaModelException {
-		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
-	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.BinaryType#getKey()
+	 * @see org.eclipse.jdt.internal.core.SourceField#getKey()
 	 */
 	public String getKey() {
 		return this.uniqueKey;
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.BinaryType#isParameterized()
+	 * @see org.eclipse.jdt.core.IField#isResolved()
 	 */
-	public boolean isParameterized() {
+	public boolean isResolved() {
 		return true;
 	}
 	
@@ -51,7 +45,8 @@ public class ParameterizedBinaryType extends BinaryType {
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" key="); //$NON-NLS-1$
+		buffer.append(" {key="); //$NON-NLS-1$
 		buffer.append(this.uniqueKey);
+		buffer.append("}"); //$NON-NLS-1$
 	}
 }

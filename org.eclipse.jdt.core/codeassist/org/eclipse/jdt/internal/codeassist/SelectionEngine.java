@@ -856,10 +856,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			} else {
 				this.noProposal = false;
 				
-				char[] uniqueKey = null;
+				char[] uniqueKey = typeBinding.computeUniqueKey();
 				if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
 					completeLocalTypes(typeBinding);
-					uniqueKey = typeBinding.computeUniqueKey();
 				}
 				if (typeBinding.isAnnotationType()) {
 					this.requestor.acceptAnnotation(
@@ -918,10 +917,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 					((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
 				} else {
-					char[] uniqueKey = null;
+					char[] uniqueKey = methodBinding.computeUniqueKey();
 					if(methodBinding instanceof ParameterizedMethodBinding) {
 						completeLocalTypes(methodBinding);
-						uniqueKey = methodBinding.computeUniqueKey();
 					}
 					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
@@ -952,10 +950,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							}
 							((SelectionRequestor)this.requestor).acceptLocalField(fieldBinding);
 						} else {
-							char[] uniqueKey = null;
+							char[] uniqueKey = fieldBinding.computeUniqueKey();
 							if(fieldBinding instanceof ParameterizedFieldBinding) {
 								completeLocalTypes(fieldBinding.declaringClass);
-								uniqueKey = fieldBinding.computeUniqueKey();
 							}
 							this.requestor.acceptField(
 								declaringClass.qualifiedPackageName(),
@@ -1209,13 +1206,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 				enclosingType = enclosingType.enclosingType;
 			}
+			char[] uniqueKey = typeDeclaration.binding != null ? typeDeclaration.binding.computeUniqueKey() : null;
 			switch (typeDeclaration.kind()) {
 				case IGenericType.CLASS_DECL :
 					this.requestor.acceptClass(
 						packageName,
 						qualifiedSourceName,
 						true,
-						null,
+						uniqueKey,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 					break;
@@ -1224,7 +1222,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						packageName,
 						qualifiedSourceName,
 						true,
-						null,
+						uniqueKey,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 					break;
@@ -1233,7 +1231,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						packageName,
 						qualifiedSourceName,
 						true,
-						null,
+						uniqueKey,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 					break;
@@ -1242,7 +1240,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						packageName,
 						qualifiedSourceName,
 						true,
-						null,
+						uniqueKey,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 					break;
@@ -1265,13 +1263,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 					enclosingType = enclosingType.enclosingType;
 				}
-				
+				FieldDeclaration field = fields[i];
 				this.requestor.acceptField(
 					packageName,
 					qualifiedSourceName,
-					fields[i].name,
+					field.name,
 					true,
-					null,
+					field.binding != null ? field.binding.computeUniqueKey() : null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
 
@@ -1302,7 +1300,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					null, // SelectionRequestor does not need of parameters type for method declaration
 					method.isConstructor(),
 					true,
-					null,
+					method.binding != null ? method.binding.computeUniqueKey() : null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
 				

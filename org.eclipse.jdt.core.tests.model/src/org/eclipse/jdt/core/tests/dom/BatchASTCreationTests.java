@@ -44,7 +44,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test042"));
+			suite.addTest(new BatchASTCreationTests("test030"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -696,7 +696,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"   X field;\n" +
 				"}",
 			},
-			"Lp1/X;");
+			"Lp1/X<>;");
 	}
 
 	/*
@@ -713,7 +713,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y;");
+			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y<>;");
 	}
 	
 	/* 
@@ -806,7 +806,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<Lp1/X;>");
+			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<Lp1/X<>;>");
 	}
 
 	/*
@@ -825,7 +825,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X;.foo<U:Ljava/lang/Object;>(TT;TU;)V");
+			"Lp1/X<>;.foo<U:Ljava/lang/Object;>(TT;TU;)V");
 	}
 
 	/*

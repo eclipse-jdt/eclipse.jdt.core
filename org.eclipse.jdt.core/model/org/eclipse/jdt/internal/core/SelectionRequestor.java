@@ -32,8 +32,6 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedFieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -82,13 +80,12 @@ public SelectionRequestor(NameLookup nameLookup, Openable openable) {
 protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[] uniqueKey) {
 	IMethod method= type.getMethod(new String(selector), parameterSignatures);
 	if (method.exists()) {
-		if(uniqueKey != null) {
-			method = new ParameterizedBinaryMethod(
+		if (uniqueKey != null)
+			method = new ResolvedBinaryMethod(
 					(JavaElement)method.getParent(),
 					method.getElementName(),
 					method.getParameterTypes(),
 					new String(uniqueKey));
-		}
 		addElement(method);
 		if(SelectionEngine.DEBUG){
 			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
@@ -156,17 +153,17 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 		if (type != null) {
 			IField field= type.getField(new String(name));
 			if (field.exists()) {
-				if(uniqueKey != null) {
+				if (uniqueKey != null) {
 					if(field.isBinary()) {
-						field = new ParameterizedBinaryField(
+						field = new ResolvedBinaryField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
-								uniqueKey == null ? null : new String(uniqueKey));
+								new String(uniqueKey));
 					} else {
-						field = new ParameterizedSourceField(
+						field = new ResolvedSourceField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
-								uniqueKey == null ? null : new String(uniqueKey));
+								new String(uniqueKey));
 					}
 				}
 				addElement(field);
@@ -198,19 +195,17 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 		IType type = (IType) res;
 		IField field= type.getField(new String(fieldBinding.name));
 		if (field.exists()) {
-			if (fieldBinding instanceof ParameterizedFieldBinding) {
-				char[] uniqueKey = fieldBinding.computeUniqueKey();
-				if(field.isBinary()) {
-					field = new ParameterizedBinaryField(
-							(JavaElement)field.getParent(),
-							field.getElementName(),
-							uniqueKey == null ? null : new String(uniqueKey));
-				} else {
-					field = new ParameterizedSourceField(
-							(JavaElement)field.getParent(),
-							field.getElementName(),
-							uniqueKey == null ? null : new String(uniqueKey));
-				}
+			char[] uniqueKey = fieldBinding.computeUniqueKey();
+			if(field.isBinary()) {
+				field = new ResolvedBinaryField(
+						(JavaElement)field.getParent(),
+						field.getElementName(),
+						new String(uniqueKey));
+			} else {
+				field = new ResolvedSourceField(
+						(JavaElement)field.getParent(),
+						field.getElementName(),
+						new String(uniqueKey));
 			}
 			addElement(field);
 			if(SelectionEngine.DEBUG){
@@ -224,23 +219,21 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 public void acceptLocalMethod(MethodBinding methodBinding) {
 	IJavaElement res = findLocalElement(methodBinding.sourceStart());
 	if(res != null && res.getElementType() == IJavaElement.METHOD) {
-		if (methodBinding instanceof ParameterizedMethodBinding) {
-			IMethod method = (IMethod) res;
-			
-			char[] uniqueKey = methodBinding.computeUniqueKey();
-			if(method.isBinary()) {
-				res = new ParameterizedBinaryMethod(
-						(JavaElement)res.getParent(),
-						method.getElementName(),
-						method.getParameterTypes(), 
-						new String(uniqueKey));
-			} else {
-				res = new ParameterizedSourceMethod(
-						(JavaElement)res.getParent(),
-						method.getElementName(),
-						method.getParameterTypes(), 
-						new String(uniqueKey));
-			}
+		IMethod method = (IMethod) res;
+		
+		char[] uniqueKey = methodBinding.computeUniqueKey();
+		if(method.isBinary()) {
+			res = new ResolvedBinaryMethod(
+					(JavaElement)res.getParent(),
+					method.getElementName(),
+					method.getParameterTypes(), 
+					new String(uniqueKey));
+		} else {
+			res = new ResolvedSourceMethod(
+					(JavaElement)res.getParent(),
+					method.getElementName(),
+					method.getParameterTypes(), 
+					new String(uniqueKey));
 		}
 		addElement(res);
 		if(SelectionEngine.DEBUG){
@@ -255,13 +248,11 @@ public void acceptLocalType(TypeBinding typeBinding) {
 	if(typeBinding instanceof ParameterizedTypeBinding) {
 		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeBinding).type;
 		res = findLocalElement(localTypeBinding.sourceStart());
-		if(typeBinding.isParameterizedType()) {
-			res = new ParameterizedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(typeBinding.computeUniqueKey()));
-		}
 	} else if(typeBinding instanceof SourceTypeBinding) {
 		res = findLocalElement(((SourceTypeBinding)typeBinding).sourceStart());
 	}
 	if(res != null && res.getElementType() == IJavaElement.TYPE) {
+		res = new ResolvedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(typeBinding.computeUniqueKey()));
 		addElement(res);
 		if(SelectionEngine.DEBUG){
 			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
@@ -383,17 +374,14 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 		for (int i = 0; i < methods.length; i++) {
 			if (methods[i].getElementName().equals(name)
 					&& methods[i].getParameterTypes().length == parameterTypeNames.length) {
-				if(uniqueKey != null) {
-					IMethod method = methods[i];
-					ParameterizedSourceMethod parameterizedSourceMethod = new ParameterizedSourceMethod(
-							(JavaElement)method.getParent(),
-							method.getElementName(),
-							method.getParameterTypes(),
-							new String(uniqueKey));
-					addElement(parameterizedSourceMethod);
-				} else {
-					addElement(methods[i]);
-				}
+				IMethod method = methods[i];
+				if (uniqueKey != null)
+					method = new ResolvedSourceMethod(
+						(JavaElement)method.getParent(),
+						method.getElementName(),
+						method.getParameterTypes(),
+						new String(uniqueKey));
+				addElement(method);
 			}
 		}
 	} catch (JavaModelException e) {
@@ -491,11 +479,12 @@ protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, 
 		type = resolveTypeByLocation(packageName, typeName, acceptFlags, start, end);
 	} else {
 		type = resolveType(packageName, typeName, acceptFlags);
-		if(type != null && uniqueKey != null) {
+		if(type != null ) {
+			String key = uniqueKey == null ? type.getKey() : new String(uniqueKey);
 			if(type.isBinary()) {
-				type = new ParameterizedBinaryType((JavaElement)type.getParent(), type.getElementName(), new String(uniqueKey));
+				type = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
 			} else {
-				type = new ParameterizedSourceType((JavaElement)type.getParent(), type.getElementName(), new String(uniqueKey));
+				type = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
 			}
 		}
 	}

@@ -49,17 +49,16 @@ What's new in this drop</h2>
 <li> Tuned generic method type argument inference (JLS 15.12.2.7&8).
 </li>
 <li> Optional diagnosis for assignment with no effect now also detects: "var = var++;" scenario.
-<!-- Temporary removing the following notifications as the APIs are not ready yet.
 <li>Added APIs <code>IType#getKey()</code>, <code>IField#getKey()</code>, <code>IMethod#getKey()</code>
     that return a binding key for these Java elements.
 </li>
-<li>Added APIs <code>IType#isParameterized()</code>, <code>IField#isParameterized()</code>, 
-    <code>IMethod#isParameterized()</code> that return whether these Java elements are parameterized elements.
+<li>Added APIs <code>IType#isResolved()</code>, <code>IField#isResolved()</code>, 
+    <code>IMethod#isResolved()</code> that return whether these Java elements are resolved elements
+    and thus whether their key (see above) contains resolved information.
 </li>
 <li>Added API class <code>org.eclipse.jdt.core.BindingKey</code> to decode a binding key
     obtained from <code>IBinding#getKey()</code> or one of the <code>getKey()</code> methods above.
 </li>
--->
 </ul>
 
 <h3>Problem Reports Fixed</h3>

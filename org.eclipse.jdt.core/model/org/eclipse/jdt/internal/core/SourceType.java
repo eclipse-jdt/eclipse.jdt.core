@@ -558,9 +558,9 @@ public boolean isMember() {
 	return getDeclaringType() != null;
 }
 /* (non-Javadoc)
- * @see org.eclipse.jdt.core.IType#isParameterized()
+ * @see org.eclipse.jdt.core.IType#isResolved()
  */
-public boolean isParameterized() {
+public boolean isResolved() {
 	return false;
 }
 /**

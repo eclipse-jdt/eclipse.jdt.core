@@ -77,6 +77,13 @@ public class BindingKeyParser {
 					|| currentChar == '%');
 		}
 		
+		boolean isAtRawTypeEnd() {
+			return 
+				this.index+1 > 0
+				&& this.index+1 < this.source.length
+				&& this.source[this.index+1] == '>';
+		}
+		
 		boolean isAtSecondaryTypeStart() {
 			return 
 				this.index < this.source.length
@@ -330,7 +337,7 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
-	public void consumeNonParameterizedType() {
+	public void consumeNonGenericType() {
 		// default is to do nothing
 	}
 
@@ -342,11 +349,15 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
-	public void consumeParameterizedType(char[] simpleTypeName) {
+	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		// default is to do nothing
 	}
 	
 	public void consumeParser(BindingKeyParser parser) {
+		// default is to do nothing
+	}
+	
+	public void consumeRawType() {
 		// default is to do nothing
 	}
 	
@@ -427,9 +438,12 @@ public class BindingKeyParser {
 			else if (this.scanner.isAtTypeStart() || this.scanner.isAtWildCardStart())
 				// parameterized type
 				parseParameterizedType(null/*top level type*/);
+			else if (this.scanner.isAtRawTypeEnd())
+				// raw type
+				parseRawType();
 		} else {
-			// raw type or non-generic type
-			consumeNonParameterizedType();
+			// non-generic type
+			consumeNonGenericType();
 		}
 		
 		consumeType();
@@ -540,23 +554,32 @@ public class BindingKeyParser {
 	}
 	
 	private void parseParameterizedType(char[] typeName) {
+		boolean isRaw = false;
 		if (this.scanner.isAtParametersStart()) {
-			int rank = 0;
-			while (!this.scanner.isAtParametersEnd()) {
-		 		if (this.scanner.isAtWildCardStart()) {
-		 			parseWildCard(rank++);
-		 		} else {
-					parseTypeArgument();
-		 		}
-			}
+			if (!this.scanner.isAtRawTypeEnd()) {
+				int rank = 0;
+				while (!this.scanner.isAtParametersEnd()) {
+			 		if (this.scanner.isAtWildCardStart()) {
+			 			parseWildCard(rank++);
+			 		} else {
+						parseTypeArgument();
+			 		}
+				}
+			}  else
+				isRaw = true;
 		 	// skip ";>"
 		 	this.scanner.skipParametersEnd();
-		} // else raw type
-		consumeParameterizedType(typeName);
+		}
+		consumeParameterizedType(typeName, isRaw);
 	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
 	 		typeName = this.scanner.getTokenSource();
 	 		parseParameterizedType(typeName);
 	 	}
+	}
+	
+	private void parseRawType() {
+		this.scanner.skipParametersEnd();
+		consumeRawType();
 	}
 	
 	private void parseSecondaryType() {

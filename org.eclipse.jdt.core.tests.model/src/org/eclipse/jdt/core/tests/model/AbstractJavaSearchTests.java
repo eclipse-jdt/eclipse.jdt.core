@@ -21,8 +21,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.PackageFragment;
-import org.eclipse.jdt.internal.core.ParameterizedSourceMethod;
-import org.eclipse.jdt.internal.core.ParameterizedSourceType;
+import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
+import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 
 /**
@@ -597,7 +597,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	 * @return ParameterizedSourceMethod
 	 * @throws JavaModelException
 	 */
-	protected ParameterizedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection) throws JavaModelException {
+	protected ResolvedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectParameterizedMethod(unit, selection, 1);
 	}
 	
@@ -609,10 +609,10 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	 * @return ParameterizedSourceMethod
 	 * @throws JavaModelException
 	 */
-	protected ParameterizedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+	protected ResolvedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		IMethod type = selectMethod(unit, selection, occurences);
-		assertTrue("Not a parameterized source type: "+type.getElementName(), type instanceof ParameterizedSourceMethod);
-		return (ParameterizedSourceMethod) type;
+		assertTrue("Not a parameterized source type: "+type.getElementName(), type instanceof ResolvedSourceMethod);
+		return (ResolvedSourceMethod) type;
 	}
 
 	/**
@@ -622,7 +622,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	 * @return ParameterizedSourceType
 	 * @throws JavaModelException
 	 */
-	protected ParameterizedSourceType selectParameterizedType(ICompilationUnit unit, String selection) throws JavaModelException {
+	protected ResolvedSourceType selectParameterizedType(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectParameterizedType(unit, selection, 1);
 	}
 	
@@ -634,10 +634,10 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	 * @return ParameterizedSourceType
 	 * @throws JavaModelException
 	 */
-	protected ParameterizedSourceType selectParameterizedType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+	protected ResolvedSourceType selectParameterizedType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		IType type = selectType(unit, selection, occurences);
-		assertTrue("Not a parameterized source type: "+type.getElementName(), type instanceof ParameterizedSourceType);
-		return (ParameterizedSourceType) type;
+		assertTrue("Not a parameterized source type: "+type.getElementName(), type instanceof ResolvedSourceType);
+		return (ResolvedSourceType) type;
 	}
 
 	/**

@@ -13,36 +13,36 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
- * Handle representing a source type that is parameterized.
- * The uniqueKey contains the genericTypeSignature of the parameterized type.
+ * Handle representing a binary type that is resolved.
+ * The uniqueKey contains the genericTypeSignature of the resolved type. Use BindingKey to decode it.
  */
-public class ParameterizedSourceType extends SourceType {
+public class ResolvedBinaryType extends BinaryType {
 	
 	private String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedSourceType(JavaElement parent, String name, String uniqueKey) {
+	public ResolvedBinaryType(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
 		this.uniqueKey = uniqueKey;
 	}
-	
+
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
 		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceType#getKey()
+	 * @see org.eclipse.jdt.internal.core.BinaryType#getKey()
 	 */
 	public String getKey() {
 		return this.uniqueKey;
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceType#isParameterized()
+	 * @see org.eclipse.jdt.internal.core.BinaryType#isResolved()
 	 */
-	public boolean isParameterized() {
+	public boolean isResolved() {
 		return true;
 	}
 	
@@ -51,7 +51,8 @@ public class ParameterizedSourceType extends SourceType {
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" key="); //$NON-NLS-1$
+		buffer.append(" {key="); //$NON-NLS-1$
 		buffer.append(this.uniqueKey);
+		buffer.append("}"); //$NON-NLS-1$
 	}
 }

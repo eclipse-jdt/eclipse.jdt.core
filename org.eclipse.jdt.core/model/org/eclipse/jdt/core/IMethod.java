@@ -206,12 +206,13 @@ boolean isConstructor() throws JavaModelException;
  */
 boolean isMainMethod() throws JavaModelException;
 /**
- * Returns whether this method represents a parameterized method.
+ * Returns whether this method represents a resolved method.
+ * If a method is resoved, its key contains resolved information.
  * 
- * @return whether this method represents a parameterized method.
+ * @return whether this method represents a resolved method.
  * @since 3.1
  */
-boolean isParameterized();
+boolean isResolved();
 /**
  * Returns whether this method is similar to the given method.
  * Two methods are similar if:

@@ -11,39 +11,42 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle representing a source method that is parameterized.
- * The uniqueKey contains the genericSignature of the parameterized method.
+ * Handle representing a binary field that is resolved.
+ * The uniqueKey contains the genericSignature of the resolved field. Use BindingKey to decode it.
  */
-public class ParameterizedSourceMethod extends SourceMethod {
+public class ResolvedBinaryField extends BinaryField {
 	
 	private String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedSourceMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
-		super(parent, name, parameterTypes);
+	public ResolvedBinaryField(JavaElement parent, String name, String uniqueKey) {
+		super(parent, name);
 		this.uniqueKey = uniqueKey;
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceMethod#getKey()
+	 * @see org.eclipse.jdt.internal.core.BinaryField#getKey()
 	 */
 	public String getKey() {
 		return this.uniqueKey;
 	}
+	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IMethod#isParameterized()
+	 * @see org.eclipse.jdt.core.IField#isResolved()
 	 */
-	public boolean isParameterized() {
+	public boolean isResolved() {
 		return true;
 	}
+
 	/**
 	 * @private Debugging purposes
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" key="); //$NON-NLS-1$
+		buffer.append(" {key="); //$NON-NLS-1$
 		buffer.append(this.uniqueKey);
+		buffer.append("}"); //$NON-NLS-1$
 	}
 }

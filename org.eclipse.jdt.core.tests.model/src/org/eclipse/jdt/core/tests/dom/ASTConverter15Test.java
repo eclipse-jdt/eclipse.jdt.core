@@ -1781,7 +1781,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((Type) node).resolveBinding();
 		assertBindingKeyEquals(
-			"Lp/X<Ljava/lang/Class;>;",
+			"Lp/X<Ljava/lang/Class<>;>;",
 			binding.getKey());
 	}
 	/**
@@ -1902,7 +1902,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((Type) node).resolveBinding();
 		assertBindingKeyEquals(
-			"Lp/X;",
+			"Lp/X<>;",
 			binding.getKey());
 	}
 

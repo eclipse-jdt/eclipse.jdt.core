@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.internal.core.ParameterizedSourceType;
+import org.eclipse.jdt.internal.core.ResolvedSourceType;
 
 
 /**
@@ -859,7 +859,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	// Parameterized Source type pattern on single type argument
 	public void testParameterizedTypeSingleArgument01() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R1.java");
-		ParameterizedSourceType type = selectParameterizedType(unit, "Generic<Exception>"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit, "Generic<Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -906,7 +906,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	}
 	public void testParameterizedTypeSingleArgument02() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R4.java");
-		ParameterizedSourceType type = selectParameterizedType(unit, "g1.t.s.def.Generic<Exception>.Member"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit, "g1.t.s.def.Generic<Exception>.Member"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -926,7 +926,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	}
 	public void testParameterizedTypeSingleArgument03() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R2.java");
-		ParameterizedSourceType type = selectParameterizedType(unit, "NonGeneric.GenericMember<Exception>"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit, "NonGeneric.GenericMember<Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -946,7 +946,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	}
 	public void testParameterizedTypeSingleArgument04() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R3.java");
-		ParameterizedSourceType type = selectParameterizedType(unit,  "g1.t.s.def.Generic<Exception>.MemberGeneric<Exception>"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit,  "g1.t.s.def.Generic<Exception>.MemberGeneric<Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -968,7 +968,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	// Parameterized Source type pattern on multiple type arguments
 	public void testParameterizedTypeMultipleArguments01() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R1.java");
-		ParameterizedSourceType type = selectParameterizedType(unit, "g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit, "g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1015,7 +1015,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	}
 	public void testParameterizedTypeMultipleArguments02() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R4.java");
-		ParameterizedSourceType type = selectParameterizedType(unit, "Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit, "Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1035,7 +1035,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	}
 	public void testParameterizedTypeMultipleArguments03() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R2.java");
-		ParameterizedSourceType type = selectParameterizedType(unit, "NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit, "NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1055,7 +1055,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	}
 	public void testParameterizedTypeMultipleArguments04() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R3.java");
-		ParameterizedSourceType type = selectParameterizedType(unit,  "g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
+		ResolvedSourceType type = selectParameterizedType(unit,  "g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(

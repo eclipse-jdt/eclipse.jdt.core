@@ -81,9 +81,9 @@ public String getTypeSignature() throws JavaModelException {
 	return new String(ClassFile.translatedName(info.getTypeName()));
 }
 /* (non-Javadoc)
- * @see org.eclipse.jdt.core.IField#isParameterized()
+ * @see org.eclipse.jdt.core.IField#isResolved()
  */
-public boolean isParameterized() {
+public boolean isResolved() {
 	return false;
 }
 /*

@@ -35,14 +35,15 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		if (isMemberType() && enclosingType().isParameterizedType()) {
 		    char[] typeSig = enclosingType().computeUniqueKey();
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
-		    sig.append('.').append(sourceName()).append(';');
-			int sigLength = sig.length();
-			char[] uniqueKey = new char[sigLength];
-			sig.getChars(0, sigLength, uniqueKey, 0);						    
-			return uniqueKey;
+		    sig.append('.').append(sourceName()).append('<').append('>').append(';');
 		} else {
-		     return this.type.signature(); // erasure
+		     sig.append(this.type.signature()); // erasure
+		     sig.insert(sig.length()-1, "<>"); //$NON-NLS-1$
 		}
+		int sigLength = sig.length();
+		char[] uniqueKey = new char[sigLength];
+		sig.getChars(0, sigLength, uniqueKey, 0);						    
+		return uniqueKey;
    	}
 	
 	/**

@@ -121,11 +121,12 @@ String getKey();
  */
 String getTypeSignature() throws JavaModelException;
 /**
- * Returns whether this field represents a parameterized field.
+ * Returns whether this field represents a resolved field.
+ * If a field is resoved, its key contains resolved information.
  * 
- * @return whether this field represents a parameterized field.
+ * @return whether this field represents a resolved field.
  * @since 3.1
  */
-boolean isParameterized();
+boolean isResolved();
 
 }

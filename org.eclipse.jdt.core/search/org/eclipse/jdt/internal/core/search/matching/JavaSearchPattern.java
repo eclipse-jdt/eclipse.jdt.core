@@ -85,8 +85,9 @@ public class JavaSearchPattern extends SearchPattern {
 	 */
 	char[][] extractMethodArguments(IMethod method) {
 		String[] argumentsSignatures = null;
-		if (method.isParameterized()) {
-			argumentsSignatures = new BindingKey(method.getKey()).getTypeArguments();
+		BindingKey key;
+		if (method.isResolved() && (key = new BindingKey(method.getKey())).isParameterizedType()) {
+			argumentsSignatures = key.getTypeArguments();
 		} else {
 			try {
 				ITypeParameter[] parameters = method.getTypeParameters();
@@ -222,8 +223,9 @@ public class JavaSearchPattern extends SearchPattern {
 	 * and type parameters for non-generic ones
 	 */
 	void storeTypeSignaturesAndArguments(IType type) {
-		if (type.isParameterized()) {
-			String signature = new BindingKey(type.getKey()).toSignature();
+		BindingKey key;
+		if (type.isResolved() && (key = new BindingKey(type.getKey())).isParameterizedType()) {
+			String signature = key.toSignature();
 			this.typeSignatures = Util.splitTypeLevelsSignature(signature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 		} else {
