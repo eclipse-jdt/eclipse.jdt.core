@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.search;
 /**
  * A <code>TypeNameRequestor</code> collects search results from a <code>searchAllTypeNames</code>
  * query to a <code>SearchEngine</code>. Clients must subclass this abstract class and pass
- * an instance to the <code>searchAllTypeNames(...)</code> method. Only top-level and
+ * an instance to the <code>SearchEngine.searchAllTypeNames(...)</code> method. Only top-level and
  * member types are reported. Local types are not reported.
  * <p>
  * This class may be subclassed by clients.
@@ -23,6 +23,10 @@ package org.eclipse.jdt.core.search;
 public abstract class TypeNameRequestor {
 	/**
 	 * Accepts a top-level or a member type.
+	 * <p>
+	 * The default implementation of this method does nothing.
+	 * Subclasses should override.
+	 * </p>
 	 *
 	 * @param modifiers the modifier flags of the type. Note that for source type,
 	 *		these flags may slightly differ from thoses get after resolution.
