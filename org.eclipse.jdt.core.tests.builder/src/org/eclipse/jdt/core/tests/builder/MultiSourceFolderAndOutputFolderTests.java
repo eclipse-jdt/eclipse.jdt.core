@@ -91,12 +91,13 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 			assertTrue("JavaModelException", false); //$NON-NLS-1$
 		} catch (JavaModelException e) {
 			assertEquals(
-				e.getMessage(),
-				"Cannot nest entry /P/src/f1 inside entry /P/src " + //$NON-NLS-1$
-				"if entry /P/src doesn't exclude /P/src/f1."); //$NON-NLS-1$
+				"Cannot nest '/P/src/f1' inside '/P/src'. " + //$NON-NLS-1$
+				"To enable the nesting exclude 'f1/' from '/P/src'.", //$NON-NLS-1$
+				e.getMessage()
+			); 
 		}
 	}
-	
+		
 	public void test0004() throws JavaModelException {
 		try {
 			IPath projectPath = env.addProject("P"); //$NON-NLS-1$
@@ -112,8 +113,9 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 			assertTrue("JavaModelException", false); //$NON-NLS-1$
 		} catch (JavaModelException e) {
 			assertEquals(
-				e.getMessage(),
-				"End exclusion filter with / to fully exclude nested entry"); //$NON-NLS-1$
+				"End exclusion filter 'f1' with / to fully exclude '/P/src/f1'.", //$NON-NLS-1$
+				e.getMessage()
+			); 
 		}
 	}
 	

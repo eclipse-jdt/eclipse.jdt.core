@@ -577,10 +577,12 @@ public final class JavaConventions {
 								&& !otherPath.equals(entryPath)
 								&& !Util.isExcluded(entryPath.append("*"), exclusionPatterns = ((ClasspathEntry)otherEntry).fullExclusionPatternChars())) { //$NON-NLS-1$
 									
+							String exclusionPattern = entryPath.removeFirstSegments(otherPath.segmentCount()).segment(0);
 							if (Util.isExcluded(entryPath, exclusionPatterns)) {
-								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.mustEndWithSlash")); //$NON-NLS-1$
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.mustEndWithSlash", exclusionPattern, entryPath.toString())); //$NON-NLS-1$
 							} else {
-								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
+								exclusionPattern += '/';
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", new String[] {entryPath.toString(), otherEntry.getPath().toString(), exclusionPattern})); //$NON-NLS-1$
 							}
 						}
 					}
