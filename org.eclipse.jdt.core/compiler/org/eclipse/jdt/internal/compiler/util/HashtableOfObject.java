@@ -3,7 +3,6 @@ package org.eclipse.jdt.internal.compiler.util;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.util.Hashtable;
 import org.eclipse.jdt.internal.compiler.*;
 
 /**
@@ -17,7 +16,7 @@ public final class HashtableOfObject {
 
 	int elementSize; // number of elements in the table
 	int threshold;
-	
+
 	public HashtableOfObject() {
 		this(13);
 	}
@@ -33,21 +32,21 @@ public final class HashtableOfObject {
 		this.valueTable = new Object[extraRoom];
 	}
 
-	private HashtableOfObject(int elementSize, char[][] keyTable, Object[] valueTable, int threshold){
-		this.elementSize = elementSize;
-		this.keyTable = keyTable;
-		this.valueTable = valueTable;
-		this.threshold = threshold;
+	public Object clone() throws CloneNotSupportedException {
+		HashtableOfObject result = (HashtableOfObject) super.clone();
+		result.elementSize = this.elementSize;
+		result.threshold = this.threshold;
+
+		int length = this.keyTable.length;
+		result.keyTable = new char[length][];
+		System.arraycopy(this.keyTable, 0, result.keyTable, 0, length);
+
+		length = this.valueTable.length;
+		result.valueTable = new Object[length];
+		System.arraycopy(this.valueTable, 0, result.valueTable, 0, length);
+		return result;
 	}
-	
-	public Object clone(){
-		return new HashtableOfObject(
-			this.elementSize,
-			(char[][])this.keyTable.clone(),
-			(Object[])this.valueTable.clone(),
-			this.threshold);
-	}
-	
+
 	public boolean containsKey(char[] key) {
 
 		int index = CharOperation.hashCode(key) % valueTable.length;
