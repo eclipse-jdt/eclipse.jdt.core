@@ -117,7 +117,7 @@ If you don't want to generate .class files, use <font color="#3366FF">-d none</f
 In <font color="#3366FF">1.4</font>, <font color="#3366FF"><I>assert</I></font> is treated as a keyword.</td>
 </tr>
 <tr>
-<td valign=top>-warn: <blockquote>constructorName<br>|packageDefaultMethod<br>|deprecation<br>|maskedCatchBlocks<br>|unusedLocals<br>|unusedArguments<br>|syntheticAccess<br>|assertIdentifier</blockquote>
+<td valign=top>-warn: <blockquote>constructorName<br>|packageDefaultMethod<br>|deprecation<br>|maskedCatchBlocks<br>|unusedLocals<br>|unusedArguments<br>|unusedImports<br>|syntheticAccess<br>|assertIdentifier</blockquote>
 </td>
 <td>Set warning level.<br>e.g. <font color="#3366FF">-warn:unusedLocals,deprecation</font><br>
 <table>
@@ -144,6 +144,11 @@ In <font color="#3366FF">1.4</font>, <font color="#3366FF"><I>assert</I></font> 
 <tr>
 <th align=left>unusedArguments</th>
 <td>warn unused method argument</td>
+</tr>
+<tr>
+<th align=left>unusedImports</th>
+<td>When enabled, the compiler will issue an error or a warning for unused import reference
+</td>
 </tr>
 <tr>
 <th align=left>syntheticAccess</th>
