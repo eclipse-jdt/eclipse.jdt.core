@@ -949,11 +949,16 @@ public final class CompletionEngine
 	}
 
 	private void findImports(CompletionOnImportReference importReference) {
-
-		char[] importName = CharOperation.concatWith(importReference.tokens, '.');
-
+		char[][] tokens = importReference.tokens;
+			
+		char[] importName = CharOperation.concatWith(tokens, '.');
+		
 		if (importName.length == 0)
 			return;
+			
+		char[] token = tokens[tokens.length - 1];
+		if(token != null && token.length == 0)
+			importName = CharOperation.concat(importName, new char[]{'.'});
 
 		resolvingImports = true;
 		setSourceRange(
