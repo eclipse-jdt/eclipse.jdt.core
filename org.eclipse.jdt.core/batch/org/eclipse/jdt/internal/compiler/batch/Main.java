@@ -432,6 +432,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		boolean didSpecifyCompliance = false;
 		boolean didSpecifyDefaultEncoding = false;
 		boolean didSpecifyTarget = false;
+		boolean didSpecifyDeprecation = false;
 
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
@@ -629,6 +630,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				continue;
 			}			
 			if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
+				didSpecifyDeprecation = true;
 				options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 				continue;
 			}
@@ -733,7 +735,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				int tokenCounter = 0;
 
 				disableWarnings();
-
+				if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
+					options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+				}
+				
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
 					tokenCounter++;

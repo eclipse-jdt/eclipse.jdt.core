@@ -867,8 +867,9 @@ public void checkAnnotation() {
 		// consider all remaining leading comments to be part of current declaration
 		this.modifiersSourceStart = scanner.commentStarts[0]; 
 	
-		// check deprecation in last comment if javadoc 	
-		if (this.scanner.commentStops[lastComment] > 0) { 	// non javadoc comment have negative end positions
+		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
+		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
+		if (lastComment >= 0) {
 			if (checkDeprecation(
 					this.scanner.commentStarts[lastComment],
 					this.scanner.commentStops[lastComment] - 1, //stop is one over,
