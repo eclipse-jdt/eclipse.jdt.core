@@ -805,6 +805,8 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, IWorkspace
 	}
 }
 protected IType lookupType(ReferenceBinding typeBinding) {
+	if (typeBinding == null) return null;
+
 	char[] packageName = typeBinding.qualifiedPackageName();
 	IPackageFragment[] pkgs = this.nameLookup.findPackageFragments(
 		(packageName == null || packageName.length == 0)
