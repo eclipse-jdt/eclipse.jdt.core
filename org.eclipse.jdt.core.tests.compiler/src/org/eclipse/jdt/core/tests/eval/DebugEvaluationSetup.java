@@ -77,6 +77,7 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 					Map args = connector.defaultArguments();
 					((Connector.Argument)args.get("port")).setValue(String.valueOf(debugPort));
 					((Connector.Argument)args.get("hostname")).setValue(launcher.getTargetAddress());
+					((Connector.Argument)args.get("timeout")).setValue("10000");
 					this.vm = connector.attach(args);
 
 					// workaround pb with some VMs
@@ -84,8 +85,14 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 
 					break;
 				} catch (IllegalConnectorArgumentsException e) {
+					e.printStackTrace();
+					try {
+						System.out.println("Could not contact the VM at " + launcher.getTargetAddress() + ":" + debugPort + ". Retrying...");
+						Thread.sleep(100);
+					} catch (InterruptedException e2) {
+					}
 				} catch (IOException e) {
-					System.out.println("Got exception: " + e.getMessage());
+					e.printStackTrace();
 					try {
 						System.out.println("Could not contact the VM at " + launcher.getTargetAddress() + ":" + debugPort + ". Retrying...");
 						Thread.sleep(100);
@@ -128,7 +135,8 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 					} catch (TargetException e) {
 					}
 				}
-				throw new Error("Could not contact the VM");
+				System.err.println("Could not contact the VM");
+				return;
 			}
 
 			// Create context
