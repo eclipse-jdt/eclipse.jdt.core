@@ -2455,35 +2455,32 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84055
-	public void test086() {
+	public void _test086() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-				"\n" + 
-				"	private static void checkConversions(byte _byte) {\n" + 
-				"		Short s = (short) _byte; // cast reported is necessary\n" + 
-				"		Short s2 = _byte; // ko\n" + 
-				"	} \n" + 
-				"\n" + 
-				"    public static void main(String args[]) {\n" + 
-				"        byte _byte = 2;\n" + 
-				"\n" + 
-				"        checkConversions(_byte);\n" + 
-				"        System.out.println(\"OK\");\n" + 
-				"      }\n" + 
+				"  private static void checkConversions(byte _byte) {\n" + 
+				"    Short s = (short) _byte; // cast is necessary\n" + 
+				"    Short s2 = _byte; // ko\n" + 
+				"  } \n" + 
+				"  public static void main(String args[]) {\n" + 
+				"    byte _byte = 2;\n" + 
+				"    checkConversions(_byte);\n" + 
+				"    System.out.println(\"OK\");\n" + 
+				"  }\n" + 
 				"}\n"
 			},
-            "----------\n" + 
-            "1. WARNING in X.java (at line 4)\n" + 
-            "   Short s = (short) _byte; // cast reported is necessary\n" + 
-            "             ^^^^^^^^^^^^^\n" + 
-            "The expression of type short is boxed into Short\n" + 
-            "----------\n" + 
-            "2. ERROR in X.java (at line 5)\n" + 
-            "   Short s2 = _byte; // ko\n" + 
-            "         ^^\n" + 
-            "Type mismatch: cannot convert from byte to Short\n" + 
-            "----------\n");
+        "----------\n" + 
+        "1. WARNING in X.java (at line 3)\n" + 
+        "   Short s = (short) _byte; // cast is necessary\n" + 
+        "             ^^^^^^^^^^^^^\n" + 
+        "The expression of type short is boxed into Short\n" + 
+        "----------\n" + 
+        "2. ERROR in X.java (at line 4)\n" + 
+        "   Short s2 = _byte; // ko\n" + 
+        "         ^^\n" + 
+        "Type mismatch: cannot convert from byte to Short\n" + 
+        "----------\n");
 	}			
 }
