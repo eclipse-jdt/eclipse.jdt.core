@@ -3985,6 +3985,7 @@ protected void consumeOnlySynchronized() {
 	// OnlySynchronized ::= 'synchronized'
 	pushOnIntStack(this.synchronizedBlockSourceStart);
 	resetModifiers();
+	this.expressionLengthPtr--;
 }
 protected void consumeOnlyTypeArguments() {
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
