@@ -2483,5 +2483,38 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		"Type mismatch: cannot convert from byte to Short\n" + 
 		"----------\n"
         );
-	}			
+	}
+    // autoboxing and type argument inference
+    public void _test087() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "public class X {\n" + 
+                "    <T> T foo(T t) { return t; }\n" + 
+                "    \n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        int i = new X().foo(12);\n" + 
+                "        System.out.println(i);\n" +
+                "    }\n" + 
+                "    Zork z;\n" +
+                "}\n"
+            },
+            "----------\n" + 
+            "1. WARNING in X.java (at line 5)\n" + 
+            "   int i = new X().foo(12);\n" + 
+            "           ^^^^^^^^^^^^^^^\n" + 
+            "The expression of type Integer is unboxed into int\n" + 
+            "----------\n" + 
+            "2. WARNING in X.java (at line 5)\n" + 
+            "   int i = new X().foo(12);\n" + 
+            "                       ^^\n" + 
+            "The expression of type int is boxed into Integer\n" + 
+            "----------\n" + 
+            "3. ERROR in X.java (at line 8)\n" + 
+            "   Zork z;\n" + 
+            "   ^^^^\n" + 
+            "Zork cannot be resolved to a type\n" + 
+            "----------\n"
+        );
+    }       
 }
