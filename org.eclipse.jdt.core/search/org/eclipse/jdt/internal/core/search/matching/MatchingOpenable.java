@@ -283,7 +283,7 @@ private void locateMatchesInCompilationUnit(char[] source) throws CoreException 
 	if (this.parsedUnit != null) {
 		try {
 			this.locator.parser.matchSet = this.matchSet;
-			this.locator.parser.scanner.setSourceBuffer(source);
+			this.locator.parser.scanner.setSource(source);
 			this.locator.parser.parseBodies(this.parsedUnit);
 			// report matches that don't need resolve
 			this.matchSet.cuHasBeenResolved = false;

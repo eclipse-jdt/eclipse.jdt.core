@@ -99,11 +99,4 @@ public interface IScanner {
 	 * source until it reaches its end.
 	 */
 	void setSource(char[] source);
-
-	/**
-	 * Set the scanner source to process. By default, the scanner will consider starting at the beginning of the
-	 * source until it reaches its end.
-	 * @deprecated - use #setSource instead
-	 */
-	void setSourceBuffer(char[] source);
 }

@@ -32,16 +32,16 @@ public interface IProblemRequestor {
 
 	/**
 	 * Notification sent before starting the problem detection process.
-	 * Typically, this would tell the problem collector to clear previously recorded problems.
+	 * Typically, this would tell a problem collector to clear previously recorded problems.
 	 */
-	void clear();
+	void beginReporting();
 
 	/**
 	 * Notification sent after having completed problem detection process.
-	 * Typically, this would tell the problem collector that no more problems should be expected in this
+	 * Typically, this would tell a problem collector that no more problems should be expected in this
 	 * iteration.
 	 */
-	void done();
+	void endReporting();
 
 
 }

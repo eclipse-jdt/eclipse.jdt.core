@@ -239,6 +239,7 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	public static IJavaElement determineIfOnClasspath(
 		IResource resource,
 		IJavaProject project) {
+			
 		IPath resourcePath = resource.getFullPath();
 		try {
 			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
@@ -249,8 +250,7 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 				if (rootPath.equals(resourcePath)) {
 					return project.getPackageFragmentRoot(resource);
 				} else if (rootPath.isPrefixOf(resourcePath)) {
-					IPackageFragmentRoot root =
-						((JavaProject) project).getPackageFragmentRoot(rootPath);
+					IPackageFragmentRoot root = ((JavaProject) project).getPackageFragmentRoot(rootPath);
 					if (root == null) return null;
 					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
 					if (resource.getType() == IResource.FILE) {
@@ -259,11 +259,10 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 						pkgPath = pkgPath.removeLastSegments(1);
 					}
 					String pkgName = Util.packageName(pkgPath);
-					if (pkgName == null
-						|| JavaConventions.validatePackageName(pkgName.toString()).getSeverity() == IStatus.ERROR) {
+					if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
 						return null;
 					}
-					return root.getPackageFragment(pkgName.toString());
+					return root.getPackageFragment(pkgName);
 				}
 			}
 		} catch (JavaModelException npe) {

@@ -2725,10 +2725,6 @@ public final int searchLineNumber(int position) {
 	}
 	return m+2;
 }
-/** @deprecated - use #setSource instead */
-public final void setSourceBuffer(char[] source){
-	setSource(source);
-}
 public final void setSource(char[] source){
 	//the source-buffer is set to sourceString
 

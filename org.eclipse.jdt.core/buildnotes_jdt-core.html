@@ -18,6 +18,9 @@ What's new in this drop</h2>
 <ul>
 <li>ICompletionRequestor API change :
 	<ul>
+		<li> Added #beginReporting() and #endReporting() API on <code>IProblemRequestor</code>. #beginReporting is always called before restarting error detection. #endReporting is always called at the
+				end of detection.
+		</li>
 		<li> Added API for setting multiple classpath variables at once (<code>JavaCore#setClasspathVariables</code>, this allows to update
 			all affected projects exactly once, instead of iterating multiple times on each project (if it references the variable). This can improve performance
 			when setting JRE variables.
@@ -58,7 +61,9 @@ What's new in this drop</h2>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9179">9179</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12767">12767</a>
+AST MethodBinding question
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=9179">9179</a>
 DCR: Need IJavaSearchScope equals or encloses  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12444">12444</a>
 strange types names in ReorderParameters error dialog 

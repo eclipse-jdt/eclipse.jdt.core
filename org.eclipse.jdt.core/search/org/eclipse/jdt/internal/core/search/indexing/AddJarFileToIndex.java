@@ -98,9 +98,7 @@ public int hashCode() {
 				} else {
 					zip = new ZipFile(this.path.toFile());
 					zipFilePath = (Path) this.path;
-					// absolute path relative to the local file system
-					// make it a canonical path to avoid duplicate entries
-					zipFilePath = (Path) JavaProject.canonicalizedPath(zipFilePath);
+					// path is already canonical since coming from a library classpath entry
 				}
 
 				if (JobManager.VERBOSE)

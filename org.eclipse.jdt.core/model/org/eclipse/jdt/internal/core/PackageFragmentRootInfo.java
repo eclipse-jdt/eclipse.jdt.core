@@ -43,7 +43,7 @@ public PackageFragmentRootInfo() {
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-private Object[] computeFolderNonJavaResources(IJavaProject project, IContainer folder) throws JavaModelException {
+private Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder) throws JavaModelException {
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
@@ -54,7 +54,7 @@ private Object[] computeFolderNonJavaResources(IJavaProject project, IContainer 
 				String fileName = member.getName();
 				if (!Util.isValidCompilationUnitName(fileName) && !Util.isValidClassFileName(fileName)) {
 					// check case of a .zip or .jar file on classpath
-					if (project.findPackageFragmentRoot(member.getFullPath()) == null) {
+					if (project.findPackageFragmentRoot0(member.getFullPath()) == null) {
 						if (nonJavaResources.length == nonJavaResourcesCounter) {
 							// resize
 							System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
@@ -91,7 +91,7 @@ private Object[] computeNonJavaResources(IJavaProject project, IResource underly
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
 		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
-			nonJavaResources = computeFolderNonJavaResources(project, (IContainer) underlyingResource);
+			nonJavaResources = computeFolderNonJavaResources((JavaProject)project, (IContainer) underlyingResource);
 		}
 	} catch (JavaModelException e) {
 	}

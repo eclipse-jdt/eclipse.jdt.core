@@ -836,7 +836,7 @@ public IType lookupType(TypeBinding typeBinding) {
 		// compute source positions of the selector 
 		Scanner scanner = parser.scanner;
 		int nameSourceStart = methodDeclaration.sourceStart;
-		scanner.setSourceBuffer(
+		scanner.setSource(
 			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(nameSourceStart, methodDeclaration.sourceEnd);
 		try {
@@ -880,7 +880,7 @@ public IType lookupType(TypeBinding typeBinding) {
 
 		// compute source positions of the qualified reference 
 		Scanner scanner = parser.scanner;
-		scanner.setSourceBuffer(
+		scanner.setSource(
 			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(sourceStart, sourceEnd);
 
@@ -946,7 +946,7 @@ public IType lookupType(TypeBinding typeBinding) {
 
 		// compute source positions of the qualified reference 
 		Scanner scanner = parser.scanner;
-		scanner.setSourceBuffer(
+		scanner.setSource(
 			this.currentMatchingOpenable.getSource());
 		scanner.resetTo(sourceStart, sourceEnd);
 

@@ -218,20 +218,14 @@ public synchronized IIndex getIndex(IPath path, boolean mustCreate) {
 	IIndex index = (IIndex) indexes.get(path);
 	if (index == null) {
 		try {
-			// Compute canonical path
-			IPath canonicalPath = JavaProject.canonicalizedPath(path);
-			index = (IIndex) indexes.get(canonicalPath);
+			// Path is already canonical per construction
+			index = (IIndex) indexes.get(path);
 			if (!mustCreate) return index;
 			if (index == null) {
-				// New index: add same index for given path and canonical path
-				String indexPath = computeIndexName(canonicalPath.toOSString());
-				index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString()); //$NON-NLS-1$
-				indexes.put(canonicalPath, index);
+				String indexPath = computeIndexName(path.toOSString());
+				index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
 				indexes.put(path, index);
 				monitors.put(index, new ReadWriteMonitor());
-			} else {
-				// Index existed for canonical path, add it for given path
-				indexes.put(path, index);
 			}
 		} catch (IOException e) {
 			// The file could not be created. Possible reason: the project has been deleted.
@@ -314,14 +308,11 @@ public synchronized IIndex recreateIndex(IPath path) {
 	IIndex index = (IIndex) indexes.get(path);
 	if (index != null) {
 		try {
-			// Compute canonical path
-			IPath canonicalPath = JavaProject.canonicalizedPath(path);
-			// Add same index for given path and canonical path
-			String indexPath = computeIndexName(canonicalPath.toOSString());
+			// Path is already canonical
+			String indexPath = computeIndexName(path.toOSString());
 			ReadWriteMonitor monitor = (ReadWriteMonitor)monitors.remove(index);
-			index = IndexFactory.newIndex(indexPath, "Index for " + canonicalPath.toOSString()); //$NON-NLS-1$
+			index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
 			index.empty();
-			indexes.put(canonicalPath, index);
 			indexes.put(path, index);
 			monitors.put(index, monitor);
 		} catch (IOException e) {
@@ -344,11 +335,10 @@ public void remove(String resourceName, IPath indexedContainer){
  * This is a no-op if the index did not exist.
  */
 public synchronized void removeIndex(IPath path) {
-	IPath canonicalPath = JavaProject.canonicalizedPath(path);
-	IIndex index = (IIndex)this.indexes.get(canonicalPath);
+	IIndex index = (IIndex)this.indexes.get(path);
 	if (index == null) return;
 	index.getIndexFile().delete();
-	this.indexes.remove(canonicalPath);
+	this.indexes.remove(path);
 	this.monitors.remove(index);
 }
 /**

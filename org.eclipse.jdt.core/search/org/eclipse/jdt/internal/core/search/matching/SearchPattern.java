@@ -68,7 +68,7 @@ public SearchPattern(int matchMode, boolean isCaseSensitive) {
 private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
 	Scanner scanner = new Scanner(false, true); // tokenize white spaces
-	scanner.setSourceBuffer(patternString.toCharArray());
+	scanner.setSource(patternString.toCharArray());
 	final int InsideName = 1;
 	final int InsideParameter = 2;
 	
@@ -259,7 +259,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
 	Scanner scanner = new Scanner(false, true); // tokenize white spaces
-	scanner.setSourceBuffer(patternString.toCharArray());
+	scanner.setSource(patternString.toCharArray());
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
 	int lastToken = -1;
@@ -471,7 +471,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
 	Scanner scanner = new Scanner(false, true); // tokenize white spaces
-	scanner.setSourceBuffer(patternString.toCharArray());
+	scanner.setSource(patternString.toCharArray());
 	final int InsideSelector = 1;
 	final int InsideParameter = 2;
 	final int InsideReturnType = 3;
@@ -1108,7 +1108,7 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
 	Scanner scanner = new Scanner(false, true); // tokenize white spaces
-	scanner.setSourceBuffer(patternString.toCharArray());
+	scanner.setSource(patternString.toCharArray());
 	String type = null;
 	int token;
 	try {

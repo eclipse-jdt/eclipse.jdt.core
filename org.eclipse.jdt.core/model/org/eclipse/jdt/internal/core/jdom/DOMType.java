@@ -465,7 +465,7 @@ void normalize(ILineStartFinder finder) {
 	DOMNode lastNode = null;
 	// look for the open body
 	Scanner scanner = new Scanner();
-	scanner.setSourceBuffer(fDocument);
+	scanner.setSource(fDocument);
 	scanner.resetTo(fNameRange[1] + 1, fDocument.length);
 	
 	try {
@@ -500,7 +500,7 @@ void normalize(ILineStartFinder finder) {
 				lastNode = (DOMNode) lastNode.getNextNode();
 			}
 		}
-		scanner.setSourceBuffer(fDocument);
+		scanner.setSource(fDocument);
 		scanner.resetTo(lastNode.getEndPosition() + 1, fDocument.length);
 		try {
 			int currentToken = scanner.getNextToken();

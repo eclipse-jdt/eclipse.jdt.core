@@ -124,8 +124,7 @@ public class JavaProject
 		}
 
 		// if not external path, return original path
-		if (ResourcesPlugin.getWorkspace().getRoot().findMember(externalPath)
-			!= null) {
+		if (ResourcesPlugin.getWorkspace().getRoot().findMember(externalPath) != null) {
 //			if (JavaModelManager.VERBOSE) {
 //				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)"); //$NON-NLS-1$
 //			}
@@ -501,7 +500,16 @@ public class JavaProject
 	public IPackageFragment findPackageFragment(IPath path)
 		throws JavaModelException {
 
-		return getNameLookup().findPackageFragment(this.canonicalizedPath(path));
+		return findPackageFragment0(this.canonicalizedPath(path));
+	}
+
+	/**
+	 * non path canonicalizing version
+	 */
+	public IPackageFragment findPackageFragment0(IPath path) 
+		throws JavaModelException {
+
+		return getNameLookup().findPackageFragment(path);
 	}
 
 	/**
@@ -510,8 +518,16 @@ public class JavaProject
 	public IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException {
 
+		return findPackageFragmentRoot0(this.canonicalizedPath(path));
+	}
+
+	/**
+	 * no path canonicalization 
+	 */
+	public IPackageFragmentRoot findPackageFragmentRoot0(IPath path)
+		throws JavaModelException {
+
 		IPackageFragmentRoot[] allRoots = this.getAllPackageFragmentRoots();
-		path = this.canonicalizedPath(path);
 		if (!path.isAbsolute()) {
 			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
 		}
@@ -781,7 +797,13 @@ public class JavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(String jarPath) {
 
-		jarPath = this.canonicalizedPath(new Path(jarPath)).toString();
+		return getPackageFragmentRoot0(this.canonicalizedPath(new Path(jarPath)).toString());
+	}
+	/**
+	 * no path canonicalization
+	 */
+	public IPackageFragmentRoot getPackageFragmentRoot0(String jarPath) {
+
 		return new JarPackageFragmentRoot(jarPath, this);
 	}
 
@@ -833,7 +855,7 @@ public class JavaProject
 			if ("jar".equalsIgnoreCase(ext)  //$NON-NLS-1$
 				|| "zip".equalsIgnoreCase(ext)) { //$NON-NLS-1$
 				// external jar
-				return getPackageFragmentRoot(path.toOSString());
+				return getPackageFragmentRoot0(path.toOSString());
 			} else {
 				// unknown path
 				return null;

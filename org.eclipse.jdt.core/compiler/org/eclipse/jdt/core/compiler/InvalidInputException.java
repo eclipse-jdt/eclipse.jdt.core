@@ -16,9 +16,7 @@ import org.eclipse.jdt.internal.compiler.*;
 /**
  * Exception thrown by a scanner when encountering lexical errors.
  */
-public class InvalidInputException 
-	/* temporary*/ extends org.eclipse.jdt.internal.compiler.parser.InvalidInputException
-	/*extends Exception*/ {
+public class InvalidInputException extends Exception {
 
 	/**
 	 * InvalidInputException constructor comment.

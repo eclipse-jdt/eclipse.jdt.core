@@ -97,7 +97,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					case IResource.FILE :
 						// check if this file might be a jar or a zip inside the build path
 						IPath resFullPath = res.getFullPath();
-						if (project.findPackageFragmentRoot(resFullPath) == null) {
+						if (project.findPackageFragmentRoot0(resFullPath) == null) {
 							String resName = res.getName();
 							// ignore .java file if src == project
 							if (srcIsProject && Util.isValidCompilationUnitName(resName)) {
@@ -123,8 +123,8 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					case IResource.FOLDER :
 						resFullPath = res.getFullPath();
 						if (!resFullPath.equals(project.getOutputLocation())
-							&& project.findPackageFragmentRoot(resFullPath) == null
-							&& project.findPackageFragment(resFullPath) == null) {
+							&& project.findPackageFragmentRoot0(resFullPath) == null
+							&& project.findPackageFragment0(resFullPath) == null) {
 							if (nonJavaResources.length == nonJavaResourcesCounter) {
 								// resize
 								System.arraycopy(

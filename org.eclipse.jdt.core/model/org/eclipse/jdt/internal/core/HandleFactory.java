@@ -122,11 +122,11 @@ public class HandleFactory {
 					IProject project = projects[i];
 					if (!project.isAccessible() 
 						|| !project.hasNature(JavaCore.NATURE_ID)) continue;
-					IJavaProject javaProject= this.javaModel.getJavaProject(project);
-					IClasspathEntry[] classpathEntries= ((JavaProject)javaProject).getResolvedClasspath(true);
+					JavaProject javaProject= (JavaProject)this.javaModel.getJavaProject(project);
+					IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath(true);
 					for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 						if (classpathEntries[j].getPath().equals(jarPath)) {
-							return javaProject.getPackageFragmentRoot(jarPathString);
+							return javaProject.getPackageFragmentRoot0(jarPathString);
 						}
 					}
 				} catch (CoreException e) {
