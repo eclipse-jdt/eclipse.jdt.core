@@ -51,7 +51,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug88300";
-//		TESTS_NAMES = new String[] { "testBug70827" };
+//		TESTS_NAMES = new String[] { "testBug86596" };
 //		TESTS_NUMBERS = new int[] { 83693 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1831,19 +1831,29 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	 */
 	public void testBug86596() throws CoreException {
 		resultCollector.showRule = true;
-		workingCopies = new ICompilationUnit[2];
-		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86596/A.java",
-			"package b86596.com.ibm.link;\n" + 
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86596/aa/link/A.java",
+			"package b86596.aa.link;\n" + 
 			"public interface A {}\n"
 		);
-		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86596/X.java",
-			"package b86596;\n" + 
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86596/bb/Link.java",
+			"package b86596.bb;\n" + 
+			"public class Link{}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b86596/cc/X.java",
+			"package b86596.cc;\n" + 
+			"import b86596.aa.link.A;\n" + 
+			"import b86596.bb.Link;\n" + 
 			"public class X {\n" + 
 			"	A a;\n" + 
+			"	Link l;\n" + 
 			"}\n"
 		);
-		search("link", TYPE, REFERENCES);
-		assertSearchResults("");
+		search("Link", TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH);
+		assertSearchResults(
+			"src/b86596/cc/X.java [Link] EXACT_RAW_MATCH\n" + 
+			"src/b86596/cc/X.java b86596.cc.X.l [Link] EXACT_MATCH"
+		);
 	}
 
 	/**
