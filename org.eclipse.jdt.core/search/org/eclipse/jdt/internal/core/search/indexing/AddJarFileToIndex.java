@@ -146,6 +146,14 @@ public int hashCode() {
 					index = manager.recreateIndex(indexedPath);
 				}
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
+					if (this.isCancelled) {
+						if (JobManager.VERBOSE) {
+							System.out.println("INDEX : " //$NON-NLS-1$
+							+zip.getName() + " CANCELLED"); //$NON-NLS-1$
+						}
+						return FAILED;
+					}
+					
 					// iterate each entry to index it
 					ZipEntry ze = (ZipEntry) e.nextElement();
 					if (Util.isClassFileName(ze.getName())) {

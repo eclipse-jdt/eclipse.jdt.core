@@ -140,25 +140,32 @@ public void discardJobsUntilNextProjectAddition(String jobFamily) {
 	try {
 		disable();
 
-		// wait until current job has completed
-		while (thread != null && executing){
-			try {
-				Thread.currentThread().sleep(50);
-			} catch(InterruptedException e){
-			}
-		}
-
 		// flush and compact awaiting jobs
 		int loc = -1;
 		boolean foundProjectAddition = false;
 		for (int i = jobStart; i <= jobEnd; i++){
 			IJob currentJob = awaitingJobs[i];
 			awaitingJobs[i] = null;
-			if (jobFamily == null) continue; // discard
-			if (currentJob.belongsTo(jobFamily)){ // might discard
-				if (!(foundProjectAddition || (foundProjectAddition = currentJob instanceof IndexAllProject))) continue; // discard
+			boolean discard = jobFamily == null;
+			if (!discard && currentJob.belongsTo(jobFamily)){ // might discard
+				if (!(foundProjectAddition || (foundProjectAddition = currentJob instanceof IndexAllProject))) {
+					discard = true;
+				}
 			}
-			awaitingJobs[++loc] = currentJob;
+			if (discard) {
+				if (i == jobStart) {
+					// request a cancel and wait until current job has accepted the cancel
+					currentJob.cancel();
+					while (thread != null && executing){
+						try {
+							Thread.currentThread().sleep(50);
+						} catch(InterruptedException e){
+						}
+					}
+				}
+			} else {
+				awaitingJobs[++loc] = currentJob;
+			}
 		}
 		jobStart = 0;
 		jobEnd = loc;

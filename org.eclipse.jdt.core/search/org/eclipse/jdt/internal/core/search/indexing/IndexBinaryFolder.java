@@ -85,6 +85,7 @@ public int hashCode() {
 			}
 			this.folder.accept(new IResourceVisitor() {
 				public boolean visit(IResource resource) {
+					if (isCancelled) return false;
 					if (resource.getType() == IResource.FILE) {
 						String extension = resource.getFileExtension();
 						if ((extension != null)
@@ -111,6 +112,8 @@ public int hashCode() {
 			});
 			Enumeration names = indexedFileNames.keys();
 			while (names.hasMoreElements()) {
+				if (this.isCancelled) return FAILED;
+				
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
 				if (value instanceof IFile) {

@@ -139,4 +139,10 @@ public class PatternSearchJob implements IJob {
 	public String toString() {
 		return "searching " + pattern.toString(); //$NON-NLS-1$
 	}
+	/*
+	 * @see IJob#cancel()
+	 */
+	public void cancel() {
+	}
+
 }

@@ -57,4 +57,10 @@ class RemoveFromIndex implements IJob {
 	public String toString() {
 		return "removing from index " + resourceName; //$NON-NLS-1$
 	}
+	/*
+	 * @see IJob#cancel()
+	 */
+	public void cancel() {
+	}
+
 }

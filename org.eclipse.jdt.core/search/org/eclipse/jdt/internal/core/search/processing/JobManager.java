@@ -72,14 +72,6 @@ public abstract class JobManager implements Runnable {
 		try {
 			disable();
 
-			// wait until current job has completed
-			while (thread != null && executing) {
-				try {
-					Thread.currentThread().sleep(50);
-				} catch (InterruptedException e) {
-				}
-			}
-
 			// flush and compact awaiting jobs
 			int loc = -1;
 			for (int i = jobStart; i <= jobEnd; i++) {
@@ -88,6 +80,17 @@ public abstract class JobManager implements Runnable {
 				if (!(jobFamily == null
 					|| currentJob.belongsTo(jobFamily))) { // copy down, compacting
 					awaitingJobs[++loc] = currentJob;
+				} else {
+					if (i == jobStart) {
+						// request a cancel and wait until current job has accepted the cancel
+						currentJob.cancel();
+						while (thread != null && executing){
+							try {
+								Thread.currentThread().sleep(50);
+							} catch(InterruptedException e){
+							}
+						}
+					}
 				}
 			}
 			jobStart = 0;

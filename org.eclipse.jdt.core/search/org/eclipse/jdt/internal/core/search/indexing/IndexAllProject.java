@@ -89,6 +89,8 @@ public int hashCode() {
 			IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
+				if (this.isCancelled) return FAILED;
+				
 				IClasspathEntry entry = entries[i];
 				// Index only the project's source folders.
 				// Indexing of libraries is done in a separate job
@@ -103,6 +105,8 @@ public int hashCode() {
 			
 			Enumeration names = indexedFileNames.keys();
 			while (names.hasMoreElements()) {
+				if (this.isCancelled) return FAILED;
+
 				String name = (String) names.nextElement();
 				Object value = indexedFileNames.get(name);
 				if (value instanceof IFile) {
@@ -124,6 +128,8 @@ public int hashCode() {
 		return "indexing project " + project.getFullPath(); //$NON-NLS-1$
 	}
 	public boolean visit(IResource resource) {
+		if (this.isCancelled) return false;
+		
 		if (resource.getType() == IResource.FILE) {
 			String extension = resource.getFileExtension();
 			if ((extension != null) && extension.equalsIgnoreCase("java")) { //$NON-NLS-1$

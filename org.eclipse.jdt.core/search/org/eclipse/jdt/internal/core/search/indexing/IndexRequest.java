@@ -10,5 +10,14 @@ public abstract class IndexRequest implements IJob {
 	
 	/* The time the resource which is about to be indexed was last modified */
 	public long timeStamp = -1;
+	
+	protected boolean isCancelled = false;
+
+	/*
+	 * @see IJob#cancel()
+	 */
+	public void cancel() {
+		this.isCancelled = true;
+	}
 
 }

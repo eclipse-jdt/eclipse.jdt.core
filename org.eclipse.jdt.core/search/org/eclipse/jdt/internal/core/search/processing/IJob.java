@@ -21,6 +21,11 @@ public interface IJob {
 	 * Answer true if the job belongs to a given family (tag)
 	 */
 	public boolean belongsTo(String jobFamily);
+	/**
+	 * Asks this job to cancel its execution. The cancellation
+	 * can take an undertermined amount of time.
+	 */
+	public void cancel();
 	
 	/**
 	 * Execute the current job, answering:
