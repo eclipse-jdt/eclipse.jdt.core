@@ -25,6 +25,7 @@ public class RecoveredType extends RecoveredStatement implements TerminalSymbols
 
 	public boolean preserveContent = false;	// only used for anonymous types
 	public int bodyEnd;
+	
 public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, int bracketBalance){
 	super(typeDeclaration, parent, bracketBalance);
 	this.typeDeclaration = typeDeclaration;
@@ -122,6 +123,7 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		if (this.methodCount > 0) {
 			// add it to the last method body
 			RecoveredMethod lastMethod = this.methods[this.methodCount-1];
+			lastMethod.methodDeclaration.bodyEnd = 0; // reopen method
 			lastMethod.methodDeclaration.declarationSourceEnd = 0; // reopen method
 			lastMethod.bracketBalance++; // expect one closing brace
 			return lastMethod.add(typeDeclaration, bracketBalance);

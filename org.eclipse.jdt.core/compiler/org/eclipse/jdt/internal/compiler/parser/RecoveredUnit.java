@@ -78,6 +78,8 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance)
 		if (this.typeCount > 0) {
 			// add it to the last type
 			RecoveredType lastType = this.types[this.typeCount-1];
+			lastType.bodyEnd = 0; // reopen type
+			lastType.typeDeclaration.bodyEnd = 0; // reopen type
 			lastType.typeDeclaration.declarationSourceEnd = 0; // reopen type
 			lastType.bracketBalance++; // expect one closing brace
 			return lastType.add(typeDeclaration, bracketBalance);
