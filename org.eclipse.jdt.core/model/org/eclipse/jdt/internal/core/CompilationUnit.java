@@ -591,7 +591,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 		perFactoryWorkingCopies.put(this, workingCopy);
 
 		if (SHARED_WC_VERBOSE) {
-			System.out.println("Creating shared working copy " + workingCopy.toDebugString()); //$NON-NLS-1$
+			System.out.println("Creating shared working copy " + workingCopy.toStringWithAncestors()); //$NON-NLS-1$
 		}
 
 		// report added java delta
