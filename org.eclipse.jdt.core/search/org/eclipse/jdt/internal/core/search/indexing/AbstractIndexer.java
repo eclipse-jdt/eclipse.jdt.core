@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.core.search.matching.*;
@@ -24,15 +25,23 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public void addClassDeclaration(int modifiers, char[] packageName,char[] name,  char[][] enclosingTypeNames, char[] superclass, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, CLASS_SUFFIX));
 
-		if (superclass != null)
+		if (superclass != null) {
+			int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, superclass);
+			if (genericStart > -1) 
+				superclass = CharOperation.subarray(superclass, 0, genericStart);
 			addTypeReference(superclass);
+		}
 		addIndexEntry(
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {
-				addTypeReference(superinterfaces[i]);
+				char[] superinterface = superinterfaces[i];
+				int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, superinterface);
+				if (genericStart > -1) 
+					superinterface = CharOperation.subarray(superinterface, 0, genericStart);
+				addTypeReference(superinterface);
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
