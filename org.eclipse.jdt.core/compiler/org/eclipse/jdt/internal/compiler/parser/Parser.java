@@ -12,6 +12,10 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -342,19 +346,21 @@ private static void buildFileForReadableName(
 	char[] newNonTerminalIndex,
 	String[] newName,
 	String[] tokens) throws java.io.IOException {
-		
-	StringBuffer buffer = new StringBuffer();
+
+	ArrayList entries = new ArrayList();
 	
 	boolean[] alreadyAdded = new boolean[newName.length];
 	
 	for (int i = 0; i < tokens.length; i = i + 2) {
 		int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i])]];
+		StringBuffer buffer = new StringBuffer();
 		if(!alreadyAdded[index]) {
 			alreadyAdded[index] = true;
 			buffer.append(newName[index]);
 			buffer.append('=');
 			buffer.append(tokens[i+1].trim());
 			buffer.append('\n');
+			entries.add(String.valueOf(buffer));
 		}
 	}
 	int i = 1;
@@ -365,12 +371,16 @@ private static void buildFileForReadableName(
 			System.out.println(newName[i] + " has no readable name"); //$NON-NLS-1$
 		}
 	}
-	buildFile(file, buffer.toString());//$NON-NLS-1$
+	Collections.sort(entries);
+	buildFile(file, entries);
 }
-private final static void buildFile(String filename, String content) throws java.io.IOException {
-	java.io.FileWriter stream = new FileWriter(filename);
-	stream.write(content);
-	stream.close();
+private final static void buildFile(String filename, List listToDump) throws java.io.IOException {
+	BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
+		writer.write(String.valueOf(iterator.next()));
+	}
+	writer.flush();
+	writer.close();
 	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
 private final static void buildFileForTable(String filename, char[] chars) throws java.io.IOException {
