@@ -84,6 +84,10 @@ further details.</li>
       that take a 'combineAccessRestrictions' flag to control whether access restrictions of exported libraries of the project
       should be combined with the access restrictions of this project entry.
 </li>
+<li>Added API method <code>AST#newName(String qualifiedName)</code> for creating 
+<code>SimpleName</code> or <code>QualifiedName</code>
+nodes depending on the form of the given name string.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -123,6 +127,8 @@ The built-in Eclipse compiler behaves differently than IBM or Sun JDK
 [javadoc] Unexpected not defined warning on constructor
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85811">85811</a>
 BindingKey.toSignature should return method signature for methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87411">87411</a>
+[dom] API: ast.newName(String qualifiedName)
 	  	
 <a name="v_540"></a>
 <p><hr><h1>
