@@ -215,8 +215,16 @@ public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
 	if (this.fieldDeclaration.declarationSourceEnd == 0) {
 		Initializer initializer = (Initializer)fieldDeclaration;
 		if(parser().rBraceSuccessorStart >= braceEnd) {
-			initializer.declarationSourceEnd = parser().rBraceEnd;
-			initializer.bodyEnd = parser().rBraceStart;
+			if (initializer.bodyStart < parser().rBraceEnd) {
+				initializer.declarationSourceEnd = parser().rBraceEnd;
+			} else {
+				initializer.declarationSourceEnd = initializer.bodyStart;
+			}
+			if (initializer.bodyStart < parser().rBraceStart) {
+				initializer.bodyEnd = parser().rBraceStart;
+			} else {
+				initializer.bodyEnd = initializer.bodyStart;
+			}
 		} else {
 			initializer.declarationSourceEnd = braceEnd;
 			initializer.bodyEnd  = braceStart - 1;
