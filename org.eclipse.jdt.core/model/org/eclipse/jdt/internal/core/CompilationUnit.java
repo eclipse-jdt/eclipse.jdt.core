@@ -123,7 +123,7 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 		String source = ""; //$NON-NLS-1$
 		if (pkg.getElementName().length() > 0) {
 			//not the default package...add the package declaration
-			source = "package " + pkg.getElementName() + ";" + JavaModelManager.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
+			source = "package " + pkg.getElementName() + ";"  + JavaModelManager.LINE_SEPARATOR + JavaModelManager.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, fName, source, force);
 		runOperation(op, monitor);

@@ -373,9 +373,8 @@ private char[] normalizeCRs(char[] text) {
 				buffer.append(lineSeparator);
 				if (nextChar == '\n') {
 					nextChar = ' ';
-					i++;
 				}
-				lineStart = i+1;
+				lineStart = i+2;
 				break;
 		}
 	}

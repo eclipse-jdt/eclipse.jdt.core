@@ -73,6 +73,7 @@ protected void appendFragmentedContents(CharArrayBuffer buffer) {
 			.append("package ") //$NON-NLS-1$
 			.append(fName)
 			.append(';')
+			.append(JavaModelManager.LINE_SEPARATOR)
 			.append(JavaModelManager.LINE_SEPARATOR);
 	} else {
 		buffer
