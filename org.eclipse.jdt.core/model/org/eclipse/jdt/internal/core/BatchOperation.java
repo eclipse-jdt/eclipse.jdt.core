@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
@@ -45,5 +46,14 @@ public class BatchOperation extends JavaModelOperation {
 			}
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#verify()
+	 */
+	protected IJavaModelStatus verify() {
+		// cannot verify user defined operation
+		return JavaModelStatus.VERIFIED_OK;
+	}
+
 	
 }
