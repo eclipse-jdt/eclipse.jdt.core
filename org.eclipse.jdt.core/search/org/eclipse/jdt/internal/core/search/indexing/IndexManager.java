@@ -337,7 +337,7 @@ public synchronized Index recreateIndex(IPath path) {
 	// only called to over write an existing cached index...
 	try {
 		Index index = (Index) this.indexes.get(path);
-		ReadWriteMonitor monitor = index.monitor;
+		ReadWriteMonitor monitor = index == null ? null : index.monitor;
 
 		// Path is already canonical
 		String indexPath = computeIndexName(path);
