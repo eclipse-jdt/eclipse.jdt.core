@@ -31,7 +31,6 @@
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='false' skipemptyfilesets='true'>
             <arg value='--verbose'/>
             <targetfile/>
-            <arg value='-I'/>
             <srcfile/>
             <fileset dir='${work}' excludes='**/*.java,**/*.html' />
             <mapper type='regexp' from='^(.*)\.(.*)$$' to=' -c --resource \0 \0 -o \1.o'/>
