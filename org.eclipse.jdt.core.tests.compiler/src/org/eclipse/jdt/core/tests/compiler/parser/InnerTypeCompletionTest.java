@@ -274,7 +274,7 @@ public void testLocalTypeFirstMethod() {
 		"      }\n" +
 		"      void fuzz() {\n" +
 		"      }\n" +
-		"    };\n" +
+		"    }\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -297,7 +297,7 @@ public void testLocalTypeNoStatementBefore() {
 		"			void buzz() {						\n" +
 		"				int i = fred().xyz;				\n" +
 		"			}									\n" +
-		"		};										\n" +
+		"		}										\n" +
 		"	}											\n" +
 		"}												\n",
 		// completeBehind:
@@ -315,7 +315,7 @@ public void testLocalTypeNoStatementBefore() {
 		"      void buzz() {\n" +
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
-		"    };\n" +
+		"    }\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -340,7 +340,7 @@ public void testLocalTypeOneFieldBefore() {
 		"			void buzz() {						\n" +
 		"				int i = fred().xyz;				\n" +
 		"			}									\n" +
-		"		};										\n" +
+		"		}										\n" +
 		"	}											\n" +
 		"}												\n",
 		// completeBehind:
@@ -359,7 +359,7 @@ public void testLocalTypeOneFieldBefore() {
 		"      void buzz() {\n" +
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
-		"    };\n" +
+		"    }\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -383,7 +383,7 @@ public void testLocalTypeOneStatementBefore() {
 		"			void buzz() {						\n" +
 		"				int i = fred().xyz;				\n" +
 		"			}									\n" +
-		"		};										\n" +
+		"		}										\n" +
 		"	}											\n" +
 		"}												\n",
 		// completeBehind:
@@ -402,7 +402,7 @@ public void testLocalTypeOneStatementBefore() {
 		"      void buzz() {\n" +
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
-		"    };\n" +
+		"    }\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -447,7 +447,7 @@ public void testLocalTypeSecondMethod() {
 		"      void buzz() {\n" +
 		"        int i = <CompleteOnMemberAccess:fred().x>;\n" +
 		"      }\n" +
-		"    };\n" +
+		"    }\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

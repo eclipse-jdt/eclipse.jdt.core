@@ -911,7 +911,7 @@ public void testFieldDeclarationWithModifiers() {
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
-		"<CompleteOnType:X>",
+		"<CompleteOnType:X>;",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  <CompleteOnType:X>;\n" + 
@@ -939,7 +939,7 @@ public void testFieldDeclarationWithoutModifiers() {
 		// completeBehind:
 		"X",
 		// expectedCompletionNodeToString:
-		"<CompleteOnType:X>",
+		"<CompleteOnType:X>;",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  <CompleteOnType:X>;\n" + 

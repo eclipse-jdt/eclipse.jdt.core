@@ -25,7 +25,7 @@ public void test0001(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -82,7 +82,7 @@ public void test0002(){
 		"diet ast");
 		
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -141,7 +141,7 @@ public void test0003(){
 		"diet ast");
 
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -176,7 +176,7 @@ public void test0004(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -234,7 +234,7 @@ public void test0005(){
 		"diet ast");
 		
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -297,7 +297,7 @@ public void test0006(){
 
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -330,7 +330,7 @@ public void test0007(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>()";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -387,7 +387,7 @@ public void test0008(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>()";
+	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -446,7 +446,7 @@ public void test0009(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>()";
+	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -481,7 +481,7 @@ public void test0010(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>()";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -539,7 +539,7 @@ public void test0011(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>()";
+	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -601,7 +601,7 @@ public void test0012(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>()";
+	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -1964,13 +1964,13 @@ public void test0037(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  Object[] o = {<CompleteOnName:zzz>,};\n" + 
+		"  Object[] o = {<CompleteOnName:zzz>};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -2023,14 +2023,14 @@ public void test0038(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
 		"  {\n" + 
-		"    Object[] o = {<CompleteOnName:zzz>,};\n" + 
+		"    Object[] o = {<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -2087,7 +2087,7 @@ public void test0039(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -2096,7 +2096,7 @@ public void test0039(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object[] o = {<CompleteOnName:zzz>,};\n" + 
+		"    Object[] o = {<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -2124,13 +2124,13 @@ public void test0040(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  Object[] o = {<CompleteOnName:zzz>,};\n" +
+		"  Object[] o = {<CompleteOnName:zzz>};\n" +
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -2184,7 +2184,7 @@ public void test0041(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -2192,7 +2192,7 @@ public void test0041(){
 		"public class X {\n" + 
 		"  {\n" + 
 		"    {\n" + 
-		"      Object[] o = {<CompleteOnName:zzz>,};\n" + 
+		"      Object[] o = {<CompleteOnName:zzz>};\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
@@ -2251,7 +2251,7 @@ public void test0042(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -2260,7 +2260,7 @@ public void test0042(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object[] o = {<CompleteOnName:zzz>,};\n" + 
+		"    Object[] o = {<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -2605,13 +2605,13 @@ public void test0049(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  Object[] o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"  Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -2662,14 +2662,14 @@ public void test0050(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
 		"  {\n" + 
-		"    Object[] o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -2698,7 +2698,7 @@ public void test0051(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -2708,7 +2708,7 @@ public void test0051(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" +
-		"      new X[]{<CompleteOnName:zzz>,};\n" + 
+		"      new X[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -2724,7 +2724,7 @@ public void test0051(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -2733,7 +2733,7 @@ public void test0051(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object[] o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -2759,13 +2759,13 @@ public void test0052(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
-		"  Object[] o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"  Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -2817,7 +2817,7 @@ public void test0053(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -2825,7 +2825,7 @@ public void test0053(){
 		"public class X {\n" + 
 		"  {\n" + 
 		"    {\n" + 
-		"      Object[] o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"      Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
@@ -2856,7 +2856,7 @@ public void test0054(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -2866,7 +2866,7 @@ public void test0054(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" +
-		"      new X[]{<CompleteOnName:zzz>,};\n" + 
+		"      new X[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -2882,7 +2882,7 @@ public void test0054(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -2891,7 +2891,7 @@ public void test0054(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object[] o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -2916,7 +2916,7 @@ public void test0055(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -2975,7 +2975,7 @@ public void test0056(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -3035,7 +3035,7 @@ public void test0057(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -3071,7 +3071,7 @@ public void test0058(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -3130,7 +3130,7 @@ public void test0059(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -3193,7 +3193,7 @@ public void test0060(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>";
+	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -3622,14 +3622,14 @@ public void test0068(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
 		"  {\n" + 
-		"    Object o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"    Object o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -3658,7 +3658,7 @@ public void test0069(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -3668,7 +3668,7 @@ public void test0069(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" +
-		"      new X[]{<CompleteOnName:zzz>,};\n" + 
+		"      new X[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -3684,7 +3684,7 @@ public void test0069(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -3693,7 +3693,7 @@ public void test0069(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"    Object o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -3849,7 +3849,7 @@ public void test0072(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -3859,7 +3859,7 @@ public void test0072(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" +
-		"      new X[]{<CompleteOnName:zzz>,};\n" + 
+		"      new X[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -4314,14 +4314,14 @@ public void test0080(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
 		"  {\n" + 
-		"    int o = new int[]{<CompleteOnName:zzz>,};\n" + 
+		"    int o = new int[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -4352,7 +4352,7 @@ public void test0081(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -4362,7 +4362,7 @@ public void test0081(){
 		"  }\n" + 
 		"  void foo() {\n" +  
 		"    {\n" +
-		"      new int[]{<CompleteOnName:zzz>,};\n" + 
+		"      new int[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -4378,7 +4378,7 @@ public void test0081(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -4387,7 +4387,7 @@ public void test0081(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    int o = new int[]{<CompleteOnName:zzz>,};\n" +  
+		"    int o = new int[]{<CompleteOnName:zzz>};\n" +  
 		"  }\n" + 
 		"}\n";
 	
@@ -4546,7 +4546,7 @@ public void test0084(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -4556,7 +4556,7 @@ public void test0084(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" +
-		"      new int[]{<CompleteOnName:zzz>,};\n" + 
+		"      new int[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -4695,14 +4695,14 @@ public void test0086(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
 		"package p;\n" + 
 		"public class X {\n" + 
 		"  {\n" + 
-		"    X o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"    X o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -4732,7 +4732,7 @@ public void test0087(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -4742,7 +4742,7 @@ public void test0087(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" +
-		"      new X[]{<CompleteOnName:zzz>,};\n" + 
+		"      new X[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -4758,7 +4758,7 @@ public void test0087(){
 		"diet ast");
 	
 	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	completionIdentifier = "zzz";
 	expectedReplacedSource = "zzz";
 	expectedUnitDisplayString =
@@ -4767,7 +4767,7 @@ public void test0087(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    X o = new X[]{<CompleteOnName:zzz>,};\n" + 
+		"    X o = new X[]{<CompleteOnName:zzz>};\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -4926,7 +4926,7 @@ public void test0090(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 	
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>,}";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
@@ -4936,7 +4936,7 @@ public void test0090(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    {\n" +
-		"      new X[]{<CompleteOnName:zzz>,};\n" + 
+		"      new X[]{<CompleteOnName:zzz>};\n" + 
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -7127,7 +7127,7 @@ public void test0127(){
 	int cursorLocation = str.lastIndexOf("O") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnType:O>";
-	String expectedParentNodeToString = "Object o = new <CompleteOnType:O>()";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:O>();";
 	String completionIdentifier = "O";
 	String expectedReplacedSource = "O";
 	String expectedUnitDisplayString =

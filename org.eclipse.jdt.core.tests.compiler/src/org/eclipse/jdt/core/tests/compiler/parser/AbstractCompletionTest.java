@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class AbstractCompletionTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
@@ -84,10 +85,10 @@ public void checkDietParse(
 
 	String computedCompletion = parser.assistNode == null 
 									? NONE
-									: parser.assistNode.toString(0);
+									: parser.assistNode.toString();
 	String computedParentCompletion = parser.assistNodeParent == null 
 								? NONE
-								: parser.assistNodeParent.toString(0);
+								: parser.assistNodeParent.toString();
 	String computedUnitToString = unit.toString();
 	//System.out.println(computedUnitToString);
 	//System.out.println(Util.displayString(computedUnitToString));
@@ -204,27 +205,33 @@ public void checkMethodParse(
 	
 	String computedCompletion = parser.assistNode == null 
 								? NONE
-								: parser.assistNode.toString(0);
+								: parser.assistNode.toString();
 	String computedParentCompletion = parser.assistNodeParent == null 
 								? NONE
-								: parser.assistNodeParent.toString(0);
+								: parser.assistNodeParent.toString();
 	String computedUnitToString = unit.toString();
-	//System.out.println(computedUnitToString);
-	//System.out.println(Util.displayString(computedUnitToString));
-	//System.out.println(expectedUnitToString);		
 
+	if (!expectedCompletion.equals(computedCompletion)) {
+		System.out.println(Util.displayString(computedCompletion));
+	}
 	assertEquals(
 		"invalid completion node-" + testName,
 		expectedCompletion,
 		computedCompletion);
 		
 	if(expectedParentCompletion != null) {
+		if (!expectedParentCompletion.equals(computedParentCompletion)) {
+			System.out.println(Util.displayString(computedParentCompletion));
+		}
 		assertEquals(
 		"invalid completion parent node-" + testName,
 		expectedParentCompletion,
 		computedParentCompletion);
 	}
 
+	if (!expectedUnitToString.equals(computedUnitToString)) {
+		System.out.println(Util.displayString(computedUnitToString));
+	}
 	assertEquals(
 		"invalid completion location-"+testName,
 		expectedUnitToString,
@@ -233,6 +240,9 @@ public void checkMethodParse(
 	if (expectedCompletionIdentifier != null){
 		char[] chars = ((CompletionScanner)parser.scanner).completionIdentifier;
 		String computedCompletionIdentifier = chars == null ? NONE : new String(chars);
+		if (!expectedCompletionIdentifier.equals(computedCompletionIdentifier)) {
+			System.out.println(Util.displayString(computedCompletionIdentifier));
+		}
 		assertEquals(
 			"invalid completion identifier-" + testName,
 			expectedCompletionIdentifier,
@@ -257,6 +267,9 @@ public void checkMethodParse(
 			}
 		}
 		String computedReplacedSource  = chars == null ? NONE : new String(chars);
+		if (!expectedReplacedSource.equals(computedReplacedSource)) {
+			System.out.println(Util.displayString(computedReplacedSource));
+		}
 		assertEquals(
 			"invalid replaced source-" + testName,
 			expectedReplacedSource,

@@ -1018,7 +1018,7 @@ public void test24() {
 		"      }\n" + 
 		"      X() {\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 		
@@ -1116,8 +1116,7 @@ public void test26() {
 		"      }\n" + 
 		"    };\n" + 
 		"  }\n" + 
-		"}\n";
-		
+		"}\n";	
 	String expectedReplacedSource = "G.super";
 	String testName = "<select qualified super>";
 
@@ -1149,7 +1148,7 @@ public void test27() {
 	String selectionStartBehind = "\n\t\t";
 	String selectionEndBehind = "super";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:super()>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:super()>;";
 	
 	String completionIdentifier = "super";
 	String expectedUnitDisplayString =
@@ -1195,7 +1194,7 @@ public void test28() {
 	String selectionStartBehind = "new G().";
 	String selectionEndBehind = "new G().super";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().super()>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().super()>;";
 	
 	String completionIdentifier = "super";
 	String expectedUnitDisplayString =
@@ -1211,7 +1210,7 @@ public void test28() {
 		"      X() {\n" + 
 		"        <SelectOnExplicitConstructorCall:new G().super()>;\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";	
 	String expectedReplacedSource = "new G().super()";
@@ -1250,7 +1249,7 @@ public void test29() {
 	String selectionStartBehind = "new G().";
 	String selectionEndBehind = "new G().super";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().super((23 + \"hello\"))>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().super((23 + \"hello\"))>;";
 	
 	String completionIdentifier = "super";
 	String expectedUnitDisplayString =
@@ -1266,7 +1265,7 @@ public void test29() {
 		"      X() {\n" + 
 		"        <SelectOnExplicitConstructorCall:new G().super((23 + \"hello\"))>;\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";	
 	String expectedReplacedSource = "new G().super(23 + \"hello\")";
@@ -1300,7 +1299,7 @@ public void test30() {
 	String selectionStartBehind = "\n\t\t";
 	String selectionEndBehind = "super";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:super(new G())>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:super(new G())>;";
 	
 	String completionIdentifier = "super";
 	String expectedUnitDisplayString =
@@ -1529,7 +1528,7 @@ public void test35() {
 	String selectionStartBehind = "\n\t\t";
 	String selectionEndBehind = "this";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:this()>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:this()>;";
 	
 	String completionIdentifier = "this";
 	String expectedUnitDisplayString =
@@ -1579,7 +1578,7 @@ public void test36() {
 	String selectionStartBehind = "new G().";
 	String selectionEndBehind = "new G().this";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().this()>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().this()>;";
 	
 	String completionIdentifier = "this";
 	String expectedUnitDisplayString =
@@ -1594,7 +1593,7 @@ public void test36() {
 		"      X(int x) {\n" + 
 		"        <SelectOnExplicitConstructorCall:new G().this()>;\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";	
 	String expectedReplacedSource = "new G().this()";
@@ -1634,7 +1633,7 @@ public void test37() {
 	String selectionStartBehind = "new G().";
 	String selectionEndBehind = "new G().this";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().this((23 + \"hello\"))>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:new G().this((23 + \"hello\"))>;";
 	
 	String completionIdentifier = "this";
 	String expectedUnitDisplayString =
@@ -1649,7 +1648,7 @@ public void test37() {
 		"      X(int x) {\n" + 
 		"        <SelectOnExplicitConstructorCall:new G().this((23 + \"hello\"))>;\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";	
 	String expectedReplacedSource = "new G().this(23 + \"hello\")";
@@ -1683,7 +1682,7 @@ public void test38() {
 	String selectionStartBehind = "\n\t\t";
 	String selectionEndBehind = "this";
 	
-	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:this(new G())>";
+	String expectedCompletionNodeToString = "<SelectOnExplicitConstructorCall:this(new G())>;";
 	
 	String completionIdentifier = "this";
 	String expectedUnitDisplayString =
@@ -1807,7 +1806,7 @@ public void test41() {
 		
 	String selection = "var";
 	
-	String expectedCompletionNodeToString = "<SelectionOnLocalName:Object var>";
+	String expectedCompletionNodeToString = "<SelectionOnLocalName:Object var>;";
 	
 	String completionIdentifier = "var";
 	String expectedUnitDisplayString =

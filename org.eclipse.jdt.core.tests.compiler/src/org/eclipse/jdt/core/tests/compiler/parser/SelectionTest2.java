@@ -105,7 +105,7 @@ void checkMethodParse(
 	
 	String computedCompletion = parser.assistNode == null 
 								? NONE
-								: parser.assistNode.toString(0);
+								: parser.assistNode.toString();
 	assertEquals(
 		"invalid selection node-" + testName,
 		expectedSelection,

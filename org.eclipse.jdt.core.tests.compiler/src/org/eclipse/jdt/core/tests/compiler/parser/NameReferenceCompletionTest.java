@@ -461,7 +461,7 @@ public void testEmptyNameReferenceInInnerClass() {
 		"      void bar() {\n" + 
 		"        <CompleteOnName:>;\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

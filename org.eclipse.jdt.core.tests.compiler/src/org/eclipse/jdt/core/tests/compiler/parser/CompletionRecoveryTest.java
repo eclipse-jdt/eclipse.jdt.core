@@ -126,7 +126,7 @@ public void test03() {
 		"      L() {\n" + 
 		"        super();\n" + // could be optimized out
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "str";
@@ -221,7 +221,7 @@ public void test05() {
 		"      }\n" + 
 		"      void stringAppend(String s1, String s2) {\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 	String expectedReplacedSource = "str";
@@ -280,7 +280,7 @@ public void test06() {
 		"      }\n" + 
 		"      void stringAppend(String s1, String s2) {\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 		
@@ -749,7 +749,7 @@ public void test18() {
 		"      }\n" + 
 		"      int hello() {\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

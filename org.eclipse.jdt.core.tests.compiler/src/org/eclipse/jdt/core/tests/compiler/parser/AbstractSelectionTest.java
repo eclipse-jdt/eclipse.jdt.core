@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class AbstractSelectionTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
@@ -69,14 +70,17 @@ public void checkDietParse(
 
 	String computedSelection = parser.assistNode == null 
 									? NONE
-									: parser.assistNode.toString(0);
+									: parser.assistNode.toString();
 	assertEquals(
 		"invalid selection node-" + testName,
 		expectedSelection,
 		computedSelection);
 
+	if (!expectedUnitToString.equals(computedUnitToString)) {
+		System.out.println(Util.displayString(computedUnitToString, 2));
+	}
 	assertEquals(
-		"invalid selection tree-" + testName,
+		"invalid selection unit-" + testName,
 		expectedUnitToString,
 		computedUnitToString);
 	
@@ -169,19 +173,21 @@ public void checkMethodParse(
 
 	String computedUnitToString = unit.toString();
 	//System.out.println(computedUnitToString);
-	//System.out.println(Util.displayString(computedUnitToString));
 	//System.out.println(expectedUnitToString);	
 	
 	String computedCompletion = parser.assistNode == null 
 								? NONE
-								: parser.assistNode.toString(0);
+								: parser.assistNode.toString();
 	assertEquals(
 		"invalid selection node-" + testName,
 		expectedSelection,
 		computedCompletion);
 
+	if (!expectedUnitToString.equals(computedUnitToString)) {
+		System.out.println(Util.displayString(computedUnitToString, 2));
+	}
 	assertEquals(
-		"invalid selection location-"+testName,
+		"invalid selection unit-"+testName,
 		expectedUnitToString,
 		computedUnitToString);
 

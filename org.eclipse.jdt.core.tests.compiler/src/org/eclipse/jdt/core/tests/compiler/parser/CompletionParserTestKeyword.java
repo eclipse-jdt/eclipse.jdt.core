@@ -490,7 +490,7 @@ public void test0016(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:abst>";
+	String expectedCompletionNodeToString = "<CompleteOnType:abst>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
@@ -525,7 +525,7 @@ public void test0017(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:abst>";
+	String expectedCompletionNodeToString = "<CompleteOnType:abst>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
@@ -1377,7 +1377,7 @@ public void test0036(){
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:cla>";
+	String expectedCompletionNodeToString = "<CompleteOnType:cla>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
@@ -3130,7 +3130,7 @@ public void test0079(){
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:int>";
+	String expectedCompletionNodeToString = "<CompleteOnType:int>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
@@ -4860,7 +4860,7 @@ public void test0119(){
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:fin>";
+	String expectedCompletionNodeToString = "<CompleteOnType:fin>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";
@@ -8171,7 +8171,7 @@ public void test0209(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:abst>";
+	String expectedCompletionNodeToString = "<CompleteOnType:abst>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
@@ -8207,7 +8207,7 @@ public void test0210(){
 	String completeBehind = "abst";
 	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:abst>";
+	String expectedCompletionNodeToString = "<CompleteOnType:abst>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "abst";
 	String expectedReplacedSource = "abst";
@@ -9080,7 +9080,7 @@ public void test0230(){
 	String completeBehind = "cla";
 	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:cla>";
+	String expectedCompletionNodeToString = "<CompleteOnType:cla>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "cla";
 	String expectedReplacedSource = "cla";
@@ -10876,7 +10876,7 @@ public void test0273(){
 	String completeBehind = "int";
 	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:int>";
+	String expectedCompletionNodeToString = "<CompleteOnType:int>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "int";
 	String expectedReplacedSource = "int";
@@ -12646,7 +12646,7 @@ public void test0313(){
 	String completeBehind = "fin";
 	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<CompleteOnType:fin>";
+	String expectedCompletionNodeToString = "<CompleteOnType:fin>;";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "fin";
 	String expectedReplacedSource = "fin";

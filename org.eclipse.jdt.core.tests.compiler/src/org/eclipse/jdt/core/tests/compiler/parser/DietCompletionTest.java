@@ -587,7 +587,7 @@ public void test18() {
 		"}											\n"; 
 
 	String completeBehind = "IO";
-	String expectedCompletionNodeToString = "<CompleteOnType:IO>";
+	String expectedCompletionNodeToString = "<CompleteOnType:IO>;";
 	String completionIdentifier = "IO";
 	String expectedUnitDisplayString = 
 		"class X {\n" + 
@@ -620,7 +620,7 @@ public void test19() {
 		"}											\n"; 
 
 	String completeBehind = "final ";
-	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedCompletionNodeToString = "<CompleteOnType:>;";
 	String completionIdentifier = "";
 	String expectedUnitDisplayString = 
 		"class X {\n" + 
@@ -1596,7 +1596,7 @@ public void test47() {
 	String expectedUnitDisplayString = 
 		"class X {\n" + 
 		"  class Y {\n" + 
-		"    Object[] f = {<CompleteOnMemberAccess:this.foo>,};\n" + 
+		"    Object[] f = {<CompleteOnMemberAccess:this.foo>};\n" + 
 		"    Y() {\n" + 
 		"    }\n" + 
 		"    Object foo() {\n" + 

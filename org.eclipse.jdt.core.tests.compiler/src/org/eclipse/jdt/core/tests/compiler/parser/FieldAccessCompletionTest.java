@@ -130,7 +130,7 @@ public void testArgumentList() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    bizz(1 , \"2\" , <CompleteOnMemberAccess:fred().x>);\n" + 
+		"    bizz(1, \"2\", <CompleteOnMemberAccess:fred().x>);\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -223,7 +223,7 @@ public void testArrayInitializer() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    int[] i = new int[]{<CompleteOnMemberAccess:fred().x>,};\n" + 
+		"    int[] i = new int[]{<CompleteOnMemberAccess:fred().x>};\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -254,7 +254,7 @@ public void testArrayInitializerComma() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    int[] i = new int[]{<CompleteOnMemberAccess:fred().x>,};\n" + 
+		"    int[] i = new int[]{<CompleteOnMemberAccess:fred().x>};\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

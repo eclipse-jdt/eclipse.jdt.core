@@ -529,7 +529,7 @@ public String toString() {
 					break;
 			}
 		} 
-		result.append(node.toString(0));
+		node.print(0, result);
 	}
 	result.append("\nPotential matches:"); //$NON-NLS-1$
 	for (Iterator iter = this.potentialMatchingNodes.keySet().iterator(); iter.hasNext();) {
@@ -554,7 +554,7 @@ public String toString() {
 					break;
 			}
 		}
-		result.append(node.toString(0));
+		node.print(0, result);
 	}
 	return result.toString();
 }

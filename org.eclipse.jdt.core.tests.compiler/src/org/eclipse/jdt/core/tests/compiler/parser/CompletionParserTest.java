@@ -1201,7 +1201,7 @@ public void testDA_3() {
 
 	String testName = "<complete on method selector into anonymous declaration>";
 	String completeBehind = "r";
-	String expectedCompletionNodeToString = "<CompleteOnFieldName:void r>";
+	String expectedCompletionNodeToString = "<CompleteOnFieldName:void r>;";
 	String completionIdentifier = "r";
 	String expectedReplacedSource = "runTest";
 	int cursorLocation = str.indexOf("runTest") + completeBehind.length() - 1;
@@ -2541,7 +2541,7 @@ public void testIA_1FGNBPR_1() {
 		"        void foo2() {\n" +
 		"          <CompleteOnName:la>;\n" +
 		"        }\n" +
-		"      };\n" +
+		"      }\n" +
 		"    }\n" +
 		"  }\n" + 
 		"}\n";
@@ -2594,7 +2594,7 @@ public void testIA_1FGNBPR_2() {
 		"        }\n" +
 		"        void foo2() {\n" +
 		"        }\n" +
-		"      };\n" +
+		"      }\n" +
 		"      A a;\n" +
 		"      <CompleteOnName:la>;\n" +
 		"    }\n" +
@@ -2928,7 +2928,7 @@ public void testK_2() {
 
 	String testName = "<complete on corrupted local variable declaration name>";
 	String completeBehind = "bb";
-	String expectedCompletionNodeToString = "<CompleteOnLocalName:O bb>";
+	String expectedCompletionNodeToString = "<CompleteOnLocalName:O bb>;";
 	String completionIdentifier = "bb";
 	String expectedReplacedSource = "bb";
 	int cursorLocation = str.indexOf("bb bbbb.") + completeBehind.length() - 1;
@@ -3897,7 +3897,7 @@ public void testN() {
 		"      }\n" + 
 		"      void foo() {\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -4691,7 +4691,7 @@ public void testPB() {
 		"            void foo() {\n" + 
 		"              <CompleteOnName:f>;\n" + 
 		"            }\n" + 
-		"          };\n" + 
+		"          }\n" + 
 		"        }\n" + 
 		"      }\n" + 
 		"      class LocalMember2 {\n" + 
@@ -4704,7 +4704,7 @@ public void testPB() {
 		"      }\n" + 
 		"      void foo() {\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -4757,7 +4757,7 @@ public void testPC_1FSU4EF() {
 		"        Vector v;\n" + 
 		"        <CompleteOnName:v.a>;\n" + 
 		"      }\n" + 
-		"    };\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -5735,7 +5735,7 @@ public void testTA_1FHISJJ_1() {
 		"  public TA() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object[] items = {<CompleteOnName:n>,};\n" + 
+		"    Object[] items = {<CompleteOnName:n>};\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -5934,7 +5934,7 @@ public void testUA_1FHISJJ_1() {
 			"				null, \n" + 
 			"				\"Properties...\"}\n" + 
 			"		.";
-	String expectedCompletionNodeToString = "<CompleteOnMemberAccess:new String[]{\"Mark unublishable\",null,\"Properties...\",}.>";
+	String expectedCompletionNodeToString = "<CompleteOnMemberAccess:new String[]{\"Mark unublishable\", null, \"Properties...\"}.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
@@ -5944,7 +5944,7 @@ public void testUA_1FHISJJ_1() {
 		"  public UA() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    Object[] items = <CompleteOnMemberAccess:new String[]{\"Mark unublishable\",null,\"Properties...\",}.>;\n" + 
+		"    Object[] items = <CompleteOnMemberAccess:new String[]{\"Mark unublishable\", null, \"Properties...\"}.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -6958,7 +6958,7 @@ public void testX_1FGGV8C_3() {
 		"    int locale;\n" + 
 		"    int errorThreshold;\n" + 
 		"    int preserveAllLocalVariables;\n" + 
-		"    new YZA[]{new <CompleteOnType:Y>(),};\n" + 
+		"    new YZA[]{new <CompleteOnType:Y>()};\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -7059,7 +7059,7 @@ public void testX_1FGGV8C_4() {
 		"    int locale;\n" + 
 		"    int errorThreshold;\n" + 
 		"    int preserveAllLocalVariables;\n" + 
-		"    new Y[]{<CompleteOnName:n>,};\n" + 
+		"    new Y[]{<CompleteOnName:n>};\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -8233,7 +8233,7 @@ public void test006(){
 
 	String testName = "<complete in method type>";
 	String completeBehind = "clon";
-	String expectedCompletionNodeToString = "<CompleteOnType:clon>";
+	String expectedCompletionNodeToString = "<CompleteOnType:clon>;";
 	String completionIdentifier = "clon";
 	String expectedReplacedSource = "clon";
 	int cursorLocation = str.lastIndexOf("clon") + completeBehind.length() - 1;
@@ -8265,7 +8265,7 @@ public void test007(){
 
 	String testName = "<complete in field type>";
 	String completeBehind = "clon";
-	String expectedCompletionNodeToString = "<CompleteOnType:clon>";
+	String expectedCompletionNodeToString = "<CompleteOnType:clon>;";
 	String completionIdentifier = "clon";
 	String expectedReplacedSource = "clon";
 	int cursorLocation = str.lastIndexOf("clon") + completeBehind.length() - 1;
@@ -8297,7 +8297,7 @@ public void test008(){
 
 	String testName = "<complete in field type>";
 	String completeBehind = "clon";
-	String expectedCompletionNodeToString = "<CompleteOnType:clon>";
+	String expectedCompletionNodeToString = "<CompleteOnType:clon>;";
 	String completionIdentifier = "clon";
 	String expectedReplacedSource = "clon";
 	int cursorLocation = str.lastIndexOf("clon") + completeBehind.length() - 1;
@@ -8329,7 +8329,7 @@ public void test009(){
 
 	String testName = "<complete in field tpye>";
 	String completeBehind = "clon";
-	String expectedCompletionNodeToString = "<CompleteOnType:clon>";
+	String expectedCompletionNodeToString = "<CompleteOnType:clon>;";
 	String completionIdentifier = "clon";
 	String expectedReplacedSource = "clon";
 	int cursorLocation = str.lastIndexOf("clon") + completeBehind.length() - 1;
@@ -8362,7 +8362,7 @@ public void test010(){
 
 	String testName = "<complete in method type>";
 	String completeBehind = "clon";
-	String expectedCompletionNodeToString = "<CompleteOnType:clon>";
+	String expectedCompletionNodeToString = "<CompleteOnType:clon>;";
 	String completionIdentifier = "clon";
 	String expectedReplacedSource = "clon";
 	int cursorLocation = str.lastIndexOf("clon") + completeBehind.length() - 1;

@@ -220,7 +220,7 @@ public void test01() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -237,7 +237,7 @@ public void test01() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" +
 		"    super();\n" + 
 		"  }\n" + 
@@ -308,7 +308,7 @@ public void test02() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -325,7 +325,7 @@ public void test02() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"    super();\n" +
 		"  }\n" + 
@@ -394,7 +394,7 @@ public void test03() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -411,7 +411,7 @@ public void test03() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"    super();\n" +
 		"  }\n" + 
@@ -484,7 +484,7 @@ public void test04() {
 		"  Object a;\n" + 
 		"  Object b = null;\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -504,7 +504,7 @@ public void test04() {
 		"  Object a;\n" + 
 		"  Object b = null;\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -764,7 +764,7 @@ public void test08() {
 		"public class X {\n" + 
 		"  class Y {\n" + 
 		"    public int h;\n" + 
-		"    public int[] i = {0,1,};\n" + 
+		"    public int[] i = {0, 1};\n" + 
 		"    Y() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" + 
@@ -782,7 +782,7 @@ public void test08() {
 		"public class X {\n" + 
 		"  class Y {\n" + 
 		"    public int h;\n" + 
-		"    public int[] i = {0,1,};\n" + 
+		"    public int[] i = {0, 1};\n" + 
 		"    Y() {\n" + 
 		"      super();\n" + 
 		"    }\n" + 
@@ -856,7 +856,7 @@ public void test09() {
 		"    }\n" + 
 		"  }\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void bar() {\n" + 
@@ -876,7 +876,7 @@ public void test09() {
 		"    }\n" + 
 		"  }\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -938,7 +938,7 @@ public void test10() {
 		"public class X {\n" + 
 		"  class Y {\n" + 
 		"    public int h;\n" + 
-		"    public int[] i = {0,1,};\n" + 
+		"    public int[] i = {0, 1};\n" + 
 		"    Y() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" + 
@@ -956,7 +956,7 @@ public void test10() {
 		"public class X {\n" + 
 		"  class Y {\n" + 
 		"    public int h;\n" + 
-		"    public int[] i = {0,1,};\n" + 
+		"    public int[] i = {0, 1};\n" + 
 		"    Y() {\n" + 
 		"      super();\n" + 
 		"    }\n" + 
@@ -2180,7 +2180,7 @@ public void test31() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -2197,7 +2197,7 @@ public void test31() {
 		"import java.util.*;\n" + 
 		"public class X {\n" + 
 		"  public int h;\n" + 
-		"  public int[] i = {0,1,};\n" + 
+		"  public int[] i = {0, 1};\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -3346,7 +3346,7 @@ public void test56() {
 		"  static {\n" + 
 		"  }\n" + 
 		"  public int x;\n" + 
-		"  int[] y = {0,1,};\n" + 
+		"  int[] y = {0, 1};\n" + 
 		"  {\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
@@ -3363,7 +3363,7 @@ public void test56() {
 		"  static {\n" + 
 		"  }\n" + 
 		"  public int x;\n" + 
-		"  int[] y = {0,1,};\n" + 
+		"  int[] y = {0, 1};\n" + 
 		"  {\n" + 
 		"  }\n" + 
 		"  public X() {\n" + 
@@ -3739,7 +3739,7 @@ public void test63() {
 		
 	String expectedDietUnitToString = 
 		"class X {\n" + 
-		"  int[] x = {0,1,};\n" + 
+		"  int[] x = {0, 1};\n" + 
 		"  {\n" + 
 		"  }\n" + 
 		"  X() {\n" + 
@@ -3748,7 +3748,7 @@ public void test63() {
 		
 	String expectedDietPlusBodyUnitToString = 
 		"class X {\n" + 
-		"  int[] x = {0,1,};\n" + 
+		"  int[] x = {0, 1};\n" + 
 		"  {\n" + 
 		"  }\n" + 
 		"  X() {\n" + 
@@ -3794,7 +3794,7 @@ public void test64() {
 		
 	String expectedDietUnitToString = 
 		"public class X {\n" + 
-		"  int[] x = {0,1,};\n" + 
+		"  int[] x = {0, 1};\n" + 
 		"  static int zz;\n" + 
 		"  {\n" + 
 		"  }\n" + 
@@ -3811,7 +3811,7 @@ public void test64() {
 		
 	String expectedDietPlusBodyUnitToString = 
 		"public class X {\n" + 
-		"  int[] x = {0,1,};\n" + 
+		"  int[] x = {0, 1};\n" + 
 		"  static int zz;\n" + 
 		"  {\n" + 
 		"  }\n" + 
@@ -5405,7 +5405,7 @@ public void test98() {
 		"		final String part = \"\";		                                \n"+
 		"		final String sel = \"\";		                                \n"+
 		"		Object l = null;		                                        \n"+
-		"		if ((part != null && sel != null) || l instanceof String) {		\n"+
+		"		if ((part != null && sel != null) || l instanceof String) {	\n"+
 		"			Platform.run(new Runnable() {		                        \n"+
 		"				public void run() {		                                \n"+
 		"				}		                                                \n"+
@@ -5447,7 +5447,7 @@ public void test98() {
 		"    final String part = \"\";\n"+
 		"    final String sel = \"\";\n"+
 		"    Object l = null;\n"+
-    	"    if ((((part != null) && (sel != null)) || (l instanceof String))) \n"+
+    	"    if ((((part != null) && (sel != null)) || (l instanceof String)))\n"+
     	"        {\n"+
      	"          Platform.run(new Runnable() {\n"+
 		"  public void run() {\n"+
@@ -5455,7 +5455,7 @@ public void test98() {
 		"  public void handleException(Throwable e) {\n"+
 		"  }\n"+
 		"});\n"+
-		"        };;\n"+
+		"        }\n"+
 		"  }\n"+
 		"  public A() {\n"+
 		"    super();\n"+
@@ -5834,14 +5834,14 @@ public void test105() {
 		"	}\n" +
 		"	static int B =\n" +
 		"		foo(\n" +
-		"			new int[]{0,0},\n" +
-		"			new int[]{0,0}\n" +
+		"			new int[]{0, 0},\n" +
+		"			new int[]{0, 0}\n" +
 		"		);\n" +
 		"	#\n";
 		
 	String expectedDietUnitToString = 
 		"public class X {\n" +
-		"  static int B = foo(new int[]{0,0,} , new int[]{0,0,});\n" +
+		"  static int B = foo(new int[]{0, 0}, new int[]{0, 0});\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"  <clinit>() {\n" +
@@ -5852,7 +5852,7 @@ public void test105() {
 
 	String expectedDietPlusBodyUnitToString = 
 		"public class X {\n" +
-		"  static int B = foo(new int[]{0,0,} , new int[]{0,0,});\n" +
+		"  static int B = foo(new int[]{0, 0}, new int[]{0, 0});\n" +
 		"  public X() {\n" +
 		"    super();\n" +
 		"  }\n" +
@@ -5932,21 +5932,21 @@ public void test106() {
 public void test107() {
 	String s = 
 		"public class X {\n" +
-		"	int[] a = new int[]{0,0}, b = new int[]{0,0};\n" +
+		"	int[] a = new int[]{0, 0}, b = new int[]{0, 0};\n" +
 		"	#\n";
 		
 	String expectedDietUnitToString = 
 		"public class X {\n" +
-		"  int[] a = new int[]{0,0,};\n" +
-		"  int[] b = new int[]{0,0,};\n" +
+		"  int[] a = new int[]{0, 0};\n" +
+		"  int[] b = new int[]{0, 0};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
 
 	String expectedDietPlusBodyUnitToString = 
 		"public class X {\n" +
-		"  int[] a = new int[]{0,0,};\n" +
-		"  int[] b = new int[]{0,0,};\n" +
+		"  int[] a = new int[]{0, 0};\n" +
+		"  int[] b = new int[]{0, 0};\n" +
 		"  public X() {\n" +
 		"    super();\n" +
 		"  }\n" +
@@ -5974,21 +5974,21 @@ public void test107() {
 public void test108() {
 	String s = 
 		"public class X {\n" +
-		"	int a = new int[]{0,0}, b = new int[]{0,0};\n" +
+		"	int a = new int[]{0, 0}, b = new int[]{0, 0};\n" +
 		"	#\n";
 		
 	String expectedDietUnitToString = 
 		"public class X {\n" +
-		"  int a = new int[]{0,0,};\n" +
-		"  int b = new int[]{0,0,};\n" +
+		"  int a = new int[]{0, 0};\n" +
+		"  int b = new int[]{0, 0};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
 
 	String expectedDietPlusBodyUnitToString = 
 		"public class X {\n" +
-		"  int a = new int[]{0,0,};\n" +
-		"  int b = new int[]{0,0,};\n" +
+		"  int a = new int[]{0, 0};\n" +
+		"  int b = new int[]{0, 0};\n" +
 		"  public X() {\n" +
 		"    super();\n" +
 		"  }\n" +

@@ -41,7 +41,7 @@ public void testPrimarySuper() {
 		// completeBehind:
 		"super(1, 2,",
 		// expectedCompletionNodeToString:
-		"<CompleteOnExplicitConstructorCall:primary().super(1, 2)>",
+		"<CompleteOnExplicitConstructorCall:primary().super(1, 2)>;",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  public class InnerBar {\n" + 
@@ -90,7 +90,7 @@ public void testPrimaryThis() {
 		// completeBehind:
 		"this(1, 2,",
 		// expectedCompletionNodeToString:
-		"<CompleteOnExplicitConstructorCall:primary().this(1, 2)>",
+		"<CompleteOnExplicitConstructorCall:primary().this(1, 2)>;",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  public class InnerBar {\n" + 
@@ -132,7 +132,7 @@ public void testSuper() {
 		// completeBehind:
 		"super(1, 2,",
 		// expectedCompletionNodeToString:
-		"<CompleteOnExplicitConstructorCall:super(1, 2)>",
+		"<CompleteOnExplicitConstructorCall:super(1, 2)>;",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
@@ -163,7 +163,7 @@ public void testThis() {
 		// completeBehind:
 		"this(1, 2,",
 		// expectedCompletionNodeToString:
-		"<CompleteOnExplicitConstructorCall:this(1, 2)>",
+		"<CompleteOnExplicitConstructorCall:this(1, 2)>;",
 		// expectedUnitDisplayString:
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
