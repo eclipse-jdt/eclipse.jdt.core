@@ -165,7 +165,7 @@ public interface IPackageFragmentRoot
 	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> A <code>CoreException</code> occurred while copying the
 	 * resource or updating a classpath</li>
-	 * <li> TODO: (jim) if we want to later remove the following restriction, can we still specify it?
+	 * <li>
 	 * The destination is not inside an existing project and <code>updateModelFlags</code>
 	 * has been specified as <code>DESTINATION_PROJECT_CLASSPATH</code> 
 	 * (INVALID_DESTINATION)</li>
@@ -413,7 +413,7 @@ public interface IPackageFragmentRoot
 	 * <li> This root does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> A <code>CoreException</code> occurred while copying the
 	 * resource or updating a classpath</li>
-	 * <li> TODO: (jim) if we want to later remove the following restriction, can we still specify it?
+	 * <li>
 	 * The destination is not inside an existing project and <code>updateModelFlags</code>
 	 * has been specified as <code>DESTINATION_PROJECT_CLASSPATH</code> 
 	 * (INVALID_DESTINATION)</li>
