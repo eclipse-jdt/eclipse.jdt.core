@@ -9,12 +9,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
-import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -25,12 +21,9 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.ObjectSet;
-import org.eclipse.jdt.internal.core.ClassFile;
 
 public class DeclarationOfReferencedTypesPattern extends TypeReferencePattern {
 	ObjectSet knownTypes;
@@ -79,6 +72,9 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	if (typeBinding instanceof ArrayBinding) {
 		typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
 	}
+	this.reportDeclaration(typeBinding, maxType, locator);
+}
+private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocator locator) throws CoreException {
 	IType type = locator.lookupType(typeBinding);
 	if (type == null) return; // case of a secondary type
 	IResource resource = type.getUnderlyingResource();
@@ -93,10 +89,10 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 	while (maxType > 0 && type != null) {
 		if (!this.knownTypes.contains(type)) {
 			if (isBinary) {
-				locator.reportBinaryMatch(resource, type, info, accuracy);
+				locator.reportBinaryMatch(resource, type, info, IJavaSearchResultCollector.EXACT_MATCH);
 			} else {
 				TypeDeclaration typeDecl = ((SourceTypeBinding)typeBinding).scope.referenceContext;
-				locator.report(resource, typeDecl.sourceStart, typeDecl.sourceEnd, type, accuracy);
+				locator.report(resource, typeDecl.sourceStart, typeDecl.sourceEnd, type, IJavaSearchResultCollector.EXACT_MATCH);
 			}
 			this.knownTypes.add(type);
 		}
