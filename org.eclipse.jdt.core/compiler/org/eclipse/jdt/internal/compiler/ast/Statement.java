@@ -57,37 +57,44 @@ public abstract class Statement extends ASTNode {
 			}
 
 			ArrayBinding varArgsType = (ArrayBinding) params[varArgIndex]; // parameterType has to be an array type
+			int elementsTypeID = varArgsType.elementsType().id;
 			int argLength = arguments == null ? 0 : arguments.length;
 
-			generateVarargsArgument: {
-				if (argLength >= paramLength) {
-					// right number of arguments - could be inexact - pass argument as is
-					TypeBinding lastType = arguments[varArgIndex].resolvedType;
-					if (lastType == NullBinding
-						|| (varArgsType.dimensions() == lastType.dimensions()
-							&& lastType.isCompatibleWith(varArgsType))) {
-						// foo(1, new int[]{2, 3}) or foo(1, null) --> last arg is passed as-is
-						arguments[varArgIndex].generateCode(currentScope, codeStream, true);
-						break generateVarargsArgument;
-					}
-					// right number but not directly compatible or too many arguments - wrap extra into array
-					// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
-					// need to gen elements into an array, then gen each remaining element into created array
-					codeStream.generateInlinedValue(argLength - varArgIndex);
-					codeStream.newArray(varArgsType); // create a mono-dimensional array
-					int elementsTypeID = varArgsType.elementsType().id;
-					for (int i = varArgIndex; i < argLength; i++) {
-						codeStream.dup();
-						codeStream.generateInlinedValue(i - varArgIndex);
-						arguments[i].generateCode(currentScope, codeStream, true);
-						codeStream.arrayAtPut(elementsTypeID, false);
-					}
-				} else { // not enough arguments - pass extra empty array
-					// scenario: foo(1) --> foo(1, new int[0])
-					// generate code for an empty array of parameterType
-					codeStream.generateInlinedValue(0);
-					codeStream.newArray(varArgsType); // create a mono-dimensional array
+			if (argLength > paramLength) {
+				// right number but not directly compatible or too many arguments - wrap extra into array
+				// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
+				// need to gen elements into an array, then gen each remaining element into created array
+				codeStream.generateInlinedValue(argLength - varArgIndex);
+				codeStream.newArray(varArgsType); // create a mono-dimensional array
+				for (int i = varArgIndex; i < argLength; i++) {
+					codeStream.dup();
+					codeStream.generateInlinedValue(i - varArgIndex);
+					arguments[i].generateCode(currentScope, codeStream, true);
+					codeStream.arrayAtPut(elementsTypeID, false);
 				}
+			} else if (argLength == paramLength) {
+				// right number of arguments - could be inexact - pass argument as is
+				TypeBinding lastType = arguments[varArgIndex].resolvedType;
+				if (lastType == NullBinding
+					|| (varArgsType.dimensions() == lastType.dimensions()
+						&& lastType.isCompatibleWith(varArgsType))) {
+					// foo(1, new int[]{2, 3}) or foo(1, null) --> last arg is passed as-is
+					arguments[varArgIndex].generateCode(currentScope, codeStream, true);
+				} else {
+					// right number but not directly compatible or too many arguments - wrap extra into array
+					// need to gen elements into an array, then gen each remaining element into created array
+					codeStream.generateInlinedValue(1);
+					codeStream.newArray(varArgsType); // create a mono-dimensional array
+					codeStream.dup();
+					codeStream.generateInlinedValue(0);
+					arguments[varArgIndex].generateCode(currentScope, codeStream, true);
+					codeStream.arrayAtPut(elementsTypeID, false);
+				}
+			} else { // not enough arguments - pass extra empty array
+				// scenario: foo(1) --> foo(1, new int[0])
+				// generate code for an empty array of parameterType
+				codeStream.generateInlinedValue(0);
+				codeStream.newArray(varArgsType); // create a mono-dimensional array
 			}
 		} else if (arguments != null) { // standard generation for method arguments
 			for (int i = 0, max = arguments.length; i < max; i++)

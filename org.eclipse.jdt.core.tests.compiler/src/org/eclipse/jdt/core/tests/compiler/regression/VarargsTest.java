@@ -22,7 +22,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_NUMBERS = new int[] { 24, 25 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 //	}
 	public static Test suite() {
@@ -796,13 +796,13 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	Y.count(new int[0]);\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Y.count(new int[0]);\n" + 
 			"	  ^^^^^\n" + 
 			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\r\n" + 
-			"	Y.count(new int[0], null);\r\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Y.count(new int[0], null);\n" + 
 			"	  ^^^^^\n" + 
 			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
 			"----------\n"
@@ -827,18 +827,18 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	Y.count(new int[0], 1);\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Y.count(new int[0], 1);\n" + 
 			"	  ^^^^^\n" + 
 			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\r\n" + 
-			"	Y.count(new int[0], 1, 1);\r\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Y.count(new int[0], 1, 1);\n" + 
 			"	  ^^^^^\n" + 
 			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\r\n" + 
-			"	Y.count(new int[0], 1, 1, 1);\r\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	Y.count(new int[0], 1, 1, 1);\n" + 
 			"	  ^^^^^\n" + 
 			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
 			"----------\n"
@@ -960,15 +960,51 @@ public class VarargsTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\r\n" + 
-				"    public static void main (String[] args) {\r\n" + 
-				"        new X().test (new byte[5]);\r\n" + 
+				"public class X {\n" + 
+				"    public static void main (String[] args) {\n" + 
+				"        new X().test (new byte[5]);\n" + 
 				"		 System.out.print(\"SUCCESS\");\n" +
-				"    }\r\n" + 
-				"    private void test (Object... params) {\r\n" + 
-				"    }\r\n" + 
+				"    }\n" + 
+				"    private void test (Object... params) {\n" + 
+				"    }\n" + 
 				"}",
 			},
 			"SUCCESS");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83536
+	public void test024() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static boolean foo(Object... args) {\n" + 
+				"		return args == null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(foo(null, null));\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"false");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83536
+	public void test025() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static boolean foo(Object... args) {\n" + 
+				"		return args == null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(foo(null));\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"true");
 	}
 }
