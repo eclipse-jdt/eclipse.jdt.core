@@ -1736,17 +1736,22 @@ public class Util {
 			throw new UTFDataFormatException();
 		out.write((utflen >>> 8) & 0xFF);
 		out.write((utflen >>> 0) & 0xFF);
-		for (int i= 0; i < strlen; i++) {
-			int c= str[i];
-			if ((c >= 0x0001) && (c <= 0x007F)) {
-				out.write(c);
-			} else if (c > 0x07FF) {
-				out.write(0xE0 | ((c >> 12) & 0x0F));
-				out.write(0x80 | ((c >> 6) & 0x3F));
-				out.write(0x80 | ((c >> 0) & 0x3F));
-			} else {
-				out.write(0xC0 | ((c >> 6) & 0x1F));
-				out.write(0x80 | ((c >> 0) & 0x3F));
+		if (strlen == utflen) {
+			for (int i= 0; i < strlen; i++)
+				out.write(str[i]);
+		} else {
+			for (int i= 0; i < strlen; i++) {
+				int c= str[i];
+				if ((c >= 0x0001) && (c <= 0x007F)) {
+					out.write(c);
+				} else if (c > 0x07FF) {
+					out.write(0xE0 | ((c >> 12) & 0x0F));
+					out.write(0x80 | ((c >> 6) & 0x3F));
+					out.write(0x80 | ((c >> 0) & 0x3F));
+				} else {
+					out.write(0xC0 | ((c >> 6) & 0x1F));
+					out.write(0x80 | ((c >> 0) & 0x3F));
+				}
 			}
 		}
 		return utflen + 2; // the number of bytes written to the stream
