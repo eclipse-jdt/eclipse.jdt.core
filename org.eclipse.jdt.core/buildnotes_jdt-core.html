@@ -16,7 +16,108 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>new </li>	
+<li> ElementChangedEvent got added notion of type (similar to IResourceChangeEvent), so as to better
+allow clients to react to JavaModel changes: 
+	<ul> 
+		<li> ElementChangedEvent.POST_CHANGE :  
+<pre>
+	/**
+	 * Event type constant (bit mask) indicating an after-the-fact 
+	 * report of creations, deletions, and modifications
+	 * to one or more Java element(s) expressed as a hierarchical
+	 * java element delta as returned by <code>getDelta</code>.
+	 *
+	 * Note: this notification occurs during the corresponding POST_CHANGE
+	 * resource change notification, and contains a full delta accounting for
+	 * any JavaModel operation  and/or resource change.
+	 *
+	 * @see IJavaElementDelta
+	 * @see IResourceChangeEvent
+	 * @see #getDelta
+	 * @since 2.0
+	 */
+	public static final int POST_CHANGE = 1;
+</pre>
+		</li>
+
+		<li> ElementChangedEvent.PRE_AUTO_BUILD 
+<pre>
+	/**
+	 * Event type constant (bit mask) indicating an after-the-fact 
+	 * report of creations, deletions, and modifications
+	 * to one or more Java element(s) expressed as a hierarchical
+	 * java element delta as returned by <code>getDelta</code>.
+	 *
+	 * Note: this notification occurs during the corresponding PRE_AUTO_BUILD
+	 * resource change notification. The delta which is notified here only contains
+	 * information relative to the previous JavaModel operations (i.e. ignores the
+	 * possible resources which have changed outside Java operations). In
+	 * particular, it is possible that the JavaModel be inconsistent with respect to
+	 * resources which got modified outside JavaModel operations (it will only be
+	 * fully consistent once the POST_CHANGE notification has occured).
+	 * 
+	 * @see IJavaElementDelta
+	 * @see IResourceChangeEvent
+	 * @see #getDelta
+	 * @since 2.0
+	 */
+	public static final int PRE_AUTO_BUILD = 2;
+</pre>
+		</li>
+
+		<li> ElementChangedEvent.RECONCILE 
+<pre>
+	/**
+	 * Event type constant (bit mask) indicating an after-the-fact 
+	 * report of creations, deletions, and modifications
+	 * to one or more Java element(s) expressed as a hierarchical
+	 * java element delta as returned by <code>getDelta</code>.
+	 *
+	 * Note: this notification occurs as a result of a working copy reconcile
+	 * operation.
+	 *
+	 * @see IJavaElementDelta
+	 * @see IResourceChangeEvent
+	 * @see #getDelta
+	 * @since 2.0
+	 */
+	public static final int POST_RECONCILE = 4;	
+</pre>
+		</li>
+	</ul>
+</li>	
+<li>	
+	Also added a corresponding API on JavaCore so as to allow registering a listener for a given type of event.
+	<pre>
+	/**
+	 * Adds the given listener for changes to Java elements.
+	 * Has no effect if an identical listener is already registered.
+	 * After completion of this method, the given listener will be registered for exactly the
+	 * the specified events.  If they were previously registered for other events, they
+	 * will be deregistered.  
+	 *
+	 * Once registered, a listener starts receiving notification of changes to
+	 * java elements in the model. The listener continues to receive 
+	 * notifications until it is replaced or removed. 
+	 * 
+	 * Listeners can listen for several types of event as defined in <code>ElementChangeEvent</code>.
+	 * Clients are free to register for any number of event types however if they register
+	 * for more than one, it is their responsibility to ensure they correctly handle the
+	 * case where the same java element change shows up in multiple notifications.  
+	 * Clients are guaranteed to receive only the events for which they are registered.
+	 *
+	 * 
+	 * @param listener the listener
+	 * @param eventMask the bit-wise OR of all event types of interest to the listener
+	 * @see IElementChangeListener
+	 * @see ElementChangeEvent
+	 * @see #removeElementChangeListener
+	 *	@since 2.0
+	 */
+	public static void addElementChangedListener(IElementChangedListener listener, int eventMask)
+	</pre>
+
+</li>	
 </ul>
 
 <h3>
