@@ -352,7 +352,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					this.typeArguments[i].traverse(visitor, scope);
 				}					
 			}
-			if (this.type != null) 
+			if (this.type != null) // case of enum constant
 				this.type.traverse(visitor, scope);
 			if (arguments != null) {
 				int argumentsLength = arguments.length;
