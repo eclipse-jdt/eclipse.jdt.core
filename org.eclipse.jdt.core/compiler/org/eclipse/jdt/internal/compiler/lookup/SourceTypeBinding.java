@@ -530,8 +530,6 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 
 public MethodBinding[] getMethods(char[] selector) {
-	// handle forward references to potential default abstract methods
-	addDefaultAbstractMethods();
 
 	try{
 		int count = 0;
@@ -860,8 +858,12 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			} else if (parameterType.isArrayType() && ((ArrayBinding) parameterType).leafComponentType == VoidBinding) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(this, methodDecl, arg);
 				foundArgProblem = true;
+			} else {
+				if ((parameterType.tagBits & TagBits.UseTypeVariable) != 0) {
+					method.modifiers |= AccUseTypeVariable;
+				}
+				method.parameters[i] = parameterType;
 			}
-			method.parameters[i] = parameterType;
 		}
 	}
 
@@ -873,13 +875,17 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			method.returnType = null;
 			foundReturnTypeProblem = true;
 		} else {
-			method.returnType = returnType.resolveType(methodDecl.scope);
-			if (method.returnType == null) {
+		    TypeBinding methodType = returnType.resolveType(methodDecl.scope);
+			if (methodType == null) {
 				foundReturnTypeProblem = true;
-			} else if (method.returnType.isArrayType() && ((ArrayBinding) method.returnType).leafComponentType == VoidBinding) {
+			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == VoidBinding) {
 				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray(this, (MethodDeclaration) methodDecl);
-				method.returnType = null;
 				foundReturnTypeProblem = true;
+			} else {
+				method.returnType = methodType;
+				if ((methodType.tagBits & TagBits.UseTypeVariable) != 0) {
+					method.modifiers |= AccUseTypeVariable;
+				}
 			}
 		}
 	}

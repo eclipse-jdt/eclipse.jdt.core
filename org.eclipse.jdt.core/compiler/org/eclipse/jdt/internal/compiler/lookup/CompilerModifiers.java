@@ -39,5 +39,5 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 	
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one
 	final int AccImplementing = ASTNode.Bit30; // record fact a method implements another one (it is concrete and overrides an abstract one)
-	final int AccIsGeneric = ASTNode.Bit31; // record fact a method/field involves generics in its signature (type vars or parameterized types)
+	final int AccUseTypeVariable = ASTNode.Bit31; // record fact a method/field involves type variables in its signature (type vars or parameterized types)
 }

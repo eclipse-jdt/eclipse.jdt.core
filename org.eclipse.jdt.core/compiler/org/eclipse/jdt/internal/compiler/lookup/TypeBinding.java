@@ -130,6 +130,7 @@ public abstract char[] qualifiedSourceName();
 public char[] signature() {
 	return constantPoolName();
 }
+
 public abstract char[] sourceName();
 
 /**

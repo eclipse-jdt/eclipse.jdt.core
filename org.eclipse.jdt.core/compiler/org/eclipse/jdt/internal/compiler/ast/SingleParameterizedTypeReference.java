@@ -83,8 +83,7 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		for (int j = 0; j < argLength; j++) {
-		    if ((argTypes[j] = this.typeArguments[j].resolveType(scope)) == null)
-		    	return null;
+		    argTypes[j] = this.typeArguments[j].resolveType(scope);
 		}
 		if (typeVariables == NoTypeVariables) { // check generic
 				scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
@@ -96,9 +95,12 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		// check argument type compatibility
 		boolean argHasError = false;
 		for (int j = 0; j < argLength; j++) {
-		    if (!argTypes[j].isCompatibleWith(typeVariables[j])) {
+		    TypeBinding argType = argTypes[j];
+		    if (argType == null) {
 		        argHasError = true;
-				scope.problemReporter().typeMismatchError(argTypes[j], typeVariables[j], currentType, this.typeArguments[j]);
+		    } else if (!argType.isCompatibleWith(typeVariables[j])) {
+		        argHasError = true;
+				scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, this.typeArguments[j]);
 		    }
 		}
 		if (argHasError) return null;

@@ -33,6 +33,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public TypeVariableBinding(char[] sourceName, int rank) {
 		this.sourceName = sourceName;
 		this.rank = rank;
+		this.tagBits |= UseTypeVariable;
 	}
 	public char[] constantPoolName() { /* java/lang/Object */ 
 	    if (this.firstBound != null) {
@@ -71,6 +72,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public boolean isTypeVariable() {
 	    return true;
 	}
+
 	public ReferenceBinding superclass() {
 		return superclass;
 	}

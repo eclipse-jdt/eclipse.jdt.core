@@ -10,36 +10,42 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+
 public interface TagBits {
+    
 	// Tag bits in the tagBits int of every TypeBinding
-	final int IsArrayType = 0x0001;
-	final int IsBaseType = 0x0002;
-	final int IsNestedType = 0x0004;
-	final int IsMemberType = 0x0008;
+	final int IsArrayType = ASTNode.Bit1;
+	final int IsBaseType = ASTNode.Bit2;
+	final int IsNestedType = ASTNode.Bit3;
+	final int IsMemberType = ASTNode.Bit4;
 	final int MemberTypeMask = IsNestedType | IsMemberType;
-	final int IsLocalType = 0x0010;
+	final int IsLocalType = ASTNode.Bit5;
 	final int LocalTypeMask = IsNestedType | IsLocalType;
-	final int IsAnonymousType = 0x0020;
+	final int IsAnonymousType = ASTNode.Bit6;
 	final int AnonymousTypeMask = LocalTypeMask | IsAnonymousType;
-	final int IsBinaryBinding = 0x0040;
+	final int IsBinaryBinding = ASTNode.Bit7;
 
 	// for the type hierarchy check used by ClassScope
-	final int BeginHierarchyCheck = 0x0100;
-	final int EndHierarchyCheck = 0x0200;
+	final int BeginHierarchyCheck = ASTNode.Bit9;
+	final int EndHierarchyCheck = ASTNode.Bit10;
 
 	// test bit to see if default abstract methods were computed
-	final int KnowsDefaultAbstractMethods = 0x0400;
+	final int KnowsDefaultAbstractMethods = ASTNode.Bit11;
 
 	// Reusable bit currently used by Scopes
-	final int InterfaceVisited = 0x0800;
+	final int InterfaceVisited = ASTNode.Bit12;
 
 	// test bits to see if parts of binary types are faulted
-	final int AreFieldsComplete = 0x1000;
-	final int AreMethodsComplete = 0x2000;
+	final int AreFieldsComplete = ASTNode.Bit13;
+	final int AreMethodsComplete = ASTNode.Bit14;
 
 	// test bit to avoid asking a type for a member type (includes inherited member types)
-	final int HasNoMemberTypes = 0x4000;
+	final int HasNoMemberTypes = ASTNode.Bit15;
 
 	// test bit to identify if the type's hierarchy is inconsistent
-	final int HierarchyHasProblems = 0x8000;
+	final int HierarchyHasProblems = ASTNode.Bit16;
+	
+	final int UseTypeVariable = ASTNode.Bit31; // set either for type variables (direct) or parameterized types indirectly referencing type variables
+	
 }
