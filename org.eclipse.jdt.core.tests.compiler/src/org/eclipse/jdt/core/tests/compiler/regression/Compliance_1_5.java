@@ -2693,6 +2693,30 @@ public void test081() {
 		},
 		"SUCCESS");
 }
+// covariance
+public void test082() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X1();\n" + 
+			"		System.out.println(x.foo());\n" + 
+			"	}\n" + 
+			"	Object foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X1 extends X {\n" + 
+			"	String foo() {\n" + 
+			"		return \"SUCCESS\";\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }

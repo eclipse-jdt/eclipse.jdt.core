@@ -2856,6 +2856,35 @@ public void test081() {
 		"The return type is incompatible with X.foo()\n" + 
 		"----------\n");
 }
+// covariance
+public void test082() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X1();\n" + 
+			"		System.out.println(x.foo());\n" + 
+			"	}\n" + 
+			"	Object foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X1 extends X {\n" + 
+			"	String foo() {\n" + 
+			"		return \"SUCCESS\";\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	String foo() {\n" + 
+		"	       ^^^^^\n" + 
+		"The return type is incompatible with X.foo()\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
