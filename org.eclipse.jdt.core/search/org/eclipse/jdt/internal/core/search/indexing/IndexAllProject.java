@@ -61,7 +61,6 @@ public class IndexAllProject extends IndexRequest {
 
 		try {
 			monitor.enterRead(); // ask permission to read
-			saveIfNecessary(index, monitor);
 
 			String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
 			int max = paths == null ? 0 : paths.length;
