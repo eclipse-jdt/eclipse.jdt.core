@@ -46,6 +46,7 @@ public abstract class AbstractCommentParser {
 	
 	// Public fields
 	public Scanner scanner;
+	public boolean checkDocComment = false;
 	
 	// Protected fields
 	protected boolean inherited, deprecated;
@@ -102,7 +103,8 @@ public abstract class AbstractCommentParser {
 			this.endComment = javadocEnd;
 			this.index = javadocStart;
 			readChar(); // starting '/'
-			int charPosition = this.index;
+			int previousPosition = this.index;
+			int endTextPosition = this.index;
 			readChar(); // first '*'
 			char nextCharacter= readChar(); // second '*'
 			
@@ -124,7 +126,7 @@ public abstract class AbstractCommentParser {
 			
 			// Loop on each comment character
 			while (this.index < this.endComment) {
-				int previousPosition = this.index;
+				previousPosition = this.index;
 				previousChar = nextCharacter;
 				
 				// Calculate line end (cannot use this.scanner.linePtr as scanner does not parse line ends again)
@@ -163,12 +165,12 @@ public abstract class AbstractCommentParser {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
-								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(this.inlineTagStart, charPosition);
+								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(this.inlineTagStart, endTextPosition);
 								validComment = false;
 							} else {
 								if (previousChar == '{') {
-									if (this.textStart != -1 && this.textStart <= charPosition) {
-										pushText(this.textStart, charPosition);
+									if (this.textStart != -1 && this.textStart < endTextPosition) {
+										pushText(this.textStart, endTextPosition);
 									}
 									this.inlineTagStarted = true;
 								}
@@ -283,9 +285,8 @@ public abstract class AbstractCommentParser {
 						break;
 					case '\r':
 					case '\n':
-						int position = previousChar == '{' ? this.inlineTagStart : charPosition;
-						if (this.lineStarted && this.textStart <= position) {
-							pushText(this.textStart, position);
+						if (this.lineStarted && this.textStart < previousPosition) {
+							pushText(this.textStart, previousPosition);
 						}
 						this.lineStarted = false;
 						this.inlineTagStarted = false;
@@ -294,18 +295,18 @@ public abstract class AbstractCommentParser {
 						break;
 					case '}' :
 						if (this.inlineTagStarted) {
-							if (this.lineStarted && this.textStart != -1 && this.textStart <= charPosition) {
-								pushText(this.textStart, charPosition);
+							if (this.lineStarted && this.textStart != -1 && this.textStart < previousPosition) {
+								pushText(this.textStart, previousPosition);
 							}
 							if (this.kind == DOM_PARSER) refreshInlineTagPosition(previousPosition);
 							this.textStart = this.index;
 							this.inlineTagStarted = false;
-						} else /*if (this.index <= this.lineEnd)*/ {
+						} else {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
 							}
 							this.lineStarted = true;
-							charPosition = previousPosition;
+							endTextPosition = previousPosition;
 						}
 						break;
 					case '{' :
@@ -321,10 +322,11 @@ public abstract class AbstractCommentParser {
 						}
 						break;
 					case '*' :
-						charPosition = previousPosition;
+						// do nothing for '*' character
+						endTextPosition = previousPosition;
 						break;
 					default :
-						charPosition = previousPosition;
+						endTextPosition = previousPosition;
 						if (!CharOperation.isWhitespace(nextCharacter)) {
 							if (!this.lineStarted) {
 								this.textStart = previousPosition;
@@ -333,8 +335,8 @@ public abstract class AbstractCommentParser {
 						}
 				}
 			}
-			if (this.lineStarted && this.textStart <= charPosition) {
-				pushText(this.textStart, charPosition);
+			if (this.lineStarted && this.textStart < previousPosition) {
+				pushText(this.textStart, previousPosition);
 			}
 			updateDocComment();
 		} catch (Exception ex) {
@@ -678,7 +680,7 @@ public abstract class AbstractCommentParser {
 							if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
 								if (this.kind == DOM_PARSER) {
 									parseTag();
-									pushText(previousPosition, this.index-1);
+									pushText(previousPosition, this.index);
 								}
 								return true;
 							}
@@ -698,7 +700,7 @@ public abstract class AbstractCommentParser {
 								if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
 									if (this.kind == DOM_PARSER) {
 										parseTag();
-										pushText(previousPosition, this.index-1);
+										pushText(previousPosition, this.index);
 									}
 									return true;
 								}

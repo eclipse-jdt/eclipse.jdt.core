@@ -26,15 +26,16 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 class DocCommentParser extends AbstractCommentParser {
 
 	// Public fields
-	private Javadoc docComment;
-	private AST ast;
 	
 	// Private fields
+	private Javadoc docComment;
+	private AST ast;
 
-	DocCommentParser(AST ast, Scanner scanner) {
+	DocCommentParser(AST ast, Scanner scanner, boolean check) {
 		super(null);
 		this.ast = ast;
 		this.scanner = scanner;
+		this.checkDocComment = check;
 		this.kind = DOM_PARSER;
 	}
 
@@ -55,7 +56,9 @@ class DocCommentParser extends AbstractCommentParser {
 		this.docComment = this.ast.newJavadoc();
 		
 		// Parse
-		parseComment(start, start+length-1);
+		if (this.checkDocComment) {
+			parseComment(start, start+length-1);
+		}
 		this.docComment.setSourceRange(start, length);
 		setComment(start, length);  // backward compatibility
 		return this.docComment;
@@ -344,13 +347,13 @@ class DocCommentParser extends AbstractCommentParser {
 	 */
 	protected void pushText(int start, int end) {
 		TextElement text = this.ast.newTextElement();
-		text.setText(new String( this.source, start, end-start+1));
-		text.setSourceRange(start, end-start+1);
+		text.setText(new String( this.source, start, end-start));
+		text.setSourceRange(start, end-start);
 		TagElement previousTag = null;
 		int previousStart = start;
 		if (this.astPtr == -1) {
 			previousTag = this.ast.newTagElement();
-			previousTag.setSourceRange(start, end-start+1);
+			previousTag.setSourceRange(start, end-start);
 			pushOnAstStack(previousTag, true);
 		} else {
 			previousTag = (TagElement) this.astStack[this.astPtr];
@@ -370,7 +373,7 @@ class DocCommentParser extends AbstractCommentParser {
 			}
 		}
 		previousTag.fragments().add(text);
-		previousTag.setSourceRange(previousStart, end-previousStart+1);
+		previousTag.setSourceRange(previousStart, end-previousStart);
 		this.textStart = -1;
 	}
 	/* (non-Javadoc)
