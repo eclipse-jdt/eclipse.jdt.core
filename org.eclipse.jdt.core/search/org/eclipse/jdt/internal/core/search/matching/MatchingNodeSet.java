@@ -139,7 +139,7 @@ public void addTrustedMatch(AstNode node, boolean isExact) {
 	this.matchingNodes.put(node, isExact ? EXACT_MATCH : POTENTIAL_MATCH);
 	this.matchingNodesKeys.put(key, node);
 }
-private boolean hasPossibleNodes(int start, int end) {
+protected boolean hasPossibleNodes(int start, int end) {
 	Object[] nodes = this.possibleMatchingNodesSet.values;
 	for (int i = 0, l = nodes.length; i < l; i++) {
 		AstNode node = (AstNode) nodes[i];
@@ -174,42 +174,6 @@ private AstNode[] matchingNodes(int start, int end) {
 	};
 	Util.sort(result, comparer);
 	return result;
-}
-private void purgeMethodStatements(TypeDeclaration type, boolean checkEachMethod) {
-	AbstractMethodDeclaration[] methods = type.methods;
-	if (methods != null) {
-		if (checkEachMethod) {
-			for (int j = 0, k = methods.length; j < k; j++) {
-				AbstractMethodDeclaration method = methods[j];
-				if (!hasPossibleNodes(method.declarationSourceStart, method.declarationSourceEnd))
-					method.statements = null;
-			}
-		} else {
-			for (int j = 0, k = methods.length; j < k; j++)
-				methods[j].statements = null;
-		}
-	}
-
-	MemberTypeDeclaration[] memberTypes = type.memberTypes;
-	if (memberTypes != null) {
-		for (int i = 0, l = memberTypes.length; i < l; i++) {
-			TypeDeclaration memberType = memberTypes[i];
-			boolean alsoHasMatchingMethods = checkEachMethod &&
-				hasPossibleNodes(memberType.declarationSourceStart, memberType.declarationSourceEnd);
-			purgeMethodStatements(memberType, alsoHasMatchingMethods);
-		}
-	}
-}
-/**
- * Called prior to the unit being resolved. Reduce the parse tree where possible.
- */
-public void reduceParseTree(CompilationUnitDeclaration unit) {
-	// remove statements from methods that have no possible matching nodes
-	TypeDeclaration[] types = unit.types;
-	for (int i = 0, l = types.length; i < l; i++) {
-		TypeDeclaration type = types[i];
-		purgeMethodStatements(type, hasPossibleNodes(type.declarationSourceStart, type.declarationSourceEnd));
-	}
 }
 public Object removePossibleMatch(AstNode node) {
 	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;

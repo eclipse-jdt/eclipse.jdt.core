@@ -825,7 +825,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 			if (SearchEngine.VERBOSE)
 				System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
-			matchingNodeSet.reduceParseTree(unit);
+			reduceParseTree(unit, matchingNodeSet);
 
 			if (unit.scope != null)
 				unit.scope.faultInTypes(); // fault in fields & methods
@@ -861,6 +861,36 @@ public void report(int sourceStart, int sourceEnd, IJavaElement element, int acc
 		}
 		report(this.currentPossibleMatch.resource, sourceStart, sourceEnd, element, accuracy);
 	}
+}
+private void purgeMethodStatements(TypeDeclaration type, MatchingNodeSet nodeSet, boolean checkEachMethod) {
+	checkEachMethod = checkEachMethod && nodeSet.hasPossibleNodes(type.declarationSourceStart, type.declarationSourceEnd);
+	AbstractMethodDeclaration[] methods = type.methods;
+	if (methods != null) {
+		if (checkEachMethod) {
+			for (int j = 0, k = methods.length; j < k; j++) {
+				AbstractMethodDeclaration method = methods[j];
+				if (!nodeSet.hasPossibleNodes(method.declarationSourceStart, method.declarationSourceEnd))
+					method.statements = null;
+			}
+		} else {
+			for (int j = 0, k = methods.length; j < k; j++)
+				methods[j].statements = null;
+		}
+	}
+
+	MemberTypeDeclaration[] memberTypes = type.memberTypes;
+	if (memberTypes != null)
+		for (int i = 0, l = memberTypes.length; i < l; i++)
+			purgeMethodStatements(memberTypes[i], nodeSet, checkEachMethod);
+}
+/**
+ * Called prior to the unit being resolved. Reduce the parse tree where possible.
+ */
+protected void reduceParseTree(CompilationUnitDeclaration unit, MatchingNodeSet nodeSet) {
+	// remove statements from methods that have no possible matching nodes
+	TypeDeclaration[] types = unit.types;
+	for (int i = 0, l = types.length; i < l; i++)
+		purgeMethodStatements(types[i], nodeSet, true);
 }
 public void report(IResource resource, int sourceStart, int sourceEnd, IJavaElement element, int accuracy) throws CoreException {
 	long start = -1;
