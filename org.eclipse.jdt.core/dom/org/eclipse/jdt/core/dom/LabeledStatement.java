@@ -106,8 +106,11 @@ public class LabeledStatement extends Statement {
 	 * Sets the label of this labeled statement.
 	 * 
 	 * @param label the new label
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setLabel(SimpleName label) {
 		if (label == null) {
@@ -134,9 +137,12 @@ public class LabeledStatement extends Statement {
 	 * Sets the body of this labeled statement.
 	 * 
 	 * @param statement the body statement node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setBody(Statement statement) {
 		if (statement == null) {

@@ -104,9 +104,12 @@ public class ArrayAccess extends Expression {
 	 * Sets the array expression of this array access expression.
 	 * 
 	 * @param expression the array expression node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setArray(Expression expression) {
 		if (expression == null) {
@@ -135,9 +138,12 @@ public class ArrayAccess extends Expression {
 	 * Sets the index expression of this array access expression.
 	 * 
 	 * @param expression the index expression node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setIndex(Expression expression) {
 		if (expression == null) {

@@ -240,8 +240,11 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * given name.
 	 * 
 	 * @param typeName the new type name
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setName(SimpleName typeName) {
 		if (typeName == null) {
@@ -281,8 +284,11 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * 
 	 * @param superclassName the superclass name node, or <code>null</code> if 
 	 *    there is none
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setSuperclass(Name superclassName) {
 		replaceChild(

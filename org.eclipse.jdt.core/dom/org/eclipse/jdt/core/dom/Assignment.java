@@ -251,9 +251,12 @@ public class Assignment extends Expression {
 	 * Sets the left hand side of this assignment expression.
 	 * 
 	 * @param expression the left hand side node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setLeftHandSide(Expression expression) {
 		if (expression == null) {
@@ -281,9 +284,12 @@ public class Assignment extends Expression {
 	 * Sets the right hand side of this assignment expression.
 	 * 
 	 * @param expression the right hand side node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setRightHandSide(Expression expression) {
 		if (expression == null) {

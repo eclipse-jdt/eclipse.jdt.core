@@ -464,8 +464,11 @@ public final class AST {
 	 * @param qualifier the qualifier name node
 	 * @param name the simple name being qualified
 	 * @return a new unparented qualified name node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */
 	public QualifiedName newQualifiedName(
 		Name qualifier,
@@ -487,8 +490,11 @@ public final class AST {
 	 * @param identifiers a list of 1 or more name segments, each of which
 	 *    is a legal Java identifier
 	 * @return a new unparented name node
-	 * @exception IllegalArgumentException if the identifier is invalid
-	 * @exception IllegalArgumentException if the list of identifiers is empty
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the identifier is invalid</li>
+	 * <li>the list of identifiers is empty</li>
+	 * </ul>
 	 */
 	public Name newName(String[] identifiers) {
 		int count = identifiers.length;
@@ -514,8 +520,11 @@ public final class AST {
 	 * 
 	 * @param typeName the name of the class or interface
 	 * @return a new unparented simple type node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */
 	public SimpleType newSimpleType(Name typeName) {
 		SimpleType result = new SimpleType(this);
@@ -529,9 +538,12 @@ public final class AST {
 	 * 
 	 * @param componentType the component type (possibly another array type)
 	 * @return a new unparented array type node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */
 	public ArrayType newArrayType(Type componentType) {
 		ArrayType result = new ArrayType(this);
@@ -550,9 +562,12 @@ public final class AST {
 	 * @param elementType the element type (never an array type)
 	 * @param dimensions the number of dimensions, a positive number
 	 * @return a new unparented array type node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */
 	public ArrayType newArrayType(Type elementType, int dimensions) {
 		if (elementType == null || elementType.isArrayType()) {
@@ -609,8 +624,11 @@ public final class AST {
 	 * unspecified name.
 	 * 
 	 * @return the new unparented package declaration node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */
 	public PackageDeclaration newPackageDeclaration() {
 		PackageDeclaration result = new PackageDeclaration(this);
@@ -623,8 +641,11 @@ public final class AST {
 	 * of a type with an unspecified name.
 	 * 
 	 * @return the new unparented import declaration node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */
 	public ImportDeclaration newImportDeclaration() {
 		ImportDeclaration result = new ImportDeclaration(this);
@@ -731,9 +752,12 @@ public final class AST {
 	 * 
 	 * @param fragment the variable declaration fragment
 	 * @return a new unparented variable declaration statement node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */
 	public VariableDeclarationStatement
 			newVariableDeclarationStatement(VariableDeclarationFragment fragment) {
@@ -757,9 +781,12 @@ public final class AST {
 	 * 
 	 * @param decl the type declaration
 	 * @return a new unparented local type declaration statement node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */
 	public TypeDeclarationStatement 
 			newTypeDeclarationStatement(TypeDeclaration decl) {
@@ -811,9 +838,12 @@ public final class AST {
 	 * 
 	 * @param expression the expression
 	 * @return a new unparented statement node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */
 	public ExpressionStatement newExpressionStatement(Expression expression) {
 		ExpressionStatement result = new ExpressionStatement(this);
@@ -1137,9 +1167,12 @@ public final class AST {
 	 * 
 	 * @param fragment the first variable declaration fragment
 	 * @return a new unparented variable declaration expression node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */
 	public VariableDeclarationExpression
 			newVariableDeclarationExpression(VariableDeclarationFragment fragment) {
@@ -1167,9 +1200,12 @@ public final class AST {
 	 * 
 	 * @param fragment the variable declaration fragment
 	 * @return a new unparented field declaration node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */
 	public FieldDeclaration newFieldDeclaration(VariableDeclarationFragment fragment) {
 		if (fragment == null) {

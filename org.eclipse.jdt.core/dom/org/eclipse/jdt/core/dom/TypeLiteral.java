@@ -94,8 +94,11 @@ public class TypeLiteral extends Expression {
 	 * Sets the type in this type literal expression to the given type.
 	 * 
 	 * @param type the new type
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setType(Type type) {
 		if (type == null) {

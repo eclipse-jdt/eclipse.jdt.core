@@ -52,8 +52,11 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * to the given name.
 	 * 
 	 * @param variableName the new variable name
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public abstract void setName(SimpleName variableName);
 
@@ -71,9 +74,12 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * 
 	 * @param initializer the initializer expression node, or <code>null</code>
 	 *    if there is none
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public abstract void setInitializer(Expression initializer);
 

@@ -114,9 +114,12 @@ public class ConditionalExpression extends Expression {
 	 * Sets the condition of this conditional expression.
 	 * 
 	 * @param expression the condition node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -145,9 +148,12 @@ public class ConditionalExpression extends Expression {
 	 * Sets the "then" part of this conditional expression.
 	 * 
 	 * @param expression the "then" expression node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setThenExpression(Expression expression) {
 		if (expression == null) {
@@ -176,9 +182,12 @@ public class ConditionalExpression extends Expression {
 	 * Sets the "else" part of this conditional expression.
 	 * 
 	 * @param expression the "else" expression node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setElseExpression(Expression expression) {
 		if (expression == null) {

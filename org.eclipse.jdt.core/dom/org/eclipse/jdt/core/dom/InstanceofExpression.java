@@ -104,9 +104,12 @@ public class InstanceofExpression extends Expression {
 	 * Sets the left operand of this instanceof expression.
 	 * 
 	 * @param expression the left operand node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setLeftOperand(Expression expression) {
 		if (expression == null) {
@@ -134,9 +137,12 @@ public class InstanceofExpression extends Expression {
 	 * Sets the right operand of this instanceof expression.
 	 * 
 	 * @param referenceType the right operand node
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setRightOperand(Type referenceType) {
 		if (referenceType == null) {

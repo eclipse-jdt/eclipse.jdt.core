@@ -101,8 +101,11 @@ public class SuperFieldAccess extends Expression {
 	 * 
 	 * @param name the qualifier name node, or <code>null</code> if 
 	 *    there is none
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
 		// a SuperFieldAccess cannot occur inside a Name - no cycle check
@@ -128,8 +131,11 @@ public class SuperFieldAccess extends Expression {
 	 * expression.
 	 * 
 	 * @param fieldName the field name
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setName(SimpleName fieldName) {
 		if (fieldName == null) {

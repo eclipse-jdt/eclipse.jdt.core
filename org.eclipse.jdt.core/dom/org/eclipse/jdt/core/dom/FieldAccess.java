@@ -102,9 +102,12 @@ public class FieldAccess extends Expression {
 	 * Sets the expression of this field access expression.
 	 * 
 	 * @param expression the new expression
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -131,8 +134,11 @@ public class FieldAccess extends Expression {
 	 * Sets the name of the field accessed in this field access expression.
 	 * 
 	 * @param fieldName the field name
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setName(SimpleName fieldName) {
 		if (fieldName == null) {

@@ -259,8 +259,11 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * the name of the class.
 	 * 
 	 * @param methodName the new method name
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setName(SimpleName methodName) {
 		if (methodName == null) {
@@ -321,8 +324,11 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * </p>
 	 * 
 	 * @param type the new return type, possibly the void primitive type
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setReturnType(Type type) {
 		if (type == null) {
@@ -358,9 +364,12 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * 
 	 * @param body the block node, or <code>null</code> if 
 	 *    there is none
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
-	 * @exception IllegalArgumentException if a cycle in would be created
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
 	 */ 
 	public void setBody(Block body) {
 		// a MethodDeclaration may occur in a Block - must check cycles

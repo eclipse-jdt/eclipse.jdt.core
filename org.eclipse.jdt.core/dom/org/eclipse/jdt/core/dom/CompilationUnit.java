@@ -165,8 +165,11 @@ public class CompilationUnit extends ASTNode {
 	 * @param pkgDecl the new package declaration node, or 
 	 *   <code>null</code> if this compilation unit does not have a package
 	 *   declaration (that is in the default package)
-	 * @exception IllegalArgumentException if the node belongs to a different AST
-	 * @exception IllegalArgumentException if the node already has a parent
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
 	 */ 
 	public void setPackage(PackageDeclaration pkgDecl) {
 		replaceChild(this.optionalPackageDeclaration, pkgDecl, false);
