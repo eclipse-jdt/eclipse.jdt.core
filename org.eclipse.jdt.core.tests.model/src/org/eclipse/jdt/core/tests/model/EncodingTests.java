@@ -591,7 +591,8 @@ public class EncodingTests extends ModifyingResourceTests {
 		// Move file
 		String fileName = this.utf8File.getName();
 		ICompilationUnit cu = getCompilationUnit(this.utf8File.getFullPath().toString());
-		IPackageFragment packFrag = getPackageFragment("Encoding", "src", "testBug66898");
+		createFolder("/Encoding/src/tmp");
+		IPackageFragment packFrag = getPackageFragment("Encoding", "src", "tmp");
 		cu.move(packFrag, null, null, false, null);
 		ICompilationUnit destSource = packFrag.getCompilationUnit(fileName);
 		IFile destFile = (IFile) destSource.getUnderlyingResource();
