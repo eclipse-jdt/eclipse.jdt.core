@@ -136,6 +136,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A in package x.y should have a 
 	 * the fully qualified name "x.y.A.B".
 	 * 
+	 * TODO: (kent) need to change spec if secondary types are found
 	 * Note that in order to be found, a type name (or its toplevel enclosing
 	 * type name) must match its corresponding compilation unit name. As a 
 	 * consequence, secondary types cannot be found using this functionality.
@@ -160,6 +161,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * a class B defined as a member type of a class A should have the 
 	 * type qualified name "A.B".
 	 * 
+	 * TODO: (kent) need to change spec if secondary types are found
 	 * Note that in order to be found, a type name (or its toplevel enclosing
 	 * type name) must match its corresponding compilation unit name. As a 
 	 * consequence, secondary types cannot be found using this functionality.
