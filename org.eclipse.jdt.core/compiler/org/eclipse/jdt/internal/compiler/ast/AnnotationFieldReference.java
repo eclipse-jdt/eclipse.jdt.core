@@ -22,6 +22,13 @@ public class AnnotationFieldReference extends FieldReference {
 		this.bits |= InsideAnnotation;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
+	 */
+	public boolean isSuperAccess() {
+		return false;
+	}
+
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		if (receiver != null) {
@@ -40,7 +47,9 @@ public class AnnotationFieldReference extends FieldReference {
 		constant = NotAConstant;
 
 		if (this.receiver == null) {
-			this.receiverType = scope.enclosingSourceType();
+			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
+			this.receiverType = sourceTypeBinding;
+			this.receiver = new AnnotationQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
 		} else {
 			this.receiverType = receiver.resolveType(scope);
 		}
@@ -70,7 +79,9 @@ public class AnnotationFieldReference extends FieldReference {
 		constant = NotAConstant;
 
 		if (this.receiver == null) {
-			this.receiverType = scope.enclosingSourceType();
+			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
+			this.receiverType = sourceTypeBinding;
+			this.receiver = new AnnotationQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
 		} else {
 			this.receiverType = receiver.resolveType(scope);
 		}
@@ -78,17 +89,7 @@ public class AnnotationFieldReference extends FieldReference {
 			return null;
 		}
 
-		// TODO (philippe): investigate why scope.getBinding(...) returns null for instance variable
-		// TODO (frederic): call only scope.getBinding(...) when it will never return null
-		this.binding = scope.findField(this.receiverType, token, this, true /*resolve*/);
-		if (this.binding == null) {
-			Binding fieldBinding = scope.getBinding(token, BindingIds.FIELD, this, true /*resolve*/);
-			if (fieldBinding != null && fieldBinding instanceof FieldBinding) {
-				this.binding = (FieldBinding) fieldBinding;
-			} else {
-				this.binding = new ProblemFieldBinding((ReferenceBinding) this.receiverType, token, fieldBinding.problemId());
-			}
-		}
+		this.binding = scope.getField(this.receiverType, this.token, this);
 		if (!this.binding.isValidBinding()) {
 			constant = NotAConstant;
 			scope.problemReporter().invalidField(this, this.receiverType);
