@@ -1,14 +1,15 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *    IBM Corporation - initial API
  *    IBM Corporation, 2002/03/01- added notion of shared working copy
  *    IBM Corporation, 2002/26/01- added notion of IProblemRequestor
+ *    IBM Corporation, 2002/03/09- allow working copies of not-yet existing compilation units.
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -68,13 +69,16 @@ public interface IWorkingCopy {
 	 *	a subsequent change in the resource</li>
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
 	 * </ul>
-	 *
+	 * <p>
+	 * Since 2.1, a working copy can be created on a not-yet existing compilation
+	 * unit. In particular, such a working copy can then be committed in order to create
+	 * the corresponding compilation unit.
+	 * </p>
 	 * @param force a flag to handle the cases when the contents of the original resource have changed
 	 * since this working copy was created
 	 * @param monitor the given progress monitor
 	 * @exception JavaModelException if this working copy could not commit. Reasons include:
 	 * <ul>
-	 * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> A <code>CoreException</code> occurred while updating an underlying resource
 	 * <li> This element is not a working copy (INVALID_ELEMENT_TYPES)
 	 * <li> A update conflict (described above) (UPDATE_CONFLICT)
@@ -190,10 +194,7 @@ public interface IWorkingCopy {
 	 * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
 	 * 	that the client is not interested in problems.
 	 * @exception JavaModelException if the contents of this element can
-	 *   not be determined. Reasons include:
-	 * <ul>
-	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 * </ul>
+	 *   not be determined. 
 	 * @return a shared working copy on this element using the given factory to create
 	 * the buffer, or this element if this element is already a working copy
 	 * @see IBufferFactory
@@ -209,15 +210,16 @@ public interface IWorkingCopy {
 	/**
 	 * Returns a new working copy of this element if this element is not
 	 * a working copy, or this element if this element is already a working copy.
-	 *
+	 * <p>
 	 * Note: if intending to share a working copy amongst several clients, then 
 	 * <code>#getSharedWorkingCopy</code> should be used instead.
-	 * 
+	 * </p><p>
+	 * Since 2.1, a working copy can be created on a not-yet existing compilation
+	 * unit. In particular, such a working copy can then be committed in order to create
+	 * the corresponding compilation unit.
+	 * </p>
 	 * @exception JavaModelException if the contents of this element can
-	 *   not be determined. Reasons include:
-	 * <ul>
-	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 * </ul>
+	 *   not be determined. 
 	 * @return a new working copy of this element if this element is not
 	 * a working copy, or this element if this element is already a working copy
 	 */
@@ -230,10 +232,14 @@ public interface IWorkingCopy {
 	 * working copy is closed then reopened, this factory will be reused.
 	 * The buffer will be automatically initialized with the original's compilation unit content
 	 * upon creation.
-	 *
+	 * <p>
 	 * Note: if intending to share a working copy amongst several clients, then 
 	 * <code>#getSharedWorkingCopy</code> should be used instead.
-	 *
+	 * </p><p>
+	 * Since 2.1, a working copy can be created on a not-yet existing compilation
+	 * unit. In particular, such a working copy can then be committed in order to create
+	 * the corresponding compilation unit.
+	 * </p>
 	 * @param monitor a progress monitor used to report progress while opening this compilation unit
 	 *                 or <code>null</code> if no progress should be reported 
 	 * @param factory the factory that creates a buffer that is used to get the content of the working copy
@@ -242,10 +248,7 @@ public interface IWorkingCopy {
 	 * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
 	 * 	that the client is not interested in problems.
 	 * @exception JavaModelException if the contents of this element can
-	 *   not be determined. Reasons include:
-	 * <ul>
-	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 * </ul>
+	 *   not be determined. 
 	 * @return a new working copy of this element using the given factory to create
 	 * the buffer, or this element if this element is already a working copy
 	 * @since 2.0

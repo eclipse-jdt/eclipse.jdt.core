@@ -85,9 +85,6 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 	// to be flushed. Might lead to performance issues.
 	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
 	JavaModelManager.getJavaModelManager().putInfo(this, info);	
-
-	// problem detection 
-	if (monitor != null && monitor.isCanceled()) return;
 }
 
 /**

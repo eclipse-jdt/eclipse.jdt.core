@@ -359,6 +359,8 @@ public boolean isWorkingCopy() {
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
 	if (!isConsistent()) { // TODO: this code isn't synchronized with regular opening of a working copy
 		super.makeConsistent(monitor);
+
+		if (monitor != null && monitor.isCanceled()) return;
 		if (this.problemRequestor != null && this.problemRequestor.isActive()){
 			this.problemRequestor.beginReporting();
 			CompilationUnitProblemFinder.process(this, this.problemRequestor, monitor); 
