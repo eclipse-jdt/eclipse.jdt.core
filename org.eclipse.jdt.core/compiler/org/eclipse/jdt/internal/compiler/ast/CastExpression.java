@@ -237,6 +237,7 @@ public class CastExpression extends Expression {
 					continue;
 				}		
 				TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
+				if (castedExpressionType == null) return; // cannot do better
 				// obvious identity cast
 				if (castedExpressionType == argumentTypes[i]) { 
 					scope.problemReporter().unnecessaryCast((CastExpression)argument);
@@ -269,8 +270,9 @@ public class CastExpression extends Expression {
  				// narrowing conversion on base type may change value, thus necessary
  				leftIsCast = false;
 			} else  {
-				alternateLeftTypeId = ((CastExpression)left).expression.resolvedType.id;
-				if (alternateLeftTypeId == leftTypeId) { // obvious identity cast
+				TypeBinding alternateLeftType = ((CastExpression)left).expression.resolvedType;
+				if (alternateLeftType == null) return; // cannot do better
+				if ((alternateLeftTypeId = alternateLeftType.id) == leftTypeId) { // obvious identity cast
 					scope.problemReporter().unnecessaryCast((CastExpression)left); 
 					leftIsCast = false;
 				}	
@@ -283,8 +285,9 @@ public class CastExpression extends Expression {
  				// narrowing conversion on base type may change value, thus necessary
  				rightIsCast = false;
 			} else {
-				alternateRightTypeId = ((CastExpression)right).expression.resolvedType.id;
-				if (alternateRightTypeId == rightTypeId) { // obvious identity cast
+				TypeBinding alternateRightType = ((CastExpression)right).expression.resolvedType;
+				if (alternateRightType == null) return; // cannot do better
+				if ((alternateRightTypeId = alternateRightType.id) == rightTypeId) { // obvious identity cast
 					scope.problemReporter().unnecessaryCast((CastExpression)right); 
 					rightIsCast = false;
 				}
