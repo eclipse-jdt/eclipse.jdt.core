@@ -5,10 +5,7 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * All Rights Reserved.
  */
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 abstract class ClasspathLocation {
 

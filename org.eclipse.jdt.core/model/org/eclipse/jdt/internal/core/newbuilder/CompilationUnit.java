@@ -5,10 +5,10 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * All Rights Reserved.
  */
 
-import java.io.*;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.util.*;
+import java.io.*;
 
 public class CompilationUnit implements ICompilationUnit {
 

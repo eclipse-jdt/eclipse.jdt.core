@@ -8,20 +8,14 @@ package org.eclipse.jdt.internal.core.newbuilder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.batch.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
-import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.core.util.LookupTable;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
-import java.io.*;
 import java.util.*;
 
 /**
@@ -30,7 +24,6 @@ import java.util.*;
 public class IncrementalImageBuilder extends AbstractImageBuilder {
 
 protected ArrayList locations;
-protected ArrayList previousLocations;
 protected ArrayList typeNames;
 protected ArrayList qualifiedStrings;
 protected ArrayList simpleStrings;
@@ -42,7 +35,6 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 	this.newState.copyFrom(javaBuilder.lastState);
 
 	this.locations = new ArrayList(33);
-	this.previousLocations = null;
 	this.typeNames = new ArrayList(33);
 	this.qualifiedStrings = new ArrayList(33);
 	this.simpleStrings = new ArrayList(33);
@@ -114,7 +106,6 @@ protected void cleanUp() {
 	super.cleanUp();
 
 	this.locations = null;
-	this.previousLocations = null;
 	this.typeNames = null;
 	this.qualifiedStrings = null;
 	this.simpleStrings = null;
@@ -135,24 +126,27 @@ protected void addAffectedSourceFiles() {
 		char[] key = keyTable[i];
 		if (key != null) {
 			String location = new String(key);
-			if (previousLocations != null && previousLocations.contains(location))
-				continue next; // this file was just compiled so it has already seen all the changes
+			// must add previously compiled locations, otherwise we do not find hierarchy related problems
 			if (locations.contains(location))
 				continue next; // already know to compile this file so skip it
-	
+
 			ReferenceCollection refs = (ReferenceCollection) valueTable[i];
 			if (refs.includes(qualifiedNames, simpleNames)) {
-				if (JavaBuilder.DEBUG)
-					System.out.println("  adding affected source file " + location); //$NON-NLS-1$
-				locations.add(location);
-				for (int j = 0, k = sourceFolders.length; j < k; j++) {
-					String sourceLocation = sourceFolders[j].getLocation().toString();
-					if (location.startsWith(sourceLocation)) {
-						typeNames.add(location.substring(sourceLocation.length(), location.length() - 5)); // length of ".java"
-						continue next;
+				// check that the file still exists... the file or its package may have been deleted
+				IResource affectedFile = javaBuilder.workspaceRoot.getFileForLocation(new Path(location));
+				if (affectedFile != null && affectedFile.exists()) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("  adding affected source file " + location); //$NON-NLS-1$
+					locations.add(location);
+					for (int j = 0, k = sourceFolders.length; j < k; j++) {
+						String sourceLocation = sourceFolders[j].getLocation().toString();
+						if (location.startsWith(sourceLocation)) {
+							typeNames.add(location.substring(sourceLocation.length(), location.length() - 5)); // length of ".java"
+							continue next;
+						}
 					}
+					typeNames.add(location); // should not reach here
 				}
-				typeNames.add(location); // should not reach here
 			}
 		}
 	}
@@ -174,6 +168,13 @@ protected void addDependentsOf(IPath path) {
 				+ typeName + " in " + packageName); //$NON-NLS-1$
 		simpleStrings.add(typeName);
 	}
+}
+
+protected boolean canRemovePackage(IPath removedPackagePath) {
+	if (sourceFolders.length > 1)
+		for (int i = 0, length = sourceFolders.length; i < length; i++)
+			if (sourceFolders[i].findMember(removedPackagePath) != null) return false;
+	return true;
 }
 
 protected void findSourceFiles(IResourceDelta delta) throws CoreException {
@@ -201,6 +202,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				}
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of added package " + addedPackagePath); //$NON-NLS-1$
+				// add dependents even when the package thinks it exists to be on the safe side
 				addDependentsOf(addedPackagePath);
 				// fall thru & collect all the source files
 			case IResourceDelta.CHANGED :
@@ -212,9 +214,10 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				IPath removedPackagePath = location.removeFirstSegments(sourceFolderSegmentCount);
 				if (hasSeparateOutputFolder) {
 					IFolder removedPackageFolder = outputFolder.getFolder(removedPackagePath);
-					if (removedPackageFolder.exists())
+					if (removedPackageFolder.exists() && canRemovePackage(removedPackagePath))
 						removedPackageFolder.delete(true, null);
 				}
+				// add dependents even when the package thinks it does not exist to be on the safe side
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of removed package " + removedPackagePath); //$NON-NLS-1$
 				addDependentsOf(removedPackagePath);
@@ -227,12 +230,19 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				if (JavaBuilder.DEBUG)
 					System.out.println("Compile this added source file " + location); //$NON-NLS-1$
 				locations.add(location.toString());
-				typeNames.add(typePath.toString());
+				typeNames.add(typePath.setDevice(null).toString());
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of added source file " + typePath); //$NON-NLS-1$
 				addDependentsOf(typePath);
 				return;
 			case IResourceDelta.REMOVED :
+				IResource classFile = outputFolder.getFile(typePath.addFileExtension(JavaBuilder.ClassExtension));
+				if (classFile.exists()) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("Deleting class file of removed file " + typePath); //$NON-NLS-1$
+					classFile.delete(true, null);
+				}
+				// add dependents even when the type thinks it does not exist to be on the safe side
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of removed source file " + typePath); //$NON-NLS-1$
 				addDependentsOf(typePath);
@@ -243,7 +253,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				if (JavaBuilder.DEBUG)
 					System.out.println("Compile this changed source file " + location); //$NON-NLS-1$
 				locations.add(sourceDelta.getResource().getLocation().toString());
-				typeNames.add(typePath.toString());
+				typeNames.add(typePath.setDevice(null).toString());
 				return;
 		}
 	} else if (JavaBuilder.ClassExtension.equalsIgnoreCase(extension)) {
@@ -351,9 +361,9 @@ protected void finishedWith(char[] fileId, char[][] additionalTypeNames) throws 
 			for (int j = 0, y = additionalTypeNames.length; j < y; j++)
 				if (CharOperation.equals(previous, additionalTypeNames[j])) continue next;
 
-			int index = CharOperation.lastIndexOf('/', fileId) + 1;
-			char[] dirName = CharOperation.subarray(fileId, 0, index);
-			IPath path = new Path(new String(CharOperation.concat(dirName, previous)));
+			char[] dirName = CharOperation.subarray(fileId, 0, CharOperation.lastIndexOf('/', fileId) + 1);
+			String filename = new String(CharOperation.concat(dirName, previous));
+			IPath path = new Path(filename).addFileExtension(JavaBuilder.ClassExtension);
 			IResource resource = javaBuilder.workspaceRoot.getFileForLocation(path);
 			resource.delete(true, null);
 		}
@@ -404,8 +414,6 @@ protected void updateProblemsFor(CompilationResult result) {
 }
 
 protected void resetCollections() {
-	previousLocations = locations.isEmpty() ? null : (ArrayList) locations.clone();
-
 	locations.clear();
 	typeNames.clear();
 	qualifiedStrings.clear();

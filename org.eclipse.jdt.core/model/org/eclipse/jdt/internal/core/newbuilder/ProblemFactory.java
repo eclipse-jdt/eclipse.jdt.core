@@ -7,7 +7,8 @@ package org.eclipse.jdt.internal.core.newbuilder;
 
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.util.LookupTable;
-import java.util.Locale;
+
+import java.util.*;
 
 public class ProblemFactory extends DefaultProblemFactory {
 

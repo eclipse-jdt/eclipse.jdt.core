@@ -6,10 +6,9 @@ package org.eclipse.jdt.internal.core.newbuilder;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.*;
-
-import java.util.*;
 
 public class State {
 

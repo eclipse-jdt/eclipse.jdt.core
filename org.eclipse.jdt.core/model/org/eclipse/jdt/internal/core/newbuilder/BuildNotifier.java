@@ -8,10 +8,11 @@ package org.eclipse.jdt.internal.core.newbuilder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
+
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 import java.text.NumberFormat;
 import java.util.*;

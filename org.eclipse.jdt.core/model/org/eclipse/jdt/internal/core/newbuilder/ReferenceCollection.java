@@ -6,7 +6,8 @@ package org.eclipse.jdt.internal.core.newbuilder;
  */
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import java.util.ArrayList;
+
+import java.util.*;
 
 public class ReferenceCollection {
 

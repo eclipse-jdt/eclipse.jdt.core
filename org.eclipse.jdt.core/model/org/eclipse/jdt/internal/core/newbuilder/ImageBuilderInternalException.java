@@ -3,7 +3,6 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import org.eclipse.jdt.core.*;
 
 /**
  * Exception thrown when there is an internal error in the image builder.

@@ -7,21 +7,23 @@ package org.eclipse.jdt.internal.core.newbuilder;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.*;
+import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.problem.*;
 
-import java.util.*;
+import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
 import java.io.*;
+import java.util.*;
 
 /**
  * The abstract superclass of image builders.
@@ -42,6 +44,7 @@ protected NameEnvironment nameEnvironment;
 protected Compiler compiler;
 protected State newState;
 protected WorkQueue workQueue;
+protected ArrayList problemTypeLocations;
 
 private boolean inCompiler;
 
@@ -57,10 +60,11 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.notifier = javaBuilder.notifier;
 
 	this.hasSeparateOutputFolder = !outputFolder.getFullPath().equals(javaBuilder.currentProject.getFullPath());
-	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath);
+	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath, javaBuilder.lastState);
 	this.compiler = newCompiler();
 	this.newState = new State(javaBuilder);
 	this.workQueue = new WorkQueue();
+	this.problemTypeLocations = new ArrayList(3);
 }
 
 public void acceptResult(CompilationResult result) {
@@ -72,7 +76,6 @@ public void acceptResult(CompilationResult result) {
 	// Before reporting the new problems, we need to update the problem count &
 	// remove the old problems. Plus delete additional class files that no longer exist.
 
-// should CompilationResult keep this as a String? Or convert WorkQueue to hold onto char[]?
 	char[] fileId = result.getFileName();  // the full filesystem path 'd:/xyz/eclipse/Test/p1/p2/A.java'
 	String filename = new String(fileId);
 	if (!workQueue.isCompiled(filename)) {
@@ -116,6 +119,7 @@ protected void cleanUp() {
 	this.compiler = null;
 	this.nameEnvironment = null;
 	this.workQueue = null;
+	this.problemTypeLocations = null;
 	this.newState.cleanup();
 }
 
@@ -123,39 +127,75 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(String[] filenames, String[] initialTypeNames) {
-	nameEnvironment.initialTypeNames(initialTypeNames);
-
-	int i = 0;
 	int toDo = filenames.length;
-	boolean inFirstPass = true;
-	while (i < toDo) {
-		ArrayList doNow = new ArrayList(Math.min(toDo, MAX_AT_ONCE));
-		while (i < toDo && doNow.size() < MAX_AT_ONCE) {
-			String filename = filenames[i++];
-			// Although it needed compiling when this method was called, it may have
-			// already been compiled when it was referenced by another unit.
-			if (inFirstPass || workQueue.isWaiting(filename)) {
-				CompilationUnit compUnit = new CompilationUnit(null, filename);
-				doNow.add(compUnit);
-			}
+	if (toDo <= MAX_AT_ONCE) {
+		// do them all now
+		CompilationUnit[] toCompile = new CompilationUnit[toDo];
+		for (int i = 0; i < toDo; i++) {
+			String filename = filenames[i];
+			if (JavaBuilder.DEBUG)
+				System.out.println("About to compile " + filename);
+			toCompile[i] = new CompilationUnit(null, filename);
 		}
-		inFirstPass = false;
-		notifier.checkCancel();
-		if (doNow.size() > 0) {
-			CompilationUnit[] toCompile = new CompilationUnit[doNow.size()];
-			doNow.toArray(toCompile);
-			try {
-				inCompiler = true;
-				compiler.compile(toCompile);
-			} finally {
-				inCompiler = false;
+		compile(toCompile, initialTypeNames, null);
+	} else {
+		int i = 0;
+		boolean compilingFirstGroup = true;
+		while (i < toDo) {
+			int doNow = Math.min(toDo, MAX_AT_ONCE);
+			int index = 0;
+			CompilationUnit[] toCompile = new CompilationUnit[doNow];
+			String[] initialNamesInLoop = new String[doNow];
+			while (i < toDo && index < doNow) {
+				String filename = filenames[i];
+				// Although it needed compiling when this method was called, it may have
+				// already been compiled when it was referenced by another unit.
+				if (compilingFirstGroup || workQueue.isWaiting(filename)) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("About to compile " + filename);
+					toCompile[index] = new CompilationUnit(null, filename);
+					initialNamesInLoop[index++] = initialTypeNames[i];
+				}
+				i++;
 			}
-
-			// Check for cancel immediately after a compile, because the compiler may
-			// have been cancelled but without propagating the correct exception
-			notifier.checkCancel();
+			if (index < doNow) {
+				System.arraycopy(toCompile, 0, toCompile = new CompilationUnit[index], 0, index);
+				System.arraycopy(initialNamesInLoop, 0, initialNamesInLoop = new String[index], 0, index);
+			}
+			String[] additionalFilenames = new String[toDo - i];
+			System.arraycopy(filenames, i, additionalFilenames, 0, additionalFilenames.length);
+			compilingFirstGroup = false;
+			compile(toCompile, initialNamesInLoop, additionalFilenames);
 		}
 	}
+}
+
+void compile(CompilationUnit[] units, String[] initialTypeNames, String[] additionalFilenames) {
+	if (units.length == 0) return;
+	notifier.compiled(units[0]); // just to change the message
+
+	// extend additionalFilenames with all hierarchical problem types found during this entire build
+	if (!problemTypeLocations.isEmpty()) {
+		int toAdd = problemTypeLocations.size();
+		int length = additionalFilenames == null ? 0 : additionalFilenames.length;
+		if (length == 0)
+			additionalFilenames = new String[toAdd];
+		else
+			System.arraycopy(additionalFilenames, 0, additionalFilenames = new String[length + toAdd], 0, length);
+		for (int i = 0; i < toAdd; i++)
+			additionalFilenames[length + i] = (String) problemTypeLocations.get(i);
+	}
+	nameEnvironment.setNames(initialTypeNames, additionalFilenames);
+	notifier.checkCancel();
+	try {
+		inCompiler = true;
+		compiler.compile(units);
+	} finally {
+		inCompiler = false;
+	}
+	// Check for cancel immediately after a compile, because the compiler may
+	// have been cancelled but without propagating the correct exception
+	notifier.checkCancel();
 }
 
 protected void finishedWith(char[] fileId, char[][] additionalTypeNames) throws CoreException {
@@ -216,13 +256,36 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) {
 	for (int i = 0, length = problems.length; i < length; i++) {
 		try {
 			IProblem problem = problems[i];
+			int id = problem.getID();
+			switch (id) {
+				case ProblemIrritants.SuperclassMustBeAClass :
+				case ProblemIrritants.SuperInterfaceMustBeAnInterface :
+				case ProblemIrritants.HierarchyCircularitySelfReference :
+				case ProblemIrritants.HierarchyCircularity :
+				case ProblemIrritants.HierarchyHasProblems :
+				case ProblemIrritants.InvalidSuperclassBase :
+				case ProblemIrritants.InvalidSuperclassBase + 1 :
+				case ProblemIrritants.InvalidSuperclassBase + 2 :
+				case ProblemIrritants.InvalidSuperclassBase + 3 :
+				case ProblemIrritants.InvalidSuperclassBase + 4 :
+				case ProblemIrritants.InvalidInterfaceBase :
+				case ProblemIrritants.InvalidInterfaceBase + 1 :
+				case ProblemIrritants.InvalidInterfaceBase + 2 :
+				case ProblemIrritants.InvalidInterfaceBase + 3 :
+				case ProblemIrritants.InvalidInterfaceBase + 4 :
+					// ensure that this file is always retrieved from source for the rest of the build
+					String fileLocation = resource.getLocation().toString();
+					if (!problemTypeLocations.contains(fileLocation))
+						problemTypeLocations.add(fileLocation);
+			}
+
 			IMarker marker = resource.createMarker(ProblemMarkerTag);
 			marker.setAttributes(
 				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
 				new Object[] { 
 					problem.getMessage(),
 					new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
-					new Integer(problem.getID()),
+					new Integer(id),
 					new Integer(problem.getSourceStart()),
 					new Integer(problem.getSourceEnd() + 1),
 					new Integer(problem.getSourceLineNumber())
@@ -284,8 +347,11 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing class file " + file.getName());
 		file.create(new ByteArrayInputStream(bytes), true, null);
+	} else if (JavaBuilder.DEBUG) {
+		System.out.println("Skipped over unchanged class file " + file.getName());
 	}
-	return file.getName().toCharArray();
+	// answer the name of the class file as in Y or Y$M
+	return filePath.lastSegment().toCharArray();
 //@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
 }
 }

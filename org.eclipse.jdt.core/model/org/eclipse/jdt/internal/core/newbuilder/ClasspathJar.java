@@ -4,13 +4,14 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+
+import org.eclipse.jdt.internal.core.util.LookupTable;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
-
-import org.eclipse.jdt.internal.core.util.*;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.classfmt.*;
 
 class ClasspathJar extends ClasspathLocation {
 

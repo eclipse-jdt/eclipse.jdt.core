@@ -10,9 +10,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.batch.*;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.builder.*;
 
 import java.util.*;
 

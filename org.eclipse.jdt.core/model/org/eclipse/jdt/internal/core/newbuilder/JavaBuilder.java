@@ -7,13 +7,13 @@ package org.eclipse.jdt.internal.core.newbuilder;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
-import java.io.*;
 import java.util.*;
 
 public class JavaBuilder extends IncrementalProjectBuilder {
@@ -263,8 +263,7 @@ private void initializeBuilder() throws CoreException {
 				sourceFolders[count] = (IContainer) member;
 				classpath[i] = ClasspathLocation.forSourceFolder(
 					sourceFolders[count++].getLocation().toString(),
-					outputFolder.getLocation().toString(),
-					lastState);
+					outputFolder.getLocation().toString());
 				break;
 			case IClasspathEntry.CPE_PROJECT :
 				IProject prereqProject = (IProject) member;
