@@ -481,10 +481,22 @@ private boolean isWorthBuilding() throws CoreException {
 	}
 
 	// make sure all prereq projects have valid build states... only when aborting builds since projects in cycles do not have build states
+	// except for projects involved in a 'warning' cycle (see below)
 	IProject[] requiredProjects = getRequiredProjects(false);
 	next : for (int i = 0, length = requiredProjects.length; i < length; i++) {
 		IProject p = requiredProjects[i];
 		if (getLastState(p) == null)  {
+			// The prereq project has no build state: if this project has a 'warning' cycle marker and the prereq project is involved in the cycle
+			// then allow build (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23357)
+			JavaProject jProject = (JavaProject)this.javaProject;
+			IMarker cycleMarker = jProject.getCycleMarker();
+			if (cycleMarker != null && ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue() == IMarker.SEVERITY_WARNING) {
+				HashSet cycleParticipants = new HashSet();
+				jProject.updateCycleParticipants(null, new ArrayList(), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot());
+				if (cycleParticipants.contains(JavaCore.create(p))) {
+					continue;
+				}
+			}
 			if (DEBUG)
 				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
 					+ " was not built"); //$NON-NLS-1$
