@@ -502,8 +502,23 @@ public abstract class Scope
 		}
 		if (compatibleIndex == 1)
 			return compatible[0]; // have not checked visibility
-		if (compatibleIndex == 0)
+		if (compatibleIndex == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
+			int argLength = argumentTypes.length;
+			nextMethod : for (int i = 0; i < foundSize; i++) {
+				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+				TypeBinding[] params = methodBinding.parameters;
+				int paramLength = params.length;
+				nextArg: for (int a = 0; a < argLength; a++) {
+					TypeBinding arg = argumentTypes[a];
+					for (int p = 0; p < paramLength; p++)
+						if (params[p] == arg)
+							continue nextArg;
+					continue nextMethod;
+				}
+				return methodBinding;
+			}
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
+		}
 
 		MethodBinding[] visible = new MethodBinding[compatibleIndex];
 		int visibleIndex = 0;
