@@ -486,12 +486,29 @@ public void testGetAllSupertypes() throws JavaModelException {
 	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
 	IType[] types = typeHierarchy.getAllSupertypes(type);
 	assertTypesEqual(
-		"Unexpected super interfaces of Z", 
+		"Unexpected all super types of Z", 
 		"java.lang.Object\n" + 
 		"p1.I1\n" + 
 		"p1.I2\n" + 
 		"p1.X\n" + 
 		"p1.Y\n",
+		types);
+}
+/**
+ * Ensures that the correct supertypes of a type exist in the type 
+ * hierarchy.
+ * (regression test for bug 23644 hierarchy: getAllSuperTypes does not include all superinterfaces?)
+ */
+public void testGetAllSupertypes2() throws JavaModelException {
+	IType type = getCompilationUnit("TypeHierarchy", "src", "p3", "B.java").getType("B");
+	ITypeHierarchy typeHierarchy = type.newTypeHierarchy(null);
+	IType[] types = typeHierarchy.getAllSupertypes(type);
+	assertTypesEqual(
+		"Unexpected all super types of B", 
+		"java.lang.Object\n" +
+		"p3.A\n" +
+		"p3.I\n" +
+		"p3.I1\n",
 		types);
 }
 /**
