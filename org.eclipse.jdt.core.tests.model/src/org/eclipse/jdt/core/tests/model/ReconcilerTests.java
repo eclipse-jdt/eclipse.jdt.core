@@ -743,6 +743,49 @@ public void testMethodWithError7() throws JavaModelException, CoreException {
 		this.deleteFile("/Reconciler/src/p1/Y.java");
 	}
 }
+/*
+ * Test that the units with similar names aren't presenting each other errors
+ * (regression test for bug 39475)
+ */
+public void testMethodWithError8() throws JavaModelException, CoreException {
+	this.workingCopy.destroy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	try {
+		this.createFile(
+			"/Reconciler/src/p1/X01.java", 
+			"package p1;\n" +
+			"public abstract class X01 {\n" +
+			"	public abstract void bar();	\n"+
+			"  public abstract void foo(Zork z); \n"+
+			"}"
+		);
+		this.createFile(
+			"/Reconciler/src/p2/X01.java", 
+			"package p2;\n" +
+			"public class X01 extends p1.X01 {\n" +
+			"	public void bar(){}	\n"+
+			"}"
+		);
+		this.cu = getCompilationUnit("Reconciler", "src", "p2", "X01.java");
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = (ICompilationUnit)this.cu.getWorkingCopy(null, null, this.problemRequestor);
+
+		// Close working copy
+		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed
+		
+		// Reopen should detect syntax error
+		this.problemRequestor.initialize();
+		this.workingCopy.open(null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n" // shouldn't report problem against p2.X01
+		);
+	} finally {
+		this.deleteFile("/Reconciler/src/p1/X01.java");
+		this.deleteFile("/Reconciler/src/p2/X01.java");
+	}
+}
 /**
  * Ensures that the reconciler handles member move correctly.
  */

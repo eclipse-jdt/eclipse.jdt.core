@@ -111,15 +111,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
 	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
-	IProblemFactory factory = 
-		computeProblems 
-			?  CompilationUnitProblemFinder.getProblemFactory(getElementName().toCharArray(), perWorkingCopyInfo, pm) 
-			:  	new DefaultProblemFactory();
-	SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(getJavaProject().getOptions(true)));
+	IProblemFactory problemFactory = new DefaultProblemFactory();
+	SourceElementParser parser = new SourceElementParser(requestor, problemFactory, new CompilerOptions(getJavaProject().getOptions(true)));
 	requestor.parser = parser;
-	if (computeProblems) {
-		perWorkingCopyInfo.beginReporting();
-	}
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
 			public char[] getContents() {
 				return contents;
@@ -133,7 +127,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			public char[] getFileName() {
 				return CompilationUnit.this.getFileName();
 			}
-		}, computeProblems /*full parse if compute problems*/);
+		}, false /*diet parse*/);
 	
 	// update timestamp (might be IResource.NULL_STAMP if original does not exist)
 	if (underlyingResource == null) {
@@ -143,7 +137,8 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	
 	// compute other problems if needed
 	if (computeProblems){
-		CompilationUnitProblemFinder.process(unit, this, perWorkingCopyInfo, pm);
+		perWorkingCopyInfo.beginReporting();
+		CompilationUnitProblemFinder.process(unit, this, perWorkingCopyInfo, problemFactory, pm);
 		perWorkingCopyInfo.endReporting();
 	}		
 	
