@@ -63,26 +63,28 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	}
 }
 /**
- * acceptLineSeparatorPositions method comment.
+ * @see ISourceElementRequestor#acceptLineSeparatorPositions(int[])
  */
 public void acceptLineSeparatorPositions(int[] positions) {
+	// implements interface method
 }
 /**
- * acceptMethodReference method comment.
+ * @see ISourceElementRequestor#acceptMethodReference(char[], int, int)
  */
 public void acceptMethodReference(char[] methodName, int argCount, int sourcePosition) {
 	this.indexer.addMethodReference(methodName, argCount);
 }
 /**
- * acceptPackage method comment.
+ * @see ISourceElementRequestor#acceptPackage(int, int, char[])
  */
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
 	this.packageName = name;
 }
 /**
- * acceptProblem method comment.
+ * @see ISourceElementRequestor#acceptProblem(IProblem)
  */
 public void acceptProblem(IProblem problem) {
+	// implements interface method
 }
 /**
  * acceptTypeReference method comment.
@@ -155,32 +157,33 @@ public void enterClass(int declarationStart, int modifiers, char[] name, int nam
 	this.pushTypeName(name);
 }
 /**
- * enterCompilationUnit method comment.
+ * @see ISourceElementRequestor#enterCompilationUnit()
  */
 public void enterCompilationUnit() {
+	// implements interface method
 }
 /**
- * enterConstructor method comment.
+ * @see ISourceElementRequestor#enterConstructor(int, int, char[], int, int, char[][], char[][], char[][])
  */
 public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	this.indexer.addConstructorDeclaration(name, parameterTypes, exceptionTypes);
 	this.methodDepth++;
 }
 /**
- * enterField method comment.
+ * @see ISourceElementRequestor#enterField(int, int, char[], char[], int, int)
  */
 public void enterField(int declarationStart, int modifiers, char[] type, char[] name, int nameSourceStart, int nameSourceEnd) {
 	this.indexer.addFieldDeclaration(type, name);
 	this.methodDepth++;
 }
 /**
- * enterInitializer method comment.
+ * @see ISourceElementRequestor#enterInitializer(int, int)
  */
 public void enterInitializer(int declarationSourceStart, int modifiers) {
 	this.methodDepth++;
 }
 /**
- * enterInterface method comment.
+ * @see ISourceElementRequestor#enterInterface(int, int, char[], int, int, char[][])
  */
 public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {
 	// eliminate possible qualifications, given they need to be fully resolved again
@@ -199,49 +202,50 @@ public void enterInterface(int declarationStart, int modifiers, char[] name, int
 	this.pushTypeName(name);	
 }
 /**
- * enterMethod method comment.
+ * @see ISourceElementRequestor#enterMethod(int, int, char[], char[], int, int, char[][], char[][], char[][])
  */
 public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
 	this.indexer.addMethodDeclaration(name, parameterTypes, returnType, exceptionTypes);
 	this.methodDepth++;
 }
 /**
- * exitClass method comment.
+ * @see ISourceElementRequestor#exitClass(int)
  */
 public void exitClass(int declarationEnd) {
 	popTypeName();
 }
 /**
- * exitCompilationUnit method comment.
+ * @see ISourceElementRequestor#exitCompilationUnit(int)
  */
 public void exitCompilationUnit(int declarationEnd) {
+	// implements interface method
 }
 /**
- * exitConstructor method comment.
+ * @see ISourceElementRequestor#exitConstructor(int)
  */
 public void exitConstructor(int declarationEnd) {
 	this.methodDepth--;
 }
 /**
- * exitField method comment.
+ * @see ISourceElementRequestor#exitField(int, int, int)
  */
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	this.methodDepth--;
 }
 /**
- * exitInitializer method comment.
+ * @see ISourceElementRequestor#exitInitializer(int)
  */
 public void exitInitializer(int declarationEnd) {
 	this.methodDepth--;
 }
 /**
- * exitInterface method comment.
+ * @see ISourceElementRequestor#exitInterface(int)
  */
 public void exitInterface(int declarationEnd) {
 	popTypeName();	
 }
 /**
- * exitMethod method comment.
+ * @see ISourceElementRequestor#exitMethod(int)
  */
 public void exitMethod(int declarationEnd) {
 	this.methodDepth--;

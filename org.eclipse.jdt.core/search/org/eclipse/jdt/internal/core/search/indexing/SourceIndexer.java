@@ -72,6 +72,7 @@ protected void indexFile(IDocument document) /* throws IOException */ {
 		source = document.getCharContent();
 		name = document.getName().toCharArray();
 	} catch(Exception e){
+		// ignore
 	}
 	if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
 	CompilationUnit compilationUnit = new CompilationUnit(source, name);
@@ -87,5 +88,7 @@ protected void indexFile(IDocument document) /* throws IOException */ {
  * Sets the document types the <code>IIndexer</code> handles.
  */
 
-public void setFileTypes(String[] fileTypes){}
+public void setFileTypes(String[] fileTypes){
+	// implements interface method
+}
 }

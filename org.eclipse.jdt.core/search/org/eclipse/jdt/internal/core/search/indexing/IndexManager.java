@@ -594,7 +594,9 @@ private void updateIndexState(String indexName, Integer indexState) {
 		if (writer != null) {
 			try {
 				writer.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+				// ignore
+			}
 		}
 	}
 	if (VERBOSE) {

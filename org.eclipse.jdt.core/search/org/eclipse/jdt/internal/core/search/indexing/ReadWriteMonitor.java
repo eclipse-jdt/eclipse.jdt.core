@@ -32,6 +32,7 @@ public synchronized void enterRead() {
 		try {
 			wait();
 		} catch(InterruptedException e){
+			// ignore
 		}
 	}
 	status++;
@@ -46,6 +47,7 @@ public synchronized void enterWrite() {
 		try {
 			wait();
 		} catch(InterruptedException e){
+			// ignore
 		}
 	}
 	status--;
