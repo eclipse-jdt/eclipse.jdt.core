@@ -767,7 +767,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * When this bug happened a NPE was thrown in factory.createMethod(...)
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45198">45198</a>
 	 */
-	public void testBug45198() {
+	public void _testBug45198() { // TODO (frederic) should move this test to model side (where plugin is started)
 		Hashtable savedOptions = JavaCore.getOptions();
 		Map options = getCompilerOptions();
 		Hashtable newOptions = new Hashtable(options.size());
