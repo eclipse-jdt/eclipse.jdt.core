@@ -85,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0084"));
+		suite.addTest(new ASTConverter15Test("test0085"));
 		return suite;
 	}
 		
@@ -2496,6 +2496,39 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		fieldDeclaration = (FieldDeclaration) node;
 		ITypeBinding typeBinding2 = fieldDeclaration.getType().resolveBinding();
+
+		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding2));
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79609
+	 */
+	public void test0085() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0085", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List typeParameters = methodDeclaration.typeParameters();
+		assertEquals("wrong size", 1, typeParameters.size());
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
+		IBinding binding = typeParameter.resolveBinding();
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding = (ITypeBinding) binding;
+		
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		methodDeclaration = (MethodDeclaration) node;
+		typeParameters = methodDeclaration.typeParameters();
+		assertEquals("wrong size", 1, typeParameters.size());
+		typeParameter = (TypeParameter) typeParameters.get(0);
+		binding = typeParameter.resolveBinding();
+		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding2 = (ITypeBinding) binding;
 
 		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding2));
 	}
