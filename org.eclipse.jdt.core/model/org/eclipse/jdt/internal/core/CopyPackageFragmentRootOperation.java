@@ -141,9 +141,8 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		// case of existing entry and REPLACE was specified
 		if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0) {
 			// find existing entry
-			IPath rootPath = rootEntry.getPath();
 			for (int i = 0; i < length; i++) {
-				if (rootPath.equals(classpath[i].getPath())) {
+				if (this.destination.equals(classpath[i].getPath())) {
 					newClasspath = new IClasspathEntry[length];
 					System.arraycopy(classpath, 0, newClasspath, 0, length);
 					newClasspath[i] = copy(rootEntry);

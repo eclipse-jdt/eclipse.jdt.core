@@ -344,6 +344,54 @@ public void testCopySourceFolder5() throws CoreException {
 	}
 }
 /*
+ * Ensure that coping and renaming a source root to same project in
+ * REPLACE mode triggers the right delta and that the model is up-to-date.
+ * (regression test bug 30857 IPackageFragmentRoot: copy removes source folders from classpath)
+ */
+public void testCopySourceFolder6() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		this.createFolder("/P/src/p");
+		this.createFile(
+			"/P/src/p/X.java", 
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src");
+		this.startDeltas();
+		root.copy(
+			new Path("/P/src1"), 
+			IResource.KEEP_HISTORY, 
+			IPackageFragmentRoot.REPLACE | IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH, 
+			null, 
+			null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	src1[+]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"		p\n" + 
+			"			X.java\n" + 
+			"	src1\n" + 
+			"		[default]\n" + 
+			"		p\n" + 
+			"			X.java\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
  * Ensure that coping a source root to another project with an existing source root in
  * non REPLACE mode throws the right JavaModelException.
  * (regression test bug 30511 IPackageFragmentRoot:move ignores FORCE flag)
