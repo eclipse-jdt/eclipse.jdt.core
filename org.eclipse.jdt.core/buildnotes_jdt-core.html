@@ -45,6 +45,21 @@ What's new in this drop</h2>
 <ul>
 <li>Added inclusion patterns support. See <code>JavaCore.newSourceEntry(IPath,IPath[],IPath[],IPath)</code> 
 	 and <code>IClasspathEntry.getInclusionPatterns()</code> for details.</li>
+<li>Added API on WorkinCopyOwner to set the primary buffer provider (for internal use by the jdt-related plug-ins only).
+<pre>
+	/**
+	 * Sets the buffer provider of the primary working copy owner. Note that even if the
+	 * buffer provider is a working copy owner, only its createBuffer(ICompilationUnit)
+	 * method is used by the primary working copy owner. It doesn't replace the internal primary 
+	 * working owner.
+ 	 * 
+	 * This method is for internal use by the jdt-related plug-ins.
+	 * Clients outside of the jdt should not reference this method.
+	 * 
+	 * @param primaryBufferProvider the primary buffer provider
+	 */
+	public static void setPrimaryBufferProvider(WorkingCopyOwner primaryBufferProvider);
+</pre></li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
