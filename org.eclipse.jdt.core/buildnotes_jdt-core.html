@@ -50,6 +50,15 @@ Eclipse SDK 3.1M3 - 12th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Type search works with generic (only for string pattern, see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75641#c4">75641</a>).<br>
+For example, user can enter <i><code>List&lt;String&gt;</code></i> in Java Search text and search for type references.<br>
+Match(es) will be found if this parameterized type is used in the search scope.<br>
+Note that some API changes still need to be done to make generic type search work while selecting a parameterized type from Java editor.
+</li>
+<li>Field search works with generic (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73277">73277</a>).<br>
+For example, user can search for references to a field declared as <pre>List&lt;String&gt; ls;</pre>
+Match(es) will be found if this field is used in the search scope.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
