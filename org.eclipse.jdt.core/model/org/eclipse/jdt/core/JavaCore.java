@@ -2142,6 +2142,7 @@ public final class JavaCore extends Plugin {
 
 		return getWorkingCopies(BufferFactoryWrapper.create(factory));
 	}
+	
 	/**
 	 * Returns the working copies that have the given owner. 
 	 * Only compilation units in working copy mode are returned.
@@ -3144,6 +3145,7 @@ public final class JavaCore extends Plugin {
 		
 		// trigger model refresh
 		try {
+			final boolean canChangeResources = !ResourcesPlugin.getWorkspace().isTreeLocked();
 			JavaCore.run(new IWorkspaceRunnable() {
 				public void run(IProgressMonitor progressMonitor) throws CoreException {
 					for(int i = 0; i < projectLength; i++){
@@ -3162,10 +3164,15 @@ public final class JavaCore extends Plugin {
 								affectedProject.getRawClasspath(),
 								SetClasspathOperation.ReuseOutputLocation,
 								progressMonitor,
-								!ResourcesPlugin.getWorkspace().isTreeLocked(), // can save resources
+								canChangeResources,
 								oldResolvedPaths[i],
 								false, // updating - no need for early validation
 								false); // updating - no need to save
+						// ensures the project is getting rebuilt if only variable is modified
+						if (canChangeResources) {
+							affectedProject.getProject().touch(progressMonitor);
+						}
+						
 					}
 				}
 			},
@@ -3398,7 +3405,7 @@ public final class JavaCore extends Plugin {
 		int varLength = variableNames.length;
 		
 		// gather classpath information for updating
-		final HashMap affectedProjects = new HashMap(5);
+		final HashMap affectedProjectClasspaths = new HashMap(5);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IJavaModel model = manager.getJavaModel();
 	
@@ -3457,14 +3464,14 @@ public final class JavaCore extends Plugin {
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
 	
 							if (variableName.equals(entry.getPath().segment(0))){
-								affectedProjects.put(project, project.getResolvedClasspath(true));
+								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true));
 								continue nextProject;
 							}
 							IPath sourcePath, sourceRootPath;
 							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
 								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
 	
-								affectedProjects.put(project, project.getResolvedClasspath(true));
+								affectedProjectClasspaths.put(project, project.getResolvedClasspath(true));
 								continue nextProject;
 							}
 						}												
@@ -3479,33 +3486,38 @@ public final class JavaCore extends Plugin {
 		final String[] dbgVariableNames = variableNames;
 				
 		// update affected project classpaths
-		if (!affectedProjects.isEmpty()) {
+		if (!affectedProjectClasspaths.isEmpty()) {
 			try {
+				final boolean canChangeResources = !ResourcesPlugin.getWorkspace().isTreeLocked();
 				JavaCore.run(
 					new IWorkspaceRunnable() {
 						public void run(IProgressMonitor progressMonitor) throws CoreException {
 							// propagate classpath change
-							Iterator projectsToUpdate = affectedProjects.keySet().iterator();
+							Iterator projectsToUpdate = affectedProjectClasspaths.keySet().iterator();
 							while (projectsToUpdate.hasNext()) {
 			
 								if (progressMonitor != null && progressMonitor.isCanceled()) return;
 			
-								JavaProject project = (JavaProject) projectsToUpdate.next();
+								JavaProject affectedProject = (JavaProject) projectsToUpdate.next();
 
 								if (JavaModelManager.CP_RESOLVE_VERBOSE){
-									System.out.println("CPVariable SET  - updating affected project: ["+project.getElementName() //$NON-NLS-1$
+									System.out.println("CPVariable SET  - updating affected project: ["+affectedProject.getElementName() //$NON-NLS-1$
 										+"] due to setting variables: "+ org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
 								}
-								
-								project
+
+								affectedProject
 									.setRawClasspath(
-										project.getRawClasspath(),
+										affectedProject.getRawClasspath(),
 										SetClasspathOperation.ReuseOutputLocation,
 										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
-										!ResourcesPlugin.getWorkspace().isTreeLocked(), // can change resources
-										(IClasspathEntry[]) affectedProjects.get(project),
+										canChangeResources, 
+										(IClasspathEntry[]) affectedProjectClasspaths.get(affectedProject),
 										false, // updating - no need for early validation
 										false); // updating - no need to save
+								// ensures the project is getting rebuilt if only variable is modified
+								if (canChangeResources) {
+									affectedProject.getProject().touch(progressMonitor);
+								}
 							}
 						}
 					},
