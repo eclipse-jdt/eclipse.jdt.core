@@ -640,11 +640,13 @@ public class ClassFile
 			contents[contentsOffset++] = methodIndexByte2;
 			attributeNumber++;			
 		}
-		TypeDeclaration typeDeclaration = referenceBinding.scope.referenceContext;
-		if (typeDeclaration != null) {
-			final Annotation[] annotations = typeDeclaration.annotations;
-			if (annotations != null) {
-				attributeNumber += generateRuntimeAnnotations(annotations);
+		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
+			TypeDeclaration typeDeclaration = referenceBinding.scope.referenceContext;
+			if (typeDeclaration != null) {
+				final Annotation[] annotations = typeDeclaration.annotations;
+				if (annotations != null) {
+					attributeNumber += generateRuntimeAnnotations(annotations);
+				}
 			}
 		}
 		// update the number of attributes
@@ -812,11 +814,13 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) signatureIndex;
 			attributesNumber++;
 		}
-		FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
-		if (fieldDeclaration != null) {
-			Annotation[] annotations = fieldDeclaration.annotations;
-			if (annotations != null) {
-				attributesNumber += generateRuntimeAnnotations(annotations);
+		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
+			FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
+			if (fieldDeclaration != null) {
+				Annotation[] annotations = fieldDeclaration.annotations;
+				if (annotations != null) {
+					attributesNumber += generateRuntimeAnnotations(annotations);
+				}
 			}
 		}
 		return attributesNumber;
@@ -3132,19 +3136,21 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) signatureIndex;
 			attributeNumber++;
 		}
-		AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
-		if (methodDeclaration != null) {
-			Annotation[] annotations = methodDeclaration.annotations;
-			if (annotations != null) {
-				attributeNumber += generateRuntimeAnnotations(annotations);
+		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
+			AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
+			if (methodDeclaration != null) {
+				Annotation[] annotations = methodDeclaration.annotations;
+				if (annotations != null) {
+					attributeNumber += generateRuntimeAnnotations(annotations);
+				}
+				/*
+				 * TODO (olivier) enable when ready to generate attribute for parameters
+				 */
+	/*			Argument[] arguments = methodDeclaration.arguments;
+				if (arguments != null) {
+					attributeNumber += generateRuntimeAnnotationsForParameters(arguments);
+				}*/
 			}
-			/*
-			 * TODO (olivier) enable when ready to generate attribute for parameters
-			 */
-/*			Argument[] arguments = methodDeclaration.arguments;
-			if (arguments != null) {
-				attributeNumber += generateRuntimeAnnotationsForParameters(arguments);
-			}*/
 		}
 		return attributeNumber;
 	}
