@@ -22,32 +22,19 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.runtime.TargetException;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.IAttributeNamesConstants;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
+import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.core.util.ICodeAttribute;
+import org.eclipse.jdt.core.util.ILocalVariableTypeTableAttribute;
+import org.eclipse.jdt.core.util.ILocalVariableTypeTableEntry;
+import org.eclipse.jdt.core.util.IMethodInfo;
+import org.eclipse.jdt.core.util.ISignatureAttribute;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
 	static boolean runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
-	IPath dirPath;
-	
-	public GenericTypeSignatureTest(String name) {
-		super(name);
-	}
-
-	public static Class testClass() {
-		return GenericTypeSignatureTest.class;
-	}
-
-	/*
-	 * Toggle compiler in mode -1.5
-	 */
-	protected Map getCompilerOptions() {
-		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-		return options;
-	}
 	static {
 		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
 //		testsRange = new int[] { 66, -1 };
@@ -61,17 +48,13 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
-	/*
-	 * Get short test name (without compliance info)
-	 */
-	String shortTestName() {
-		String fname = getName();
-		int idx = fname.indexOf(" - ");
-		if (idx < 0) {
-			return fname;
-		} else {
-			return fname.substring(idx+3);
-		}
+	public static Class testClass() {
+		return GenericTypeSignatureTest.class;
+	}
+	IPath dirPath;
+	
+	public GenericTypeSignatureTest(String name) {
+		super(name);
 	}
 
 	/*######################################
@@ -101,35 +84,39 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			throw new TargetException("Could not delete directory " + directory.getPath());
 		}
 	}
-	/*
-	 * Write given source test files in current output sub-directory.
-	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
-	 */
-	private IPath writeFiles(String[] testFiles) {
-		// Compute and create specific dir
-		IPath outDir = new Path(Util.getOutputDirectory());
-		this.dirPath =  outDir.append(shortTestName());
-		IPath dirFilePath = this.dirPath;
-		File dir = dirFilePath.toFile();
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
 
-		// For each given test files
-		for (int i=0, length=testFiles.length; i<length; i++) {
-			String contents = testFiles[i+1];
-			String fileName = testFiles[i++];
-			IPath filePath = dirFilePath.append(fileName);
-			if (fileName.lastIndexOf('/') >= 0) {
-				dirFilePath = filePath.removeLastSegments(1);
-				dir = dirFilePath.toFile();
-				if (!dir.exists()) {
-					dir.mkdirs();
-				}
-			}
-			Util.writeToFile(contents, filePath.toString());
+	/*
+	 * Toggle compiler in mode -1.5
+	 */
+	protected Map getCompilerOptions() {
+		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+		return options;
+	}
+
+	/*#########################################
+	 * Override basic runConform and run Negative methods to compile test files
+	 * with Sun compiler (if specified) and compare its results with ours.
+	 ##########################################*/
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runConformTest(java.lang.String[], java.lang.String)
+	 */
+	protected void runConformTest(String[] testFiles,
+			String expectedSuccessOutputString, String[] classLib,
+			boolean shouldFlushOutputDirectory, String[] vmArguments,
+			Map customOptions) {
+		try {
+			super.runConformTest(testFiles, expectedSuccessOutputString,
+					classLib, shouldFlushOutputDirectory, vmArguments,
+					customOptions);
+		} catch (AssertionFailedError e) {
+			throw e;
+		} finally {
+			if (runJavac)
+				runJavac(testFiles, null);
 		}
-		return dirFilePath;
 	}
 
 	/*
@@ -214,29 +201,6 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			e.printStackTrace();
 		}
 	}
-
-	/*#########################################
-	 * Override basic runConform and run Negative methods to compile test files
-	 * with Sun compiler (if specified) and compare its results with ours.
-	 ##########################################*/
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runConformTest(java.lang.String[], java.lang.String)
-	 */
-	protected void runConformTest(String[] testFiles,
-			String expectedSuccessOutputString, String[] classLib,
-			boolean shouldFlushOutputDirectory, String[] vmArguments,
-			Map customOptions) {
-		try {
-			super.runConformTest(testFiles, expectedSuccessOutputString,
-					classLib, shouldFlushOutputDirectory, vmArguments,
-					customOptions);
-		} catch (AssertionFailedError e) {
-			throw e;
-		} finally {
-			if (runJavac)
-				runJavac(testFiles, null);
-		}
-	}
 	/* (non-Javadoc)
 	 * Override to compile test files with Sun compiler if specified and compare its results with ours.
 	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runNegativeTest(java.lang.String[], java.lang.String)
@@ -253,6 +217,19 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		} finally {
 			if (runJavac)
 				runJavac(testFiles, expectedProblemLog);
+		}
+	}
+
+	/*
+	 * Get short test name (without compliance info)
+	 */
+	String shortTestName() {
+		String fname = getName();
+		int idx = fname.indexOf(" - ");
+		if (idx < 0) {
+			return fname;
+		} else {
+			return fname.substring(idx+3);
 		}
 	}
 
@@ -282,84 +259,74 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 
-		String expectedOutput =
-			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
-			"// Signature: <T:Ljava/lang/Object;>Lp/A<TT;>;\n" + 
-			"public class X extends p.A {\n" + 
-			"  \n" + 
-			"  // Field descriptor #6 Ljava/lang/Object;\n" + 
-			"  // Signature: TT;\n" + 
-			"  protected java.lang.Object t;\n" + 
-			"  \n" + 
-			"  // Method descriptor  #10 (Ljava/lang/Object;)V\n" + 
-			"  // Signature: (TT;)V\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
-			"  X(java.lang.Object t);\n" + 
-			"     0  aload_0\n" + 
-			"     1  aload_1\n" + 
-			"     2  invokespecial #15 <Constructor p.A(java.lang.Object arg)>\n" + 
-			"     5  aload_0\n" + 
-			"     6  aload_1\n" + 
-			"     7  putfield #17 <Field X#t java.lang.Object>\n" + 
-			"    10  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 4]\n" + 
-			"        [pc: 5, line: 5]\n" + 
-			"        [pc: 10, line: 6]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 11] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 11] local: t index: 1 type: java.lang.Object\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 11] local: this index: 0 type: LX<TT;>;\n" + 
-			"        [pc: 0, pc: 11] local: t index: 1 type: TT;\n" + 
-			"  \n" + 
-			"  // Method descriptor  #25 ([Ljava/lang/String;)V\n" + 
-			"  // Stack: 5, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
-			"     0  new #2 X\n" + 
-			"     3  dup\n" + 
-			"     4  new #2 X\n" + 
-			"     7  dup\n" + 
-			"     8  ldc #27 <String \"SUCCESS\">\n" + 
-			"    10  invokespecial #28 <Constructor X(java.lang.Object arg)>\n" + 
-			"    13  invokespecial #28 <Constructor X(java.lang.Object arg)>\n" + 
-			"    16  astore_1\n" + 
-			"    17  getstatic #34 <Field java.lang.System#out java.io.PrintStream>\n" + 
-			"    20  aload_1\n" + 
-			"    21  getfield #17 <Field X#t java.lang.Object>\n" + 
-			"    24  checkcast #35 X\n" + 
-			"    27  getfield #17 <Field X#t java.lang.Object>\n" + 
-			"    30  checkcast #37 java.lang.String\n" + 
-			"    33  invokevirtual #43 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
-			"    36  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 8]\n" + 
-			"        [pc: 17, line: 9]\n" + 
-			"        [pc: 36, line: 10]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
-			"        [pc: 17, pc: 37] local: xs index: 1 type: X\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 17, pc: 37] local: xs index: 1 type: LX<LX<Ljava/lang/String;>;>;\n" +
-			"}";
-		
-		try {
-			File f = new File(OUTPUT_DIR + File.separator + "X.class");
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-			int index = result.indexOf(expectedOutput);
-			if (index == -1 || expectedOutput.length() == 0) {
-				System.out.println(Util.displayString(result, 3));
+		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+		IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+		int length = methodInfos.length;
+		assertEquals("Wrong size", 2, length);
+		IMethodInfo mainMethod = null;
+		for (int i = 0; i < length; i++) {
+			IMethodInfo methodInfo = methodInfos[i];
+			if ("main".equals(new String(methodInfo.getName()))) {
+				mainMethod = methodInfo;
+				break;
 			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutput, result);
+		}
+		assertNotNull(mainMethod);
+		ICodeAttribute codeAttribute = mainMethod.getCodeAttribute();
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
+		assertNotNull(classFileAttribute);
+		ILocalVariableTypeTableAttribute localVariableTypeTableAttribute = (ILocalVariableTypeTableAttribute) classFileAttribute;
+		ILocalVariableTypeTableEntry[] entries = localVariableTypeTableAttribute.getLocalVariableTypeTable();
+		ILocalVariableTypeTableEntry xsEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("xs".equals(new String(entry.getName()))) {
+				xsEntry = entry;
+				break;
 			}
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue(false);
-		} catch (IOException e) {
-			assertTrue(false);
-		}		
+		}
+		assertNotNull(xsEntry);
+		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(xsEntry.getSignature()));
+
+		IMethodInfo constructorMethod = null;
+		for (int i = 0; i < length; i++) {
+			IMethodInfo methodInfo = methodInfos[i];
+			if ("<init>".equals(new String(methodInfo.getName()))) {
+				constructorMethod = methodInfo;
+				break;
+			}
+		}
+		assertNotNull(constructorMethod);
+		codeAttribute = constructorMethod.getCodeAttribute();
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
+		assertNotNull(classFileAttribute);
+		localVariableTypeTableAttribute = (ILocalVariableTypeTableAttribute) classFileAttribute;
+		entries = localVariableTypeTableAttribute.getLocalVariableTypeTable();
+		ILocalVariableTypeTableEntry thisEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("this".equals(new String(entry.getName()))) {
+				thisEntry = entry;
+				break;
+			}
+		}
+		assertNotNull(thisEntry);
+		assertEquals("Wrong signature", "LX<TT;>;", new String(thisEntry.getSignature()));
+		ILocalVariableTypeTableEntry tEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("t".equals(new String(entry.getName()))) {
+				tEntry = entry;
+				break;
+			}
+		}
+		assertNotNull(tEntry);
+		assertEquals("Wrong signature", "TT;", new String(tEntry.getSignature()));
 	}
 	
 	public void test002() {
@@ -378,83 +345,79 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}"
 			});
+		
+		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "Lp/A<Ljava/lang/String;>;", new String(signatureAttribute.getSignature()));
 
-		String expectedOutputForX =
-			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
-			"// Signature: Lp/A<Ljava/lang/String;>;\n" + 
-			"class X extends p.A {\n" + 
-			"  \n" + 
-			"  // Method descriptor  #6 ()V\n" + 
-			"  // Stack: 2, Locals: 1\n" + 
-			"  X();\n" + 
-			"    0  aload_0\n" + 
-			"    1  aconst_null\n" + 
-			"    2  invokespecial #11 <Constructor p.A(java.lang.Object arg)>\n" + 
-			"    5  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 3]\n" + 
-			"        [pc: 5, line: 4]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 6] local: this index: 0 type: X\n" + 
-			"}";
-		
-		try {
-			File f = new File(OUTPUT_DIR + File.separator + "X.class");
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-			int index = result.indexOf(expectedOutputForX);
-			if (index == -1 || expectedOutputForX.length() == 0) {
-				System.out.println(Util.displayString(result, 3));
+		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "p/A.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<P:Ljava/lang/Object;>Ljava/lang/Object;", new String(signatureAttribute.getSignature()));
+
+		IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+		int length = methodInfos.length;
+		assertEquals("Wrong size", 1, length);
+		IMethodInfo constructorMethod = methodInfos[0];
+		ICodeAttribute codeAttribute = constructorMethod.getCodeAttribute();
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(codeAttribute, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE);
+		assertNotNull(classFileAttribute);
+		ILocalVariableTypeTableAttribute localVariableTypeTableAttribute = (ILocalVariableTypeTableAttribute) classFileAttribute;
+		ILocalVariableTypeTableEntry[] entries = localVariableTypeTableAttribute.getLocalVariableTypeTable();
+		ILocalVariableTypeTableEntry thisEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("this".equals(new String(entry.getName()))) {
+				thisEntry = entry;
+				break;
 			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutputForX, result);
-			}
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue(false);
-		} catch (IOException e) {
-			assertTrue(false);
 		}
-		
-		String expectedOutputForA =
-			"// Compiled from A.java (version 1.5 : 49.0, super bit)\n" + 
-			"// Signature: <P:Ljava/lang/Object;>Ljava/lang/Object;\n" + 
-			"public class p.A extends java.lang.Object {\n" + 
-			"  \n" + 
-			"  // Method descriptor  #6 (Ljava/lang/Object;)V\n" + 
-			"  // Signature: (TP;)V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  protected p.A(java.lang.Object p);\n" + 
-			"    0  aload_0\n" + 
-			"    1  invokespecial #12 <Constructor java.lang.Object()>\n" + 
-			"    4  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 3]\n" + 
-			"        [pc: 4, line: 4]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: p.A\n" + 
-			"        [pc: 0, pc: 5] local: p index: 1 type: java.lang.Object\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: Lp/A<TP;>;\n" + 
-			"        [pc: 0, pc: 5] local: p index: 1 type: TP;\n" + 
-			"}";
-		
-		try {
-			File f = new File(OUTPUT_DIR + File.separator + "p/A.class");
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-			int index = result.indexOf(expectedOutputForA);
-			if (index == -1 || expectedOutputForA.length() == 0) {
-				System.out.println(Util.displayString(result, 3));
+		assertNotNull(thisEntry);
+		assertEquals("Wrong signature", "Lp/A<TP;>;", new String(thisEntry.getSignature()));
+		ILocalVariableTypeTableEntry tEntry = null;
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTypeTableEntry entry = entries[i];
+			if ("p".equals(new String(entry.getName()))) {
+				tEntry = entry;
+				break;
 			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutputForA, result);
-			}
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue(false);
-		} catch (IOException e) {
-			assertTrue(false);
 		}
+		assertNotNull(tEntry);
+		assertEquals("Wrong signature", "TP;", new String(tEntry.getSignature()));
 	}	
+	/*
+	 * Write given source test files in current output sub-directory.
+	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
+	 */
+	private IPath writeFiles(String[] testFiles) {
+		// Compute and create specific dir
+		IPath outDir = new Path(Util.getOutputDirectory());
+		this.dirPath =  outDir.append(shortTestName());
+		IPath dirFilePath = this.dirPath;
+		File dir = dirFilePath.toFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+
+		// For each given test files
+		for (int i=0, length=testFiles.length; i<length; i++) {
+			String contents = testFiles[i+1];
+			String fileName = testFiles[i++];
+			IPath filePath = dirFilePath.append(fileName);
+			if (fileName.lastIndexOf('/') >= 0) {
+				dirFilePath = filePath.removeLastSegments(1);
+				dir = dirFilePath.toFile();
+				if (!dir.exists()) {
+					dir.mkdirs();
+				}
+			}
+			Util.writeToFile(contents, filePath.toString());
+		}
+		return dirFilePath;
+	}
 }

@@ -422,7 +422,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		StringBuffer buffer = new StringBuffer();
 
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
-		ISignatureAttribute signatureAttribute = getSignatureAttribute(classFileReader);
+		IClassFileAttribute classFileAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		final int accesssFlags = classFileReader.getAccessFlags();
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			int minorVersion = classFileReader.getMinorVersion();
@@ -682,7 +683,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private void disassemble(IFieldInfo fieldInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		char[] fieldDescriptor = fieldInfo.getDescriptor();
-		ISignatureAttribute signatureAttribute = getSignatureAttribute(fieldInfo);
+		IClassFileAttribute classFileAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.SIGNATURE);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		if (mode == DETAILED) {
 			CharOperation.replace(fieldDescriptor, '.', '/');
 			buffer
@@ -773,7 +775,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 		char[] methodDescriptor = methodInfo.getDescriptor();
-		ISignatureAttribute signatureAttribute = getSignatureAttribute(methodInfo);
+		IClassFileAttribute classFileAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		if (mode == DETAILED) {
 			CharOperation.replace(methodDescriptor, '.', '/');
 			buffer
@@ -1146,36 +1149,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		for (int i = 0, max = attributes.length; i < max; i++) {
 			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE)) {
 				return (ILocalVariableTypeTableAttribute) attributes[i];
-			}
-		}
-		return null;
-	}
-	
-	private ISignatureAttribute getSignatureAttribute(IClassFileReader classFileReader) {
-		IClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.SIGNATURE)) {
-				return (ISignatureAttribute) attributes[i];
-			}
-		}
-		return null;
-	}
-	
-	private ISignatureAttribute getSignatureAttribute(IFieldInfo fieldInfo) {
-		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.SIGNATURE)) {
-				return (ISignatureAttribute) attributes[i];
-			}
-		}
-		return null;
-	}
-
-	private ISignatureAttribute getSignatureAttribute(IMethodInfo methodInfo) {
-		IClassFileAttribute[] attributes = methodInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.SIGNATURE)) {
-				return (ISignatureAttribute) attributes[i];
 			}
 		}
 		return null;
