@@ -550,6 +550,7 @@ public class ClassScope extends Scope {
 		do {
 			if ((currentType.tagBits & HasNoMemberTypes) != 0)
 				break; // already know it has no inherited member types, can stop looking up
+				// TODO (kent) why not simply return ? to avoid re-tagging at bottom
 			if (currentType.hasMemberTypes()) // avoid resolving member types eagerly
 				return; // has member types
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
