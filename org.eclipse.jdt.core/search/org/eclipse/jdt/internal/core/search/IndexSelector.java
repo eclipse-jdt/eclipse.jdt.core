@@ -40,6 +40,9 @@ public IndexSelector(
  * accessible throught the project's classpath
  */
 private boolean canSeeFocus(IPath projectOrJarPath) {
+	// if it is a workspace scope, focus is visible from everywhere
+	if (this.searchScope instanceof JavaWorkspaceScope) return true;
+	
 	try {
 		while (!(this.focus instanceof IJavaProject) && !(this.focus instanceof JarPackageFragmentRoot)) {
 			this.focus = this.focus.getParent();
