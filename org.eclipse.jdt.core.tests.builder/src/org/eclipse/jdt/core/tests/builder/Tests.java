@@ -241,8 +241,23 @@ public class Tests extends TestCase {
 			printProblemsFor(root);
 
 		Problem[] rootProblems = env.getProblemsFor(root);
-		for (int i = 0; i < expectedProblems.length; i++)
-			assertEquals("unexpected problem", expectedProblems[i].toString(), rootProblems[i].toString()); //$NON-NLS-1$
+	
+		for (int i = 0; i < expectedProblems.length; i++) {
+			Problem expectedProblem = expectedProblems[i];
+			boolean found = false;
+			for (int j = 0; j < rootProblems.length; j++) {
+				if(expectedProblem.equals(rootProblems[j])) {
+					found = true;
+					rootProblems[j] = null;
+				}
+			}
+			assertTrue("problem not found: " + expectedProblem.toString(), found); //$NON-NLS-1$
+		}
+		for (int i = 0; i < rootProblems.length; i++) {
+			if(rootProblems[i] != null) {
+				assertTrue("unexpected problem: " + rootProblems[i].toString(), false); //$NON-NLS-1$
+			}
+		}
 	}
 
 	/** Verifies that the given element has problems.
