@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
 
@@ -1492,6 +1493,30 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface J extends I {}\n"
 			},
 			""
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81535
+	public void test030() {
+		java.util.Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);	
+
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.OutputStreamWriter;\n" + 
+				"import java.io.PrintWriter;\n" + 
+				"public class X extends PrintWriter implements Runnable {\n" + 
+				"	public X(OutputStreamWriter out, boolean flag) { super(out, flag); }\n" +
+				"	public void run() {}\n" +
+				"}\n"
+			},
+			"",
+			null, // use default class-path
+			false, // do not flush previous output dir content
+			null, // no special vm args
+			options,
+			null
 		);
 	}
 }

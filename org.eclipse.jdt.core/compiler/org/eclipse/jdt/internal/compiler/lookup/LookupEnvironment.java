@@ -841,9 +841,9 @@ boolean isPackage(char[][] compoundName, char[] name) {
 
 public MethodVerifier methodVerifier() {
 	if (verifier == null)
-		verifier = this.options.sourceLevel < ClassFileConstants.JDK1_5
+		verifier = this.options.complianceLevel < ClassFileConstants.JDK1_5
 			? new MethodVerifier(this)
-			: new MethodVerifier15(this);
+			: new MethodVerifier15(this); // check for covariance even if sourceLevel is < 1.5
 	return verifier;
 }
 public void reset() {

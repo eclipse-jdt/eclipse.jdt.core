@@ -1364,7 +1364,7 @@ public abstract class Scope
 					problemField = foundField;
 				}
 
-				if (environment().options.complianceLevel >= ClassFileConstants.JDK1_5) {
+				if (environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
 					// at this point the scope is a compilation unit scope & need to check for imported static fields
 					CompilationUnitScope unitScope = (CompilationUnitScope) scope;
 					ImportBinding[] imports = unitScope.imports;
@@ -1711,7 +1711,7 @@ public abstract class Scope
 		if (foundMethod != null)
 			return foundMethod;
 
-		if (insideStaticContext && environment().options.complianceLevel >= ClassFileConstants.JDK1_5) {
+		if (insideStaticContext && environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
 			// at this point the scope is a compilation unit scope & need to check for imported static methods
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
 			ImportBinding[] imports = unitScope.imports;
