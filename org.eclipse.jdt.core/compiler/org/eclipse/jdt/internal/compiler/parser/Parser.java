@@ -49,7 +49,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 	protected boolean hasError;
 	protected boolean hasReportedError;
-	public static boolean fineErrorDiagnose = true; //TODO remove the static modifier when new diagnose is ready
+	public static boolean fineErrorDiagnose = true; //TODO: (david) remove the static modifier when new diagnose is ready
 	public boolean reportSyntaxErrorIsRequired = true;
 	public boolean reportOnlyOneSyntaxError = false;
 	protected int recoveredStaticInitializerStart;

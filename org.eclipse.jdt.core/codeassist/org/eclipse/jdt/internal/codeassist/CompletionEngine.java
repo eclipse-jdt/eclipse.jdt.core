@@ -195,7 +195,7 @@ public final class CompletionEngine
 							start,
 							end,
 							lineNumber);
-						// TODO (david) problems could be detected in other units which got requested (see CompilationUnitProblemFinder)
+						// TODO : (david) problems could be detected in other units which got requested (see CompilationUnitProblemFinder)
 						if(actualCompletionPosition > start
 							&& lastErrorStart < start
 							&& pb.isError()

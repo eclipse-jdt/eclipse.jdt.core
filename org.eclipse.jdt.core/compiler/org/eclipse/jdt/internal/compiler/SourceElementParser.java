@@ -86,7 +86,7 @@ public SourceElementParser(
 		options, 
 		problemFactory) {
 		public void record(IProblem problem, CompilationResult unitResult, ReferenceContext context) {
-			unitResult.record(problem, context); // TODO: clients are trapping problems either through factory or requestor... is result storing is needed?
+			unitResult.record(problem, context); // TODO: (jerome) clients are trapping problems either through factory or requestor... is result storing needed?
 			requestor.acceptProblem(problem);
 		}
 	},

@@ -2237,12 +2237,12 @@ public final class JavaCore extends Plugin {
 		preferences.setDefault(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
 		
-		// TODO can be removed when the new formatter is officially released.
+		// TODO : (olivier) can be removed when the new formatter is officially released.
 		final String NEW_CODE_FORMATTER_ACTIVATION = PLUGIN_ID + ".newformatter.activation";	//$NON-NLS-1$
 		preferences.setDefault(NEW_CODE_FORMATTER_ACTIVATION, DISABLED); //$NON-NLS-1$
 		optionNames.add(NEW_CODE_FORMATTER_ACTIVATION);
 		
-		// TODO can be removed when the new syntax error diagnose is officially released.
+		// TODO : (david) can be removed when the new syntax error diagnose is officially released.
 		final String NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION = JavaCore.PLUGIN_ID + ".newsyntaxerrordiagnose.activation"; //$NON-NLS-1$
 		preferences.setDefault(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION, ENABLED); //$NON-NLS-1$
 		optionNames.add(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION);

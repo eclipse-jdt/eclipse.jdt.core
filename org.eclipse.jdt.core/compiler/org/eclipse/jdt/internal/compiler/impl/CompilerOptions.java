@@ -96,9 +96,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
 	 */
-	public static final long UnreachableCode = 0x100L; // TODO (philippe) should remove warning tolerance, since must be an error by the spec
+	public static final long UnreachableCode = 0x100L; // TODO : (philippe) should remove warning tolerance, since must be an error by the spec
 	// TODO (philippe) 0x200L unused?
-	public static final long ImportProblem = 0x400L; // TODO (philippe) should remove warning tolerance, since must be an error by the spec
+	public static final long ImportProblem = 0x400L; // TODO : (philippe) should remove warning tolerance, since must be an error by the spec
 	// TODO (philippe) 0x800L unused?
 	public static final long MethodWithConstructorName = 0x1000L;
 	public static final long OverriddenPackageDefaultMethod = 0x2000L;
