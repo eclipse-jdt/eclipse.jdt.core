@@ -192,8 +192,12 @@ protected void cleanUp() {
 
 protected void findAffectedSourceFiles(IResourceDelta delta, IResource prereqOutputFolder) {
 	IResourceDelta binaryDelta = delta.findMember(prereqOutputFolder.getProjectRelativePath());
-	if (binaryDelta != null)
-		findAffectedSourceFiles(binaryDelta, prereqOutputFolder.getLocation().segmentCount());
+	if (binaryDelta != null && binaryDelta.getKind() == IResourceDelta.CHANGED) {
+		int outputFolderSegmentCount = prereqOutputFolder.getLocation().segmentCount();
+		IResourceDelta[] children = binaryDelta.getAffectedChildren();
+		for (int i = 0, length = children.length; i < length; ++i)
+			findAffectedSourceFiles(children[i], outputFolderSegmentCount);
+	}
 }
 
 protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFolderSegmentCount) {
@@ -219,7 +223,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFol
 					return;
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = binaryDelta.getAffectedChildren();
-					for (int i = 0, length = children.length; i < length; ++i)
+					for (int i = 0, length = children.length; i < length; i++)
 						findAffectedSourceFiles(children[i], outputFolderSegmentCount);
 			}
 			return;
@@ -252,8 +256,12 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFol
 protected void findSourceFiles(IResourceDelta delta) throws CoreException {
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
 		IResourceDelta sourceDelta = delta.findMember(sourceFolders[i].getProjectRelativePath());
-		if (sourceDelta != null)
-			findSourceFiles(sourceDelta, sourceFolders[i].getLocation().segmentCount());
+		if (sourceDelta != null && sourceDelta.getKind() == IResourceDelta.CHANGED) {
+			int sourceFolderSegmentCount = sourceFolders[i].getLocation().segmentCount();
+			IResourceDelta[] children = sourceDelta.getAffectedChildren();
+			for (int c = 0, clength = children.length; c < clength; c++)
+				findSourceFiles(children[c], sourceFolderSegmentCount);
+		}
 	}
 }
 
@@ -280,7 +288,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 					// fall thru & collect all the source files
 				case IResourceDelta.CHANGED :
 					IResourceDelta[] children = sourceDelta.getAffectedChildren();
-					for (int i = 0, length = children.length; i < length; ++i)
+					for (int i = 0, length = children.length; i < length; i++)
 						findSourceFiles(children[i], sourceFolderSegmentCount);
 					return;
 				case IResourceDelta.REMOVED :
