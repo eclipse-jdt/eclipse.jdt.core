@@ -4190,7 +4190,7 @@ protected void consumeToken(int type) {
 		// added preventive null check see PR 9035
 		if (literals != null) {
 			for (int i = 0, max = literals.length; i < max; i++) {
-				problemReporter().nonExternalizedStringLiteral(literals[i]);
+				problemReporter().nonExternalizedStringLiteral(literals[i], this.compilationUnit.compilationResult);
 			}
 		}
 		scanner.currentLine = null;

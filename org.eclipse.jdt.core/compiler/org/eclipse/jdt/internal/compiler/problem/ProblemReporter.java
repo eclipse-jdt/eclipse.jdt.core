@@ -2263,12 +2263,14 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, int under
 		typeRef.sourceEnd);
 }
 
-public void nonExternalizedStringLiteral(AstNode location) {
+public void nonExternalizedStringLiteral(AstNode location, CompilationResult result) {
 	this.handle(
 		NonExternalizedStringLiteral,
 		new String[] {},
 		location.sourceStart,
-		location.sourceEnd);
+		location.sourceEnd,
+		this.referenceContext,
+		result);
 }
 
 public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) {
