@@ -335,7 +335,7 @@ public void test009() {
 			"		final String s2 = (String) \"aaa\";	\n" +
 			"		if (s2 == \"aaa\") System.out.println(\"5\");	\n" +
 			"    }	\n" +
-			"}	\n",
+			"}",
 		},
 		"12345");
 		
