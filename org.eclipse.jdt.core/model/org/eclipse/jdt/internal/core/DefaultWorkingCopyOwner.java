@@ -30,7 +30,7 @@ public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 
 			public IBuffer createBuffer(ICompilationUnit workingCopy) {
 				if (this.factory == null) return super.createBuffer(workingCopy);
-				return this.factory.createBuffer(workingCopy); // TODO: change to use a org.eclipse.text buffer
+				return this.factory.createBuffer(workingCopy); // TODO (jerome) change to use a org.eclipse.text buffer
 			}
 			public String toString() {
 				return "Primary owner"; //$NON-NLS-1$
