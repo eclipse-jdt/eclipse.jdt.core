@@ -512,7 +512,7 @@ public IWorkspace getWorkspace() {
 protected IWorkspaceRoot getWorkspaceRoot() {
 	return getWorkspace().getRoot();
 }
-public static byte[] read(java.io.File file) throws java.io.IOException {
+public byte[] read(java.io.File file) throws java.io.IOException {
 	int fileLength;
 	byte[] fileBytes = new byte[fileLength = (int) file.length()];
 	java.io.FileInputStream stream = new java.io.FileInputStream(file);

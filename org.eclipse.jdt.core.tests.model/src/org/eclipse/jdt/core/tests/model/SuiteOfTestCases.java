@@ -18,8 +18,8 @@ import junit.framework.TestSuite;
 public class SuiteOfTestCases extends TestCase {
 		
 	/*
-	 * A test suite that creates a fake test case to initialize its fields, then that copies the values
-	 * of these fields to each test case.
+	 * A test suite that initialize the test case's fields once, then that copies the values
+	 * of these fields intto each subsequent test case.
 	 */
 	protected static class Suite extends TestSuite {
 		public SuiteOfTestCases currentTestCase;
@@ -63,7 +63,9 @@ public class SuiteOfTestCases extends TestCase {
 						Suite.super.run(result);
 					} finally {	
 						// tear down the suite
-						Suite.this.currentTestCase.tearDownSuite();
+						if (Suite.this.currentTestCase != null) { // protect against empty test suite
+							Suite.this.currentTestCase.tearDownSuite();
+						}
 					}
 				}
 			};
