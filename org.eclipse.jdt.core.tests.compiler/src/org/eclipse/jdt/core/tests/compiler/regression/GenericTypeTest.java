@@ -1407,7 +1407,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// Access to enclosing 't' of type 'T' (not substituted from X<X> as private thus non inherited)
-	// TODO javac finds no error/warning on this test
+	// javac finds no error/warning on this test but it should
 	public void test048() {
 		this.runNegativeTest(
 			new String[] {
@@ -3462,5 +3462,72 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			null,
 			false, // do not flush output
 			null);		
+	}			
+	// test generic method
+	public void test120() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T>{\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        \n" + 
+				"        String s = new X<String>().foo(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    <U extends String> T foo (U u) {\n" + 
+				"        System.out.println(u);\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}			
+	// substitute array types
+	public void test121() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X<String>().foo(args);\n" + 
+				"	}\n" + 
+				"    \n" + 
+				"    void foo(T[] ts) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}			
+	// generic method with most specific common supertype: U --> String
+	public void test122() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		new X<String>().foo(args, new X<X<String>>());\n" + 
+				"	}\n" + 
+				"    <U> void foo(U[] us, X<X<U>> xxu) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}			
+	// invalid parameterized type
+	public void test123() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"    T<String> ts;\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	T<String> ts;\n" + 
+			"	^\n" + 
+			"The type T is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
 	}			
 }
