@@ -333,13 +333,16 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 
 	// create buffer - working copies may use custom buffer factory
 	IBuffer buffer = getBufferFactory().createBuffer(this);
-	this.getBufferManager().addBuffer(buffer);
+	if (buffer == null) return null;
 
-	// set the buffer source
-	if (buffer != null && buffer.getCharacters() == null){
+	// set the buffer source if needed
+	if (buffer.getCharacters() == null){
 		ICompilationUnit original= (ICompilationUnit)this.getOriginalElement();
 		buffer.setContents((char[])original.getBuffer().getCharacters().clone());
 	}
+
+	// add buffer to buffer cache
+	this.getBufferManager().addBuffer(buffer);
 
 	// listen to buffer changes
 	buffer.addBufferChangedListener(this);
