@@ -52,7 +52,7 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 
 		//sanity .....
 		if ((startPosition > endPosition)
-			|| ((startPosition <= 0) && (endPosition <= 0)))
+			|| ((startPosition < 0) && (endPosition < 0)))
 			return Util.bind("problem.noSourceInformation"); //$NON-NLS-1$
 
 		final char SPACE = '\u0020';

@@ -396,7 +396,7 @@ public void start() {
 					e.printStackTrace();
 				}
 			}
-		};
+		}
 	};
 	thread.start();
 }

@@ -2435,6 +2435,7 @@ protected void consumeEmptyClassBodyDeclarationsopt() {
 protected void consumeEmptyClassMemberDeclaration() {
 	// ClassMemberDeclaration ::= ';'
 	pushOnAstLengthStack(0);
+	problemReporter().superfluousSemicolon(endPosition+1, endStatementPosition);
 }
 protected void consumeEmptyDimsopt() {
 	// Dimsopt ::= $empty
@@ -2480,6 +2481,7 @@ protected void consumeEmptySwitchBlock() {
 protected void consumeEmptyTypeDeclaration() {
 	// TypeDeclaration ::= ';' 
 	pushOnAstLengthStack(0);
+	problemReporter().superfluousSemicolon(endPosition+1, endStatementPosition);
 }
 protected void consumeEmptyTypeDeclarationsopt() {
 	// TypeDeclarationsopt ::= $empty
