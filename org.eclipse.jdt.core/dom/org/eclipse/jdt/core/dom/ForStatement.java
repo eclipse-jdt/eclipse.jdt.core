@@ -24,8 +24,8 @@ import java.util.List;
  * 			[ ForUpdate ] <b>)</b>
  * 			Statement
  * ForInit:
- * 		( SingleVariableDeclaration | Expression )
- * 			{ <b>,</b> ( SingleVariableDeclaration | Expression ) }
+ * 		( VariableDeclarationExpression
+ * 			 | { Expression {<b>,</b> Expression } }
  * ForUpdate:
  * 		Expression { <b>,</b> Expression }
  * </pre>
