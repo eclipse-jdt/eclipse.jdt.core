@@ -218,6 +218,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * @exception $precondition-violation:illegal-modifiers$
 	 */ 
 	public void setModifiers(int modifiers) {
+		modifiers &= ~org.eclipse.jdt.internal.compiler.env.IConstants.AccDeprecated;
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
