@@ -406,9 +406,8 @@ public abstract class Scope
 			int currentLength = currentMethods.length;
 			if (currentLength == 1) {
 				matchingMethod = currentMethods[0];
-			} else if (currentLength > 1) {
-				for (int f = 0; f < currentLength; f++)
-					found.add(currentMethods[f]);
+			} else if (currentLength > 0) {
+				found.addAll(currentMethods);
 			}
 			matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
 			currentType = getJavaLangObject();
@@ -416,25 +415,26 @@ public abstract class Scope
 
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
-		
 		while (currentType != null) {
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 			if (currentLength == 1 && matchingMethod == null && found.size == 0) {
 				matchingMethod = currentMethods[0];
 			} else if (currentLength > 0) {
-				if (found.size == 0 && matchingMethod != null)
+				if (found.size == 0 && matchingMethod != null) {
 					found.add(matchingMethod);
-				for (int f = 0; f < currentLength; f++)
-					found.add(currentMethods[f]);
+					matchingMethod = null;
+				}
+				found.addAll(currentMethods);
 			}
 			currentType = currentType.superclass();
 		}
 
 		int foundSize = found.size;
 		if (foundSize == 0) {
-			if (matchingMethod == null){
-				MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			if (matchingMethod == null) {
+				MethodBinding interfaceMethod =
+					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 				if (interfaceMethod != null) return interfaceMethod;
 			}
 			return matchingMethod; // may be null - have not checked arg types or visibility
@@ -453,7 +453,8 @@ public abstract class Scope
 			return candidates[0]; // have not checked visibility
 		}
 		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
-			MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			MethodBinding interfaceMethod =
+				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (interfaceMethod != null) return interfaceMethod;
 
 			int argLength = argumentTypes.length;
@@ -491,13 +492,10 @@ public abstract class Scope
 			return candidates[0];
 		}
 		if (visiblesCount == 0) {
-			MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			MethodBinding interfaceMethod =
+				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (interfaceMethod != null) return interfaceMethod;
-			return new ProblemMethodBinding(
-				candidates[0].selector,
-				argumentTypes,
-				candidates[0].declaringClass,
-				NotVisible);
+			return new ProblemMethodBinding(candidates[0].selector, argumentTypes, candidates[0].declaringClass, NotVisible);
 		}	
 		if (candidates[0].declaringClass.isClass()) {
 			return mostSpecificClassMethodBinding(candidates, visiblesCount);
@@ -514,30 +512,26 @@ public abstract class Scope
 		InvocationSite invocationSite,
 		ReferenceBinding classHierarchyStart,
 		MethodBinding matchingMethod,
-		ObjectVector found){
+		ObjectVector found) {
 
 		int startFoundSize = found.size;
-		
 		ReferenceBinding currentType = classHierarchyStart;
-		while (currentType != null){
+		while (currentType != null) {
 			matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
 			currentType = currentType.superclass();
 		}
 		int foundSize = found.size;
-		if (foundSize == startFoundSize) {
-			if (matchingMethod != null) return matchingMethod;
-			return null; 
-		}		
-		MethodBinding[] candidates = new MethodBinding[foundSize-startFoundSize];
-		int candidatesCount = 0;
+		if (foundSize == startFoundSize) return matchingMethod; // maybe null
 
+		MethodBinding[] candidates = new MethodBinding[foundSize - startFoundSize];
+		int candidatesCount = 0;
 		// argument type compatibility check
 		for (int i = startFoundSize; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
 				candidates[candidatesCount++] = methodBinding;
 		}
-		if (candidatesCount == 1){
+		if (candidatesCount == 1) {
 			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
 			return candidates[0]; 
 		}
@@ -574,10 +568,8 @@ public abstract class Scope
 			int lastPosition = -1;
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(
-					interfacesToVisit,
-					0,
-					interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-					0,
+					interfacesToVisit, 0,
+					interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0,
 					lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
 
@@ -594,19 +586,18 @@ public abstract class Scope
 						if (currentLength == 1 && matchingMethod == null && found.size == 0) {
 							matchingMethod = currentMethods[0];
 						} else if (currentLength > 0) {
-							if (found.size == 0 && matchingMethod != null)
+							if (found.size == 0 && matchingMethod != null) {
 								found.add(matchingMethod);
-							for (int f = 0; f < currentLength; f++)
-								found.add(currentMethods[f]);
+								matchingMethod = null;
+							}
+							found.addAll(currentMethods);
 						}
 						itsInterfaces = currentType.superInterfaces();
 						if (itsInterfaces != NoSuperInterfaces) {
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(
-									interfacesToVisit,
-									0,
-									interfacesToVisit = new ReferenceBinding[lastPosition * 2][],
-									0,
+									interfacesToVisit, 0,
+									interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0,
 									lastPosition);
 							interfacesToVisit[lastPosition] = itsInterfaces;
 						}
