@@ -431,9 +431,25 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 				} else {
 					movedFromRes = res.getWorkspace().getRoot().getFolder(movedFromPath);
 				}
+				
+				// find the element type of the moved from element
+				IJavaProject projectOfRoot = (IJavaProject)this.roots.get(movedFromPath);
+				boolean isPkgFragmentRoot = 
+					projectOfRoot != null 
+					&& (projectOfRoot.getProject().getFullPath().isPrefixOf(movedFromPath));
+				int movedFromType = 
+					this.elementType(
+						movedFromRes, 
+						delta.getKind(),
+						delta.getFlags(),
+						element.getParent().getElementType(), 
+						isPkgFragmentRoot);
+				
 				// create the moved from element
-				// pass null for the project in case the element is coming from another project
-				Openable movedFromElement = this.createElement(movedFromRes, elementType, null);
+				Openable movedFromElement = 
+					elementType != IJavaElement.JAVA_PROJECT && movedFromType == IJavaElement.JAVA_PROJECT ? 
+						null : // outside classpath
+						this.createElement(movedFromRes, movedFromType, null); // pass null for the project in case the element is moving to another project
 				if (movedFromElement == null) {
 					// moved from outside classpath
 					fCurrentDelta.added(element);
@@ -553,9 +569,25 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 				default:
 					return;
 			}
+
+			// find the element type of the moved from element
+			IJavaProject projectOfRoot = (IJavaProject)this.roots.get(movedToPath);
+			boolean isPkgFragmentRoot = 
+				projectOfRoot != null 
+				&& (projectOfRoot.getProject().getFullPath().isPrefixOf(movedToPath));
+			int movedToType = 
+				this.elementType(
+					movedToRes, 
+					delta.getKind(),
+					delta.getFlags(),
+					element.getParent().getElementType(), 
+					isPkgFragmentRoot);
+			
 			// create the moved To element
-			// pass null for the project in case the element is moving to another project
-			Openable movedToElement = this.createElement(movedToRes, elementType, null);
+			Openable movedToElement = 
+				elementType != IJavaElement.JAVA_PROJECT && movedToType == IJavaElement.JAVA_PROJECT ? 
+					null : // outside classpath
+					this.createElement(movedToRes, movedToType, null); // pass null for the project in case the element is moving to another project
 			if (movedToElement == null) {
 				// moved outside classpath
 				fCurrentDelta.removed(element);
@@ -769,7 +801,13 @@ private JavaModelException newInvalidElementType() {
 				// find out whether the delta is a package fragment root
 				IJavaProject projectOfRoot = (IJavaProject)this.roots.get(res.getFullPath());
 				boolean isPkgFragmentRoot = projectOfRoot != null;
-				int elementType = this.elementType(delta, IJavaElement.JAVA_MODEL, isPkgFragmentRoot);
+				int elementType = 
+					this.elementType(
+						res, 
+						delta.getKind(),
+						delta.getFlags(),
+						IJavaElement.JAVA_MODEL, 
+						isPkgFragmentRoot);
 				
 				this.traverseDelta(delta, elementType, projectOfRoot, null, false); // traverse delta
 				translatedDeltas[i] = fCurrentDelta;
@@ -920,7 +958,13 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				boolean isPkgFragmentRoot = 
 					projectOfRoot != null 
 					&& (projectOfRoot.getProject().getFullPath().isPrefixOf(childPath));
-				int childType = this.elementType(child, elementType, isPkgFragmentRoot);
+				int childType = 
+					this.elementType(
+						childRes, 
+						child.getKind(),
+						child.getFlags(),
+						elementType, 
+						isPkgFragmentRoot);
 				
 				// filter out changes in output location
 				if (currentProjIsOutput) {
@@ -1018,11 +1062,11 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 	 * Returns the type of the java element the given delta matches to.
 	 * Returns -1 if unknown (e.g. a non-java resource.)
 	 */
-	private int elementType(IResourceDelta delta, int parentType, boolean isPkgFragmentRoot) {
+	private int elementType(IResource res, int kind, int flags, int parentType, boolean isPkgFragmentRoot) {
 		switch (parentType) {
 			case IJavaElement.JAVA_MODEL:
-				if (delta.getKind() != IResourceDelta.CHANGED
-					|| (delta.getFlags() & IResourceDelta.OPEN) != 0) {
+				if (kind != IResourceDelta.CHANGED
+					|| (flags & IResourceDelta.OPEN) != 0) {
 					// project is added, removed, opened or closed
 					return IJavaElement.JAVA_PROJECT;
 				} // else see below
@@ -1034,7 +1078,6 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				}
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			case IJavaElement.PACKAGE_FRAGMENT:
-				IResource res = delta.getResource();
 				if (res instanceof IFolder) {
 					if (Util.isValidFolderNameForPackage(res.getName())) {
 						return IJavaElement.PACKAGE_FRAGMENT;
