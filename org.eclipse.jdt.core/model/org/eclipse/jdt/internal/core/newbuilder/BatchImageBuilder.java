@@ -117,6 +117,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 							String extension = resource.getFileExtension();
 							if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) return false;
 							if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) return false;
+							if (javaBuilder.filterResource(resource)) return false;
 
 							IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
 							IResource copiedResource = outputFolder.getFile(partialPath);
@@ -128,6 +129,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 						case IResource.FOLDER :
 							if (resource.getFullPath().equals(outputPath)) return false;
 							if (resource.getFullPath().equals(sourcePath)) return true;
+							if (resource.getName().equalsIgnoreCase("CVS")) return false; // TEMPORARY
 
 							getOutputFolder(resource.getFullPath().removeFirstSegments(segmentCount));
 					}

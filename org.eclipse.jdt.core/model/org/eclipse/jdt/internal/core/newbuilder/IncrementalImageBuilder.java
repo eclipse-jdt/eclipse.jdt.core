@@ -256,6 +256,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 	switch(resource.getType()) {
 		case IResource.PROJECT :
 		case IResource.FOLDER :
+			if (resource.getName().equalsIgnoreCase("CVS")) return; // TEMPORARY
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
 					IPath addedPackagePath = location.removeFirstSegments(sourceFolderSegmentCount);
@@ -336,6 +337,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 			} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
 				return; // skip class files
 			} else if (hasSeparateOutputFolder) {
+				if (javaBuilder.filterResource(resource)) return;
+
 				// copy all other resource deltas to the output folder
 				IPath resourcePath = location.removeFirstSegments(sourceFolderSegmentCount);
 				IResource outputFile = outputFolder.getFile(resourcePath);

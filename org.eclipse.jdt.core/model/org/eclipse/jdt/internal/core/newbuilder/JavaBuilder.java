@@ -34,7 +34,7 @@ public static final String JAVA_EXTENSION = "java"; //$NON-NLS-1$
 public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
 public static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
 public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
-public static final String OPTION_ResourceCopyFilter = "org.eclipse.jdt.core.builder.resourceCopyExclusionFilters";//$NON-NLS-1$
+public static final String OPTION_ResourceCopyFilter = "org.eclipse.jdt.core.builder.resourceCopyExclusionFilters"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
@@ -169,6 +169,16 @@ private void createFolder(IContainer folder) throws CoreException {
 	}
 }
 
+boolean filterResource(IResource resource) {
+	if (resourceFilters != null) {
+		char[] name = resource.getName().toCharArray();
+		for (int i = 0, length = resourceFilters.length; i < length; i++)
+			if (CharOperation.match(resourceFilters[i], resource.getName().toCharArray(), true))
+				return true;
+	}
+	return false;
+}
+
 private SimpleLookupTable findDeltas() {
 	notifier.subTask(Util.bind("build.readingDelta", currentProject.getName())); //$NON-NLS-1$
 	IResourceDelta delta = getDelta(currentProject);
@@ -280,11 +290,10 @@ private void initializeBuilder() throws CoreException {
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
 	
-	String filterSequence = (String)JavaCore.getOptions().get(OPTION_ResourceCopyFilter);
-	if (filterSequence != null){
-		this.resourceFilters = CharOperation.splitOn(',', filterSequence.toCharArray());
-		// pattern match a resource/folder name with: CharOperation.match(resourceFilters[0], rscName, true);
-	}
+	String filterSequence = (String) JavaCore.getOptions().get(OPTION_ResourceCopyFilter);
+	this.resourceFilters = filterSequence != null && filterSequence.length() > 0
+		? CharOperation.splitOn(',', filterSequence.toCharArray())
+		: null;
 }
 
 private void recordNewState(State state) {
