@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FalseLiteral;
@@ -435,7 +436,8 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (expression instanceof StringLiteral) {
 			return this.getTypeBinding(this.scope.getJavaLangString());
 		} else if (expression instanceof TypeLiteral) {
-			return this.getTypeBinding(this.scope.getJavaLangClass());
+			ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) this.newAstToOldAst.get(expression);
+			return this.getTypeBinding(classLiteralAccess.resolvedType);
 		} else if (expression instanceof BooleanLiteral) {
 			BooleanLiteral booleanLiteral = (BooleanLiteral) expression;
 			if (booleanLiteral.booleanValue()) {

@@ -64,6 +64,7 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -85,7 +86,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0085"));
+		suite.addTest(new ASTConverter15Test("test0086"));
 		return suite;
 	}
 		
@@ -2532,4 +2533,32 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding2));
 	}
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79512
+	 */
+	public void test0086() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X {\n" + 
+				"	\n" + 
+				"public Object foo() {\n" +
+				"		return /*start*/X.class/*end*/;\n" +
+				"	}" + 
+				"}\n" + 
+				"\n" + 
+				"class A {}\n" + 
+				"class B extends A {}\n",
+				workingCopy);
+			TypeLiteral typeLiteral = (TypeLiteral) node;
+			ITypeBinding typeBinding = typeLiteral.resolveTypeBinding();
+			assertEquals("Wrong name", "java.lang.Class<p.X>", typeBinding.getQualifiedName());
+			assertEquals("Wrong name", "Class<X>", typeBinding.getName());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
 }
