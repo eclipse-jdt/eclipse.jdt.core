@@ -928,7 +928,7 @@ class ASTConverter {
 		}
 		parenthesizedExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		adjustSourcePositionsForParent(expression);
-		removeExtraBlanks(expression);
+		trimWhiteSpacesAndComments(expression);
 		// decrement the number of parenthesis
 		int numberOfParenthesis = (expression.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) >> org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedSHIFT;
 		expression.bits &= ~org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK;
@@ -1263,7 +1263,7 @@ class ASTConverter {
 		CastExpression castExpression = this.ast.newCastExpression();
 		castExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		org.eclipse.jdt.internal.compiler.ast.Expression type = expression.type;
-		removeExtraBlanks(type);
+		trimWhiteSpacesAndComments(type);
 		if (type instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference ) {
 			castExpression.setType(convertType((org.eclipse.jdt.internal.compiler.ast.TypeReference)type));
 		} else if (type instanceof org.eclipse.jdt.internal.compiler.ast.NameReference) {
@@ -3205,9 +3205,9 @@ class ASTConverter {
 	}
 	
 	/**
-	 * Remove whitespaces before and after the expression.
+	 * Remove whitespaces and comments before and after the expression.
 	 */	
-	private void removeExtraBlanks(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
+	private void trimWhiteSpacesAndComments(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
 		int start = expression.sourceStart;
 		int end = expression.sourceEnd;
 		int token;
@@ -3221,11 +3221,17 @@ class ASTConverter {
 			while (true) {
 				token = removeBlankScanner.getNextToken();
 				switch (token) {
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+						if (first) {
+							trimLeftPosition = removeBlankScanner.currentPosition;
+						}
+						break;
 					case TerminalTokens.TokenNameWHITESPACE :
 						if (first) {
 							trimLeftPosition = removeBlankScanner.currentPosition;
 						}
-						trimRightPosition = removeBlankScanner.startPosition - 1;
 						break;
 					case TerminalTokens.TokenNameEOF :
 						expression.sourceStart = trimLeftPosition;
@@ -3233,12 +3239,13 @@ class ASTConverter {
 						return;
 					default :
 						/*
-						 * if we find something else than a whitespace, then we reset the trimRigthPosition
-						 * to the expression source end.
+						 * if we find something else than a whitespace or a comment,
+						 * then we reset the trimRigthPosition to the expression
+						 * source end.
 						 */
-						trimRightPosition = expression.sourceEnd;
+						trimRightPosition = removeBlankScanner.currentPosition - 1;
+						first = false;				
 				}
-				first = false;
 			}
 		} catch (InvalidInputException e){
 			// ignore
