@@ -137,15 +137,22 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	unitInfo.timestamp = ((IFile)underlyingResource).getModificationStamp();
 	
 	// compute other problems if needed
-	if (computeProblems){
-		perWorkingCopyInfo.beginReporting();
-		CompilationUnitProblemFinder.process(unit, this, parser, this.owner, perWorkingCopyInfo, problemFactory, pm);
-		perWorkingCopyInfo.endReporting();
-	}
-	
-	if (info instanceof ASTHolderCUInfo) {
-		org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(unit, contents, options, pm);
-		((ASTHolderCUInfo) info).ast = cu;
+	CompilationUnitDeclaration compilationUnitDeclaration = null;
+	try {
+		if (computeProblems){
+			perWorkingCopyInfo.beginReporting();
+			compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, parser, this.owner, perWorkingCopyInfo, problemFactory, false/*don't cleanup cu*/, pm);
+			perWorkingCopyInfo.endReporting();
+		}
+		
+		if (info instanceof ASTHolderCUInfo) {
+			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(unit, contents, options, pm);
+			((ASTHolderCUInfo) info).ast = cu;
+		}
+	} finally {
+	    if (compilationUnitDeclaration != null) {
+	        compilationUnitDeclaration.cleanUp();
+	    }
 	}
 	
 	return unitInfo.isStructureKnown();

@@ -135,6 +135,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
 		IProblemFactory problemFactory,
+		boolean cleanupCU,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
@@ -185,7 +186,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			Util.log(e, "Exception occurred during problem detection: "); //$NON-NLS-1$ 
 			throw new JavaModelException(e, IJavaModelStatusConstants.COMPILER_FAILURE);
 		} finally {
-			if (unit != null) {
+			if (cleanupCU && unit != null) {
 				unit.cleanUp();
 			}
 			problemFinder.lookupEnvironment.reset();			
@@ -196,10 +197,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 		ICompilationUnit unitElement, 
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
+		boolean cleanupCU,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, null/*use default Parser*/, workingCopyOwner, problemRequestor, new DefaultProblemFactory(), monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, null/*use default Parser*/, workingCopyOwner, problemRequestor, new DefaultProblemFactory(), cleanupCU, monitor);
 	}
 
 	

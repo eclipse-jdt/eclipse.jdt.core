@@ -66,17 +66,24 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				// force problem detection? - if structure was consistent
 				if (forceProblemDetection) {
 					IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
-					if (problemRequestor != null && problemRequestor.isActive()){
-						problemRequestor.beginReporting();
-						CompilationUnitDeclaration unit = CompilationUnitProblemFinder.process(workingCopy, this.workingCopyOwner, problemRequestor, this.progressMonitor);
-						problemRequestor.endReporting();
-						if (progressMonitor != null) progressMonitor.worked(1);
-						if (this.createAST && unit != null) {
-							char[] contents = workingCopy.getContents();
-							Map options = workingCopy.getJavaProject().getOptions(true);
-							this.ast = AST.convertCompilationUnit(unit, contents, options, this.progressMonitor);
+					if (problemRequestor != null && problemRequestor.isActive()) {
+					    CompilationUnitDeclaration unit = null;
+					    try {
+							problemRequestor.beginReporting();
+							unit = CompilationUnitProblemFinder.process(workingCopy, this.workingCopyOwner, problemRequestor, false/*don't cleanup cu*/, this.progressMonitor);
+							problemRequestor.endReporting();
 							if (progressMonitor != null) progressMonitor.worked(1);
-						}
+							if (this.createAST && unit != null) {
+								char[] contents = workingCopy.getContents();
+								Map options = workingCopy.getJavaProject().getOptions(true);
+								this.ast = AST.convertCompilationUnit(unit, contents, options, this.progressMonitor);
+								if (progressMonitor != null) progressMonitor.worked(1);
+							}
+					    } finally {
+					        if (unit != null) {
+					            unit.cleanUp();
+					        }
+					    }
 					}
 				}
 			}
