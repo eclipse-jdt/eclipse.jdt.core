@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -38,8 +40,9 @@ class ASTConverter {
 	private boolean resolveBindings;
 	private Set pendingThisExpressionScopeResolution;
 	private Set pendingNameScopeResolution;	
+	private IProgressMonitor monitor;
 	
-	public ASTConverter(Map options, boolean resolveBindings) {
+	public ASTConverter(Map options, boolean resolveBindings, IProgressMonitor monitor) {
 		this.resolveBindings = resolveBindings;
 		scanner = new Scanner(
 					true /*comment*/,
@@ -48,6 +51,7 @@ class ASTConverter {
 					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3 /*sourceLevel*/, 
 					null /*taskTags*/,
 					null/*taskPriorities*/);
+		this.monitor = monitor;
 	}
 	
 	public void setAST(AST ast) {
@@ -184,6 +188,7 @@ class ASTConverter {
 	}
 
 	public TypeDeclaration convert(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
+		checkCanceled();
 		TypeDeclaration typeDecl = this.ast.newTypeDeclaration();
 		int modifiers = typeDeclaration.modifiers;
 		modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
@@ -334,6 +339,11 @@ class ASTConverter {
 			// we can create a new FieldDeclaration
 			blockStatements.add(convertToVariableDeclarationStatement((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
 		}
+	}
+	
+	private void checkCanceled() {
+		if (this.monitor != null && this.monitor.isCanceled())
+			throw new OperationCanceledException();
 	}
 
 	public Name convert(org.eclipse.jdt.internal.compiler.ast.TypeReference typeReference) {
@@ -633,6 +643,7 @@ class ASTConverter {
 	}
 		
 	public MethodDeclaration convert(org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
+		checkCanceled();
 		MethodDeclaration methodDecl = this.ast.newMethodDeclaration();
 		/**
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
