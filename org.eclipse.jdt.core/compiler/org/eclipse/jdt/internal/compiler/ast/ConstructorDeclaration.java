@@ -116,6 +116,37 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 	}
 	try {
 		problemResetPC = classFile.contentsOffset;
+		this.internalGenerateCode(classScope, classFile);
+	} catch (AbortMethod e) {
+		if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+			// a branch target required a goto_w, restart code gen in wide mode.
+			try {
+				if (statements != null) {
+					for (int i = 0, max = statements.length; i < max; i++)
+						statements[i].resetStateForCodeGeneration();
+				}
+				classFile.contentsOffset = problemResetPC;
+				classFile.methodCount--;
+				classFile.codeStream.wideMode = true; // request wide mode 
+				this.internalGenerateCode(classScope, classFile); // restart method generation
+			} catch(AbortMethod e2) {
+				int problemsLength;
+				IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
+				IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
+				classFile.addProblemConstructor(this, binding, problemsCopy, problemResetPC);
+			}
+		} else {
+				int problemsLength;
+				IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
+				IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
+				classFile.addProblemConstructor(this, binding, problemsCopy, problemResetPC);
+		}
+	}
+}
+
+private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		classFile.generateMethodInfoHeader(binding);
 		int methodAttributeOffset = classFile.contentsOffset;
 		int attributeNumber = classFile.generateMethodInfoAttribute(binding);
@@ -204,13 +235,6 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		if (ignoreFurtherInvestigation){
 			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult);
 		}
-	} catch (AbortMethod e) {
-		int problemsLength;
-		IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
-		IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
-		System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
-		classFile.addProblemConstructor(this, binding, problemsCopy, problemResetPC);
-	}
 }
 public boolean isConstructor() {
 	return true;

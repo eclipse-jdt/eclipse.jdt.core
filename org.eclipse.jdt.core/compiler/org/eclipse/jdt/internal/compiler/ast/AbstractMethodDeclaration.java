@@ -158,7 +158,6 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;
 				classFile.codeStream.wideMode = true; // request wide mode 
-				problemResetPC = classFile.contentsOffset;
 				this.generateCode(classFile); // restart method generation
 			} catch(AbortMethod e2) {
 				int problemsLength;
