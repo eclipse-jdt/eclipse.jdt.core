@@ -94,8 +94,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		this.currentEdit= rootEdit;
 		this.sourceCopyInfoToEdit= new IdentityHashMap();
 		this.sourceCopyEndNodes= new Stack();
-
-		this.formatter= new ASTRewriteFormatter(nodeInfos, eventStore, options, TextUtilities.getDefaultLineDelimiter(document));
+		
+		this.formatter= new ASTRewriteFormatter(nodeInfos, eventStore, options, getLineDelimiter());
 		
 		this.extendedSourceRangeComputer = extendedSourceRangeComputer;
 	}
@@ -220,7 +220,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 	
 	final String getLineDelimiter() {
-		return this.formatter.lineDelimiter;
+		return TextUtilities.getDefaultLineDelimiter(getDocument());
 	}
 	
 	final String createIndentString(int indent) {
@@ -231,7 +231,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		try {
 			IRegion line= getDocument().getLineInformationOfOffset(pos);
 			String str= getDocument().get(line.getOffset(), line.getLength());
-			return this.formatter.getIndentString(str);
+			return Indents.getIndentString(str, this.formatter.getTabWidth());
 		} catch (BadLocationException e) {
 			return ""; //$NON-NLS-1$
 		}
@@ -372,19 +372,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 		
-	private final TextEdit doTextCopy(TextEdit sourceEdit, int destOffset, int sourceIndentLevel, String destIndentString, TextEditGroup editGroup) {
+	private final TextEdit doTextCopy(TextEdit sourceEdit, int destOffset, int sourceIndentLevel, String destIndentString, int tabWidth, TextEditGroup editGroup) {
 		TextEdit targetEdit;
-		SourceModifier modifier= new SourceModifier(sourceIndentLevel, destIndentString, this.formatter.tabWidth, this.formatter.indentWidth);
-		
 		if (sourceEdit instanceof MoveSourceEdit) {
 			MoveSourceEdit moveEdit= (MoveSourceEdit) sourceEdit;
-			moveEdit.setSourceModifier(modifier);
+			moveEdit.setSourceModifier(new SourceModifier(sourceIndentLevel, destIndentString, tabWidth));
 			
 			targetEdit= new MoveTargetEdit(destOffset, moveEdit);
 			addEdit(targetEdit);
 		} else {
 			CopySourceEdit copyEdit= (CopySourceEdit) sourceEdit;
-			copyEdit.setSourceModifier(modifier);
+			copyEdit.setSourceModifier(new SourceModifier(sourceIndentLevel, destIndentString, tabWidth));
 			
 			targetEdit= new CopyTargetEdit(destOffset, copyEdit);
 			addEdit(targetEdit);
@@ -737,7 +735,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					String lineInPrefix= getCurrentLine(prefix, prefix.length());
 					if (prefix.length() != lineInPrefix.length()) {
 						// prefix contains a new line: update the indent to the one used in the prefix
-						indent= this.formatter.computeIndentUnits(lineInPrefix);
+						indent= Indents.computeIndent(lineInPrefix, this.formatter.getTabWidth());
 					}
 					doTextInsert(offset, replacingNode, indent, true, editGroup);
 					doTextInsert(offset, strings[1], editGroup);
@@ -1062,7 +1060,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		try {
 			IRegion line= getDocument().getLineInformationOfOffset(pos);
 			String str= getDocument().get(line.getOffset(), line.getLength());
-			return this.formatter.computeIndentUnits(str);
+			return Indents.computeIndent(str, this.formatter.getTabWidth());
 		} catch (BadLocationException e) {
 			return 0;
 		}
@@ -1072,7 +1070,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		ArrayList markers= new ArrayList();
 		String formatted= this.formatter.getFormattedResult(node, initialIndentLevel, markers);
 
-		
+		int tabWidth= this.formatter.getTabWidth();
 		int currPos= 0;
 		if (removeLeadingIndent) {
 			while (currPos < formatted.length() && Character.isWhitespace(formatted.charAt(currPos))) {
@@ -1106,16 +1104,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 				currPos= offset;
 			} else {
-				String destIndentString=  this.formatter.getIndentString(getCurrentLine(formatted, offset));
+				String destIndentString=  Indents.getIndentString(getCurrentLine(formatted, offset), tabWidth);
 				if (data instanceof CopyPlaceholderData) { // replace with a copy/move target
 					CopySourceInfo copySource= ((CopyPlaceholderData) data).copySource;
 					int srcIndentLevel= getIndent(copySource.getStartNode().getStartPosition());
 					TextEdit sourceEdit= getCopySourceEdit(copySource);
-					doTextCopy(sourceEdit, insertOffset, srcIndentLevel, destIndentString, editGroup);
+					doTextCopy(sourceEdit, insertOffset, srcIndentLevel, destIndentString, tabWidth, editGroup);
 					currPos= offset + curr.length; // continue to insert after the replaced string
 				} else if (data instanceof StringPlaceholderData) { // replace with a placeholder
 					String code= ((StringPlaceholderData) data).code;
-					String str= this.formatter.changeIndent(code, 0, destIndentString); 
+					String str= Indents.changeIndent(code, 0, tabWidth, destIndentString, getLineDelimiter()); 
 					doTextInsert(insertOffset, str, editGroup);
 					currPos= offset + curr.length; // continue to insert after the replaced string
 				}
