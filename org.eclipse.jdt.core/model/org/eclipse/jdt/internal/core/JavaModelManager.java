@@ -655,8 +655,9 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Configure the plugin with respect to option settings defined in ".options" file
 	 */
 	public void configurePluginDebugOptions(){
-		if(JavaCore.getPlugin().isDebugging()){
-			String option = Platform.getDebugOption(BUFFER_MANAGER_DEBUG);
+		String option = Platform.getDebugOption(JavaCore.PLUGIN_ID + "/debug"); //$NON-NLS-1$
+		if(option != null && option.equalsIgnoreCase("true")){ //$NON-NLS-1$
+			option = Platform.getDebugOption(BUFFER_MANAGER_DEBUG);
 			if(option != null) BufferManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 			
 			option = Platform.getDebugOption(BUILDER_DEBUG);
