@@ -30,6 +30,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 
 	static {
 		ALL_CLASSES = new ArrayList();
+		ALL_CLASSES.add(JavadocBugsTest.class);
 		ALL_CLASSES.add(JavadocTestForMethod.class);
 		ALL_CLASSES.add(JavadocTestMixed.class);
 		ALL_CLASSES.add(JavadocTestForClass.class);
