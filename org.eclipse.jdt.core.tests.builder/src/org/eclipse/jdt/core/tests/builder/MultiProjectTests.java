@@ -82,6 +82,73 @@ public class MultiProjectTests extends Tests {
 		incrementalBuild();
 		expectingCompiledClasses(new String[]{"A", "B"}); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	// 14103 - avoid recompiling unaffected sources in dependent projects
+	// TODO (kent) enable once 14103 is addressed
+	public void _testCompileOnlyStructuralDependent() throws JavaModelException {
+		//----------------------------
+		//           Step 1
+		//----------------------------
+			//----------------------------
+			//         Project1
+			//----------------------------
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+		IPath root1 = env.getPackageFragmentRootPath(project1Path, ""); //$NON-NLS-1$
+		env.addClass(root1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root1, "", "Unreferenced", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class Unreferenced {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project2
+			//----------------------------
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path);
+		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
+		env.addClass(root2, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class B extends A {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+			//----------------------------
+			//         Project3
+			//----------------------------
+		IPath project3Path = env.addProject("Project3"); //$NON-NLS-1$
+		env.addExternalJars(project3Path, Util.getJavaClassLibs());
+		IPath root3 = env.getPackageFragmentRootPath(project3Path, ""); //$NON-NLS-1$
+		env.addClass(root3, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		
+		fullBuild();
+		expectingNoProblems();
+		
+		//----------------------------
+		//           Step 2
+		//----------------------------
+		// non-structural change should not fool dependent projcts
+		env.addClass(root1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class A {\n"+ //$NON-NLS-1$
+			"   // add comment (non-structural change)\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		// structural change, but no actual dependents
+		env.addClass(root1, "", "Unreferenced", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class Unreferenced {\n"+ //$NON-NLS-1$
+			"   int x; //structural change\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		incrementalBuild();
+		expectingCompiledClasses(new String[]{"A", "Unreferenced"}); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 	
 	public void testRemoveField() throws JavaModelException {
 		//----------------------------
