@@ -59,15 +59,15 @@ public final class CharOperation {
 		return array;
 	}
 	/**
-	 * Append the given subarray to append to the target array starting at the given index in the target array.
+	 * Append the given subarray to the target array starting at the given index in the target array.
 	 * The start of the subarray is inclusive, the end is exclusive.
 	 * Answers a new target array if it needs to grow, otherwise answers the same target array.
 	 * <br>
 	 * For example:<br>
 	 * <ol>
 	 * <li><pre>
-	 *    target = { 'a', 'b', -1 }
-	 *    index = 0
+	 *    target = { 'a', 'b', '0' }
+	 *    index = 2
 	 *    array = { 'c', 'd' }
 	 *    start = 0
 	 *    end = 1
@@ -76,11 +76,11 @@ public final class CharOperation {
 	 * </li>
 	 * <li><pre>
 	 *    target = { 'a', 'b' }
-	 *    index = 0
+	 *    index = 2
 	 *    array = { 'c', 'd' }
 	 *    start = 0
 	 *    end = 1
-	 *    => result = new { 'a', 'b' , 'c', -1 }
+	 *    => result = { 'a', 'b' , 'c', '0', '0' , '0' } (new array)
 	 * </pre></li>
 	 * <li><pre>
 	 *    target = { 'a', 'b', 'c' }
@@ -88,9 +88,18 @@ public final class CharOperation {
 	 *    array = { 'c', 'd', 'e', 'f' }
 	 *    start = 1
 	 *    end = 4
-	 *    => result = new { 'a', 'd' , 'e', 'f', -1, -1 }
+	 *    => result = { 'a', 'd' , 'e', 'f', '0', '0', '0', '0' } (new array)
 	 * </pre></li>
 	 * </ol>
+	 * 
+	 * @param target the given target
+	 * @param index the given index
+	 * @param array the given array
+	 * @param start the given start index
+	 * @param end the given end index
+	 * 
+	 * @return the new array
+	 * @throws NullPointerException if the target array is null
 	 */
 	public static final char[] append(char[] target, int index, char[] array, int start, int end) {
 		int targetLength = target.length;
@@ -2416,6 +2425,49 @@ public final class CharOperation {
 		return true;
 	}
 
+	/**
+	 * Answers true if the given array starts with the given characters, false otherwise.
+	 * The comparison can be set to be case sensitive or not.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = { 'a' , 'b' }
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    isCaseSensitive = true
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = { 'a' , 'B' }
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    isCaseSensitive = false
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = { 'a' , 'B' }
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = { 'a' , 'c' }
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param toBeFound the given character to search
+	 * @param isCaseSensitive to set whether or not the comparison should be case sensitive
+	 * @return true if the given array starts with the given characters, false otherwise
+	 * @exception NullPointerException if the given array is null or if the given characters array to be found is null
+	 */
 	public static final boolean startsWith(char[] array, char[] toBeFound, boolean isCaseSensitive) {
 		if (isCaseSensitive)
 			return startsWith(array, toBeFound);
@@ -2524,7 +2576,7 @@ public final class CharOperation {
 	/**
 	 * Answers the result of a char[] conversion to lowercase. Answers null if the given chars array is null.
 	 * <br>
-	 * NOTE: if no conversion was necessary, then answers back the argument one.
+	 * NOTE: If no conversion was necessary, then answers back the argument one.
 	 * <br>
 	 * <br>
 	 * For example:

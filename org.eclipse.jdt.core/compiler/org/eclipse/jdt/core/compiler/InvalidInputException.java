@@ -24,9 +24,9 @@ public class InvalidInputException extends Exception {
 	}
 	/**
 	 * InvalidInputException constructor comment.
-	 * @param s java.lang.String
+	 * @param message the detailed message
 	 */
-	public InvalidInputException(String s) {
-		super(s);
+	public InvalidInputException(String message) {
+		super(message);
 	}
 }
