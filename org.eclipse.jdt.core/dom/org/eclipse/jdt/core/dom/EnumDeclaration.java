@@ -22,7 +22,7 @@ import java.util.List;
  *      [ Javadoc ] { ExtendedModifier } <b>enum</b> Identifier
  *			[ <b>implements</b> Type { <b>,</b> Type } ]
  *			<b>{</b>
- *               [ EnumConstantDeclaration { <b>,</b> EnumConstantDeclaration } ]
+ *               [ EnumConstantDeclaration { <b>,</b> EnumConstantDeclaration } ] [ <b>,</b> ]
  *               [ <b>;</b> { ClassBodyDeclaration | <b>;</b> } ]
  *          <b>}</b>
  * </pre>
