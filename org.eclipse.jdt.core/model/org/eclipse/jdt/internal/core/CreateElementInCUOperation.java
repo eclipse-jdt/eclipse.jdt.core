@@ -128,7 +128,7 @@ protected void executeOperation() throws JavaModelException {
 				break;
 			case 0 :
 				// element is inserted
-				if (fInsertionPosition == buffer.getLength() - 1) {
+				if (fInsertionPosition == buffer.getLength() - 1 && buffer.getChar(fInsertionPosition) == '{') {
 					buffer.append(fCreatedElement.getCharacters(), true);
 				} else {
 					buffer.replace(fInsertionPosition, 0, fCreatedElement.getCharacters(), true);
