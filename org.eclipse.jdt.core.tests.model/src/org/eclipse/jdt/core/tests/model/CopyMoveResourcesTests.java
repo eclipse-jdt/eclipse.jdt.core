@@ -886,6 +886,16 @@ public void testMoveReadOnlyPackageFragment() throws CoreException {
 		assertTrue("Not readOnly", getPackage("/P/src2/p1/p2/p3").getResource().isReadOnly());
 		assertTrue("Is readOnly", getFile("/P/src2/p1/p2/p3/X.java").isReadOnly());
 	} finally {
+		IFile xSrcFile = getFile("/P/src/p1/p2/p3/X.java");
+		if (xSrcFile != null) {
+			xSrcFile.setReadOnly(false);
+		}
+		if (pkg2 != null) {
+			pkg2.getResource().setReadOnly(false);
+		}
+		if (pkgSource != null) {
+			pkgSource.getResource().setReadOnly(false);
+		}
 		IPackageFragment p1Fragment = getPackage("/P/src2/p1");
 		if (p1Fragment != null) {
 			p1Fragment.getResource().setReadOnly(false);

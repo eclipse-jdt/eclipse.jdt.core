@@ -391,7 +391,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}	
 			}
 			boolean containsReadOnlySubPackageFragments = createNeededPackageFragments((IContainer) source.getParent().getResource(), root, newFragName, shouldMoveFolder);
-			boolean sourceIsReadOnly = source.isReadOnly();
+			boolean sourceIsReadOnly = srcFolder.isReadOnly();
 	
 			// Process resources
 			if (shouldMoveFolder) {
