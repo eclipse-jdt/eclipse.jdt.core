@@ -1119,10 +1119,15 @@ public IResource getResource() {
 		boolean generateMarkerOnError)
 		throws JavaModelException {
 
-		JavaProjectElementInfo projectInfo = getJavaProjectElementInfo();
+		JavaProjectElementInfo projectInfo;
+		if (this.isOpen()){
+			projectInfo = getJavaProjectElementInfo();
+		} else {
+			projectInfo = null;
+		}
 		
 		// reuse cache if not needing to refresh markers or checking bound variables
-		if (ignoreUnresolvedVariable && !generateMarkerOnError){
+		if (ignoreUnresolvedVariable && !generateMarkerOnError && (projectInfo != null)){
 			// resolved path is cached on its info
 			IClasspathEntry[] infoPath = projectInfo.lastResolvedClasspath;
 			if (infoPath != null) return infoPath;
@@ -1191,7 +1196,9 @@ public IResource getResource() {
 				0,
 				index);
 		}
-		projectInfo.lastResolvedClasspath = resolvedPath;
+		if (projectInfo != null){
+			projectInfo.lastResolvedClasspath = resolvedPath;
+		}
 		return resolvedPath;
 	}
 	
