@@ -18,8 +18,13 @@ What's new in this drop</h2>
 <ul>
 <li> New incremental builder implementation enabled by default (can reenable the 
 old implementation by changing the builder extension in the plugin.xml)
-<li> Delta processing is no longer creating unnecessary Java elements when
-traversing the resource delta.
+<li> Delta processing improvement:
+	<ul>
+	<li> No longer creates unnecessary Java elements when traversing the resource delta.
+	<li> Handles changes in binary folder libraries.
+	<li> Projects that share libraries are notified individualy.
+	<li> Doesn't notify empty deltas any longer.
+	</ul>
 <li> Source folder resource copying no longer perfom any copies as soon as
 one source folder coincidates with the output location.
 <li> Open on selection is more fault-tolerant: will now try to locate a
