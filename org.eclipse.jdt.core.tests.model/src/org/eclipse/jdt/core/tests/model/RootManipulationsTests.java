@@ -48,17 +48,27 @@ protected void populate(StringBuffer buffer, IJavaElement element, int indent) t
 	buffer.append(((JavaElement)element).toDebugString());
 	
 	IParent parent = (IParent)element;
-	IJavaElement[] children = parent.getChildren();
-	for (int i = 0, length = children.length; i < length; i++) {
-		populate(buffer, children[i], indent+1);
+	IJavaElement[] children = null;
+	try {
+		children = parent.getChildren();
+	} catch (JavaModelException e) {
 	}
+	if (children != null) {
+		for (int i = 0, length = children.length; i < length; i++) {
+			populate(buffer, children[i], indent+1);
+		}
+	}
+	
 	Object[] nonJavaResources = null;
-	if (element instanceof IJavaProject) {
-		nonJavaResources = ((IJavaProject)element).getNonJavaResources();
-	} else if (element instanceof IPackageFragmentRoot) {
-		nonJavaResources = ((IPackageFragmentRoot)element).getNonJavaResources();
-	} else if (element instanceof IPackageFragment) {
-		nonJavaResources = ((IPackageFragment)element).getNonJavaResources();
+	try {
+		if (element instanceof IJavaProject) {
+			nonJavaResources = ((IJavaProject)element).getNonJavaResources();
+		} else if (element instanceof IPackageFragmentRoot) {
+			nonJavaResources = ((IPackageFragmentRoot)element).getNonJavaResources();
+		} else if (element instanceof IPackageFragment) {
+			nonJavaResources = ((IPackageFragment)element).getNonJavaResources();
+		}
+	} catch (JavaModelException e) {
 	}
 	if (nonJavaResources != null) {
 		for (int i = 0, length = nonJavaResources.length; i < length; i++) {
@@ -674,6 +684,78 @@ public void testMoveSourceFolder6() throws CoreException {
 		this.stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
+	}
+}
+/*
+ * Ensure that a simple rename of a source root triggers the right delta
+ * and that the model is up-to-date.
+ */
+public void testRenameSourceFolder1() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src1"}, "bin");
+		this.createFolder("/P/src1/p");
+		this.createFile(
+			"/P/src1/p/X.java", 
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src1");
+		this.startDeltas();
+		root.move(new Path("/P/src2"), IResource.NONE, true, null, null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src2[+]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
+			"	ResourceDelta(/P/src1)[-]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src2\n" + 
+			"		[default]\n" + 
+			"		p\n" + 
+			"			X.java\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a simple rename of a jar file triggers the right delta
+ * and that the model is up-to-date.
+ */
+public void testRenameJarFile1() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, new String[] {"/P/myLib.jar"}, "bin");
+		this.createFile("/P/myLib.jar", "");
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/myLib.jar");
+		this.startDeltas();
+		root.move(new Path("/P/myLib2.jar"), IResource.NONE, true, null, null);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	/P/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P/myLib2.jar[+]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]\n" + 
+			"	ResourceDelta(/P/myLib.jar)[-]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	/P/myLib2.jar\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
 	}
 }
 }

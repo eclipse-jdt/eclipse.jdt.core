@@ -92,7 +92,9 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 	}
 	/*
 	 * Renames the classpath entries equal to the given path in all Java projects.
-	 * However if a source entry refers to this path, deletes it if destination is outside project.
+	 * However if destination is inside project, leave reference as is (this is a rename 
+	 * and reference will be updated later on). Otherwise if a source entry refers to this 
+	 * path, deletes it (a project cannot refer to an outside source folder)
 	 */
 	protected void updateReferringProjectClasspaths(IPath rootPath) throws JavaModelException {
 		IJavaModel model = this.getJavaModel();
@@ -111,8 +113,8 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 						System.arraycopy(classpath, 0, newClasspath, 0, j);
 						newCPIndex = j;
 					}
-					if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE // library entry
-							|| this.destination.segment(0).equals(project.getElementName())) { // destination is in same project
+					if (this.destination.segment(0).equals(project.getElementName())) continue;
+					if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) { // library entry
 						newClasspath[newCPIndex++] = copy(entry);
 					} // else source folder is moved to another project: deletes its classpath entry
 				} else if (newClasspath != null) {
