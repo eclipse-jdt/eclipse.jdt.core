@@ -1733,7 +1733,7 @@ public final class JavaCore extends Plugin {
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.maxProblemPerUnit"
-	 *     - possible values:	"&lt;n&gt;n>" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
+	 *     - possible values:	"&lt;n&gt;" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
 	 *     - default:           "100"
 	 * 
 	 * COMPILER / Define the Automatic Task Tags
@@ -1872,7 +1872,7 @@ public final class JavaCore extends Plugin {
 	 *    Enable splitting of long lines (exceeding the configurable length). Length of 0 will
 	 *    disable line splitting
 	 *     - option id:         "org.eclipse.jdt.core.formatter.lineSplit"
-	 *     - possible values:	""&lt;n&gt;"", where n is zero or a positive integer
+	 *     - possible values:	"&lt;n&gt;", where n is zero or a positive integer
 	 *     - default:           "80"
 	 * 
 	 *	FORMATTER / Compacting Assignment
@@ -1892,7 +1892,7 @@ public final class JavaCore extends Plugin {
 	 *    When using spaces, set the amount of space characters to use for each 
 	 *    indentation mark.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
-	 *     - possible values:	""&lt;n&gt;"", where n is a positive integer
+	 *     - possible values:	"&lt;n&gt;", where n is a positive integer
 	 *     - default:           "4"
 	 * 
 	 *	FORMATTER / Inserting space in cast expression
