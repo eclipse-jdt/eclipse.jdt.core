@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -28,7 +26,7 @@ public PackageDeclarationPattern(char[] pkgName, int matchMode, boolean isCaseSe
 /**
  * see SearchPattern#findMatches
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) /* throws IOException */ {
 	// package declarations are not indexed
 }
 public String toString(){

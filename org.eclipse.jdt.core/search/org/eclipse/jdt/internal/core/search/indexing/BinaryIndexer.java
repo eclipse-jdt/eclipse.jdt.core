@@ -448,7 +448,7 @@ private final char[] extractType(int[] constantPoolOffsets, ClassFileReader read
 public String[] getFileTypes() {
 	return FILE_TYPES;
 }
-private void indexClassFile(byte[] contents, char[] documentName) throws IOException {
+private void indexClassFile(byte[] contents, char[] documentName) /* throws IOException */ {
 	try {
 		ClassFileReader reader = new ClassFileReader(contents, documentName);
 

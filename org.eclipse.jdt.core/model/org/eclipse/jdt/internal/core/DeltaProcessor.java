@@ -1248,7 +1248,7 @@ public class DeltaProcessor {
 			}
 			try {
 				rootDelta.accept(new IResourceDeltaVisitor() {
-					public boolean visit(IResourceDelta delta) throws CoreException {
+					public boolean visit(IResourceDelta delta) /* throws CoreException */ {
 						switch (delta.getKind()){
 							case IResourceDelta.ADDED :
 							case IResourceDelta.REMOVED :

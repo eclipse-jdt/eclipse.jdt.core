@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -161,8 +160,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public Element elementEncode(
 		Document document,
-		IPath projectPath)
-		throws JavaModelException {
+		IPath projectPath) {
 
 		Element element = document.createElement("classpathentry"); //$NON-NLS-1$
 		element.setAttribute("kind", kindToString(this.entryKind));	//$NON-NLS-1$

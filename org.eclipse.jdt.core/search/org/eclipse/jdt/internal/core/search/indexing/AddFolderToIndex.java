@@ -54,7 +54,7 @@ class AddFolderToIndex extends IndexRequest {
 			final char[][] pattern = exclusionPattern;
 			folder.accept(
 				new IResourceProxyVisitor() {
-					public boolean visit(IResourceProxy proxy) throws CoreException {
+					public boolean visit(IResourceProxy proxy) /* throws CoreException */{
 						switch(proxy.getType()) {
 							case IResource.FILE :
 								if (Util.isJavaFileName(proxy.getName())) {

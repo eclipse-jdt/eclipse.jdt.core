@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import org.eclipse.core.resources.IFile;
@@ -53,7 +52,7 @@ SourceIndexer(IFile resourceFile)	{
 public String[] getFileTypes(){
 	return FILE_TYPES;
 }
-protected void indexFile(IDocument document) throws IOException {
+protected void indexFile(IDocument document) /* throws IOException */ {
 
 	// Add the name of the file to the index
 	output.addDocument(document);

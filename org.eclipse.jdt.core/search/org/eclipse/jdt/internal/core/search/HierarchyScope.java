@@ -97,7 +97,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		//disabled for now as this could be expensive
 		//JavaModelManager.getJavaModelManager().rememberScope(this);
 	}
-	private void buildResourceVector() throws JavaModelException {
+	private void buildResourceVector() {
 		HashMap resources = new HashMap();
 		HashMap paths = new HashMap();
 		this.types = this.hierarchy.getAllTypes();
