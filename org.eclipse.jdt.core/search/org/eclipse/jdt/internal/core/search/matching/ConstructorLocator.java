@@ -124,7 +124,7 @@ public int resolveLevel(AstNode node) {
 			return resolveLevel((TypeDeclaration) node);
 	}
 	if (node instanceof ConstructorDeclaration)
-		return resolveLevel((ConstructorDeclaration) node);
+		return resolveLevel((ConstructorDeclaration) node, true);
 	return IMPOSSIBLE_MATCH;
 }
 protected int resolveLevel(AllocationExpression allocation) {
@@ -161,7 +161,7 @@ public int resolveLevel(Binding binding) {
 	}
 	return level;
 }
-protected int resolveLevel(ConstructorDeclaration constructor) {
+protected int resolveLevel(ConstructorDeclaration constructor, boolean checkDeclarations) {
 	int referencesLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findReferences) {
 		ExplicitConstructorCall constructorCall = constructor.constructorCall;
@@ -171,6 +171,7 @@ protected int resolveLevel(ConstructorDeclaration constructor) {
 			if (referencesLevel == ACCURATE_MATCH) return ACCURATE_MATCH; // cannot get better
 		}
 	}
+	if (!checkDeclarations) return referencesLevel;
 
 	int declarationsLevel = this.pattern.findDeclarations ? resolveLevel(constructor.binding) : IMPOSSIBLE_MATCH;
 	return referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel; // answer the stronger match
@@ -182,7 +183,7 @@ protected int resolveLevel(TypeDeclaration type) {
 		for (int i = 0, length = methods.length; i < length; i++) {
 			AbstractMethodDeclaration method = methods[i];
 			if (method.isDefaultConstructor() && method.sourceStart < type.bodyStart) // if synthetic
-				return resolveLevel((ConstructorDeclaration) method);
+				return resolveLevel((ConstructorDeclaration) method, false);
 		}
 	}
 	return IMPOSSIBLE_MATCH;
