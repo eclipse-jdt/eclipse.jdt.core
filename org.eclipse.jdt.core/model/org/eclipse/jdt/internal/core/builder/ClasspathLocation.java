@@ -43,11 +43,9 @@ public boolean isOutputFolder() {
 
 public abstract boolean isPackage(String qualifiedPackageName);
 
-// free anything which is not required when the state is saved
 public void cleanup() {
 	// free anything which is not required when the state is saved
 }
-// reset any internal caches before another compile loop starts
 public void reset() {
 	// reset any internal caches before another compile loop starts
 }
