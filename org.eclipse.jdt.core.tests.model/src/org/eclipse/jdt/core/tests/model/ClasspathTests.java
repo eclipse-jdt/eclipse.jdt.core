@@ -1490,7 +1490,6 @@ public void testDenseCycleDetection() throws CoreException {
 
 private void denseCycleDetection(final int numberOfParticipants) throws CoreException {
 	
-	long start = System.currentTimeMillis();
 	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
 	final int[] allProjectsInCycle = new int[numberOfParticipants];
 	try {
@@ -1500,6 +1499,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 					projects[i] = createJavaProject("P"+i, new String[]{""}, "");
 					allProjectsInCycle[i] = 1;
 				}		
+				long start = System.currentTimeMillis();
 				for (int i = 0; i < numberOfParticipants; i++){
 					IClasspathEntry[] extraEntries = new IClasspathEntry[numberOfParticipants-1];
 					int index = 0;
@@ -1517,11 +1517,11 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 					// set classpath
 					projects[i].setRawClasspath(newClasspath, null);
 				};
+				System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
 			}
 		}, 
 		null);
 		
-		//System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
 			this.assertCycleMarkers(projects[i], projects, allProjectsInCycle);
