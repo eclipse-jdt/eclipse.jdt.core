@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 
+import java.io.IOException;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
@@ -180,6 +182,41 @@ public void testAccessRestriction() throws CoreException {
 		createFolder("/P1/src/p");
 		createFile("/P1/src/p/X.java", "package p; public class X {}");
 		
+		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
+		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that no problem is created for a reference to a binary type that is included in a prereq project.
+ * (regression test for bug 82542 Internal error during AST creation)
+ */
+public void testAccessRestriction2() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P1");
+		addLibrary(
+			project,
+			"lib.jar",
+			"libsrc.zip",
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"}",
+			},
+			new String[] {
+				"**/*.class"
+			},
+			null,
+			"1.4"
+		);
 		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
 		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(

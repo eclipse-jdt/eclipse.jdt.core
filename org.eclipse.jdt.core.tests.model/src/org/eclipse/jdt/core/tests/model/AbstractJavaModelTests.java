@@ -175,6 +175,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		);
 	}
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
+	}
+	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] librariesInclusionPatterns, String[] librariesExclusionPatterns, String compliance) throws CoreException, IOException {
 		IProject project = javaProject.getProject();
 		String projectLocation = project.getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
@@ -183,10 +186,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		String projectPath = '/' + project.getName() + '/';
-		addLibraryEntry(javaProject, projectPath + jarName,  projectPath + sourceZipName, null, true);
+		addLibraryEntry(
+			javaProject,
+			new Path(projectPath + jarName),
+			new Path(projectPath + sourceZipName),
+			null,
+			toIPathArray(librariesInclusionPatterns),
+			toIPathArray(librariesExclusionPatterns),
+			true
+		);
 	}
 	protected void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
-		addLibraryEntry(project, new Path(path), null, null, exported);
+		addLibraryEntry(project, new Path(path), null, null, null, null, exported);
 	} 
 	protected void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath, String srcAttachmentPathRoot, boolean exported) throws JavaModelException{
 		addLibraryEntry(
@@ -194,14 +205,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			new Path(path),
 			srcAttachmentPath == null ? null : new Path(srcAttachmentPath),
 			srcAttachmentPathRoot == null ? null : new Path(srcAttachmentPathRoot),
+			null,
+			null,
 			exported
 		);
 	}
-	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, boolean exported) throws JavaModelException{
+	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] inclusionPatterns, IPath[] exclusionPatterns, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
 		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
-		entries[0] = JavaCore.newLibraryEntry(path, srcAttachmentPath, srcAttachmentPathRoot, exported);
+		entries[0] = JavaCore.newLibraryEntry(
+			path, 
+			srcAttachmentPath, 
+			srcAttachmentPathRoot, 
+			inclusionPatterns == null ? new IPath[0] : inclusionPatterns, 
+			exclusionPatterns == null ? new IPath[0] : exclusionPatterns, 
+			exported);
 		project.setRawClasspath(entries, null);
 	}
 	protected void assertSortedElementsEqual(String message, String expected, IJavaElement[] elements) {
@@ -1598,6 +1617,15 @@ protected void assertDeltas(String message, String expected) {
 	public void stopDeltas() {
 		JavaCore.removeElementChangedListener(this.deltaListener);
 		clearDeltas();
+	}
+	protected IPath[] toIPathArray(String[] paths) {
+		if (paths == null) return null;
+		int length = paths.length;
+		IPath[] result = new IPath[length];
+		for (int i = 0; i < length; i++) {
+			result[i] = new Path(paths[i]);
+		}
+		return result;
 	}
 	/**
 	 * Wait for autobuild notification to occur

@@ -109,7 +109,14 @@ public class SearchableEnvironment
 						IPath typePath = type.getPath();
 						IPath rootPath = root.getPath();
 						IPath relativePath = typePath.removeFirstSegments(rootPath.segmentCount());
-						char[] path = relativePath.toString().toCharArray();
+						char[] path;
+						if (relativePath.segmentCount() == 0) {
+							// case of a binary type in a jar (see 82542 Internal error during AST creation)
+							char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
+							char[] classFileChars = type.getParent().getElementName().toCharArray();
+							path = CharOperation.concatWith(packageChars, classFileChars, '/');
+						} else
+							path = relativePath.toString().toCharArray();
 						accessRestriction = accessRestriction.getViolatedRestriction(path, null);
 					}
 				}

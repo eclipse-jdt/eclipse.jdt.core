@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -105,7 +106,14 @@ public void acceptType(IType type) {
 					IPath typePath = type.getPath();
 					IPath rootPath = root.getPath();
 					IPath relativePath = typePath.removeFirstSegments(rootPath.segmentCount());
-					char[] path = relativePath.toString().toCharArray();
+					char[] path;
+					if (relativePath.segmentCount() == 0) {
+						// case of a binary type in a jar (see 82542 Internal error during AST creation)
+						char[][] packageChars = CharOperation.splitOn('.', type.getParent().getElementName().toCharArray());
+						char[] classFileChars = type.getParent().getElementName().toCharArray();
+						path = CharOperation.concatWith(packageChars, classFileChars, '/');
+					} else
+						path = relativePath.toString().toCharArray();
 					accessRestriction = accessRestriction.getViolatedRestriction(path, null);
 				}
 			}
