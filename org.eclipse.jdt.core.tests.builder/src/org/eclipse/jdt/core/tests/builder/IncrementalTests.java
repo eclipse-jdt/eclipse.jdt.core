@@ -475,6 +475,12 @@ public class IncrementalTests extends Tests {
 				"interface I {}	\n");	//$NON-NLS-1$
 	
 			fullBuild(projectPath);
+
+			expectingOnlySpecificProblemsFor(
+				root, 
+				new Problem[]{
+					new Problem("", "A cycle exists in the type hierarchy between Object and I", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+				});
 	
 			env.addClass(root, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p; \n"+ //$NON-NLS-1$
@@ -482,11 +488,24 @@ public class IncrementalTests extends Tests {
 	
 			incrementalBuild(projectPath);
 	
+			expectingOnlySpecificProblemsFor(
+				root, 
+				new Problem[]{
+					new Problem("", "A cycle exists in the type hierarchy between Object and I", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+				});
+
 			env.addClass(root, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p; \n"+ //$NON-NLS-1$
 				"public class Y extends X {}\n"); //$NON-NLS-1$
 	
 			incrementalBuild(projectPath);
+
+			expectingOnlySpecificProblemsFor(
+				root, 
+				new Problem[]{
+					new Problem("", "A cycle exists in the type hierarchy between Object and I", new Path("/Project/src/java/lang/Object.java")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+				});
+
 		} catch(StackOverflowError e){
 			assertTrue("Infinite loop in cycle detection", false);
 			e.printStackTrace();
