@@ -3008,4 +3008,43 @@ public void test0143() throws JavaModelException {
 		JavaCore.setOptions(oldCurrentOptions);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88845
+public void test0144() throws JavaModelException {
+	ICompilationUnit aClass = null;
+	Hashtable oldCurrentOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldCurrentOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0144/X.java",
+				"package test0144;\n" +
+				"public class X {\n" +
+				"  public class Y {}\n" +
+				"  private class Y2 {}\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0144/Test.java",
+				"package test0144;\n" +
+				"public class Test extends X.\n" +
+				"{}",
+				"X.");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"X.Y[TYPE_REF]{Y, test0144, Ltest0144.X$Y;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+		JavaCore.setOptions(oldCurrentOptions);
+	}
+}
 }

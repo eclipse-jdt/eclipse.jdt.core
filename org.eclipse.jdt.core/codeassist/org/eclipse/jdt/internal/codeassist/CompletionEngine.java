@@ -2531,9 +2531,13 @@ public final class CompletionEngine
 				))
 				continue next;
 
-			if (this.options.checkVisibility
-				&& !memberType.canBeSeenBy(receiverType, invocationType))
-				continue next;
+			if (this.options.checkVisibility) {
+				if (invocationType != null && !memberType.canBeSeenBy(receiverType, invocationType)) {
+					continue next;
+				} else if(invocationType == null && !memberType.canBeSeenBy(this.unitScope.fPackage)) {
+					continue next;
+				}
+			}
 
 			for (int i = typesFound.size; --i >= 0;) {
 				ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(i);
