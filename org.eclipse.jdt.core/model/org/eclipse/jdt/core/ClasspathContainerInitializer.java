@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added support for requesting updates of a particular
  *                       container for generic container operations.
+ * 						 - canUpdateClasspathContainer(IPath, IJavaProject)
+ * 						 - requestClasspathContainerUpdate(IPath, IJavaProject, IClasspathContainer)
  ******************************************************************************/
 
 package org.eclipse.jdt.core;
