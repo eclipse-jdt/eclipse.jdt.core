@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -67,7 +68,8 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 		extType = EXTENSION_class;
 	}
 
-	ArrayList vChildren = new ArrayList();
+	// add compilation units/class files from resources
+	HashSet vChildren = new HashSet();
 	try {
 		char[][] exclusionPatterns = getPackageFragmentRoot().fullExclusionPatternChars();
 		IResource[] members = ((IContainer) underlyingResource).members();
@@ -93,6 +95,16 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
+	
+	if (kind == IPackageFragmentRoot.K_SOURCE) {
+		// add primary compilation units
+		ICompilationUnit[] primaryCompilationUnits = getCompilationUnits(DefaultWorkingCopyOwner.PRIMARY);
+		for (int i = 0, length = primaryCompilationUnits.length; i < length; i++) {
+			ICompilationUnit primary = primaryCompilationUnits[i];
+			vChildren.add(primary);
+		}
+	}
+	
 	IJavaElement[] children = new IJavaElement[vChildren.size()];
 	vChildren.toArray(children);
 	info.setChildren(children);

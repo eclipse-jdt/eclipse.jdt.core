@@ -208,8 +208,9 @@ public class ModelUpdater {
 				root = (IPackageFragmentRoot) element;
 				break;
 			case IJavaElement.COMPILATION_UNIT :
-				// filter out working copies (we don't want to add/remove them to/from the package fragment
-				if (((ICompilationUnit)element).isWorkingCopy()) {
+				// filter out working copies that are not primary (we don't want to add/remove them to/from the package fragment
+				CompilationUnit cu = (CompilationUnit)element;
+				if (cu.isWorkingCopy() && !cu.isPrimary()) {
 					return;
 				}
 			case IJavaElement.CLASS_FILE :

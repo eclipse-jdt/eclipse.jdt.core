@@ -879,20 +879,29 @@ public class DeltaProcessor {
 				this.namelookupsToRefresh.add(element);
 			}
 		} else {			
-			addToParentInfo(element);
+			if (delta == null || (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) {
+				// regular element addition
+				if (!isPrimaryWorkingCopy(element, elementType)) { // filter out changes to primary compilation unit in working copy mode
+					addToParentInfo(element);
+					
+					// Force the element to be closed as it might have been opened 
+					// before the resource modification came in and it might have a new child
+					// For example, in an IWorkspaceRunnable:
+					// 1. create a package fragment p using a java model operation
+					// 2. open package p
+					// 3. add file X.java in folder p
+					// When the resource delta comes in, only the addition of p is notified, 
+					// but the package p is already opened, thus its children are not recomputed
+					// and it appears empty.
+					close(element);
 			
-			// Force the element to be closed as it might have been opened 
-			// before the resource modification came in and it might have a new child
-			// For example, in an IWorkspaceRunnable:
-			// 1. create a package fragment p using a java model operation
-			// 2. open package p
-			// 3. add file X.java in folder p
-			// When the resource delta comes in, only the addition of p is notified, 
-			// but the package p is already opened, thus its children are not recomputed
-			// and it appears empty.
-			close(element);
+					currentDelta().added(element);
+				}
+			} else {
+				// element is moved
+				addToParentInfo(element);
+				close(element);
 			
-			if (delta != null && (delta.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
 				IPath movedFromPath = delta.getMovedFromPath();
 				IResource res = delta.getResource();
 				IResource movedFromRes;
@@ -924,11 +933,6 @@ public class DeltaProcessor {
 					currentDelta().added(element);
 				} else {
 					currentDelta().movedTo(element, movedFromElement);
-				}
-			} else {
-				// filter out changes to primary compilation unit in working copy mode
-				if (!isPrimaryWorkingCopy(element, elementType)) {
-					currentDelta().added(element);
 				}
 			}
 			
@@ -983,12 +987,18 @@ public class DeltaProcessor {
 	 */
 	private void elementRemoved(Openable element, IResourceDelta delta, RootInfo rootInfo) {
 		
-		if (element.isOpen()) {
-			close(element);
-		}
-		removeFromParentInfo(element);
 		int elementType = element.getElementType();
-		if (delta != null && (delta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
+		if (delta == null || (delta.getFlags() & IResourceDelta.MOVED_TO) == 0) {
+			// regular element removal
+			if (!isPrimaryWorkingCopy(element, elementType)) { // filter out changes to primary compilation unit in working copy mode
+				close(element);
+				removeFromParentInfo(element);
+				currentDelta().removed(element);
+			}
+		} else {
+			// element is moved
+			close(element);
+			removeFromParentInfo(element);
 			IPath movedToPath = delta.getMovedToPath();
 			IResource res = delta.getResource();
 			IResource movedToRes;
@@ -1028,11 +1038,6 @@ public class DeltaProcessor {
 				currentDelta().removed(element);
 			} else {
 				currentDelta().movedFrom(element, movedToElement);
-			}
-		} else {
-			// filter out changes to primary compilation unit in working copy mode
-			if (!isPrimaryWorkingCopy(element, elementType)) {
-				currentDelta().removed(element);
 			}
 		}
 

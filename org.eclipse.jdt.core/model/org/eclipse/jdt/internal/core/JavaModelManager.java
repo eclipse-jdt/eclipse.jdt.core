@@ -656,8 +656,6 @@ public class JavaModelManager implements ISaveParticipant {
 					deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 				}
 
-				IJavaElement originalElement = workingCopy.getPrimary();
-
 				// remove per working copy info
 				pathToPerWorkingCopyInfos.remove(path);
 				if (pathToPerWorkingCopyInfos.isEmpty()) {
@@ -667,12 +665,7 @@ public class JavaModelManager implements ISaveParticipant {
 				// remove infos + close buffer (since no longer working copy)
 				removeInfoAndChildren(workingCopy);
 				workingCopy.closeBuffer();
-				
-				// if original element is not on classpath flush it from the cache 
-				if (!workingCopy.getParent().exists()) {
-					((CompilationUnit)originalElement).close();
-				}
-				
+
 				// compute the delta if needed and register it if there are changes
 				if (deltaBuilder != null) {
 					deltaBuilder.buildDeltas();

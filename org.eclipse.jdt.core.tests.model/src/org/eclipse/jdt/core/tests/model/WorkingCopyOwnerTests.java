@@ -130,6 +130,28 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Tests that a primary compilation unit is added from to its parent after it becomes a working copy and 
+	 * there is no underlying resource.
+	 */
+	public void testBecomeWorkingCopy3() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getCompilationUnit("P/Y.java");
+
+			workingCopy.becomeWorkingCopy(null, null);
+			assertElementsEqual(
+				"Unexpected children of default package",
+				"X.java [in <default> [in <project root> [in P]]]\n" +
+				"[Working copy] Y.java [in <default> [in <project root> [in P]]]",
+				getPackage("/P").getChildren());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
 	 * Tests that a primary working copy can be commited.
 	 */
 	public void testCommitPrimaryWorkingCopy() throws CoreException {
@@ -268,7 +290,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	/*
 	 * Ensures that the correct delta is issued when a primary compilation unit becomes a working copy.
 	 */
-	public void testDeltaBecomeWorkingCopy() throws CoreException {
+	public void testDeltaBecomeWorkingCopy1() throws CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
 			createFile(
@@ -292,6 +314,33 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				workingCopy.discardWorkingCopy();
 			}
 			deleteFile("P/Y.java");
+		}
+		
+	}
+
+	/*
+	 * Ensures that an ADDED delta is issued when a primary compilation unit becomes a working copy
+	 * and this compilation unit doesn't exist on disk.
+	 * (regression test for bug 44085 becomeWorkingCopy() should add the working copy in the model)
+	 */
+	public void testDeltaBecomeWorkingCopy2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getCompilationUnit("P/Y.java");
+			startDeltas();
+			workingCopy.becomeWorkingCopy(null, null);
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			[Working copy] Y.java[+]: {}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
 		}
 		
 	}
