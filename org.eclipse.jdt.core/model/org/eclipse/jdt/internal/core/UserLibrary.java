@@ -166,4 +166,15 @@ public class UserLibrary {
 		
 		return new UserLibrary(entries, isSystem);
 	}
+	
+	public String toString() {
+		if (this.entries == null)
+			return "null"; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer();
+		int length = this.entries.length;
+		for (int i=0; i<length; i++) {
+			buffer.append(this.entries[i].toString()+'\n');
+		}
+		return buffer.toString();
+	}
 }

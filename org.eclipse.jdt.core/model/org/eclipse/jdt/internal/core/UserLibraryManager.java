@@ -196,7 +196,7 @@ public class UserLibraryManager {
 				JavaCore.getPlugin().savePluginPreferences();
 			}
 			if (rebind) {
-				rebindClasspathEntries(name, monitor);
+				rebindClasspathEntries(name, library==null, monitor);
 			}
 			
 		} finally {
@@ -204,7 +204,7 @@ public class UserLibraryManager {
 		}
 	}
 
-	private static void rebindClasspathEntries(String name, IProgressMonitor monitor) throws JavaModelException {
+	private static void rebindClasspathEntries(String name, boolean remove, IProgressMonitor monitor) throws JavaModelException {
 		IWorkspaceRoot root= ResourcesPlugin.getWorkspace().getRoot();
 		IJavaProject[] projects= JavaCore.create(root).getJavaProjects();
 		IPath containerPath= new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(name);
@@ -227,7 +227,19 @@ public class UserLibraryManager {
 		if (!affectedProjects.isEmpty()) {
 			IJavaProject[] affected= (IJavaProject[]) affectedProjects.toArray(new IJavaProject[affectedProjects.size()]);
 			IClasspathContainer[] containers= new IClasspathContainer[affected.length];
-			
+			if (!remove) {
+				// Previously, containers array only contained a null value. Then, user library classpath entry was first removed
+				// and then added a while after when post change delta event on .classpath file was fired...
+				// Unfortunately, in some cases, this event was fired a little bit too late and missed the refresh of Package Explorer
+				// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872)
+				// So now, instanciate a new user library classpath container instead which allow to refresh its content immediately
+				// as there's no classpath entry removal...
+				// Note that it works because equals(Object) method is not overridden for UserLibraryClasspathContainer.
+				// If it was, the update wouldn't happen while setting classpath container
+				// @see javaCore.setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
+				UserLibraryClasspathContainer container= new UserLibraryClasspathContainer(name);
+				containers[0] = container;
+			}
 			JavaCore.setClasspathContainer(containerPath, affected, containers, monitor);
 		} else {
 			if (monitor != null) {

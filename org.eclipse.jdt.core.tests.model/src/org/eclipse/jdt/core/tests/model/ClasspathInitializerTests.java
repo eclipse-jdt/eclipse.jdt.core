@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.DeltaProcessingState;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -143,8 +144,9 @@ public ClasspathInitializerTests(String name) {
 }
 public static Test suite() {
 	if (false) {
+		System.err.println("WARNING: "+ClasspathInitializerTests.class.getName()+" is currently running subset of test cases!!!");
 		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testVariableInitializer3"));
+		suite.addTest(new ClasspathInitializerTests("testUserLibraryInitializer1"));
 		return suite;
 	}
 	return new Suite(ClasspathInitializerTests.class);
@@ -787,6 +789,67 @@ public void testVariableInitializer8() throws CoreException {
 	} finally {
 		deleteProject("P1");
 		VariablesInitializer.reset();
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872
+ */
+public void testUserLibraryInitializer1() throws CoreException {
+	try {
+		// Create new user library "SWT"
+		ClasspathContainerInitializer initializer= JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		String libraryName = "SWT";
+		IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		UserLibraryClasspathContainer containerSuggestion = new UserLibraryClasspathContainer(libraryName);
+		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
+
+		// Create java project
+		IJavaProject p = createJavaProject("p61872");
+		IFile jarFile = createFile("/p61872/swt.jar", "");
+		IFile srcFile = createFile("/p61872/swtsrc.zip", "");
+
+		// Modify user library
+		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
+		String propertyName = UserLibraryManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SWT";
+		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
+		propertyValue.append(" path=\""+jarFullPath);
+		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
+		preferences.setValue(propertyName, propertyValue.toString());
+		JavaCore.getPlugin().savePluginPreferences();
+
+		// Modify project classpath
+		editFile(
+			"/p61872/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.USER_LIBRARY/SWT\"/>\n" +
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
+			"</classpath>"
+		);
+
+		// Verify 
+		IClasspathEntry[] entries = getJavaProject("p61872").getResolvedClasspath(true);
+		assertEquals("Invalid entries number in resolved classpath for project p61872!", 1, entries.length);
+		assertEquals("Invalid path for project 61872 classpath entry!", jarFullPath.toLowerCase(), entries[0].getPath().toString().toLowerCase());
+		assertNull("Project 61872 classpath entry should not have a,y source attached!", entries[0].getSourceAttachmentPath());
+
+		// Modify user library
+		propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		String srcFullPath = getWorkspaceRoot().getLocation().append(srcFile.getFullPath()).toString();
+		propertyValue.append(" sourceattachment=\""+srcFullPath);
+		propertyValue.append("\" path=\""+jarFullPath);
+		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
+		preferences.setValue(propertyName, propertyValue.toString());
+		JavaCore.getPlugin().savePluginPreferences();
+
+		// Verify 
+		entries = getJavaProject("p61872").getResolvedClasspath(true);
+		assertEquals("Invalid entries number in resolved classpath for project p61872!", 1, entries.length);
+		assertEquals("Invalid path for project 61872 classpath entry!", jarFullPath.toLowerCase(), entries[0].getPath().toString().toLowerCase());
+		assertEquals("Invalid source attachement path for project 61872 classpath entry!", srcFullPath.toLowerCase(), entries[0].getSourceAttachmentPath().toString().toLowerCase());
+	} finally {
+		deleteProject("p61872");
 	}
 }
 }
