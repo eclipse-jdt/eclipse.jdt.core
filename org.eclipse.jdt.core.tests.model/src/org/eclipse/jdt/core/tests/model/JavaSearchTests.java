@@ -204,6 +204,7 @@ public static Test suite() {
 
 	// type declaration
 	suite.addTest(new JavaSearchTests("testSimpleTypeDeclaration"));
+	suite.addTest(new JavaSearchTests("testTypeDeclaration"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar2"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar3"));
@@ -2005,6 +2006,23 @@ public void testSubCUSearchScope3() throws JavaModelException, CoreException {
 		"src/b3/X.java b3.X$Y.field2 [X]\n" +
 		"src/b3/X.java b3.X$Y.foo2() -> Object [X]", 
 		resultCollector.toString());
+}
+/**
+ * Type declaration test.
+ * (regression test for bug 29524 Search for declaration via patterns adds '"*")
+ */
+public void testTypeDeclaration() throws JavaModelException, CoreException {
+	IPackageFragment pkg = this.getPackageFragment("JavaSearch", "src", "d8");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"A",
+		TYPE,
+		DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertEquals("src/d8/A.java d8.A [A]", resultCollector.toString());
 }
 /**
  * Simple method declaration test.
