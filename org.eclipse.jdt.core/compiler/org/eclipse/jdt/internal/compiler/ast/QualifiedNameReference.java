@@ -448,6 +448,7 @@ public class QualifiedNameReference extends NameReference {
 				}
 			}
 		}
+		codeStream.generateImplicitConversion(implicitConversion);		
 		codeStream.generateConstant(
 			postIncrement.expression.constant,
 			implicitConversion);

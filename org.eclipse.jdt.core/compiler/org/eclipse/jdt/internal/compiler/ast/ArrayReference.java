@@ -163,10 +163,11 @@ public class ArrayReference extends Reference {
 				codeStream.dup_x2();
 			}
 		}
+		codeStream.generateImplicitConversion(implicitConversion);		
 		codeStream.generateConstant(
 			postIncrement.expression.constant,
 			implicitConversion);
-		codeStream.sendOperator(postIncrement.operator, this.resolvedType.id);
+		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
 			postIncrement.assignmentImplicitConversion);
 		codeStream.arrayAtPut(this.resolvedType.id, false);
