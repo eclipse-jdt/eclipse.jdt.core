@@ -1520,6 +1520,7 @@ public class JavaProject
 					if (!visited.add(projectName)) return true;
 					JavaProject project = (JavaProject)JavaCore.create(workspaceRoot.getProject(projectName));
 					if (project.hasClasspathCycle(null, visited, workspaceRoot)) return true;
+					visited.remove(projectName);
 				}
 			}
 		} catch(JavaModelException e){
