@@ -87,13 +87,13 @@ protected void consumeClassHeaderName() {
 	TypeDeclaration typeDecl;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration();
+			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
 		} else {
-			typeDecl = new CodeSnippetTypeDeclaration();
+			typeDecl = new CodeSnippetTypeDeclaration(this.compilationUnit.compilationResult);
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration();
+		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
 		markCurrentMethodWithLocalType();
 		blockReal();
 	}
@@ -165,13 +165,13 @@ protected void consumeInterfaceHeaderName() {
 	TypeDeclaration typeDecl;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration();
+			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
 		} else {
-			typeDecl = new CodeSnippetTypeDeclaration();
+			typeDecl = new CodeSnippetTypeDeclaration(this.compilationUnit.compilationResult);
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration();
+		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
 		markCurrentMethodWithLocalType(); 
 		blockReal();
 	}

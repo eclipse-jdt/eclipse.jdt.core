@@ -658,7 +658,7 @@ protected void consumeMethodHeaderName() {
 		super.consumeMethodHeaderName();
 	} else {
 		// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-		CompletionOnMethodName md = new CompletionOnMethodName();
+		CompletionOnMethodName md = new CompletionOnMethodName(this.compilationUnit.compilationResult);
 	
 		//name
 		md.selector = identifierStack[identifierPtr];

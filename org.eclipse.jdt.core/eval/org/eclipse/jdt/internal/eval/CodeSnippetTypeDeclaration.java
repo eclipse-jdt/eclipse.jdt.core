@@ -7,9 +7,15 @@ package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 
 public class CodeSnippetTypeDeclaration extends TypeDeclaration {
+
+public CodeSnippetTypeDeclaration(CompilationResult compilationResult){
+	super(compilationResult);
+}
+
 /**
  * Generic bytecode generation for type
  */

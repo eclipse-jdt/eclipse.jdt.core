@@ -37,7 +37,12 @@ public class TypeDeclaration
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	protected boolean hasBeenGenerated = false;
+	public CompilationResult compilationResult;
 
+	public TypeDeclaration(CompilationResult compilationResult){
+		this.compilationResult = compilationResult;
+	}
+		
 	/*
 	 *	We cause the compilation task to abort to a given extent.
 	 */
@@ -89,7 +94,7 @@ public class TypeDeclaration
 					1,
 					length);
 			}
-			Clinit clinit = new Clinit();
+			Clinit clinit = new Clinit(this.compilationResult);
 			methods[0] = clinit;
 			// clinit is added in first location, so as to minimize the use of ldcw (big consumer of constant inits)
 			clinit.declarationSourceStart = clinit.sourceStart = sourceStart;
@@ -457,7 +462,7 @@ public class TypeDeclaration
 						ConstructorDeclaration c = (ConstructorDeclaration) am;
 						if ((c.constructorCall == null)
 							|| (c.constructorCall.isImplicitSuper())) { //changed to a method
-							MethodDeclaration m = new MethodDeclaration();
+							MethodDeclaration m = new MethodDeclaration(this.compilationResult);
 							m.sourceStart = c.sourceStart;
 							m.sourceEnd = c.sourceEnd;
 							m.bodyStart = c.bodyStart;
@@ -477,8 +482,7 @@ public class TypeDeclaration
 						if (this.isInterface()) {
 							// report the problem and continue the parsing
 							parser.problemReporter().interfaceCannotHaveConstructors(
-								(ConstructorDeclaration) am,
-								parser.compilationUnit.compilationResult);
+								(ConstructorDeclaration) am);
 						}
 						hasConstructor = true;
 					}
@@ -490,7 +494,7 @@ public class TypeDeclaration
 
 	public CompilationResult compilationResult() {
 
-		return scope.referenceCompilationUnit().compilationResult;
+		return this.compilationResult;
 	}
 
 	public ConstructorDeclaration createsInternalConstructor(
@@ -503,7 +507,7 @@ public class TypeDeclaration
 		//the default int instead of just null (consistency purpose)
 
 		//the constructor
-		ConstructorDeclaration constructor = new ConstructorDeclaration();
+		ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
 		constructor.isDefaultConstructor = true;
 		constructor.selector = name;
 		if (modifiers != AccDefault) {
@@ -754,8 +758,8 @@ public class TypeDeclaration
 			return;
 
 		// no scope were created, so cannot report further errors
-		if (binding == null)
-			return;
+//		if (binding == null)
+//			return;
 
 		//members
 		if (memberTypes != null) {

@@ -1075,7 +1075,7 @@ protected void consumeAllocationHeader() {
 	}
 	if (currentToken == TokenNameLBRACE){
 		// beginning of an anonymous type
-		AnonymousLocalTypeDeclaration anonymousType = new AnonymousLocalTypeDeclaration();
+		AnonymousLocalTypeDeclaration anonymousType = new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult);
 		anonymousType.sourceStart = intStack[intPtr--];
 		anonymousType.sourceEnd = rParenPos; // closing parenthesis
 		lastCheckPoint = anonymousType.bodyStart = scanner.currentPosition;
@@ -1479,13 +1479,13 @@ protected void consumeClassHeaderName() {
 	TypeDeclaration typeDecl;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration();
+			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
 		} else {
-			typeDecl = new TypeDeclaration();
+			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration();
+		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
 		markCurrentMethodWithLocalType();
 		blockReal();
 	}
@@ -1675,7 +1675,7 @@ protected void consumeConstructorHeaderName() {
 	}
 	
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
-	ConstructorDeclaration cd = new ConstructorDeclaration();
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = identifierStack[identifierPtr];
@@ -1814,7 +1814,7 @@ protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
 	QualifiedAllocationExpression alloc;
 	AnonymousLocalTypeDeclaration anonymousType = 
-		new AnonymousLocalTypeDeclaration(); 
+		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
 	alloc = 
 		anonymousType.allocation = new QualifiedAllocationExpression(anonymousType); 
 	markCurrentMethodWithLocalType();
@@ -2238,13 +2238,13 @@ protected void consumeInterfaceHeaderName() {
 	TypeDeclaration typeDecl;
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl = new MemberTypeDeclaration();
+			typeDecl = new MemberTypeDeclaration(this.compilationUnit.compilationResult);
 		} else {
-			typeDecl = new TypeDeclaration();
+			typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl = new LocalTypeDeclaration();
+		typeDecl = new LocalTypeDeclaration(this.compilationUnit.compilationResult);
 		markCurrentMethodWithLocalType();
 		blockReal();
 	}
@@ -2445,7 +2445,7 @@ protected void consumeMethodHeaderExtendedDims() {
 }
 protected void consumeMethodHeaderName() {
 	// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-	MethodDeclaration md = new MethodDeclaration();
+	MethodDeclaration md = new MethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
 	md.selector = identifierStack[identifierPtr];
@@ -2580,7 +2580,7 @@ protected void consumeMethodInvocationSuper() {
 protected void consumeMethodPushModifiersHeaderName() {
 	// MethodPushModifiersHeaderName ::= Modifiers Type PushModifiers 'Identifier' '('
 	// MethodPushModifiersHeaderName ::= Type PushModifiers 'Identifier' '(' 
-	MethodDeclaration md = new MethodDeclaration();
+	MethodDeclaration md = new MethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
 	md.selector = identifierStack[identifierPtr];
@@ -4189,7 +4189,7 @@ protected void consumeToken(int type) {
 		// added preventive null check see PR 9035
 		if (literals != null) {
 			for (int i = 0, max = literals.length; i < max; i++) {
-				problemReporter().nonExternalizedStringLiteral(literals[i], this.compilationUnit.compilationResult);
+				problemReporter().nonExternalizedStringLiteral(literals[i]);
 			}
 		}
 		scanner.currentLine = null;
@@ -6422,7 +6422,7 @@ protected void ignoreMethodBody() {
 	md.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
 
 	// report the problem and continue the parsing - narrowing the problem onto the method
-	problemReporter().abstractMethodNeedingNoBody(md, compilationUnit.compilationResult);
+	problemReporter().abstractMethodNeedingNoBody(md);
 }
 public void initialize() {
 	//positionning the parser for a new compilation unit
@@ -7228,9 +7228,7 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 				this.scanner.currentPosition - 1, 
 				tokenSource, 
 				tokenName, 
-				expectings,
-				referenceContext,
-				compilationUnit.compilationResult); 
+				expectings); 
 		}
 	} else { //the next test is HEAVILY grammar DEPENDENT.
 		if ((length == 2)
@@ -7252,9 +7250,7 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 				this.scanner.currentPosition - 1, 
 				tokenSource, 
 				tokenName, 
-				expectings,
-				referenceContext,
-				compilationUnit.compilationResult); 
+				expectings); 
 			this.checkAndReportBracketAnomalies(problemReporter());
 		}
 	}

@@ -1,6 +1,6 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeFound;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -8,6 +8,10 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 public class CompletionOnMethodName extends MethodDeclaration {
 	public int selectorEnd;
 
+	public CompletionOnMethodName(CompilationResult compilationResult){
+		super(compilationResult);
+	}
+	
 	public void resolve(ClassScope upperScope) {
 		
 		super.resolve(upperScope);

@@ -25,6 +25,10 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	public int referenceCount = 0;
 	// count how many times this constructor is referenced from other local constructors
 
+	public ConstructorDeclaration(CompilationResult compilationResult){
+		super(compilationResult);
+	}
+	
 	public void analyseCode(
 		ClassScope classScope,
 		InitializationFlowContext initializerFlowContext,

@@ -67,7 +67,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		compilationUnit.types = new TypeDeclaration[typeCount];
 		for (int i = 0; i < typeCount; i++) {
 			compilationUnit.types[i] =
-				convert(sourceTypes[i], needFieldsAndMethods, needMemberTypes);
+				convert(sourceTypes[i], needFieldsAndMethods, needMemberTypes, compilationResult);
 		}
 		return compilationUnit;
 	}
@@ -103,7 +103,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	/*
 	 * Convert a method source element into a parsed method/constructor declaration 
 	 */
-	private static AbstractMethodDeclaration convert(ISourceMethod sourceMethod) {
+	private static AbstractMethodDeclaration convert(ISourceMethod sourceMethod, CompilationResult compilationResult) {
 
 		AbstractMethodDeclaration method;
 
@@ -112,11 +112,11 @@ public class SourceTypeConverter implements CompilerModifiers {
 		int end = sourceMethod.getNameSourceEnd();
 
 		if (sourceMethod.isConstructor()) {
-			ConstructorDeclaration decl = new ConstructorDeclaration();
+			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
 			decl.isDefaultConstructor = false;
 			method = decl;
 		} else {
-			MethodDeclaration decl = new MethodDeclaration();
+			MethodDeclaration decl = new MethodDeclaration(compilationResult);
 			/* convert return type */
 			decl.returnType =
 				createTypeReference(sourceMethod.getReturnTypeName(), start, end);
@@ -164,13 +164,14 @@ public class SourceTypeConverter implements CompilerModifiers {
 	private static TypeDeclaration convert(
 		ISourceType sourceType,
 		boolean needFieldsAndMethods,
-		boolean needMemberTypes) {
+		boolean needMemberTypes,
+		CompilationResult compilationResult) {
 		/* create type declaration - can be member type */
 		TypeDeclaration type;
 		if (sourceType.getEnclosingType() == null) {
-			type = new TypeDeclaration();
+			type = new TypeDeclaration(compilationResult);
 		} else {
-			type = new MemberTypeDeclaration();
+			type = new MemberTypeDeclaration(compilationResult);
 		}
 		type.name = sourceType.getName();
 		int start, end; // only positions available
@@ -201,7 +202,8 @@ public class SourceTypeConverter implements CompilerModifiers {
 				type.memberTypes[i] =
 					(MemberTypeDeclaration) convert(sourceMemberTypes[i],
 						needFieldsAndMethods,
-						true);
+						true,
+						compilationResult);
 			}
 		}
 		/* convert fields and methods */
@@ -234,7 +236,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			}
 			boolean isInterface = type.isInterface();
 			for (int i = 0; i < sourceMethodCount; i++) {
-				AbstractMethodDeclaration method =convert(sourceMethods[i]);
+				AbstractMethodDeclaration method =convert(sourceMethods[i], compilationResult);
 				if (isInterface || method.isAbstract()) { // fix-up flag 
 					method.modifiers |= AccSemicolonBody;
 				}

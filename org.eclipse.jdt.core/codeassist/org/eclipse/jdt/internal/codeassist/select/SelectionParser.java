@@ -162,7 +162,7 @@ protected void consumeEnterAnonymousClassBody() {
 	}
 	QualifiedAllocationExpression alloc;
 	AnonymousLocalTypeDeclaration anonymousType = 
-		new AnonymousLocalTypeDeclaration(); 
+		new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult); 
 	alloc = 
 		anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
 	markCurrentMethodWithLocalType();

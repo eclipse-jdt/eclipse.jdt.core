@@ -35,7 +35,12 @@ public abstract class AbstractMethodDeclaration
 
 	public int bodyStart;
 	public int bodyEnd = -1;
-
+	public CompilationResult compilationResult;
+	
+	AbstractMethodDeclaration(CompilationResult compilationResult){
+		this.compilationResult = compilationResult;
+	}
+	
 	/*
 	 *	We cause the compilation task to abort to a given extent.
 	 */
@@ -152,7 +157,7 @@ public abstract class AbstractMethodDeclaration
 
 	public CompilationResult compilationResult() {
 		
-		return scope.referenceCompilationUnit().compilationResult;
+		return this.compilationResult;
 	}
 	
 	/**

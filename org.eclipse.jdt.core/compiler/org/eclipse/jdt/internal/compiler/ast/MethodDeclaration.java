@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.compiler.ast;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -18,8 +19,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	/**
 	 * MethodDeclaration constructor comment.
 	 */
-	public MethodDeclaration() {
-		super();
+	public MethodDeclaration(CompilationResult compilationResult) {
+		super(compilationResult);
 	}
 
 	public void checkName() {

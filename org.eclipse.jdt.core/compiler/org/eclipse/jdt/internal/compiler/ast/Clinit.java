@@ -20,7 +20,8 @@ public class Clinit extends AbstractMethodDeclaration {
 	private FieldBinding assertionSyntheticFieldBinding = null;
 	private FieldBinding classLiteralSyntheticField = null;
 
-	public Clinit() {
+	public Clinit(CompilationResult compilationResult) {
+		super(compilationResult);
 		modifiers = 0;
 		selector = ConstantPoolName;
 	}

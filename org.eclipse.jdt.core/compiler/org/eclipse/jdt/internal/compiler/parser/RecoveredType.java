@@ -340,10 +340,10 @@ public TypeDeclaration updatedTypeDeclaration(){
 	/* might need to cast itself into a MemberTypeDeclaration or a LocalTypeDeclaration */
 	TypeDeclaration newTypeDeclaration = null;
 	if ((typeDeclaration instanceof TypeDeclaration) && (parent instanceof RecoveredType)){
-		newTypeDeclaration = new MemberTypeDeclaration();
+		newTypeDeclaration = new MemberTypeDeclaration(typeDeclaration.compilationResult);
 	} else {
 		if ((typeDeclaration instanceof TypeDeclaration) && (parent instanceof RecoveredMethod)){
-			newTypeDeclaration = new LocalTypeDeclaration();
+			newTypeDeclaration = new LocalTypeDeclaration(typeDeclaration.compilationResult);
 		}
 	}
 	/* copy slots into new type */

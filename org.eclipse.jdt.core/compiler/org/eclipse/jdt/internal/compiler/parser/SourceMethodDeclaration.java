@@ -5,9 +5,15 @@ package org.eclipse.jdt.internal.compiler.parser;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 public class SourceMethodDeclaration extends MethodDeclaration {
 	public int selectorSourceEnd;
+	
+	public SourceMethodDeclaration(CompilationResult compilationResult){
+		super(compilationResult);
+	}
+	
 }

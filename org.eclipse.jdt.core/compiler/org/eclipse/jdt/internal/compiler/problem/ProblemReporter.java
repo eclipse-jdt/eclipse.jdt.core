@@ -64,14 +64,14 @@ public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBindin
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void abstractMethodNeedingNoBody(AbstractMethodDeclaration method, CompilationResult result) {
+public void abstractMethodNeedingNoBody(AbstractMethodDeclaration method) {
 	this.handle(
 		IProblem.BodyForAbstractMethod,
 		new String[0],
 		method.sourceStart,
 		method.sourceEnd,
 		method,
-		result);
+		method.compilationResult());
 }
 public void alreadyDefinedLabel(char[] labelName, AstNode location) {
 	this.handle(
@@ -1169,14 +1169,14 @@ public void innerTypesCannotDeclareStaticInitializers(ReferenceBinding innerType
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void interfaceCannotHaveConstructors(ConstructorDeclaration constructor, CompilationResult result) {
+public void interfaceCannotHaveConstructors(ConstructorDeclaration constructor) {
 	this.handle(
 		IProblem.InterfaceCannotHaveConstructors,
 		new String[0],
 		constructor.sourceStart,
 		constructor.sourceEnd,
 		constructor,
-		result);
+		constructor.compilationResult());
 }
 public void interfaceCannotHaveInitializers(SourceTypeBinding type, FieldDeclaration fieldDecl) {
 	this.handle(
@@ -1828,9 +1828,7 @@ public void parseError(
 	int endPosition, 
 	char[] currentTokenSource, 
 	String errorTokenName, 
-	String[] possibleTokens,
-	ReferenceContext context,
-	CompilationResult compilationResult) {
+	String[] possibleTokens) {
 		
 	if (possibleTokens.length == 0) { //no suggestion available
 		if (isKeyword(currentTokenSource)) {
@@ -1839,9 +1837,7 @@ public void parseError(
 				new String[] {new String(currentTokenSource)},
 				// this is the current -invalid- token position
 				startPosition,
-				endPosition,
-				context,
-				compilationResult);
+				endPosition);
 			return;
 		} else {
 			this.handle(
@@ -1849,9 +1845,7 @@ public void parseError(
 				new String[] {errorTokenName},
 				// this is the current -invalid- token position
 				startPosition,
-				endPosition,
-				context, 
-				compilationResult);
+				endPosition);
 			return;
 		}
 	}
@@ -1872,9 +1866,7 @@ public void parseError(
 			new String[] {new String(currentTokenSource), list.toString()},
 			// this is the current -invalid- token position
 			startPosition,
-			endPosition,
-			context,
-			compilationResult);
+			endPosition);
 		return;
 	}
 	//extract the literal when it's a literal  
@@ -1893,9 +1885,7 @@ public void parseError(
 		new String[] {errorTokenName, list.toString()},
 		// this is the current -invalid- token position
 		startPosition,
-		endPosition,
-		context,
-		compilationResult);
+		endPosition);
 }
 public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	this.referenceContext = typeDecl; // report the problem against the type not the entire compilation unit
@@ -2331,14 +2321,12 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, int under
 		typeRef.sourceEnd);
 }
 
-public void nonExternalizedStringLiteral(AstNode location, CompilationResult result) {
+public void nonExternalizedStringLiteral(AstNode location) {
 	this.handle(
 		IProblem.NonExternalizedStringLiteral,
 		new String[] {},
 		location.sourceStart,
-		location.sourceEnd,
-		this.referenceContext,
-		result);
+		location.sourceEnd);
 }
 
 public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) {

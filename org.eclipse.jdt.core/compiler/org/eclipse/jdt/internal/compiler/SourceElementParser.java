@@ -140,7 +140,7 @@ protected void consumeConstructorHeaderName() {
 			return;
 		}
 	}
-	SourceConstructorDeclaration cd = new SourceConstructorDeclaration();
+	SourceConstructorDeclaration cd = new SourceConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = identifierStack[identifierPtr];
@@ -205,7 +205,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 }
 protected void consumeMethodHeaderName() {
 	// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
-	SourceMethodDeclaration md = new SourceMethodDeclaration();
+	SourceMethodDeclaration md = new SourceMethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
 	md.selector = identifierStack[identifierPtr];

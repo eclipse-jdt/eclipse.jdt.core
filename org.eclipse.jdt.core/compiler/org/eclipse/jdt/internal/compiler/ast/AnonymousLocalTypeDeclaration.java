@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.compiler.ast;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -14,8 +15,8 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 	public static final char[] ANONYMOUS_EMPTY_NAME = new char[] {};
 	public QualifiedAllocationExpression allocation;
 
-	public AnonymousLocalTypeDeclaration() {
-		super();
+	public AnonymousLocalTypeDeclaration(CompilationResult compilationResult) {
+		super(compilationResult);
 		modifiers = AccDefault;
 		name = ANONYMOUS_EMPTY_NAME;
 	} 
@@ -31,7 +32,7 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 		TypeBinding[] argumentTypes = inheritedConstructorBinding.parameters;
 		int argumentsLength = argumentTypes.length;
 		//the constructor
-		ConstructorDeclaration cd = new ConstructorDeclaration();
+		ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationResult);
 		cd.selector = new char[] { 'x' }; //no maining
 		cd.sourceStart = sourceStart;
 		cd.sourceEnd = sourceEnd;
