@@ -122,6 +122,9 @@ STREAM: 2.0
   * ISourceElementRequestor notifies enter/exit initializers instead of just acceptInitializer.
 	Note: this was not an official API
   * Search in inner-classes now works. Indexes are recomputed automatically on start-up.
+  * Removed CodeAssist option for hungry mode (org.eclipse.jdt.core.codeComplete.entireWordReplacement)
+  	Client code can decide whether using inferred end position (hungry behavior) or original cursor location (insert behavior)
+  	based on the keystroke (enter/insert?).
   	
   PRs Fixed in this Release
   ================================================================================

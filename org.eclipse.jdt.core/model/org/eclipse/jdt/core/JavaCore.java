@@ -1206,12 +1206,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:				"org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:	{ "enabled", "disabled" }
 	 *     - default:				"disabled"
-	 * 
-	 *	CODEASSIST / Activate Entire Word Replacemement Completion
-	 *    When Active, completion replace all the word.
-	 *     - option id:				"org.eclipse.jdt.core.codeComplete.entireWordReplacement"
-	 *     - possible values:	{ "replace", "do not replace" }
-	 *     - default:				"replace"
 	 */
  	public static Hashtable getDefaultOptions(){
 	
@@ -1252,7 +1246,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		// CodeAssist settings
 		defaultOptions.put("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
-		defaultOptions.put("org.eclipse.jdt.core.codeComplete.entireWordReplacement", "replace"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return defaultOptions;
 	}

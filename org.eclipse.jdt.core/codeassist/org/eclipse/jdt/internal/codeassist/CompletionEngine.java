@@ -1432,10 +1432,6 @@ public final class CompletionEngine
 	}
 	private void setSourceRange(int start, int end) {
 		this.startPosition = start;
-		if (options.replaceEntireWord()) {
-			this.endPosition = end + 1; // Add 1 for now
-		} else {
-			this.endPosition = actualCompletionPosition + 1;
-		}
+		this.endPosition = end + 1;
 	}
 }
