@@ -204,7 +204,7 @@ public class JavaProject
 		}
 		
 		IPath[] exclusionPatterns;
-		if ((exclusionPatterns = entry.getExclusionPatterns()) != null) {
+		if ((exclusionPatterns = entry.getExclusionPatterns()).length > 0) {
 			StringBuffer excludeRule = new StringBuffer(10);
 			for (int i = 0, max = exclusionPatterns.length; i < max; i++){
 				if (i > 0) excludeRule.append('|');
@@ -1898,7 +1898,7 @@ public class JavaProject
 
 					// exclusion patterns (optional)
 					String exclusion = cpeElement.getAttribute("excluding"); //$NON-NLS-1$ 
-					IPath[] exclusionPatterns = null;
+					IPath[] exclusionPatterns = ClasspathEntry.NO_EXCLUSION_PATTERNS;
 					if (!exclusion.equals("")) {
 						char[][] patterns = CharOperation.splitOn('|', exclusion.toCharArray());
 						int patternCount;
@@ -1957,7 +1957,7 @@ public class JavaProject
 									ClasspathEntry.K_OUTPUT,
 									IClasspathEntry.CPE_LIBRARY,
 									path,
-									null, // exclusion patterns
+									ClasspathEntry.NO_EXCLUSION_PATTERNS, 
 									null, // source attachment
 									null, // source attachment root
 									false));

@@ -61,7 +61,12 @@ public class ClasspathEntry implements IClasspathEntry {
 	public IPath[] exclusionPatterns;
 	private char[][] fullCharExclusionPatterns;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
-	
+
+	/**
+	 * Default exclusion pattern set
+	 */
+	public final static IPath[] NO_EXCLUSION_PATTERNS = {};
+				
 	/**
 	 * Describes the path to the source archive associated with this
 	 * classpath entry, or <code>null</code> if this classpath entry has no
@@ -109,8 +114,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.contentKind = contentKind;
 		this.entryKind = entryKind;
 		this.path = path;
-		if (exclusionPatterns != null && exclusionPatterns.length > 0) {
-			this.exclusionPatterns = exclusionPatterns;
+		this.exclusionPatterns = exclusionPatterns;
+		if (exclusionPatterns.length > 0) {
 			this.fullCharExclusionPatterns = UNINIT_PATTERNS;
 		}
 		this.sourceAttachmentPath = sourceAttachmentPath;
@@ -178,13 +183,10 @@ public class ClasspathEntry implements IClasspathEntry {
 					return false;
 			}
 
-			if (this.exclusionPatterns == null){
-				if (otherEntry.getExclusionPatterns() != null)
-					return false;
-			} else {
+			IPath[] otherExcludes = otherEntry.getExclusionPatterns();
+			if (this.exclusionPatterns != otherExcludes){
 				int excludeLength = this.exclusionPatterns.length;
-				IPath[] otherExcludes = otherEntry.getExclusionPatterns();
-				if (otherExcludes == null || otherExcludes.length != excludeLength)
+				if (otherExcludes.length != excludeLength) 
 					return false;
 				for (int i = 0; i < excludeLength; i++){
 					if (!this.exclusionPatterns[i].equals(otherExcludes[i]))
@@ -304,9 +306,10 @@ public class ClasspathEntry implements IClasspathEntry {
 		buffer.append(this.isExported);
 		buffer.append(']');
 		IPath[] patterns = getExclusionPatterns();
-		if (patterns != null) {
+		int length;
+		if ((length = patterns.length) > 0) {
 			buffer.append("[excluding:"); //$NON-NLS-1$
-			for (int i = 0, length = patterns.length; i < length; i++) {
+			for (int i = 0; i < length; i++) {
 				buffer.append(patterns[i]);
 				if (i != length-1) {
 					buffer.append('|');

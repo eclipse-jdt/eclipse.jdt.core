@@ -118,26 +118,26 @@ public interface IClasspathEntry {
 	 * library. A library is a folder or JAR containing package
 	 * fragments consisting of pre-compiled binaries.
 	 */
-	public static final int CPE_LIBRARY = 1;
+	int CPE_LIBRARY = 1;
 
 	/**
 	 * Entry kind constant describing a classpath entry identifying a
 	 * required project.
 	 */
-	public static final int CPE_PROJECT = 2;
+	int CPE_PROJECT = 2;
 
 	/**
 	 * Entry kind constant describing a classpath entry identifying a
 	 * folder containing package fragments with source code
 	 * to be compiled.
 	 */
-	public static final int CPE_SOURCE = 3;
+	int CPE_SOURCE = 3;
 
 	/**
 	 * Entry kind constant describing a classpath entry defined using
 	 * a path that begins with a classpath variable reference.
 	 */
-	public static final int CPE_VARIABLE = 4;
+	int CPE_VARIABLE = 4;
 
 	/**
 	 * Entry kind constant describing a classpath entry representing
@@ -145,8 +145,8 @@ public interface IClasspathEntry {
 	 * 
 	 * @since 2.0
 	 */
-	public static final int CPE_CONTAINER = 5;
-	
+	int CPE_CONTAINER = 5;
+
 	/**
 	 * Returns the kind of files found in the package fragments identified by this
 	 * classpath entry.
@@ -249,9 +249,7 @@ public interface IClasspathEntry {
 	 * </ul>
 	 * </p>
 	 * 
-	 * @return the resource exclusion patterns associated with this source 
-	 *    entry, or <code>null</code> if none was specified.
-	 * TODO: This method should return an empty array rather than null
+	 * @return the resource exclusion patterns associated with this source entry.
 	 * @since 2.1	 */
 	IPath[] getExclusionPatterns();
 	

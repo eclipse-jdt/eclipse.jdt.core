@@ -1813,7 +1813,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_CONTAINER,
 			containerPath,
-			null, // exclusion pattern
+			ClasspathEntry.NO_EXCLUSION_PATTERNS, 
 			null, // source attachment
 			null, // source attachment root
 			isExported);
@@ -1899,7 +1899,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IPackageFragmentRoot.K_BINARY,
 			IClasspathEntry.CPE_LIBRARY,
 			JavaProject.canonicalizedPath(path),
-			null, // exclusion patterns
+			ClasspathEntry.NO_EXCLUSION_PATTERNS, 
 			sourceAttachmentPath,
 			sourceAttachmentRootPath,
 			isExported);
@@ -1959,7 +1959,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_PROJECT,
 			path,
-			null, // exclusion patterns
+			ClasspathEntry.NO_EXCLUSION_PATTERNS, 
 			null, // source attachment
 			null, // source attachment root
 			isExported);
@@ -1998,7 +1998,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 
-		return newSourceEntry(path, null);
+		return newSourceEntry(path, ClasspathEntry.NO_EXCLUSION_PATTERNS);
 	}
 	
 	/**
@@ -2026,8 +2026,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * TODO: should mention existence of other method if you don't need exclusion filters
 	 *
 	 * @param path the absolute path of a source folder
-	 * @param exclusionPatterns the resource path patterns to exclude (<code>null</code> if none)
-	 * TODO: This method should expect an empty array rather than null
+	 * @param exclusionPatterns the resource path patterns to exclude
 	 * @return a new source classpath entry
 	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
 	 * @see IClasspathEntry#getExclusionPatterns
@@ -2036,6 +2035,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static IClasspathEntry newSourceEntry(IPath path, IPath[] exclusionPatterns) {
 		
 		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+		Assert.isTrue(exclusionPatterns != null, Util.bind("classpath.nullExclusionPattern" )); //$NON-NLS-1$
 
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
@@ -2147,7 +2147,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_VARIABLE,
 			variablePath,
-			null, // exclusion patterns
+			ClasspathEntry.NO_EXCLUSION_PATTERNS, 
 			variableSourceAttachmentPath, // source attachment
 			variableSourceAttachmentRootPath, // source attachment root			
 			isExported);
