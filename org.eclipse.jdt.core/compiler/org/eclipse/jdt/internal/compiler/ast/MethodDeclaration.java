@@ -21,7 +21,7 @@ public MethodDeclaration() {
 }
 public void checkName() {
 	// look if the name of the method is correct
-	if (isTypeUseDeprecated(binding.returnType, scope))
+	if (binding != null && isTypeUseDeprecated(binding.returnType, scope))
 		scope.problemReporter().deprecatedType(binding.returnType, returnType);
 
 	if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector))
@@ -53,11 +53,11 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit){
 public void resolve(ClassScope upperScope) {
 	if (binding == null) {
 		ignoreFurtherInvestigation = true;
-		return;
+		//return;
 	}
 	// ========= abort on fatal error =============
 	try {
-		if (this.returnType != null){
+		if (this.returnType != null && this.binding != null){
 			this.returnType.binding = this.binding.returnType; // record the return type binding
 		}
 	} catch (AbortMethod e) {

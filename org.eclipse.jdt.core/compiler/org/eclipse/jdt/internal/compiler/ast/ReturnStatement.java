@@ -187,9 +187,12 @@ public void prepareSaveValueLocation(TryStatement targetTryStatement){
 }
 public void resolve(BlockScope scope) {
 	MethodScope methodScope = scope.methodScope();
+	MethodBinding methodBinding;
 	TypeBinding methodType =
 		(methodScope.referenceContext instanceof AbstractMethodDeclaration)
-			? ((AbstractMethodDeclaration) methodScope.referenceContext).binding.returnType
+			? ((methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding) == null 
+				? null 
+				: methodBinding.returnType)
 			: VoidBinding;
 	if (methodType == VoidBinding) {
 		// the expression should be null
@@ -206,7 +209,7 @@ public void resolve(BlockScope scope) {
 	if ((expressionType = expression.resolveType(scope)) == null)
 		return;
 
-	if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
+	if (methodType != null && expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)) {
 		// dealing with constant
 		expression.implicitWidening(methodType, expressionType);
 		return;
@@ -215,14 +218,15 @@ public void resolve(BlockScope scope) {
 		scope.problemReporter().attemptToReturnVoidValue(this);
 		return;
 	}
-	if (scope.areTypesCompatible(expressionType, methodType)) {
+	if (methodType != null && scope.areTypesCompatible(expressionType, methodType)) {
 		expression.implicitWidening(methodType, expressionType);
 		return;
 	}
-	scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionType, methodType);
+	if (methodType != null){
+		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionType, methodType);
+	}
 }
 public String toString(int tab){
-	/* slow code */
 
 	String s = tabString(tab) ;
 	s = s + "return "; //$NON-NLS-1$

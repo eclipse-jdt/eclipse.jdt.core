@@ -2130,17 +2130,10 @@ public final class CompletionEngine
 	}
 
 	// Helper method for private void findVariableNames(char[] name, TypeReference type )
-	private void findVariableName(char[] token, char[] qualifiedPackageName, char[] qualifiedSourceName, char[] sourceName, char[][] excludeNames, boolean forArray){
+	private void findVariableName(char[] token, char[] qualifiedPackageName, char[] qualifiedSourceName, char[] sourceName, char[][] excludeNames, int dim){
 			if(sourceName == null || sourceName.length == 0)
 				return;
 				
-			if(nameEnvironment.findType(qualifiedSourceName, CharOperation.splitOn('.', qualifiedPackageName)) == null)
-				return;
-			
-			if(forArray) {
-				sourceName = CharOperation.subarray(sourceName, 0, sourceName.length - 2);
-			}
-
 			char[] name = null;
 			
 			// compute variable name for base type
@@ -2161,7 +2154,7 @@ public final class CompletionEngine
 					case TokenNameboolean :
 						if(token != null && token.length != 0)
 							return;
-						name = computeBaseNames('z', excludeNames);
+						name = computeBaseNames('b', excludeNames);
 						break;
 				}
 				if(name != null) {
@@ -2179,7 +2172,19 @@ public final class CompletionEngine
 			}
 			
 			// compute variable name for non base type
-			char[][] names = computeNames(sourceName, forArray);
+			char[][] names = computeNames(sourceName, dim > 0);
+			char[] displayName;
+			if (dim > 0){
+				int l = qualifiedSourceName.length;
+				displayName = new char[l+(2*dim)];
+				System.arraycopy(qualifiedSourceName, 0, displayName, 0, l);
+				for(int i = 0; i < dim; i++){
+					displayName[l+(i*2)] = '[';
+					displayName[l+(i*2)+1] = ']';
+				}
+			} else {
+				displayName = qualifiedSourceName;
+			}
 			next : for(int i = 0 ; i < names.length ; i++){
 				name = names[i];
 				
@@ -2207,7 +2212,7 @@ public final class CompletionEngine
 				// accept result
 				requestor.acceptVariableName(
 					qualifiedPackageName,
-					qualifiedSourceName,
+					displayName,
 					name,
 					name,
 					startPosition,
@@ -2216,19 +2221,19 @@ public final class CompletionEngine
 	}
 
 	private void findVariableNames(char[] name, TypeReference type , char[][] excludeNames){
-		if(
-			type != null &&
+
+		if(type != null &&
 			type.binding != null &&
 			type.binding.problemId() == Binding.NoError){
 			TypeBinding tb = type.binding;
 			findVariableName(
 				name,
-				tb.qualifiedPackageName(),
-				tb.qualifiedSourceName(),
-				tb.sourceName(),
+				tb.leafComponentType().qualifiedPackageName(),
+				tb.leafComponentType().qualifiedSourceName(),
+				tb.leafComponentType().sourceName(),
 				excludeNames,
-				type.dimensions() != 0);
-		} else {
+				type.dimensions());
+		}/*	else {
 			char[][] typeName = type.getTypeName();
 			findVariableName(
 				name,
@@ -2236,8 +2241,8 @@ public final class CompletionEngine
 				CharOperation.concatWith(typeName, '.'),
 				typeName[typeName.length - 1],
 				excludeNames,
-				type.dimensions() != 0);
-		}
+				type.dimensions());
+		}*/
 	}
 	
 	public AssistParser getParser() {
@@ -2336,17 +2341,35 @@ public final class CompletionEngine
 					
 					if(forArray) {
 						int length = name.length;
-						System.arraycopy(name, 0, name = new char[length + 1], 0, length);
-						name[length] = 's';
-					}
-					
+						if (name[length-1] == 's'){
+							System.arraycopy(name, 0, name = new char[length + 2], 0, length);
+							name[length] = 'e';
+							name[length+1] = 's';
+						} else {
+							System.arraycopy(name, 0, name = new char[length + 1], 0, length);
+							name[length] = 's';
+						}
+					}					
 					names[nameCount++] = name;
 				}
 			}
 			previousIsUpperCase = isUpperCase;
 		}
 		if(nameCount == 0){
-			names[nameCount++] = CharOperation.toLowerCase(sourceName);
+			char[] name = CharOperation.toLowerCase(sourceName);
+			if(forArray) {
+				int length = name.length;
+				if (name[length-1] == 's'){
+					System.arraycopy(name, 0, name = new char[length + 2], 0, length);
+					name[length] = 'e';
+					name[length+1] = 's';
+				} else {
+					System.arraycopy(name, 0, name = new char[length + 1], 0, length);
+					name[length] = 's';
+				}
+			}					
+			names[nameCount++] = name;
+			
 		}
 		System.arraycopy(names, 0, names = new char[nameCount][], 0, nameCount);
 		return names;

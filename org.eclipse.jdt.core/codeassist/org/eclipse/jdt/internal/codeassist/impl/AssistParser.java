@@ -68,8 +68,6 @@ public int bodyEnd(Initializer initializer){
  */
 public RecoveredElement buildInitialRecoveryState(){
 
-	if (!ENABLE_RECOVERY) return null; // do not resume to recovery
-
 	/* recovery in unit structure */
 	if (referenceContext instanceof CompilationUnitDeclaration){
 		RecoveredElement element = super.buildInitialRecoveryState();

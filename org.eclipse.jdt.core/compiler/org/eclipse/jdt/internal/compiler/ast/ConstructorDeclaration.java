@@ -113,7 +113,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			scope.problemReporter().missingReturnType(this);
 
 		// if null ==> an error has occurs at parsing time ....
-		if (constructorCall != null) {
+		if (constructorCall != null && binding != null) {
 			// e.g. using super() in java.lang.Object
 			if ((binding.declaringClass.id == T_Object)
 				&& (constructorCall.accessMode != ExplicitConstructorCall.This)) {
@@ -316,7 +316,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 		if (binding == null) {
 			ignoreFurtherInvestigation = true;
-			return;
+			//return;
 		}
 
 		super.resolve(upperScope);

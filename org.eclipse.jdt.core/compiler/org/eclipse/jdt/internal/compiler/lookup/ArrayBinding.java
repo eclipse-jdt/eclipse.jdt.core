@@ -89,6 +89,11 @@ boolean isCompatibleWith(TypeBinding right) {
 		return true;
 	return false;
 }
+
+public TypeBinding leafComponentType(){
+	return leafComponentType;
+}
+
 /* API
 * Answer the problem id associated with the receiver.
 * NoError if the receiver is a valid binding.

@@ -467,8 +467,9 @@ public abstract class Scope
 						interfaces[j].tagBits &= ~InterfaceVisited;
 				}
 			}
-			currentType =
-				(matchingMethod == null && found == null) ? getJavaLangObject() : null;
+			currentType = getJavaLangObject();
+			//currentType = 
+			//	(matchingMethod == null && found == null) ? getJavaLangObject() : null;
 		}
 
 		while (currentType != null) {

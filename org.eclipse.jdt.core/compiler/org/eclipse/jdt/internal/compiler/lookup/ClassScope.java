@@ -309,10 +309,12 @@ public class ClassScope extends Scope {
 					modifiers |= AccDeprecatedImplicitly;
 			} else {
 				MethodBinding method = ((AbstractMethodDeclaration) refContext).binding;
-				if (method.isStrictfp())
-					modifiers |= AccStrictfp;
-				if (method.isDeprecated())
-					modifiers |= AccDeprecatedImplicitly;
+				if (method != null){
+					if (method.isStrictfp())
+						modifiers |= AccStrictfp;
+					if (method.isDeprecated())
+						modifiers |= AccDeprecatedImplicitly;
+				}
 			}
 		}
 		// after this point, tests on the 16 bits reserved.

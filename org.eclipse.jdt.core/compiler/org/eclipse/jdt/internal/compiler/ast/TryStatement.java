@@ -356,11 +356,14 @@ public void resolve(BlockScope upperScope) {
 		this.anyExceptionVariable.constant = NotAConstant; // not inlinable
 
 		if (!methodScope.isInsideInitializer()){
-			TypeBinding methodReturnType = ((AbstractMethodDeclaration)methodScope.referenceContext).binding.returnType;
-			if (methodReturnType.id != T_void){
-				this.secretReturnValue = new LocalVariableBinding(SecretLocalDeclarationName, methodReturnType, AccDefault);
-				finallyScope.addLocalVariable(this.secretReturnValue);
-				this.secretReturnValue.constant = NotAConstant; // not inlinable
+			MethodBinding methodBinding = ((AbstractMethodDeclaration)methodScope.referenceContext).binding;
+			if (methodBinding != null){
+				TypeBinding methodReturnType = methodBinding.returnType;
+				if (methodReturnType.id != T_void){
+					this.secretReturnValue = new LocalVariableBinding(SecretLocalDeclarationName, methodReturnType, AccDefault);
+					finallyScope.addLocalVariable(this.secretReturnValue);
+					this.secretReturnValue.constant = NotAConstant; // not inlinable
+				}
 			}
 		}
 		finallyBlock.resolveUsing(finallyScope);

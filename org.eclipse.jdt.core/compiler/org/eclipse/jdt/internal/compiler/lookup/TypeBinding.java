@@ -83,6 +83,11 @@ public final boolean isNumericType() {
 			return false;
 	}
 }
+
+public TypeBinding leafComponentType(){
+	return this;
+}
+
 /**
  * Answer the qualified name of the receiver's package separated by periods
  * or an empty string if its the default package.

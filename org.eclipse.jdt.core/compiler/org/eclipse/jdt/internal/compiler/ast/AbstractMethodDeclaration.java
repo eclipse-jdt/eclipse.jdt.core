@@ -99,7 +99,7 @@ public void analyseCode(ClassScope currentScope, FlowContext flowContext, FlowIn
 public void bindArguments() {
 	//bind and add argument's binding into the scope of the method
 
-	if (arguments != null) {
+	if (arguments != null && binding != null) {
 		int length = arguments.length;
 		for (int i = 0; i < length; i++) {
 			arguments[i].bind(scope, binding.parameters[i], binding.isAbstract() | binding.isNative());// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
@@ -111,7 +111,7 @@ public void bindArguments() {
  */
 public void bindThrownExceptions() {
 
-	if (this.thrownExceptions != null && this.binding.thrownExceptions != null) {
+	if (this.thrownExceptions != null && this.binding != null && this.binding.thrownExceptions != null) {
 		int length = this.binding.thrownExceptions.length;
 		for (int i = 0; i < length; i++) {
 			this.thrownExceptions[i].binding = this.binding.thrownExceptions[i];
@@ -246,7 +246,7 @@ public abstract void  parseStatements(Parser parser, CompilationUnitDeclaration 
 public void resolve(ClassScope upperScope) {
 	if (binding == null) {
 		ignoreFurtherInvestigation = true;
-		return;
+		//return;
 	}
 
 	// ========= abort on fatal error =============

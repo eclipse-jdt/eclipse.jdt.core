@@ -24,7 +24,6 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	private int synchronizedBlockSourceStart;
 
 	//error recovery management
-	protected final static boolean ENABLE_RECOVERY = true;
 	protected int lastCheckPoint;
 	protected RecoveredElement currentElement;
 	public static boolean VERBOSE_RECOVERY = false;
@@ -492,8 +491,6 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
  * Recovery state is inferred from the current state of the parser (reduced node stack).
  */
 public RecoveredElement buildInitialRecoveryState(){
-
-	if (!ENABLE_RECOVERY) return null; // do not resume to recovery
 
 	/* initialize recovery by retrieving available reduced nodes 
 	 * also rebuild bracket balance 
