@@ -1,4 +1,4 @@
-package test0460;
+package test0461;
 
 public class A {
     public void foo() {

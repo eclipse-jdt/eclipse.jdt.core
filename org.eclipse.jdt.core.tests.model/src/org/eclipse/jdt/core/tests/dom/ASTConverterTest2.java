@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0461"));			
+		suite.addTest(new ASTConverterTest2("test0463"));			
 		return suite;
 	}
 	/**
@@ -1656,6 +1656,26 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
 		assertEquals("Wrong name", "Test462", typeBinding.getQualifiedName());
 	}	
-	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33450
+	 */
+	public void test0463() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0463", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, false);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertTrue("not a string literal", expression.getNodeType() == ASTNode.STRING_LITERAL); //$NON-NLS-1$
+		StringLiteral stringLiteral = (StringLiteral) expression;
+		checkSourceRange(stringLiteral, "\"\\012\\015\\u0061\"", source);
+		assertEquals("wrong value", "\012\015a", stringLiteral.getLiteralValue());
+		assertEquals("wrong value", "\"\\012\\015\\u0061\"", stringLiteral.getEscapedValue());
+	}	
 }
 

@@ -1267,6 +1267,18 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue("\"hi\"".equals(x.getEscapedValue())); //$NON-NLS-1$
 		assertTrue("hi".equals(x.getLiteralValue())); //$NON-NLS-1$
 
+		previousCount = ast.modificationCount();
+		x.setLiteralValue("\\012\\015"); //$NON-NLS-1$
+		assertTrue(ast.modificationCount() > previousCount);
+		assertEquals("different", "\"\\\\012\\\\015\"", x.getEscapedValue()); //$NON-NLS-1$
+		assertTrue("\\012\\015".equals(x.getLiteralValue())); //$NON-NLS-1$
+
+		previousCount = ast.modificationCount();
+		x.setLiteralValue("\012\015"); //$NON-NLS-1$
+		assertTrue(ast.modificationCount() > previousCount);
+		assertTrue("\n\r".equals(x.getLiteralValue())); //$NON-NLS-1$
+		assertEquals("different", "\"\\n\\r\"", x.getEscapedValue()); //$NON-NLS-1$
+
 		// check that property cannot be set to null
 		try {
 			x.setEscapedValue(null);
