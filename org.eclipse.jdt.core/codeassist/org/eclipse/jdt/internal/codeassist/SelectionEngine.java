@@ -527,7 +527,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						? methodBinding.declaringClass.sourceName()
 						: methodBinding.selector,
 					parameterPackageNames,
-					parameterTypeNames);
+					parameterTypeNames,
+					methodBinding.isConstructor());
 				acceptedAnswer = true;
 			} else
 				if (binding instanceof FieldBinding) {

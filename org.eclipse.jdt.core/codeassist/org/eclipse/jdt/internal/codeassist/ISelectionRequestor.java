@@ -108,6 +108,9 @@ public interface ISelectionRequestor {
 	 * @param parameterTypeNames char[][]
 	 * 		Names of the parameters types.
 	 *    	Should contain as many elements as parameterPackageNames.
+	 * 
+	 *  @param isConstructor boolean
+	 * 		Answer if the method is a constructor.
 	 *
 	 * NOTE - All package and type names are presented in their readable form:
 	 *    Package names are in the form "a.b.c".
@@ -121,7 +124,8 @@ public interface ISelectionRequestor {
 		char[] declaringTypeName,
 		char[] selector,
 		char[][] parameterPackageNames,
-		char[][] parameterTypeNames);
+		char[][] parameterTypeNames,
+		boolean isConstructor);
 
 	/**
 	 * Code assist notification of a package selection.

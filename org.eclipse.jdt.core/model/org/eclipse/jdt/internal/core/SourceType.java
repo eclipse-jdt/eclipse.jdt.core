@@ -337,7 +337,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 
 		public void acceptError(IProblem error) {}
 		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {}
-		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames) {}
+		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {}
 		public void acceptPackage(char[] packageName){}
 
 	}

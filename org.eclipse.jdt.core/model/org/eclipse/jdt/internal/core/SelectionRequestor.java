@@ -116,12 +116,24 @@ public void acceptInterface(char[] packageName, char[] interfaceName, boolean ne
 /**
  * Resolve the method
  */
-public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames) {
+public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {
 	IType type= resolveType(declaringTypePackageName, declaringTypeName,
 		NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
 	// fix for 1FWFT6Q
 	if (type != null) {
 		if (type.isBinary()) {
+			
+			// need to add a paramater for constructor in binary type
+			IType declaringDeclaringType = type.getDeclaringType();
+			if(declaringDeclaringType != null && isConstructor) {
+				int length = parameterPackageNames.length;
+				System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
+				System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);
+				
+				parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
+				parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
+			}
+			
 			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames);
 		} else {
 			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
