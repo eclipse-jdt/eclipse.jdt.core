@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.model.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -132,6 +131,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable1"));
 	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable2"));
 	suite.addTest(new JavaElementDeltaTests("testChangeRootKind"));
+	suite.addTest(new JavaElementDeltaTests("testOverwriteClasspath"));
 	
 	return suite;
 }
@@ -914,6 +914,44 @@ public void testOpenNonJavaProject() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/**
+ * Ensures that .classpath overwrite is taken into account.
+ * (regression test for bug 21420 Changing .classpath doesn't update JDT)
+ */
+public void testOverwriteClasspath() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {""}, "");
+		this.createFolder("P/src");
+		this.createFolder("P/bin");
+		final IFile newCP = this.createFile(
+			"P/.classpath2", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"src\"/>\n" +
+			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+			"</classpath>");
+		this.startDeltas();
+		IWorkspaceRunnable run = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				IFile oldCP = newCP.getParent().getFile(new Path(".classpath"));
+				oldCP.delete(true, null);
+				newCP.move(new Path("/P/.classpath"), true, null);
+			}
+		};
+		this.getWorkspace().run(run, null);
+		assertEquals(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" +
+			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" +
+			"	src[*]: {ADDED TO CLASSPATH}\n" +
+			"	ResourceDelta(/P/.classpath)[*]\n" +
+			"	ResourceDelta(/P/.classpath2)[-]", 
+			this.getDeltas());
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
 
 
 /*
@@ -1177,6 +1215,7 @@ public void testSetClasspathVariable2() throws CoreException {
 		this.deleteProject("LibProj");
 	}
 }
+
 /**
  * Ensures that committing a working copy fires a fine grained delta.
  */

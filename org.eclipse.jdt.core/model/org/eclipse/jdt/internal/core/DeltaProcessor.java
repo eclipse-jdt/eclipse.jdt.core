@@ -976,8 +976,9 @@ private JavaModelException newInvalidElementType() {
 								}
 								break;
 							case IResourceDelta.CHANGED :
-								if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
-									break; // only consider content change
+								if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
+										&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) // and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
+									break;
 							case IResourceDelta.ADDED :
 								// check if any actual difference
 								project.flushClasspathProblemMarkers(false, true);
