@@ -15,7 +15,10 @@ Eclipse SDK Build 200203?? - ??th March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> Surfacing IProblem </li>
+<li> Surfacing IProblem (<code>org.eclipse.jdt.core.compiler.IProblem</code>) 
+	<br>This allows some Java API to report failures in a lighter way than generating markers. Marker based API have been
+	deprecated (note that due to some deadlock in client code, some of these API did not even produce markers, e.g. reconciling). In addition to
+	surfacing problem descriptions, IProblem exposes all the IDs for the Java problem markers (attribute "id" on markers of type "org.eclipse.jdt.core.problem")</li>
 </ul>
 <h3>
 Problem Reports Fixed</h3>
@@ -49,7 +52,7 @@ ast: incorrect length of SimpleName (subsubnode of ArrayType)
 Shouldn't ignore inherited method with wrong argument types
 <h3>
 Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=4946">4946</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=4946">4946</a><br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=4946">4946</a>
 Cross-project builder efficiency issues
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3213">3213</a>
 No compile error for bad interface (1G7G6M1)
