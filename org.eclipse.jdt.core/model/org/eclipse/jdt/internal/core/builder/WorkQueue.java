@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.util.*;
+import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 public class WorkQueue {
 
-private HashSet needsCompileList;
-private HashSet compiledList;
+private SimpleSet needsCompileList;
+private SimpleSet compiledList;
 
 public WorkQueue() {
-	this.needsCompileList = new HashSet(11);
-	this.compiledList = new HashSet(11);
+	this.needsCompileList = new SimpleSet();
+	this.compiledList = new SimpleSet();
 }
 
 public void add(SourceFile element) {
@@ -42,11 +42,11 @@ public void finished(SourceFile element) {
 }
 
 public boolean isCompiled(SourceFile element) {
-	return compiledList.contains(element);
+	return compiledList.includes(element);
 }
 
 public boolean isWaiting(SourceFile element) {
-	return needsCompileList.contains(element);
+	return needsCompileList.includes(element);
 }
 
 public String toString() {

@@ -48,6 +48,12 @@ public Object add(Object object) {
 	return object;
 }
 
+public void clear() {
+	for (int i = this.values.length; --i >= 0;)
+		this.values[i] = null;
+	this.elementSize = 0;
+}
+
 public Object clone() throws CloneNotSupportedException {
 	SimpleSet result = (SimpleSet) super.clone();
 	result.elementSize = this.elementSize;
