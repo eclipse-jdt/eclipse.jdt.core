@@ -186,18 +186,7 @@ class TypeBinding implements ITypeBinding {
 		if (typeParametersLength != 0) {
 			buffer.append('<');
 			for (int i = 0; i < typeParametersLength; i++) {
-				TypeBinding typeParameter = (TypeBinding) typeParameters[i];
-				buffer.append(typeParameter.getQualifiedName());
-				ITypeBinding[] bounds = typeParameter.getTypeBounds();
-				int length = bounds.length;
-				if (length > 0) {
-					buffer.append(" extends "); //$NON-NLS-1$
-					buffer.append(bounds[0].getQualifiedName());
-					for (int j = 1; j < length; j++) {
-						buffer.append('&');
-						buffer.append(bounds[j].getQualifiedName());
-					}
-				}
+				buffer.append(typeParameters[i].getQualifiedName());
 				if (i < typeParametersLength - 1) {
 					buffer.append(',');
 				}
