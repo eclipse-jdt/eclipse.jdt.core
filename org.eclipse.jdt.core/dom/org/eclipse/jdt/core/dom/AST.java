@@ -1058,23 +1058,32 @@ public final class AST {
 	 * The following type names are supported:
 	 * <ul>
 	 * <li><code>"boolean"</code></li>
-	 * <li><code>"char"</code></li>
 	 * <li><code>"byte"</code></li>
-	 * <li><code>"short"</code></li>
+	 * <li><code>"char"</code></li>
+	 * <li><code>"double"</code></li>
+	 * <li><code>"float"</code></li>
 	 * <li><code>"int"</code></li>
 	 * <li><code>"long"</code></li>
-	 * <li><code>"float"</code></li>
-	 * <li><code>"double"</code></li>
+	 * <li><code>"short"</code></li>
 	 * <li><code>"void"</code></li>
+	 * <li><code>"java.lang.Boolean"</code> (since 3.1)</li>
+	 * <li><code>"java.lang.Byte"</code> (since 3.1)</li>
+	 * <li><code>"java.lang.Character"</code> (since 3.1)</li>
 	 * <li><code>"java.lang.Class"</code></li>
 	 * <li><code>"java.lang.Cloneable"</code></li>
+	 * <li><code>"java.lang.Double"</code> (since 3.1)</li>
 	 * <li><code>"java.lang.Error"</code></li>
 	 * <li><code>"java.lang.Exception"</code></li>
+	 * <li><code>"java.lang.Float"</code> (since 3.1)</li>
+	 * <li><code>"java.lang.Integer"</code> (since 3.1)</li>
+	 * <li><code>"java.lang.Long"</code> (since 3.1)</li>
 	 * <li><code>"java.lang.Object"</code></li>
 	 * <li><code>"java.lang.RuntimeException"</code></li>
+	 * <li><code>"java.lang.Short"</code> (since 3.1)</li>
 	 * <li><code>"java.lang.String"</code></li>
 	 * <li><code>"java.lang.StringBuffer"</code></li>
 	 * <li><code>"java.lang.Throwable"</code></li>
+	 * <li><code>"java.lang.Void"</code> (since 3.1)</li>
 	 * <li><code>"java.io.Serializable"</code></li>
 	 * </ul>
 	 * </p>
