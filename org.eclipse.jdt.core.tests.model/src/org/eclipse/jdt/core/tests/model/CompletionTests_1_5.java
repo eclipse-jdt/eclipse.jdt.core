@@ -58,7 +58,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0023"));			
+	suite.addTest(new CompletionTests_1_5("test0027"));			
 	return suite;
 }
 
@@ -376,6 +376,45 @@ public void test0024() throws JavaModelException {
 	
 	String str = cu.getSource();
 	String completeBehind = "<St";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void test0025() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0025", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "<St";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void test0026() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0026", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Z<St";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void test0027() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0027", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "7<St";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	cu.codeComplete(cursorLocation, requestor);
 	

@@ -409,7 +409,7 @@ public final class CompletionEngine
 		
 		computeUninterestingBindings(astNodeParent, scope);
 		if(astNodeParent != null) {
-			computeExpectedTypes(astNodeParent, scope);
+			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
 		
 		if (astNode instanceof CompletionOnFieldType) {
@@ -3250,7 +3250,7 @@ public final class CompletionEngine
 	int computeBaseRelevance(){
 		return R_DEFAULT;
 	}
-	private void computeExpectedTypes(ASTNode parent, Scope scope){
+	private void computeExpectedTypes(ASTNode parent, ASTNode node, Scope scope){
 		
 		// default filter
 		expectedTypesFilter = SUBTYPE;
@@ -3396,18 +3396,25 @@ public final class CompletionEngine
 			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
 			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
 			if(typeVariables != null && typeVariables.length >= length) {
-				addExpectedType(typeVariables[length - 1].firstBound);
+				int index = length - 1;
+				while(index > -1 && ref.typeArguments[index] != node) index--;
+				addExpectedType(typeVariables[index].firstBound);
 			}
 		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
 			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
 			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
 			TypeReference[][] arguments = ref.typeArguments;
-			int length = 0;
-			if(arguments != null && arguments[arguments.length - 1] != null) {
-				length = arguments[arguments.length - 1].length;
-			}
-			if(typeVariables != null && typeVariables.length >= length) {
-				addExpectedType(typeVariables[length - 1].firstBound);
+			if(typeVariables != null) {
+				int iLength = arguments == null ? 0 : arguments.length;
+				done: for (int i = 0; i < iLength; i++) {
+					int jLength = arguments[i] == null ? 0 : arguments[i].length;
+					for (int j = 0; j < jLength; j++) {
+						if(arguments[i][j] == node && typeVariables.length >= j) {
+							addExpectedType(typeVariables[j].firstBound);
+							break done;
+						}
+					}
+				}
 			}
 		}
 		
