@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.compiler.IProblem;
-
 public class DeprecatedTest extends AbstractRegressionTest {
 public DeprecatedTest(String name) {
 	super(name);
@@ -36,9 +34,12 @@ public void test1() {
 		"    int x = 1;\n" + 
 		"}\n",
 	}, 
-		new ExpectedProblem[] {
-			new ExpectedProblem("p/B.java", 33554505, new String[] {"A", "x", }),
-		}
+		"----------\n" + 
+		"1. WARNING in p\\B.java (at line 3)\n" + 
+		"	float x = super.x;\n" + 
+		"	          ^^^^^^^\n" + 
+		"The field A.x is deprecated\n" + 
+		"----------\n"
 	);
 }
 public void test2() {
@@ -57,9 +58,12 @@ public void test2() {
 		"}\n",
 
 	}, 
-		new ExpectedProblem[] {
-			new ExpectedProblem("p/C.java", 33554505, new String[] {"A", "x", }),
-		}
+		"----------\n" + 
+		"1. WARNING in p\\C.java (at line 3)\n" + 
+		"	static int x = new A().x;\n" + 
+		"	                       ^\n" + 
+		"The field A.x is deprecated\n" + 
+		"----------\n"
 	);
 }
 public void test3() {
@@ -113,10 +117,12 @@ public void test3() {
 		"  }    \n" + 
 		"}\n",
 		}, 
-		new ExpectedProblem[] {
-			new ExpectedProblem("p/Top.java", 16777239, new String[] {"Top.StaticM1.StaticM2", }),
-		}
-	);
+		"----------\n" + 
+		"1. ERROR in p\\Top.java (at line 30)\n" + 
+		"	new StaticM1().new StaticM2();}\n" + 
+		"	^^^^^^^^^^^^^^\n" + 
+		"Illegal enclosing instance specification for type Top.StaticM1.StaticM2\n" + 
+		"----------\n"	);
 }
 /**
  * Regression test for PR #1G9ES9B
@@ -134,10 +140,18 @@ public void test4() {
 		"}\n" +
 		"}\n",
 		}, 
-		new ExpectedProblem[] {
-			new ExpectedProblem("p/Warning.java", IProblem.UsingDeprecatedMethod, new String[] {"Date", "UTC", "int, int, int, int, int, int"}),
-			new ExpectedProblem("p/Warning.java", IProblem.NonStaticAccessToStaticMethod, new String[] {"Date", "UTC", "int, int, int, int, int, int"}),
-		}
+		"----------\n" + 
+		"1. WARNING in p\\Warning.java (at line 7)\n" + 
+		"	dateObj.UTC(1,2,3,4,5,6);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\Warning.java (at line 7)\n" + 
+		"	dateObj.UTC(1,2,3,4,5,6);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The static method UTC(int, int, int, int, int, int) from the type Date should be accessed in a static way\n" + 
+		"----------\n"
+
 	);
 }
 public static Class testClass() {
