@@ -3351,6 +3351,7 @@ public final class JavaCore extends Plugin {
 					}
 				}
 			},
+			null/*no need to lock anything*/,
 			monitor);
 		} catch(CoreException e) {
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
@@ -3699,6 +3700,7 @@ public final class JavaCore extends Plugin {
 							}
 						}
 					},
+					null/*no need to lock anything*/,
 					monitor);
 			} catch (CoreException e) {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
