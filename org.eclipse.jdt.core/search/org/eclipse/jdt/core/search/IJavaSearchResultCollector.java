@@ -39,8 +39,8 @@ import org.eclipse.jdt.core.IJavaElement;
  * </p>
  *
  * @see SearchEngine
- * @deprecated use SearchRequestor instead
  */
+// TODO (jerome) @deprecated use SearchRequestor instead
 public interface IJavaSearchResultCollector {
 	/**
 	 * The search result corresponds exactly to the search pattern.
