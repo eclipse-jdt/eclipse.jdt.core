@@ -793,4 +793,10 @@ public interface IProblem {
 	int TypeVariableReferenceFromStaticContext = Internal + 523;
 	/** @since 3.0 */
 	int ObjectCannotBeGeneric = Internal + 524;
+	/** @since 3.0 */
+	int NonGenericType = TypeRelated + 525;
+	/** @since 3.0 */
+	int IncorrectArityForParameterizedType = TypeRelated + 526;
+	/** @since 3.0 */
+	int TypeArgumentMismatch = TypeRelated + 527;
 }
