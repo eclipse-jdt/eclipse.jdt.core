@@ -2328,7 +2328,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930
-	public void _test042() {
+	public void test042() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2676,6 +2676,42 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Name clash: The method foo(I<String>) of type X8 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(I<java.lang.String>) in X7 and foo(I<? extends T>) in Y<java.lang.String> have the same erasure, yet neither overrides the other
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88094
+	public void test049() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	T id(T x) { return x; }\n" + 
+				"	A id(A x) { return x; }\n" + 
+				"}\n" +
+				"class Y<T extends A> extends X<T> {\n" + 
+				"	@Override T id(T x) { return x; }\n" + 
+				"	@Override A id(A x) { return x; }\n" + 
+				"}\n" + 
+				"class A {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	class Y<T extends A> extends X<T> {\n" + 
+			"	      ^\n" + 
+			"Name clash: The method id(A) of type X<T> has the same erasure as id(T) of type X<T> but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	@Override T id(T x) { return x; }\n" + 
+			"	            ^^^^^^^\n" + 
+			"Method id(T) has the same erasure id(A) as another method in type Y<T>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	@Override A id(A x) { return x; }\n" + 
+			"	            ^^^^^^^\n" + 
+			"Duplicate method id(A) in type Y<T>\n" + 
+			"----------\n"
+			// id(T) is already defined in Y
+			// id(java.lang.String) in Y overrides id(T) in X; return type requires unchecked conversion
 		);
 	}
 }

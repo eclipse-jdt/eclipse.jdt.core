@@ -964,7 +964,7 @@ public MethodBinding[] methods() {
 				for (int j = length - 1; j > i; j--) {
 					MethodBinding method2 = methods[j];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
-						boolean paramsMatch = complyTo15 && method.returnType == method2.returnType // see 87956
+						boolean paramsMatch = complyTo15 && method.returnType.erasure() == method2.returnType.erasure() // see 87956 & 88094
 							? method.areParameterErasuresEqual(method2)
 							: method.areParametersEqual(method2);
 						if (paramsMatch) {
