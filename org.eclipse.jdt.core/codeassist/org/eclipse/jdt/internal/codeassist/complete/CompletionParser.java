@@ -201,8 +201,13 @@ private boolean checkClassInstanceCreation() {
 		this.assistNode = type;
 		this.lastCheckPoint = type.sourceEnd + 1;
 		if (this.invocationType == ALLOCATION) {
-			// non qualified allocation expression: attach it later
-			this.isOrphanCompletionNode = true;
+			// non qualified allocation expression
+			AllocationExpression allocExpr = new AllocationExpression();
+			allocExpr.type = type;
+			allocExpr.sourceStart = type.sourceStart;
+			allocExpr.sourceEnd = type.sourceEnd;
+			pushOnExpressionStack(allocExpr);
+			this.isOrphanCompletionNode = false;
 		} else {
 			// qualified allocation expression
 			QualifiedAllocationExpression allocExpr = new QualifiedAllocationExpression();
