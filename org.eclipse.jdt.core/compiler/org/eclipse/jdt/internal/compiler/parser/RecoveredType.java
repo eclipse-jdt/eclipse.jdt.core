@@ -140,7 +140,7 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 			lastMethod.methodDeclaration.bodyEnd = 0; // reopen method
 			lastMethod.methodDeclaration.declarationSourceEnd = 0; // reopen method
 			lastMethod.bracketBalance++; // expect one closing brace
-			return lastMethod.add(typeDeclaration, bracketBalance);
+			return lastMethod.add(memberTypeDeclaration, bracketBalance);
 		} else {
 			// ignore
 			return this;

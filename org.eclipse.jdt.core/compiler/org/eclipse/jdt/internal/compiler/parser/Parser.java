@@ -1151,6 +1151,11 @@ protected void consumeAllocationHeader() {
 		AnonymousLocalTypeDeclaration anonymousType = new AnonymousLocalTypeDeclaration(this.compilationUnit.compilationResult);
 		anonymousType.sourceStart = intStack[intPtr--];
 		anonymousType.sourceEnd = rParenPos; // closing parenthesis
+		QualifiedAllocationExpression alloc = new QualifiedAllocationExpression(anonymousType);
+		alloc.type = getTypeReference(0);
+		alloc.sourceStart = anonymousType.sourceStart;
+		alloc.sourceEnd = anonymousType.sourceEnd ;
+		anonymousType.allocation = alloc; 
 		lastCheckPoint = anonymousType.bodyStart = scanner.currentPosition;
 		currentElement = currentElement.add(anonymousType, 0);
 		lastIgnoredToken = -1;
