@@ -73,7 +73,10 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
-		type.print(0, output).append(' ').append(this.name); 
+		if (type != null) {
+			type.print(0, output).append(' ');
+		}
+		output.append(this.name); 
 		switch(getKind()) {
 			case ENUM_CONSTANT:
 				if (initialization != null) {

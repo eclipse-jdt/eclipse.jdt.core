@@ -186,7 +186,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			typeArguments[max].print(0, output);
 			output.append('>');
-		}			
+		}
 		super.printExpression(0, output);
 		if (anonymousType != null) {
 			anonymousType.print(indent, output);
