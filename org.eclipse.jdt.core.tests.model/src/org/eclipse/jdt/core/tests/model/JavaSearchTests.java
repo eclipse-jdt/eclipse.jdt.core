@@ -220,6 +220,7 @@ public static Test suite() {
 	
 	// interface implementor
 	suite.addTest(new JavaSearchTests("testInterfaceImplementors"));
+	suite.addTest(new JavaSearchTests("testInterfaceImplementors2"));
 	
 	// method declaration
 	suite.addTest(new JavaSearchTests("testSimpleMethodDeclaration"));
@@ -1011,6 +1012,24 @@ public void testInterfaceImplementors() throws JavaModelException, CoreException
 	assertEquals(
 		"", 
 		resultCollector.toString());	
+}
+/**
+ * Interface implementors test.
+ * (regression test for bug 22102 Not all implementors found for IPartListener)
+ */
+public void testInterfaceImplementors2() throws JavaModelException, CoreException {
+	// implementors of an interface
+	IType type = getCompilationUnit("JavaSearch", "src", "r2", "I.java").getType("I");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		IMPLEMENTORS, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertEquals(
+		"src/r2/X.java r2.X.field [I]", 
+		resultCollector.toString());
 }
 /**
  * Memeber type declaration test.
