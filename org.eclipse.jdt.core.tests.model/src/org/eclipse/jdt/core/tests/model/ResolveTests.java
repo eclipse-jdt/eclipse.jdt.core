@@ -81,6 +81,7 @@ public static Test suite() {
 	suite.addTest(new ResolveTests("testResolveArgumentName2"));
 	suite.addTest(new ResolveTests("testResolveCatchArgumentName1"));
 	suite.addTest(new ResolveTests("testResolveCatchArgumentName2"));
+	suite.addTest(new ResolveTests("testResolveAbstractMethod"));
 	return suite;
 }
 
@@ -789,5 +790,24 @@ public void testResolveMemberTypeDeclaration2() throws JavaModelException {
 	assertTrue("should have one type", elements.length == 1 && 
 		elements[0].getElementName().equals("MemberOfMember") &&
 		elements[0] instanceof IType);	
+}
+/**
+ * Resolve default abstrart method
+ * bugs http://dev.eclipse.org/bugs/show_bug.cgi?id=23594
+ */
+public void testResolveAbstractMethod() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveAbstractMethod.java");
+	
+	String str = cu.getSource();
+	String selectAt = "foo";
+	String selection = "foo";
+	int start = str.indexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	
+	assertTrue("should have one method", elements.length == 1 && 
+		elements[0].getElementName().equals("foo") &&
+		elements[0] instanceof IMethod &&
+		((IMethod)elements[0]).getDeclaringType().getElementName().equals("SuperInterface"));
 }
 }
