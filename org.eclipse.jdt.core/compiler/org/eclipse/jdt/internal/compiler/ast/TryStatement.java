@@ -222,7 +222,7 @@ public class TryStatement extends Statement {
 				exceptionLabels[i] =
 					new ExceptionLabel(
 						codeStream,
-						(ReferenceBinding) catchArguments[i].binding.type);
+						catchArguments[i].binding.type);
 			}
 		}
 		ExceptionLabel anyExceptionLabel = null;

@@ -766,7 +766,7 @@ public int literalIndex(double key) {
 				poolContent[currentOffset - 1] = (byte) (temp >>> (56 - (i << 3)));
 			}
 		}
-	};
+	}
 	return index;
 }
 /**
@@ -804,7 +804,7 @@ public int literalIndex(float key) {
 				poolContent[currentOffset - 1] = (byte) (temp >>> (24 - i * 8));
 			}
 		}
-	};
+	}
 	return index;
 }
 /**
@@ -841,7 +841,7 @@ public int literalIndex(int key) {
 				poolContent[currentOffset - 1] = (byte) (key >>> (24 - i * 8));
 			}
 		}
-	};
+	}
 	return index;
 }
 /**

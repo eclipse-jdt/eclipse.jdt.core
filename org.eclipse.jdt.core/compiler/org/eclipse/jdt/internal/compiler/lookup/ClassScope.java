@@ -37,7 +37,7 @@ public class ClassScope extends Scope {
 			sourceType.superInterfaces = new ReferenceBinding[] { supertype };
 		} else {
 			sourceType.superclass = supertype;
-			sourceType.superInterfaces = TypeBinding.NoSuperInterfaces;
+			sourceType.superInterfaces = TypeConstants.NoSuperInterfaces;
 		}
 		connectMemberTypes();
 		buildFieldsAndMethods();

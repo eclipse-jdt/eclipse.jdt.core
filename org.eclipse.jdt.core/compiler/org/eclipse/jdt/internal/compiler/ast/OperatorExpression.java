@@ -108,7 +108,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 					case TWIDDLE :		return "~"; //$NON-NLS-1$
 					case DIVIDE :		return "/"; //$NON-NLS-1$
 					case GREATER :		return ">"; //$NON-NLS-1$
-					case LESS :			return "<";	}; //$NON-NLS-1$
+					case LESS :			return "<";	} //$NON-NLS-1$
 				return "????";} //$NON-NLS-1$
 		}
 	
@@ -205,7 +205,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		//	table[(T_long<<4)+T_undefined] 	= T_undefined ;
 		table[(T_long<<4)+T_byte] 		= (Long2Long<<12)+(Byte2Long<<4)+T_long;
 		table[(T_long<<4)+T_long] 		= (Long2Long<<12)+(Long2Long<<4)+T_long ;
-		table[(T_long<<4)+T_short] 		= (Long2Long<<12)+(Short2Long<<4)+T_long; ;
+		table[(T_long<<4)+T_short] 		= (Long2Long<<12)+(Short2Long<<4)+T_long; 
 		//	table[(T_long<<4)+T_void] 		= T_undefined ;
 		//	table[(T_long<<4)+T_String] 	= T_undefined ;
 		//	table[(T_long<<4)+T_Object] 	= T_undefined ;
@@ -756,7 +756,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		table[(T_null<<4)+T_String] 		= /*null2Object                 String2Object*/
 											  (T_Object<<16)+(T_null<<12)+(T_Object<<8)+(T_String<<4)+T_boolean ;
 		table[(T_null<<4)+T_Object] 		= /*null2Object                 Object2Object*/
-											  (T_Object<<16)+(T_null<<12)+(T_Object<<8)+(T_Object<<4)+T_boolean ; ;
+											  (T_Object<<16)+(T_null<<12)+(T_Object<<8)+(T_Object<<4)+T_boolean ; 
 		//	table[(T_null<<4)+T_double] 		= T_undefined ;
 		//	table[(T_null<<4)+T_float] 			= T_undefined ;
 		//	table[(T_null<<4)+T_boolean] 		= T_undefined ;
@@ -1312,7 +1312,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		table[(T_long<<4)+T_float] 		= (Long2Float<<12)+(Float2Float<<4)+T_float ;
 		//	table[(T_long<<4)+T_boolean] 	= T_undefined ;
 		table[(T_long<<4)+T_char] 		= (Long2Long<<12)+(Char2Long<<4)+T_long ;
-		table[(T_long<<4)+T_int] 		= (Long2Long<<12)+(Int2Long<<4)+T_long ; ;
+		table[(T_long<<4)+T_int] 		= (Long2Long<<12)+(Int2Long<<4)+T_long ; 
 		//	table[(T_long<<4)+T_null] 		= T_undefined ;
 		
 		//	table[(T_short<<4)+T_undefined] 	= T_undefined ;
@@ -1374,15 +1374,15 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		//	table[(T_double<<4)+T_undefined] 	= T_undefined ;
 		table[(T_double<<4)+T_byte] 		= (Double2Double<<12)+(Byte2Double<<4)+T_double ;
 		table[(T_double<<4)+T_long] 		= (Double2Double<<12)+(Long2Double<<4)+T_double ;
-		table[(T_double<<4)+T_short] 		= (Double2Double<<12)+(Short2Double<<4)+T_double ; ;
+		table[(T_double<<4)+T_short] 		= (Double2Double<<12)+(Short2Double<<4)+T_double ; 
 		//	table[(T_double<<4)+T_void] 		= T_undefined ;
 		table[(T_double<<4)+T_String] 		= (Double2Double<<12)+(String2String<<4)+T_String ;
 		//	table[(T_double<<4)+T_Object] 		= T_undefined ;
 		table[(T_double<<4)+T_double] 		= (Double2Double<<12)+(Double2Double<<4)+T_double ;
-		table[(T_double<<4)+T_float] 		= (Double2Double<<12)+(Float2Double<<4)+T_double ; ;
+		table[(T_double<<4)+T_float] 		= (Double2Double<<12)+(Float2Double<<4)+T_double ; 
 		//	table[(T_double<<4)+T_boolean] 		= T_undefined ;
-		table[(T_double<<4)+T_char] 		= (Double2Double<<12)+(Char2Double<<4)+T_double ; ;
-		table[(T_double<<4)+T_int] 			= (Double2Double<<12)+(Int2Double<<4)+T_double ; ;
+		table[(T_double<<4)+T_char] 		= (Double2Double<<12)+(Char2Double<<4)+T_double ; 
+		table[(T_double<<4)+T_int] 			= (Double2Double<<12)+(Int2Double<<4)+T_double ; 
 		//	table[(T_double<<4)+T_null] 		= T_undefined ;
 		
 		//	table[(T_float<<4)+T_undefined] 	= T_undefined ;
@@ -1423,7 +1423,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		table[(T_char<<4)+T_double] 		= (Char2Double<<12)+(Double2Double<<4)+T_double ;
 		table[(T_char<<4)+T_float] 			= (Char2Float<<12)+(Float2Float<<4)+T_float ;
 		//	table[(T_char<<4)+T_boolean] 		= T_undefined ;
-		table[(T_char<<4)+T_char] 			= (Char2Int<<12)+(Char2Int<<4)+T_int ; ;
+		table[(T_char<<4)+T_char] 			= (Char2Int<<12)+(Char2Int<<4)+T_int ; 
 		table[(T_char<<4)+T_int] 			= (Char2Int<<12)+(Int2Int<<4)+T_int ;
 		//	table[(T_char<<4)+T_null] 			= T_undefined ;
 		
@@ -1550,7 +1550,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 				return "?:"; //$NON-NLS-1$
 			case EQUAL :
 				return "="; //$NON-NLS-1$
-		};
+		}
 		return "unknown operator"; //$NON-NLS-1$
 	}
 

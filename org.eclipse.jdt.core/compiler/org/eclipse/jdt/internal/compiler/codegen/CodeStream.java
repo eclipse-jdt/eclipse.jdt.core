@@ -1553,7 +1553,7 @@ public void generateInlinedValue(byte inlinedValue) {
 			break;
 		default :
 			if ((-128 <= inlinedValue) && (inlinedValue <= 127)) {
-				this.bipush((byte) inlinedValue);
+				this.bipush(inlinedValue);
 				return;
 			}
 	}

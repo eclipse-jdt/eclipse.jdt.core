@@ -94,7 +94,7 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 16);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
-		switch(((SourceTypeBinding) referenceBinding).scope.environment().options.targetJDK) {
+		switch(referenceBinding.scope.environment().options.targetJDK) {
 			case CompilerOptions.JDK1_4 :
 				// Compatible with JDK 1.4
 				header[headerOffset++] = 0;
@@ -181,7 +181,7 @@ public class ClassFile
 			}
 		}
 		produceDebugAttributes =
-			((SourceTypeBinding) referenceBinding)
+			referenceBinding
 				.scope
 				.environment()
 				.options
@@ -676,7 +676,6 @@ public class ClassFile
 		attributeNumber++;
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
-		final ProblemReporter problemReporter = method.scope.problemReporter();
 		codeStream.reset(method, this);
 		String problemString = "" ; //$NON-NLS-1$
 		if (problems != null) {
@@ -763,7 +762,6 @@ public class ClassFile
 		
 		int codeAttributeOffset = contentsOffset;
 		generateCodeAttributeHeader();
-		final ProblemReporter problemReporter = method.scope.problemReporter();
 		codeStream.reset(method, this);
 		String problemString = "" ; //$NON-NLS-1$
 		if (problems != null) {
@@ -924,7 +922,6 @@ public class ClassFile
 		String problemString = buffer.toString();
 		this.problemLine = problem.getSourceLineNumber();
 		
-		final ProblemReporter problemReporter = methodDeclaration.scope.problemReporter();
 		codeStream.init(this);
 		codeStream.preserveUnusedLocals = true;
 		codeStream.initializeMaxLocals(methodBinding);

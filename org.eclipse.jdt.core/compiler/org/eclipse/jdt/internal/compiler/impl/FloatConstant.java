@@ -27,11 +27,11 @@ public class FloatConstant extends Constant {
 	}
 	
 	public double doubleValue() {
-		return (double) value;
+		return value;
 	}
 	
 	public float floatValue() {
-		return (float) value;
+		return value;
 	}
 	
 	public int intValue() {

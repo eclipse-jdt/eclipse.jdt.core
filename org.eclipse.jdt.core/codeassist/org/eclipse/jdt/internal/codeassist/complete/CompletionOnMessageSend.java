@@ -68,7 +68,7 @@ public class CompletionOnMessageSend extends MessageSend {
 				if (i != arguments.length - 1) {
 					s += ", "; //$NON-NLS-1$
 				}
-			};
+			}
 		}
 		s = s + ")>"; //$NON-NLS-1$
 		return s;

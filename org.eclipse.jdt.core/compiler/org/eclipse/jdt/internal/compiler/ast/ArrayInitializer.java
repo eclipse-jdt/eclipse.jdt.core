@@ -178,7 +178,7 @@ public String toStringExpression() {
 		{	s = s + expressions[i].toStringExpression() + "," ; //$NON-NLS-1$
 			j -- ;
 			if (j == 0)
-			{	s = s + "\n                "; j = 20;}}}; //$NON-NLS-1$
+			{	s = s + "\n                "; j = 20;}}} //$NON-NLS-1$
 	s = s + "}"; //$NON-NLS-1$
 	return s;}
 

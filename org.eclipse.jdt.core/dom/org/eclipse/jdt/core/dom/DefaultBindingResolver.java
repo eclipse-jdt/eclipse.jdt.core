@@ -206,7 +206,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (types == null || types.length == 0) {
 				return null;
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration type = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) types[0];
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration type = types[0];
 			if (type != null) {
 				ITypeBinding typeBinding = this.getTypeBinding(type.binding);
 				if (typeBinding != null) {

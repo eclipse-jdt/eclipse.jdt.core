@@ -132,7 +132,7 @@ public class Block extends Statement {
 			} else {
 				buffer.append(";\n"); //$NON-NLS-1$
 			}
-		};
+		}
 		return buffer.toString();
 	}
 

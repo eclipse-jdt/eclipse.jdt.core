@@ -22,16 +22,16 @@ public char charValue() {
 	return (char) value;
 }
 public double doubleValue() {
-	return (double) value;
+	return value;
 }
 public float floatValue() {
-	return (float) value;
+	return value;
 }
 public int intValue() {
 	return (int) value;
 }
 public long longValue() {
-	return (long) value;
+	return value;
 }
 public short shortValue() {
 	return (short) value;

@@ -86,10 +86,10 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 protected void openHierarchy() throws JavaModelException {
 	Openable openableParent = (Openable)getOpenableParent();
 	if (openableParent != null) {
-		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
 		if (openableParentInfo == null) {
 			openableParent.openWhenClosed(null);
-			openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+			openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
 		}
 		ClassFileInfo cfi = (ClassFileInfo) openableParentInfo;
 		cfi.getBinaryChildren(); // forces the initialization

@@ -141,7 +141,8 @@ protected void cleanUp() {
 */
 protected void compile(SourceFile[] units) {
 	int toDo = units.length;
-	if (this.compiledAllAtOnce = toDo <= MAX_AT_ONCE) {
+	this.compiledAllAtOnce = toDo <= MAX_AT_ONCE;
+	if (this.compiledAllAtOnce) {
 		// do them all now
 		if (JavaBuilder.DEBUG)
 			for (int i = 0; i < toDo; i++)

@@ -74,7 +74,7 @@ public String operatorToString() {
 			return ">>="; //$NON-NLS-1$
 		case UNSIGNED_RIGHT_SHIFT :
 			return ">>>="; //$NON-NLS-1$
-	};
+	}
 	return "unknown operator"; //$NON-NLS-1$
 }
 public TypeBinding resolveType(BlockScope scope) {

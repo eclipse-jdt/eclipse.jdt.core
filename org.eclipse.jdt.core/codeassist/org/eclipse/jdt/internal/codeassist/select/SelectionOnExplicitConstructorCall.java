@@ -63,7 +63,7 @@ public String toString(int tab) {
 			if (i != arguments.length - 1) {
 				s += ", "; //$NON-NLS-1$
 			}
-		};
+		}
 	}
 	s += ")>"; //$NON-NLS-1$
 	return s;

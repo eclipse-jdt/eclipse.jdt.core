@@ -708,7 +708,7 @@ public abstract class Scope
 		TypeBinding leafType = receiverType.leafComponentType();
 		if (leafType instanceof ReferenceBinding) {
 			if (!((ReferenceBinding) leafType).canBeSeenBy(this))
-				return new ProblemMethodBinding(selector, MethodBinding.NoParameters, (ReferenceBinding)leafType, ReceiverTypeNotVisible);
+				return new ProblemMethodBinding(selector, TypeConstants.NoParameters, (ReferenceBinding)leafType, ReceiverTypeNotVisible);
 		}
 
 		ReferenceBinding object = getJavaLangObject();

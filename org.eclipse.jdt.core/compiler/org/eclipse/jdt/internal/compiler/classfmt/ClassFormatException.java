@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 public class ClassFormatException extends Exception {
 	private int errorCode;
-	private int bufferPosition;
 
 	public static final int ErrBadMagic = 1;
 	public static final int ErrBadMinorVersion = 2;
@@ -51,7 +50,6 @@ public ClassFormatException(int code) {
 }
 public ClassFormatException(int code, int bufPos) {
 	errorCode = code;
-	bufferPosition = bufPos;
 }
 /**
  * @return int

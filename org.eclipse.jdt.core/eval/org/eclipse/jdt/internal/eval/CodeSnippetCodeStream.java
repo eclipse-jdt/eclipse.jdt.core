@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class CodeSnippetCodeStream extends CodeStream {
 	static InvocationSite NO_INVOCATION_SITE = 
@@ -71,32 +72,28 @@ protected void checkcast(int baseId) {
 	}
 }
 public void generateEmulatedAccessForMethod(Scope scope, MethodBinding methodBinding) {
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
-	localCodeStream.generateEmulationForMethod(scope, methodBinding);
-	localCodeStream.invokeJavaLangReflectMethodInvoke();
+	generateEmulationForMethod(scope, methodBinding);
+	invokeJavaLangReflectMethodInvoke();
 }
 public void generateEmulatedReadAccessForField(FieldBinding fieldBinding) {
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
-	localCodeStream.generateEmulationForField(fieldBinding);
+	generateEmulationForField(fieldBinding);
 	// swap  the field with the receiver
 	this.swap();
-	localCodeStream.invokeJavaLangReflectFieldGetter(fieldBinding.type.id);
+	invokeJavaLangReflectFieldGetter(fieldBinding.type.id);
 	if (!fieldBinding.type.isBaseType()) {
 		this.checkcast(fieldBinding.type);
 	}
 }
 public void generateEmulatedWriteAccessForField(FieldBinding fieldBinding) {
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
-	localCodeStream.invokeJavaLangReflectFieldSetter(fieldBinding.type.id);
+	invokeJavaLangReflectFieldSetter(fieldBinding.type.id);
 }
 public void generateEmulationForConstructor(Scope scope, MethodBinding methodBinding) {
 	// leave a java.lang.reflect.Field object on the stack
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
 	this.ldc(String.valueOf(methodBinding.declaringClass.constantPoolName()).replace('/', '.'));
 	this.invokeClassForName();
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, new ArrayBinding(scope.getType(TypeBinding.JAVA_LANG_CLASS), 1));
+	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -128,31 +125,29 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 			}
 		}
 	}
-	localCodeStream.invokeClassGetDeclaredConstructor();
+	invokeClassGetDeclaredConstructor();
 	this.dup();
 	this.iconst_1();
-	localCodeStream.invokeAccessibleObjectSetAccessible();
+	invokeAccessibleObjectSetAccessible();
 }
 public void generateEmulationForField(FieldBinding fieldBinding) {
 	// leave a java.lang.reflect.Field object on the stack
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
-	this.ldc(String.valueOf(fieldBinding.declaringClass.constantPoolName()).replace('/', '.'));
-	this.invokeClassForName();
-	this.ldc(String.valueOf(fieldBinding.name));
-	localCodeStream.invokeClassGetDeclaredField();
-	this.dup();
-	this.iconst_1();
-	localCodeStream.invokeAccessibleObjectSetAccessible();
+	ldc(String.valueOf(fieldBinding.declaringClass.constantPoolName()).replace('/', '.'));
+	invokeClassForName();
+	ldc(String.valueOf(fieldBinding.name));
+	invokeClassGetDeclaredField();
+	dup();
+	iconst_1();
+	invokeAccessibleObjectSetAccessible();
 }
 public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding) {
 	// leave a java.lang.reflect.Field object on the stack
-	CodeSnippetCodeStream localCodeStream = (CodeSnippetCodeStream) this;
-	this.ldc(String.valueOf(methodBinding.declaringClass.constantPoolName()).replace('/', '.'));
-	this.invokeClassForName();
-	this.ldc(String.valueOf(methodBinding.selector));
+	ldc(String.valueOf(methodBinding.declaringClass.constantPoolName()).replace('/', '.'));
+	invokeClassForName();
+	ldc(String.valueOf(methodBinding.selector));
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, new ArrayBinding(scope.getType(TypeBinding.JAVA_LANG_CLASS), 1));
+	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -184,10 +179,10 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 			}
 		}
 	}
-	localCodeStream.invokeClassGetDeclaredMethod();
-	this.dup();
-	this.iconst_1();
-	localCodeStream.invokeAccessibleObjectSetAccessible();
+	invokeClassGetDeclaredMethod();
+	dup();
+	iconst_1();
+	invokeAccessibleObjectSetAccessible();
 }
 public void generateObjectWrapperForType(TypeBinding valueType) {
 

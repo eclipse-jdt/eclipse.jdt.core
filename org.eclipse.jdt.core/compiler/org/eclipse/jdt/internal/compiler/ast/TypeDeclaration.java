@@ -794,7 +794,7 @@ public class TypeDeclaration
 		} catch (AbortType e) {
 			this.ignoreFurtherInvestigation = true;
 			return;
-		};
+		}
 	}
 
 	public void resolve(BlockScope blockScope) {
@@ -887,8 +887,8 @@ public class TypeDeclaration
 				s += superInterfaces[i].toString(0);
 				if (i != superInterfaces.length - 1)
 					s += ", "; //$NON-NLS-1$
-			};
-		};
+			}
+		}
 		return s;
 	}
 

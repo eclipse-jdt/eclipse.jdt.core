@@ -19,19 +19,19 @@ public byte byteValue() {
 	return (byte) value;
 }
 public char charValue() {
-	return (char) value;
+	return value;
 }
 public double doubleValue() {
-	return (double) value;
+	return value;
 }
 public float floatValue() {
-	return (float) value;
+	return value;
 }
 public int intValue() {
-	return (int) value;
+	return value;
 }
 public long longValue() {
-	return (long) value;
+	return value;
 }
 public short shortValue() {
 	return (short) value;

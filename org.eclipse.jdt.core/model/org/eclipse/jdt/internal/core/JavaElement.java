@@ -491,7 +491,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		} else {
 			Openable openableParent = (Openable)getOpenableParent();
 			if (openableParent != null) {
-				JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo((IJavaElement) openableParent);
+				JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
 				if (openableParentInfo == null) {
 					openableParent.openWhenClosed(null);
 				} else {

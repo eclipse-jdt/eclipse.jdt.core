@@ -43,8 +43,8 @@ public class CompletionOnMethodName extends MethodDeclaration {
 				s += arguments[i].toString(0);
 				if (i != (arguments.length - 1))
 					s = s + ", "; //$NON-NLS-1$
-			};
-		};
+			}
+		}
 		s += ")"; //$NON-NLS-1$
 		if (thrownExceptions != null) {
 			s += " throws "; //$NON-NLS-1$
@@ -52,8 +52,8 @@ public class CompletionOnMethodName extends MethodDeclaration {
 				s += thrownExceptions[i].toString(0);
 				if (i != (thrownExceptions.length - 1))
 					s = s + ", "; //$NON-NLS-1$
-			};
-		};
+			}
+		}
 
 		s += ">"; //$NON-NLS-1$
 		return s;

@@ -848,7 +848,7 @@ public class JavaModelManager implements ISaveParticipant {
 		if (memento == null) {
 			return null;
 		}
-		JavaModel model= (JavaModel) getJavaModel();
+		JavaModel model= getJavaModel();
 		if (memento.equals("")){ // workspace memento //$NON-NLS-1$
 			return model;
 		}

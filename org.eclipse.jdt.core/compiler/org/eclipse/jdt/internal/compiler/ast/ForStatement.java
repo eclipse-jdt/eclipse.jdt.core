@@ -297,7 +297,7 @@ public class ForStatement extends Statement {
 				if (i != (initializations.length - 1))
 					s = s + " , "; //$NON-NLS-1$
 			}
-		}; 
+		}
 		s = s + "; "; //$NON-NLS-1$
 		//cond
 		if (condition != null)
@@ -311,7 +311,7 @@ public class ForStatement extends Statement {
 				if (i != (increments.length - 1))
 					s = s + " , "; //$NON-NLS-1$
 			}
-		}; 
+		}
 		s = s + ") "; //$NON-NLS-1$
 		//block
 		if (action == null)

@@ -335,7 +335,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				isNotVisible = true;
 				if (this.evaluationContext.declaringTypeName != null) {
 					delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-					if (delegateThis == null){ ; // if not found then internal error, field should have been found
+					if (delegateThis == null){ // if not found then internal error, field should have been found
 						constant = NotAConstant;
 						scope.problemReporter().invalidField(this, receiverType);
 						return null;

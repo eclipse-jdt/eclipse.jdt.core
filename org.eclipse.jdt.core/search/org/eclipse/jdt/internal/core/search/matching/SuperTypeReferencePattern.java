@@ -100,7 +100,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	}
 	
 	decodedClassOrInterface = word[slash+1];
-	decodedModifiers = (int)word[slash+2];
+	decodedModifiers = word[slash+2];
 }
 public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
 	for (int i = 0, max = references.length; i < max; i++) {

@@ -61,7 +61,7 @@ public class SelectionOnMessageSend extends MessageSend {
 						// if interface as not already been visited
 						currentType.tagBits |= TagBits.InterfaceVisited;
 
-						MethodBinding[] methods = currentType.getMethods(binding.selector);;
+						MethodBinding[] methods = currentType.getMethods(binding.selector);
 						if(methods != null) {
 							for (int k = 0; k < methods.length; k++) {
 								if(binding.areParametersEqual(methods[k])) {
@@ -122,7 +122,7 @@ public class SelectionOnMessageSend extends MessageSend {
 				if (i != arguments.length - 1) {
 					s += ", "; //$NON-NLS-1$
 				}
-			};
+			}
 		}
 		s = s + ")>"; //$NON-NLS-1$
 		return s;

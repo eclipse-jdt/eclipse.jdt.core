@@ -1082,7 +1082,7 @@ class ASTConverter {
 
 	public Expression convert(QualifiedAllocationExpression expression) {
 		if (expression.anonymousType != null) {
-			return convert((AnonymousLocalTypeDeclaration) expression.anonymousType);
+			return convert(expression.anonymousType);
 		} else {
 			ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
 			classInstanceCreation.setExpression(convert(expression.enclosingInstance));
@@ -1161,7 +1161,7 @@ class ASTConverter {
 			case OperatorIds.UNSIGNED_RIGHT_SHIFT :
 				assignment.setOperator(Assignment.Operator.RIGHT_SHIFT_UNSIGNED_ASSIGN);
 				break;
-		};
+		}
 		assignment.setRightHandSide(convert(expression.expression));
 		return assignment;
 	}
@@ -1395,7 +1395,7 @@ class ASTConverter {
 			this.recordNodes(infixExpression, expression);
 		}
 
-		int expressionOperatorID = (expression.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT;
+		int expressionOperatorID = (expression.bits & AstNode.OperatorMASK) >> OperatorExpression.OperatorSHIFT;
 		switch (expressionOperatorID) {
 			case OperatorIds.EQUAL_EQUAL :
 				infixExpression.setOperator(InfixExpression.Operator.EQUALS);
@@ -1453,7 +1453,7 @@ class ASTConverter {
 				break;
 			case OperatorIds.LESS :
 				infixExpression.setOperator(InfixExpression.Operator.LESS);
-		};
+		}
 		
 		if (expression.left instanceof BinaryExpression && ((expression.left.bits & AstNode.ParenthesizedMASK) == 0)) {
 			// create an extended string literal equivalent => use the extended operands list
@@ -2637,7 +2637,7 @@ class ASTConverter {
 						count--;
 						if (count == 0) {
 							return scanner.currentPosition - 1;
-						};
+						}
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -3287,7 +3287,7 @@ class ASTConverter {
 				return InfixExpression.Operator.GREATER;
 			case OperatorIds.LESS :
 				return InfixExpression.Operator.LESS;
-		};
+		}
 		return null;
 	}
 }

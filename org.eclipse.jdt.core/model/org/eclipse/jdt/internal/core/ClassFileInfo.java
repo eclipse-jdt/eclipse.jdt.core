@@ -145,7 +145,7 @@ private void readBinaryChildren() {
 	HashMap newElements = new HashMap();
 	BinaryType type = null;
 	IBinaryType typeInfo = null;
-	JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	try {
 		type = (BinaryType) fClassFile.getType();
 		typeInfo = (IBinaryType) manager.getInfo(type);
@@ -173,7 +173,7 @@ private void readBinaryChildren() {
  */
 void removeBinaryChildren() {
 	if (fBinaryChildren != null) {
-		JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		for (int i = 0; i <fBinaryChildren.length; i++) {
 			manager.removeInfo(fBinaryChildren[i]);
 		}

@@ -554,7 +554,7 @@ protected NameReference getUnspecifiedReference() {
 					(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 					(int) identifierPositionStack[identifierPtr + length],
 					evaluationContext); // sourceEnd
-		};
+		}
 		return ref;
 	} else {
 		return super.getUnspecifiedReference();
@@ -630,7 +630,7 @@ protected MessageSend newMessageSend() {
 			m.arguments = new Expression[length], 
 			0, 
 			length); 
-	};
+	}
 	return m;
 }
 /**

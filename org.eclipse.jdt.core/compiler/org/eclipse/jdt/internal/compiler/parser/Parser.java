@@ -543,7 +543,7 @@ public RecoveredElement buildInitialRecoveryState(){
 						&& field.declarationSourceStart <= scanner.initialPosition
 						&& scanner.initialPosition <= field.declarationSourceEnd
 						&& scanner.eofPosition <= field.declarationSourceEnd+1){
-						element = new RecoveredInitializer((Initializer) field, null, 1, this);
+						element = new RecoveredInitializer(field, null, 1, this);
 						lastCheckPoint = field.declarationSourceStart;					
 						break;
 					}
@@ -2111,7 +2111,7 @@ protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 		case 2 :
 			ecc.sourceStart = (ecc.qualification = getUnspecifiedReferenceOptimized()).sourceStart;
 			break;
-	};
+	}
 	pushOnAstStack(ecc);
 	ecc.sourceEnd = endPosition;
 }
@@ -4004,7 +4004,7 @@ protected void consumeStatementFor() {
 				0, 
 				length); 
 		}
-	};
+	}
 	pushOnAstStack(
 		new ForStatement(
 			inits, 
@@ -4813,7 +4813,7 @@ protected void dispatchDeclarationInto(int length) {
 						size3 - length2, 
 						length2); 
 					break;
-			};
+			}
 			flagI = flag[start = end];
 		}
 	}
@@ -5039,7 +5039,7 @@ This variable is a type reference and dim will be its dimensions*/
 				ref.sourceEnd = endPosition;
 			}
 		}
-	};
+	}
 	return ref;
 }
 protected Expression getTypeReference(Expression exp) {
@@ -5069,7 +5069,7 @@ protected NameReference getUnspecifiedReference() {
 			new QualifiedNameReference(tokens, 
 				(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 				(int) identifierPositionStack[identifierPtr + length]); // sourceEnd
-	};
+	}
 	return ref;
 }
 protected NameReference getUnspecifiedReferenceOptimized() {
@@ -6790,7 +6790,7 @@ protected MessageSend newMessageSend() {
 			m.arguments = new Expression[length], 
 			0, 
 			length); 
-	};
+	}
 	return m;
 }
 protected static int ntAction(int state, int sym) {
@@ -6840,7 +6840,7 @@ protected void parse() {
 			stack = new int[oldStackLength + StackIncrement];
 			System.arraycopy(oldStack, 0, stack, 0, oldStackLength);
 			stack[stateStackTop] = act;
-		};
+		}
 
 		act = tAction(act, currentToken);
 
@@ -7187,7 +7187,7 @@ protected void pushIdentifier() {
 		System.arraycopy(oldPos, 0, identifierPositionStack, 0, oldStackLength);
 		identifierPositionStack[identifierPtr] = 
 			(((long) scanner.startPosition) << 32) + (scanner.currentPosition - 1); 
-	};
+	}
 
 	try {
 		identifierLengthStack[++identifierLengthPtr] = 1;
@@ -7198,7 +7198,7 @@ protected void pushIdentifier() {
 		identifierLengthStack = new int[oldStackLength + 10];
 		System.arraycopy(oldStack, 0, identifierLengthStack, 0, oldStackLength);
 		identifierLengthStack[identifierLengthPtr] = 1;
-	};
+	}
 
 }
 protected void pushIdentifier(int flag) {
@@ -7216,7 +7216,7 @@ protected void pushIdentifier(int flag) {
 		identifierLengthStack = new int[oldStackLength + 10];
 		System.arraycopy(oldStack, 0, identifierLengthStack, 0, oldStackLength);
 		identifierLengthStack[identifierLengthPtr] = flag;
-	};
+	}
 
 }
 protected void pushOnAstLengthStack(int pos) {
@@ -7568,32 +7568,32 @@ public String toString() {
 	String s = "identifierStack : char[][] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= identifierPtr; i++) {
 		s = s + "\"" + String.valueOf(identifierStack[i]) + "\","; //$NON-NLS-1$ //$NON-NLS-2$
-	};
+	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "identierLengthStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= identifierLengthPtr; i++) {
 		s = s + identifierLengthStack[i] + ","; //$NON-NLS-1$
-	};
+	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "astLengthStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= astLengthPtr; i++) {
 		s = s + astLengthStack[i] + ","; //$NON-NLS-1$
-	};
+	}
 	s = s + "}\n"; //$NON-NLS-1$
 	s = s + "astPtr : int = " + String.valueOf(astPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 
 	s = s + "intStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= intPtr; i++) {
 		s = s + intStack[i] + ","; //$NON-NLS-1$
-	};
+	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "expressionLengthStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= expressionLengthPtr; i++) {
 		s = s + expressionLengthStack[i] + ","; //$NON-NLS-1$
-	};
+	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "expressionPtr : int = " + String.valueOf(expressionPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$

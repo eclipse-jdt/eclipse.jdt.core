@@ -276,7 +276,7 @@ public String toStringExpression(){
 	if (arguments != null)
 		for (int i = 0; i < arguments.length ; i ++)
 		{	s = s + arguments[i].toStringExpression();
-			if ( i != arguments.length -1 ) s = s + " , " ;};; //$NON-NLS-1$
+			if ( i != arguments.length -1 ) s = s + " , " ;} //$NON-NLS-1$
 	s =s + ")" ; //$NON-NLS-1$
 	return s;
 }

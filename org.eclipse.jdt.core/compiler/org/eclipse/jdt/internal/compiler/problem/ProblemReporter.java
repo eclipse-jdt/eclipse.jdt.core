@@ -3027,7 +3027,7 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 	
 	// no report for serialization support 'void readObject(ObjectInputStream)'
 	if (!method.isStatic()
-			&& TypeBinding.VoidBinding == method.returnType
+			&& BaseTypes.VoidBinding == method.returnType
 			&& method.parameters.length == 1
 			&& method.parameters[0].dimensions() == 0
 			&& CharOperation.equals(method.selector, TypeConstants.READOBJECT)
@@ -3036,7 +3036,7 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 	}
 	// no report for serialization support 'void writeObject(ObjectOutputStream)'
 	if (!method.isStatic()
-			&& TypeBinding.VoidBinding == method.returnType
+			&& BaseTypes.VoidBinding == method.returnType
 			&& method.parameters.length == 1
 			&& method.parameters[0].dimensions() == 0
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEOBJECT)
@@ -3045,14 +3045,14 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 	}
 	// no report for serialization support 'Object readResolve()'
 	if (!method.isStatic()
-			&& TypeBinding.T_Object == method.returnType.id
+			&& TypeIds.T_Object == method.returnType.id
 			&& method.parameters.length == 0
 			&& CharOperation.equals(method.selector, TypeConstants.READRESOLVE)) {
 		return;
 	}
 	// no report for serialization support 'Object writeReplace()'
 	if (!method.isStatic()
-			&& TypeBinding.T_Object == method.returnType.id
+			&& TypeIds.T_Object == method.returnType.id
 			&& method.parameters.length == 0
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEREPLACE)) {
 		return;

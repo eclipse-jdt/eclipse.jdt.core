@@ -286,7 +286,7 @@ public class SwitchStatement extends Statement {
 				}
 			}
 		} catch (IndexOutOfBoundsException e) {
-		};
+		}
 		s = s + "}"; //$NON-NLS-1$
 		return s;
 	}

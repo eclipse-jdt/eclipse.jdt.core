@@ -611,7 +611,7 @@ public class Main implements ProblemSeverities {
 					if (!(entry.getValue() instanceof String))
 						continue;
 					if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-						options.put((String) entry.getKey(), CompilerOptions.IGNORE);
+						options.put(entry.getKey(), CompilerOptions.IGNORE);
 					}
 				}
 				mode = Default;
@@ -630,7 +630,7 @@ public class Main implements ProblemSeverities {
 						if (!(entry.getValue() instanceof String))
 							continue;
 						if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-							options.put((String) entry.getKey(), CompilerOptions.IGNORE);
+							options.put(entry.getKey(), CompilerOptions.IGNORE);
 						}
 					}
 					continue;
@@ -1285,7 +1285,7 @@ public class Main implements ProblemSeverities {
 							if (problems[i].isError())
 								localErrorCount++;
 						}
-					};
+					}
 					// exit?
 					if (systemExitWhenFinished && !proceedOnError && (localErrorCount > 0)) {
 						err.flush();

@@ -1173,9 +1173,9 @@ protected static byte[] readUntil(InputStream input, byte separator, int offset)
 	byte b;
 	while((b = (byte)input.read()) != separator && b != -1) {
 		if(bytes.length == length) {
-			System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);;
+			System.arraycopy(bytes, 0, bytes = new byte[length*2], 0, length);
 		}
-		bytes[length++]=(byte)b;
+		bytes[length++] = b;
 	}
 	if(b == -1) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));

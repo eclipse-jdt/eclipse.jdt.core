@@ -18,7 +18,7 @@ public BooleanConstant(boolean value) {
 	this.value = value;
 }
 public boolean booleanValue() {
-	return (boolean) value;
+	return value;
 }
 public String stringValue() {
 	//spec 15.17.11

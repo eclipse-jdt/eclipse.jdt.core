@@ -663,7 +663,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							sourceType.getQualifiedName(),
 							packageName.length + 1,
 							sourceTypeName.length);
-				};
+				}
 				TypeDeclaration typeDecl =
 					parsedUnit.declarationOfType(CharOperation.splitOn('.', sourceTypeName));
 				if (typeDecl != null) {

@@ -1718,7 +1718,7 @@ public final class CharOperation {
 		// offsets inside pattern
 		int pSegmentStart, pLength = pattern.length;
 
-		if (freeLeadingDoubleStar = pattern[0] != pathSeparator){
+		if ((freeLeadingDoubleStar = (pattern[0] != pathSeparator)) == true){
 			pSegmentStart = 0;
 		} else {
 			pSegmentStart = 1;

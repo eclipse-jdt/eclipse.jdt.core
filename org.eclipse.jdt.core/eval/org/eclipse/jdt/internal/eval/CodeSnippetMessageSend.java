@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class CodeSnippetMessageSend extends MessageSend implements ProblemReasons, EvaluationConstants {
 	EvaluationContext evaluationContext;
@@ -103,7 +104,7 @@ public void generateCode(
 		if (arguments != null) {
 			int argsLength = arguments.length;
 			codeStream.generateInlinedValue(argsLength);
-			codeStream.newArray(currentScope, new ArrayBinding(currentScope.getType(TypeBinding.JAVA_LANG_OBJECT), 1));
+			codeStream.newArray(currentScope, new ArrayBinding(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT), 1));
 			codeStream.dup();
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
@@ -119,7 +120,7 @@ public void generateCode(
 			}
 		} else {
 			codeStream.generateInlinedValue(0);
-			codeStream.newArray(currentScope, new ArrayBinding(currentScope.getType(TypeBinding.JAVA_LANG_OBJECT), 1));			
+			codeStream.newArray(currentScope, new ArrayBinding(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT), 1));			
 		}
 		((CodeSnippetCodeStream) codeStream).invokeJavaLangReflectMethodInvoke();
 
@@ -208,7 +209,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			&& ((ProblemMethodBinding) binding).problemId() == NotVisible) {
 			if (this.evaluationContext.declaringTypeName != null) {
 				delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-				if (delegateThis == null){ ; // if not found then internal error, field should have been found
+				if (delegateThis == null){ // if not found then internal error, field should have been found
 					constant = NotAConstant;
 					scope.problemReporter().invalidMethod(this, binding);
 					return null;

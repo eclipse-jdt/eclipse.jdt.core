@@ -552,7 +552,7 @@ public TypeBinding reportError(BlockScope scope) {
 	if (binding instanceof ProblemFieldBinding && ((ProblemFieldBinding) binding).problemId() == NotFound){
 		if (this.evaluationContext.declaringTypeName != null) {
 			delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-			if (delegateThis != null){ ; // if not found then internal error, field should have been found
+			if (delegateThis != null){ // if not found then internal error, field should have been found
 				// will not support innerclass emulation inside delegate
 				this.codegenBinding = binding = scope.getField(delegateThis.type, this.token, this);
 				if (!binding.isValidBinding()) return super.reportError(scope);
@@ -563,7 +563,7 @@ public TypeBinding reportError(BlockScope scope) {
 	if (binding instanceof ProblemBinding && ((ProblemBinding) binding).problemId() == NotFound){
 		if (this.evaluationContext.declaringTypeName != null) {
 			delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-			if (delegateThis != null){ ; // if not found then internal error, field should have been found
+			if (delegateThis != null){ // if not found then internal error, field should have been found
 				// will not support innerclass emulation inside delegate
 				FieldBinding fieldBinding = scope.getField(delegateThis.type, this.token, this);
 				if (!fieldBinding.isValidBinding()) {

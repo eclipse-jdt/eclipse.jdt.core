@@ -441,8 +441,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 			pattern.needsResolve = true; // force resolve to compute type bindings
 		}
 
-		IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager())
-										.getIndexManager();
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		MatchLocator matchLocator = 
 			new MatchLocator2(
@@ -540,7 +539,7 @@ public void searchAllTypeNames(
 	int waitingPolicy,
 	IProgressMonitor progressMonitor)  throws JavaModelException {
 
-	IndexManager indexManager = ((JavaModelManager)JavaModelManager.getJavaModelManager()).getIndexManager();
+	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		
 	char classOrInterface;
 	switch(searchFor){

@@ -268,7 +268,7 @@ protected IType getOriginalType(ArrayList hierarchy) {
 	size= size - 2;
 	while (size > -1) {
 		typeName = ((IJavaElement) hierarchy.get(size)).getElementName();
-		type = ((IType) type).getType(typeName);
+		type =  type.getType(typeName);
 		size--;
 	}
 	return type;

@@ -271,7 +271,7 @@ public class CompilationUnitDeclaration
 		if (imports != null)
 			for (int i = 0; i < imports.length; i++) {
 				s += tabString(tab) + "import " + imports[i].toString() + ";\n"; //$NON-NLS-1$ //$NON-NLS-2$
-			};
+			}
 
 		if (types != null)
 			for (int i = 0; i < types.length; i++) {

@@ -437,7 +437,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			if (delegateThis == null) {
 				if (this.evaluationContext.declaringTypeName != null) {
 					delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-					if (delegateThis == null){ ; // if not found then internal error, field should have been found
+					if (delegateThis == null){ // if not found then internal error, field should have been found
 						return super.reportError(scope);
 					}
 				} else {
@@ -559,7 +559,7 @@ public TypeBinding reportError(BlockScope scope) {
 
 	if (this.evaluationContext.declaringTypeName != null) {
 		delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-		if (delegateThis == null){ ; // if not found then internal error, field should have been found
+		if (delegateThis == null){ // if not found then internal error, field should have been found
 			return super.reportError(scope);
 		}
 	} else {

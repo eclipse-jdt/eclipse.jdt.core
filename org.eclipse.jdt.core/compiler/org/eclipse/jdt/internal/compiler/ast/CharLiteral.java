@@ -68,7 +68,7 @@ private void computeValue() {
 			else {
 				constant = Constant.fromValue(value = (char) number);
 				break;
-			};
+			}
 			if ((digit = source[4]) != '\'')
 				number = (number * 8) + Character.getNumericValue(digit);
 			value = (char) number;

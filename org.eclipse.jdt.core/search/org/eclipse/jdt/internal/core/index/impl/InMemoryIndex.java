@@ -66,7 +66,7 @@ public class InMemoryIndex {
 	 * If the word does not exist, it adds it in the index.
 	 */
 	protected void addRef(char[] word, int fileNum) {
-		WordEntry entry= (WordEntry) this.words.get(word);
+		WordEntry entry= this.words.get(word);
 		if (entry == null) {
 			entry= new WordEntry(word);
 			entry.addRef(fileNum);
@@ -140,7 +140,7 @@ public class InMemoryIndex {
 	 * Returns the word entry corresponding to the given word.
 	 */
 	protected WordEntry getWordEntry(char[] word) {
-		return (WordEntry) words.get(word);
+		return words.get(word);
 	}
 	/**
 	 * Initialises the fields of the index

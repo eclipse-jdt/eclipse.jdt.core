@@ -707,7 +707,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 							}
 							break;
 						case IJavaElement.PACKAGE_FRAGMENT:
-							Openable pkg = (Openable)this.currentElement;
+							Openable pkg = this.currentElement;
 							if (pkg.getPath().equals(path.removeLastSegments(1))) {
 								pkgFragment = (IPackageFragment)pkg;
 							} // else case of package x which is a prefix of x.y
@@ -810,7 +810,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				}
 				this.projectsToUpdate.add(element);
 				this.updateRoots(element.getPath(), delta);
-				this.projectsForDependentNamelookupRefresh.add((JavaProject) element);
+				this.projectsForDependentNamelookupRefresh.add(element);
 			}
 		} else {			
 			addToParentInfo(element);
@@ -974,7 +974,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				this.manager.removePerProjectInfo(
 					(JavaProject) element);
 				this.updateRoots(element.getPath(), delta);
-				this.projectsForDependentNamelookupRefresh.add((JavaProject) element);
+				this.projectsForDependentNamelookupRefresh.add(element);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				JavaProject project = (JavaProject) element.getJavaProject();
