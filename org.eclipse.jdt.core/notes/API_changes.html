@@ -28,47 +28,58 @@
   </tr>
 </table>
 
-<p>
-<ul>
-<li>(in progress) <code>IWorkingCopy</code> now extends <code>ICompilationUnit</code>
-	 (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36987 ">bug 36987 </a>)
-	  <p>
-	  Historically, <code>IWorkingCopy</code> gathered all working copy concerns, 
-	  and <code>ICompilationUnit</code> implement this interface, though only the 
-	  factory method makes sense for them; thus their implementation of the working 
-	  copy features do nothing relevant to clients. <code>IWorkingCopy</code> also 
-	  implements the spec'ed factory method, but it doesn't work for these.
-	  </p>
-	  <p>
-	  Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can
-	  adapt to this change by referencing <code>IWorkingCopy</code> instead of 
-	  <code>ICompilationUnit</code> when a working copy is needed.
-	  </p>
-</li>
-<li>(in progress) Factory methods that create <code>IWorkingCopies</code> (i.e. 
-	  <code>getWorkingCopy</code> and <code>getSharedWorkingCopy</code>) now return
-	  an <code>IWorkingCopy</code> instead of an <code>IJavaElement</code>.
-	  <p>
-	  Working copies were initialy designed to be editable elements on any <code>IJavaElement</code>.
-	  Pratice showed that they were used only to edit <code>ICompilationUnit</code>. To avoid 
-	  downcasting to <code>IWorkingCopy</code>, the factory methods now return an
-	  <code>IWorkingCopy</code>.
-	  </p>
-	  <p>
-	  Clients using factory methods to create working copies can now remove the cast from 
-	  <code>IJavaElement</code> to <code>IWorkingCopy</code>.
-	  </p>
-</li>
+<hr><h1>IWorkingCopy is removed</h1>
+	(in progress) Last edit: 2003/07/03
+<h2>Problem description</h2>
+	Historically, <code>IWorkingCopy</code> gathered all working copy concerns, 
+	and <code>ICompilationUnit</code> implement this interface, though only the 
+	factory method makes sense for them; thus their implementation of the working 
+	copy features do nothing relevant to clients. <code>IWorkingCopy</code> also 
+	implements the spec'ed factory method, but it doesn't work for these.
+	<p>
+	See also <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36987 ">bug 36987</a>.
+	</p>
+<h2>Problem resolution</h2>
+	Interface <code>IWorkingCopy</code> is removed and all its functionality is moved to <code>ICompilationUnit</code>.
+<h2>Converting to the new API</h2>
+	Clients using <code>IWorkingCopy</code> and <code>ICompilationUnit</code> can
+	adapt to this change by referencing <code>ICompilationUnit</code> instead of 
+	<code>IWorkingCopy</code> when a working copy is needed.
 
-<li>2003/06/11 (->M2)
-<code>CharOperation.patchMatch(...)</code> no longer treat non absolute pattern <code>'foo'</code>
-as <code>'**/foo'</code> for free. This was inconsistent with Ant patternset rules. This has no incidence on
-source folder exclusion patterns which are implicitely concatenating exclusion patterns to source folder
-paths when using them. Only direct clients to this <code>CharOperation</code> API will be affected.
-</li>
+<hr><h1>Working copy factory methods return ICompilationUnit</h1>
+	(in progress) Last edit: 2003/07/03
+<h2>Problem description</h2>
+	Working copies were initialy designed to be editable elements on any <code>IJavaElement</code>.
+	Pratice showed that they were used only to edit <code>ICompilationUnit</code>. This imposed 
+	downcasting to <code>IWorkingCopy</code> when using the working copy factory methods.
+<h2>Problem resolution</h2>
+	Factory methods that create <code>ICompilationUnits</code> (i.e. 
+	<code>getWorkingCopy</code>) now return an <code>ICompilationUint</code> instead of an 
+	<code>IJavaElement</code>.
+<h2>Converting to the new API</h2>
+	Clients using factory methods to create working copies can now remove the cast from 
+	<code>IJavaElement</code> to <code>IWorkingCopy</code>, <code>ICompilationUint</code>
+	being compatible with <code>IWorkingCopy</code>.
 
-<li>2003/06/11 (->M2)
-Change in syntax error message ID. The new diagnose of syntax errors use new error messages.
+<hr><h1>CharOperation.pathMatch(...) treats non absolute pattern as Ant does</h1>
+	Last edit: 2003/06/11 (->M2)
+<h2>Problem description</h2>
+	<code>CharOperation.pathMatch(...)</code> used to treat non absolute pattern <code>'foo'</code>
+	as <code>'**/foo'</code> for free. This was inconsistent with Ant patternset rules.
+<h2>Problem resolution</h2>
+	<code>CharOperation.pathMatch(...)</code> no longer treat non absolute pattern <code>'foo'</code>
+	as <code>'**/foo'</code> for free. This has no incidence on
+	source folder exclusion patterns which are implicitely concatenating exclusion patterns to source folder
+	paths when using them. Only direct clients to this <code>CharOperation</code> API will be affected.
+<h2>Converting to the new API</h2>
+	TODO
+
+<hr><h1>Change in syntax error message ID</h1>
+	Last edit: 2003/06/11 (->M2)
+<h2>Problem description</h2>
+	TODO
+<h2>Problem resolution</h2>
+	The new diagnose of syntax errors use new error messages.
 	  <p>
 		The following messages ID are added:
 		<ul>
@@ -97,11 +108,17 @@ Change in syntax error message ID. The new diagnose of syntax errors use new err
 			<li>IProblem.InvalidExpressionAsStatement</li>
 		</ul>
 	  </p>
-</li>
-<li>2003/06/12 (->M2)
-Added API <code>IJavaProject#forceClasspathReload(IProgressMonitor)</code> to force reload of <code>.classpath</code> file
-before next automatic update occurs.
-<pre>
+<h2>Converting to the new API</h2>
+	TODO
+
+<hr><h1>Force reload of .classpath file</h1>
+	Last edit: 2003/06/12 (->M2)
+<h2>Problem description</h2>
+	TODO
+<h2>Problem resolution</h2>
+	Added API <code>IJavaProject#forceClasspathReload(IProgressMonitor)</code> to force reload of <code>.classpath</code> file
+	before next automatic update occurs.
+	<pre>
 /**
  * Force the project to reload its <code>.classpath</code> file from disk and update the classpath accordingly.
  * Usually, a change to the <code>.classpath</code> file is automatically noticed and reconciled at the next 
@@ -123,24 +140,36 @@ before next automatic update occurs.
  *  - The classpath is being modified during resource change event notification (CORE_EXCEPTION)
  * @since 3.0
  */
-</pre>
-</li>
+	</pre>
+<h2>Converting to the new API</h2>
+	TODO
 
-<li>2003/06/13 (->M2)
-<code>JavaCore.newLibraryEntry(...)</li> will now allow an empty source attachment (new Path("")) to
-be equivalent to no source attachment (i.e. <code>null</null>). This adjustment is made necessary for
-library entries generated from classpath variables which cannot be set to <code>null</code>. Also see 
-bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38531">38531</a>.
-<pre>
+<hr><h1>Allow empty path to be equivalent to no source attachment</h1>
+	Last edit: 2003/06/13 (->M2)
+<h2>Problem description</h2>
+	<code>JavaCore.newLibraryEntry(...)</code> used to not allow an empty source attachment (
+	<code>new Path("")</code>) to be equivalent to no source attachment (i.e. <code>null</code>). 
+	This adjustment is made necessary for library entries generated from classpath variables which cannot be set to 
+	<code>null</code>. Also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=38531">38531</a>.
+<h2>Problem resolution</h2>
+	<code>JavaCore.newLibraryEntry(...)</code> will now allow an empty source attachment (
+	<code>new Path("")</code>) to be equivalent to no source attachment (i.e. <code>null</code>). 
+	<pre>
 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder, 
 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
 *   and will be automatically converted to <code>null</code>.
-</pre>
-</li>
-<li>2003/06/16 (->M2)
-In the process of closing the gap between compilation units and working copies 
-(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888</a>), the following new APIs 
-are added to <code>ICompilationUnit</code>:
+	</pre>
+<h2>Converting to the new API</h2>
+	TODO
+
+<hr><h1>Close the gap between compilation units and working copies</h1>
+	Last edit: 2003/06/27 (->M2)
+<h2>Problem description</h2>
+	TODO
+	<p>See also <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888</a>.
+	</p>
+<h2>Problem resolution</h2>
+	The following new APIs are added to <code>ICompilationUnit</code>:
 	<ul>
 	<li><pre>
 /**
@@ -321,18 +350,68 @@ public abstract class WorkingCopyOwner {
 	}
 }
 	</pre>
-</li>
-<li>2003/06/18 (->M2)
-<code>IJavaElement.getResource()</code> was specified to return <code>null</code> for working copies. This didn't make sense as
-this is a handle-only operation and an <code>IResource</code> is also a handle. This restriction was removed and 
-<code>IJavaElement.getResource()</code> now returns a non-<code>null</code> value for a working copy.
-</li>
-<li>2003/06/20 (->M2)
-The 2.1 API <code>IWorkingCopy.getOriginalElement()</code> returns an <code>IJavaElement</code>. In practice 
-the original element for a working copy is always an <code>ICompilationUnit</code> whose owner is the primary owner. 
-So <code>getPrimary()</code> was added on <code>ICompilationUnit</code> to return an <code>ICompilationUnit</code>. 
-This new API replaces <code>getOriginalElement()</code>.
-<pre>
+	To generalize the usage of a working copy owner (entire JavaModel is now aware of owned working copies), new
+	APIs were added. These new APIs are copies of existing APIs augmented with a <code>WorkingCopyOwner</code> 
+	parameter, that defines the working copies to consider in the operation. 
+	When specifying an owner parameter, all working copies belonging to this owner will implicitly take precedence over primary ones
+	(without requiring the owner to remember all its working copies, as in 2.1 era). Note that when no owned working copy is found, a primary
+	unit will be considered instead, and since primary units have a built-in working copy (see <code>ICompilationUnit.becomeWorkingCopy(...)</code>),
+	the primary unit may already be in working copy mode (very likely since an editor got opened on it). This means that an owner will already 
+	transparently see unsaved editor contents for all units for which it has no better working copy to contribute.
+	The following new APIs were added:
+	<ul>
+		<li><code>AST.parseCompilationUnit(char[] source, String unitName, IJavaProject project, WorkingCopyOwner owner)</code></li>
+		<li><code>AST.parseCompilationUnit(IClassFile classFile, boolean resolveBindings, WorkingCopyOwner owner)</code></li>
+		<li><code>AST.parseCompilationUnit(ICompilationUnit unit, boolean resolveBindings, WorkingCopyOwner owner)</code></li>
+		<li><code>IEvaluationContext.codeComplete(String codeSnippet, int position, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
+		<li><code>IEvaluationContext.codeSelect(String codeSnippet, int offset, int length, WorkingCopyOwner owner)</code></li>
+		<li><code>IDOMCompilationUnit.getCompilationUnit(IPackageFragment parent, WorkingCopyOwner owner)</code></li>
+		<li><code>ICodeAssist.codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
+		<li><code>ICodeAssist.codeSelect(int offset, int length, WorkingCopyOwner owner)</code></li>
+		<li><code>ICompilationUnit.reconcile(boolean forceProblemDetection, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+		<li><code>IJavaProject.findElement(IPath path, WorkingCopyOwner owner)</code></li>
+		<li><code>IJavaProject.findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner)</code></li>
+		<li><code>IJavaProject.findType(String fullyQualifiedName, WorkingCopyOwner owner)</code></li>
+		<li><code>IJavaProject.newTypeHierarchy(IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+		<li><code>IJavaProject.newTypeHierarchy(IType type, IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+		<li><code>IPackageFragment.getCompilationUnit(String name, WorkingCopyOwner owner)</code></li>
+		<li><code>IPackageFragment.getCompilationUnits(WorkingCopyOwner owner)</code></li>
+		<li><code>IType.codeComplete(char[] snippet, int insertion, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
+		<li><code>IType.newSupertypeHierarchy(WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+		<li><code>IType.newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+		<li><code>IType.newTypeHierarchy(WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
+		<li><code>IType.resolveType(String typeName, WorkingCopyOwner owner)</code></li>
+		<li><code>JavaCore.create(IFile file, WorkingCopyOwner owner)</code></li>
+		<li><code>JavaCore.create(IResource resource, WorkingCopyOwner owner)</code></li>
+		<li><code>JavaCore.create(String handleIdentifier, WorkingCopyOwner owner)</code></li>
+		<li><code>JavaCore.createCompilationUnitFrom(IFile file, WorkingCopyOwner owner)</code></li>
+		<li><code>JavaCore.getWorkingCopies(WorkingCopyOwner owner)</code></li>
+		<li><code>SearchEngine.SearchEngine(WorkingCopyOwner workingCopyOwner)</code></li>
+		<li><code>SearchEngine.createHierarchyScope(IType type, WorkingCopyOwner owner)</code></li>
+	</ul>
+<h2>Converting to the new API</h2>
+	TODO
+
+<hr><h1>IJavaElement.getResource() returns a non null value for working copies</h1>
+	Last edit: 2003/06/18 (->M2)
+<h2>Problem description</h2>
+	<code>IJavaElement.getResource()</code> was specified to return <code>null</code> for working copies. 
+	This didn't make sense as	this is a handle-only operation and an <code>IResource</code> is also a handle. 
+<h2>Problem resolution</h2>
+	This restriction was removed and <code>IJavaElement.getResource()</code> now returns a non-<code>null</code> 
+	value for a working copy.
+<h2>Converting to the new API</h2>
+	TODO
+
+<hr><h1>Rename getOriginalElement() into getPrimaryElement()</h1>
+	Last edit: 2003/06/20 (->M2)
+<h2>Problem description</h2>
+	The 2.1 API <code>IWorkingCopy.getOriginalElement()</code> returns an <code>IJavaElement</code>. In practice 
+	the original element for a working copy is always an <code>ICompilationUnit</code> whose owner is the primary owner. 
+<h2>Problem resolution</h2>
+	<code>getPrimary()</code> was added on <code>ICompilationUnit</code> to return an <code>ICompilationUnit</code>. 
+	This new API replaces <code>getOriginalElement()</code>.
+	<pre>
 /**
  * Returns the primary compilation unit (whose owner is the primary owner)
  * this working copy was created from, or this compilation unit if this a primary
@@ -344,10 +423,10 @@ This new API replaces <code>getOriginalElement()</code>.
  * @since 3.0
  */
 ICompilationUnit getPrimary();
-</pre>
-In the same manner, <code>IWorkingCopy.getOriginalElement(IJavaElement)</code> is replaced with
-<code>IJavaElement.getPrimaryElement()</code>.
-<pre>
+	</pre>
+	In the same manner, <code>IWorkingCopy.getOriginalElement(IJavaElement)</code> is replaced with
+	<code>IJavaElement.getPrimaryElement()</code>.
+	<pre>
 /**
  * Returns the primary element (whose compilation unit is the primary compilation unit)
  * this working copy element was created from, or this element if it is a descendant of a
@@ -360,59 +439,30 @@ In the same manner, <code>IWorkingCopy.getOriginalElement(IJavaElement)</code> i
  * @since 3.0
  */
 IJavaElement getPrimaryElement();
-</pre>
-</li>
-<li>2003/06/27 (->M2) To finish closing the gap between compilation units and working copies 
-(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888</a>), new APIs were added to generalize
-the usage of a working copy owner (entire JavaModel is now aware of owned working copies). These new APIs are copies of existing APIs augmented with
-a <code>WorkingCopyOwner</code> parameter, that defines the working copies to consider in the operation. 
-When specifying an owner parameter, all working copies belonging to this owner will implicitly take precedence over primary ones
-(without requiring the owner to remember all its working copies, as in 2.1 era). Note that when no owned working copy is found, a primary
-unit will be considered instead, and since primary units have a built-in working copy (see <code>ICompilationUnit.becomeWorkingCopy(...)</code>),
-the primary unit may already be in working copy mode (very likely since an editor got opened on it). This means that an owner will already 
-transparently see unsaved editor contents for all units for which it has no better working copy to contribute.
-The following new APIs were added:
-	<ul>
-	<li><code>AST.parseCompilationUnit(char[] source, String unitName, IJavaProject project, WorkingCopyOwner owner)</code></li>
-	<li><code>AST.parseCompilationUnit(IClassFile classFile, boolean resolveBindings, WorkingCopyOwner owner)</code></li>
-	<li><code>AST.parseCompilationUnit(ICompilationUnit unit, boolean resolveBindings, WorkingCopyOwner owner)</code></li>
-	<li><code>IEvaluationContext.codeComplete(String codeSnippet, int position, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
-	<li><code>IEvaluationContext.codeSelect(String codeSnippet, int offset, int length, WorkingCopyOwner owner)</code></li>
-	<li><code>IDOMCompilationUnit.getCompilationUnit(IPackageFragment parent, WorkingCopyOwner owner)</code></li>
-	<li><code>ICodeAssist.codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
-	<li><code>ICodeAssist.codeSelect(int offset, int length, WorkingCopyOwner owner)</code></li>
-	<li><code>ICompilationUnit.reconcile(boolean forceProblemDetection, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
-	<li><code>IJavaProject.findElement(IPath path, WorkingCopyOwner owner)</code></li>
-	<li><code>IJavaProject.findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner)</code></li>
-	<li><code>IJavaProject.findType(String fullyQualifiedName, WorkingCopyOwner owner)</code></li>
-	<li><code>IJavaProject.newTypeHierarchy(IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
-	<li><code>IJavaProject.newTypeHierarchy(IType type, IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
-	<li><code>IPackageFragment.getCompilationUnit(String name, WorkingCopyOwner owner)</code></li>
-	<li><code>IPackageFragment.getCompilationUnits(WorkingCopyOwner owner)</code></li>
-	<li><code>IType.codeComplete(char[] snippet, int insertion, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic, ICompletionRequestor requestor, WorkingCopyOwner owner)</code></li>
-	<li><code>IType.newSupertypeHierarchy(WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
-	<li><code>IType.newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
-	<li><code>IType.newTypeHierarchy(WorkingCopyOwner owner, IProgressMonitor monitor)</code></li>
-	<li><code>IType.resolveType(String typeName, WorkingCopyOwner owner)</code></li>
-	<li><code>JavaCore.create(IFile file, WorkingCopyOwner owner)</code></li>
-	<li><code>JavaCore.create(IResource resource, WorkingCopyOwner owner)</code></li>
-	<li><code>JavaCore.create(String handleIdentifier, WorkingCopyOwner owner)</code></li>
-	<li><code>JavaCore.createCompilationUnitFrom(IFile file, WorkingCopyOwner owner)</code></li>
-	<li><code>JavaCore.getWorkingCopies(WorkingCopyOwner owner)</code></li>
-	<li><code>SearchEngine.SearchEngine(WorkingCopyOwner workingCopyOwner)</code></li>
-	<li><code>SearchEngine.createHierarchyScope(IType type, WorkingCopyOwner owner)</code></li>
-	</ul>
-</li>
-<li>2003/06/30 (->M2) The API <code>JavaCore.newLibraryEntry(	IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, boolean isExported)</code> for creating a library classpath entry
-with a source attachment is no longer accepting a relative source attachment path. It was spec'ed as such, but its implementation was too permissive. From 3.0 on, an <code>IllegalArgumentException</code>
-will be raised if a non-relative source attachment path is provided. Note that the only exception to this rule is an empty path (answering <code>true</code> to <code>IPath.isEmpty()</code>) which is now 
-automatically translated into <code>null</code> denoting no source attachment.
-In 3.0, a .classpath file will compact source attachments into project relative ones (as it does with other entry pathes already). During this process, relative pathes are known to 
-be meaning project relative (internally when reading/writing the .classpath file). Externally, only absolute pathes are allowed to avoid confusion when reading/writing the .classpath file.
-The tolerance for empty relative pathes comes from the fact that it is possible for variable classpath entries can be resolved to library entries with no classpath. Then the variable source attachment
-needs to be positionned to a value meaning no source (<code>null</code>). However, assigning a classpath variable to <code>null</code> is not allowed (nullification is used to remove variables),
-thus an empty relative source path is tolerated to work around this limitation.
-</li>
-</ul>
+	</pre>
+
+<h2>Converting to the new API</h2>
+	TODO
+
+<hr><h1>JavaCore.newLibraryEntry(...) no longer accepts a relative source attachment path</h1>
+	Last edit: 2003/06/30 (->M2)
+<h2>Problem description</h2>
+	The API <code>JavaCore.newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, boolean isExported)</code> 
+	for creating a library classpath entry with a source attachment used to accept a relative source attachment path. It was spec'ed as such, 
+	but its implementation was too permissive.
+<h2>Problem resolution</h2>
+	From 3.0 on, an <code>IllegalArgumentException</code> will be raised if a non-relative source attachment path is provided. 
+	Note that the only exception to this rule is an empty path (answering <code>true</code> to <code>IPath.isEmpty()</code>) which is 
+	now automatically translated into <code>null</code> denoting no source attachment.
+	In 3.0, a .classpath file will compact source attachments into project relative ones (as it does with other entry pathes already). During 
+	this process, relative pathes are known to be meaning project relative (internally when reading/writing the .classpath file). Externally, 
+	only absolute pathes are allowed to avoid confusion when reading/writing the .classpath file.
+	The tolerance for empty relative pathes comes from the fact that it is possible for variable classpath entries can be resolved to library entries 
+	with no classpath. Then the variable source attachment needs to be positionned to a value meaning no source (<code>null</code>). 
+	However, assigning a classpath variable to <code>null</code> is not allowed (nullification is used to remove variables),
+	thus an empty relative source path is tolerated to work around this limitation.
+<h2>Converting to the new API</h2>
+	TODO
+
 </body>
 </html>
