@@ -54,7 +54,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
 		
 		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
-		char[] suffix = CharOperation.concat(source.substring(insertion).toCharArray(), new char[]{'}'});
+		char[] suffix = CharOperation.concat(new char[]{'}'}, source.substring(insertion).toCharArray());
 		char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
 		
 		BasicCompilationUnit cu = 
