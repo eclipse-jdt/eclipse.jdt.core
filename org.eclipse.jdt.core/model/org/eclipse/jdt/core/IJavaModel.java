@@ -187,12 +187,17 @@ void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
  * This operation will issue a JavaModel delta describing the discovered changes, in term
  * of Java element package fragment roots added, removed or changed.
  * Note that a collection of elements can be passed so as to narrow the set of archives
- * to refresh. The elements can be:
+ * to refresh (passing <code>null</code> along is equivalent to refreshing the entire mode). 
+ * The elements can be:
  * <ul>
  * <li> package fragment roots corresponding to external archives
  * <li> Java projects, which referenced external archives will be refreshed
  * <li> Java model, all referenced external archives will be refreshed.
  * </ul>
+ * <p> In case an archive is used by multiple projects, the delta issued will account for
+ * all of them. This means that even if a project was not part of the elements scope, it
+ * may still be notified of changes if it is referencing a library comprised in the scope.
+ * <p>
  * @param elementsScope - a collection of elements defining the scope of the refresh
  * @param monitor - a progress monitor used to report progress
  * @exception JavaModelException in one of the corresponding situation:
