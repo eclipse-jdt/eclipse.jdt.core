@@ -46,7 +46,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug83304_Constructor";
+//		TESTS_PREFIX =  "testBug84724";
 //		TESTS_NAMES = new String[] { "testBug83304" };
 //		TESTS_NUMBERS = new int[] { 81084 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
@@ -1274,6 +1274,160 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH\n" + 
 			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 84100: [1.5][search] Search for varargs method not finding match
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84100"
+	 */
+	public void testBug84100() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84100/X.java",
+			"package b84100;\n" + 
+			"public class X {\n" + 
+			"	void foo() {}\n" + 
+			"	void foo(String s) {}\n" + 
+			"	void foo(String... xs) {}\n" + 
+			"	void foo(int x, String... xs) {}\n" + 
+			"	void foo(String s, int x, String... xs) {}\n" + 
+			"}\n"
+			);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b84100/Z.java",
+			"package b84100;\n" + 
+			"public class Z {\n" + 
+			"	X x;\n" + 
+			"	void foo() {\n" + 
+			"		x.foo();\n" + 
+			"		x.foo(\"\");\n" + 
+			"		x.foo(\"\", \"\");\n" + 
+			"	 	x.foo(\"\", \"\", null);\n" + 
+			"		x.foo(3, \"\", \"\");\n" + 
+			"		x.foo(\"\", 3, \"\", \"\");\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IMethod method = selectMethod(workingCopies[0], "foo", 1);
+		search(method, REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84100/Z.java void b84100.Z.foo() [foo()] EXACT_MATCH"
+		);
+	}
+	public void testBug84100b() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "foo", 2);
+		search(method, REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84100/Z.java void b84100.Z.foo() [foo(\"\")] EXACT_MATCH"
+		);
+	}
+	public void testBug84100c() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "foo", 3);
+		search(method, REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", \"\")] EXACT_MATCH\n" + 
+			"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", \"\", null)] EXACT_MATCH"
+		);
+	}
+	public void testBug84100d() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "foo", 4);
+		search(method, REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84100/Z.java void b84100.Z.foo() [foo(3, \"\", \"\")] EXACT_MATCH"
+		);
+	}
+	public void testBug84100e() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "foo", 5);
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", 3, \"\", \"\")] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 84724: [1.5][search] Search for varargs method not finding match
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84724"
+	 */
+	public void testBug84724() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84724/X.java",
+			"package b84724;\n" + 
+			"public class X {\n" + 
+			"	X(String s) {}\n" + 
+			"	X(String... v) {}\n" + 
+			"	X(int x, String... v) {}\n" + 
+			"	X(String s, int x, String... v) {}\n" + 
+			"}\n"
+			);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b84724/Z.java",
+			"package b84724;\n" + 
+			"public class Z {\n" + 
+			"	void foo() {\n" + 
+			"		new X();\n" + 
+			"		new X(\"\");\n" + 
+			"		new X(\"\", \"\");\n" + 
+			"		new X(\"\", \"\", null);\n" + 
+			"		new X(3, \"\", \"\");\n" + 
+			"		new X(\"\", 3, \"\", \"\");\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IMethod method = selectMethod(workingCopies[0], "X", 2);
+		search(method, REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84724/Z.java void b84724.Z.foo() [new X(\"\")] EXACT_MATCH"
+		);
+	}
+	public void testBug84724b() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "X", 3);
+		search(method, REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84724/Z.java void b84724.Z.foo() [new X()] EXACT_MATCH\n" + 
+			"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", \"\")] EXACT_MATCH\n" + 
+			"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", \"\", null)] EXACT_MATCH"
+		);
+	}
+	public void testBug84724c() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "X", 4);
+		search(method, REFERENCES);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b84724/Z.java void b84724.Z.foo() [new X(3, \"\", \"\")] EXACT_MATCH"
+		);
+	}
+	public void testBug84724d() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "X", 5);
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", 3, \"\", \"\")] EXACT_MATCH"
 		);
 	}
 }

@@ -34,7 +34,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in Expli
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 	if (!(node instanceof ExplicitConstructorCall)) return IMPOSSIBLE_MATCH;
 
-	if (this.pattern.parameterSimpleNames != null) {
+	if (this.pattern.parameterSimpleNames != null && !this.pattern.varargs) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = ((ExplicitConstructorCall) node).arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -59,7 +59,7 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Al
 	if (this.pattern.declaringSimpleName != null && !matchesName(this.pattern.declaringSimpleName, typeName[typeName.length-1]))
 		return IMPOSSIBLE_MATCH;
 
-	if (this.pattern.parameterSimpleNames != null) {
+	if (this.pattern.parameterSimpleNames != null && !this.pattern.varargs) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = allocation.arguments;
 		int argsLength = args == null ? 0 : args.length;
@@ -79,7 +79,7 @@ public int match(FieldDeclaration field, MatchingNodeSet nodeSet) {
 			return IMPOSSIBLE_MATCH;
 	}
 
-	if (this.pattern.parameterSimpleNames != null) {
+	if (this.pattern.parameterSimpleNames != null && !this.pattern.varargs) {
 		int length = this.pattern.parameterSimpleNames.length;
 		Expression[] args = allocation.arguments;
 		int argsLength = args == null ? 0 : args.length;
