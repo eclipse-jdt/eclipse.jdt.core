@@ -41,16 +41,16 @@ protected Map getCompilerOptions() {
 }
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "Bug51529a", "Bug51529b" };
+//	TESTS_NAMES = new String[] { "Bug51529a", "Bug51529b" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 22 };
+//	TESTS_NUMBERS = new int[] { 22 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//	testsRange = new int[] { 21, 50 };
-//	testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
-//	testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
+//	TESTS_RANGE = new int[] { 21, 50 };
+//	TESTS_RANGE = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
+//	TESTS_RANGE = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
 }
 public static Test suite() {
-	if (testsNames != null || testsNumbers!=null || testsRange!=null) {
+	if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
 		return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
 	}
 	return setupSuite(testClass());

@@ -12,13 +12,12 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.*;
 
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RunAllTests extends TestCase {
+public class RunAllTests extends junit.framework.TestCase {
 public RunAllTests(String name) {
 	super(name);
 }
@@ -42,10 +41,10 @@ public static Test suite() {
 
 	Class[] testClasses = getAllTestClasses();
 	// Reset forgotten subsets of tests
-	AbstractJavaModelTests.TESTS_PREFIX = null;
-	AbstractJavaModelTests.TESTS_NAMES = null;
-	AbstractJavaModelTests.TESTS_NUMBERS = null;
-	AbstractJavaModelTests.TESTS_RANGE = null;
+	TestCase.TESTS_PREFIX = null;
+	TestCase.TESTS_NAMES = null;
+	TestCase.TESTS_NUMBERS = null;
+	TestCase.TESTS_RANGE = null;
 
 	for (int i = 0; i < testClasses.length; i++) {
 		Class testClass = testClasses[i];

@@ -11,11 +11,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
@@ -38,12 +35,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * The java.io.File path to the directory that contains the external jars.
 	 */
 	protected static String EXTERNAL_JAR_DIR_PATH;
-	
-	// static variables for subsets tests
-	public static String TESTS_PREFIX = null; // prefix of test names to perform
-	public static String[] TESTS_NAMES = null; // list of test names to perform
-	public static int[] TESTS_NUMBERS = null; // list of test numbers to perform
-	public static int[] TESTS_RANGE = null; // range of test numbers to perform
 	
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
@@ -153,91 +144,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
-		// Init suite with class name
 		TestSuite suite = new Suite(suiteName==null?evaluationTestClass.getName():suiteName);
-		List tests = new ArrayList();
-		Constructor constructor = null;
-		try {
-			// Get class constructor
-			Class[] paramTypes = new Class[] { String.class };
-			constructor = evaluationTestClass.getConstructor(paramTypes);
-		}
-		catch (Exception e) {
-			// cannot get constructor, skip suite
-			return suite;
-		}
-
-		// Get all tests from "test%" methods
-		Method[] methods = evaluationTestClass.getDeclaredMethods();
-		nextMethod: for (int m = 0, max = methods.length; m < max; m++) {
-			try {
-				if (Flags.isPublic(methods[m].getModifiers()) &&
-					methods[m].getName().startsWith("test")) {
-					String methName = methods[m].getName();
-					Object[] params = {methName};
-					// no prefix, no subsets => add method
-					if (TESTS_PREFIX == null && TESTS_NAMES == null && TESTS_NUMBERS == null && TESTS_RANGE == null) {
-						suite.addTest((Test)constructor.newInstance(params));
-						continue nextMethod;
-					}
-					// no prefix or method matches prefix
-					if (TESTS_PREFIX == null || methName.startsWith(TESTS_PREFIX)) {
-						int numStart = TESTS_PREFIX==null ? 4 /* test */ : TESTS_PREFIX.length();
-						// tests names subset
-						if (TESTS_NAMES != null) {
-							for (int i = 0, imax= TESTS_NAMES.length; i<imax; i++) {
-								if (TESTS_NAMES[i].equals(methName) || TESTS_NAMES[i].equals(methName.substring(numStart))) {
-									tests.add(methName);
-									suite.addTest((Test)constructor.newInstance(params));
-									continue nextMethod;
-								}
-							}
-						}
-						// look for test number
-						int length = methName.length();
-						if (numStart < length) {
-							// get test number
-							while (numStart<length && !Character.isDigit(methName.charAt(numStart))) numStart++; // skip to first digit
-							while (numStart<length && methName.charAt(numStart) == '0') numStart++; // skip to first non-nul digit
-							int n = numStart;
-							while (n<length && Character.isDigit(methName.charAt(n))) n++; // skip to next non-digit
-							if (n>numStart && n <= length) {
-								try {
-									int num = Integer.parseInt(methName.substring(numStart, n));
-									// tests numbers subset
-									if (TESTS_NUMBERS != null && !tests.contains(methName)) {
-										for (int i = 0; i < TESTS_NUMBERS.length; i++) {
-											if (TESTS_NUMBERS[i] == num) {
-												tests.add(methName);
-												suite.addTest((Test)constructor.newInstance(params));
-												continue nextMethod;
-											}
-										}
-									}
-									// tests range subset
-									if (TESTS_RANGE != null && TESTS_RANGE.length == 2 && !tests.contains(methName)) {
-										if ((TESTS_RANGE[0]==-1 || num>=TESTS_RANGE[0]) && (TESTS_RANGE[1]==-1 || num<=TESTS_RANGE[1])) {
-											tests.add(methName);
-											suite.addTest((Test)constructor.newInstance(params));
-											continue nextMethod;
-										}
-									}
-								} catch (NumberFormatException e) {
-									System.out.println("Method "+methods[m]+" has an invalid number format: "+e.getMessage());
-								}
-							}
-						}
-
-						// no subset, add all tests
-						if (TESTS_NAMES==null && TESTS_NUMBERS==null && TESTS_RANGE==null) {
-							suite.addTest((Test)constructor.newInstance(params));
-						}
-					}
-				}
-			}
-			catch (Exception e) {
-				System.out.println("Method "+methods[m]+" removed from suite due to exception: "+e.getMessage());
-			}
+		List tests = buildTestsList(evaluationTestClass);
+		for (int index=0, size=tests.size(); index<size; index++) {
+			suite.addTest((Test)tests.get(index));
 		}
 		return suite;
 	}

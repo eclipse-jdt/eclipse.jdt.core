@@ -20,18 +20,18 @@ public class EnumTest extends AbstractComparisonTest {
 
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
-//	static {
-//		Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug51529a", "Bug51529b" };
-//		Numbers of tests to run: "test<number>" will be run for each number of this array
-//		testsNumbers = new int[] { 308, 309 };
-//		Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		testsRange = new int[] { 21, 50 };
-//		testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
-//		testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
-//	}
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_NAMES = new String[] { "test000" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_NUMBERS = new int[] { 0 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		TESTS_RANGE = new int[] { 21, 50 };
+//		TESTS_RANGE = new int[] { -1, 1 }; // run all tests with a number less or equals to 50
+//		TESTS_RANGE = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
+	}
 	public static Test suite() {
-		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
+		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE!=null) {
 			return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
 		}
 		return setupSuite(testClass());
@@ -39,6 +39,75 @@ public class EnumTest extends AbstractComparisonTest {
 
 	public static Class testClass() {  
 		return EnumTest.class;
+	}
+
+	// test simple valid enum and its usage
+	public void test000() {
+		runConformTest(
+			new String[] {
+				"e/X.java",
+				"package e;\n" + 
+					"import e.T;\n" + 
+					"import static e.T.*;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"    public static void main(String[] args) {\n" + 
+					"    	System.out.print(\"JDTCore team:\");\n" + 
+					"        for (T t : T.values()) {\n" + 
+					"            t.setRole(t.isManager());\n" + 
+					"            System.out.print(\" \"+ t + ':'+t.age()+':'+location(t)+':'+t.role);\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"\n" + 
+					"   private enum Location { SNZ, OTT }\n" + 
+					"\n" + 
+					"    private static Location location(T t) {\n" + 
+					"        switch(t) {\n" + 
+					"          case PHILIPPE:  \n" + 
+					"          case DAVID:\n" + 
+					"          case JEROME:\n" + 
+					"          case FREDERIC:\n" + 
+					"          	return Location.SNZ;\n" + 
+					"          case OLIVIER:\n" + 
+					"          case KENT:\n" + 
+					"            return Location.OTT;\n" + 
+					"          default:\n" + 
+					"            throw new AssertionError(\"Unknown team member: \" + t);\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}\n",
+				"e/T.java",
+				"package e;\n" + 
+					"public enum T {\n" + 
+					"	PHILIPPE(37) {\n" + 
+					"		public boolean isManager() {\n" + 
+					"			return true;\n" + 
+					"		}\n" + 
+					"	},\n" + 
+					"	DAVID(27),\n" + 
+					"	JEROME(33),\n" + 
+					"	OLIVIER(35),\n" + 
+					"	KENT(40),\n" + 
+					"	FREDERIC;\n" + 
+					"\n" + 
+					"   enum Role { M, D }\n" + 
+					"\n" + 
+					"   int age;\n" + 
+					"	Role role;\n" + 
+					"\n" + 
+					"	T() {}\n" + 
+					"	T(int age) {\n" + 
+					"		this.age = age;\n" + 
+					"	}\n" + 
+					"	public int age() { return this.age; }\n" + 
+					"	public boolean isManager() { return false; }\n" + 
+					"	void setRole(boolean mgr) {\n" + 
+					"		this.role = mgr ? Role.M : Role.D;\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"JDTCore team: PHILIPPE:37:SNZ:M DAVID:27:SNZ:D JEROME:33:SNZ:D OLIVIER:35:OTT:D KENT:40:OTT:D FREDERIC:0:SNZ:D"
+		);
 	}
 	// check assignment to enum constant is disallowed
 	public void test001() {

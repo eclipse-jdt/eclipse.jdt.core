@@ -32,7 +32,7 @@ public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 //		testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
 	}
 	public static Test suite() {
-		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
+		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
 			return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
 		}
 		return setupSuite(testClass());

@@ -48,11 +48,11 @@ public static Test suite() {
 // All specified tests which does not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug58069" };
+//		TESTS_NAMES = new String[] { "Bug58069" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	testsNumbers = new int[] { 85, 86 };
+//	TESTS_NUMBERS = new int[] { 85, 86 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		testsRange = new int[] { 85, -1 };
+//		TESTS_RANGE = new int[] { 85, -1 };
 }
 /* (non-Javadoc)
  * @see junit.framework.TestCase#setUp()

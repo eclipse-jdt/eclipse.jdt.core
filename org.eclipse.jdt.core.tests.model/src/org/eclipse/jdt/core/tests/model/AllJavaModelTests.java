@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
  * Run all java model tests.
  */
-public class AllJavaModelTests extends TestCase {
+public class AllJavaModelTests extends junit.framework.TestCase {
 public AllJavaModelTests(String name) {
 	super(name);
 }
@@ -29,11 +30,6 @@ static Class[] getAllTestClasses() {
 		CompilationUnitTests.class,
 		AttachSourceTests.class,
 		RunJavaSearchTests.class,
-//		JavaSearchTests.class,
-//		JavaSearchGenericTypeTests.class,
-//		JavaSearchGenericFieldTests.class,
-//		WorkingCopySearchTests.class,
-//		JavaSearchJavadocTests.class,
 		JavaSearchMultipleProjectsTests.class,
 		SearchTests.class,
 		WorkingCopyTests.class,
@@ -93,10 +89,10 @@ public static Test suite() {
 	getAllTestClasses();
 
 	// Reset forgotten subsets of tests
-	AbstractJavaModelTests.TESTS_PREFIX = null;
-	AbstractJavaModelTests.TESTS_NAMES = null;
-	AbstractJavaModelTests.TESTS_NUMBERS = null;
-	AbstractJavaModelTests.TESTS_RANGE = null;
+	TestCase.TESTS_PREFIX = null;
+	TestCase.TESTS_NAMES = null;
+	TestCase.TESTS_NUMBERS = null;
+	TestCase.TESTS_RANGE = null;
 
 	// creation of method
 	suite.addTest(CreateMembersTests.suite());
@@ -115,11 +111,6 @@ public static Test suite() {
 	
 	// Java search tests
 	suite.addTest(RunJavaSearchTests.suite());
-//	suite.addTest(JavaSearchTests.suite());
-//	suite.addTest(JavaSearchGenericTypeTests.suite());
-//	suite.addTest(JavaSearchGenericFieldTests.suite());
-//	suite.addTest(WorkingCopySearchTests.suite());
-//	suite.addTest(JavaSearchJavadocTests.suite());
 	suite.addTest(JavaSearchMultipleProjectsTests.suite());
 	suite.addTest(SearchTests.suite());
 		

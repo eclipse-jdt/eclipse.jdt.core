@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -42,12 +40,6 @@ import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
-
-	// static variables for subsets tests
-	public static String[] testsNames = null; // list of test names to perform
-	public static int[] testsNumbers = null; // list of test numbers to perform
-	public static int[] testsRange = null; // range of test numbers to perform
-
 
 	protected INameEnvironment javaClassLib;
 	protected String[] classpaths;
@@ -429,84 +421,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		return suite;
 	}
 	public static Test buildTestSuite(Class evaluationTestClass) {
-		return buildTestSuite(evaluationTestClass, "test", null); //$NON-NLS-1$
+		return buildTestSuite(evaluationTestClass, "test"); //$NON-NLS-1$
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass, String suiteName) {
-		return buildTestSuite(evaluationTestClass, "test", suiteName); //$NON-NLS-1$
-	}
-
-	public static Test buildTestSuite(Class evaluationTestClass, String testPrefix, String suiteName) {
-		// Init suite with class name
 		TestSuite suite = new TestSuite(suiteName==null?evaluationTestClass.getName():suiteName);
-		List tests = new ArrayList();
-		Constructor constructor = null;
-		try {
-			// Get class constructor
-			Class[] paramTypes = new Class[] { String.class };
-			constructor = evaluationTestClass.getConstructor(paramTypes);
-		}
-		catch (Exception e) {
-			// cannot get constructor, skip suite
-			return suite;
-		}
-
-		// Get all tests from "test%" methods
-		Method[] methods = evaluationTestClass.getMethods();
-		for (int m = 0, max = methods.length; m < max; m++) {
-			try {
-				if (methods[m].getModifiers() == 1 /* public */ &&
-					methods[m].getName().startsWith("test")) { //$NON-NLS-1$
-					String methName = methods[m].getName();
-					Object[] params = {methName};
-					int numStart = testPrefix.length();
-					// tests names subset
-					if (testsNames != null) {
-						for (int i = 0, imax= testsNames.length; i<imax; i++) {
-							if (testsNames[i].equals(methName) || testsNames[i].equals(methName.substring(numStart))) {
-								tests.add(methName);
-								suite.addTest((Test)constructor.newInstance(params));
-								break;
-							}
-						}
-					}
-					// look for test number
-					if (methName.startsWith(testPrefix) && Character.isDigit(methName.charAt(numStart))) {
-						try {
-							// get test number
-							int n = numStart;
-							while (methName.charAt(n) == '0') n++;
-							int num = Integer.parseInt(methName.substring(n));
-							// tests numbers subset
-							if (testsNumbers != null && !tests.contains(methName)) {
-								for (int i = 0; i < testsNumbers.length; i++) {
-									if (testsNumbers[i] == num) {
-										tests.add(methName);
-										suite.addTest((Test)constructor.newInstance(params));
-										break;
-									}
-								}
-							}
-							// tests range subset
-							if (testsRange != null && testsRange.length == 2 && !tests.contains(methName)) {
-								if ((testsRange[0]==-1 || num>=testsRange[0]) && (testsRange[1]==-1 || num<=testsRange[1])) {
-									tests.add(methName);
-									suite.addTest((Test)constructor.newInstance(params));
-								}
-							}
-						} catch (NumberFormatException e) {
-							System.out.println("Method "+methods[m]+" has an invalid number format: "+e.getMessage());
-						}
-					}
-					// no subset, add all tests
-					if (testsNames==null && testsNumbers==null &&testsRange==null) {
-						suite.addTest((Test)constructor.newInstance(params));
-					}
-				}
-			}
-			catch (Exception e) {
-				System.out.println("Method "+methods[m]+" removed from suite due to exception: "+e.getMessage());
-			}
+		List tests = buildTestsList(evaluationTestClass);
+		for (int index=0, size=tests.size(); index<size; index++) {
+			suite.addTest((Test)tests.get(index));
 		}
 		return suite;
 	}

@@ -14,13 +14,12 @@ import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RunConverterTests extends TestCase {
+public class RunConverterTests extends junit.framework.TestCase {
 public RunConverterTests(String name) {
 	super(name);
 }
@@ -40,10 +39,10 @@ public static Test suite() {
 
 	ConverterTestSetup.TEST_SUITES = new ArrayList(Arrays.asList(getAllTestClasses()));
 	// Reset forgotten subsets of tests
-	AbstractJavaModelTests.TESTS_PREFIX = null;
-	AbstractJavaModelTests.TESTS_NAMES = null;
-	AbstractJavaModelTests.TESTS_NUMBERS = null;
-	AbstractJavaModelTests.TESTS_RANGE = null;
+	TestCase.TESTS_PREFIX = null;
+	TestCase.TESTS_NAMES = null;
+	TestCase.TESTS_NUMBERS = null;
+	TestCase.TESTS_RANGE = null;
 
 	for (int i = 0, l=ConverterTestSetup.TEST_SUITES.size(); i < l; i++) {
 		Class testClass = (Class) ConverterTestSetup.TEST_SUITES.get(i);

@@ -35,13 +35,13 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] {
+//		TESTS_NAMES = new String[] {
 //			"testBug70892negative1", "testBug70892negative2"
 //		};
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
-//		testsNumbers = new int[] { 3, 7, 10, 21 };
+//		TESTS_NUMBERS = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		testsRange = new int[] { 21, 50 };
+//		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
 		return buildTestSuite(javadocTestClass());

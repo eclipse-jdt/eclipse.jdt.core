@@ -12,16 +12,16 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
  * Run all compiler regression tests
  */
-public class TestAll extends TestCase {
+public class TestAll extends junit.framework.TestCase {
 
 public TestAll(String testName) {
 	super(testName);
@@ -60,9 +60,10 @@ public static Test suite() {
 	    ArrayList tests_1_3 = (ArrayList)standardTests.clone();
 		tests_1_3.add(Compliance_1_3.class);
 		// Reset forgotten subsets tests
-		AbstractRegressionTest.testsNames = null;
-		AbstractRegressionTest.testsNumbers= null;
-		AbstractRegressionTest.testsRange = null;
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_3, RegressionTestSetup.class, tests_1_3));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
@@ -71,9 +72,10 @@ public static Test suite() {
 		tests_1_4.add(Compliance_1_4.class);
 		tests_1_4.add(JavadocTest_1_4.class);
 		// Reset forgotten subsets tests
-		AbstractRegressionTest.testsNames = null;
-		AbstractRegressionTest.testsNumbers= null;
-		AbstractRegressionTest.testsRange = null;
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_4, RegressionTestSetup.class, tests_1_4));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
@@ -89,9 +91,10 @@ public static Test suite() {
 	    tests_1_5.add(VarargsTest.class);
 	    tests_1_5.add(EnumTest.class);
 		// Reset forgotten subsets tests
-		AbstractRegressionTest.testsNames = null;
-		AbstractRegressionTest.testsNumbers= null;
-		AbstractRegressionTest.testsRange = null;
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
 //	// Add Javadoc test suites
