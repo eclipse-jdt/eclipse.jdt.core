@@ -288,11 +288,7 @@ public int indexOfWellKnownMethodNameAndType(MethodBinding methodBinding) {
 									return -1;
 								}
 							case T_int :
-							case T_byte :
-							case T_short :
-								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorIntConstrSignature)
-									|| CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.ShortConstrSignature)
-									|| CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.ByteConstrSignature)) {
+								if (CharOperation.equals(methodBinding.signature(), QualifiedNamesConstants.AssertionErrorIntConstrSignature)) {
 									return CONSTR_INT_METHOD_NAME_AND_TYPE;
 								} else {
 									return -1;
