@@ -234,9 +234,8 @@ public final class AST {
 		Map options,
 		IProgressMonitor monitor) {
 		
-		// TODO (olivier) - honor <code>level</code> indicating AST api level
 		ASTConverter converter = new ASTConverter(options, true, monitor);
-		AST ast = new AST();
+		AST ast = AST.newAST(level);
 		BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);

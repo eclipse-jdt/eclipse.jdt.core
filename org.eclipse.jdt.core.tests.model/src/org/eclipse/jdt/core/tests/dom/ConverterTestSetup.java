@@ -100,7 +100,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		setupConverterJCL();
-		ast = new AST();
+		ast = AST.newAST(AST.LEVEL_2_0);
 		setUpJavaProject("Converter"); //$NON-NLS-1$
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$

@@ -932,7 +932,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		this.comparator = comparator;
 		this.positionsToMap = positionsToMap;
 		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3/*sourceLevel*/, null, null, true/*taskCaseSensitive*/);
-		this.ast = new AST();
+		this.ast = AST.newAST(AST.LEVEL_2_0);
 	}
 	
 	/*
