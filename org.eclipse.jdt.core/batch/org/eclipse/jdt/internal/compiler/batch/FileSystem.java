@@ -57,7 +57,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 					}
 					pathNames[i] = ((ClasspathDirectory) classpaths[i]).path;
 				}
-			} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$
+			} else if (classpathNames[i].endsWith(SUFFIX_STRING_jar) | (classpathNames[i].endsWith(SUFFIX_STRING_zip))) {
 				classpaths[i] = this.getClasspathJar(file); // will throw an IOException if file does not exist
 				pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
 			}

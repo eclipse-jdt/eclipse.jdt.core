@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -39,7 +40,7 @@ import org.eclipse.jdt.internal.core.Util;
  * instantiated or subclassed by clients.
  * </p>
  */
-public final class JavaConventions {
+public final class JavaConventions implements SuffixConstants {
 
 	private final static char fgDot= '.';
 	private final static Scanner SCANNER = new Scanner();
@@ -102,12 +103,10 @@ public final class JavaConventions {
 		}
 		String extension1 = rootPath1.getFileExtension();
 		String extension2 = rootPath2.getFileExtension();
-		String jarExtension = "JAR"; //$NON-NLS-1$
-		String zipExtension = "ZIP"; //$NON-NLS-1$
-		if (extension1 != null && (extension1.equalsIgnoreCase(jarExtension) || extension1.equalsIgnoreCase(zipExtension))) {
+		if (extension1 != null && (extension1.equalsIgnoreCase(EXTENSION_JAR) || extension1.equalsIgnoreCase(EXTENSION_ZIP))) {
 			return false;
 		} 
-		if (extension2 != null && (extension2.equalsIgnoreCase(jarExtension) || extension2.equalsIgnoreCase(zipExtension))) {
+		if (extension2 != null && (extension2.equalsIgnoreCase(EXTENSION_JAR) || extension2.equalsIgnoreCase(EXTENSION_ZIP))) {
 			return false;
 		}
 		return rootPath1.isPrefixOf(rootPath2) || rootPath2.isPrefixOf(rootPath1);

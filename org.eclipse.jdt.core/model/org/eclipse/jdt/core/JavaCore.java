@@ -38,6 +38,7 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 
 /**
@@ -56,7 +57,7 @@ import org.eclipse.jdt.internal.core.*;
  * automatically if not already active.
  * </p>
  */
-public final class JavaCore extends Plugin implements IExecutableExtension {
+public final class JavaCore extends Plugin implements IExecutableExtension, SuffixConstants {
 
 	private static Plugin JAVA_CORE_PLUGIN = null; 
 	/**
@@ -1785,9 +1786,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			File externalFile = (File) target;
 			if (externalFile.isFile()) {
 				String fileName = externalFile.getName().toLowerCase();
-				if (fileName.endsWith(".jar"  //$NON-NLS-1$
-					) || fileName.endsWith(".zip"  //$NON-NLS-1$
-					)) { // external binary archive
+				if (fileName.endsWith(SUFFIX_STRING_jar) || fileName.endsWith(SUFFIX_STRING_zip)) { 
+					// external binary archive
 					return JavaCore.newLibraryEntry(
 							resolvedPath,
 							getResolvedVariablePath(entry.getSourceAttachmentPath()),

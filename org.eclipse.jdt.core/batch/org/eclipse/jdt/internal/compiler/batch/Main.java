@@ -939,7 +939,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					Main.bind("configure.directoryNotExist", currentArg)); //$NON-NLS-1$
 			FileFinder finder = new FileFinder();
 			try {
-				finder.find(dir, ".JAVA", verbose); //$NON-NLS-1$
+				finder.find(dir, SUFFIX_STRING_JAVA, verbose); //$NON-NLS-1$
 			} catch (Exception e) {
 				throw new InvalidInputException(Main.bind("configure.IOError", currentArg)); //$NON-NLS-1$
 			}
@@ -1064,7 +1064,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							try {
 								javaHomeFile = new File(javaHomeFile.getCanonicalPath());
 								// add all jars in the lib subdirectory
-								File[] systemLibrariesJars = getFilesFrom(new File(javaHomeFile, "lib"), ".jar");//$NON-NLS-1$//$NON-NLS-2$
+								File[] systemLibrariesJars = getFilesFrom(new File(javaHomeFile, "lib"), SUFFIX_STRING_jar);//$NON-NLS-1$
 								int length = systemLibrariesJars.length;
 								bootclasspaths = new String[length];
 								for (int i = 0; i < length; i++) {
