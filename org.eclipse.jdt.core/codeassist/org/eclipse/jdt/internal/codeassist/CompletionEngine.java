@@ -417,7 +417,7 @@ public final class CompletionEngine
 										computeTypes(messageSend.arguments, (BlockScope) scope);
 									if (qualifiedBinding == null) {
 
-										findMessageSends(messageSend.selector, argTypes, scope, messageSend,scope);
+										findImplicitMessageSends(messageSend.selector, argTypes, scope, messageSend, scope);
 									} else {
 
 										findMethods(
@@ -431,7 +431,7 @@ public final class CompletionEngine
 											false,
 											messageSend,
 											scope,
-											messageSend.receiver == ThisReference.ThisImplicit);
+											false);
 									}
 
 								} else {
@@ -1086,7 +1086,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private void findMessageSends(
+	private void findImplicitMessageSends(
 		char[] token,
 		TypeBinding[] argTypes,
 		Scope scope,
@@ -1125,7 +1125,7 @@ public final class CompletionEngine
 						false,
 						invocationSite,
 						invocationScope,
-						false);
+						true);
 					staticsOnly |= enclosingType.isStatic();
 					break;
 
@@ -1235,6 +1235,9 @@ public final class CompletionEngine
 			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
 
 			char[] completion = TypeConstants.NoChar;
+			
+			int previousStartPosition = startPosition;
+			
 			// nothing to insert - do not want to replace the existing selector & arguments
 			if (!exactMatch) {
 				if (source != null
@@ -1243,11 +1246,17 @@ public final class CompletionEngine
 					completion = method.selector;
 				else
 					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
-					
-				if(prefixRequired){
-					char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), method.isStatic());
-					completion = CharOperation.concat(prefix,completion,'.');
+			} else {
+				if(prefixRequired && (source != null)) {
+					completion = CharOperation.subarray(source, startPosition, endPosition);
+				} else {
+					startPosition = endPosition;
 				}
+			}
+			
+			if(prefixRequired){
+				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), method.isStatic());
+				completion = CharOperation.concat(prefix,completion,'.');
 			}
 
 			requestor.acceptMethod(
@@ -1263,6 +1272,7 @@ public final class CompletionEngine
 				method.modifiers,
 				startPosition,
 				endPosition);
+			startPosition = previousStartPosition;
 		}
 	}
 
@@ -1308,6 +1318,15 @@ public final class CompletionEngine
 					/* ignore case */
 					))
 					continue next;
+			}
+
+			MethodBinding[] existingMethods = receiverType.methods();
+			for(int i =0 ; i < existingMethods.length ; i++){
+				MethodBinding existingMethod = existingMethods[i];
+				if (CharOperation.equals(method.selector, existingMethod.selector, true)
+					&& method.areParametersEqual(existingMethod)){
+					continue next;	
+				}
 			}
 
 			for (int i = methodsFound.size; --i >= 0;) {

@@ -353,15 +353,16 @@ private boolean checkInvocation() {
 			}
 
 			// set selector
-			messageSend.selector = this.identifierStack[this.selectorStack[this.invocationPtr]];
+			int selectorPtr = this.selectorStack[this.invocationPtr];
+			messageSend.selector = this.identifierStack[selectorPtr];
 			// remove selector
 			if (this.identifierLengthPtr >=0 && this.identifierLengthStack[this.identifierLengthPtr] == 1) {
 				this.identifierPtr--; 
 				this.identifierLengthPtr--;
 			}
 		
-			// no source is going to be replaced
-			messageSend.sourceStart = this.cursorLocation + 1;
+			// the entire message may be replaced in case qualification is needed
+			messageSend.sourceStart = (int)(this.identifierPositionStack[selectorPtr] >> 32); //this.cursorLocation + 1;
 			messageSend.sourceEnd = this.cursorLocation;
 
 			// remember the message send as an orphan completion node
