@@ -25,24 +25,11 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 public class SourceTypeConverter implements CompilerModifiers {
-/*
- * Convert a source element type into a parsed type declaration
- *
- * Can optionally ignore fields & methods
- *
- * @deprecated - should use the other API with one extra boolean
- */
-public static CompilationUnitDeclaration buildCompilationUnit(
-	ISourceType sourceType,
-	boolean needFieldsAndMethods,
-	ProblemReporter problemReporter,
-	CompilationResult compilationResult) {
 
-	return buildCompilationUnit(sourceType, needFieldsAndMethods, true, problemReporter, compilationResult);
-}
 /*
- * Convert a source element type into a parsed type declaration
- *
+ * Convert a set of source element types into a parsed compilation unit declaration
+ * The argument types are then all grouped in the same unit. The argument types must 
+ * at least contain one type.
  * Can optionally ignore fields & methods or member types
  */
 public static CompilationUnitDeclaration buildCompilationUnit(
@@ -51,14 +38,35 @@ public static CompilationUnitDeclaration buildCompilationUnit(
 	boolean needMemberTypes,
 	ProblemReporter problemReporter,
 	CompilationResult compilationResult) {
+		return buildCompilationUnit(
+					new ISourceType[]{ sourceType }, 
+					needFieldsAndMethods, 
+					needMemberTypes, 
+					problemReporter, 
+					compilationResult);
+}
 
+/*
+ * Convert a set of source element types into a parsed compilation unit declaration
+ * The argument types are then all grouped in the same unit. The argument types must 
+ * at least contain one type.
+ * Can optionally ignore fields & methods or member types
+ */
+public static CompilationUnitDeclaration buildCompilationUnit(
+	ISourceType[] sourceTypes,
+	boolean needFieldsAndMethods,
+	boolean needMemberTypes,
+	ProblemReporter problemReporter,
+	CompilationResult compilationResult) {
+
+	ISourceType sourceType = sourceTypes[0];
 	if (sourceType.getName() == null) return null; // do a basic test that the sourceType is valid
 
 	CompilationUnitDeclaration compilationUnit = 
 		new CompilationUnitDeclaration(problemReporter, compilationResult, 0); // not filled at this point
 
 	/* only positions available */
-	int start = sourceType.getNameSourceStart();
+	int start = sourceType.getNameSourceStart(); 
 	int end = sourceType.getNameSourceEnd();
 		
 	/* convert package and imports */
@@ -69,9 +77,12 @@ public static CompilationUnitDeclaration buildCompilationUnit(
 	compilationUnit.imports = new ImportReference[importCount];
 	for (int i = 0; i < importCount; i++)
 		compilationUnit.imports[i] = createImportReference(importNames[i], start, end);
-	/* convert type */
-	compilationUnit.types = new TypeDeclaration[] {convert(sourceType, needFieldsAndMethods, needMemberTypes)}; 
-
+	/* convert type(s) */
+	int typeCount = sourceTypes.length;
+	compilationUnit.types = new TypeDeclaration[typeCount];
+	for (int i = 0; i < typeCount; i++){
+		compilationUnit.types[i] = convert(sourceTypes[i], needFieldsAndMethods, needMemberTypes); 
+	}
 	return compilationUnit;
 }
 /*

@@ -28,7 +28,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	expression.bits &= ~ValueForReturnMASK;
 	return flowInfo;
 }
-/**
+/** 
  * Dump the suitable return bytecode for a return statement
  *
  */
