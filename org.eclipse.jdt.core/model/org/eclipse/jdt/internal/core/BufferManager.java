@@ -36,11 +36,6 @@ public class BufferManager implements IBufferFactory {
 	protected OverflowingLRUCache openBuffers = new BufferCache(60);
 
 /**
- * Creates a new buffer manager.
- */
-public BufferManager() {
-}
-/**
  * Adds a buffer to the table of open buffers.
  */
 protected void addBuffer(IBuffer buffer) {

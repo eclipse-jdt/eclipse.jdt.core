@@ -21,6 +21,7 @@ public class PackageBinding extends Binding implements TypeConstants {
 	HashtableOfType knownTypes;
 	HashtableOfPackage knownPackages;
 protected PackageBinding() {
+	// for creating problem package
 }
 public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnvironment environment) {
 	this.compoundName = compoundName;

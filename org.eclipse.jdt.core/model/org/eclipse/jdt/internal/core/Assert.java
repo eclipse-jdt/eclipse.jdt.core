@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-public final class Assert {
 /* This class is not intended to be instantiated. */
+public final class Assert {
+
 private Assert() {
+	// cannot be instantiated
 }
 /** Asserts that an argument is legal. If the given boolean is
  * not <code>true</code>, an <code>IllegalArgumentException</code>

@@ -25,6 +25,7 @@ public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	char[] signature;
 
 protected MethodBinding() {
+	// for creating problem or synthetic method
 }
 public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, TypeBinding[] args, ReferenceBinding[] exceptions, ReferenceBinding declaringClass) {
 	this.modifiers = modifiers;

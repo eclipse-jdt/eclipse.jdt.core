@@ -31,6 +31,7 @@ public class Util {
 	}
 
 	private Util() {
+		// cannot be instantiated
 	}
 
 	public static String getString(String key) {

@@ -43,8 +43,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	
 	Hashtable[] synthetics;
 	
-protected SourceTypeBinding() {
-}
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;

@@ -81,6 +81,7 @@ public FieldBinding[] availableFields() {
 			availableFields[count] = resolveTypeFor(fields[i]);
 			count++;
 		} catch (AbortCompilation a){
+			// silent abort
 		}
 	}
 	
@@ -100,6 +101,7 @@ public MethodBinding[] availableMethods() {
 			availableMethods[count] = resolveTypesFor(methods[i]);
 			count++;
 		} catch (AbortCompilation a){
+			// silent abort
 		}
 	}
 	System.arraycopy(availableMethods, 0, availableMethods = new MethodBinding[count], 0, count);

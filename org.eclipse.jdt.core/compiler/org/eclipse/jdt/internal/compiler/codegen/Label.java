@@ -24,6 +24,7 @@ public class Label {
 	public int forwardReferenceCount = 0;
 	private boolean isWide = false;
 public Label() {
+	// for creating labels ahead of code generation
 }
 /**
  * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream

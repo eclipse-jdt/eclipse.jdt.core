@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 public class FieldBinding extends VariableBinding {
 	public ReferenceBinding declaringClass;
 protected FieldBinding() {
+	// for creating problem field
 }
 public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant) {
 	this.modifiers = modifiers;

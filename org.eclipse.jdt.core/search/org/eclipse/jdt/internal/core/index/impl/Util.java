@@ -18,6 +18,7 @@ import java.io.UTFDataFormatException;
 public class Util {
 
 	private Util() {
+		// cannot be instantiated
 	}
 	/**
 	 * Compares two strings lexicographically. 
