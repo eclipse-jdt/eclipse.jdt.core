@@ -92,7 +92,8 @@ class DefaultBindingResolver extends BindingResolver {
 		int index = name.index;
 		if (node instanceof QualifiedNameReference) {
 			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
-			int qualifiedNameLength = qualifiedNameReference.tokens.length;
+			final char[][] tokens = qualifiedNameReference.tokens;
+			int qualifiedNameLength = tokens.length;
 			int indexInQualifiedName = qualifiedNameLength - index; // one-based
 			int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding; // one-based
 			int otherBindingLength = qualifiedNameLength - indexOfFirstFieldBinding;
@@ -101,9 +102,9 @@ class DefaultBindingResolver extends BindingResolver {
 				BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
 				Binding binding = null;
 				if (internalScope == null) {
-					binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
+					binding = this.scope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
 				} else {
-					binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
+					binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
 				}
 				if (binding != null && binding.isValidBinding()) {
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
@@ -119,8 +120,32 @@ class DefaultBindingResolver extends BindingResolver {
 					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
 				} else {
 					Binding binding = qualifiedNameReference.binding;
-					if (binding != null && binding.isValidBinding()) {
-						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);				
+					if (binding != null) {
+						if (binding.isValidBinding()) {
+							return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);				
+						} else {
+							if (binding instanceof ProblemFieldBinding) {
+								ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
+								switch(problemFieldBinding.problemId()) {
+									case ProblemReasons.NotVisible : 
+									case ProblemReasons.NonStaticReferenceInStaticContext :
+										ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
+										if (declaringClass != null) {
+											FieldBinding exactBinding = declaringClass.getField(tokens[tokens.length - 1]);
+											if (exactBinding != null) {
+												IVariableBinding variableBinding = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
+												if (variableBinding != null) {
+													return variableBinding;
+												}
+												variableBinding = new VariableBinding(this, exactBinding);
+												this.compilerBindingsToASTBindings.put(exactBinding, variableBinding);
+												return variableBinding;
+											}
+										}
+										break;
+								}
+							}
+						}
 					} else {
 						return null;
 					}
@@ -231,7 +256,20 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof SingleTypeReference) {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.binding;
-			if (binding == null || !binding.isValidBinding()) {
+			if (binding == null) {
+				return null;
+			} else if (!binding.isValidBinding()) {
+				switch(binding.problemId()) {
+					case ProblemReasons.NotVisible : 
+					case ProblemReasons.NonStaticReferenceInStaticContext :
+						if (binding instanceof ProblemReferenceBinding) {
+							ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) binding;
+							Binding binding2 = problemReferenceBinding.original;
+							if (binding2 != null && binding2 instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+								return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding2);
+							} 
+						}
+				}
 				return null;
 			}
 			return this.getTypeBinding(binding.leafComponentType());
@@ -684,54 +722,82 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	protected IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding) {
-		if (variableBinding == null || !variableBinding.isValidBinding()) {
-			return null;
-		}
-		IVariableBinding binding = (IVariableBinding) this.compilerBindingsToASTBindings.get(variableBinding);
-		if (binding != null) {
-			return binding;
-		}
-		binding = new VariableBinding(this, variableBinding);
-		this.compilerBindingsToASTBindings.put(variableBinding, binding);
-		return binding;
+ 		if (variableBinding != null) {
+	 		if (variableBinding.isValidBinding()) {
+				IVariableBinding binding = (IVariableBinding) this.compilerBindingsToASTBindings.get(variableBinding);
+				if (binding != null) {
+					return binding;
+				}
+				binding = new VariableBinding(this, variableBinding);
+				this.compilerBindingsToASTBindings.put(variableBinding, binding);
+				return binding;
+	 		} else {
+				/*
+				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=24449
+				 */
+				if (variableBinding instanceof ProblemFieldBinding) {
+					ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) variableBinding;
+					switch(problemFieldBinding.problemId()) {
+						case ProblemReasons.NotVisible : 
+						case ProblemReasons.NonStaticReferenceInStaticContext :
+							ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
+							if (variableBinding != null) {
+								FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name);
+								if (exactBinding != null) {
+									IVariableBinding variableBinding2 = (IVariableBinding) this.compilerBindingsToASTBindings.get(exactBinding);
+									if (variableBinding2 != null) {
+										return variableBinding2;
+									}
+									variableBinding2 = new VariableBinding(this, exactBinding);
+									this.compilerBindingsToASTBindings.put(exactBinding, variableBinding2);
+									return variableBinding2;
+								}
+							}
+							break;
+					}
+				}
+	 		}
+ 		}
+		return null;
 	}
 	
 	/*
 	 * Method declared on BindingResolver.
 	 */
 	protected IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
-		if (methodBinding != null && !methodBinding.isValidBinding()) {
-			/*
-			 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597			 */
-			switch(methodBinding.problemId()) {
-				case ProblemReasons.NotVisible : 
-				case ProblemReasons.NonStaticReferenceInStaticContext :
-					ReferenceBinding declaringClass = methodBinding.declaringClass;
-					if (declaringClass != null) {
-						org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters);
-						if (exactBinding != null) {
-							IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(methodBinding);
-							if (binding != null) {
+		if (methodBinding != null) {
+			if (methodBinding.isValidBinding()) {
+				IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(methodBinding);
+				if (binding != null) {
+					return binding;
+				}
+				binding = new MethodBinding(this, methodBinding);
+				this.compilerBindingsToASTBindings.put(methodBinding, binding);
+				return binding;
+			} else {
+				/*
+				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23597				 */
+				switch(methodBinding.problemId()) {
+					case ProblemReasons.NotVisible : 
+					case ProblemReasons.NonStaticReferenceInStaticContext :
+						ReferenceBinding declaringClass = methodBinding.declaringClass;
+						if (declaringClass != null) {
+							org.eclipse.jdt.internal.compiler.lookup.MethodBinding exactBinding = declaringClass.getExactMethod(methodBinding.selector, methodBinding.parameters);
+							if (exactBinding != null) {
+								IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(exactBinding);
+								if (binding != null) {
+									return binding;
+								}
+								binding = new MethodBinding(this, exactBinding);
+								this.compilerBindingsToASTBindings.put(exactBinding, binding);
 								return binding;
 							}
-							binding = new MethodBinding(this, exactBinding);
-							this.compilerBindingsToASTBindings.put(methodBinding, binding);
-							return binding;
 						}
-					}
-					break;
+						break;
+				}
 			}
 		}
-		if (methodBinding == null || !methodBinding.isValidBinding()) {
-			return null;
-		}
-		IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(methodBinding);
-		if (binding != null) {
-			return binding;
-		}
-		binding = new MethodBinding(this, methodBinding);
-		this.compilerBindingsToASTBindings.put(methodBinding, binding);
-		return binding;
+		return null;
 	}
 	
 	/*
