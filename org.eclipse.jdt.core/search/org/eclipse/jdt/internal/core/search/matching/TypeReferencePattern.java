@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
 public class TypeReferencePattern extends AndPattern {
 
@@ -38,6 +37,11 @@ protected char[] decodedSegment;
 
 protected static char[][] TAGS = { TYPE_REF, SUPER_REF, REF, CONSTRUCTOR_REF };
 protected static char[][] REF_TAGS = { REF };
+
+public static char[] createReference(char[] typeName) {
+	return CharOperation.concat(TYPE_REF, typeName);
+}
+
 
 public TypeReferencePattern(char[] qualification, char[] simpleName, int matchMode, boolean isCaseSensitive) {
 	super(matchMode, isCaseSensitive);
@@ -88,24 +92,13 @@ protected boolean hasNextQuery() {
 	return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 }
 /**
- * see SearchPattern.indexEntryPrefix()
+ * Type reference entries are encoded as 'ref/typeName' or 'current tag/typeName'
  */
 protected char[] indexEntryPrefix() {
+	if (this.simpleName == null) // Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
+		return indexEntryPrefix(REF, this.segments[this.currentSegment]);
 
-	if (this.simpleName == null) {
-		// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-		return AbstractIndexer.bestReferencePrefix(
-			REF,
-			this.segments[this.currentSegment],
-			matchMode, 
-			isCaseSensitive);
-	} else {
-		return AbstractIndexer.bestReferencePrefix(
-			currentTag,
-			simpleName,
-			matchMode, 
-			isCaseSensitive);
-	}
+	return indexEntryPrefix(this.currentTag, this.simpleName);
 }
 /**
  * @see SearchPattern#matchContainer()

@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.core.search.indexing.*;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.*;
 
@@ -47,6 +47,87 @@ protected boolean checkOnlySuperinterfaces; // used for IMPLEMENTORS
 public HashMap entryResults;
 
 private static final IEntryResult[] NO_ENTRY_RESULT = new IEntryResult[0];
+
+public static char[] createReference(
+	int modifiers,
+	char[] packageName,
+	char[] typeName,
+	char[][] enclosingTypeNames,
+	char classOrInterface,
+	char[] superTypeName,
+	char superClassOrInterface) {
+
+	if (superTypeName == null)
+		superTypeName = OBJECT;
+	char[] enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
+	char[] typeSimpleName = CharOperation.lastSegment(typeName, '.');
+	char[] superTypeSimpleName = CharOperation.lastSegment(superTypeName, '.');
+	char[] superQualification = null;
+	if (superTypeSimpleName != superTypeName) {
+		int length = superTypeName.length - superTypeSimpleName.length - 1;
+		superQualification = new char[length];
+		System.arraycopy(superTypeName, 0, superQualification, 0, length);
+	}
+
+	// if the supertype name contains a $, then split it into: source name and append the $ prefix to the qualification
+	//	e.g. p.A$B ---> p.A$ + B
+	char[] superTypeSourceName = CharOperation.lastSegment(superTypeSimpleName, '$');
+	if (superTypeSourceName != superTypeSimpleName) {
+		int start = superQualification == null ? 0 : superQualification.length + 1;
+		int prefixLength = superTypeSimpleName.length - superTypeSourceName.length;
+		char[] mangledQualification = new char[start + prefixLength];
+		if (superQualification != null) {
+			System.arraycopy(superQualification, 0, mangledQualification, 0, start-1);
+			mangledQualification[start-1] = '.';
+		}
+		System.arraycopy(superTypeSimpleName, 0, mangledQualification, start, prefixLength);
+		superQualification = mangledQualification;
+		superTypeSimpleName = superTypeSourceName;
+	} 
+
+	int superTypeSimpleNameLength = superTypeSimpleName == null ? 0 : superTypeSimpleName.length;
+	int superQualificationLength = superQualification == null ? 0 : superQualification.length;
+	int typeSimpleNameLength = typeSimpleName == null ? 0 : typeSimpleName.length;
+	int enclosingTypeNameLength = enclosingTypeName == null ? 0 : enclosingTypeName.length;
+	int packageNameLength = packageName == null ? 0 : packageName.length;
+	int pos = SUPER_REF.length;
+
+	// SUPER_REF superTypeSimpleName / superQualification / superClassOrInterface /  typeSimpleName / enclosingTypeName / packageName / classOrInterface modifiers
+	char[] result = new char[pos + superTypeSimpleNameLength + superQualificationLength + typeSimpleNameLength
+		+ enclosingTypeNameLength + packageNameLength + 9];
+	System.arraycopy(SUPER_REF, 0, result, 0, pos);
+	if (superTypeSimpleNameLength > 0) {
+		System.arraycopy(superTypeSimpleName, 0, result, pos, superTypeSimpleNameLength);
+		pos += superTypeSimpleNameLength;
+	}
+	result[pos++] = SEPARATOR;
+	if (superQualificationLength > 0) {
+		System.arraycopy(superQualification, 0, result, pos, superQualificationLength);
+		pos += superQualificationLength;
+	}
+	result[pos++] = SEPARATOR;
+	result[pos++] = superClassOrInterface;
+	result[pos++] = SEPARATOR;
+	if (typeSimpleNameLength > 0) {
+		System.arraycopy(typeSimpleName, 0, result, pos, typeSimpleNameLength);
+		pos += typeSimpleNameLength;
+	}
+	result[pos++] = SEPARATOR;
+	if (enclosingTypeNameLength > 0) {
+		System.arraycopy(enclosingTypeName, 0, result, pos, enclosingTypeNameLength);
+		pos += enclosingTypeNameLength;
+	}
+	result[pos++] = SEPARATOR;
+	if (packageNameLength > 0) {
+		System.arraycopy(packageName, 0, result, pos, packageNameLength);
+		pos += packageNameLength;
+	}
+	result[pos++] = SEPARATOR;
+	result[pos++] = classOrInterface;
+	result[pos] = (char) modifiers;
+	return result;
+}
+
 
 public SuperTypeReferencePattern(char[] superQualification, char[] superSimpleName, int matchMode, boolean isCaseSensitive) {
 	this(superQualification, superSimpleName, matchMode, isCaseSensitive, false);
@@ -148,10 +229,10 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	}
 }
 /**
- * see SearchPattern.indexEntryPrefix()
+ * Package reference entries are encoded as 'superRef/typeName'
  */
-protected char[] indexEntryPrefix(){
-	return AbstractIndexer.bestReferencePrefix(SUPER_REF, superSimpleName, matchMode, isCaseSensitive);
+protected char[] indexEntryPrefix() {
+	return indexEntryPrefix(SUPER_REF, this.superSimpleName);
 }
 /**
  * @see SearchPattern#matchContainer()

@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
 public class TypeDeclarationPattern extends SearchPattern {
 
@@ -39,7 +38,52 @@ private char[] decodedPackage;
 private char[][] decodedEnclosingTypeNames;
 protected char[] decodedSimpleName;
 protected char decodedClassOrInterface;
-	
+
+public static char[] createClassDeclaration(char[] packageName, char[][] enclosingTypeNames, char[] typeName) {
+	return createTypeDeclaration(packageName, enclosingTypeNames, typeName, true);
+}
+public static char[] createInterfaceDeclaration(char[] packageName, char[][] enclosingTypeNames, char[] typeName) {
+	return createTypeDeclaration(packageName, enclosingTypeNames, typeName, false);	
+}
+/**
+ * Type entries are encoded as 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName '/' EnclosingTypeName
+ * e.g. typeDecl/C/java.lang/Object/
+ * e.g. typeDecl/I/java.lang/Cloneable/
+ * e.g. typeDecl/C/javax.swing/LazyValue/UIDefaults
+ * 
+ * Current encoding is optimized for queries: all classes/interfaces
+ */
+protected static char[] createTypeDeclaration(char[] packageName, char[][] enclosingTypeNames, char[] typeName, boolean isClass) {
+	int packageLength = packageName == null ? 0 : packageName.length;
+	int enclosingTypeNamesLength = 0;
+	if (enclosingTypeNames != null)
+		for (int i = 0, length = enclosingTypeNames.length; i < length; i++)
+			enclosingTypeNamesLength += enclosingTypeNames[i].length + 1;
+	int pos = TYPE_DECL_LENGTH;
+	char[] result = new char[pos + packageLength + typeName.length + enclosingTypeNamesLength + 4];
+	System.arraycopy(TYPE_DECL, 0, result, 0, pos);
+	result[pos++] = isClass ? CLASS_SUFFIX : INTERFACE_SUFFIX;
+	result[pos++] = SEPARATOR;
+	if (packageLength > 0) {
+		System.arraycopy(packageName, 0, result, pos, packageLength);
+		pos += packageLength;
+	}
+	result[pos++] = SEPARATOR;
+	System.arraycopy(typeName, 0, result, pos, typeName.length);
+	pos += typeName.length;
+	result[pos++] = SEPARATOR;
+	if (enclosingTypeNames != null) {
+		for (int i = 0, length = enclosingTypeNames.length; i < length; i++) {
+			int enclosingTypeNameLength = enclosingTypeNames[i].length;
+			System.arraycopy(enclosingTypeNames[i], 0, result, pos, enclosingTypeNameLength);
+			pos += enclosingTypeNameLength;
+			result[pos++] = SEPARATOR;
+		}
+	}
+	return result;
+}
+
+
 public TypeDeclarationPattern(int matchMode, boolean isCaseSensitive) {
 	super(matchMode, isCaseSensitive);
 }
@@ -106,10 +150,52 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 	}
 }
 /**
- * see SearchPattern.indexEntryPrefix()
+ * Type entries are encoded as 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName
+ * e.g. 'typeDecl/C/java.lang/Object'
+ * e.g. 'typeDecl/I/java.lang/Cloneable'
+ *
+ * Current encoding is optimized for queries: all classes/interfaces
  */
-protected char[] indexEntryPrefix(){
-	return AbstractIndexer.bestTypeDeclarationPrefix(pkg, simpleName, classOrInterface, matchMode, isCaseSensitive);
+protected char[] indexEntryPrefix() {
+	char[] packageName = this.isCaseSensitive ? pkg : null;
+	switch(this.classOrInterface) {
+		case CLASS_SUFFIX :
+			if (packageName == null) return CLASS_DECL;
+			break;
+		case INTERFACE_SUFFIX :
+			if (packageName == null) return INTERFACE_DECL;
+			break;
+		default :
+			return TYPE_DECL; // cannot do better given encoding
+	}
+
+	char[] typeName = this.isCaseSensitive ? simpleName : null;
+	if (typeName != null && this.matchMode == PATTERN_MATCH) {
+		int starPos = CharOperation.indexOf('*', typeName);
+		switch(starPos) {
+			case -1 :
+				break;
+			case 0 :
+				typeName = null;
+				break;
+			default : 
+				typeName = CharOperation.subarray(typeName, 0, starPos);
+		}
+	}
+
+	int packageLength = packageName.length;
+	int typeLength = typeName == null ? 0 : typeName.length;
+	int pos = TYPE_DECL_LENGTH;
+	char[] result = new char[pos + packageLength + typeLength + 3];
+	System.arraycopy(TYPE_DECL, 0, result, 0, pos);
+	result[pos++] = classOrInterface;
+	result[pos++] = SEPARATOR;
+	System.arraycopy(packageName, 0, result, pos, packageLength);
+	pos += packageLength;
+	result[pos++] = SEPARATOR;
+	if (typeLength > 0)
+		System.arraycopy(typeName, 0, result, pos, typeName.length);
+	return result;
 }
 /**
  * @see SearchPattern#matchContainer()

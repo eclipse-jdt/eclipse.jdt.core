@@ -48,10 +48,6 @@ public static final int CLASS = 2;
 public static final int METHOD = 4;
 public static final int FIELD = 8;
 
-public SearchPattern(int matchMode, boolean isCaseSensitive) {
-	this.matchMode = matchMode;
-	this.isCaseSensitive = isCaseSensitive;
-}
 /**
  * Constructor pattern are formed by [declaringQualification.]type[(parameterTypes)]
  * e.g. java.lang.Object()
@@ -1038,6 +1034,11 @@ private static char[][] enclosingTypeNames(IType type) {
 			return null;
 	}
 }
+
+public SearchPattern(int matchMode, boolean isCaseSensitive) {
+	this.matchMode = matchMode;
+	this.isCaseSensitive = isCaseSensitive;
+}
 protected void acceptPath(IIndexSearchRequestor requestor, String path) {
 	// default is to do nothing
 }
@@ -1103,6 +1104,29 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 protected char[] indexEntryPrefix() {
 	// override with the best prefix possible for the pattern
 	return null;
+}
+protected char[] indexEntryPrefix(char[] tag, char[] name) {
+	if (this.isCaseSensitive && name != null) {
+		switch(this.matchMode) {
+			case EXACT_MATCH :
+			case PREFIX_MATCH :
+				return CharOperation.concat(tag, name);
+			case PATTERN_MATCH :
+				int starPos = CharOperation.indexOf('*', name);
+				switch(starPos) {
+					case -1 :
+						return CharOperation.concat(tag, name);
+					default : 
+						int length = tag.length;
+						char[] result = new char[length + starPos];
+						System.arraycopy(tag, 0, result, 0, length);
+						System.arraycopy(name, 0, result, length, starPos);
+						return result;
+					case 0 : // fall through
+				}
+		}
+	}
+	return tag; // find them all
 }
 /**
  * Initializes this search pattern so that polymorphic search can be performed.

@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
 public class FieldPattern extends SearchPattern {
 
@@ -50,6 +49,14 @@ protected char[] currentTag;
 protected static char[][] REF_TAGS = { FIELD_REF, REF };
 protected static char[][] REF_AND_DECL_TAGS = { FIELD_REF, REF, FIELD_DECL };
 protected static char[][] DECL_TAGS = { FIELD_DECL };
+
+public static char[] createDeclaration(char[] fieldName) {
+	return CharOperation.concat(FIELD_DECL, fieldName);
+}
+public static char[] createReference(char[] fieldName) {
+	return CharOperation.concat(FIELD_REF, fieldName);
+}
+
 
 public FieldPattern(
 	boolean findDeclarations,
@@ -101,10 +108,13 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	}
 }
 /**
- * @see SearchPattern#indexEntryPrefix
+ * Field declaration entries are encoded as 'fieldDecl/fieldName'
+ *
+ * Field reference entries are encoded as 'fieldRef/fieldName'
  */
 protected char[] indexEntryPrefix() {
-	return AbstractIndexer.bestReferencePrefix(currentTag, name, matchMode, isCaseSensitive); // should really be called bestPrefix
+	// will have a common pattern in the new story
+	return indexEntryPrefix(this.currentTag, this.name);
 }
 /**
  * @see SearchPattern#matchCheck(AstNode, MatchingNodeSet)

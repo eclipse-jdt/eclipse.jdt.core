@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
 public class MethodPattern extends SearchPattern {
 
@@ -49,6 +48,16 @@ public char[][][] allSuperDeclaringTypeNames;
 protected IType declaringType;
 
 protected char[] currentTag;
+
+public static char[] createDeclaration(char[] selector, int argCount) {
+	char[] countChars = argCount < 10 ? COUNTS[argCount] : ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+	return CharOperation.concat(METHOD_DECL, selector, countChars);
+}
+public static char[] createReference(char[] selector, int argCount) {
+	char[] countChars = argCount < 10 ? COUNTS[argCount] : ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+	return CharOperation.concat(METHOD_REF, selector, countChars);
+}
+
 
 public MethodPattern(
 	boolean findDeclarations,
@@ -114,21 +123,40 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	}
 }
 /**
- * @see SearchPattern#indexEntryPrefix
+ * Method declaration entries are encoded as 'methodDecl/' selector '/' Arity
+ * e.g. 'methodDecl/X/0'
+ *
+ * Method reference entries are encoded as 'methodRef/' selector '/' Arity
+ * e.g. 'methodRef/X/0'
  */
 protected char[] indexEntryPrefix() {
 	// will have a common pattern in the new story
-	if (this.currentTag ==  METHOD_REF)
-		return AbstractIndexer.bestMethodReferencePrefix(
-			selector, 
-			parameterSimpleNames == null ? -1 : parameterSimpleNames.length, 
-			matchMode, 
-			isCaseSensitive);
-	return AbstractIndexer.bestMethodDeclarationPrefix(
-		selector, 
-		parameterSimpleNames == null ? -1 : parameterSimpleNames.length, 
-		matchMode, 
-		isCaseSensitive);
+	if (this.isCaseSensitive && this.selector != null) {
+		switch(this.matchMode) {
+			case EXACT_MATCH :
+				int arity = parameterSimpleNames == null ? -1 : parameterSimpleNames.length;
+				if (arity >= 0) {
+					char[] countChars = arity < 10 ? COUNTS[arity] : ("/" + String.valueOf(arity)).toCharArray(); //$NON-NLS-1$
+					return CharOperation.concat(this.currentTag, this.selector, countChars);
+				}
+			case PREFIX_MATCH :
+				return CharOperation.concat(this.currentTag, this.selector);
+			case PATTERN_MATCH :
+				int starPos = CharOperation.indexOf('*', this.selector);
+				switch(starPos) {
+					case -1 :
+						return CharOperation.concat(this.currentTag, this.selector);
+					default : 
+						int length = this.currentTag.length;
+						char[] result = new char[length + starPos];
+						System.arraycopy(this.currentTag, 0, result, 0, length);
+						System.arraycopy(this.selector, 0, result, length, starPos);
+						return result;
+					case 0 : // fall through
+				}
+		}
+	}
+	return this.currentTag; // find them all
 }
 public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
 	try {

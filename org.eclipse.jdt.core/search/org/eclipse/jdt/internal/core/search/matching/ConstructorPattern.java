@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
 public class ConstructorPattern extends SearchPattern {
 
@@ -46,6 +45,16 @@ protected int decodedParameterCount;
 protected IType declaringType;
 
 protected char[] currentTag;
+
+public static char[] createDeclaration(char[] typeName, int argCount) {
+	char[] countChars = argCount < 10 ? COUNTS[argCount] : ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+	return CharOperation.concat(CONSTRUCTOR_DECL, typeName, countChars);
+}
+public static char[] createReference(char[] typeName, int argCount) {
+	char[] countChars = argCount < 10 ? COUNTS[argCount] : ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+	return CharOperation.concat(CONSTRUCTOR_REF, typeName, countChars);
+}
+
 
 public ConstructorPattern(
 	boolean findDeclarations,
@@ -105,21 +114,40 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	}
 }
 /**
- * @see SearchPattern#indexEntryPrefix
+ * Constructor declaration entries are encoded as 'constructorDecl/' TypeName '/' Arity:
+ * e.g. 'constructorDecl/X/0'
+ *
+ * Constructor reference entries are encoded as 'constructorRef/' TypeName '/' Arity:
+ * e.g. 'constructorRef/X/0'
  */
 protected char[] indexEntryPrefix() {
 	// will have a common pattern in the new story
-	if (currentTag ==  CONSTRUCTOR_REF)
-		return AbstractIndexer.bestConstructorReferencePrefix(
-			declaringSimpleName, 
-			parameterSimpleNames == null ? -1 : parameterSimpleNames.length, 
-			matchMode, 
-			isCaseSensitive);
-	return AbstractIndexer.bestConstructorDeclarationPrefix(
-		declaringSimpleName, 
-		parameterSimpleNames == null ? -1 : parameterSimpleNames.length, 
-		matchMode, 
-		isCaseSensitive);
+	if (this.isCaseSensitive && this.declaringSimpleName != null) {
+		switch(this.matchMode) {
+			case EXACT_MATCH :
+				int arity = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
+				if (arity >= 0) {
+					char[] countChars = arity < 10 ? COUNTS[arity] : ("/" + String.valueOf(arity)).toCharArray(); //$NON-NLS-1$
+					return CharOperation.concat(this.currentTag, this.declaringSimpleName, countChars);
+				}
+			case PREFIX_MATCH :
+				return CharOperation.concat(this.currentTag, this.declaringSimpleName);
+			case PATTERN_MATCH :
+				int starPos = CharOperation.indexOf('*', this.declaringSimpleName);
+				switch(starPos) {
+					case -1 :
+						return CharOperation.concat(this.currentTag, this.declaringSimpleName);
+					default : 
+						int length = this.currentTag.length;
+						char[] result = new char[length + starPos];
+						System.arraycopy(this.currentTag, 0, result, 0, length);
+						System.arraycopy(this.declaringSimpleName, 0, result, length, starPos);
+						return result;
+					case 0 : // fall through
+				}
+		}
+	}
+	return this.currentTag; // find them all
 }
 /**
  * @see SearchPattern#matchContainer()

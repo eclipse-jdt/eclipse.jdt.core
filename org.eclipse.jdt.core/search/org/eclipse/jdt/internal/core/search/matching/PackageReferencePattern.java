@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 
 public class PackageReferencePattern extends AndPattern {
 
@@ -52,14 +51,10 @@ protected boolean hasNextQuery() {
 	return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 }
 /**
- * @see SearchPattern#indexEntryPrefix()
+ * Package reference entries are encoded as 'ref/packageName'
  */
 protected char[] indexEntryPrefix() {
-	return AbstractIndexer.bestReferencePrefix(
-		REF,
-		this.segments[this.currentSegment],
-		matchMode,
-		isCaseSensitive);
+	return indexEntryPrefix(REF, this.segments[this.currentSegment]);
 }
 /**
  * @see SearchPattern#matchContainer()
