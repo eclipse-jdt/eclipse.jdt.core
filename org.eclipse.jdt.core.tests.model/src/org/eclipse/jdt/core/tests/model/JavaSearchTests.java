@@ -141,10 +141,10 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 						results.append(CharOperation.subarray(contents, start, end));
 						if (this.showContext) {
 							results.append(">");
-							int lineEnd1 = Math.max(CharOperation.indexOf('\n', contents, end), end+1);
-							int lineEnd2 = Math.max(CharOperation.indexOf('\r', contents, end), end+1);
-							int lineEnd = Math.min(lineEnd1, lineEnd2);
-							if (lineEnd == end+1) lineEnd = contents.length;
+							int lineEnd1 = CharOperation.indexOf('\n', contents, end);
+							int lineEnd2 = CharOperation.indexOf('\r', contents, end);
+							int lineEnd = lineEnd1 > 0 && lineEnd2 > 0 ? Math.min(lineEnd1, lineEnd2) : Math.max(lineEnd1, lineEnd2);
+							if (lineEnd == -1) lineEnd = contents.length;
 							results.append(CharOperation.subarray(contents, end, lineEnd));
 						}
 					} else {
@@ -306,8 +306,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testAnnotationTypeReference"));
-		suite.addTest(new JavaSearchTests("testAnnotationTypeReferenceWithJavadocWarnings"));
+		suite.addTest(new JavaSearchTests("testLocalTypeReference1"));
 		return suite;
 	}
 	
