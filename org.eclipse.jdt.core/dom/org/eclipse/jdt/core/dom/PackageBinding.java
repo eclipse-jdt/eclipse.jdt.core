@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 class PackageBinding implements IPackageBinding {
 
 	private static final String[] NO_NAME_COMPONENTS = new String[0];
-	private static final String UNNAMED = "UNNAMED";//$NON-NLS-1$
+	private static final String UNNAMED = ""; //$NON-NLS-1$
 	private static final char PACKAGE_NAME_SEPARATOR = '.';
 	
 	private org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding;

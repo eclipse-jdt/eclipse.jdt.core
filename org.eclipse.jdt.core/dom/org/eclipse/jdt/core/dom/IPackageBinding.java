@@ -24,12 +24,10 @@ public interface IPackageBinding extends IBinding {
 	/**
 	 * Returns the name of the package represented by this binding. For named
 	 * packages, this is the fully qualified package name (using "." for 
-	 * separators). For unnamed packages, this is a distinctive string
-	 * that can be used to refer to this unnamed package (since there
-	 * may in fact be multiple unnamed packages).
+	 * separators). For unnamed packages, this is an empty string.
 	 * 
-	 * @return the name of the package represented by this binding, or an
-	 *    internal identifier for an unnamed package
+	 * @return the name of the package represented by this binding, or
+	 *    an empty string for an unnamed package
 	 */
 	public String getName();
 	

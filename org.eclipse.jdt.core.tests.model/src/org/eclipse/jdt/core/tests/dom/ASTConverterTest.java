@@ -3942,7 +3942,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("Binding not null", typeBinding); //$NON-NLS-1$
 		IPackageBinding packageBinding = typeBinding.getPackage();
 		assertNotNull("No package binding", packageBinding); //$NON-NLS-1$
-		assertEquals("wrong name", "UNNAMED", packageBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("wrong name", "", packageBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		String[] components = packageBinding.getNameComponents();
 		assertNotNull("no components", components); //$NON-NLS-1$
 		assertTrue("components size != 0", components.length == 0); //$NON-NLS-1$
