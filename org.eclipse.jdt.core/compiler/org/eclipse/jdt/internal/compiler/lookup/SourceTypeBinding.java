@@ -373,7 +373,7 @@ public FieldBinding[] fields() {
 	return fields;
 }
 /**
- * <param1 ... paremN>superclass superinterface1 ... superinterfaceN
+ * <param1 ... paramN>superclass superinterface1 ... superinterfaceN
  * <T:LY<TT;>;U:Ljava/lang/Object;V::Ljava/lang/Runnable;:Ljava/lang/Cloneable;:Ljava/util/Map;>Ljava/lang/Exception;Ljava/lang/Runnable;
  */
 public char[] genericSignature() {
