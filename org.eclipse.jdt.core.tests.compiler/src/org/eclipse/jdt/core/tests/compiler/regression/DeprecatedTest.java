@@ -19,7 +19,7 @@ public DeprecatedTest(String name) {
 public static Test suite() {
 	return setupSuite(testClass());
 }
-public void test1() {
+public void test001() {
 	this.runNegativeTest(new String[] {
 		"p/B.java",
 		"package p;\n" + 
@@ -47,7 +47,7 @@ public void test1() {
 		"----------\n"
 	);
 }
-public void test2() {
+public void test002() {
 	this.runNegativeTest(new String[] {
 		"p/C.java",
 		"package p;\n" + 
@@ -71,7 +71,7 @@ public void test2() {
 		"----------\n"
 	);
 }
-public void test3() {
+public void test003() {
 	this.runNegativeTest(new String[] {
 		"p/Top.java",
 		"package p;\n" + 
@@ -132,7 +132,7 @@ public void test3() {
 /**
  * Regression test for PR #1G9ES9B
  */
-public void test4() {
+public void test004() {
 	this.runNegativeTest(new String[] {
 		"p/Warning.java",
 		"package p;\n" + 
@@ -159,7 +159,7 @@ public void test4() {
 
 	);
 }
-public void test5() {
+public void test005() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -201,7 +201,7 @@ public void test5() {
 		null);  // custom options
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
-public void test6() {
+public void test006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -235,6 +235,70 @@ public void test6() {
 		null,
 		false, // flush previous output dir content
 		null);  // custom options
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124
+public void test007() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"}\n",
+		},
+		"");
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class Y {\n" + 
+			"  Zork z;\n" +
+			"  void foo() {\n" + 
+			"    X x; // unexpected deprecated warning here\n" + 
+			"  }\n" + 
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",// expected output
+		null,
+		false, // flush previous output dir content
+		null);  // custom options
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124 - variation
+public void test008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"}\n",
+			
+			"Y.java",
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class Y {\n" + 
+			"  Zork z;\n" +
+			"  void foo() {\n" + 
+			"    X x; // unexpected deprecated warning here\n" + 
+			"  }\n" + 
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return DeprecatedTest.class;
