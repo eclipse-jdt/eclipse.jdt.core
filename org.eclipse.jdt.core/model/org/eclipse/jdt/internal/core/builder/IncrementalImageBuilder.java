@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -117,8 +118,8 @@ public boolean build(SimpleLookupTable deltas) {
 	} catch (AbortIncrementalBuildException e) {
 		// abort the incremental build and let the batch builder handle the problem
 		if (JavaBuilder.DEBUG)
-			System.out.println("ABORTING incremental build... cannot find " + e.qualifiedTypeName + //$NON-NLS-1$
-				". Could have been renamed inside its existing source file."); //$NON-NLS-1$
+			System.out.println("ABORTING incremental build... problem with " + e.qualifiedTypeName + //$NON-NLS-1$
+				". Likely renamed inside its existing source file."); //$NON-NLS-1$
 		return false;
 	} catch (CoreException e) {
 		throw internalException(e);
@@ -577,7 +578,14 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 			addDependentsOf(new Path(qualifiedFileName), true); // new secondary type
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
-		file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
+		try {
+			file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
+		} catch (org.eclipse.core.internal.resources.ResourceException e) {
+			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
+				// catch the case that a nested type has been renamed and collides on disk with an as-yet-to-be-deleted type
+				throw new AbortCompilation(true, new AbortIncrementalBuildException(qualifiedFileName));
+			throw e; // rethrow
+		}
 		file.setDerived(true);
 	}
 }
