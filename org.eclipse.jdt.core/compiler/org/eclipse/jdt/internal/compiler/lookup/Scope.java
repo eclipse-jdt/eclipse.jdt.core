@@ -267,6 +267,14 @@ public abstract class Scope
 							continue nextVariable;
 						}
 					}
+					for (int index = typeVariable.superInterfaces.length; --index >= 0;) {
+						if (superType.erasure() == typeVariable.superInterfaces[index].erasure()) {
+							problemReporter().duplicateBounds(typeRef, superType);
+							typeVariable.tagBits |= HierarchyHasProblems;
+							noProblems = false;
+							continue nextVariable;
+						}
+					}
 					int size = typeVariable.superInterfaces.length;
 					System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
 					typeVariable.superInterfaces[size] = superType;

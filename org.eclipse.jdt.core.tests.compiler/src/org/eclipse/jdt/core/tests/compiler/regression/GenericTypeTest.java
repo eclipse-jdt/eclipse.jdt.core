@@ -11362,14 +11362,21 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X4.java",
 				"class X4 <T extends Comparable<Z> & Comparable<Z>> {}\n" +
 				"abstract class Y extends Z {}\n" +
 				"abstract class Z implements Comparable<Z> {}",
 			},
-			"" // no complaints about duplicates
+			"----------\n" + 
+			"1. ERROR in X4.java (at line 1)\r\n" + 
+			"	class X4 <T extends Comparable<Z> & Comparable<Z>> {}\r\n" + 
+			"	                                    ^^^^^^^^^^\n" + 
+			"Duplicate bound Comparable<Z>\n" + 
+			"----------\n"
+			// no complaints about duplicates if they are both parameterized with same args
+			// but you cannot extend Comparable & Comparable so we'll report an error
 		);
 		this.runNegativeTest(
 			new String[] {
@@ -12113,8 +12120,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                                  ^^^^^^^^^^^^^^^\n" + 
 			"Cannot allocate the member type X<String>.Inner<Integer> using a parameterized compound name; use its simple name and an enclosing instance of type X<String>\n" + 
 			"----------\n");
-	}	
-		
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82187
 	public void test452() {
 		this.runConformTest(
@@ -12139,5 +12146,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n" ,
 			},
 			"SUCCESS");
-	}	
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82250
+	public void test453() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends I & I> {}\n" + 
+				"interface I {}\n" ,
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	public class X<T extends I & I> {}\r\n" + 
+			"	                             ^\n" + 
+			"Duplicate bound I\n" + 
+			"----------\n"
+		);
+	}
 }
