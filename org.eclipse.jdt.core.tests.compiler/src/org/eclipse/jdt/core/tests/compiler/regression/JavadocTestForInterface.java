@@ -1077,7 +1077,7 @@ public class JavadocTestForInterface extends JavadocTest {
 					+ "   * Invalid javadoc tags with valid deprecation\n"
 					+ "   *\n"
 					+ "   * @param\n"
-					+ "   * @return\n"
+					+ "   * @return String\n"
 					+ "   * @throws Unknown\n"
 					+ "   * @see \"Invalid\n"
 					+ "   * @see Unknown\n"

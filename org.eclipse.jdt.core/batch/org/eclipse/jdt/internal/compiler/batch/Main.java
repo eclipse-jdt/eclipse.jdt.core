@@ -101,8 +101,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	/**
 	 * Lookup the message with the given ID in this catalog 
-	 * @param id
-	 * @return
+	 * @param id String
+	 * @return String
 	 */
 	public static String bind(String id) {
 		return bind(id, (String[]) null);
@@ -111,9 +111,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/**
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given string.
-	 * @param id
-	 * @param binding
-	 * @return
+	 * @param id String
+	 * @param binding String
+	 * @return String
 	 */
 	public static String bind(String id, String binding) {
 		return bind(id, new String[] { binding });
@@ -122,10 +122,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/**
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given strings.
-	 * @param id
-	 * @param binding1
-	 * @param binding2
-	 * @return
+	 * @param id String
+	 * @param binding1 String
+	 * @param binding2 String
+	 * @return String
 	 */
 	public static String bind(String id, String binding1, String binding2) {
 		return bind(id, new String[] { binding1, binding2 });
@@ -134,9 +134,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/**
 	 * Lookup the message with the given ID in this catalog and bind its
 	 * substitution locations with the given string values.
-	 * @param id
-	 * @param bindings
-	 * @return
+	 * @param id String
+	 * @param bindings String[]
+	 * @return String
 	 */
 	public static String bind(String id, String[] bindings) {
 		if (id == null)

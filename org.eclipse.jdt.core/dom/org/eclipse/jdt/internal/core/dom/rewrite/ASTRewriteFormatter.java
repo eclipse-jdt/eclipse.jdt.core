@@ -209,8 +209,8 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 	
     /**
      * Creates a string that represents the given number of indents (can be spaces or tabs..)
-     * @param indent
-     * @return
+     * @param indent int
+     * @return String
      */
     public String createIndentString(int indent) {
         StringBuffer buf= new StringBuffer(indent * this.singleIndentString.length());

@@ -255,7 +255,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	}
 	
 	int start = methodDecl.bodyStart-1, end = start;
-	long position = (start << 32) + end;
+	long position = ((long) start << 32) + end;
 	long[] positions = new long[]{position};
 	if (this.evaluationContext.localVariableNames != null) {
 

@@ -111,7 +111,7 @@ public class ClassScope extends Scope {
 		}
 		// remove duplicate fields
 		if (duplicate) {
-			FieldBinding[] newFieldBindings = new FieldBinding[knownFieldNames.size() - 1];
+			FieldBinding[] newFieldBindings = new FieldBinding[fieldBindings.length];
 			// we know we'll be removing at least 1 duplicate name
 			size = count;
 			count = 0;

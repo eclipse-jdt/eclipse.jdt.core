@@ -201,7 +201,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 		char[][] argumentTypeNames = sourceMethod.getArgumentTypeNames();
 		char[][] argumentNames = sourceMethod.getArgumentNames();
 		int argumentCount = argumentTypeNames == null ? 0 : argumentTypeNames.length;
-		long position = (long) start << 32 + end;
+		long position = ((long) start << 32) + end;
 		method.arguments = new Argument[argumentCount];
 		for (int i = 0; i < argumentCount; i++) {
 			method.arguments[i] =
@@ -419,7 +419,7 @@ public class ElementInfoConverter implements CompilerModifiers {
 	
 		char[][] qImportName = CharOperation.splitOn('.', importName);
 		long[] positions = new long[qImportName.length];
-		long position = (long) start << 32 + end;
+		long position = ((long) start << 32) + end;
 		for (int i = 0; i < qImportName.length; i++) {
 			positions[i] = position; // dummy positions
 		}

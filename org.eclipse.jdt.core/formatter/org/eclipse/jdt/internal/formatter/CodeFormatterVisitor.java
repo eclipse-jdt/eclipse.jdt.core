@@ -2487,9 +2487,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			format(types[typesLength - 1]);
 		}
-		this.scribe.printComment();
-		formatEmptyTypeDeclaration(false);
-		return false;
+        this.scribe.printEndOfCompilationUnit();
+        return false;
 	}
 
 	/**

@@ -185,7 +185,14 @@ public class ToolFactory {
 			try {
 				if (root instanceof JarPackageFragmentRoot) {
 						
-					String archiveName = ((JarPackageFragmentRoot)root).getJar().getName();
+					String archiveName = null;
+					ZipFile jar = null;
+					try {
+						jar = ((JarPackageFragmentRoot)root).getJar();
+						archiveName = jar.getName();
+					} finally {
+						JavaModelManager.getJavaModelManager().closeZipFile(jar);
+					}
 					String entryName = classfile.getParent().getElementName();
 					entryName = entryName.replace('.', '/');
 					if (entryName.equals("")) { //$NON-NLS-1$

@@ -98,7 +98,9 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 			} else if (equals(attributeName, IAttributeNamesConstants.EXCEPTIONS)) {
 				this.exceptionAttribute = new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.exceptionAttribute;
-			} else {
+			} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
+                this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
+            } else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));

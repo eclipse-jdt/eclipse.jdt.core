@@ -13,8 +13,9 @@ package org.eclipse.jdt.internal.core.util;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.util.*;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
@@ -430,8 +431,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		StringBuffer buffer = new StringBuffer();
 
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
-		IClassFileAttribute classFileAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
-		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		final int accesssFlags = classFileReader.getAccessFlags();
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			int minorVersion = classFileReader.getMinorVersion();
@@ -465,13 +464,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					+ (isDeprecated(classFileReader) ? ", deprecated" : EMPTY_OUTPUT)//$NON-NLS-1$
 				}));
 			writeNewLine(buffer, lineSeparator, 0);
-			if (signatureAttribute != null) {
-				buffer
-					.append(Util.bind("disassembler.begincommentline"))	 //$NON-NLS-1$
-					.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
-					.append(signatureAttribute.getSignature());
-				writeNewLine(buffer, lineSeparator, 0);
-			}
 		}
 		char[] className = classFileReader.getClassName();
 		if (className == null) {
@@ -537,36 +529,24 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
 			length = attributes.length;
-			IEnclosingMethodAttribute enclosingMethodAttribute = getEnclosingMethodAttribute(classFileReader);
 			int remainingAttributesLength = length;
 			if (innerClassesAttribute != null) {
-				remainingAttributesLength--;
-			}
-			if (enclosingMethodAttribute != null) {
 				remainingAttributesLength--;
 			}
 			if (sourceAttribute != null) {
 				remainingAttributesLength--;
 			}
-			if (signatureAttribute != null) {
-				remainingAttributesLength--;
-			}
-			if (innerClassesAttribute != null || enclosingMethodAttribute != null || remainingAttributesLength != 0) {
+			if (innerClassesAttribute != null || remainingAttributesLength != 0) {
 				writeNewLine(buffer, lineSeparator, 0);
 			}
 			if (innerClassesAttribute != null) {
 				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
-			}
-			if (enclosingMethodAttribute != null) {
-				disassemble(enclosingMethodAttribute, buffer, lineSeparator, 0);
 			}
 			if (length != 0) {
 				for (int i = 0; i < length; i++) {
 					IClassFileAttribute attribute = attributes[i];
 					if (attribute != innerClassesAttribute
 						&& attribute != sourceAttribute
-						&& attribute != signatureAttribute
-						&& attribute != enclosingMethodAttribute
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, 0);
@@ -693,8 +673,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private void disassemble(IFieldInfo fieldInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		char[] fieldDescriptor = fieldInfo.getDescriptor();
-		IClassFileAttribute classFileAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.SIGNATURE);
-		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		if (mode == DETAILED) {
 			buffer
 				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
@@ -707,13 +685,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Util.bind("disassembler.deprecated"));//$NON-NLS-1$
 			}
 			writeNewLine(buffer, lineSeparator, tabNumber);
-			if (signatureAttribute != null) {
-				buffer
-					.append(Util.bind("disassembler.begincommentline"))	 //$NON-NLS-1$
-					.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
-					.append(signatureAttribute.getSignature());
-				writeNewLine(buffer, lineSeparator, tabNumber);
-			}
 		}
 		decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
 		if (fieldInfo.isSynthetic()) {
@@ -767,7 +738,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				for (int i = 0; i < length; i++) {
 					IClassFileAttribute attribute = attributes[i];
 					if (attribute != constantValueAttribute
-						&& attribute != signatureAttribute
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, tabNumber);
@@ -784,8 +754,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 		char[] methodDescriptor = methodInfo.getDescriptor();
-		IClassFileAttribute classFileAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
-		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		if (mode == DETAILED) {
 			buffer
 				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
@@ -798,13 +766,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Util.bind("disassembler.deprecated"));//$NON-NLS-1$
 			}			
 			writeNewLine(buffer, lineSeparator, tabNumber);
-			if (signatureAttribute != null) {
-				buffer
-					.append(Util.bind("disassembler.begincommentline"))	 //$NON-NLS-1$
-					.append(Util.bind("disassembler.signatureattributeheader")) //$NON-NLS-1$
-					.append(signatureAttribute.getSignature());
-				writeNewLine(buffer, lineSeparator, tabNumber);
-			}
 			if (codeAttribute != null) {
 				buffer
 					.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
@@ -861,7 +822,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					IClassFileAttribute attribute = attributes[i];
 					if (attribute != codeAttribute
 							&& attribute != exceptionAttribute
-							&& attribute != signatureAttribute
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, tabNumber);
@@ -1005,66 +965,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("classfileformat.localvariabletablelocaltype")); //$NON-NLS-1$
 			buffer.append(localVariableTableEntry.getDescriptor());
 		} 
-		ILocalVariableTypeTableAttribute localVariableTypeAttribute= getLocalVariableTypeAttribute(codeAttribute);
-		int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
-		if (localVariableTypeTableLength != 0) {
-			int tabNumberForLocalVariableAttribute = tabNumber + 2;
-			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
-			buffer.append(Util.bind("disassembler.localvariabletypetableattributeheader")); //$NON-NLS-1$
-			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
-			ILocalVariableTypeTableEntry[] localVariableTypeTableEntries = localVariableTypeAttribute.getLocalVariableTypeTable();
-			for (int i = 0; i < localVariableTypeTableLength - 1; i++) {
-				ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTypeTableEntries[i];
-				int index= localVariableTypeTableEntry.getIndex();
-				int startPC = localVariableTypeTableEntry.getStartPC();
-				int length  = localVariableTypeTableEntry.getLength();
-				buffer
-					.append(Util.bind("classfileformat.localvariabletablefrom")) //$NON-NLS-1$
-					.append(startPC)
-					.append(Util.bind("classfileformat.localvariabletableto")) //$NON-NLS-1$
-					.append(startPC + length)
-					.append(Util.bind("classfileformat.localvariabletablelocalname")) //$NON-NLS-1$
-					.append(localVariableTypeTableEntry.getName())
-					.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
-					.append(index)
-					.append(Util.bind("classfileformat.localvariabletablelocaltype")); //$NON-NLS-1$
-				buffer.append(localVariableTypeTableEntry.getSignature());
-				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
-			}
-			ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTypeTableEntries[localVariableTypeTableLength - 1];
-			int index= localVariableTypeTableEntry.getIndex();
-			int startPC = localVariableTypeTableEntry.getStartPC();
-			int length  = localVariableTypeTableEntry.getLength();
-			buffer
-				.append(Util.bind("classfileformat.localvariabletablefrom")) //$NON-NLS-1$
-				.append(startPC)
-				.append(Util.bind("classfileformat.localvariabletableto")) //$NON-NLS-1$
-				.append(startPC + length)
-				.append(Util.bind("classfileformat.localvariabletablelocalname")) //$NON-NLS-1$
-				.append(localVariableTypeTableEntry.getName())
-				.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
-				.append(index)
-				.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
-				.append(localVariableTypeTableEntry.getSignature());
-		} 
 	}
 
-	private void disassemble(IEnclosingMethodAttribute enclosingMethodAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer.append(Util.bind("disassembler.enclosingmethodheader")); //$NON-NLS-1$
-		buffer
-			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
-			.append(enclosingMethodAttribute.getEnclosingClassIndex())
-			.append(" ")//$NON-NLS-1$
-			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
-			.append(enclosingMethodAttribute.getMethodNameAndTypeIndex())
-			.append(" ")//$NON-NLS-1$
-			.append(enclosingMethodAttribute.getEnclosingClass()) //$NON-NLS-1$
-			.append(".")//$NON-NLS-1$
-			.append(enclosingMethodAttribute.getMethodName()) //$NON-NLS-1$
-			.append(enclosingMethodAttribute.getMethodDescriptor()); //$NON-NLS-1$
-	}
-	
 	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		IFieldInfo[] fields = classFileReader.getFieldInfos();
 		for (int i = 0, max = fields.length; i < max; i++) {
@@ -1091,15 +993,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		return Util.bind("disassembler.description"); //$NON-NLS-1$
 	}
 
-	private IEnclosingMethodAttribute getEnclosingMethodAttribute(IClassFileReader classFileReader) {
-		IClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.ENCLOSING_METHOD)) {
-				return (IEnclosingMethodAttribute) attributes[i];
-			}
-		}
-		return null;
-	}
 	/**
 	 * Method getEntryFor.
 	 * @param localIndex
@@ -1117,15 +1010,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}
 			}
 			return null;
-	}
-	private ILocalVariableTypeTableAttribute getLocalVariableTypeAttribute(ICodeAttribute codeAttribute) {
-		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE)) {
-				return (ILocalVariableTypeTableAttribute) attributes[i];
-			}
-		}
-		return null;
 	}
 
 	private char[] getSignatureForField(char[] fieldDescriptor) {

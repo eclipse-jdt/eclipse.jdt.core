@@ -248,8 +248,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
 								this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
 								this.attributes[attributesIndex++] = this.sourceFileAttribute;
-						} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-								this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
