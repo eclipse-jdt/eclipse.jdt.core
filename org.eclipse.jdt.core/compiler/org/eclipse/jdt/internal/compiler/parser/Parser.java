@@ -3841,20 +3841,15 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 	m.sourceStart = 
 		(int) ((m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr]) >>> 32); 
 	m.selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 
 	// handle type arguments
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
 	
-	if (this.identifierLengthStack[this.identifierLengthPtr] == 1) {
-		m.receiver = ThisReference.implicitThis();
-		this.identifierLengthPtr--;
-	} else {
-		this.identifierLengthStack[this.identifierLengthPtr]--;
-		m.receiver = getUnspecifiedReference();
-		m.sourceStart = m.receiver.sourceStart;		
-	}
+	m.receiver = getUnspecifiedReference();
+	m.sourceStart = m.receiver.sourceStart;		
 	pushOnExpressionStack(m);
 }
 protected void consumeMethodInvocationPrimary() {

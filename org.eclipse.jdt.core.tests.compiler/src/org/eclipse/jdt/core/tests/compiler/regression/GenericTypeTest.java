@@ -5201,8 +5201,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// 62292 - parameterized message send
-	// TODO (olivier) reenable when fixed
-	public void _test184() {
+	public void test184() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
