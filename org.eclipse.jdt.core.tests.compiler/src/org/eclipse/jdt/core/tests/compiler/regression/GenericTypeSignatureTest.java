@@ -733,6 +733,72 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	
+	public void test009() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"class MX<U> {\n" + 
+			"}\n" + 
+			" \n" + 
+			"public static void main(String[] args) {\n" + 
+			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
+			"}\n" + 
+			"void foo(X<String>.MX<Thread> mx) {\n" + 
+			"   System.out.println(\"SUCCESS\");\n" + 
+			"}\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
+			assertEquals("Wrong signature", "(LX<Ljava/lang/String;>.MX<Ljava/lang/Thread;>;)V", new String(methods[2].getGenericSignature()));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+	
+	public void test010() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"class MX<U> {\n" + 
+			"}\n" + 
+			" \n" + 
+			"public static void main(String[] args) {\n" + 
+			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
+			"}\n" + 
+			"void foo(X.MX<Thread> mx) {\n" + 
+			"   System.out.println(\"SUCCESS\");\n" + 
+			"}\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
+			assertEquals("Wrong signature", "(LX$MX<Ljava/lang/Thread;>;)V", new String(methods[2].getGenericSignature()));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+	
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
