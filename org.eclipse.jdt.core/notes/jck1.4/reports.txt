@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 TABLE OF CONTENTS
-Problem Reports generated on 17/09/2001 @ 6:05:47 PM by Olivier Thomann
+Problem Reports generated on 17/09/2001 @ 6:32:04 PM by Olivier Thomann
 
 1. 1GK7WHA:  ITPJCORE:WIN2000 - JCK 1.4 - a NullPointerException is raised in run time 
 2. 1GK7WCP:  ITPJCORE:WIN2000 - JCK 1.4 - the new method is a static (respectively instance) method. 
@@ -4131,6 +4131,236 @@ excp01306.java:13: unreported exception java.lang.Exception; must be caught or d
                                ^
 1 error
 
+OT (17/09/2001 6:15:57 PM)
+	I found this on the Bug parage web page:
+http://developer.java.sun.com/developer/bugParade/bugs/4030341.html
+									Bug Id 
+                                            4030341
+                                     Votes 
+                                            0
+                                  Synopsis 
+                                            Checked exceptions in anonymous instance initializers not processed correctly.
+                                  Category 
+                                            java:compiler
+                         Reported Against 
+                                            1.1
+                             Release Fixed 
+                                             
+                                     State 
+                                            Closed, duplicate of 4054256
+                             Related Bugs 
+                                            4054256
+                              Submit Date 
+                                            Feb 05, 1997 
+                                Description 
+                                            The inner classes white paper says that a checked exception may be raised
+                                            in an instance initializer if all constructors declare a throw for it,
+                                            and that the automatically generated constructor for an anonymous class
+                                            automatically throws the correct exceptions, so that any exception can be
+                                            raised in the body of an anonymous class.
+                                            <p>
+                                            The compiler produces several errors if this is attempted.  Here is an example:
+                                            <pre>
+                                                    // this is JCK 1.1 test innr088
+                                                    class InitExceptionBug0 {
+                                                        void f() throws InstantiationException {
+                                                            new Object() {
+                                                                {
+                                                                    throw new InstantiationException("test");
+                                                                }
+                                                            };
+                                                        }
+                                                    }
+                                            </pre>
+
+
+
+
+                                            The inner classes white paper says that a checked exception may be raised
+                                            in an instance initializer if all constructors declare a throw for it,
+                                            and that the automatically generated constructor for an anonymous class
+                                            automatically throws the correct exceptions, so that any exception can be
+                                            raised in the body of an anonymous class.
+
+                                            The compiler produces several errors if this is attempted.  Here is an example:
+                                                    // this is JCK 1.1 test innr088
+                                                    class InitExceptionBug0 {
+                                                        void f() throws InstantiationException {
+                                                            new Object() {
+                                                                {
+                                                                    throw new InstantiationException("test");
+                                                                }
+                                                            };
+                                                        }
+                                                    }
+
+                                            The compiler output looks like this:
+
+                                            InitExceptionBug0.java:4: Statement not reached.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:4: Constructor invocation must be the first thing in a
+                                            method.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:6: Exception java.lang.InstantiationException can't be
+                                            thrown in initializer.
+                                                            throw new InstantiationException("test");
+                                                            ^
+                                            3 errors
+
+
+
+                              Workaround 
+                                            Don't throw exceptions from instance initializers.  This makes certain
+                                            applications of anonymous classes as "do blocks" extremely awkward.
+
+
+                                Evaluation 
+                                            (Couldn't have said it better myself. :-)
+                                            ---
+                                            See also 4054256.
+                                            xxxxx@xxxxx 1997-05-29
+
+
+Bug Id 
+                                            4054256
+                                     Votes 
+                                            0
+                                  Synopsis 
+                                            instance initializers should be able to throw exceptions
+                                  Category 
+                                            java:compiler
+                         Reported Against 
+                                            1.1.1, 1.2alpha
+                             Release Fixed 
+                                            merlin, merlin-beta
+                                     State 
+                                            Closed, fixed
+                             Related Bugs 
+                                            4030341, 4052099, 4210130
+                              Submit Date 
+                                            May 23, 1997 
+                                Description 
+
+
+
+
+                                            An instance initializer is allowed to throw a checked
+                                            exception if that exception type is declared in the throws list of every
+                                            constructor.  Thus the following code is legal:
+
+                                            class B
+                                            {
+                                                    class C
+                                                    {
+                                                            C () throws Throwable
+                                                            {
+                                                            }
+
+                                                            {
+                                                            int j = 5;
+                                                            if (j == 6)
+                                                            throw new Throwable(); // thrown by constructor
+                                                            }
+                                                    }
+                                            }
+
+                                            However javac rejects this.
+
+                                            Also note that initializers in anonymous classes may throw ANY checked
+                                            exception type.
+
+
+                                            Copied from 4030341, closed as duplicate, by xxxxx@xxxxx 1998-01-27:
+
+                                            The inner classes white paper says that a checked exception may be raised
+                                            in an instance initializer if all constructors declare a throw for it,
+                                            and that the automatically generated constructor for an anonymous class
+                                            automatically throws the correct exceptions, so that any exception can be
+                                            raised in the body of an anonymous class.
+
+                                            The compiler produces several errors if this is attempted.  Here is an example:
+                                                    // this is JCK 1.1 test innr088
+                                                    class InitExceptionBug0 {
+                                                        void f() throws InstantiationException {
+                                                            new Object() {
+                                                                {
+                                                                    throw new InstantiationException("test");
+                                                                }
+                                                            };
+                                                        }
+                                                    }
+
+                                            The compiler output looks like this:
+
+                                            InitExceptionBug0.java:4: Statement not reached.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:4: Constructor invocation must be the first thing in a
+                                            method.
+                                                    new Object() {
+                                                        ^
+                                            InitExceptionBug0.java:6: Exception java.lang.InstantiationException can't be
+                                            thrown in initializer.
+                                                            throw new InstantiationException("test");
+                                                            ^
+                                            3 errors
+
+
+
+
+
+
+                              Workaround 
+
+
+
+
+                                            No.
+
+
+                                Evaluation 
+                                            Verified behavior under 1.2alpha.
+                                            Roly's analysis sounds right.  See also 4030341.
+
+                                            xxxxx@xxxxx 1997-05-29
+
+                                            See also 4102541, which I suspect has the same underlying cause.
+
+                                            xxxxx@xxxxx 1998-01-27
+
+
+                         Your Comments &
+                             Work-arounds
+
+                                                Include a link with my name & email    
+
+                                            FRI JUL 14 04:49 P.M. 2000
+                                            jryingst
+
+                                            This bug seems to still be present in SDK 1.2.2 and 1.3.0 
+                                            as well.  I don't know when the private release which 
+                                            allegedly fixes this will become public, but I'm wondering 
+                                            if it hasn't just been forgotten?
+
+	See also http://java.sun.com/products/jdk/1.1/knownbugs/compiler.html.
+4030341
+          The inner classes white paper says that a checked exception may be raised in an instance initializer if all constructors declare a throw for it, and that the automatically
+          generated constructor for an anonymous class automatically throws the correct exceptions, so that any exception can be raised in the body of an anonymous class. 
+
+          The compiler produces several errors if this is attempted. Here is an example: 
+
+                  // this is JCK 1.1 test innr088
+                  class InitExceptionBug0 {
+                      void f() throws InstantiationException {
+                          new Object() {
+                              {
+                                  throw new InstantiationException("test");
+                              }
+                          };
+                      }
+                  }
 
 
 ====================------------------------------------------------------------
