@@ -25,123 +25,96 @@ class PackageFragmentRootInfo extends OpenableElementInfo {
 	 * <li><code>IPackageFragmentRoot.K_SOURCE</code>
 	 * <li><code>IPackageFragmentRoot.K_BINARY</code></ul>
 	 */
-	protected int fRootKind = IPackageFragmentRoot.K_SOURCE;
+	protected int fRootKind= IPackageFragmentRoot.K_SOURCE;
 
 	/**
 	 * A array with all the non-java resources contained by this PackageFragment
 	 */
 	protected Object[] fNonJavaResources;
-	/**
-	 * Create and initialize a new instance of the receiver
-	 */
-	public PackageFragmentRootInfo() {
-		fNonJavaResources = null;
-	}
-
-	/**
-	 * Starting at this folder, create non-java resources for this package fragment root 
-	 * and add them to the non-java resources collection.
-	 * 
-	 * @exception JavaModelException  The resource associated with this package fragment does not exist
-	 */
-	private Object[] computeFolderNonJavaResources(
-		IJavaProject project,
-		IContainer folder)
-		throws JavaModelException {
-		Object[] nonJavaResources = new IResource[5];
-		int nonJavaResourcesCounter = 0;
-		try {
-			IResource[] members = folder.members();
-			for (int i = 0, max = members.length; i < max; i++) {
-				IResource member = members[i];
-				if (member.getType() == IResource.FILE) {
-					String extension = member.getProjectRelativePath().getFileExtension();
-					if (!"java".equalsIgnoreCase(extension)
-						&& !"class".equalsIgnoreCase(extension)) {
-						if (project.findPackageFragmentRoot(member.getFullPath()) == null) {
-							if (nonJavaResources.length == nonJavaResourcesCounter) {
-								// resize
-								System.arraycopy(
-									nonJavaResources,
-									0,
-									(nonJavaResources = new IResource[nonJavaResourcesCounter * 2]),
-									0,
-									nonJavaResourcesCounter);
-							}
-							nonJavaResources[nonJavaResourcesCounter++] = member;
+/**
+ * Create and initialize a new instance of the receiver
+ */
+public PackageFragmentRootInfo() {
+	fNonJavaResources = null;
+}
+/**
+ * Starting at this folder, create non-java resources for this package fragment root 
+ * and add them to the non-java resources collection.
+ * 
+ * @exception JavaModelException  The resource associated with this package fragment does not exist
+ */
+private Object[] computeFolderNonJavaResources(IJavaProject project, IContainer folder) throws JavaModelException {
+	Object[] nonJavaResources = new IResource[5];
+	int nonJavaResourcesCounter = 0;
+	try {
+		IResource[] members = folder.members();
+		for (int i = 0, max = members.length; i < max; i++) {
+			IResource member = members[i];
+			if (member.getType() == IResource.FILE) {
+				String extension = member.getProjectRelativePath().getFileExtension();
+				if (!"java"/*nonNLS*/.equalsIgnoreCase(extension) && !"class"/*nonNLS*/.equalsIgnoreCase(extension)) {
+					if (project.findPackageFragmentRoot(member.getFullPath()) == null) {
+						if (nonJavaResources.length == nonJavaResourcesCounter) {
+							// resize
+							System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter * 2]), 0, nonJavaResourcesCounter);
 						}
+						nonJavaResources[nonJavaResourcesCounter++] = member;
 					}
 				}
 			}
-			if (nonJavaResources.length != nonJavaResourcesCounter) {
-				System.arraycopy(
-					nonJavaResources,
-					0,
-					(nonJavaResources = new IResource[nonJavaResourcesCounter]),
-					0,
-					nonJavaResourcesCounter);
-			}
-			return nonJavaResources;
-		} catch (CoreException e) {
-			throw new JavaModelException(e);
 		}
-	}
-
-	/**
-	 * Compute the non-package resources of this package fragment root.
-	 * 
-	 * @exception JavaModelException  The resource associated with this package fragment root does not exist
-	 */
-	private Object[] computeNonJavaResources(
-		IJavaProject project,
-		IResource underlyingResource) {
-		Object[] nonJavaResources = NO_NON_JAVA_RESOURCES;
-		try {
-			// the underlying resource may be a folder or a project (in the case that the project folder
-			// is actually the package fragment root)
-			if (underlyingResource.getType() == IResource.FOLDER
-				|| underlyingResource.getType() == IResource.PROJECT) {
-				nonJavaResources =
-					computeFolderNonJavaResources(project, (IContainer) underlyingResource);
-			}
-		} catch (JavaModelException e) {
+		if (nonJavaResources.length != nonJavaResourcesCounter) {
+			System.arraycopy(nonJavaResources, 0, (nonJavaResources = new IResource[nonJavaResourcesCounter]), 0, nonJavaResourcesCounter);
 		}
 		return nonJavaResources;
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
 	}
-
-	/**
-	 * Returns an array of non-java resources contained in the receiver.
-	 */
-	synchronized Object[] getNonJavaResources(
-		IJavaProject project,
-		IResource underlyingResource) {
-		Object[] nonJavaResources = fNonJavaResources;
-		if (nonJavaResources == null) {
-			nonJavaResources = this.computeNonJavaResources(project, underlyingResource);
-			fNonJavaResources = nonJavaResources;
+}
+/**
+ * Compute the non-package resources of this package fragment root.
+ * 
+ * @exception JavaModelException  The resource associated with this package fragment root does not exist
+ */
+private Object[] computeNonJavaResources(IJavaProject project, IResource underlyingResource) {
+	Object[] nonJavaResources = NO_NON_JAVA_RESOURCES;
+	try {
+		// the underlying resource may be a folder or a project (in the case that the project folder
+		// is actually the package fragment root)
+		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
+			nonJavaResources = computeFolderNonJavaResources(project, (IContainer) underlyingResource);
 		}
-		return nonJavaResources;
+	} catch (JavaModelException e) {
 	}
-
-	/**
-	 * Returns the kind of this root.
-	 */
-	public int getRootKind() {
-		return fRootKind;
+	return nonJavaResources;
+}
+/**
+ * Returns an array of non-java resources contained in the receiver.
+ */
+synchronized Object[] getNonJavaResources(IJavaProject project, IResource underlyingResource) {
+	Object[] nonJavaResources = fNonJavaResources;
+	if (nonJavaResources == null) {
+		nonJavaResources = this.computeNonJavaResources(project, underlyingResource);
+		fNonJavaResources = nonJavaResources;
 	}
-
-	/**
-	 * Set the fNonJavaResources to res value
-	 */
-	synchronized void setNonJavaResources(Object[] resources) {
-		fNonJavaResources = resources;
-	}
-
-	/**
-	 * Sets the kind of this root.
-	 */
-	protected void setRootKind(int newRootKind) {
-		fRootKind = newRootKind;
-	}
-
+	return nonJavaResources;
+}
+/**
+ * Returns the kind of this root.
+ */
+public int getRootKind() {
+	return fRootKind;
+}
+/**
+ * Set the fNonJavaResources to res value
+ */
+synchronized void setNonJavaResources(Object[] resources) {
+	fNonJavaResources = resources;
+}
+/**
+ * Sets the kind of this root.
+ */
+protected void setRootKind(int newRootKind) {
+	fRootKind = newRootKind;
+}
 }

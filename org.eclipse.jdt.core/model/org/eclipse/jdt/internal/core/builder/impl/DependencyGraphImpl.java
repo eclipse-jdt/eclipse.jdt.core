@@ -12,13 +12,12 @@ import org.eclipse.jdt.internal.core.builder.*;
  */
 public class DependencyGraphImpl implements IDependencyGraph {
 	StateImpl fState;
-	/**
-	 * DependencyGraphImpl constructor comment.
-	 */
-	DependencyGraphImpl(StateImpl state) {
-		fState = state;
-	}
-
+/**
+ * DependencyGraphImpl constructor comment.
+ */
+DependencyGraphImpl(StateImpl state) {
+	fState = state;
+}
 	/**
 	 * @see IDependencyGraph#getNamespaceDependencies
 	 */
@@ -28,14 +27,12 @@ public class DependencyGraphImpl implements IDependencyGraph {
 		Object key = tsEntry.getDependencyGraphKey();
 		return fState.getInternalDependencyGraph().getNamespaceDependencies(key);
 	}
-
 	/**
 	 * @see IDependencyGraph#getState
 	 */
 	public IState getState() {
 		return fState;
 	}
-
 	/**
 	 * @see IDependencyGraph#getTypeDependencies
 	 */
@@ -45,5 +42,4 @@ public class DependencyGraphImpl implements IDependencyGraph {
 		Object key = tsEntry.getDependencyGraphKey();
 		return fState.getInternalDependencyGraph().getTypeDependencies(key);
 	}
-
 }

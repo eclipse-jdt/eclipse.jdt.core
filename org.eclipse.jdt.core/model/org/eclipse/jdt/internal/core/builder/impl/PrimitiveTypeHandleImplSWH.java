@@ -14,26 +14,23 @@ public class PrimitiveTypeHandleImplSWH extends TypeImplSWH {
 	PrimitiveTypeHandleImplSWH(StateImpl state, IType handle) {
 		fState = state;
 		try {
-			fHandle = (PrimitiveTypeHandleImpl) handle;
+			fHandle = (PrimitiveTypeHandleImpl)handle;
 		} catch (ClassCastException e) {
 			throw new StateSpecificException();
 		}
 	}
-
 	/**
 	  * Returns the non state specific handle
 	  */
 	protected TypeImpl getHandle() {
 		return fHandle;
 	}
-
 	/**
 	 * Primitive types are always present.
 	 */
 	public boolean isPresent() {
 		return true;
 	}
-
 	/**
 	 * Determines if the specified Type object represents a primitive Java
 	 * type.
@@ -48,5 +45,4 @@ public class PrimitiveTypeHandleImplSWH extends TypeImplSWH {
 	public boolean isPrimitive() {
 		return true;
 	}
-
 }

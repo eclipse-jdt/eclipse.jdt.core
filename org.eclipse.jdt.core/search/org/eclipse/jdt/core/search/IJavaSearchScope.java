@@ -23,56 +23,56 @@ public interface IJavaSearchScope {
 	 * to the .class file in the jar.
 	 */
 	String JAR_FILE_ENTRY_SEPARATOR = JarFileEntryDocument.JAR_FILE_ENTRY_SEPARATOR;
-	/**
-	 * Checks whether the resource at the given path is enclosed by this scope.
-	 *
-	 * @param resourcePath if the resource is contained in
-	 * a JAR file, the path is composed of 2 paths separated
-	 * by <code>JAR_FILE_ENTRY_SEPARATOR</code>: the first path is the full OS path 
-	 * to the JAR, the second path is the path to the resource inside the JAR.
-	 * @return whether the resourse is enclosed by this scope
-	 */
-	public boolean encloses(String resourcePath);
-	/**
-	 * Checks whether this scope encloses the given element.
-	 *
-	 * @param the element
-	 * @return <code>true</code> if the element is in this scope
-	 */
-	public boolean encloses(IJavaElement element);
-	/**
-	 * Returns the paths to the enclosing projects and JARs for this search scope.
-	 * 
-	 * @return an array of paths to the enclosing projects and JARS. A project path is
-	 *			the full path to the project. A JAR path is the full OS path to the JAR file.			
-	 */
-	IPath[] enclosingProjectsAndJars();
-	/**
-	 * Returns whether this scope contains any <code>.class</code> files (either
-	 * in folders or within JARs).
-	 * 
-	 * @return whether this scope contains any <code>.class</code> files
-	 */
-	boolean includesBinaries();
-	/**
-	 * Returns whether this scope includes classpaths defined by 
-	 * the projects of the resources of this search scope.
-	 * 
-	 * @return whether this scope includes classpaths
-	 */
-	boolean includesClasspaths();
-	/**
-	 * Sets whether this scope contains any <code>.class</code> files (either
-	 * in folders or within JARs).
-	 * 
-	 * @param includesBinaries whether this scope contains any <code>.class</code> files
-	 */
-	public void setIncludesBinaries(boolean includesBinaries);
-	/**
-	 * Sets whether this scope includes the classpaths defined by 
-	 * the projects of the resources of this search scope.
-	 * 
-	 * @return includesClasspaths whether this scope includes classpaths
-	 */
-	public void setIncludesClasspaths(boolean includesClasspaths);
+/**
+ * Checks whether the resource at the given path is enclosed by this scope.
+ *
+ * @param resourcePath if the resource is contained in
+ * a JAR file, the path is composed of 2 paths separated
+ * by <code>JAR_FILE_ENTRY_SEPARATOR</code>: the first path is the full OS path 
+ * to the JAR, the second path is the path to the resource inside the JAR.
+ * @return whether the resourse is enclosed by this scope
+ */
+public boolean encloses(String resourcePath);
+/**
+ * Checks whether this scope encloses the given element.
+ *
+ * @param the element
+ * @return <code>true</code> if the element is in this scope
+ */
+public boolean encloses(IJavaElement element);
+/**
+ * Returns the paths to the enclosing projects and JARs for this search scope.
+ * 
+ * @return an array of paths to the enclosing projects and JARS. A project path is
+ *			the full path to the project. A JAR path is the full OS path to the JAR file.			
+ */
+IPath[] enclosingProjectsAndJars();
+/**
+ * Returns whether this scope contains any <code>.class</code> files (either
+ * in folders or within JARs).
+ * 
+ * @return whether this scope contains any <code>.class</code> files
+ */
+boolean includesBinaries();
+/**
+ * Returns whether this scope includes classpaths defined by 
+ * the projects of the resources of this search scope.
+ * 
+ * @return whether this scope includes classpaths
+ */
+boolean includesClasspaths();
+/**
+ * Sets whether this scope contains any <code>.class</code> files (either
+ * in folders or within JARs).
+ * 
+ * @param includesBinaries whether this scope contains any <code>.class</code> files
+ */
+public void setIncludesBinaries(boolean includesBinaries);
+/**
+ * Sets whether this scope includes the classpaths defined by 
+ * the projects of the resources of this search scope.
+ * 
+ * @return includesClasspaths whether this scope includes classpaths
+ */
+public void setIncludesClasspaths(boolean includesClasspaths);
 }

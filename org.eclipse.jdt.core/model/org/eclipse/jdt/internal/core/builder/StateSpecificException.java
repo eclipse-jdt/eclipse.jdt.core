@@ -1,6 +1,8 @@
 package org.eclipse.jdt.internal.core.builder;
 
-public class StateSpecificException extends RuntimeException {
+public class StateSpecificException extends RuntimeException
+{
+
 
 	/**
 	 * Constructs a <code>StateSpecificException</code> without a detail message.
@@ -8,7 +10,6 @@ public class StateSpecificException extends RuntimeException {
 	public StateSpecificException() {
 		super();
 	}
-
 	/**
 	 * Constructs a <code>StateSpecificException</code> with a detail message. 
 	 *
@@ -17,5 +18,4 @@ public class StateSpecificException extends RuntimeException {
 	public StateSpecificException(String s) {
 		super(s);
 	}
-
 }

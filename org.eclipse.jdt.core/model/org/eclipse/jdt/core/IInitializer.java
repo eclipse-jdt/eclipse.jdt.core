@@ -4,7 +4,7 @@ package org.eclipse.jdt.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-
+ 
 /**
  * Represents a stand-alone instance or class (static) initializer in a type.
  * <p>

@@ -20,7 +20,7 @@ public interface IDeltaKey {
 	 * Keys which are equal are considered to be prefixes of each other (so
 	 * true is answered in this case).
 	 */
-	boolean isPrefixOf(DeltaKey key);
+	boolean isPrefixOf (DeltaKey key);
 	/**
 	 * Returns true if the receiver is the root key, false otherwise
 	 */
@@ -29,7 +29,7 @@ public interface IDeltaKey {
 	 * Returns the key describing the receiver's parent, or null if the receiver
 	 * is the root key.
 	 */
-	DeltaKey parent();
+	 DeltaKey parent();
 	/**
 	 * Returns a new key containing the first few local names in the
 	 * receiver.
@@ -40,7 +40,7 @@ public interface IDeltaKey {
 	 *	receiver contains fewer than count local names, or count is
 	 *	negative."
 	 */
-	DeltaKey prefix(int count);
+	DeltaKey prefix (int count);
 	/**
 	 * Returns the branch length of the key
 	 */
@@ -55,5 +55,5 @@ public interface IDeltaKey {
 	 *	receiver contains fewer than count local names, or count is
 	 *	negative.
 	 */
-	DeltaKey withoutPrefix(int count);
+	DeltaKey withoutPrefix (int count);
 }

@@ -24,7 +24,9 @@ import org.eclipse.core.runtime.IPath;
  * Image is considered to be always present.
  */
 
-public interface IImage extends IHandle {
+public interface IImage extends IHandle
+{
+
 
 	/*
 	 * The following methods are needed for the following reasons:
@@ -56,8 +58,7 @@ public interface IImage extends IHandle {
 	 * @see #getPackages
 	 * @see #getAllClasses
 	 */
-	IImageContext createImageContext(IPackage[] packages)
-		throws StateSpecificException;
+	IImageContext createImageContext(IPackage[] packages) throws StateSpecificException;
 	/** Returns the Type representing the primitive type double. */
 	IType doubleType();
 	/**

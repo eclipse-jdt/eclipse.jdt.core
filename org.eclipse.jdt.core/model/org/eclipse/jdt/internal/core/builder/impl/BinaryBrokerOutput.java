@@ -17,82 +17,72 @@ import java.util.Hashtable;
  */
 public class BinaryBrokerOutput extends BinaryOutput {
 	IBinaryBroker fBinaryBroker;
-	/**
-	 * Creates a new BinaryBrokerOutput for the given binary broker.
-	 */
-	public BinaryBrokerOutput(IBinaryBroker broker) {
-		fBinaryBroker = broker;
+/**
+ * Creates a new BinaryBrokerOutput for the given binary broker.
+ */
+public BinaryBrokerOutput(IBinaryBroker broker) {
+	fBinaryBroker = broker;
+}
+/**
+ * Stores the binary in a manner specific to this BinaryOutput.
+ */
+protected void basicPutBinary(TypeStructureEntry tsEntry, byte[] binary, int crc) {
+	BinaryBrokerKey key = new BinaryBrokerKey(tsEntry.getType(), crc);
+	fBinaryBroker.putBinary(key, binary);
+}
+/**
+ * @see BinaryOutput
+ */
+public void deleteBinary(IType type) {
+	// Cannot delete a binary from a binary broker
+}
+/**
+ * @see BinaryOutput
+ *
+ * This releases any binaries in the binary broker
+ * which aren't needed for the given states.
+ */
+public void garbageCollect(IState[] statesInUse) {
+	// estimate size of keysInUse set
+	int size = 0;
+	for (int i = 0; i < statesInUse.length; ++i) {
+		StateImpl state = (StateImpl) statesInUse[i];
+		size += state.getPrincipalStructureTable().size();
 	}
 
-	/**
-	 * Stores the binary in a manner specific to this BinaryOutput.
-	 */
-	protected void basicPutBinary(
-		TypeStructureEntry tsEntry,
-		byte[] binary,
-		int crc) {
-		BinaryBrokerKey key = new BinaryBrokerKey(tsEntry.getType(), crc);
-		fBinaryBroker.putBinary(key, binary);
+	// collect keysInUse
+	Hashtable keysInUse = new Hashtable(size * 2 + 1);
+	for (int i = 0; i < statesInUse.length; ++i) {
+		StateImpl state = (StateImpl) statesInUse[i];
+		state.collectBinaryBrokerKeys(keysInUse);
 	}
 
-	/**
-	 * @see BinaryOutput
-	 */
-	public void deleteBinary(IType type) {
-		// Cannot delete a binary from a binary broker
+	// tell the broker to GC
+	fBinaryBroker.garbageCollect(keysInUse);
+}
+/**
+ * @see BinaryOutput
+ */
+public byte[] getBinary(TypeStructureEntry tsEntry, IType type) {
+	/* get cached CRC value */
+	int crc = tsEntry.getCRC32();
+	if (crc == 0) {
+		// Never had the binary.
+		return null;
 	}
-
-	/**
-	 * @see BinaryOutput
-	 *
-	 * This releases any binaries in the binary broker
-	 * which aren't needed for the given states.
-	 */
-	public void garbageCollect(IState[] statesInUse) {
-		// estimate size of keysInUse set
-		int size = 0;
-		for (int i = 0; i < statesInUse.length; ++i) {
-			StateImpl state = (StateImpl) statesInUse[i];
-			size += state.getPrincipalStructureTable().size();
-		}
-
-		// collect keysInUse
-		Hashtable keysInUse = new Hashtable(size * 2 + 1);
-		for (int i = 0; i < statesInUse.length; ++i) {
-			StateImpl state = (StateImpl) statesInUse[i];
-			state.collectBinaryBrokerKeys(keysInUse);
-		}
-
-		// tell the broker to GC
-		fBinaryBroker.garbageCollect(keysInUse);
-	}
-
-	/**
-	 * @see BinaryOutput
-	 */
-	public byte[] getBinary(TypeStructureEntry tsEntry, IType type) {
-		/* get cached CRC value */
-		int crc = tsEntry.getCRC32();
-		if (crc == 0) {
-			// Never had the binary.
-			return null;
-		}
-		BinaryBrokerKey key = new BinaryBrokerKey(type, crc);
-		return fBinaryBroker.getBinary(key);
-	}
-
-	/**
-	 * Returns the binary broker for this binary broker output.
-	 */
-	public IBinaryBroker getBinaryBroker() {
-		return fBinaryBroker;
-	}
-
-	/**
-	 * @see BinaryOutput
-	 */
-	public void scrubOutput() {
-		// Cannot delete anything from a binary broker
-	}
-
+	BinaryBrokerKey key = new BinaryBrokerKey(type, crc);
+	return fBinaryBroker.getBinary(key);
+}
+/**
+ * Returns the binary broker for this binary broker output.
+ */
+public IBinaryBroker getBinaryBroker() {
+	return fBinaryBroker;
+}
+/**
+ * @see BinaryOutput
+ */
+public void scrubOutput() {
+	// Cannot delete anything from a binary broker
+}
 }

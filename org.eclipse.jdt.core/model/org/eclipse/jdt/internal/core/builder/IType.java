@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 public interface IType extends IMember {
 
+
 	/**
 	 * Compares this Type handle against the specified object.	Returns
 	 * true if the objects are the same.  Two Types handles are the same if
@@ -144,20 +145,20 @@ public interface IType extends IMember {
 	 * @see Modifier
 	 */
 	int getDeclaredModifiers() throws NotPresentException;
-	/**
-		 * Returns the declared name of the class or interface represented 
-		 * by this object, as a String.
-		 * The name is the simple, unqualified name used in the source code.
-		 * If this represents an inner class, it does not include the names
-		 * of any containing classes.
-		 * If this represents an anonymous class, it returns a String of length 0.
-		 * If this does not represent a class or interface, it returns 
-		 * a String of length 0.
-		 *
-		 * @return	the declared name of the class or interface
-		 *			represented by this object.
-		 * @exception NotPresentException if this class or interface is not present.
-		 */
+   /**
+	 * Returns the declared name of the class or interface represented 
+	 * by this object, as a String.
+	 * The name is the simple, unqualified name used in the source code.
+	 * If this represents an inner class, it does not include the names
+	 * of any containing classes.
+	 * If this represents an anonymous class, it returns a String of length 0.
+	 * If this does not represent a class or interface, it returns 
+	 * a String of length 0.
+	 *
+	 * @return	the declared name of the class or interface
+	 *			represented by this object.
+	 * @exception NotPresentException if this class or interface is not present.
+	 */
 	String getDeclaredName() throws NotPresentException;
 	/**
 	 * If the class or interface represented by this Type object is
@@ -200,14 +201,13 @@ public interface IType extends IMember {
 	 * Returns an array of length 0 if this object does not represent
 	 * an interface.
 	 * The resulting Types are in no particular order.
-		 * See <em>The Java Language Specification</em> section 8.1.4
+  	 * See <em>The Java Language Specification</em> section 8.1.4
 	 * for more details.
 	 * 
 	 * @param imageContext the ImageContext in which to restrict the search.
 	 * @exception NotPresentException if this interface is not present.
 	 */
-	IType[] getImplementingClasses(IImageContext imageContext)
-		throws NotPresentException;
+	IType[] getImplementingClasses(IImageContext imageContext) throws NotPresentException;
 	/**
 	 * Returns an array of Type objects representing the direct
 	 * superinterfaces of the class or interface represented by this object. 
@@ -228,7 +228,7 @@ public interface IType extends IMember {
 	 * object represents neither a class nor an interface, this method 
 	 * returns an array of length 0. 
 	 *
-		 * See <em>The Java Language Specification</em> sections 8.1.4 and 9.1.3
+  	 * See <em>The Java Language Specification</em> sections 8.1.4 and 9.1.3
 	 * for more details.
 	 *
 	 * @return	an array of interfaces implemented by this class.
@@ -319,7 +319,7 @@ public interface IType extends IMember {
 	 * Returns an array of length 0 if this object does not represent
 	 * a class.
 	 * The resulting Types are in no particular order.
-		 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
+  	 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
 	 * for more details.
 	 * 
 	 * @param imageContext the ImageContext in which to restrict the search.
@@ -333,14 +333,13 @@ public interface IType extends IMember {
 	 * Returns an array of length 0 if this object does not represent
 	 * an interface.
 	 * The resulting Types are in no particular order.
-		 * See <em>The Java Language Specification</em> section 9.1.3
+  	 * See <em>The Java Language Specification</em> section 9.1.3
 	 * for more details.
 	 * 
 	 * @param imageContext the ImageContext in which to restrict the search.
 	 * @exception NotPresentException if this interface is not present.
 	 */
-	IType[] getSubinterfaces(IImageContext imageContext)
-		throws NotPresentException;
+	IType[] getSubinterfaces(IImageContext imageContext) throws NotPresentException;
 	/**
 	 * If this object represents any class other than the class 
 	 * <code>java.lang.Object</code>, then the object that represents 
@@ -352,7 +351,7 @@ public interface IType extends IMember {
 	 * If this object represents an array type, then the Type that represents
 	 * class <code>java.lang.Object</code> is returned.
 	 * <p>
-		 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
+  	 * See <em>The Java Language Specification</em> sections 8.1.3 and 20.3.4
 	 * for more details.
 	 *
 	 * @return	the superclass of the class represented by this object.

@@ -1,12 +1,14 @@
 package org.eclipse.jdt.internal.core.builder;
 
-public interface IHandle {
+public interface IHandle 
+{
 	int K_JAVA_IMAGE = 1;
 	int K_JAVA_PACKAGE = 2;
 	int K_JAVA_TYPE = 3;
 	int K_JAVA_FIELD = 4;
 	int K_JAVA_METHOD = 5;
 	int K_JAVA_CONSTRUCTOR = 6;
+
 
 	/**
 	 * Compares this handle against the specified object.

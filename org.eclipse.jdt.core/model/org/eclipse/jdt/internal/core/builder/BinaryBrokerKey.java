@@ -26,30 +26,24 @@ public class BinaryBrokerKey {
 		fType = type;
 		fCRC = crc;
 	}
-
 	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (!(o instanceof BinaryBrokerKey))
-			return false;
+		if (this == o) return true;
+		if (!(o instanceof BinaryBrokerKey)) return false;
 		BinaryBrokerKey k = (BinaryBrokerKey) o;
 		return fCRC == k.fCRC && fType.equals(k.fType);
 	}
-
 	/**
 	 * Returns the CRC.
 	 */
 	public int getCRC() {
 		return fCRC;
 	}
-
 	/**
 	 * Returns the type.
 	 */
 	public IType getType() {
 		return fType;
 	}
-
 	/**
 	 * Returns the hash code.
 	 */
@@ -57,5 +51,4 @@ public class BinaryBrokerKey {
 		// The CRC should be unique enough for a hash code.
 		return fCRC;
 	}
-
 }

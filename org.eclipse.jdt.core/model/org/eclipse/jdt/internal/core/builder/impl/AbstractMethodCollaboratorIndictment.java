@@ -15,39 +15,32 @@ import org.eclipse.jdt.internal.core.builder.IType;
 class AbstractMethodCollaboratorIndictment extends Indictment {
 
 	protected IType fType;
-
-	/**
-	 * Creates a new AbstractMethodCollaboratorIndictment for the given type.
-	 */
-	protected AbstractMethodCollaboratorIndictment(IType type) {
-		super(type.getName().toCharArray());
-		fType = type;
-	}
-
+	
+/**
+ * Creates a new AbstractMethodCollaboratorIndictment for the given type.
+ */
+protected AbstractMethodCollaboratorIndictment(IType type) {
+	super(type.getName().toCharArray());
+	fType = type;
+}
 	/**
 	 * Returns what kind of indictment this is
 	 */
 	public int getKind() {
 		return K_ABSTRACT_METHOD;
 	}
-
 	/**
 	 * Returns the type handle.
 	 */
 	public IType getType() {
 		return fType;
 	}
-
-	/**
-	 * Returns a string representation of this class.  For debugging purposes
-	 * only (NON-NLS).
-	 */
-	public String toString() {
-		// don't use + with char[]
-		return new StringBuffer("AbstractMethodCollaboratorIndictment(")
-			.append(fName)
-			.append(")")
-			.toString();
-	}
-
+/**
+ * Returns a string representation of this class.  For debugging purposes
+ * only (NON-NLS).
+ */
+public String toString() {
+	// don't use + with char[]
+	return new StringBuffer("AbstractMethodCollaboratorIndictment("/*nonNLS*/).append(fName).append(")"/*nonNLS*/).toString();
+}
 }

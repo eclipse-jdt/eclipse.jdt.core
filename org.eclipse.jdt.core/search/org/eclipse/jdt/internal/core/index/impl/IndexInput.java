@@ -23,10 +23,9 @@ public abstract class IndexInput {
 
 	public IndexInput() {
 		super();
-		wordPosition = 1;
-		filePosition = 1;
+		wordPosition= 1;
+		filePosition= 1;
 	}
-
 	/**
 	 * clears the cache of this indexInput, if it keeps track of the information already read.
 	 */
@@ -48,14 +47,12 @@ public abstract class IndexInput {
 			return null;
 		return currentWordEntry;
 	}
-
 	/**
 	 * Returns the position of the current file the input is pointing to in the index.
 	 */
 	public int getFilePosition() {
 		return filePosition;
 	}
-
 	/**
 	 * Returns the indexedFile corresponding to the given document number in the index the input
 	 * reads in, or null if such indexedFile does not exist.
@@ -66,8 +63,7 @@ public abstract class IndexInput {
 	 * reads in (e.g. the indexedFile with the same path in this index), or null if such 
 	 * indexedFile does not exist.
 	 */
-	public abstract IndexedFile getIndexedFile(IDocument document)
-		throws IOException;
+	public abstract IndexedFile getIndexedFile(IDocument document) throws IOException;
 	/**
 	 * Returns the number of files in the index.
 	 */
@@ -87,14 +83,12 @@ public abstract class IndexInput {
 	public boolean hasMoreFiles() {
 		return getFilePosition() <= getNumFiles();
 	}
-
 	/**
 	 * Returns true if the input has not reached the end of the index for the files.
 	 */
 	public boolean hasMoreWords() {
 		return wordPosition <= getNumWords();
 	}
-
 	/**
 	 * Moves the pointer on the current file to the next file in the index.
 	 */
@@ -109,24 +103,20 @@ public abstract class IndexInput {
 	public abstract void open() throws IOException;
 	public void printStats(PrintStream out) {
 		out.println("Index stats :");
-		int numFiles = getNumFiles();
+		int numFiles= getNumFiles();
 		out.println("  files: " + numFiles);
 		out.println("  total words indexed (unique): " + this.getNumWords());
 	}
-
 	/**
 	 * Returns the list of the files containing the given word in the index.
 	 */
 	public abstract IQueryResult[] query(String word) throws IOException;
-	public abstract IEntryResult[] queryEntriesPrefixedBy(char[] prefix /*, boolean isCaseSensitive*/)
-		throws IOException;
-	public abstract IQueryResult[] queryFilesReferringToPrefix(char[] prefix)
-		throws IOException;
+	public abstract IEntryResult[] queryEntriesPrefixedBy(char[] prefix /*, boolean isCaseSensitive*/) throws IOException;
+public abstract IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException;
 	/**
 	 * Returns the list of the files whose name contain the given word in the index.
 	 */
-	public abstract IQueryResult[] queryInDocumentNames(String word)
-		throws IOException;
+	public abstract IQueryResult[] queryInDocumentNames(String word) throws IOException;
 	/**
 	 * Set the pointer on the current file to the first file of the index.
 	 */

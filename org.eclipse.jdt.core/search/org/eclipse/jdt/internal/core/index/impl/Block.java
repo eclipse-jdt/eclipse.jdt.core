@@ -23,23 +23,20 @@ public abstract class Block {
 	protected Field field;
 
 	public Block(int blockSize) {
-		this.blockSize = blockSize;
-		field = new Field(blockSize);
+		this.blockSize= blockSize;
+		field= new Field(blockSize);
 	}
-
 	/**
 	 * Empties the block.
 	 */
 	public void clear() {
 		field.clear();
 	}
-
 	/**
 	 * Flushes the block
 	 */
 	public void flush() {
 	}
-
 	/**
 	 * Loads the block with the given number in memory, reading it from a RandomAccessFile.
 	 */
@@ -47,7 +44,6 @@ public abstract class Block {
 		raf.seek(blockNum * (long) blockSize);
 		raf.readFully(field.buffer());
 	}
-
 	/**
 	 * Writes the block in a RandomAccessFile, giving it a block number.
 	 */
@@ -55,5 +51,4 @@ public abstract class Block {
 		raf.seek(blockNum * (long) blockSize);
 		raf.write(field.buffer());
 	}
-
 }

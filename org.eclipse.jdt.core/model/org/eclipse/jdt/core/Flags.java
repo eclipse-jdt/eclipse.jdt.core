@@ -4,7 +4,7 @@ package org.eclipse.jdt.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-
+ 
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 
 /**
@@ -17,12 +17,10 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
  * @see IMember#getFlags
  */
 public final class Flags {
-	/**
-	 * Not instantiable.
-	 */
-	private Flags() {
-	}
-
+/**
+ * Not instantiable.
+ */
+private Flags() {}
 	/**
 	 * Returns whether the given integer includes the <code>abstract</code> modifier.
 	 *
@@ -32,7 +30,6 @@ public final class Flags {
 	public static boolean isAbstract(int flags) {
 		return (flags & IConstants.AccAbstract) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the indication that the 
 	 * element is deprecated (<code>@deprecated</code> tag in Javadoc comment).
@@ -43,7 +40,6 @@ public final class Flags {
 	public static boolean isDeprecated(int flags) {
 		return (flags & IConstants.AccDeprecated) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>final</code> modifier.
 	 *
@@ -53,7 +49,6 @@ public final class Flags {
 	public static boolean isFinal(int flags) {
 		return (flags & IConstants.AccFinal) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>native</code> modifier.
 	 *
@@ -63,7 +58,6 @@ public final class Flags {
 	public static boolean isNative(int flags) {
 		return (flags & IConstants.AccNative) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>private</code> modifier.
 	 *
@@ -73,7 +67,6 @@ public final class Flags {
 	public static boolean isPrivate(int flags) {
 		return (flags & IConstants.AccPrivate) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>protected</code> modifier.
 	 *
@@ -83,7 +76,6 @@ public final class Flags {
 	public static boolean isProtected(int flags) {
 		return (flags & IConstants.AccProtected) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>public</code> modifier.
 	 *
@@ -93,7 +85,6 @@ public final class Flags {
 	public static boolean isPublic(int flags) {
 		return (flags & IConstants.AccPublic) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>static</code> modifier.
 	 *
@@ -103,7 +94,6 @@ public final class Flags {
 	public static boolean isStatic(int flags) {
 		return (flags & IConstants.AccStatic) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>strictfp</code> modifier.
 	 *
@@ -113,7 +103,6 @@ public final class Flags {
 	public static boolean isStrictfp(int flags) {
 		return (flags & IConstants.AccStrictfp) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>synchronized</code> modifier.
 	 *
@@ -123,7 +112,6 @@ public final class Flags {
 	public static boolean isSynchronized(int flags) {
 		return (flags & IConstants.AccSynchronized) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the indication that the 
 	 * element is synthetic.
@@ -134,7 +122,6 @@ public final class Flags {
 	public static boolean isSynthetic(int flags) {
 		return (flags & IConstants.AccSynthetic) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>transient</code> modifier.
 	 *
@@ -142,9 +129,8 @@ public final class Flags {
 	 * @return <code>true</code> if the <code>transient</code> modifier is included
 	 */
 	public static boolean isTransient(int flags) {
-		return (flags & IConstants.AccTransient) != 0;
+		return (flags &  IConstants.AccTransient) != 0;
 	}
-
 	/**
 	 * Returns whether the given integer includes the <code>volatile</code> modifier.
 	 *
@@ -154,7 +140,6 @@ public final class Flags {
 	public static boolean isVolatile(int flags) {
 		return (flags & IConstants.AccVolatile) != 0;
 	}
-
 	/**
 	 * Returns a standard string describing the given modifier flags.
 	 * Only modifier flags are included in the output; the deprecated and
@@ -184,34 +169,21 @@ public final class Flags {
 	public static String toString(int flags) {
 		StringBuffer sb = new StringBuffer();
 
-		if (isPublic(flags))
-			sb.append("public ");
-		if (isProtected(flags))
-			sb.append("protected ");
-		if (isPrivate(flags))
-			sb.append("private ");
-		if (isStatic(flags))
-			sb.append("static ");
-		if (isAbstract(flags))
-			sb.append("abstract ");
-		if (isFinal(flags))
-			sb.append("final ");
-		if (isNative(flags))
-			sb.append("native ");
-		if (isSynchronized(flags))
-			sb.append("synchronized ");
-		if (isTransient(flags))
-			sb.append("transient ");
-		if (isVolatile(flags))
-			sb.append("volatile ");
-		if (isStrictfp(flags))
-			sb.append("strictfp ");
+		if (isPublic(flags))	sb.append("public ");
+		if (isProtected(flags)) sb.append("protected ");
+		if (isPrivate(flags))	sb.append("private ");
+		if (isStatic(flags)) sb.append("static ");
+		if (isAbstract(flags)) sb.append("abstract ");
+		if (isFinal(flags)) sb.append("final ");
+		if (isNative(flags)) sb.append("native ");
+		if (isSynchronized(flags)) sb.append("synchronized ");
+		if (isTransient(flags)) sb.append("transient ");
+		if (isVolatile(flags)) sb.append("volatile ");
+		if (isStrictfp(flags)) sb.append("strictfp ");
 
 		int len = sb.length();
-		if (len == 0)
-			return "";
-		sb.setLength(len - 1);
+		if (len == 0) return "";
+		sb.setLength(len-1);
 		return sb.toString();
 	}
-
 }

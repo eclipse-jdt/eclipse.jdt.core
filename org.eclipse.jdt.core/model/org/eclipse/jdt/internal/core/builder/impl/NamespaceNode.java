@@ -15,17 +15,15 @@ public class NamespaceNode extends AbstractNode {
 	/**
 	 * Creates a new namespace node for the given package
 	 */
-	public NamespaceNode(IPackage pkg) {
+	public NamespaceNode (IPackage pkg) {
 		fPackage = pkg;
 	}
-
 	/**
 	 * Adds a node that this node depends on.  Backwards link is added automatically
 	 */
 	public void addDependency(INode nodeThatIDependOn) {
 		Assert.isTrue(false, "namespaces cannot have dependencies");
 	}
-
 	/**
 	 * Returns a copy of this node, without copying dependencies.  Used
 	 * by DependencyGraph.copy().
@@ -33,14 +31,12 @@ public class NamespaceNode extends AbstractNode {
 	public AbstractNode copy() {
 		return new NamespaceNode(fPackage);
 	}
-
 	/**
 	 * Returns the element which this node represents.
 	 */
 	public Object getElement() {
 		return fPackage;
 	}
-
 	/**
 	 * Returns the number of bytes that this node uses.
 	 * For debugging and profiling purposes only.
@@ -49,18 +45,15 @@ public class NamespaceNode extends AbstractNode {
 		/* one slot for package */
 		return super.getFootprint() + 4;
 	}
-
 	/**
 	 * Returns what kind of node this is.
 	 */
 	public int getKind() {
 		return NAMESPACE_NODE;
 	}
-
 	public IPackage getPackage() {
 		return fPackage;
 	}
-
 	/**
 	 * Prints a string representation of the node.  This method is for debugging
 	 * purposes only.
@@ -68,5 +61,4 @@ public class NamespaceNode extends AbstractNode {
 	public String toString() {
 		return "NamespaceNode(" + fPackage.getName() + ")";
 	}
-
 }

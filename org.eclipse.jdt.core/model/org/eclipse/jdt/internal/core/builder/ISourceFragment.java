@@ -15,7 +15,8 @@ import org.eclipse.core.runtime.IPath;
  *
  * @see IMember#getSourceFragment
  */
-public interface ISourceFragment {
+public interface ISourceFragment 
+{
 
 	/**
 	 * Compare two Objects for equality.  Returns true iff they represent the same

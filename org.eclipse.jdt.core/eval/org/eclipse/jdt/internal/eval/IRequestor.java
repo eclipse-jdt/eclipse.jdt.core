@@ -11,12 +11,12 @@ import org.eclipse.jdt.internal.compiler.IProblem;
  * A callback interface for receiving code snippet evaluation results.
  */
 public interface IRequestor {
-	/**
-	 * @see ICodeSnippetRequestor
-	 */
-	boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName);
-	/**
-	 * @see ICodeSnippetRequestor
-	 */
-	void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind);
+/**
+ * @see ICodeSnippetRequestor
+ */
+boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName);
+/**
+ * @see ICodeSnippetRequestor
+ */
+void acceptProblem(IProblem problem, char[] fragmentSource, int fragmentKind);
 }

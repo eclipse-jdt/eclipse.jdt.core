@@ -23,59 +23,47 @@ public class CompilerCompilationUnit implements ICompilationUnit {
 	protected SourceEntry fSourceEntry;
 	protected BuildNotifier fNotifier;
 	protected char[] fContents;
-	/**
-	 * Creates a new compilation unit for the given source entry.
-	 */
-	public CompilerCompilationUnit(
-		StateImpl state,
-		SourceEntry sourceEntry,
-		BuildNotifier notifier) {
-		fState = state;
-		fSourceEntry = sourceEntry;
-		fNotifier = notifier;
-	}
-
-	/**
-	 * @see ICompilationUnit
-	 * See the discussion of remembering contents in the class comment.
-	 */
-	public char[] getContents() {
-		if (fContents == null) {
-			if (fNotifier != null) {
-				fNotifier.compiling(this);
-			}
-			fContents = fState.getElementContentCharArray(fSourceEntry);
+/**
+ * Creates a new compilation unit for the given source entry.
+ */
+public CompilerCompilationUnit(StateImpl state, SourceEntry sourceEntry, BuildNotifier notifier) {
+	fState = state;
+	fSourceEntry = sourceEntry;
+	fNotifier = notifier;
+}
+/**
+ * @see ICompilationUnit
+ * See the discussion of remembering contents in the class comment.
+ */
+public char[] getContents() {
+	if (fContents == null) {
+		if (fNotifier != null) {
+			fNotifier.compiling(this);
 		}
-		return fContents;
+		fContents = fState.getElementContentCharArray(fSourceEntry);
 	}
-
-	/**
-	 * @see ICompilationUnit
-	 */
-	public char[] getFileName() {
-		return fSourceEntry.getPathWithZipEntryName().toCharArray();
-	}
-
-	/**
-	 * @see ICompilationUnit
-	 */
-	public char[] getMainTypeName() {
-		return fSourceEntry.getName().toCharArray();
-	}
-
-	/**
-	 * Returns the source entry
-	 */
-	public SourceEntry getSourceEntry() {
-		return fSourceEntry;
-	}
-
+	return fContents;
+}
+/**
+ * @see ICompilationUnit
+ */
+public char[] getFileName() {
+	return fSourceEntry.getPathWithZipEntryName().toCharArray();
+}
+/**
+ * @see ICompilationUnit
+ */
+public char[] getMainTypeName() {
+	return fSourceEntry.getName().toCharArray();
+}
+/**
+ * Returns the source entry
+ */
+public SourceEntry getSourceEntry() {
+	return fSourceEntry;
+}
 	public String toString() {
 		// don't use append(char[]) due to JDK1.2 problems
-		return new StringBuffer("CompilationUnit(")
-			.append(getFileName())
-			.append(")")
-			.toString();
+		return new StringBuffer("CompilationUnit("/*nonNLS*/).append(getFileName()).append(")"/*nonNLS*/).toString();
 	}
-
 }

@@ -16,21 +16,19 @@ import org.eclipse.jdt.core.Signature;
  *	functionality by only accepting methods with return types that are not void.
  */
 public class NonVoidMethodRequestor extends SearchableEnvironmentRequestor {
-	/**
-	 * NonVoidMethodRequestor constructor comment.
-	 * @param requestor org.eclipse.jdt.internal.codeassist.ISearchRequestor
-	 */
-	public NonVoidMethodRequestor(ISearchRequestor requestor) {
-		super(requestor);
-	}
-
-	public void acceptMethod(IMethod method) {
-		try {
-			if (!Signature.getReturnType(method.getSignature()).equals("V")) {
-				super.acceptMethod(method);
-			}
-		} catch (JavaModelException npe) {
+/**
+ * NonVoidMethodRequestor constructor comment.
+ * @param requestor org.eclipse.jdt.internal.codeassist.ISearchRequestor
+ */
+public NonVoidMethodRequestor(ISearchRequestor requestor) {
+	super(requestor);
+}
+public void acceptMethod(IMethod method) {
+	try {
+		if (!Signature.getReturnType(method.getSignature()).equals("V"/*nonNLS*/)) {
+			super.acceptMethod(method);
 		}
+	} catch (JavaModelException npe) {
 	}
-
+}
 }

@@ -8,6 +8,10 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
 
+import java.util.MissingResourceException;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 /**
  * Provides convenient utility methods to other types in this package.
  */
@@ -28,7 +32,7 @@ public class Util {
 		 */
 		int compare(Object a, Object b);
 	}
-
+	
 	public static final String[] fgEmptyStringArray = new String[0];
 
 	/**
@@ -36,129 +40,123 @@ public class Util {
 	 */
 	private static boolean JDK1_1 = false;
 
-	static {
-		String ver = System.getProperty("java.version");
-		JDK1_1 = ((ver != null) && ver.startsWith("1.1"));
-	}
+	/* Bundle containing messages */
+	protected static ResourceBundle bundle;
+	private final static String bundleName = "org.eclipse.jdt.internal.core.Messages"/*nonNLS*/;
 
+	public final static char[] SUFFIX_class = ".class"/*nonNLS*/.toCharArray();
+	public final static char[] SUFFIX_CLASS = ".CLASS"/*nonNLS*/.toCharArray();
+	public final static char[] SUFFIX_java = ".java"/*nonNLS*/.toCharArray();
+	public final static char[] SUFFIX_JAVA = ".JAVA"/*nonNLS*/.toCharArray();
+
+	static {
+		String ver = System.getProperty("java.version"/*nonNLS*/);
+		JDK1_1 = ((ver != null) && ver.startsWith("1.1"/*nonNLS*/));
+		relocalize();
+	}	
 	/**
 	 * Checks the type signature in String sig, 
 	 * starting at start and ending before end (end is not included).
 	 * Returns the index of the character immediately after the signature if valid,
 	 * or -1 if not valid.
 	 */
-	private static int checkTypeSignature(
-		String sig,
-		int start,
-		int end,
-		boolean allowVoid) {
-		if (start >= end)
-			return -1;
+	private static int checkTypeSignature(String sig, int start, int end, boolean allowVoid) {
+		if (start >= end) return -1;
 		int i = start;
 		char c = sig.charAt(i++);
 		int nestingDepth = 0;
 		while (c == '[') {
 			++nestingDepth;
-			if (i >= end)
-				return -1;
+			if (i >= end) return -1;
 			c = sig.charAt(i++);
 		}
 		switch (c) {
-			case 'B' :
-			case 'C' :
-			case 'D' :
-			case 'F' :
-			case 'I' :
-			case 'J' :
-			case 'S' :
-			case 'Z' :
+			case 'B':
+			case 'C': 
+			case 'D':
+			case 'F':
+			case 'I':
+			case 'J':
+			case 'S': 
+			case 'Z':
 				break;
-			case 'V' :
-				if (!allowVoid)
-					return -1;
+			case 'V':
+				if (!allowVoid) return -1;
 				// array of void is not allowed
-				if (nestingDepth != 0)
-					return -1;
+				if (nestingDepth != 0) return -1;
 				break;
-			case 'L' :
+			case 'L':
 				int semicolon = sig.indexOf(';', i);
 				// Must have at least one character between L and ;
-				if (semicolon <= i || semicolon >= end)
-					return -1;
+				if (semicolon <= i || semicolon >= end) return -1;
 				i = semicolon + 1;
 				break;
-			default :
+			default:
 				return -1;
 		}
 		return i;
 	}
-
-	/**
-	 * Combines two hash codes to make a new one.
-	 */
-	public static int combineHashCodes(int hashCode1, int hashCode2) {
-		return hashCode1 * 17 + hashCode2;
-	}
-
-	/**
-	 * Compares two byte arrays.  
-	 * Returns <0 if a byte in a is less than the corresponding byte in b, or if a is shorter, or if a is null.
-	 * Returns >0 if a byte in a is greater than the corresponding byte in b, or if a is longer, or if b is null.
-	 * Returns 0 if they are equal or both null.
-	 */
-	public static int compare(byte[] a, byte[] b) {
-		if (a == b)
-			return 0;
-		if (a == null)
-			return -1;
-		if (b == null)
-			return 1;
-		int len = Math.min(a.length, b.length);
-		for (int i = 0; i < len; ++i) {
-			int diff = a[i] - b[i];
-			if (diff != 0)
-				return diff;
-		}
-		if (a.length > len)
-			return 1;
-		if (b.length > len)
-			return -1;
+/**
+ * Combines two hash codes to make a new one.
+ */
+public static int combineHashCodes(int hashCode1, int hashCode2) {
+	return hashCode1 * 17 + hashCode2;
+}
+/**
+ * Compares two byte arrays.  
+ * Returns <0 if a byte in a is less than the corresponding byte in b, or if a is shorter, or if a is null.
+ * Returns >0 if a byte in a is greater than the corresponding byte in b, or if a is longer, or if b is null.
+ * Returns 0 if they are equal or both null.
+ */
+public static int compare(byte[] a, byte[] b) {
+	if (a == b)
 		return 0;
+	if (a == null)
+		return -1;
+	if (b == null)
+		return 1;
+	int len = Math.min(a.length, b.length);
+	for (int i = 0; i < len; ++i) {
+		int diff = a[i] - b[i];
+		if (diff != 0)
+			return diff;
 	}
-
-	/**
-	 * Compares two char arrays lexicographically. 
-	 * The comparison is based on the Unicode value of each character in
-	 * the char arrays. 
-	 * @return  the value <code>0</code> if a is equal to
-	 *          b; a value less than <code>0</code> if a
-	 *          is lexicographically less than b; and a
-	 *          value greater than <code>0</code> if a is
-	 *          lexicographically greater than b.
-	 */
-	public static int compare(char[] v1, char[] v2) {
-		int len1 = v1.length;
-		int len2 = v2.length;
-		int n = Math.min(len1, len2);
-		int i = 0;
-		while (n-- != 0) {
-			if (v1[i] != v2[i]) {
-				return v1[i] - v2[i];
-			}
-			++i;
+	if (a.length > len)
+		return 1;
+	if (b.length > len)
+		return -1;
+	return 0;
+}
+/**
+ * Compares two char arrays lexicographically. 
+ * The comparison is based on the Unicode value of each character in
+ * the char arrays. 
+ * @return  the value <code>0</code> if a is equal to
+ *          b; a value less than <code>0</code> if a
+ *          is lexicographically less than b; and a
+ *          value greater than <code>0</code> if a is
+ *          lexicographically greater than b.
+ */
+public static int compare(char[] v1, char[] v2) {
+	int len1 = v1.length;
+	int len2 = v2.length;
+	int n = Math.min(len1, len2);
+	int i = 0;
+	while (n-- != 0) {
+		if (v1[i] != v2[i]) {
+			return v1[i] - v2[i];
 		}
-		return len1 - len2;
+		++i;
 	}
-
+	return len1 - len2;
+}
 	/**
 	 * Concatenate two strings with a char in between.
 	 * @see concat(String, String)
 	 */
 	public static String concat(String s1, char c, String s2) {
-		if (s1 == null)
-			s1 = "null";
-		if (s2 == null)
-			s2 = "null";
+		if (s1 == null) s1 = "null"/*nonNLS*/;
+		if (s2 == null) s2 = "null"/*nonNLS*/;
 		int l1 = s1.length();
 		int l2 = s2.length();
 		char[] buf = new char[l1 + 1 + l2];
@@ -167,7 +165,6 @@ public class Util {
 		s2.getChars(0, l2, buf, l1 + 1);
 		return new String(buf);
 	}
-
 	/**
 	 * Concatenate two strings.
 	 * Much faster than using +, which:
@@ -179,10 +176,8 @@ public class Util {
 	 * String constructor copies its argument, but there's no way around this.
 	 */
 	public static String concat(String s1, String s2) {
-		if (s1 == null)
-			s1 = "null";
-		if (s2 == null)
-			s2 = "null";
+		if (s1 == null) s1 = "null"/*nonNLS*/;
+		if (s2 == null) s2 = "null"/*nonNLS*/;
 		int l1 = s1.length();
 		int l2 = s2.length();
 		char[] buf = new char[l1 + l2];
@@ -190,18 +185,14 @@ public class Util {
 		s2.getChars(0, l2, buf, l1);
 		return new String(buf);
 	}
-
 	/**
 	 * Concatenate three strings.
 	 * @see concat(String, String)
 	 */
 	public static String concat(String s1, String s2, String s3) {
-		if (s1 == null)
-			s1 = "null";
-		if (s2 == null)
-			s2 = "null";
-		if (s3 == null)
-			s3 = "null";
+		if (s1 == null) s1 = "null"/*nonNLS*/;
+		if (s2 == null) s2 = "null"/*nonNLS*/;
+		if (s3 == null) s3 = "null"/*nonNLS*/;
 		int l1 = s1.length();
 		int l2 = s2.length();
 		int l3 = s3.length();
@@ -211,37 +202,34 @@ public class Util {
 		s3.getChars(0, l3, buf, l1 + l2);
 		return new String(buf);
 	}
-
-	/**
-	 * Converts a type signature from the IBinaryType representation to the DC representation.
-	 */
-	public static String convertTypeSignature(char[] sig) {
-		return new String(sig).replace('/', '.');
-	}
-
-	/**
-	 * Compares two arrays using equals() on the elements.
-	 * Either or both arrays may be null.
-	 * Returns true if both are null.
-	 * Returns false if only one is null.
-	 * If both are arrays, returns true iff they have the same length and
-	 * all elements are equal.
-	 */
-	public static boolean equalArraysOrNull(int[] a, int[] b) {
-		if (a == b)
-			return true;
-		if (a == null || b == null)
-			return false;
-		int len = a.length;
-		if (len != b.length)
-			return false;
-		for (int i = 0; i < len; ++i) {
-			if (a[i] != b[i])
-				return false;
-		}
+/**
+ * Converts a type signature from the IBinaryType representation to the DC representation.
+ */
+public static String convertTypeSignature(char[] sig) {
+	return new String(sig).replace('/', '.');
+}
+/**
+ * Compares two arrays using equals() on the elements.
+ * Either or both arrays may be null.
+ * Returns true if both are null.
+ * Returns false if only one is null.
+ * If both are arrays, returns true iff they have the same length and
+ * all elements are equal.
+ */
+public static boolean equalArraysOrNull(int[] a, int[] b) {
+	if (a == b)
 		return true;
+	if (a == null || b == null)
+		return false;
+	int len = a.length;
+	if (len != b.length)
+		return false;
+	for (int i = 0; i < len; ++i) {
+		if (a[i] != b[i])
+			return false;
 	}
-
+	return true;
+}
 	/**
 	 * Compares two arrays using equals() on the elements.
 	 * Either or both arrays may be null.
@@ -251,21 +239,16 @@ public class Util {
 	 * all elements compare true with equals.
 	 */
 	public static boolean equalArraysOrNull(Object[] a, Object[] b) {
-		if (a == b)
-			return true;
-		if (a == null || b == null)
-			return false;
+		if (a == b)	return true;
+		if (a == null || b == null) return false;
 
 		int len = a.length;
-		if (len != b.length)
-			return false;
+		if (len != b.length) return false;
 		for (int i = 0; i < len; ++i) {
-			if (!a[i].equals(b[i]))
-				return false;
+			if (!a[i].equals(b[i])) return false;
 		}
 		return true;
 	}
-
 	/**
 	 * Compares two String arrays using equals() on the elements.
 	 * The arrays are first sorted.
@@ -277,24 +260,19 @@ public class Util {
 	 * The original arrays are left untouched.
 	 */
 	public static boolean equalArraysOrNullSortFirst(String[] a, String[] b) {
-		if (a == b)
-			return true;
-		if (a == null || b == null)
-			return false;
+		if (a == b)	return true;
+		if (a == null || b == null) return false;
 		int len = a.length;
-		if (len != b.length)
-			return false;
-		if (len >= 2) { // only need to sort if more than two items
+		if (len != b.length) return false;
+		if (len >= 2) {  // only need to sort if more than two items
 			a = sortCopy(a);
 			b = sortCopy(b);
 		}
 		for (int i = 0; i < len; ++i) {
-			if (!a[i].equals(b[i]))
-				return false;
+			if (!a[i].equals(b[i])) return false;
 		}
 		return true;
 	}
-
 	/**
 	 * Compares two arrays using equals() on the elements.
 	 * The arrays are first sorted.
@@ -305,27 +283,20 @@ public class Util {
 	 * iff, after sorting both arrays, all elements compare true with equals.
 	 * The original arrays are left untouched.
 	 */
-	public static boolean equalArraysOrNullSortFirst(
-		Comparable[] a,
-		Comparable[] b) {
-		if (a == b)
-			return true;
-		if (a == null || b == null)
-			return false;
+	public static boolean equalArraysOrNullSortFirst(Comparable[] a, Comparable[] b) {
+		if (a == b)	return true;
+		if (a == null || b == null) return false;
 		int len = a.length;
-		if (len != b.length)
-			return false;
-		if (len >= 2) { // only need to sort if more than two items
+		if (len != b.length) return false;
+		if (len >= 2) {  // only need to sort if more than two items
 			a = sortCopy(a);
 			b = sortCopy(b);
 		}
 		for (int i = 0; i < len; ++i) {
-			if (!a[i].equals(b[i]))
-				return false;
+			if (!a[i].equals(b[i])) return false;
 		}
 		return true;
 	}
-
 	/**
 	 * Compares two objects using equals().
 	 * Either or both array may be null.
@@ -342,118 +313,106 @@ public class Util {
 		}
 		return a.equals(b);
 	}
-
 	/**
 	 * Given a qualified name, extract the last component.
 	 * If the input is not qualified, the same string is answered.
 	 */
 	public static String extractLastName(String qualifiedName) {
 		int i = qualifiedName.lastIndexOf('.');
-		if (i == -1)
-			return qualifiedName;
-		return qualifiedName.substring(i + 1);
+		if (i == -1) return qualifiedName;
+		return qualifiedName.substring(i+1);
 	}
-
-	/**
-	 * Extracts the parameter types from a method signature.
-	 */
-	public static String[] extractParameterTypes(char[] sig) {
-		int count = getParameterCount(sig);
-		String[] result = new String[count];
-		if (count == 0)
-			return result;
-		int i = CharOperation.indexOf('(', sig) + 1;
-		count = 0;
-		int len = sig.length;
-		int start = i;
-		for (;;) {
-			if (i == len)
-				break;
-			char c = sig[i];
-			if (c == ')')
-				break;
-			if (c == '[') {
-				++i;
-			} else
-				if (c == 'L') {
-					i = CharOperation.indexOf(';', sig, i + 1) + 1;
-					Assert.isTrue(i != 0);
-					result[count++] = convertTypeSignature(CharOperation.subarray(sig, start, i));
-					start = i;
-				} else {
-					++i;
-					result[count++] = convertTypeSignature(CharOperation.subarray(sig, start, i));
-					start = i;
-				}
-		}
+/**
+ * Extracts the parameter types from a method signature.
+ */
+public static String[] extractParameterTypes(char[] sig) {
+	int count = getParameterCount(sig);
+	String[] result = new String[count];
+	if (count == 0)
 		return result;
+	int i = CharOperation.indexOf('(', sig) + 1;
+	count = 0;
+	int len = sig.length;
+	int start = i;
+	for (;;) {
+		if (i == len)
+			break;
+		char c = sig[i];
+		if (c == ')')
+			break;
+		if (c == '[') {
+			++i;
+		} else
+			if (c == 'L') {
+				i = CharOperation.indexOf(';', sig, i + 1) + 1;
+				Assert.isTrue(i != 0);
+				result[count++] = convertTypeSignature(CharOperation.subarray(sig, start, i));
+				start = i;
+			} else {
+				++i;
+				result[count++] = convertTypeSignature(CharOperation.subarray(sig, start, i));
+				start = i;
+			}
 	}
-
+	return result;
+}
 	/**
 	 * Extracts the return type from a method signature.
 	 */
 	public static String extractReturnType(String sig) {
 		int i = sig.lastIndexOf(')');
 		Assert.isTrue(i != -1);
-		return sig.substring(i + 1);
+		return sig.substring(i+1);	
 	}
-
-	/**
-	 * Returns the number of parameter types in a method signature.
-	 */
-	public static int getParameterCount(char[] sig) {
-		int i = CharOperation.indexOf('(', sig) + 1;
-		Assert.isTrue(i != 0);
-		int count = 0;
-		int len = sig.length;
-		for (;;) {
-			if (i == len)
-				break;
-			char c = sig[i];
-			if (c == ')')
-				break;
-			if (c == '[') {
+/**
+ * Returns the number of parameter types in a method signature.
+ */
+public static int getParameterCount(char[] sig) {
+	int i = CharOperation.indexOf('(', sig) + 1;
+	Assert.isTrue(i != 0);
+	int count = 0;
+	int len = sig.length;
+	for (;;) {
+		if (i == len)
+			break;
+		char c = sig[i];
+		if (c == ')')
+			break;
+		if (c == '[') {
+			++i;
+		} else
+			if (c == 'L') {
+				++count;
+				i = CharOperation.indexOf(';', sig, i + 1) + 1;
+				Assert.isTrue(i != 0);
+			} else {
+				++count;
 				++i;
-			} else
-				if (c == 'L') {
-					++count;
-					i = CharOperation.indexOf(';', sig, i + 1) + 1;
-					Assert.isTrue(i != 0);
-				} else {
-					++count;
-					++i;
-				}
-		}
-		return count;
+			}
 	}
-
+	return count;
+}
 	/**
 	 * Returns true if the given method signature is valid,
 	 * false if it is not.
 	 */
 	public static boolean isValidMethodSignature(String sig) {
 		int len = sig.length();
-		if (len == 0)
-			return false;
+		if (len == 0) return false;
 		int i = 0;
 		char c = sig.charAt(i++);
-		if (c != '(')
-			return false;
-		if (i >= len)
-			return false;
+		if (c != '(') return false;
+		if (i >= len) return false;
 		while (sig.charAt(i) != ')') {
 			// Void is not allowed as a parameter type.
 			i = checkTypeSignature(sig, i, len, false);
-			if (i == -1)
-				return false;
-			if (i >= len)
-				return false;
+			if (i == -1) return false;
+			if (i >= len) return false;
 		}
 		++i;
 		i = checkTypeSignature(sig, i, len, true);
 		return i == len;
 	}
-
 	/**
 	 * Returns true if the given type signature is valid,
 	 * false if it is not.
@@ -462,248 +421,217 @@ public class Util {
 		int len = sig.length();
 		return checkTypeSignature(sig, 0, len, allowVoid) == len;
 	}
-
-	/**
-	 * Sort the objects in the given collection using the given sort order.
-	 */
-	private static void quickSort(
-		Object[] sortedCollection,
-		int left,
-		int right,
-		int[] sortOrder) {
-		int original_left = left;
-		int original_right = right;
-		int mid = sortOrder[(left + right) / 2];
-		do {
-			while (sortOrder[left] < mid) {
-				left++;
-			}
-			while (mid < sortOrder[right]) {
-				right--;
-			}
-			if (left <= right) {
-				Object tmp = sortedCollection[left];
-				sortedCollection[left] = sortedCollection[right];
-				sortedCollection[right] = tmp;
-				int tmp2 = sortOrder[left];
-				sortOrder[left] = sortOrder[right];
-				sortOrder[right] = tmp2;
-				left++;
-				right--;
-			}
+/**
+ * Sort the objects in the given collection using the given sort order.
+ */
+private static void quickSort(Object[] sortedCollection, int left, int right, int[] sortOrder) {
+	int original_left = left;
+	int original_right = right;
+	int mid = sortOrder[ (left + right) / 2];
+	do {
+		while (sortOrder[left] < mid) {
+			left++;
 		}
-		while (left <= right);
-		if (original_left < right) {
-			quickSort(sortedCollection, original_left, right, sortOrder);
+		while (mid < sortOrder[right]) {
+			right--;
 		}
-		if (left < original_right) {
-			quickSort(sortedCollection, left, original_right, sortOrder);
+		if (left <= right) {
+			Object tmp = sortedCollection[left];
+			sortedCollection[left] = sortedCollection[right];
+			sortedCollection[right] = tmp;
+			int tmp2 = sortOrder[left];
+			sortOrder[left] = sortOrder[right];
+			sortOrder[right] = tmp2;
+			left++;
+			right--;
 		}
+	} while (left <= right);
+	if (original_left < right) {
+		quickSort(sortedCollection, original_left, right, sortOrder);
 	}
-
-	/**
-	 * Sort the objects in the given collection using the given comparer.
-	 */
-	private static void quickSort(
-		Object[] sortedCollection,
-		int left,
-		int right,
-		Comparer comparer) {
-		int original_left = left;
-		int original_right = right;
-		Object mid = sortedCollection[(left + right) / 2];
-		do {
-			while (comparer.compare(sortedCollection[left], mid) < 0) {
-				left++;
-			}
-			while (comparer.compare(mid, sortedCollection[right]) < 0) {
-				right--;
-			}
-			if (left <= right) {
-				Object tmp = sortedCollection[left];
-				sortedCollection[left] = sortedCollection[right];
-				sortedCollection[right] = tmp;
-				left++;
-				right--;
-			}
-		}
-		while (left <= right);
-		if (original_left < right) {
-			quickSort(sortedCollection, original_left, right, comparer);
-		}
-		if (left < original_right) {
-			quickSort(sortedCollection, left, original_right, comparer);
-		}
+	if (left < original_right) {
+		quickSort(sortedCollection, left, original_right, sortOrder);
 	}
-
-	/**
-	 * Sort the strings in the given collection.
-	 */
-	private static void quickSort(String[] sortedCollection, int left, int right) {
-		int original_left = left;
-		int original_right = right;
-		String mid = sortedCollection[(left + right) / 2];
-		do {
-			while (sortedCollection[left].compareTo(mid) < 0) {
-				left++;
-			}
-			while (mid.compareTo(sortedCollection[right]) < 0) {
-				right--;
-			}
-			if (left <= right) {
-				String tmp = sortedCollection[left];
-				sortedCollection[left] = sortedCollection[right];
-				sortedCollection[right] = tmp;
-				left++;
-				right--;
-			}
+}
+/**
+ * Sort the objects in the given collection using the given comparer.
+ */
+private static void quickSort(Object[] sortedCollection, int left, int right, Comparer comparer) {
+	int original_left = left;
+	int original_right = right;
+	Object mid = sortedCollection[ (left + right) / 2];
+	do {
+		while (comparer.compare(sortedCollection[left], mid) < 0) {
+			left++;
 		}
-		while (left <= right);
-		if (original_left < right) {
-			quickSort(sortedCollection, original_left, right);
+		while (comparer.compare(mid, sortedCollection[right]) < 0) {
+			right--;
 		}
-		if (left < original_right) {
-			quickSort(sortedCollection, left, original_right);
+		if (left <= right) {
+			Object tmp = sortedCollection[left];
+			sortedCollection[left] = sortedCollection[right];
+			sortedCollection[right] = tmp;
+			left++;
+			right--;
 		}
+	} while (left <= right);
+	if (original_left < right) {
+		quickSort(sortedCollection, original_left, right, comparer);
 	}
-
-	/**
-	 * Sort the comparable objects in the given collection.
-	 */
-	private static void quickSort(
-		Comparable[] sortedCollection,
-		int left,
-		int right) {
-		int original_left = left;
-		int original_right = right;
-		Comparable mid = sortedCollection[(left + right) / 2];
-		do {
-			while (sortedCollection[left].compareTo(mid) < 0) {
-				left++;
-			}
-			while (mid.compareTo(sortedCollection[right]) < 0) {
-				right--;
-			}
-			if (left <= right) {
-				Comparable tmp = sortedCollection[left];
-				sortedCollection[left] = sortedCollection[right];
-				sortedCollection[right] = tmp;
-				left++;
-				right--;
-			}
-		}
-		while (left <= right);
-		if (original_left < right) {
-			quickSort(sortedCollection, original_left, right);
-		}
-		if (left < original_right) {
-			quickSort(sortedCollection, left, original_right);
-		}
+	if (left < original_right) {
+		quickSort(sortedCollection, left, original_right, comparer);
 	}
-
-	/**
-	 * Sort the strings in the given collection in reverse alphabetical order.
-	 */
-	private static void quickSortReverse(
-		String[] sortedCollection,
-		int left,
-		int right) {
-		int original_left = left;
-		int original_right = right;
-		String mid = sortedCollection[(left + right) / 2];
-		do {
-			while (sortedCollection[left].compareTo(mid) > 0) {
-				left++;
-			}
-			while (mid.compareTo(sortedCollection[right]) > 0) {
-				right--;
-			}
-			if (left <= right) {
-				String tmp = sortedCollection[left];
-				sortedCollection[left] = sortedCollection[right];
-				sortedCollection[right] = tmp;
-				left++;
-				right--;
-			}
+}
+/**
+ * Sort the strings in the given collection.
+ */
+private static void quickSort(String[] sortedCollection, int left, int right) {
+	int original_left = left;
+	int original_right = right;
+	String mid = sortedCollection[ (left + right) / 2];
+	do {
+		while (sortedCollection[left].compareTo(mid) < 0) {
+			left++;
 		}
-		while (left <= right);
-		if (original_left < right) {
-			quickSortReverse(sortedCollection, original_left, right);
+		while (mid.compareTo(sortedCollection[right]) < 0) {
+			right--;
 		}
-		if (left < original_right) {
-			quickSortReverse(sortedCollection, left, original_right);
+		if (left <= right) {
+			String tmp = sortedCollection[left];
+			sortedCollection[left] = sortedCollection[right];
+			sortedCollection[right] = tmp;
+			left++;
+			right--;
 		}
+	} while (left <= right);
+	if (original_left < right) {
+		quickSort(sortedCollection, original_left, right);
 	}
-
-	public static byte[] readContentsAsBytes(InputStream input)
-		throws IOException {
-		BufferedInputStream bufferedInputStream = null;
+	if (left < original_right) {
+		quickSort(sortedCollection, left, original_right);
+	}
+}
+/**
+ * Sort the comparable objects in the given collection.
+ */
+private static void quickSort(Comparable[] sortedCollection, int left, int right) {
+	int original_left = left;
+	int original_right = right;
+	Comparable mid = sortedCollection[ (left + right) / 2];
+	do {
+		while (sortedCollection[left].compareTo(mid) < 0) {
+			left++;
+		}
+		while (mid.compareTo(sortedCollection[right]) < 0) {
+			right--;
+		}
+		if (left <= right) {
+			Comparable tmp = sortedCollection[left];
+			sortedCollection[left] = sortedCollection[right];
+			sortedCollection[right] = tmp;
+			left++;
+			right--;
+		}
+	} while (left <= right);
+	if (original_left < right) {
+		quickSort(sortedCollection, original_left, right);
+	}
+	if (left < original_right) {
+		quickSort(sortedCollection, left, original_right);
+	}
+}
+/**
+ * Sort the strings in the given collection in reverse alphabetical order.
+ */
+private static void quickSortReverse(String[] sortedCollection, int left, int right) {
+	int original_left = left;
+	int original_right = right;
+	String mid = sortedCollection[ (left + right) / 2];
+	do {
+		while (sortedCollection[left].compareTo(mid) > 0) {
+			left++;
+		}
+		while (mid.compareTo(sortedCollection[right]) > 0) {
+			right--;
+		}
+		if (left <= right) {
+			String tmp = sortedCollection[left];
+			sortedCollection[left] = sortedCollection[right];
+			sortedCollection[right] = tmp;
+			left++;
+			right--;
+		}
+	} while (left <= right);
+	if (original_left < right) {
+		quickSortReverse(sortedCollection, original_left, right);
+	}
+	if (left < original_right) {
+		quickSortReverse(sortedCollection, left, original_right);
+	}
+}
+public static byte[] readContentsAsBytes(InputStream input) throws IOException {
+	BufferedInputStream bufferedInputStream = null;
+	try {
+		final int BUF_SIZE = 8192;
+		byte[] buf = new byte[BUF_SIZE];
+		int read;
+		int totalRead = 0;
+		bufferedInputStream = new BufferedInputStream(input);
+		while (totalRead < BUF_SIZE && (read = bufferedInputStream.read(buf, totalRead, BUF_SIZE - totalRead)) != -1) {
+			totalRead += read;
+		}
+		if (totalRead < BUF_SIZE) {
+			byte[] result = new byte[totalRead];
+			System.arraycopy(buf, 0, result, 0, totalRead);
+			return result;
+		}
+		ByteArrayOutputStream out = new ByteArrayOutputStream(BUF_SIZE*2);
+		out.write(buf);
+		while ((read = bufferedInputStream.read(buf, 0, BUF_SIZE)) != -1) {
+			out.write(buf, 0, read);
+		}
+		return out.toByteArray();
+	}
+	finally {
 		try {
-			final int BUF_SIZE = 8192;
-			byte[] buf = new byte[BUF_SIZE];
-			int read;
-			int totalRead = 0;
-			bufferedInputStream = new BufferedInputStream(input);
-			while (totalRead < BUF_SIZE
-				&& (read = bufferedInputStream.read(buf, totalRead, BUF_SIZE - totalRead))
-					!= -1) {
-				totalRead += read;
-			}
-			if (totalRead < BUF_SIZE) {
-				byte[] result = new byte[totalRead];
-				System.arraycopy(buf, 0, result, 0, totalRead);
-				return result;
-			}
-			ByteArrayOutputStream out = new ByteArrayOutputStream(BUF_SIZE * 2);
-			out.write(buf);
-			while ((read = bufferedInputStream.read(buf, 0, BUF_SIZE)) != -1) {
-				out.write(buf, 0, read);
-			}
-			return out.toByteArray();
-		} finally {
-			try {
-				if (bufferedInputStream != null) {
-					bufferedInputStream.close();
-				}
-			} catch (IOException e) {
-				// Ignore
+			if (bufferedInputStream != null) {
+				bufferedInputStream.close();
 			}
 		}
+		catch (IOException e) {
+			// Ignore
+		}
 	}
-
-	/**
-	 * Sorts an array of objects in place, using the sort order given for each item.
-	 */
-	public static void sort(Object[] objects, int[] sortOrder) {
-		if (objects.length > 1)
-			quickSort(objects, 0, objects.length - 1, sortOrder);
-	}
-
-	/**
-	 * Sorts an array of objects in place.
-	 * The given comparer compares pairs of items.
-	 */
-	public static void sort(Object[] objects, Comparer comparer) {
-		if (objects.length > 1)
-			quickSort(objects, 0, objects.length - 1, comparer);
-	}
-
-	/**
-	 * Sorts an array of strings in place using quicksort.
-	 */
-	public static void sort(String[] strings) {
-		if (strings.length > 1)
-			quickSort(strings, 0, strings.length - 1);
-	}
-
-	/**
-	 * Sorts an array of Comparable objects in place.
-	 */
-	public static void sort(Comparable[] objects) {
-		if (objects.length > 1)
-			quickSort(objects, 0, objects.length - 1);
-	}
-
+}
+/**
+ * Sorts an array of objects in place, using the sort order given for each item.
+ */
+public static void sort(Object[] objects, int[] sortOrder) {
+	if (objects.length > 1)
+		quickSort(objects, 0, objects.length - 1, sortOrder);
+}
+/**
+ * Sorts an array of objects in place.
+ * The given comparer compares pairs of items.
+ */
+public static void sort(Object[] objects, Comparer comparer) {
+	if (objects.length > 1)
+		quickSort(objects, 0, objects.length - 1, comparer);
+}
+/**
+ * Sorts an array of strings in place using quicksort.
+ */
+public static void sort(String[] strings) {
+	if (strings.length > 1)
+		quickSort(strings, 0, strings.length - 1);
+}
+/**
+ * Sorts an array of Comparable objects in place.
+ */
+public static void sort(Comparable[] objects) {
+	if (objects.length > 1)
+		quickSort(objects, 0, objects.length - 1);
+}
 	/**
 	 * Sorts an array of Strings, returning a new array
 	 * with the sorted items.  The original array is left untouched.
@@ -715,7 +643,6 @@ public class Util {
 		sort(copy, comparer);
 		return copy;
 	}
-
 	/**
 	 * Sorts an array of Strings, returning a new array
 	 * with the sorted items.  The original array is left untouched.
@@ -727,7 +654,6 @@ public class Util {
 		sort(copy);
 		return copy;
 	}
-
 	/**
 	 * Sorts an array of Comparable objects, returning a new array
 	 * with the sorted items.  The original array is left untouched.
@@ -739,16 +665,14 @@ public class Util {
 		sort(copy);
 		return copy;
 	}
-
-	/**
-	 * Sorts an array of strings in place using quicksort
-	 * in reverse alphabetical order.
-	 */
-	public static void sortReverseOrder(String[] strings) {
-		if (strings.length > 1)
-			quickSortReverse(strings, 0, strings.length - 1);
-	}
-
+/**
+ * Sorts an array of strings in place using quicksort
+ * in reverse alphabetical order.
+ */
+public static void sortReverseOrder(String[] strings) {
+	if (strings.length > 1)
+		quickSortReverse(strings, 0, strings.length - 1);
+}
 	/**
 	 * Converts a String[] to char[][].
 	 */
@@ -760,7 +684,6 @@ public class Util {
 		}
 		return result;
 	}
-
 	/**
 	 * Converts a String to char[].
 	 */
@@ -770,7 +693,6 @@ public class Util {
 		s.getChars(0, len, chars, 0);
 		return chars;
 	}
-
 	/**
 	 * Converts a String to char[][], where segments are separate by '.'.
 	 */
@@ -794,26 +716,22 @@ public class Util {
 		}
 		return segs;
 	}
-
 	/**
 	 * Converts a char[][] to String, where segments are separated by '.'.
 	 */
 	public static String toString(char[][] c) {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0, max = c.length; i < max; ++i) {
-			if (i != 0)
-				sb.append('.');
+			if (i != 0) sb.append('.');
 			sb.append(c[i]);
 		}
 		return sb.toString();
 	}
-
 	/**
 	 * Converts a char[][] and a char[] to String, where segments are separated by '.'.
 	 */
 	public static String toString(char[][] c, char[] d) {
-		if (c == null)
-			return new String(d);
+		if (c == null) return new String(d);
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0, max = c.length; i < max; ++i) {
 			sb.append(c[i]);
@@ -822,21 +740,18 @@ public class Util {
 		sb.append(d);
 		return sb.toString();
 	}
-
 	/**
 	 * Converts a char[] to String.
 	 */
 	public static String toString(char[] c) {
 		return new String(c);
 	}
-
 	/**
 	 * Asserts that the given method signature is valid.
 	 */
 	public static void validateMethodSignature(String sig) {
 		Assert.isTrue(isValidMethodSignature(sig));
 	}
-
 	/**
 	 * Asserts that the given type signature is valid.
 	 */
@@ -844,4 +759,136 @@ public class Util {
 		Assert.isTrue(isValidTypeSignature(sig, allowVoid));
 	}
 
+/**
+ * Lookup the message with the given ID in this catalog 
+ */
+public static String bind(String id) {
+	return bind(id, (String[])null);
+}
+
+/**
+ * Lookup the message with the given ID in this catalog and bind its
+ * substitution locations with the given string values.
+ */
+public static String bind(String id, String[] bindings) {
+	if (id == null)
+		return "No message available"/*nonNLS*/;
+	String message = null;
+	try {
+		message = bundle.getString(id);
+	} catch (MissingResourceException e) {
+		// If we got an exception looking for the message, fail gracefully by just returning
+		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
+		return "Missing message: "/*nonNLS*/ + id + " in: "/*nonNLS*/ + bundleName;
+	}
+	if (bindings == null)
+		return message;
+	int length = message.length();
+	int start = -1;
+	int end = length;
+	StringBuffer output = new StringBuffer(80);
+	while (true) {
+		if ((end = message.indexOf('{', start)) > -1) {
+			output.append(message.substring(start + 1, end));
+			if ((start = message.indexOf('}', end)) > -1) {
+				int index = -1;
+				try {
+					index = Integer.parseInt(message.substring(end + 1, start));
+					output.append(bindings[index]);
+				} catch (NumberFormatException nfe) {
+					output.append(message.substring(end + 1, start + 1));
+				} catch (ArrayIndexOutOfBoundsException e) {
+					output.append("{missing "/*nonNLS*/ + Integer.toString(index) + "}"/*nonNLS*/);
+				}
+			} else {
+				output.append(message.substring(end, length));
+				break;
+			}
+		} else {
+			output.append(message.substring(start + 1, length));
+			break;
+		}
+	}
+	return output.toString();
+}
+
+/**
+ * Lookup the message with the given ID in this catalog and bind its
+ * substitution locations with the given string.
+ */
+public static String bind(String id, String binding) {
+	return bind(id, new String[] {binding});
+}
+
+/**
+ * Lookup the message with the given ID in this catalog and bind its
+ * substitution locations with the given strings.
+ */
+public static String bind(String id, String binding1, String binding2) {
+	return bind(id, new String[] {binding1, binding2});
+}
+
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(end.toLowerCase())
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean endsWithIgnoreCase(String str, String end) {
+		
+		int strLength = str == null ? 0 : str.length();
+		int endLength = end == null ? 0 : end.length();
+		
+		// return false if the string is smaller than the end.
+		if(endLength > strLength)
+			return false;
+			
+		// return false if any character of the end are
+		// not the same in lower case.
+		for(int i = 1 ; i <= endLength; i++){
+			if(Character.toLowerCase(end.charAt(endLength - i)) != Character.toLowerCase(str.charAt(strLength - i)))
+				return false;
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(".class")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isClassFileName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_CLASS.length;
+		if (nameLength < suffixLength) return false;
+
+		for (int i = 0; i < suffixLength; i++) {
+			char c = name.charAt(nameLength - i - 1);
+			int suffixIndex = suffixLength - i - 1;
+			if (c != SUFFIX_class[suffixIndex] && c != SUFFIX_CLASS[suffixIndex]) return false;
+		}
+		return true;		
+	}
+
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(".java")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isJavaFileName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_JAVA.length;
+		if (nameLength < suffixLength) return false;
+
+		for (int i = 0; i < suffixLength; i++) {
+			char c = name.charAt(nameLength - i - 1);
+			int suffixIndex = suffixLength - i - 1;
+			if (c != SUFFIX_java[suffixIndex] && c != SUFFIX_JAVA[suffixIndex]) return false;
+		}
+		return true;		
+	}
+
+/**
+ * Creates a NLS catalog for the given locale.
+ */
+public static void relocalize() {
+	bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+}
 }

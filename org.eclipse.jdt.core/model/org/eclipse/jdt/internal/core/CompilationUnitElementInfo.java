@@ -9,8 +9,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.internal.core.lookup.ReferenceInfo;
 
-/* package */
-class CompilationUnitElementInfo extends OpenableElementInfo {
+/* package */ class CompilationUnitElementInfo extends OpenableElementInfo {
 
 	/**
 	 * The length of this compilation unit's source code <code>String</code>
@@ -26,36 +25,31 @@ class CompilationUnitElementInfo extends OpenableElementInfo {
 	 * was opened or last updated.
 	 */
 	protected long fTimestamp;
-	/**
-	 * Returns the reference information for this compilation unit
-	 */
-	public ReferenceInfo getReferenceInfo() {
-		return fRefInfo;
-	}
-
-	/**
-	 * Returns the length of the source string.
-	 */
-	public int getSourceLength() {
-		return fSourceLength;
-	}
-
-	protected ISourceRange getSourceRange() {
-		return new SourceRange(0, fSourceLength);
-	}
-
-	/**
-	 * Sets the reference information for this compilation unit
-	 */
-	public void setReferenceInfo(ReferenceInfo info) {
-		fRefInfo = info;
-	}
-
-	/**
-	 * Sets the length of the source string.
-	 */
-	public void setSourceLength(int newSourceLength) {
-		fSourceLength = newSourceLength;
-	}
-
+/**
+ * Returns the reference information for this compilation unit
+ */
+public ReferenceInfo getReferenceInfo() {
+	return fRefInfo;
+}
+/**
+ * Returns the length of the source string.
+ */
+public int getSourceLength() {
+	return fSourceLength;
+}
+protected ISourceRange getSourceRange() {
+	return new SourceRange(0, fSourceLength);
+}
+/**
+ * Sets the reference information for this compilation unit
+ */
+public void setReferenceInfo(ReferenceInfo info) {
+	fRefInfo = info;
+}
+/**
+ * Sets the length of the source string.
+ */
+public void setSourceLength(int newSourceLength) {
+	fSourceLength = newSourceLength;
+}
 }

@@ -19,22 +19,20 @@ import java.util.EventObject;
  * @see IJavaElementDelta
  */
 public class ElementChangedEvent extends EventObject {
-	/**
-	 * Creates an new element changed event (based on a <code>IJavaElementDelta</code>).
-	 *
-	 * @param delta the Java element delta.
-	 */
-	public ElementChangedEvent(IJavaElementDelta delta) {
-		super(delta);
-	}
-
-	/**
-	 * Returns the delta describing the change.
-	 *
-	 * @return the delta describing the change
-	 */
-	public IJavaElementDelta getDelta() {
-		return (IJavaElementDelta) source;
-	}
-
+/**
+ * Creates an new element changed event (based on a <code>IJavaElementDelta</code>).
+ *
+ * @param delta the Java element delta.
+ */
+public ElementChangedEvent(IJavaElementDelta delta) {
+	super(delta);
+}
+/**
+ * Returns the delta describing the change.
+ *
+ * @return the delta describing the change
+ */
+public IJavaElementDelta getDelta() {
+	return (IJavaElementDelta) source;
+}
 }

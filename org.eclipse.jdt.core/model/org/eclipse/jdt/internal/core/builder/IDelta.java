@@ -19,7 +19,8 @@ import java.util.Enumeration;
  * @see DeltaKey
  * @see ICheck
  */
-public interface IDelta {
+public interface IDelta 
+{
 	/*
 	 * The constants below for known statuses are assigned different
 	 * bits, rather than consecutive values, to allow sets
@@ -43,6 +44,7 @@ public interface IDelta {
 
 	/** Constant indicating that the status of a delta is unknown. */
 	int UNKNOWN = -1;
+
 
 	/** 
 	 * Returns positive, negative, or zero, depending on whether aKey is greater than,
@@ -183,24 +185,24 @@ public interface IDelta {
 	 * broken down into subdeltas. 
 	 */
 	boolean hasSubdeltas();
-	/**
-	 * Return a string of either the form:
-	 * 		status this.data.name this.data.oldState ==> this.data.newState 
-	 * OR
-	 * 		status / this.data.name
-	 * 
-	 * status will be one of the following:
-	 *		+ if status is ADDED
-	 *		- if status is REMOVED
-	 *		" " if status is CHANGED
-	 * 		= if status is SAME
-	 *		? if status is UNKNOWN
-	 * The first string will be returned from a delta check which 
-	 * relates specifically to the image, all other delta checks 
-	 * will return the second string.
-	 * The string returned is only for debugging purposes,
-	 * and the contents of the string may change in the future.
-	 * @return java.lang.String
-	 */
-	public String toString();
+/**
+ * Return a string of either the form:
+ * 		status this.data.name this.data.oldState ==> this.data.newState 
+ * OR
+ * 		status / this.data.name
+ * 
+ * status will be one of the following:
+ *		+ if status is ADDED
+ *		- if status is REMOVED
+ *		" " if status is CHANGED
+ * 		= if status is SAME
+ *		? if status is UNKNOWN
+ * The first string will be returned from a delta check which 
+ * relates specifically to the image, all other delta checks 
+ * will return the second string.
+ * The string returned is only for debugging purposes,
+ * and the contents of the string may change in the future.
+ * @return java.lang.String
+ */
+public String toString();
 }

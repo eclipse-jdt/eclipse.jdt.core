@@ -54,59 +54,50 @@ public class BufferChangedEvent extends EventObject {
 	 */
 	private String text;
 
-	/**
-	 * Creates a new buffer changed event indicating that the given buffer has changed.
-	 */
-	public BufferChangedEvent(
-		IBuffer buffer,
-		int offset,
-		int length,
-		String text) {
-		super(buffer);
-		this.offset = offset;
-		this.length = length;
-		this.text = text;
-	}
-
-	/**
-	 * Returns the buffer which has changed.
-	 *
-	 * @return the buffer affected by the change
-	 */
-	public IBuffer getBuffer() {
-		return (IBuffer) source;
-	}
-
-	/**
-	 * Returns the length of text removed or replaced in the buffer, or
-	 * 0 if text has been inserted into the buffer.
-	 *
-	 * @return the length of the original text fragment modified by the 
-	 *   buffer change (<code> 0 </code> in case of insertion).
-	 */
-	public int getLength() {
-		return this.length;
-	}
-
-	/**
-	 * Returns the index of the first character inserted, removed, or replaced
-	 * in the buffer.
-	 *
-	 * @return the source offset of the textual manipulation in the buffer
-	 */
-	public int getOffset() {
-		return this.offset;
-	}
-
-	/**
-	 * Returns the text that was inserted, the replacement text,
-	 * or <code>null</code> if text has been removed.
-	 *
-	 * @return the text corresponding to the buffer change (<code> null </code>
-	 *   in case of deletion).
-	 */
-	public String getText() {
-		return this.text;
-	}
-
+/**
+ * Creates a new buffer changed event indicating that the given buffer has changed.
+ */
+public BufferChangedEvent(IBuffer buffer, int offset, int length, String text) {
+	super(buffer);
+	this.offset = offset;
+	this.length = length;
+	this.text = text;
+}
+/**
+ * Returns the buffer which has changed.
+ *
+ * @return the buffer affected by the change
+ */
+public IBuffer getBuffer() {
+	return (IBuffer) source;
+}
+/**
+ * Returns the length of text removed or replaced in the buffer, or
+ * 0 if text has been inserted into the buffer.
+ *
+ * @return the length of the original text fragment modified by the 
+ *   buffer change (<code> 0 </code> in case of insertion).
+ */
+public int getLength() {
+	return this.length;
+}
+/**
+ * Returns the index of the first character inserted, removed, or replaced
+ * in the buffer.
+ *
+ * @return the source offset of the textual manipulation in the buffer
+ */
+public int getOffset() {
+	return this.offset;
+}
+/**
+ * Returns the text that was inserted, the replacement text,
+ * or <code>null</code> if text has been removed.
+ *
+ * @return the text corresponding to the buffer change (<code> null </code>
+ *   in case of deletion).
+ */
+public String getText() {
+	return this.text;
+}
 }

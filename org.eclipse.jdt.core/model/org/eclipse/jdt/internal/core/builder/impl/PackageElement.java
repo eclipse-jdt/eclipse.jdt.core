@@ -15,48 +15,40 @@ public class PackageElement {
 	IPackage fPackage;
 	String fFileName;
 	boolean fIsSource;
-	PackageElement(IPackage pkg, String fileName, boolean isSource) {
-		fPackage = pkg;
-		fFileName = fileName;
-		fIsSource = isSource;
-	}
-
+PackageElement(IPackage pkg, String fileName, boolean isSource) {
+	fPackage = pkg;
+	fFileName = fileName;
+	fIsSource = isSource;
+}
 	PackageElement(IPackage pkg, SourceEntry entry) {
 		fPackage = pkg;
 		fFileName = entry.getFileName();
 		fIsSource = entry.isSource();
 	}
-
 	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (!(o instanceof PackageElement))
-			return false;
+		if (this == o) return true;
+		if (!(o instanceof PackageElement)) return false;
 		PackageElement e = (PackageElement) o;
 
 		/* If filenames are equal, so is isSource flag.
 		 */
 		return this.fFileName.equals(e.fFileName) && fPackage.equals(e.fPackage);
 	}
-
 	/**
 	 * Returns the 'file name'.
 	 */
 	public String getFileName() {
 		return fFileName;
 	}
-
 	/**
 	 * Returns the package containing the package element.
 	 */
 	public IPackage getPackage() {
 		return fPackage;
 	}
-
 	public int hashCode() {
 		return fPackage.hashCode() * 17 + fFileName.hashCode();
 	}
-
 	/**
 	 * Returns true if the source entry comes from a class file, otherwise
 	 * returns false.
@@ -64,7 +56,6 @@ public class PackageElement {
 	public boolean isBinary() {
 		return !fIsSource;
 	}
-
 	/**
 	 * Returns true if the source entry comes from a compilation unit, otherwise
 	 * returns false.
@@ -72,9 +63,7 @@ public class PackageElement {
 	public boolean isSource() {
 		return fIsSource;
 	}
-
-	public String toString() {
-		return fPackage.isUnnamed() ? fFileName : fPackage.getName() + '/' + fFileName;
-	}
-
+public String toString() {
+	return fPackage.isUnnamed() ? fFileName : fPackage.getName() + '/' + fFileName;
+}
 }

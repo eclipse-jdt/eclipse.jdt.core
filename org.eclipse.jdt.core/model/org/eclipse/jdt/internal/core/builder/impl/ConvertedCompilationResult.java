@@ -14,39 +14,30 @@ public class ConvertedCompilationResult {
 	IProblemDetail[] fProblems;
 	TypeStructureEntry[] fTypes;
 
-	ConvertedCompilationResult(
-		PackageElement packageElement,
-		Vector dependencies,
-		IProblemDetail[] problems,
-		TypeStructureEntry[] types) {
+ConvertedCompilationResult(
+	PackageElement packageElement,
+	Vector dependencies,
+	IProblemDetail[] problems,
+	TypeStructureEntry[] types) {
 
-		fPackageElement = packageElement;
-		fDependencies = dependencies;
-		fProblems = problems;
-		fTypes = types;
-	}
-
+	fPackageElement = packageElement;
+	fDependencies = dependencies;
+	fProblems = problems;
+	fTypes = types;
+}
 	Vector getDependencies() {
 		return fDependencies;
 	}
-
 	PackageElement getPackageElement() {
 		return fPackageElement;
 	}
-
 	IProblemDetail[] getProblems() {
 		return fProblems;
 	}
-
 	TypeStructureEntry[] getTypes() {
 		return fTypes;
 	}
-
 	public String toString() {
-		return (fProblems.length == 0 ? "" : "*")
-			+ "ConvertedCompilationResult("
-			+ fPackageElement
-			+ ")";
+		return (fProblems.length == 0 ? ""/*nonNLS*/ : "*"/*nonNLS*/) + "ConvertedCompilationResult("/*nonNLS*/ + fPackageElement + ")"/*nonNLS*/;
 	}
-
 }

@@ -13,8 +13,7 @@ public interface IIndexer {
 	 * the given type of file, and only call this method if so. 
 	 */
 
-	void index(IDocument document, IIndexerOutput output)
-		throws java.io.IOException;
+	void index(IDocument document, IIndexerOutput output) throws java.io.IOException;
 	/**
 	 * Sets the document types the <code>IIndexer</code> handles.
 	 */

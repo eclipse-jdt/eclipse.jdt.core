@@ -5,10 +5,9 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.core.builder.*;
+import org.eclipse.jdt.internal.core.Util;
 
-public abstract class AbstractMemberHandle
-	extends NonStateSpecificHandleImpl
-	implements IMember {
+public abstract class AbstractMemberHandle extends NonStateSpecificHandleImpl implements IMember{
 	/**
 	 * The owner of the member
 	 */
@@ -25,58 +24,50 @@ public abstract class AbstractMemberHandle
 	String computeSignature(String name, IType[] parameterTypes) {
 
 		if (parameterTypes.length == 0) {
-			return name + "()";
+			return name + "()"/*nonNLS*/;
 		}
-
+		
 		StringBuffer sb = new StringBuffer(name);
 		sb.append('(');
 		for (int i = 0; i < parameterTypes.length; i++) {
 			try {
-				((TypeImpl) parameterTypes[i]).appendSignature(sb, true);
+				((TypeImpl)parameterTypes[i]).appendSignature(sb, true);
 			} catch (ClassCastException e) {
-				throw new StateSpecificException("incompatible parameter types");
+				throw new StateSpecificException(Util.bind("build.incompatibleParameterTypes"/*nonNLS*/));
 			}
 		}
 		sb.append(')');
 		return sb.toString();
 	}
-
 	/**
 	 * Compares two members
 	 */
 	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (!(o instanceof AbstractMemberHandle))
-			return false;
+		if (this == o) return true;
+		if (!(o instanceof AbstractMemberHandle)) return false;
 
 		AbstractMemberHandle member = (AbstractMemberHandle) o;
-		return member.fSignature.equals(this.fSignature)
-			&& member.fOwner.equals(this.fOwner);
+		return member.fSignature.equals(this.fSignature) && member.fOwner.equals(this.fOwner);
 	}
-
 	/**
 	 * Returns the owning class of this member.
 	 */
 	public IType getDeclaringClass() {
 		return fOwner;
 	}
-
-	/**
-	 * getInternalDC method comment.
-	 */
-	JavaDevelopmentContextImpl getInternalDC() {
-		return fOwner.getInternalDC();
-	}
-
+/**
+ * getInternalDC method comment.
+ */
+JavaDevelopmentContextImpl getInternalDC() {
+	return fOwner.getInternalDC();
+}
 	/**
 	 * Returns the Java language modifiers for the member 
 	 *	represented by this object, as an integer.  
 	 */
 	public int getModifiers() {
-		return ((AbstractMemberHandleSWH) inCurrentState()).getModifiers();
+		return ((AbstractMemberHandleSWH)inCurrentState()).getModifiers();
 	}
-
 	/**
 	 *	Returns the simple name of the member represented by this object.
 	 *	If this Member represents a constructor, this returns 
@@ -94,30 +85,26 @@ public abstract class AbstractMemberHandle
 	String getSignature() {
 		return fSignature;
 	}
-
 	/**
 	 * Returns a consistent hash code for this object
 	 */
 	public int hashCode() {
 		return fSignature.hashCode();
 	}
-
 	/**
 	 * Returns true if this represents a binary member, false otherwise.
 	 * A binary member is one for which the declaring class is in .class 
 	 * file format in the source tree.
 	 */
 	public boolean isBinary() {
-		return ((IMember) inCurrentState()).isBinary();
+		return ((IMember)inCurrentState()).isBinary();
 	}
-
 	/**
 	 * @see IMember
 	 */
 	public boolean isDeprecated() {
-		return ((AbstractMemberHandleSWH) inCurrentState()).isDeprecated();
+		return ((AbstractMemberHandleSWH)inCurrentState()).isDeprecated();
 	}
-
 	/**
 	 * Returns true if the member represented by this object is
 	 *	synthetic, false otherwise.  A synthetic object is one that
@@ -126,14 +113,12 @@ public abstract class AbstractMemberHandle
 	 *	A synthetic object is not the same as a fictitious object.
 	 */
 	public boolean isSynthetic() {
-		return ((AbstractMemberHandleSWH) inCurrentState()).isSynthetic();
+		return ((AbstractMemberHandleSWH)inCurrentState()).isSynthetic();
 	}
-
-	/**
-	 * kind method comment.
-	 */
-	public int kind() {
-		return 0;
-	}
-
+/**
+ * kind method comment.
+ */
+public int kind() {
+	return 0;
+}
 }

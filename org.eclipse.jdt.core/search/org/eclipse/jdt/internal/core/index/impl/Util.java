@@ -11,7 +11,6 @@ public class Util {
 
 	private Util() {
 	}
-
 	/**
 	 * Compares two strings lexicographically. 
 	 * The comparison is based on the Unicode value of each character in
@@ -24,78 +23,75 @@ public class Util {
 	 *          lexicographically greater than str2.
 	 */
 	public static int compare(char[] str1, char[] str2) {
-		int len1 = str1.length;
-		int len2 = str2.length;
-		int n = Math.min(len1, len2);
-		int i = 0;
+		int len1= str1.length;
+		int len2= str2.length;
+		int n= Math.min(len1, len2);
+		int i= 0;
 		while (n-- != 0) {
-			char c1 = str1[i];
-			char c2 = str2[i++];
+			char c1= str1[i];
+			char c2= str2[i++];
 			if (c1 != c2) {
 				return c1 - c2;
 			}
 		}
 		return len1 - len2;
 	}
-
-	public static byte[] getFileByteContent(File file) throws java.io.IOException {
-		int fileLength;
-		byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-		BufferedInputStream stream = null;
-		try {
-			stream = new BufferedInputStream(new FileInputStream(file));
-			int bytesRead = 0;
-			int lastReadSize = 0;
-			while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-				lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-				bytesRead += lastReadSize;
-			}
-		} finally {
-			if (stream != null)
-				stream.close();
+public static byte[] getFileByteContent(File file) throws java.io.IOException {
+	int fileLength;
+	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
+	BufferedInputStream stream = null;
+	try {
+		stream = new BufferedInputStream(new FileInputStream(file));
+		int bytesRead = 0;
+		int lastReadSize = 0;
+		while ((lastReadSize != -1) && (bytesRead != fileLength)) {
+			lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
+			bytesRead += lastReadSize;
 		}
-		return classFileBytes;
+	} finally {
+		if (stream != null)
+			stream.close();
 	}
-
+	return classFileBytes;
+}
 	public static char[] getFileCharContent(File file) throws java.io.IOException {
-		byte[] bytes = null;
+		byte[] bytes= null;
 		BufferedReader reader = null;
-		char[] contents = null;
+		char[] contents= null;
 		try {
-			reader = new BufferedReader(new FileReader(file));
-			int length = (int) file.length();
-			contents = new char[length];
-			int len = 0;
-			int readSize = 0;
+			reader= new BufferedReader(new FileReader(file));
+			int length= (int) file.length();
+			contents= new char[length];
+			int len= 0;
+			int readSize= 0;
 			while ((readSize != -1) && (len != length)) {
 				len += readSize;
-				readSize = reader.read(contents, len, length - len);
+				readSize= reader.read(contents, len, length - len);
 			}
 			if (len != length)
-				System.arraycopy(contents, 0, (contents = new char[len]), 0, len);
+				System.arraycopy(contents, 0, (contents= new char[len]), 0, len);
 		} finally {
 			if (reader != null)
 				reader.close();
 		}
 		return contents;
 	}
-
 	/**
 	 * Adds all files with the given suffix in the given directory 
 	 * and all its subdirectories to the given Vector.
 	 */
 	public static void getFiles(File fileOrDir, String[] suffix, Vector v) {
 		if (fileOrDir.isDirectory()) {
-			String[] list = fileOrDir.list();
+			String[] list= fileOrDir.list();
 			if (list != null) {
 				sort(list);
-				for (int i = 0; i < list.length; ++i) {
-					File file = new File(fileOrDir, list[i]);
+				for (int i= 0; i < list.length; ++i) {
+					File file= new File(fileOrDir, list[i]);
 					getFiles(file, suffix, v);
 				}
 			}
 		} else {
-			for (int i = 0; i < suffix.length; i++) {
+			for (int i= 0; i < suffix.length; i++) {
 				if (fileOrDir.getName().toLowerCase().endsWith(suffix[i])) {
 					v.addElement(fileOrDir);
 					break;
@@ -103,18 +99,17 @@ public class Util {
 			}
 		}
 	}
-
 	/**
 	 * Adds all files with the given suffix in the given directory 
 	 * and all its subdirectories to the given Vector.
 	 */
 	public static void getFiles(File fileOrDir, String suffix, Vector v) {
 		if (fileOrDir.isDirectory()) {
-			String[] list = fileOrDir.list();
+			String[] list= fileOrDir.list();
 			if (list != null) {
 				sort(list);
-				for (int i = 0; i < list.length; ++i) {
-					File file = new File(fileOrDir, list[i]);
+				for (int i= 0; i < list.length; ++i) {
+					File file= new File(fileOrDir, list[i]);
 					getFiles(file, suffix, v);
 				}
 			}
@@ -124,33 +119,30 @@ public class Util {
 			}
 		}
 	}
-
 	/**
 	 * Returns the length of the common prefix between s1 and s2.
 	 */
 	public static int prefixLength(char[] s1, char[] s2) {
-		int len = 0;
-		int max = Math.min(s1.length, s2.length);
-		for (int i = 0; i < max && s1[i] == s2[i]; ++i)
+		int len= 0;
+		int max= Math.min(s1.length, s2.length);
+		for (int i= 0; i < max && s1[i] == s2[i]; ++i)
 			++len;
 		return len;
 	}
-
 	/**
 	 * Returns the length of the common prefix between s1 and s2.
 	 */
 	public static int prefixLength(String s1, String s2) {
-		int len = 0;
-		int max = Math.min(s1.length(), s2.length());
-		for (int i = 0; i < max && s1.charAt(i) == s2.charAt(i); ++i)
+		int len= 0;
+		int max= Math.min(s1.length(), s2.length());
+		for (int i= 0; i < max && s1.charAt(i) == s2.charAt(i); ++i)
 			++len;
 		return len;
 	}
-
 	private static void quickSort(char[][] list, int left, int right) {
-		int original_left = left;
-		int original_right = right;
-		char[] mid = list[(left + right) / 2];
+		int original_left= left;
+		int original_right= right;
+		char[] mid= list[(left + right) / 2];
 		do {
 			while (compare(list[left], mid) < 0) {
 				left++;
@@ -159,9 +151,9 @@ public class Util {
 				right--;
 			}
 			if (left <= right) {
-				char[] tmp = list[left];
-				list[left] = list[right];
-				list[right] = tmp;
+				char[] tmp= list[left];
+				list[left]= list[right];
+				list[right]= tmp;
 				left++;
 				right--;
 			}
@@ -174,11 +166,10 @@ public class Util {
 			quickSort(list, left, original_right);
 		}
 	}
-
 	private static void quickSort(int[] list, int left, int right) {
-		int original_left = left;
-		int original_right = right;
-		int mid = list[(left + right) / 2];
+		int original_left= left;
+		int original_right= right;
+		int mid= list[(left + right) / 2];
 		do {
 			while (list[left] < mid) {
 				left++;
@@ -187,9 +178,9 @@ public class Util {
 				right--;
 			}
 			if (left <= right) {
-				int tmp = list[left];
-				list[left] = list[right];
-				list[right] = tmp;
+				int tmp= list[left];
+				list[left]= list[right];
+				list[right]= tmp;
 				left++;
 				right--;
 			}
@@ -202,13 +193,12 @@ public class Util {
 			quickSort(list, left, original_right);
 		}
 	}
-
 	private static void quickSort(String[] list, int left, int right) {
 
-		int original_left = left;
-		int original_right = right;
+		int original_left= left;
+		int original_right= right;
 
-		String mid = list[(left + right) / 2];
+		String mid= list[(left + right) / 2];
 		do {
 			while (list[left].compareTo(mid) < 0) {
 				left++;
@@ -217,9 +207,9 @@ public class Util {
 				right--;
 			}
 			if (left <= right) {
-				String tmp = list[left];
-				list[left] = list[right];
-				list[right] = tmp;
+				String tmp= list[left];
+				list[left]= list[right];
+				list[right]= tmp;
 				left++;
 				right--;
 			}
@@ -233,13 +223,12 @@ public class Util {
 			quickSort(list, left, original_right);
 		}
 	}
-
 	private static void quickSort(IndexedFile[] list, int left, int right) {
 
-		int original_left = left;
-		int original_right = right;
+		int original_left= left;
+		int original_right= right;
 
-		IndexedFile mid = list[(left + right) / 2];
+		IndexedFile mid= list[(left + right) / 2];
 		do {
 			while (list[left].getPath().compareTo(mid.getPath()) < 0) {
 				left++;
@@ -248,9 +237,9 @@ public class Util {
 				right--;
 			}
 			if (left <= right) {
-				IndexedFile tmp = list[left];
-				list[left] = list[right];
-				list[right] = tmp;
+				IndexedFile tmp= list[left];
+				list[left]= list[right];
+				list[right]= tmp;
 				left++;
 				right--;
 			}
@@ -264,7 +253,6 @@ public class Util {
 			quickSort(list, left, original_right);
 		}
 	}
-
 	/**
 	 * Reads in a string from the specified data input stream. The 
 	 * string has been encoded using a modified UTF-8 format. 
@@ -289,12 +277,12 @@ public class Util {
 	 * @see        java.io.DataInputStream#readUnsignedShort()
 	 */
 	public final static char[] readUTF(DataInput in) throws IOException {
-		int utflen = in.readUnsignedShort();
-		char str[] = new char[utflen];
-		int count = 0;
-		int strlen = 0;
+		int utflen= in.readUnsignedShort();
+		char str[]= new char[utflen];
+		int count= 0;
+		int strlen= 0;
 		while (count < utflen) {
-			int c = in.readUnsignedByte();
+			int c= in.readUnsignedByte();
 			int char2, char3;
 			switch (c >> 4) {
 				case 0 :
@@ -307,7 +295,7 @@ public class Util {
 				case 7 :
 					// 0xxxxxxx
 					count++;
-					str[strlen++] = (char) c;
+					str[strlen++]= (char) c;
 					break;
 				case 12 :
 				case 13 :
@@ -315,22 +303,21 @@ public class Util {
 					count += 2;
 					if (count > utflen)
 						throw new UTFDataFormatException();
-					char2 = in.readUnsignedByte();
+					char2= in.readUnsignedByte();
 					if ((char2 & 0xC0) != 0x80)
 						throw new UTFDataFormatException();
-					str[strlen++] = (char) (((c & 0x1F) << 6) | (char2 & 0x3F));
+					str[strlen++]= (char) (((c & 0x1F) << 6) | (char2 & 0x3F));
 					break;
 				case 14 :
 					// 1110 xxxx  10xx xxxx  10xx xxxx
 					count += 3;
 					if (count > utflen)
 						throw new UTFDataFormatException();
-					char2 = in.readUnsignedByte();
-					char3 = in.readUnsignedByte();
+					char2= in.readUnsignedByte();
+					char3= in.readUnsignedByte();
 					if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80))
 						throw new UTFDataFormatException();
-					str[strlen++] =
-						(char) (((c & 0x0F) << 12) | ((char2 & 0x3F) << 6) | ((char3 & 0x3F) << 0));
+					str[strlen++]= (char) (((c & 0x0F) << 12) | ((char2 & 0x3F) << 6) | ((char3 & 0x3F) << 0));
 					break;
 				default :
 					// 10xx xxxx,  1111 xxxx
@@ -338,49 +325,43 @@ public class Util {
 			}
 		}
 		if (strlen < utflen) {
-			System.arraycopy(str, 0, str = new char[strlen], 0, strlen);
+			System.arraycopy(str, 0, str= new char[strlen], 0, strlen);
 		}
 		return str;
 	}
-
 	public static void sort(char[][] list) {
 		if (list.length > 1)
 			quickSort(list, 0, list.length - 1);
 	}
-
 	public static void sort(int[] list) {
 		if (list.length > 1)
 			quickSort(list, 0, list.length - 1);
 	}
-
 	public static void sort(String[] list) {
 		if (list.length > 1)
 			quickSort(list, 0, list.length - 1);
 	}
-
 	public static void sort(IndexedFile[] list) {
 		if (list.length > 1)
 			quickSort(list, 0, list.length - 1);
 	}
-
 	public static int startsWith(char[] str, char[] prefix) {
-		int len1 = str.length;
-		int len2 = prefix.length;
-		int n = Math.min(len1, len2);
-		int i = 0;
+		int len1= str.length;
+		int len2= prefix.length;
+		int n= Math.min(len1, len2);
+		int i= 0;
 		while (n-- != 0) {
-			char c1 = str[i];
-			char c2 = prefix[i++];
+			char c1= str[i];
+			char c2= prefix[i++];
 			if (c1 != c2) {
 				return c1 - c2;
 			}
 		}
 		if (len2 == i)
 			return 0;
-
-		return 1;
+			
+		return 1;	
 	}
-
 	/**
 	 * Writes a string to the given output stream using UTF-8 
 	 * encoding in a machine-independent manner. 
@@ -397,37 +378,34 @@ public class Util {
 	 * @since      JDK1.0
 	 */
 	public static void writeUTF(OutputStream out, char[] str) throws IOException {
-		int strlen = str.length;
-		int utflen = 0;
-		for (int i = 0; i < strlen; i++) {
-			int c = str[i];
+		int strlen= str.length;
+		int utflen= 0;
+		for (int i= 0; i < strlen; i++) {
+			int c= str[i];
 			if ((c >= 0x0001) && (c <= 0x007F)) {
 				utflen++;
-			} else
-				if (c > 0x07FF) {
-					utflen += 3;
-				} else {
-					utflen += 2;
-				}
+			} else if (c > 0x07FF) {
+				utflen += 3;
+			} else {
+				utflen += 2;
+			}
 		}
 		if (utflen > 65535)
 			throw new UTFDataFormatException();
 		out.write((utflen >>> 8) & 0xFF);
 		out.write((utflen >>> 0) & 0xFF);
-		for (int i = 0; i < strlen; i++) {
-			int c = str[i];
+		for (int i= 0; i < strlen; i++) {
+			int c= str[i];
 			if ((c >= 0x0001) && (c <= 0x007F)) {
 				out.write(c);
-			} else
-				if (c > 0x07FF) {
-					out.write(0xE0 | ((c >> 12) & 0x0F));
-					out.write(0x80 | ((c >> 6) & 0x3F));
-					out.write(0x80 | ((c >> 0) & 0x3F));
-				} else {
-					out.write(0xC0 | ((c >> 6) & 0x1F));
-					out.write(0x80 | ((c >> 0) & 0x3F));
-				}
+			} else if (c > 0x07FF) {
+				out.write(0xE0 | ((c >> 12) & 0x0F));
+				out.write(0x80 | ((c >> 6) & 0x3F));
+				out.write(0x80 | ((c >> 0) & 0x3F));
+			} else {
+				out.write(0xC0 | ((c >> 6) & 0x1F));
+				out.write(0x80 | ((c >> 0) & 0x3F));
+			}
 		}
 	}
-
 }

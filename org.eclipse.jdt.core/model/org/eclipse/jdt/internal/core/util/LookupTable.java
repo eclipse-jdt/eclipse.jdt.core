@@ -18,7 +18,7 @@ public class LookupTable extends Dictionary implements Cloneable {
 	protected Object[] keys;
 	protected Object[] values;
 	protected int modCount;
-
+	
 	// Types of Enumeration
 	protected static final int KEYS = 0;
 	protected static final int VALUES = 1;
@@ -32,48 +32,46 @@ public class LookupTable extends Dictionary implements Cloneable {
 		protected Object[] table;
 		protected int index;
 		protected Object entry;
-
+		
 		/**
 		 * The modCount value that the enumeration believes that the backing
 		 * lookup table should have.  If this expectation is violated, the enumeration 
 		 * has detected concurrent modification.
 		 */
 		protected int expectedModCount = modCount;
-
-		Enumerator(int type) {
-			this.type = type;
-			table = (type == KEYS ? keys : values);
-			index = table.length;
-		}
-
-		public boolean hasMoreElements() {
-			while (entry == null && index > 0)
-				entry = table[--index];
-			return entry != null;
-		}
-
-		public Object nextElement() {
-			if (modCount != expectedModCount)
-				throw new IllegalStateException();
-			while (entry == null && index > 0)
-				entry = table[--index];
-			if (entry != null) {
-				Object next = entry;
-				entry = null;
-				return next;
-			}
-			throw new NoSuchElementException("LookupTable Enumerator");
-		}
+		
+	Enumerator(int type) {
+	    this.type = type;
+	    table = (type == KEYS ? keys : values);
+	    index = table.length;
+	}
+		
+	public boolean hasMoreElements() {
+	    while (entry == null && index > 0)
+			entry = table[--index];
+	    return entry != null;
 	}
 
+	public Object nextElement() {
+	    if (modCount != expectedModCount)
+			throw new IllegalStateException();
+	    while (entry == null && index > 0)
+			entry = table[--index];
+	    if (entry != null) {
+	    	Object next = entry;
+	    	entry = null;
+	    	return next;
+		}
+	    throw new NoSuchElementException("LookupTable Enumerator");
+	}
+	}      	
 	/**
 	 * Constructs a new, empty LookupTable with a default capacity (11) and load
 	 * factor (0.5). 
 	 */
 	public LookupTable() {
-		this(11, 0.5f);
+	this(11, 0.5f);
 	}
-
 	/**
 	 * Constructs a new, empty LookupTable with the specified initial capacity
 	 * and default load factor (0.5).
@@ -83,9 +81,8 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 *              than zero.
 	 */
 	public LookupTable(int initialCapacity) {
-		this(initialCapacity, 0.5f);
+	this(initialCapacity, 0.5f);
 	}
-
 	/**
 	 * Constructs a new, empty LookupTable with the specified initial 
 	 * capacity and the specified load factor.
@@ -96,19 +93,19 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 *             than zero, or if the load factor is nonpositive.
 	 */
 	public LookupTable(int initialCapacity, float loadFactor) {
-		if (initialCapacity < 0)
-			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
+	if (initialCapacity < 0)
+	    throw new IllegalArgumentException("Illegal Capacity: "+
+											   initialCapacity);
 		if (loadFactor <= 0)
-			throw new IllegalArgumentException("Illegal Load: " + loadFactor);
+			throw new IllegalArgumentException("Illegal Load: "+loadFactor);
 
-		if (initialCapacity == 0)
+		if (initialCapacity==0)
 			initialCapacity = 1;
-		this.loadFactor = loadFactor;
-		keys = new Object[initialCapacity];
-		values = new Object[initialCapacity];
-		threshold = (int) (initialCapacity * loadFactor);
+	this.loadFactor = loadFactor;
+	keys = new Object[initialCapacity];
+	values = new Object[initialCapacity];
+	threshold = (int)(initialCapacity * loadFactor);
 	}
-
 	/**
 	 * Clears this lookup table so that it contains no keys. 
 	 */
@@ -116,13 +113,12 @@ public class LookupTable extends Dictionary implements Cloneable {
 		Object tab1[] = keys;
 		Object tab2[] = values;
 		modCount++;
-		for (int index = keys.length; --index >= 0;) {
-			tab1[index] = null;
-			tab2[index] = null;
-		}
+		for (int index = keys.length; --index >= 0; ) {
+		    tab1[index] = null;
+		    tab2[index] = null;
+	    }
 		count = 0;
 	}
-
 	/**
 	 * Creates a shallow copy of this lookup table. All the structure of the 
 	 * lookup table itself is copied, but the keys and values are not cloned. 
@@ -131,7 +127,7 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 * @return  a clone of the lookup table.
 	 */
 	public synchronized Object clone() {
-		try {
+		try { 
 			LookupTable t = (LookupTable) super.clone();
 			int size = keys.length;
 			t.keys = new Object[size];
@@ -140,12 +136,11 @@ public class LookupTable extends Dictionary implements Cloneable {
 			System.arraycopy(values, 0, t.values, 0, size);
 			t.modCount = 0;
 			return t;
-		} catch (CloneNotSupportedException e) {
+	    } catch (CloneNotSupportedException e) { 
 			// this shouldn't happen, since we are Cloneable
 			throw new InternalError();
 		}
 	}
-
 	/**
 	 * Tests if some key maps into the specified value in this lookup table.
 	 * This operation is more expensive than the <code>containsKey</code>
@@ -165,19 +160,18 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 * @see	   Map
 	 */
 	public synchronized boolean contains(Object value) {
-		if (value == null) {
-			throw new NullPointerException();
-		}
-
-		Object tab[] = values;
-		for (int i = tab.length; i-- > 0;) {
-			if (tab[i].equals(value)) {
-				return true;
-			}
-		}
-		return false;
+	if (value == null) {
+	    throw new NullPointerException();
 	}
 
+	Object tab[] = values;
+	for (int i = tab.length ; i-- > 0 ;) {
+		if (tab[i].equals(value)) {
+			return true;
+		}
+	}
+	return false;
+	}
 	/**
 	 * Tests if the specified object is a key in this lookup table.
 	 * 
@@ -193,21 +187,16 @@ public class LookupTable extends Dictionary implements Cloneable {
 		int index = (key.hashCode() & 0x7FFFFFFF) % size;
 		for (int i = index; i < size; ++i) {
 			Object testKey = tab[i];
-			if (testKey == null)
-				return false;
-			if (testKey.equals(key))
-				return true;
+			if (testKey == null) return false;
+			if (testKey.equals(key)) return true;
 		}
 		for (int i = 0; i < index; ++i) {
 			Object testKey = tab[i];
-			if (testKey == null)
-				return false;
-			if (testKey.equals(key))
-				return true;
+			if (testKey == null) return false;
+			if (testKey.equals(key)) return true;
 		}
 		return false;
 	}
-
 	/**
 	 * Returns an enumeration of the values in this lookup table.
 	 * Use the Enumeration methods on the returned object to fetch the elements
@@ -222,7 +211,6 @@ public class LookupTable extends Dictionary implements Cloneable {
 	public synchronized Enumeration elements() {
 		return new Enumerator(VALUES);
 	}
-
 	/**
 	 * Increases the capacity of and internally reorganizes this 
 	 * lookup table, in order to accommodate and access its entries more 
@@ -233,7 +221,6 @@ public class LookupTable extends Dictionary implements Cloneable {
 	protected void expand() {
 		rehash(keys.length * 2 + 1);
 	}
-
 	/**
 	 * Returns the value to which the specified key is mapped in this lookup table.
 	 *
@@ -244,26 +231,21 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 * @see     #put(Object, Object)
 	 */
 	public synchronized Object get(Object key) {
-		Object[] tab = keys;
-		int size = tab.length;
-		int index = (key.hashCode() & 0x7FFFFFFF) % size;
-		for (int i = index; i < size; ++i) {
-			Object testKey = tab[i];
-			if (testKey == null)
-				return null;
-			if (testKey.equals(key))
-				return values[i];
-		}
-		for (int i = 0; i < index; ++i) {
-			Object testKey = tab[i];
-			if (testKey == null)
-				return null;
-			if (testKey.equals(key))
-				return values[i];
-		}
-		return null;
+	Object[] tab = keys;
+	int size = tab.length;
+	int index = (key.hashCode() & 0x7FFFFFFF) % size;
+	for (int i = index; i < size; ++i) {
+		Object testKey = tab[i];
+		if (testKey == null) return null;
+		if (testKey.equals(key)) return values[i];
 	}
-
+	for (int i = 0; i < index; ++i) {
+		Object testKey = tab[i];
+		if (testKey == null) return null;
+		if (testKey.equals(key)) return values[i];
+	}
+	return null;
+	}
 	/**
 	 * Tests if this lookup table maps no keys to values.
 	 *
@@ -271,9 +253,8 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 *          <code>false</code> otherwise.
 	 */
 	public boolean isEmpty() {
-		return count == 0;
+	return count == 0;
 	}
-
 	/**
 	 * Returns an enumeration of the keys in this lookup table.
 	 *
@@ -286,7 +267,6 @@ public class LookupTable extends Dictionary implements Cloneable {
 	public synchronized Enumeration keys() {
 		return new Enumerator(KEYS);
 	}
-
 	/**
 	 * Maps the specified <code>key</code> to the specified 
 	 * <code>value</code> in this lookup table. Neither the key nor the 
@@ -307,7 +287,7 @@ public class LookupTable extends Dictionary implements Cloneable {
 	public synchronized Object put(Object key, Object value) {
 		// Make sure the value is not null
 		if (value == null) {
-			throw new NullPointerException();
+		    throw new NullPointerException();
 		}
 		Object[] tab = keys;
 		int size = tab.length;
@@ -349,21 +329,20 @@ public class LookupTable extends Dictionary implements Cloneable {
 		expand();
 		return put(key, value);
 	}
-
 	protected void rehash(int newSize) {
-		/*	
-				System.out.println("LookupTable.rehash()");
-				System.out.println("  oldSize= " + keys.length);
-				System.out.println("  count= " + count);
-				System.out.println("  threshold= " + threshold);
-				System.out.println("  newSize= " + newSize);
-		*/
+/*	
+		System.out.println("LookupTable.rehash()");
+		System.out.println("  oldSize= " + keys.length);
+		System.out.println("  count= " + count);
+		System.out.println("  threshold= " + threshold);
+		System.out.println("  newSize= " + newSize);
+*/		
 		Object[] newKeys = new Object[newSize];
 		Object[] newValues = new Object[newSize];
 		if (count > 0) {
 			Object[] oldKeys = keys;
 			Object[] oldValues = values;
-			for (int i = keys.length; i-- > 0;) {
+			for (int i = keys.length; i-- > 0; ) {
 				Object key = oldKeys[i];
 				if (key != null) {
 					int hashIndex = (key.hashCode() & 0x7FFFFFFF) % newSize;
@@ -379,10 +358,9 @@ public class LookupTable extends Dictionary implements Cloneable {
 		keys = newKeys;
 		values = newValues;
 		threshold = (int) (newSize * loadFactor);
-
-		//		sanityCheck("rehash");
+		
+//		sanityCheck("rehash");
 	}
-
 	/**
 	 * The element at target has been removed. Move the elements
 	 * to keep the receiver properly hashed.
@@ -392,15 +370,13 @@ public class LookupTable extends Dictionary implements Cloneable {
 		Object[] tab = keys;
 		int size = tab.length;
 		for (;;) {
-			if (++index >= size)
-				index = 0;
+			if (++index >= size) index = 0;
 			Object element = tab[index];
-			if (element == null)
-				break;
+			if (element == null) break;
 			int hashIndex = (element.hashCode() & 0x7FFFFFFF) % size;
-			if (index < target ? hashIndex <= target
-				&& hashIndex > index : hashIndex <= target
-				|| hashIndex > index) {
+			if (index < target
+				? hashIndex <= target && hashIndex > index
+				: hashIndex <= target || hashIndex > index) {
 				keys[target] = element;
 				values[target] = values[index];
 				target = index;
@@ -409,7 +385,6 @@ public class LookupTable extends Dictionary implements Cloneable {
 		keys[target] = null;
 		values[target] = null;
 	}
-
 	/**
 	 * Removes the key (and its corresponding value) from this 
 	 * lookup table. This method does nothing if the key is not in the lookup table.
@@ -424,89 +399,67 @@ public class LookupTable extends Dictionary implements Cloneable {
 		int hashIndex = (key.hashCode() & 0x7FFFFFFF) % size;
 		for (int i = hashIndex; i < size; ++i) {
 			Object element = tab[i];
-			if (element == null)
-				return null;
+			if (element == null) return null;
 			if (element.equals(key)) {
 				Object oldValue = values[i];
 				rehashTo(i);
 				--count;
-				//				sanityCheck("remove");
+//				sanityCheck("remove");
 				++modCount;
 				return oldValue;
 			}
 		}
 		for (int i = 0; i < hashIndex; ++i) {
 			Object element = tab[i];
-			if (element == null)
-				return null;
+			if (element == null) return null;
 			if (element.equals(key)) {
 				Object oldValue = values[i];
 				rehashTo(i);
 				--count;
-				//				sanityCheck("remove"); 
+//				sanityCheck("remove"); 
 				++modCount;
 				return oldValue;
 			}
 		}
 		return null;
 	}
-
 	protected void sanityCheck(String where) {
 		int n = 0;
 		for (int i = 0; i < keys.length; ++i) {
 			if (keys[i] == null) {
 				if (values[i] != null) {
-					System.err.println(
-						"LookupTable sanity check in "
-							+ where
-							+ ": key is null, but value isn't at index "
-							+ i);
+					System.err.println("LookupTable sanity check in " + where + ": key is null, but value isn't at index " + i);
 					throw new Error();
 				}
-			} else {
+			}
+			else {
 				if (values[i] == null) {
-					System.err.println(
-						"LookupTable sanity check in "
-							+ where
-							+ ": value is null, but key isn't at index "
-							+ i);
+					System.err.println("LookupTable sanity check in " + where + ": value is null, but key isn't at index " + i);
 					throw new Error();
-				} else {
+				}
+				else {
 					++n;
 					Object value = get(keys[i]);
 					if (value == null || value != values[i]) {
-						System.err.println(
-							"LookupTable sanity check in "
-								+ where
-								+ ": key doesn't hash to proper value: "
-								+ keys[i]);
+						System.err.println("LookupTable sanity check in " + where + ": key doesn't hash to proper value: " + keys[i]);
 						throw new Error();
 					}
 				}
 			}
 		}
 		if (n != count) {
-			System.err.println(
-				"LookupTable sanity check in "
-					+ where
-					+ ": count is "
-					+ count
-					+ " but there are "
-					+ n
-					+ " entries");
+			System.err.println("LookupTable sanity check in " + where + ": count is " + count + " but there are " + n + " entries");
 			throw new Error();
 		}
 	}
-
 	/**
 	 * Returns the number of keys in this LookupTable.
 	 *
 	 * @return  the number of keys in this lookup table.
 	 */
 	public int size() {
-		return count;
+	return count;
 	}
-
 	/**
 	 * Returns a string representation of this <tt>LookupTable</tt> object 
 	 * in the form of a set of entries, enclosed in braces and separated 
@@ -519,26 +472,27 @@ public class LookupTable extends Dictionary implements Cloneable {
 	 * @return  a string representation of this lookup table.
 	 */
 	public synchronized String toString() {
-		StringBuffer buf = new StringBuffer();
-		buf.append("{");
-		boolean first = true;
-		for (int i = 0, max = keys.length; i < max; i++) {
-			if (keys[i] != null) {
-				if (first) {
-					first = false;
-				} else {
-					buf.append(", ");
-				}
-				if (buf.length() > 1000) {
-					buf.append("...");
-					break;
-				} else {
-					buf.append(keys[i]).append("=").append(values[i]);
-				}
+	StringBuffer buf = new StringBuffer();
+	buf.append("{"/*nonNLS*/);
+	boolean first = true;
+	for (int i = 0, max = keys.length; i < max; i++) {
+		if (keys[i] != null) {
+			if (first) {
+				first = false;
 			}
-		}
-		buf.append("}");
-		return buf.toString();
+			else {
+				buf.append(", "/*nonNLS*/);
+			}
+			if (buf.length() > 1000) {
+				buf.append("..."/*nonNLS*/);
+				break;
+			}
+			else {
+			    buf.append(keys[i]).append("="/*nonNLS*/).append(values[i]);
+		    }
+	    }
 	}
-
+	buf.append("}"/*nonNLS*/);
+	return buf.toString();
+	}
 }

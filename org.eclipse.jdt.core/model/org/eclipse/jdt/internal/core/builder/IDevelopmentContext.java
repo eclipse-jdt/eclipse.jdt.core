@@ -101,10 +101,7 @@ public interface IDevelopmentContext {
 	 * @see IState#applySourceDelta
 	 * @see IState#getBuildContext
 	 */
-	IImageBuilder createState(
-		IProject project,
-		IImageContext buildContext,
-		IProblemReporter problemReporter);
+	IImageBuilder createState(IProject project, IImageContext buildContext, IProblemReporter problemReporter);
 	/**
 	 * Compare two Objects for equality.  Returns true iff they represent the
 	 * same development context.
@@ -172,8 +169,8 @@ public interface IDevelopmentContext {
 	 * separately, and reassociated with the state when it is restored. 
 	 * Because of this quirk, this class does not implement 
 	 * <code>java.io.Externalizable</code>.
-		 * @exception NotPresentException when no current state has been set.
-		 * @exception java.io.IOException Includes any I/O exceptions that may occur
+ 	 * @exception NotPresentException when no current state has been set.
+ 	 * @exception java.io.IOException Includes any I/O exceptions that may occur
 	 * @see #restoreState
 	 */
 	void saveState(IState state, java.io.DataOutputStream out)
@@ -206,13 +203,13 @@ public interface IDevelopmentContext {
 	 * lazy builds.
 	 */
 	public void setProgressMonitor(IProgressMonitor monitor);
-	/**
-	 * Return a string of the form:
-	 * 		JDC#?
-	 * where ? is the instance number of the DevelopmentContext.
-	 * The string returned is only for debugging purposes,
-	 * and the contents of the string may change in the future.
-	 * @return java.lang.String
-	 */
-	public String toString();
+/**
+ * Return a string of the form:
+ * 		JDC#?
+ * where ? is the instance number of the DevelopmentContext.
+ * The string returned is only for debugging purposes,
+ * and the contents of the string may change in the future.
+ * @return java.lang.String
+ */
+public String toString();
 }

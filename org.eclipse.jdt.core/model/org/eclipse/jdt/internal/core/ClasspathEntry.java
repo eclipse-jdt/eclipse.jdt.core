@@ -21,7 +21,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * CPE_PROJECT, CPE_LIBRARY or CPE_SOURCE.
 	 */
 	protected int entryKind;
-
+	
 	/**
 	 * Describes the kind of package fragment roots found on
 	 * this classpath entry - either K_BINARY or K_SOURCE or
@@ -72,162 +72,139 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * A constant indicating an output location.
 	 */
-	protected static final int K_OUTPUT = 10;
-	/**
-	 * Creates a class path entry of the specified kind with the given path.
-	 */
-	public ClasspathEntry(
-		int contentKind,
-		int entryKind,
-		IPath path,
-		IPath sourceAttachmentPath,
-		IPath sourceAttachmentRootPath) {
-		this.contentKind = contentKind;
-		this.entryKind = entryKind;
-		this.path = path;
-		this.sourceAttachmentPath = sourceAttachmentPath;
-		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
-	}
+	protected static final int K_OUTPUT= 10;
+/**
+ * Creates a class path entry of the specified kind with the given path.
+ */
+public ClasspathEntry(int contentKind, int entryKind, IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath) {
+	this.contentKind = contentKind;
+	this.entryKind = entryKind;
+	this.path = path;
+	this.sourceAttachmentPath = sourceAttachmentPath;
+	this.sourceAttachmentRootPath = sourceAttachmentRootPath;
+}
+/**
+ * Returns true if the given object is a classpath entry
+ * with equivalent attributes.
+ */
+public boolean equals(Object object) {
+	if (this == object) return true;
+	if (object instanceof IClasspathEntry) {
+		IClasspathEntry otherEntry = (IClasspathEntry) object;
 
-	/**
-	 * Returns true if the given object is a classpath entry
-	 * with equivalent attributes.
-	 */
-	public boolean equals(Object object) {
-		if (this == object)
-			return true;
-		if (object instanceof IClasspathEntry) {
-			IClasspathEntry otherEntry = (IClasspathEntry) object;
+		if (this.contentKind != otherEntry.getContentKind()) return false;
 
-			if (this.contentKind != otherEntry.getContentKind())
-				return false;
+		if (this.entryKind != otherEntry.getEntryKind()) return false;
+		
+		if (!this.path.equals(otherEntry.getPath())) return false;
 
-			if (this.entryKind != otherEntry.getEntryKind())
-				return false;
-
-			if (!this.path.equals(otherEntry.getPath()))
-				return false;
-
-			IPath otherPath = otherEntry.getSourceAttachmentPath();
-			if (this.sourceAttachmentPath == null) {
-				if (otherPath != null)
-					return false;
-			} else {
-				if (!this.sourceAttachmentPath.equals(otherPath))
-					return false;
-			}
-
-			otherPath = otherEntry.getSourceAttachmentRootPath();
-			if (this.sourceAttachmentRootPath == null) {
-				if (otherPath != null)
-					return false;
-			} else {
-				if (!this.sourceAttachmentRootPath.equals(otherPath))
-					return false;
-			}
-
-			return true;
+		IPath otherPath = otherEntry.getSourceAttachmentPath();
+		if (this.sourceAttachmentPath == null) { 
+			if (otherPath != null) return false;
 		} else {
-			return false;
+			if (!this.sourceAttachmentPath.equals(otherPath)) return false;
 		}
-	}
-
-	/**
-	 * @see IClasspathEntry
-	 */
-	public int getContentKind() {
-		return this.contentKind;
-	}
-
-	/**
-	 * @see IClasspathEntry
-	 */
-	public int getEntryKind() {
-		return this.entryKind;
-	}
-
-	/**
-	 * @see IClasspathEntry
-	 */
-	public IPath getPath() {
-		return this.path;
-	}
-
-	/**
-	 * @see IClasspathEntry
-	 * @deprecated
-	 */
-	public IClasspathEntry getResolvedEntry() {
-
-		return JavaCore.getResolvedClasspathEntry(this);
-	}
-
-	/**
-	 * @see IClasspathEntry
-	 */
-	public IPath getSourceAttachmentPath() {
-		return this.sourceAttachmentPath;
-	}
-
-	/**
-	 * @see IClasspathEntry
-	 */
-	public IPath getSourceAttachmentRootPath() {
-		return this.sourceAttachmentRootPath;
-	}
-
-	/**
-	 * Returns the hash code for this classpath entry
-	 */
-	public int hashCode() {
-		return this.path.hashCode();
-	}
-
-	/**
-	 * Returns a printable representation of this classpath entry.
-	 */
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(getPath().toString());
-		buffer.append('[');
-		switch (getEntryKind()) {
-			case IClasspathEntry.CPE_LIBRARY :
-				buffer.append("CPE_LIBRARY");
-				break;
-			case IClasspathEntry.CPE_PROJECT :
-				buffer.append("CPE_PROJECT");
-				break;
-			case IClasspathEntry.CPE_SOURCE :
-				buffer.append("CPE_SOURCE");
-				break;
-			case IClasspathEntry.CPE_VARIABLE :
-				buffer.append("CPE_VARIABLE");
-				break;
+		
+		otherPath = otherEntry.getSourceAttachmentRootPath();
+		if (this.sourceAttachmentRootPath == null) { 
+			if (otherPath != null) return false;
+		} else {
+			if (!this.sourceAttachmentRootPath.equals(otherPath)) return false;
 		}
-		buffer.append("][");
-		switch (getContentKind()) {
-			case IPackageFragmentRoot.K_BINARY :
-				buffer.append("K_BINARY");
-				break;
-			case IPackageFragmentRoot.K_SOURCE :
-				buffer.append("K_SOURCE");
-				break;
-			case ClasspathEntry.K_OUTPUT :
-				buffer.append("K_OUTPUT");
-				break;
-		}
+
+	    return true;
+	} else {
+		return false;
+	}
+}
+/**
+ * @see IClasspathEntry
+ */
+public int getContentKind() {
+	return this.contentKind;
+}
+/**
+ * @see IClasspathEntry
+ */
+public int getEntryKind() {
+	return this.entryKind;
+}
+/**
+ * @see IClasspathEntry
+ */
+public IPath getPath() {
+	return this.path;
+}
+/**
+ * @see IClasspathEntry
+ * @deprecated
+ */
+public IClasspathEntry getResolvedEntry() {
+
+	return JavaCore.getResolvedClasspathEntry(this);
+}
+/**
+ * @see IClasspathEntry
+ */
+public IPath getSourceAttachmentPath() {
+	return this.sourceAttachmentPath;
+}
+/**
+ * @see IClasspathEntry
+ */
+public IPath getSourceAttachmentRootPath() {
+	return this.sourceAttachmentRootPath;
+}
+/**
+ * Returns the hash code for this classpath entry
+ */
+public int hashCode() {
+	return this.path.hashCode();
+}
+/**
+ * Returns a printable representation of this classpath entry.
+ */
+public String toString() {
+	StringBuffer buffer= new StringBuffer();
+	buffer.append(getPath().toString());
+	buffer.append('[');
+	switch (getEntryKind()) {
+		case IClasspathEntry.CPE_LIBRARY:
+			buffer.append("CPE_LIBRARY"/*nonNLS*/);
+			break;
+		case IClasspathEntry.CPE_PROJECT:
+			buffer.append("CPE_PROJECT"/*nonNLS*/);
+			break;
+		case IClasspathEntry.CPE_SOURCE:
+			buffer.append("CPE_SOURCE"/*nonNLS*/);
+			break;
+		case IClasspathEntry.CPE_VARIABLE:
+			buffer.append("CPE_VARIABLE"/*nonNLS*/);
+			break;
+	}
+	buffer.append("]["/*nonNLS*/);
+	switch (getContentKind()) {
+		case IPackageFragmentRoot.K_BINARY:
+			buffer.append("K_BINARY"/*nonNLS*/);
+			break;
+		case IPackageFragmentRoot.K_SOURCE:
+			buffer.append("K_SOURCE"/*nonNLS*/);
+			break;
+		case ClasspathEntry.K_OUTPUT:
+			buffer.append("K_OUTPUT"/*nonNLS*/);
+			break;
+	}
+	buffer.append(']');
+	if (getSourceAttachmentPath() != null){
+		buffer.append("[sourcePath:"/*nonNLS*/);
+		buffer.append(getSourceAttachmentPath());
 		buffer.append(']');
-		if (getSourceAttachmentPath() != null) {
-			buffer.append("[sourcePath:");
-			buffer.append(getSourceAttachmentPath());
-			buffer.append(']');
-		}
-		if (getSourceAttachmentRootPath() != null) {
-			buffer.append("[rootPath:");
-			buffer.append(getSourceAttachmentRootPath());
-			buffer.append(']');
-		}
-		return buffer.toString();
 	}
-
+	if (getSourceAttachmentRootPath() != null){
+		buffer.append("[rootPath:"/*nonNLS*/);
+		buffer.append(getSourceAttachmentRootPath());
+		buffer.append(']');
+	}
+	return buffer.toString();
+}
 }

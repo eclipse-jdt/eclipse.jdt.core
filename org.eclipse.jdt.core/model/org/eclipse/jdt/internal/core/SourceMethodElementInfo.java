@@ -12,10 +12,7 @@ import org.eclipse.jdt.core.Signature;
 /** 
  * Element info for IMethod elements. 
  */
-/* package */
-class SourceMethodElementInfo
-	extends MemberElementInfo
-	implements ISourceMethod {
+/* package */ class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
 
 	/**
 	 * For a source method (i.e. method contained in a comilation unit)
@@ -54,61 +51,46 @@ class SourceMethodElementInfo
 	/**
 	 * Constructor flag.
 	 */
-	protected boolean isConstructor = false;
-	public char[][] getArgumentNames() {
-		return this.argumentNames;
+	protected boolean isConstructor= false;
+public char[][] getArgumentNames() {
+	return this.argumentNames;
+}
+public char[][] getArgumentTypeNames() {
+	return this.argumentTypeNames;
+}
+public char[][] getExceptionTypeNames() {
+	return this.exceptionTypes;
+}
+public char[] getReturnTypeName() {
+	return this.returnType;
+}
+public char[] getSelector() {
+	return this.name;
+}
+protected String getSignature() {
+
+	String[] paramSignatures = new String[this.argumentTypeNames.length];
+	for (int i = 0; i < this.argumentTypeNames.length; ++i) {
+		paramSignatures[i] = Signature.createTypeSignature(this.argumentTypeNames[i], false);
 	}
-
-	public char[][] getArgumentTypeNames() {
-		return this.argumentTypeNames;
-	}
-
-	public char[][] getExceptionTypeNames() {
-		return this.exceptionTypes;
-	}
-
-	public char[] getReturnTypeName() {
-		return this.returnType;
-	}
-
-	public char[] getSelector() {
-		return this.name;
-	}
-
-	protected String getSignature() {
-
-		String[] paramSignatures = new String[this.argumentTypeNames.length];
-		for (int i = 0; i < this.argumentTypeNames.length; ++i) {
-			paramSignatures[i] =
-				Signature.createTypeSignature(this.argumentTypeNames[i], false);
-		}
-		return Signature.createMethodSignature(
-			paramSignatures,
-			Signature.createTypeSignature(this.returnType, false));
-	}
-
-	public boolean isConstructor() {
-		return this.isConstructor;
-	}
-
-	protected void setArgumentNames(char[][] names) {
-		this.argumentNames = names;
-	}
-
-	protected void setArgumentTypeNames(char[][] types) {
-		this.argumentTypeNames = types;
-	}
-
-	protected void setConstructor(boolean isConstructor) {
-		this.isConstructor = isConstructor;
-	}
-
-	protected void setExceptionTypeNames(char[][] types) {
-		this.exceptionTypes = types;
-	}
-
-	protected void setReturnType(char[] type) {
-		this.returnType = type;
-	}
-
+	return Signature.createMethodSignature(paramSignatures, Signature.createTypeSignature(this.returnType, false));
+}
+public boolean isConstructor() {
+	return this.isConstructor;
+}
+protected void setArgumentNames(char[][] names) {
+	this.argumentNames = names;
+}
+protected void setArgumentTypeNames(char[][] types) {
+	this.argumentTypeNames = types;
+}
+protected void setConstructor(boolean isConstructor) {
+	this.isConstructor = isConstructor;
+}
+protected void setExceptionTypeNames(char[][] types) {
+	this.exceptionTypes = types;
+}
+protected void setReturnType(char[] type) {
+	this.returnType = type;
+}
 }

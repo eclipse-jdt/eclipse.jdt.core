@@ -19,12 +19,11 @@ import java.util.*;
  * are included.
  */
 public class JavaWorkspaceScope extends JavaSearchScope {
-	public JavaWorkspaceScope() {
-		this.setIncludesBinaries(true);
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			this.add(projects[i]);
-		}
+public JavaWorkspaceScope() {
+	this.setIncludesBinaries(true);
+	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+	for (int i = 0, length = projects.length; i < length; i++) {
+		this.add(projects[i]);
 	}
-
+}
 }

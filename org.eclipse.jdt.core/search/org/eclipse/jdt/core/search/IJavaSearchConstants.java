@@ -22,60 +22,60 @@ public interface IJavaSearchConstants {
 	 * of match in unknown.
 	 */
 	int UNKNOWN = -1;
-
+	
 	/* Nature of searched element */
-
+	
 	/**
 	 * The searched element is a type.
 	 */
-	int TYPE = 0;
+	int TYPE= 0;
 	/**
 	 * The searched element is a method.
 	 */
-	int METHOD = 1;
+	int METHOD= 1;
 	/**
 	 * The searched element is a package.
 	 */
-	int PACKAGE = 2;
+	int PACKAGE= 2;
 	/**
 	 * The searched element is a constructor.
 	 */
-	int CONSTRUCTOR = 3;
+	int CONSTRUCTOR= 3;
 	/**
 	 * The searched element is a field.
 	 */
-	int FIELD = 4;
+	int FIELD= 4;
 	/**
 	 * The searched element is a class.
 	 */
-	int CLASS = 5;
+	int CLASS= 5;
 	/**
 	 * The searched element is an interface.
 	 */
-	int INTERFACE = 6;
+	int INTERFACE= 6;
 
 	/* Nature of match */
-
+	
 	/**
 	 * The search result is a declaration.
 	 */
-	int DECLARATIONS = 0;
+	int DECLARATIONS= 0;
 	/**
 	 * The search result is a type that implements an interface.
 	 */
-	int IMPLEMENTORS = 1;
+	int IMPLEMENTORS= 1;
 	/**
 	 * The search result is a reference.
 	 */
-	int REFERENCES = 2;
+	int REFERENCES= 2;
 	/**
 	 * The search result is a declaration, a reference, or an implementor 
 	 * of an interface.
 	 */
-	int ALL_OCCURRENCES = 3;
+	int ALL_OCCURRENCES= 3;
 
 	/* Syntactic match modes */
-
+	
 	/**
 	 * The search pattern matches exactly the search result,
 	 * i.e. the source of the search result equals the search pattern.
@@ -91,8 +91,9 @@ public interface IJavaSearchConstants {
 	 */
 	int PATTERN_MATCH = 2;
 
-	/* Case sensitivity */
 
+	/* Case sensitivity */
+	
 	/**
 	 * The search pattern matches the search result only
 	 * if case are the same.
@@ -102,9 +103,10 @@ public interface IJavaSearchConstants {
 	 * The search pattern ignores cases in the search result.
 	 */
 	boolean CASE_INSENSITIVE = false;
+	
 
 	/* Waiting policies */
-
+	
 	/**
 	 * The search operation starts immediately, even if the underlying indexer
 	 * has not finished indexing the workspace. Results will more likely
@@ -121,5 +123,6 @@ public interface IJavaSearchConstants {
 	 * the workspace before starting the search.
 	 */
 	int WAIT_UNTIL_READY_TO_SEARCH = IJobConstants.WaitUntilReady;
-
+	
+	
 }

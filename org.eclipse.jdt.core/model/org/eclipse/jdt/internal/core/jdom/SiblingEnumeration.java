@@ -15,38 +15,34 @@ import java.util.Enumeration;
  * @see java.util.Enumeration
  */
 
-/* package */
-class SiblingEnumeration implements Enumeration {
+/* package */ class SiblingEnumeration implements Enumeration {
 
 	/**
 	 * The current location in the linked list
 	 * of DOM nodes.
 	 */
 	protected IDOMNode fCurrentElement;
-	/**
-	 * Creates an enumeration of silbings starting at the given node.
-	 * If the given node is <code>null</code> the enumeration is empty.
-	 */
-	SiblingEnumeration(IDOMNode child) {
-		fCurrentElement = child;
+/**
+ * Creates an enumeration of silbings starting at the given node.
+ * If the given node is <code>null</code> the enumeration is empty.
+ */
+SiblingEnumeration(IDOMNode child) {
+	fCurrentElement= child;
+}
+/**
+ * @see java.util.Enumeration#hasMoreElements()
+ */
+public boolean hasMoreElements() {
+	return fCurrentElement != null;
+}
+/**
+ * @see java.util.Enumeration#nextElement()
+ */
+public Object nextElement() {
+	IDOMNode curr=  fCurrentElement;
+	if (curr != null) {
+		fCurrentElement= fCurrentElement.getNextNode();
 	}
-
-	/**
-	 * @see java.util.Enumeration#hasMoreElements()
-	 */
-	public boolean hasMoreElements() {
-		return fCurrentElement != null;
-	}
-
-	/**
-	 * @see java.util.Enumeration#nextElement()
-	 */
-	public Object nextElement() {
-		IDOMNode curr = fCurrentElement;
-		if (curr != null) {
-			fCurrentElement = fCurrentElement.getNextNode();
-		}
-		return curr;
-	}
-
+	return curr;
+}
 }

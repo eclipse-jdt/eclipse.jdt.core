@@ -6,7 +6,6 @@ public class Int {
 	 * Int constructor comment.
 	 */
 	public Int(int i) {
-		value = i;
+		value= i;
 	}
-
 }

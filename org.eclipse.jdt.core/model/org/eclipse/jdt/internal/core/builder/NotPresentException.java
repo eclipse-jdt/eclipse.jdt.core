@@ -1,6 +1,8 @@
 package org.eclipse.jdt.internal.core.builder;
 
-public class NotPresentException extends RuntimeException {
+public class NotPresentException extends RuntimeException
+{
+
 
 	/**
 	 * Constructs a <code>NotPresentException</code> without a detail message.
@@ -8,7 +10,6 @@ public class NotPresentException extends RuntimeException {
 	public NotPresentException() {
 		super();
 	}
-
 	/**
 	 * Constructs a <code>NotPresentException</code> with a detail message. 
 	 *
@@ -17,5 +18,4 @@ public class NotPresentException extends RuntimeException {
 	public NotPresentException(String s) {
 		super(s);
 	}
-
 }

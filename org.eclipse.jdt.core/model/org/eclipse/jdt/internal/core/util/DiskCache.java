@@ -4,6 +4,8 @@ package org.eclipse.jdt.internal.core.util;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.internal.core.Util;
+
 import java.io.*;
 import java.util.*;
 
@@ -31,7 +33,7 @@ public class DiskCache {
 	 * Max size of the cache in K.
 	 */
 	int fSpaceLimit;
-
+	
 	/**
 	 * Used for creating cache entry files.
 	 */
@@ -42,7 +44,7 @@ public class DiskCache {
 	 * or because file is still open.
 	 */
 	Vector fFilesToBeDeleted = new Vector();
-
+	
 	/**
 	 * Extends the LRU cache entry to add extra fields needed by disk cache.
 	 * We could avoided overriding the cache entry class by creating another object 
@@ -51,19 +53,13 @@ public class DiskCache {
 	 * It is static because it doesn't require an outer instance.
 	 */
 	protected static class Entry extends LRUCache.LRUCacheEntry {
-
+			
 		long fLastAccess;
 		byte[] fExtraInfo;
 		int fFlags;
 		static final int F_COMPLETE = 1;
-
-		Entry(
-			String key,
-			int size,
-			String fileName,
-			long lastAccess,
-			byte[] extraInfo,
-			int flags) {
+			
+		Entry(String key, int size, String fileName, long lastAccess, byte[] extraInfo, int flags) {
 			// use super's key, value and space fields for our key, fileName and size.
 			super(key, fileName, size);
 			fLastAccess = lastAccess;
@@ -72,15 +68,10 @@ public class DiskCache {
 		}
 
 		DiskCacheEntry asDiskCacheEntry() {
-			return new DiskCacheEntry(
-				(String) _fKey,
-				_fSpace,
-				(String) _fValue,
-				fLastAccess,
-				fExtraInfo);
+			return new DiskCacheEntry((String)_fKey, _fSpace, (String)_fValue, fLastAccess, fExtraInfo);
 		}
 	}
-
+		
 	/**
 	 * The maximum size of the cache, in number of K.
 	 */
@@ -99,21 +90,20 @@ public class DiskCache {
 		 * An item is being removed from the cache. Delete its file.
 		 */
 		protected void privateNotifyDeletionFromCache(LRUCacheEntry entry) {
-			String fileName = (String) entry._fValue;
-			if ((((Entry) entry).fFlags & Entry.F_COMPLETE) != 0) {
+			String fileName = (String)entry._fValue;
+			if ((((Entry)entry).fFlags & Entry.F_COMPLETE) != 0) {
 				/* Entry has been complete written, so we can delete it. */
 				boolean success = deleteFile(fileName);
-				if (success)
-					return;
+				if (success) return;
 				/* If success == false, then it is inconsistent with the flag's 
 				 * F_COMPLETE mask. Something is wrong. */
-			}
+			} 
 			/* Otherwise, or if file deletion failed (probably due to 
 			 * a stream on it still being open), mark the file for deletion later 
 			 * (at save or reload time) checking again to see if it's closed. */
-			rememberToDelete(fileName);
+			 rememberToDelete(fileName);
 		}
-
+			
 		/**
 		 * Lookup an entry.  Expose the Entry object.
 		 */
@@ -122,7 +112,7 @@ public class DiskCache {
 			if (entry == null) {
 				return null;
 			}
-			updateTimestamp(entry);
+			updateTimestamp (entry);
 			return entry;
 		}
 
@@ -134,16 +124,16 @@ public class DiskCache {
 			if (entry == null) {
 				return null;
 			}
-			this.privateRemoveEntry(entry, false);
+			this.privateRemoveEntry (entry, false);
 			return entry;
 		}
-
+			
 		/**
 		 * Updates the timestamp for the given entry, ensuring that the queue is 
 		 * kept in correct order.  The entry must exist
 		 */
-		protected void updateTimestamp(LRUCacheEntry entry) {
-			((Entry) entry).fLastAccess = System.currentTimeMillis();
+		protected void updateTimestamp (LRUCacheEntry entry) {
+			((Entry)entry).fLastAccess = System.currentTimeMillis();
 			super.updateTimestamp(entry);
 		}
 
@@ -161,18 +151,18 @@ public class DiskCache {
 		public Enumeration getEntries() {
 			return new Enumeration() {
 
-				Entry current = (Entry) fEntryQueue;
-
+				Entry current = (Entry)fEntryQueue;
+				
 				public boolean hasMoreElements() {
 					return current != null;
 				}
-
+				
 				public Object nextElement() {
 					if (current == null) {
 						throw new NoSuchElementException();
 					}
 					Entry result = current;
-					current = (Entry) current._fNext;
+					current = (Entry)current._fNext;
 					return result;
 				}
 			};
@@ -181,9 +171,9 @@ public class DiskCache {
 
 	EntryCache fEntryCache;
 
-	static final String CONTENTS_FILE_NAME = "contents";
-	static final String TEMP_CONTENTS_FILE_NAME = "tempcont";
-	static final String CONTENTS_VERSION = "DiskCache.V1.0";
+	static final String CONTENTS_FILE_NAME = "contents"/*nonNLS*/;
+	static final String TEMP_CONTENTS_FILE_NAME = "tempcont"/*nonNLS*/;
+	static final String CONTENTS_VERSION = "DiskCache.V1.0"/*nonNLS*/;
 
 	/**
 	 * Set to true when cache is modified, cleared when saved.
@@ -199,23 +189,23 @@ public class DiskCache {
 	 * Interval for periodic save checks, in ms.  5 sec by default.
 	 */
 	int fPeriodicSaveInterval = 60000;
-
-	/**
-	 * Create a disk cache which uses the given filesystem directory
-	 * and has the given space limit (in kilobytes).
-	 */
-	public DiskCache(File directory, int spaceLimit) {
-		fDirectory = directory;
-		fFileSource = new AnonymousFileSource(directory);
-		fSpaceLimit = spaceLimit;
-		createEntryCache();
-		try {
-			read();
-			deleteFilesToBeDeleted();
-		} catch (IOException e) {
-		}
+	
+/**
+ * Create a disk cache which uses the given filesystem directory
+ * and has the given space limit (in kilobytes).
+ */
+public DiskCache(File directory, int spaceLimit) {
+	fDirectory = directory;
+	fFileSource = new AnonymousFileSource(directory);
+	fSpaceLimit = spaceLimit;
+	createEntryCache();
+	try {
+		read();
+		deleteFilesToBeDeleted();
 	}
-
+	catch (IOException e) {
+	}
+}
 	/**
 	 * Add an entry to the cache.  The size of the entry in bytes must be given.
 	 * Extra information in the form of a byte array may optionally be associated
@@ -225,15 +215,14 @@ public class DiskCache {
 	 *
 	 * @throws IOException if a file for the entry's contents could not be created
 	 */
-	public OutputStream add(final String key, int size, byte[] extraInfo)
-		throws IOException {
-		if (size > fSpaceLimit * 1024) {
+	public OutputStream add(final String key, int size, byte[] extraInfo) throws IOException {
+		if (size > fSpaceLimit*1024) {
 			throw new IOException("Entry size greater than cache size");
 		}
 		final File file;
 		OutputStream output;
 		// Allocate the file first.  If errors occur, no entry is added.
-		synchronized (fFileSource) {
+		synchronized(fFileSource) {
 			file = fFileSource.getAnonymousFile();
 			output = new FileOutputStream(file);
 		}
@@ -241,9 +230,8 @@ public class DiskCache {
 		if (extraInfo != null && extraInfo.length == 0) {
 			extraInfo = null;
 		}
-		final Entry entry =
-			new Entry(key, size, file.getName(), lastAccess, extraInfo, 0);
-		synchronized (fEntryCache) {
+		final Entry entry = new Entry(key, size, file.getName(), lastAccess, extraInfo, 0);
+		synchronized(fEntryCache) {
 			// Only use the simple file name.
 			fEntryCache.add(entry);
 		}
@@ -252,57 +240,55 @@ public class DiskCache {
 		// Hopefully the content is received before the periodic save interval,
 		// so state is saved at most once for this entry.
 		modified();
-
+		
 		// Return a filter stream which sets the complete flag when the stream is closed.
 		return new FilterOutputStream(output) {
 			public void write(byte b[], int off, int len) throws IOException {
 				out.write(b, off, len);
 			}
-
+			
 			private void closeHelper() throws IOException {
 				super.close();
 				// Ensure entry is still valid.  
 				// It may have been removed or replaced in the interim.
-				synchronized (fEntryCache) {
+				synchronized(fEntryCache) {
 					if (fEntryCache.get(key) != entry) {
-						String fileName = (String) entry._fValue;
+						String fileName = (String)entry._fValue;
 						boolean success = deleteFile(fileName);
 						if (!success) {
 							rememberToDelete(fileName);
 						}
 					}
 				}
-				modified();
+				modified(); 
 			}
-
+			
 			public void close() throws IOException {
 				entry.fFlags |= Entry.F_COMPLETE;
 				closeHelper();
 			}
-
-			public void finalize() throws Throwable {
+			
+			public void finalize() throws Throwable { 
 				closeHelper();
 				super.finalize();
 			}
-
+			
 			/* For debugging/testing ONLY. Do not use outside of test suites.*/
 			public String toString() {
 				return file.toString();
 			}
 		};
 	}
-
 	/**
 	 * Clear the cache.  All entries are removed and their associated files are deleted.
 	 */
 	public void clearCache() {
-		synchronized (fEntryCache) {
+		synchronized(fEntryCache) {
 			fEntryCache.flush();
 		}
 		// Be sure to save the cleared contents.
-		modified();
+		modified(); 
 	}
-
 	/**
 	 * Close the cache.  
 	 * Flush incomplete entries, save volatile state if needed, and halt periodic saves.
@@ -311,7 +297,8 @@ public class DiskCache {
 		if (fIsDirty || flushIncompleteEntries()) {
 			try {
 				save();
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				// Ignore
 			}
 		}
@@ -322,15 +309,13 @@ public class DiskCache {
 			thread.interrupt();
 		}
 	}
-
 	/**
 	 * Internal - (Re)create the internal entry cache.
 	 */
 	protected void createEntryCache() {
 		fEntryCache = new EntryCache();
-		fEntryCache.setSpaceLimit(fSpaceLimit * 1024);
+		fEntryCache.setSpaceLimit(fSpaceLimit*1024);
 	}
-
 	/**
 	 * Internal - Delete the file for an entry. Returns the
 	 * "success flag" result from java.io.File's delete().
@@ -340,29 +325,27 @@ public class DiskCache {
 		fileToDelete.delete();
 		// Could have already been deleted.
 		boolean success = !fileToDelete.exists();
-		if (success && fFilesToBeDeleted.contains(fileName))
+		if(success && fFilesToBeDeleted.contains(fileName))
 			fFilesToBeDeleted.removeElement(fileName);
-		return success;
+		return success; 
 	}
-
-	/**
-	 * Internal - Deletes the files that have been flagged for deletion. Returns
-	 * the number of flagged files that remain undeleted.
-	 */
-	public int deleteFilesToBeDeleted() {
-		synchronized (fFilesToBeDeleted) {
-			Vector clone = (Vector) fFilesToBeDeleted.clone();
-			Enumeration e = clone.elements();
-			while (e.hasMoreElements()) {
-				String fileName = (String) e.nextElement();
-				boolean success = deleteFile(fileName);
-				if (success)
-					fFilesToBeDeleted.removeElement(fileName);
-			}
-			return fFilesToBeDeleted.size();
+/**
+ * Internal - Deletes the files that have been flagged for deletion. Returns
+ * the number of flagged files that remain undeleted.
+ */
+public int deleteFilesToBeDeleted() {
+	synchronized (fFilesToBeDeleted) {
+		Vector clone = (Vector) fFilesToBeDeleted.clone();
+		Enumeration e = clone.elements();
+		while(e.hasMoreElements()) {
+			String fileName = (String) e.nextElement();
+			boolean success = deleteFile(fileName);
+			if (success) 
+				fFilesToBeDeleted.removeElement(fileName);
 		}
+		return fFilesToBeDeleted.size();
 	}
-
+}
 	/**
 	 * Flush all incomplete entries from the cache.
 	 * Returns true if some were flushed.
@@ -370,61 +353,54 @@ public class DiskCache {
 	protected boolean flushIncompleteEntries() {
 		Vector v = new Vector();
 		for (Enumeration e = fEntryCache.getEntries(); e.hasMoreElements();) {
-			Entry entry = (Entry) e.nextElement();
+			Entry entry = (Entry)e.nextElement();
 			if ((entry.fFlags & Entry.F_COMPLETE) == 0) {
 				v.addElement(entry._fKey);
 			}
 		}
 		for (int i = 0, size = v.size(); i < size; ++i) {
-			fEntryCache.removeKey((String) v.elementAt(i));
+			fEntryCache.removeKey((String)v.elementAt(i));
 		}
 		return v.size() > 0;
 	}
-
 	/**
 	 * Returns the directory which holds the cache.
 	 */
 	public File getDirectory() {
 		return fDirectory;
 	}
-
-	/**
-	 * For debugging/testing purposes.
-	 */
-	public int getNumberOfFilesToBeDeleted() {
-		return fFilesToBeDeleted.size();
-	}
-
+/**
+ * For debugging/testing purposes.
+ */
+public int getNumberOfFilesToBeDeleted() {
+	return fFilesToBeDeleted.size();
+}
 	/**
 	 * Return the number of entries in the cache.
 	 */
 	public int getNumEntries() {
 		return fEntryCache.getNumEntries();
 	}
-
 	/**
 	 * Returns the delay in milliseconds between periodic saves.
 	 */
 	public int getPeriodicSaveInterval() {
 		return fPeriodicSaveInterval;
 	}
-
 	/**
 	 * Returns the space limit of the cache, in Kilobytes.
 	 */
 	public int getSpaceLimit() {
 		return fSpaceLimit;
 	}
-
 	/**
 	 * Returns the space used by the cache, in Kilobytes.
 	 */
 	public int getSpaceUsed() {
-		synchronized (fEntryCache) {
+		synchronized(fEntryCache) {
 			return (fEntryCache.getCurrentSpace() + 1023) / 1024; // Take ceiling.
 		}
 	}
-
 	/**
 	 * Returns an enumeration on the keys (Strings)
 	 * of the entries in the cache.
@@ -432,7 +408,6 @@ public class DiskCache {
 	public Enumeration keys() {
 		return fEntryCache.keys();
 	}
-
 	/**
 	 * Look up an entry in the cache.  Answer the entry if found, or null if not found.
 	 * If the contents are to be retrieved, use the <code>open</code> method rather than
@@ -442,19 +417,19 @@ public class DiskCache {
 	 */
 	public DiskCacheEntry lookup(String key) {
 		Entry entry;
-		synchronized (fEntryCache) {
+		synchronized(fEntryCache) {
 			entry = fEntryCache.get(key);
 		}
 		if (entry == null || (entry.fFlags & Entry.F_COMPLETE) == 0) {
 			return null;
-		} else {
+		}
+		else {
 			// If the entry was found, then the contents should be
 			// resaved because the order of items in it has changed.
 			modified();
 			return entry.asDiskCacheEntry();
 		}
 	}
-
 	/**
 	 * Internal - The cache has been modified.  Remember to save the state.
 	 * Method is synchronized to protect fPeriodicSaveThread from concurrent access.
@@ -465,7 +440,6 @@ public class DiskCache {
 			startPeriodicSaveThread();
 		}
 	}
-
 	/**
 	 * Open an input stream on the contents of the given entry.
 	 * The passed entry must be the result of a previous lookup operation.
@@ -483,9 +457,9 @@ public class DiskCache {
 		if (finalEntry == null || !fileName.equals((String) finalEntry._fValue)) {
 			throw new FileNotFoundException();
 		}
-
+		
 		final File file = fFileSource.fileForName(fileName);
-
+		
 		class DiskCachePrivateFileInputStream extends FileInputStream {
 			DiskCachePrivateFileInputStream(File file) throws FileNotFoundException {
 				super(file);
@@ -494,7 +468,7 @@ public class DiskCache {
 				super.close();
 				// Ensure entry is still valid.  
 				// It may have been removed or replaced in the interim.
-				synchronized (fEntryCache) {
+				synchronized(fEntryCache) {
 					if (fEntryCache.get(key) != finalEntry) {
 						boolean success = deleteFile(fileName);
 						if (!success) {
@@ -502,9 +476,9 @@ public class DiskCache {
 						}
 					}
 				}
-				modified();
+				modified(); 
 			}
-			protected void finalize() throws IOException {
+			protected void finalize() throws IOException { 
 				close();
 				super.finalize();
 			}
@@ -515,7 +489,8 @@ public class DiskCache {
 		};
 		try {
 			return new DiskCachePrivateFileInputStream(file);
-		} catch (FileNotFoundException e) {
+		}
+		catch (FileNotFoundException e) {
 			// If there's an error while opening the file,
 			// delete the entry and the file from the cache.
 			remove(key);
@@ -524,7 +499,6 @@ public class DiskCache {
 			throw e;
 		}
 	}
-
 	/**
 	 * Read the cache state from persistent storage.
 	 * Any undeleted entry files left at the last save the cach now tries to delete.
@@ -534,15 +508,17 @@ public class DiskCache {
 		if (!file.exists()) {
 			return;
 		}
-		DataInputStream in =
-			new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+		DataInputStream in = 
+			new DataInputStream(
+				new BufferedInputStream(
+					new FileInputStream(file)));
 		try {
 			String sig = in.readUTF();
 			int spaceLimit = in.readInt(); /* Ignored -- use current limit */
-			int spaceUsed = in.readInt(); /* Ignored -- updated as entries are read */
+			int spaceUsed = in.readInt();  /* Ignored -- updated as entries are read */
 			int numEntries = in.readInt();
 			if (!sig.equals(CONTENTS_VERSION)) {
-				throw new IOException("Invalid format");
+				throw new IOException(Util.bind("file.badFormat")/*nonNLS*/);
 			}
 
 			/* Read to a temp. array of entries.  The entries are in most- to 
@@ -558,7 +534,7 @@ public class DiskCache {
 			for (int i = numEntries - 1; i >= 0; --i) {
 				fEntryCache.add(entries[i]);
 			}
-
+			
 			/* Read in names of files to be deleted. */
 			/* But first, check that we are not at the end of the file (which occurs
 			 * in pre-existing file formats). Try reading an int to find this out. */
@@ -570,19 +546,19 @@ public class DiskCache {
 			} catch (IOException ignoreMe) {
 				/* We're at the end of file, so it's a pre-existing format. */
 			}
-			if (moreToRead) {
+			if(moreToRead) {
 				fFilesToBeDeleted = new Vector();
 				for (int i = 0; i < numFilesToBeDeleted; i++) {
 					String fileName = in.readUTF();
 					fFilesToBeDeleted.addElement(fileName);
 				}
 			}
-
-		} finally {
+				
+		}
+		finally {
 			in.close();
 		}
 	}
-
 	/**
 	 * Internal - Read an entry from a stream.  Returns an internal cache Entry.
 	 */
@@ -600,7 +576,6 @@ public class DiskCache {
 		}
 		return new Entry(key, size, fileName, lastAccess, extraInfo, flags);
 	}
-
 	/**
 	 * Internal - Remember to delete a file later.
 	 */
@@ -608,58 +583,49 @@ public class DiskCache {
 		if (!fFilesToBeDeleted.contains(fileName))
 			fFilesToBeDeleted.addElement(fileName);
 	}
-
 	/**
 	 * Remove an entry from the cache and delete its contents.  
 	 * Answer the entry if found, or null if not found.
 	 */
 	public DiskCacheEntry remove(String key) {
 		Entry entry;
-		synchronized (fEntryCache) {
+		synchronized(fEntryCache) {
 			entry = fEntryCache.removeKey(key);
 		}
 		if (entry == null) {
 			return null;
-		} else {
+		}
+		else {
 			modified();
 			return entry.asDiskCacheEntry();
 		}
 	}
-
-	public synchronized void removeAll(Vector keys) {
-		Enumeration enum = keys.elements();
-		while (enum.hasMoreElements()) {
-			String key = (String) enum.nextElement();
-			remove(key);
-		}
+public synchronized void removeAll(Vector keys) {
+	Enumeration enum = keys.elements();
+	while (enum.hasMoreElements()) {
+		String key = (String) enum.nextElement();
+		remove(key);
 	}
-
+}
 	/**
 	 * Renames an entry in the cache.
 	 * Returns true if the rename succeeded, false otherwise.
 	 */
 	public boolean rename(String oldKey, String newKey) {
 		long lastAccess = System.currentTimeMillis();
-		synchronized (fEntryCache) {
+		synchronized(fEntryCache) {
 			Entry oldEntry = (Entry) fEntryCache.get(oldKey);
 			if (oldEntry == null) {
 				return false;
-			} else {
-				Entry newEntry =
-					new Entry(
-						newKey,
-						oldEntry._fSpace,
-						(String) oldEntry._fValue,
-						lastAccess,
-						oldEntry.fExtraInfo,
-						oldEntry.fFlags);
+			}
+			else {
+				Entry newEntry = new Entry(newKey, oldEntry._fSpace, (String) oldEntry._fValue, lastAccess, oldEntry.fExtraInfo, oldEntry.fFlags);
 				fEntryCache.add(newEntry);
 			}
 		}
 		modified();
 		return true;
 	}
-
 	/**
 	 * Save all in-memory cache state to persistent storage.
 	 * Tries to deleted undeleted entry files.
@@ -675,24 +641,26 @@ public class DiskCache {
 		 * the face of errors such as disk full. 
 		 */
 		File tempFile = new File(fDirectory, TEMP_CONTENTS_FILE_NAME);
-		DataOutputStream out =
-			new DataOutputStream(new BufferedOutputStream(new FileOutputStream(tempFile)));
+		DataOutputStream out = 
+			new DataOutputStream(
+				new BufferedOutputStream(
+					new FileOutputStream(tempFile)));
 		boolean ok = false;
 		try {
-			synchronized (fEntryCache) {
+			synchronized(fEntryCache) {
 				out.writeUTF(CONTENTS_VERSION);
 				out.writeInt(getSpaceLimit());
 				out.writeInt(getSpaceUsed());
 				int numEntries = fEntryCache.getNumEntries();
 				out.writeInt(numEntries);
 				for (Enumeration e = fEntryCache.getEntries(); e.hasMoreElements();) {
-					Entry entry = (Entry) e.nextElement();
+					Entry entry = (Entry)e.nextElement();
 					writeEntry(entry, out);
 				}
 				int numFilesToBeDeleted = fFilesToBeDeleted.size();
 				out.writeInt(numFilesToBeDeleted);
 				Enumeration e = fFilesToBeDeleted.elements();
-				while (e.hasMoreElements()) {
+				while(e.hasMoreElements()) {
 					String fileName = (String) e.nextElement();
 					out.writeUTF(fileName);
 				}
@@ -706,31 +674,29 @@ public class DiskCache {
 				ok = true;
 				fIsDirty = false;
 			}
-		} finally {
+		}
+		finally {
 			if (!ok) {
 				out.close();
 				tempFile.delete();
 			}
 		}
 	}
-
 	/**
 	 * Sets the delay in milliseconds between periodic saves.
 	 */
 	public void setPeriodicSaveInterval(int interval) {
 		fPeriodicSaveInterval = interval;
 	}
-
 	/**
 	 * Sets the space limit of the cache, in Kilobytes.
 	 */
 	public void setSpaceLimit(int limit) {
 		fSpaceLimit = limit;
-		synchronized (fEntryCache) {
+		synchronized(fEntryCache) {
 			fEntryCache.setSpaceLimit(limit * 1024);
 		}
 	}
-
 	/**
 	 * Internal -
 	 * Create and start a thread which checks every so often whether 
@@ -743,51 +709,53 @@ public class DiskCache {
 			public void run() {
 				try {
 					Thread.sleep(fPeriodicSaveInterval);
-				} catch (InterruptedException e) {
+				}
+				catch (InterruptedException e) {
 				}
 				for (;;) {
-					synchronized (DiskCache.this) {
+					synchronized(DiskCache.this) {
 						if (fIsDirty) {
 							try {
-								save(); // clears dirty flag
-							} catch (IOException e) {
+								save();  // clears dirty flag
+							}
+							catch (IOException e) {
 								// Ignore
 							}
-						} else {
+						}
+						else {
 							// drop ref to thread and terminate
-							fPeriodicSaveThread = null;
+							fPeriodicSaveThread = null;  
 							return;
 						}
 					}
 					try {
 						Thread.sleep(fPeriodicSaveInterval);
-					} catch (InterruptedException e) {
+					}
+					catch (InterruptedException e) {
 					}
 				}
-			}
+			}				
 		};
 		fPeriodicSaveThread.setName("DiskCache periodic save");
 		fPeriodicSaveThread.start();
-
+					
 	}
-
 	/**
 	 * Internal - Write an internal cache Entry to a stream.
 	 */
-	protected void writeEntry(Entry entry, DataOutputStream out)
-		throws IOException {
-		out.writeUTF((String) entry._fKey);
+	protected void writeEntry(Entry entry, DataOutputStream out) throws IOException {
+		out.writeUTF((String)entry._fKey);
 		out.writeInt(entry._fSpace);
-		out.writeUTF((String) entry._fValue); // fileName
+		out.writeUTF((String)entry._fValue); // fileName
 		out.writeLong(entry.fLastAccess);
 		out.writeInt(entry.fFlags);
 		byte[] extraInfo = entry.fExtraInfo;
 		if (extraInfo == null) {
 			out.writeInt(0);
-		} else {
+		}
+		else {
 			out.writeInt(extraInfo.length);
 			out.write(extraInfo);
 		}
 	}
-
 }

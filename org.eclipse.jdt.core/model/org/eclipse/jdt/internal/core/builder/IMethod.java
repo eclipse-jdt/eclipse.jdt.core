@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 public interface IMethod extends IMember {
 
+
 	/**
 	 * Compares this Method handle against the specified object.  Returns
 	 * true if the objects are the same.  Two Method handles are the same if

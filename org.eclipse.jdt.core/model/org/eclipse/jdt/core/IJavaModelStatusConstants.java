@@ -14,7 +14,7 @@ public interface IJavaModelStatusConstants {
 	 * Use <code>getException</code> to retrieve a <code>CoreException</code>.
 	 */
 	public static final int CORE_EXCEPTION = 966;
-
+	
 	/**
 	 * Status constant indicating one or more of the elements
 	 * supplied are not of a valid type for the operation to
@@ -43,14 +43,14 @@ public interface IJavaModelStatusConstants {
 	 * supplied to the operation.
 	 */
 	public static final int NULL_PATH = 970;
-
+	
 	/**
 	 * Status constant indicating that a path outside of the
 	 * project was supplied to the operation. The path can be retrieved using 
 	 * <code>getPath</code> on the status object.
 	 */
 	public static final int PATH_OUTSIDE_PROJECT = 971;
-
+	
 	/**
 	 * Status constant indicating that a relative path 
 	 * was supplied to the operation when an absolute path is
@@ -58,7 +58,7 @@ public interface IJavaModelStatusConstants {
 	 * status object.
 	 */
 	public static final int RELATIVE_PATH = 972;
-
+	
 	/**
 	 * Status constant indicating that a path specifying a device
 	 * was supplied to the operation when a path with no device is
@@ -66,45 +66,45 @@ public interface IJavaModelStatusConstants {
 	 * status object.
 	 */
 	public static final int DEVICE_PATH = 973;
-
+	
 	/**
 	 * Status constant indicating that a string
 	 * was supplied to the operation that was <code>null</code>.
 	 */
 	public static final int NULL_STRING = 974;
-
+	
 	/**
 	 * Status constant indicating that the operation encountered
 	 * a read-only element.
 	 * The element(s) can be retrieved using <code>getElements</code> on the status object.
 	 */
 	public static final int READ_ONLY = 976;
-
+	
 	/**
 	 * Status constant indicating that a naming collision would occur
 	 * if the operation proceeded.
 	 */
 	public static final int NAME_COLLISION = 977;
-
+	
 	/**
 	 * Status constant indicating that a destination provided for a copy/move/rename operation 
 	 * is invalid. 
 	 * The destination element can be retrieved using <code>getElements</code> on the status object.
 	 */
 	public static final int INVALID_DESTINATION = 978;
-
+	
 	/**
 	 * Status constant indicating that a path provided to an operation 
 	 * is invalid. The path can be retrieved using <code>getPath</code> on the
 	 * status object.
 	 */
 	public static final int INVALID_PATH = 979;
-
+	
 	/**
 	 * Status constant indicating the given source position is out of bounds.
 	 */
 	public static final int INDEX_OUT_OF_BOUNDS = 980;
-
+	
 	/**
 	 * Status constant indicating there is an update conflict
 	 * for a working copy. The compilation unit on which the
@@ -177,21 +177,21 @@ public interface IJavaModelStatusConstants {
 	 * the underlying resource is invalid.
 	 * @see JavaCore
 	 */
-	public static final int INVALID_RESOURCE = 995;
+	 public static final int INVALID_RESOURCE = 995;
 
-	/**
-	* Status indicating that a Java element could not be created because
-	* the underlying resource is not of an appropriate type.
-	* @see JavaCore
-	*/
-	public static final int INVALID_RESOURCE_TYPE = 996;
+ 	/**
+	 * Status indicating that a Java element could not be created because
+	 * the underlying resource is not of an appropriate type.
+	 * @see JavaCore
+	 */
+	 public static final int INVALID_RESOURCE_TYPE = 996;
 
-	/**
-	* Status indicating that a Java element could not be created because
-	* the project owning underlying resource does not have the Java nature.
-	* @see JavaCore
-	*/
-	public static final int INVALID_PROJECT = 997;
+ 	/**
+	 * Status indicating that a Java element could not be created because
+	 * the project owning underlying resource does not have the Java nature.
+	 * @see JavaCore
+	 */
+	 public static final int INVALID_PROJECT = 997;
 
 	/**
 	 * Status indicating that the package declaration in a <code>ICompilationUnit</code>
@@ -200,12 +200,16 @@ public interface IJavaModelStatusConstants {
 	 * gives the name of the package in which the <code>ICompilationUnit</code> is
 	 * declared.
 	 */
-	public static final int INVALID_PACKAGE = 998;
+	 public static final int INVALID_PACKAGE = 998;
 
 	/**
 	 * Status indicating that the corresponding resource has no local contents yet.
 	 * This might happen when attempting to use a resource before its contents
 	 * has been made locally available.
 	 */
-	public static final int NO_LOCAL_CONTENTS = 999;
+	 public static final int NO_LOCAL_CONTENTS = 999;
+	/**
+	 * Status constant indicating that a classpath entry was invalid
+	 */
+	public static final int INVALID_CLASSPATH = 964;
 }

@@ -4,7 +4,7 @@ package org.eclipse.jdt.core;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-
+ 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 
@@ -104,112 +104,112 @@ public interface IJavaElement extends IAdaptable {
 	 */
 	public static final int IMPORT_DECLARATION = 13;
 
-	/**
-	 * Returns whether this Java element exists in the model.
-	 *
-	 * @return <code>true</code> if this element exists in the Java model
-	 */
-	boolean exists();
-	/**
-	 * Returns the resource that corresponds directly to this element,
-	 * or <code>null</code> if there is no resource that corresponds to
-	 * this element.
-	 * <p>
-	 * For example, the corresponding resource for an <code>ICompilationUnit</code>
-	 * is its underlying <code>IFile</code>. The corresponding resource for
-	 * an <code>IPackageFragment</code> that is not contained in an archive 
-	 * is its underlying <code>IFolder</code>. An <code>IPackageFragment</code>
-	 * contained in an archive has no corresponding resource. Similarly, there
-	 * are no corresponding resources for <code>IMethods</code>,
-	 * <code>IFields</code>, etc.
-	 * <p>
-	 *
-	 * @return the corresponding resource, or <code>null</code> if none
-	 * @exception JavaModelException if this element does not exist or if an
-	 *		exception occurs while accessing its corresponding resource
-	 */
-	IResource getCorrespondingResource() throws JavaModelException;
-	/**
-	 * Returns the name of this element. This is a handle-only method.
-	 *
-	 * @return the element name
-	 */
-	String getElementName();
-	/**
-	 * Returns this element's kind encoded as an integer.
-	 * This is a handle-only method.
-	 *
-	 * @return the kind of element; one of the constants declared in
-	 *   <code>IJavaElement</code>
-	 * @see IJavaElement
-	 */
-	public int getElementType();
-	/**
-	 * Returns a string representation of this element handle. The format of
-	 * the string is not specified; however, the identifier is stable across
-	 * workspace sessions, and can be used to recreate this handle via the 
-	 * <code>JavaCore.create(String)</code> method.
-	 *
-	 * @return the string handle identifier
-	 * @see JavaCore#create(java.lang.String)
-	 */
-	String getHandleIdentifier();
-	/**
-	 * Returns the Java model.
-	 * This is a handle-only method.
-	 *
-	 * @return the Java model
-	 */
-	IJavaModel getJavaModel();
-	/**
-	 * Returns the Java project this element is contained in,
-	 * or <code>null</code> if this element is not contained in any Java project
-	 * (for instance, the <code>IJavaModel</code> is not contained in any Java 
-	 * project).
-	 * This is a handle-only method.
-	 *
-	 * @return the containing Java project, or <code>null</code> if this element is
-	 *   not contained in a Java project
-	 */
-	IJavaProject getJavaProject();
-	/**
-	 * Returns the element directly containing this element,
-	 * or <code>null</code> if this element has no parent.
-	 * This is a handle-only method.
-	 *
-	 * @return the parent element, or <code>null</code> if this element has no parent
-	 */
-	IJavaElement getParent();
-	/**
-	 * Returns the smallest underlying resource that contains
-	 * this element, or <code>null</code> if this element is not contained
-	 * in a resource.
-	 *
-	 * @return the underlying resource, or <code>null</code> if none
-	 * @exception JavaModelException if this element does not exist or if an
-	 *		exception occurs while accessing its underlying resource
-	 */
-	IResource getUnderlyingResource() throws JavaModelException;
-	/**
-	 * Returns whether this Java element is read-only.
-	 * This is a handle-only method.
-	 *
-	 * @return <code>true</code> if this element is read-only
-	 */
-	boolean isReadOnly();
-	/**
-	 * Returns whether the structure of this element is known. For example, for a
-	 * compilation unit that could not be parsed, <code>false</code> is returned.
-	 * If the structure of an element is unknown, navigations will return reasonable
-	 * defaults. For example, <code>getChildren</code> will return an empty collection.
-	 * <p>
-	 * Note: This does not imply anything about consistency with the
-	 * underlying resource/buffer contents.
-	 * </p>
-	 *
-	 * @return <code>true</code> if the structure of this element is known
-	 * @exception JavaModelException if this element does not exist or if an
-	 *		exception occurs while accessing its corresponding resource
-	 */
-	boolean isStructureKnown() throws JavaModelException;
+/**
+ * Returns whether this Java element exists in the model.
+ *
+ * @return <code>true</code> if this element exists in the Java model
+ */
+boolean exists();
+/**
+ * Returns the resource that corresponds directly to this element,
+ * or <code>null</code> if there is no resource that corresponds to
+ * this element.
+ * <p>
+ * For example, the corresponding resource for an <code>ICompilationUnit</code>
+ * is its underlying <code>IFile</code>. The corresponding resource for
+ * an <code>IPackageFragment</code> that is not contained in an archive 
+ * is its underlying <code>IFolder</code>. An <code>IPackageFragment</code>
+ * contained in an archive has no corresponding resource. Similarly, there
+ * are no corresponding resources for <code>IMethods</code>,
+ * <code>IFields</code>, etc.
+ * <p>
+ *
+ * @return the corresponding resource, or <code>null</code> if none
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource
+ */
+IResource getCorrespondingResource() throws JavaModelException;
+/**
+ * Returns the name of this element. This is a handle-only method.
+ *
+ * @return the element name
+ */
+String getElementName();
+/**
+ * Returns this element's kind encoded as an integer.
+ * This is a handle-only method.
+ *
+ * @return the kind of element; one of the constants declared in
+ *   <code>IJavaElement</code>
+ * @see IJavaElement
+ */
+public int getElementType();
+/**
+ * Returns a string representation of this element handle. The format of
+ * the string is not specified; however, the identifier is stable across
+ * workspace sessions, and can be used to recreate this handle via the 
+ * <code>JavaCore.create(String)</code> method.
+ *
+ * @return the string handle identifier
+ * @see JavaCore#create(java.lang.String)
+ */
+String getHandleIdentifier();
+/**
+ * Returns the Java model.
+ * This is a handle-only method.
+ *
+ * @return the Java model
+ */
+IJavaModel getJavaModel();
+/**
+ * Returns the Java project this element is contained in,
+ * or <code>null</code> if this element is not contained in any Java project
+ * (for instance, the <code>IJavaModel</code> is not contained in any Java 
+ * project).
+ * This is a handle-only method.
+ *
+ * @return the containing Java project, or <code>null</code> if this element is
+ *   not contained in a Java project
+ */
+IJavaProject getJavaProject();
+/**
+ * Returns the element directly containing this element,
+ * or <code>null</code> if this element has no parent.
+ * This is a handle-only method.
+ *
+ * @return the parent element, or <code>null</code> if this element has no parent
+ */
+IJavaElement getParent();
+/**
+ * Returns the smallest underlying resource that contains
+ * this element, or <code>null</code> if this element is not contained
+ * in a resource.
+ *
+ * @return the underlying resource, or <code>null</code> if none
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its underlying resource
+ */
+IResource getUnderlyingResource() throws JavaModelException;
+/**
+ * Returns whether this Java element is read-only.
+ * This is a handle-only method.
+ *
+ * @return <code>true</code> if this element is read-only
+ */
+boolean isReadOnly();
+/**
+ * Returns whether the structure of this element is known. For example, for a
+ * compilation unit that could not be parsed, <code>false</code> is returned.
+ * If the structure of an element is unknown, navigations will return reasonable
+ * defaults. For example, <code>getChildren</code> will return an empty collection.
+ * <p>
+ * Note: This does not imply anything about consistency with the
+ * underlying resource/buffer contents.
+ * </p>
+ *
+ * @return <code>true</code> if the structure of this element is known
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource
+ */
+boolean isStructureKnown() throws JavaModelException;
 }

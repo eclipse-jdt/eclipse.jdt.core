@@ -1,6 +1,8 @@
 package org.eclipse.jdt.internal.core.builder;
 
-public interface IImageBuilder {
+public interface IImageBuilder 
+{
+
 
 	/**
 	 * If the new state is being built incrementally, returns an object 
@@ -29,19 +31,19 @@ public interface IImageBuilder {
 	 * otherwise returns null.
 	 */
 	IState getOldState();
-	/**
-	 * Return a string of the form:
-	 * 		batch image builder for:
-	 * 			new state: this.data.newstate
-	 * OR
-	 * 		incremental image builder for:
-	 *			new state: this.data.newstate
-	 * 			old state: this.data.oldstate
-	 * Obviously, which string gets returned depends
-	 * on the type of image builder.
-	 * The string returned is only for debugging purposes,
-	 * and the contents of the string may change in the future.
-	 * @return java.lang.String
-	 */
-	public String toString();
+/**
+ * Return a string of the form:
+ * 		batch image builder for:
+ * 			new state: this.data.newstate
+ * OR
+ * 		incremental image builder for:
+ *			new state: this.data.newstate
+ * 			old state: this.data.oldstate
+ * Obviously, which string gets returned depends
+ * on the type of image builder.
+ * The string returned is only for debugging purposes,
+ * and the contents of the string may change in the future.
+ * @return java.lang.String
+ */
+public String toString();
 }

@@ -16,47 +16,39 @@ public class FileDocument extends PropertyDocument {
 
 	public FileDocument(File file) {
 		super();
-		this.file = file;
+		this.file= file;
 	}
-
 	/**
 	 * @see IDocument#getByteContent
 	 */
 	public byte[] getByteContent() throws IOException {
 		return Util.getFileByteContent(file);
 	}
-
 	/**
 	 * @see IDocument#getCharContent
 	 */
 	public char[] getCharContent() throws IOException {
 		return Util.getFileCharContent(file);
 	}
-
 	/**
 	 * @see IDocument#getName
 	 */
 	public String getName() {
-		return file.getAbsolutePath().replace(
-			File.separatorChar,
-			IIndexConstants.FILE_SEPARATOR);
+		return file.getAbsolutePath().replace(File.separatorChar, IIndexConstants.FILE_SEPARATOR);
 	}
-
 	/**
 	 * @see IDocument#getStringContent
 	 */
 	public String getStringContent() throws IOException {
 		return new String(getCharContent());
 	}
-
 	/**
 	 * @see IDocument#getType
 	 */
 	public String getType() {
-		int lastDot = file.getPath().lastIndexOf('.');
+		int lastDot= file.getPath().lastIndexOf('.');
 		if (lastDot == -1)
 			return "";
 		return file.getPath().substring(lastDot + 1);
 	}
-
 }

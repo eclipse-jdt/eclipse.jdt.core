@@ -12,11 +12,12 @@ import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
 
 import java.io.*;
+
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
 public class OrPattern extends SearchPattern {
 
@@ -69,14 +70,6 @@ public char[] indexEntryPrefix() {
 	return null;
 }
 /**
- * see SearchPattern.initializeFromLookupEnvironment
- */
-public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
-	return 
-		this.leftPattern.initializeFromLookupEnvironment(env)
-		|| this.rightPattern.initializeFromLookupEnvironment(env);
-}
-/**
  * @see SearchPattern#matchContainer()
  */
 protected int matchContainer() {
@@ -115,5 +108,16 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 }
 public String toString(){
 	return this.leftPattern.toString() + "\n| " + this.rightPattern.toString();
+}
+
+/**
+ * see SearchPattern.initializeFromLookupEnvironment
+ */
+public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
+
+	// need to perform both operand initialization due to side-effects.
+	boolean leftInit = this.leftPattern.initializeFromLookupEnvironment(env);
+	boolean rightInit = this.rightPattern.initializeFromLookupEnvironment(env);
+	return leftInit || rightInit;
 }
 }

@@ -7,5 +7,5 @@ public interface IJobConstants {
 	int WaitUntilReady = 3;
 
 	boolean FAILED = false;
-	boolean COMPLETE = true;
+	boolean COMPLETE = true;	
 }

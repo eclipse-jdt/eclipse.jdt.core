@@ -17,29 +17,23 @@ import org.eclipse.jdt.core.IJavaElement;
  * @see CopyElementsOperation
  */
 public class MoveElementsOperation extends CopyElementsOperation {
-	/**
-	 * When executed, this operation will move the given elements to the given containers.
-	 */
-	public MoveElementsOperation(
-		IJavaElement[] elementsToMove,
-		IJavaElement[] destContainers,
-		boolean force) {
-		super(elementsToMove, destContainers, force);
-	}
-
-	/**
-	 * Returns the <code>String</code> to use as the main task name
-	 * for progress monitoring.
-	 */
-	protected String getMainTaskName() {
-		return "Moving elements...";
-	}
-
-	/**
-	 * @see CopyElementsOperation#isMove()
-	 */
-	protected boolean isMove() {
-		return true;
-	}
-
+/**
+ * When executed, this operation will move the given elements to the given containers.
+ */
+public MoveElementsOperation(IJavaElement[] elementsToMove, IJavaElement[] destContainers, boolean force) {
+	super(elementsToMove, destContainers, force);
+}
+/**
+ * Returns the <code>String</code> to use as the main task name
+ * for progress monitoring.
+ */
+protected String getMainTaskName() {
+	return Util.bind("operation.moveElementProgress"/*nonNLS*/);
+}
+/**
+ * @see CopyElementsOperation#isMove()
+ */
+protected boolean isMove() {
+	return true;
+}
 }

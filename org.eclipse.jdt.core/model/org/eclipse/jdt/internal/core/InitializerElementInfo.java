@@ -9,6 +9,5 @@ import org.eclipse.core.resources.*;
 /** 
  * Element info for IInitializer elements. 
  */
-/* package */
-class InitializerElementInfo extends MemberElementInfo {
+/* package */ class InitializerElementInfo extends MemberElementInfo {
 }

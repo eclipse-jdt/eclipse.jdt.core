@@ -10,19 +10,18 @@ public class BuildEvent {
 	 * Internal - Constructs a new build event object.
 	 */
 	public BuildEvent(
-		ISourceFragment sourceFragment,
-		int newErrorCount,
-		int fixedErrorCount,
-		int newWarningCount,
+		ISourceFragment sourceFragment, 
+		int newErrorCount, 
+		int fixedErrorCount, 
+		int newWarningCount, 
 		int fixedWarningCount) {
-
+			
 		fSourceFragment = sourceFragment;
 		fNewErrorCount = newErrorCount;
 		fFixedErrorCount = fixedErrorCount;
 		fNewWarningCount = newWarningCount;
 		fFixedWarningCount = fixedWarningCount;
 	}
-
 	/**
 	 * Returns the number of errors fixed since
 	 * the beginning of the build.
@@ -30,7 +29,6 @@ public class BuildEvent {
 	public int getFixedErrorCount() {
 		return fFixedErrorCount;
 	}
-
 	/**
 	 * Returns the number of warnings fixed since
 	 * the beginning of the build.
@@ -38,7 +36,6 @@ public class BuildEvent {
 	public int getFixedWarningCount() {
 		return fFixedWarningCount;
 	}
-
 	/**
 	 * Returns the number of new errors found since
 	 * the beginning of the build.
@@ -46,7 +43,6 @@ public class BuildEvent {
 	public int getNewErrorCount() {
 		return fNewErrorCount;
 	}
-
 	/**
 	 * Returns the number of new warnings found since
 	 * the beginning of the build.
@@ -54,7 +50,6 @@ public class BuildEvent {
 	public int getNewWarningCount() {
 		return fNewWarningCount;
 	}
-
 	/**
 	 * Returns the source fragment of the most recently
 	 * (re)compiled element.  May be null if the notification
@@ -64,5 +59,4 @@ public class BuildEvent {
 	public ISourceFragment getSourceFragment() {
 		return fSourceFragment;
 	}
-
 }

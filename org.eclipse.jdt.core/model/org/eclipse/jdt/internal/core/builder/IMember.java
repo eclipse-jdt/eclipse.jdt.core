@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 public interface IMember extends IHandle {
 
+
 	/**
 	 * Returns the Type object representing the class or interface
 	 * that declares the the member represented by this object.

@@ -7,7 +7,6 @@ public class InvalidKeyException extends RuntimeException {
 	public InvalidKeyException() {
 		super();
 	}
-
 	/**
 	 * Constructs an <code>InvalidKeyException</code> with a detail message. 
 	 *
@@ -16,5 +15,4 @@ public class InvalidKeyException extends RuntimeException {
 	public InvalidKeyException(String s) {
 		super(s);
 	}
-
 }

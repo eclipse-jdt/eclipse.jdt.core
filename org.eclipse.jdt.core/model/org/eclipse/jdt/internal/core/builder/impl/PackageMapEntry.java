@@ -23,29 +23,25 @@ class PackageMapEntry extends StateTables {
 		fPkg = pkg;
 		fFragments = null;
 	}
-
-	/**
-	 * Adds a new package fragment to the entry.
-	 */
-	void addFragment(IPath fragment) {
-		if (fFragments == null) {
-			fFragments = new IPath[] { fragment };
-		} else {
-			for (int i = 0; i < fFragments.length; ++i) {
-				if (fFragments[i].equals(fragment)) {
-					System.out.println(
-						"Warning: internal error: attempt to add duplicate package fragment in image builder: "
-							+ fragment);
-					return;
-				}
+/**
+ * Adds a new package fragment to the entry.
+ */
+void addFragment(IPath fragment) {
+	if (fFragments == null) {
+		fFragments = new IPath[] {fragment};
+	} else {
+		for (int i = 0; i < fFragments.length; ++i) {
+			if (fFragments[i].equals(fragment)) {
+				System.out.println("Warning: internal error: attempt to add duplicate package fragment in image builder: " + fragment);
+				return;
 			}
-			IPath[] newFragments = new IPath[fFragments.length + 1];
-			System.arraycopy(fFragments, 0, newFragments, 0, fFragments.length);
-			newFragments[fFragments.length] = fragment;
-			fFragments = newFragments;
 		}
+		IPath[] newFragments = new IPath[fFragments.length + 1];
+		System.arraycopy(fFragments, 0, newFragments, 0, fFragments.length);
+		newFragments[fFragments.length] = fragment;
+		fFragments = newFragments;
 	}
-
+}
 	/**
 	 * Adds a new package fragment to the entry.
 	 */
@@ -53,33 +49,26 @@ class PackageMapEntry extends StateTables {
 		if (fFragments == null) {
 			fFragments = new IPath[fragments.length];
 			System.arraycopy(fragments, 0, fFragments, 0, fragments.length);
-		} else {
+		}
+		else {
 			IPath[] newFragments = new IPath[fFragments.length + fragments.length];
 			System.arraycopy(fFragments, 0, newFragments, 0, fFragments.length);
-			System.arraycopy(
-				fragments,
-				0,
-				newFragments,
-				fFragments.length,
-				fragments.length);
+			System.arraycopy(fragments, 0, newFragments, fFragments.length, fragments.length);
 			fFragments = newFragments;
 		}
 	}
-
 	/**
 	 * Returns an the fragments in the package
 	 */
 	IPath[] getFragments() {
 		return fFragments;
 	}
-
 	/**
 	 * Returns the package for which this is the entry.
 	 */
 	IPackage getPackage() {
 		return fPkg;
 	}
-
 	/**
 	 * Returns a String that represents the value of this object.
 	 * This method is for debugging purposes only.
@@ -90,5 +79,4 @@ class PackageMapEntry extends StateTables {
 		buf.append(")");
 		return buf.toString();
 	}
-
 }

@@ -21,21 +21,19 @@ public class IndexerOutput implements IIndexerOutput {
 	 * IndexerOutput constructor comment.
 	 */
 	public IndexerOutput(InMemoryIndex index) {
-		this.index = index;
+		this.index= index;
 	}
-
 	/**
 	 * Adds the given document to the inMemoryIndex.
 	 */
 
 	public void addDocument(IDocument document) {
 		if (indexedFile == null) {
-			indexedFile = index.addDocument(document);
+			indexedFile= index.addDocument(document);
 		} else {
 			throw new IllegalStateException();
 		}
 	}
-
 	/**
 	 * Adds a reference to the given word to the inMemoryIndex.
 	 */
@@ -45,12 +43,10 @@ public class IndexerOutput implements IIndexerOutput {
 		}
 		index.addRef(indexedFile, word);
 	}
-
 	/**
 	 * Adds a reference to the given word to the inMemoryIndex.
 	 */
 	public void addRef(String word) {
 		addRef(word.toCharArray());
 	}
-
 }

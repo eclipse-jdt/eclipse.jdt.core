@@ -27,7 +27,7 @@ public class LRUCacheEnumerator implements Enumeration {
 		 *	Value returned by <code>nextElement()</code>;
 		 */
 		public Object fValue;
-
+		
 		/**
 		 *	Next element
 		 */
@@ -40,28 +40,24 @@ public class LRUCacheEnumerator implements Enumeration {
 			fValue = value;
 		}
 	}
-
-	/**
-	 *	Creates a CacheEnumerator on the list of <code>LRUEnumeratorElements</code>.
-	 */
-	public LRUCacheEnumerator(LRUEnumeratorElement firstElement) {
-		fElementQueue = firstElement;
-	}
-
-	/**
-	 * Returns true if more elements exist.
-	 */
-	public boolean hasMoreElements() {
-		return fElementQueue != null;
-	}
-
-	/**
-	 * Returns the next element.
-	 */
-	public Object nextElement() {
-		Object temp = fElementQueue.fValue;
-		fElementQueue = fElementQueue.fNext;
-		return temp;
-	}
-
+/**
+ *	Creates a CacheEnumerator on the list of <code>LRUEnumeratorElements</code>.
+ */
+public LRUCacheEnumerator(LRUEnumeratorElement firstElement) {
+	fElementQueue = firstElement;
+}
+/**
+ * Returns true if more elements exist.
+ */
+public boolean hasMoreElements() {
+	return fElementQueue != null;
+}
+/**
+ * Returns the next element.
+ */
+public Object nextElement() {
+	Object temp = fElementQueue.fValue;
+	fElementQueue = fElementQueue.fNext;
+	return temp;
+}
 }

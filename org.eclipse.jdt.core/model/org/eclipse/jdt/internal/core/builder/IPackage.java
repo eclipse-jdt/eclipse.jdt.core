@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 public interface IPackage extends IHandle {
 
+
 	/**
 	 * Compares this Package handle against the specified object.  Returns
 	 * true if the objects are the same.  Two Package handles are the same if
@@ -87,7 +88,7 @@ public interface IPackage extends IHandle {
 	 *
 	 * @exception NotPresentException if this package is not present.
 	 */
-	IPackage[] getReferencedPackages() throws NotPresentException;
+	 IPackage[] getReferencedPackages() throws NotPresentException;
 	/**
 	 * Returns an array of Package objects representing all packages
 	 * in the given image context which directly reference this package.
@@ -102,8 +103,7 @@ public interface IPackage extends IHandle {
 	 * @param context the ImageContext in which to restrict the search.
 	 * @exception NotPresentException if this package is not present.
 	 */
-	IPackage[] getReferencingPackages(IImageContext context)
-		throws NotPresentException;
+	IPackage[] getReferencingPackages(IImageContext context) throws NotPresentException;
 	/**
 	 * Returns an array of SourceFragments describing the source package 
 	 * fragments from which this built package is derived.

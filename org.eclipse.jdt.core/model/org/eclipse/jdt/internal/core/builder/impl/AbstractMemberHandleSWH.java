@@ -6,9 +6,7 @@ package org.eclipse.jdt.internal.core.builder.impl;
  */
 import org.eclipse.jdt.internal.core.builder.*;
 
-public abstract class AbstractMemberHandleSWH
-	extends StateSpecificHandleImpl
-	implements IMember {
+public abstract class AbstractMemberHandleSWH extends StateSpecificHandleImpl implements IMember{
 	/**
 	 *	Returns the Type object representing the class or interface
 	 *	that declares the member represented by this object.
@@ -16,9 +14,8 @@ public abstract class AbstractMemberHandleSWH
 	 *	This is a handle-only method.
 	 */
 	public IType getDeclaringClass() {
-		return (IType) getHandle().getDeclaringClass().inState(fState);
+		return (IType)getHandle().getDeclaringClass().inState(fState);
 	}
-
 	/**
 	 * Returns the handle for this member
 	 */
@@ -34,33 +31,28 @@ public abstract class AbstractMemberHandleSWH
 	 *	the simple name of its declaring class.
 	 *	This is a handle-only method. 
 	 */
-	public String getName() {
-		return ((IMember) nonStateSpecific()).getName();
+	public  String getName() {
+		return ((IMember)nonStateSpecific()).getName();
 	}
-
 	/**
 	 * Returns the type structure entry for the class or interface.
 	 */
 	TypeStructureEntry getTypeStructureEntry() throws NotPresentException {
-		TypeStructureEntry tsEntry =
-			fState.getTypeStructureEntry(getHandle().getDeclaringClass(), true);
+		TypeStructureEntry tsEntry = fState.getTypeStructureEntry(getHandle().getDeclaringClass(), true);
 		if (tsEntry == null) {
 			throw new NotPresentException();
 		}
 		return tsEntry;
 	}
-
 	/**
 	 * Returns true if this represents a binary member, false otherwise.
 	 * A binary member is one for which the declaring class is in .class 
 	 * file format in the source tree.
 	 */
 	public boolean isBinary() {
-		if (!isPresent())
-			throw new NotPresentException();
+		if (!isPresent()) throw new NotPresentException();
 		return getDeclaringClass().isBinary();
 	}
-
 	/**
 	 * @see IMember
 	 */
@@ -76,5 +68,4 @@ public abstract class AbstractMemberHandleSWH
 		//Do we have synthetic fields right now?
 		return false;
 	}
-
 }

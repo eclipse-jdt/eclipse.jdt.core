@@ -45,31 +45,28 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 	 */
 	protected AbstractNode() {
 	}
-
 	/**
 	 * Adds a node that depends on this node.  
 	 * IMPORTANT: This should only be called by addDependency.
 	 */
 	public void addDependent(INode nodeThatDependsOnMe) {
 		/* check if I already have this dependent */
-		/*		
-				for (int i = fNumDependents; --i >= 0;) {
-					if (fDependents[i] == nodeThatDependsOnMe) {
-						System.out.println("Attempt to add duplicate dependent " + nodeThatDependsOnMe.getElement() + " to " + getElement());
-						return;
-					}
-				}
-		*/
+/*		
+		for (int i = fNumDependents; --i >= 0;) {
+			if (fDependents[i] == nodeThatDependsOnMe) {
+				System.out.println("Attempt to add duplicate dependent " + nodeThatDependsOnMe.getElement() + " to " + getElement());
+				return;
+			}
+		}
+*/		
 		if (fNumDependents >= fDependents.length) {
 			/* grow array */
-			INode[] newDependents =
-				new INode[fNumDependents == 0 ? 5 : fNumDependents * 2 + 1];
+			INode[] newDependents = new INode[fNumDependents == 0 ? 5 : fNumDependents*2+1];
 			System.arraycopy(fDependents, 0, newDependents, 0, fNumDependents);
 			fDependents = newDependents;
 		}
 		fDependents[fNumDependents++] = nodeThatDependsOnMe;
 	}
-
 	/**
 	 * Clears all outgoing dependency links for this node
 	 */
@@ -83,7 +80,6 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 		fDependencies = fgEmptyNodeList;
 		invalidateOrder();
 	}
-
 	/**
 	 * Returns a copy of this node, without copying dependencies.  Used
 	 * by DependencyGraph.copy().
@@ -104,31 +100,29 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 		boolean found = false;
 
 		/* binary search until on or next to first non-null entry */
-		try {
-			while (max > min) {
-				if (fDependents[mid] == null) {
-					/* look in lower half */
-					max = mid - 1;
-				} else {
-					/* look in higher half */
-					min = mid + 1;
-				}
-				mid = (max + min) / 2;
+try {
+		while (max > min) {
+			if (fDependents[mid] == null) {
+				/* look in lower half */
+				max = mid - 1;
+			} else {
+				/* look in higher half */
+				min = mid + 1;
 			}
-
-			/* linear search for first non-null entry */
-			while (fDependents[min] != null) {
-				min++;
-			}
-
-			/* add the dependent */
-			fDependents[min] = nodeThatDependsOnMe;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println(
-				"ArrayIndexOutOfBoundsException in AbstractNode.copyAddDependent()");
+			mid = (max + min) / 2;
 		}
-	}
 
+		/* linear search for first non-null entry */
+		while (fDependents[min] != null) {
+			min++;
+		}
+
+		/* add the dependent */
+		fDependents[min] = nodeThatDependsOnMe;
+} catch (ArrayIndexOutOfBoundsException e) {
+	System.out.println("ArrayIndexOutOfBoundsException in AbstractNode.copyAddDependent()");
+}
+	}
 	/**
 	 * Returns a copy of this node, but with the dependents and dependencies
 	 * left unchanged.  They are later replaced using replaceDeps().
@@ -145,35 +139,33 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 		for (int i = depCount; --i >= 0;) {
 			newNode.fDependencies[i] = fDependencies[i];
 		}
-
+		
 		newNode.fNumDependents = fNumDependents;
 		newNode.fDependents = new INode[fNumDependents];
 		newNode.fOrder = fOrder;
 		return newNode;
 	}
-
-	/**
-	 * For debugging only. 
-	 */
-	public void dump(Dumper dumper) {
-		dumper.dump("element", getElement());
-		if (getKind() == JCU_NODE)
-			dumper.dump("types", getTypes());
-
-		Object[] dependencies = new Object[fDependencies.length];
-		for (int i = 0; i < fDependencies.length; ++i) {
-			dependencies[i] = fDependencies[i].getElement();
-		}
-		dumper.dump("dependencies", dependencies);
-
-		Object[] dependents = new Object[fNumDependents];
-		for (int i = 0; i < fDependents.length; ++i) {
-			dependents[i] = fDependents[i].getElement();
-		}
-		dumper.dump("dependents", dependents);
-
+/**
+ * For debugging only. 
+ */
+public void dump(Dumper dumper) {
+	dumper.dump("element", getElement());
+	if (getKind() == JCU_NODE) 
+		dumper.dump("types", getTypes());
+		
+	Object[] dependencies = new Object[fDependencies.length];
+	for (int i = 0; i < fDependencies.length; ++i) {
+		dependencies[i] = fDependencies[i].getElement();
 	}
-
+	dumper.dump("dependencies", dependencies);
+		
+	Object[] dependents = new Object[fNumDependents];
+	for (int i = 0; i < fDependents.length; ++i) {
+		dependents[i] = fDependents[i].getElement();
+	}
+	dumper.dump("dependents", dependents);
+	
+}
 	/**
 	 * Make sure equality tests are never carried out on nodes
 	 */
@@ -181,7 +173,6 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 		Assert.isTrue(false, "Equality not defined for dependency graph nodes");
 		return false;
 	}
-
 	/**
 	 * Returns the nodes that this node depends on.  A change to the principal structure
 	 * of any of these nodes may affect the principal structure of this node.
@@ -189,23 +180,16 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 	public INode[] getDependencies() {
 		return fDependencies;
 	}
-
 	/**
 	 * Returns the nodes that depend on this node.  A change to the principal structure
 	 * of this node may affect the principal structure of the returned dependents.
 	 */
 	public INode[] getDependents() {
 		if (fNumDependents < fDependents.length) {
-			System.arraycopy(
-				fDependents,
-				0,
-				fDependents = new INode[fNumDependents],
-				0,
-				fNumDependents);
+			System.arraycopy(fDependents, 0, fDependents = new INode[fNumDependents], 0, fNumDependents);
 		}
 		return fDependents;
-	}
-
+	 }
 	/**
 	 * Returns the number of bytes that this node uses.
 	 * For debugging and profiling purposes only.
@@ -223,14 +207,12 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 		}
 		return size;
 	}
-
 	/**
 	 * @see INode
 	 */
 	public int getOrder() {
 		return getOrder(0);
 	}
-
 	/**
 	 * Returns the order number, calculating it if not already done.
 	 * seen is a set of previously visited nodes.
@@ -240,9 +222,9 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 			return fOrder;
 		}
 
-		//		trace(recursionLevel, -1);
+//		trace(recursionLevel, -1);
 
-		fOrder = 0; // Mark as non-invalid to break cycles
+		fOrder = 0;  // Mark as non-invalid to break cycles
 		int max = -1;
 		for (int i = 0, len = fDependencies.length; i < len; ++i) {
 			int order = ((AbstractNode) fDependencies[i]).getOrder(recursionLevel + 1);
@@ -251,11 +233,10 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 			}
 		}
 		fOrder = max + 1;
-
-		//		trace(recursionLevel, fOrder);
+		
+//		trace(recursionLevel, fOrder);
 		return fOrder;
 	}
-
 	/**
 	 * Returns the types that belong to this node
 	 */
@@ -263,7 +244,6 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 		Assert.isTrue(false, "My subclass should have implemented this");
 		return null;
 	}
-
 	/**
 	 * Invalidates the order number, for this node and all dependents.
 	 */
@@ -276,7 +256,6 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 			}
 		}
 	}
-
 	/**
 	 * Removes a node on which this node depends.
 	 * This -does- remove the backwards link from the other node.
@@ -300,7 +279,6 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 			}
 		}
 	}
-
 	/**
 	 * Removes a node that depends on this node.
 	 * This does not remove the backwards link.
@@ -323,7 +301,6 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 			}
 		}
 	}
-
 	/**
 	 * This node has previously been copied without updating its
 	 * dependency references.  Now replace the dependency references
@@ -341,8 +318,7 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 			newNode.copyAddDependent(this);
 			fDependencies[i] = newNode;
 		}
-	}
-
+	 }
 	/**
 	 * Sets the nodes that this node depends on.  
 	 * Backwards links are added automatically.
@@ -360,7 +336,6 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 
 		invalidateOrder();
 	}
-
 	public void trace(int recursionLevel, int refCount) {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < recursionLevel; ++i)
@@ -370,5 +345,4 @@ public abstract class AbstractNode implements INode, IDumpable, Cloneable {
 		sb.append(refCount);
 		System.out.println(sb.toString());
 	}
-
 }

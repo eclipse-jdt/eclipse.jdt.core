@@ -30,51 +30,45 @@ import java.util.*;
  * - Constructors.
  */
 public class SourceIndexer extends AbstractIndexer {
+	
+	public static final String[] FILE_TYPES= new String[] {"java"};
+	protected DefaultProblemFactory problemFactory= new DefaultProblemFactory(Locale.getDefault());
+	
+/**
+ * Returns the file types the <code>IIndexer</code> handles.
+ */
 
-	public static final String[] FILE_TYPES = new String[] { "java" };
-	protected DefaultProblemFactory problemFactory =
-		new DefaultProblemFactory(Locale.getDefault());
+public String[] getFileTypes(){
+	return FILE_TYPES;
+}
+protected void indexFile(IDocument document) throws IOException {
 
-	/**
-	 * Returns the file types the <code>IIndexer</code> handles.
-	 */
+	// Add the name of the file to the index
+	output.addDocument(document);
 
-	public String[] getFileTypes() {
-		return FILE_TYPES;
+	// Create a new Parser
+	SourceIndexerRequestor requestor = new SourceIndexerRequestor(this, document);
+	SourceElementParser parser = new SourceElementParser(requestor, problemFactory);
+
+	// Launch the parser
+	char[] source = null;
+	char[] name = null;
+	try {
+		source = document.getCharContent();
+		name = document.getName().toCharArray();
+	} catch(Exception e){
 	}
-
-	protected void indexFile(IDocument document) throws IOException {
-
-		// Add the name of the file to the index
-		output.addDocument(document);
-
-		// Create a new Parser
-		SourceIndexerRequestor requestor = new SourceIndexerRequestor(this, document);
-		SourceElementParser parser = new SourceElementParser(requestor, problemFactory);
-
-		// Launch the parser
-		char[] source = null;
-		char[] name = null;
-		try {
-			source = document.getCharContent();
-			name = document.getName().toCharArray();
-		} catch (Exception e) {
-		}
-		if (source == null || name == null)
-			return; // could not retrieve document info (e.g. resource was discarded)
-		CompilationUnit compilationUnit = new CompilationUnit(source, name);
-		try {
-			parser.parseCompilationUnit(compilationUnit, true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
+	CompilationUnit compilationUnit = new CompilationUnit(source, name);
+	try {
+		parser.parseCompilationUnit(compilationUnit, true);
+	} catch (Exception e) {
+		e.printStackTrace();
 	}
+}
+/**
+ * Sets the document types the <code>IIndexer</code> handles.
+ */
 
-	/**
-	 * Sets the document types the <code>IIndexer</code> handles.
-	 */
-
-	public void setFileTypes(String[] fileTypes) {
-	}
-
+public void setFileTypes(String[] fileTypes){}
 }

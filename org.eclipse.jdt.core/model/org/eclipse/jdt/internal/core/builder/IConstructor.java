@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 public interface IConstructor extends IMember {
 
+
 	/**
 	 * Compares this Constructor handle against the specified object.
 	 * Returns true if the objects are the same.  Two Constructor

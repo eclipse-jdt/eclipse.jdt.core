@@ -156,6 +156,9 @@ public static void checkProjectPropertyFileUpdate(IResourceDelta delta, IJavaEle
 
 	switch (resource.getType()) {
 
+		case IResource.ROOT :
+			processChildren = true;
+			break;
 		case IResource.PROJECT :
 			try {
 				if (((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
@@ -311,7 +314,7 @@ protected Openable[] createElements(IResource resource) {
 	if (resource == null) return null;
 	String extension = resource.getFileExtension();
 	extension = extension == null ? null : extension.toLowerCase();
-	if ("jar".equals(extension) || "zip".equals(extension)) {
+	if ("jar"/*nonNLS*/.equals(extension) || "zip"/*nonNLS*/.equals(extension)) {
 		IJavaProject[] projects = null;
 		try {
 			projects = JavaModelManager.getJavaModel(resource.getWorkspace()).getJavaProjects();
@@ -737,42 +740,29 @@ protected void traverseDelta(IResourceDelta delta, Openable parentElement) {
 			updateIndex(element, delta);
 			switch (delta.getKind()) {
 				case IResourceDelta.ADDED:
-					switch(res.getType()) {
-						case IResource.FILE :
-						case IResource.FOLDER:
-							IProject fileProject = delta.getResource().getProject();
-							IJavaProject project = (IJavaProject) JavaCore.create(fileProject);
-							try {
-								IPackageFragmentRoot pkgRoot;
-								if (parentElement != null 
-									&& ((pkgRoot = parentElement.getPackageFragmentRoot()) != null)
-									&& !pkgRoot.exists()) {
-									nonJavaResourcesChanged(parentElement, delta);
-									break;
-								}
-							} catch(JavaModelException e) {
-							}
-						break;
+					PackageFragmentRoot pkgRoot;
+					if (res.getType() == IResource.FILE 
+						&& parentElement != null 
+						&& !parentElement.equals(element.getParent())
+						&& ((pkgRoot = element.getPackageFragmentRoot()) == null || !isOnClasspath(pkgRoot))){
+						try { // fake compilation/class file scenario (see JavaCore.createCompilationUnitFrom & createClassFileFrom
+							nonJavaResourcesChanged(parentElement, delta);
+							break;
+						} catch(JavaModelException e) {
+						}
 					}
 					elementAdded(element, delta);
 					break;
 				case IResourceDelta.REMOVED:
-					switch(res.getType()) {
-						case IResource.FILE :
-						case IResource.FOLDER:
-							IProject fileProject = delta.getResource().getProject();
-							IJavaProject project = (IJavaProject) JavaCore.create(fileProject);
-							try {
-								IPackageFragmentRoot pkgRoot;
-								if (parentElement != null 
-									&& ((pkgRoot = parentElement.getPackageFragmentRoot()) != null)
-									&& !pkgRoot.exists()) {
-									nonJavaResourcesChanged(parentElement, delta);
-									break;
-								}
-							} catch(JavaModelException e) {
-							}
-						break;
+					if (res.getType() == IResource.FILE 
+						&& parentElement != null 
+						&& !parentElement.equals(element.getParent())
+						&& ((pkgRoot = element.getPackageFragmentRoot()) == null || !isOnClasspath(pkgRoot))){
+						try { // fake compilation/class file scenario (see JavaCore.createCompilationUnitFrom & createClassFileFrom
+							nonJavaResourcesChanged(parentElement, delta);
+							break;
+						} catch(JavaModelException e) {
+						}
 					}
 					elementRemoved(element, delta);
 					break;

@@ -36,7 +36,7 @@ public class JavaModelInfo extends OpenableElementInfo {
 	/**
 	 * Cache of open children of openable Java Model Java elements
 	 */
-	protected Hashtable fChildrenCache = null;
+	protected Hashtable fChildrenCache= null;
 
 	/**
 	 * Set of elements which are out of sync with their buffers.
@@ -46,43 +46,40 @@ public class JavaModelInfo extends OpenableElementInfo {
 	/**
 	 * Backpointer to my Java Model handle
 	 */
-	protected IJavaModel fJavaModel = null;
+	protected IJavaModel fJavaModel= null;
 
 	/**
 	 * The workspace this Java Model Info corresponds to
 	 */
 	protected IWorkspace workspace;
 
-	/**
-	 * Constructs a new Java Model Info 
-	 */
-	protected JavaModelInfo(IJavaModel javaModel, IWorkspace workspace) {
-		this.workspace = workspace;
-		this.fJavaModel = javaModel;
-		this.fLRUCache = new ElementCache(5000);
-		this.fChildrenCache = new Hashtable(30000);
-	}
-
-	/**
-	 * @see IJavaModel#close()
-	 */
-	public void close() throws JavaModelException {
-		//close any remaining "parent-less" handles in the LRUCache
-		Enumeration handles = fLRUCache.keys();
-		while (handles.hasMoreElements()) {
-			IJavaElement handle = (IJavaElement) handles.nextElement();
-			// can't close myself - (am in the process of that now)
-			if (!handle.equals(fJavaModel)) {
-				((IOpenable) handle).close();
-			}
+/**
+ * Constructs a new Java Model Info 
+ */
+protected JavaModelInfo(IJavaModel javaModel, IWorkspace workspace) {
+	this.workspace = workspace;
+	this.fJavaModel= javaModel;
+	this.fLRUCache = new ElementCache(5000);
+	this.fChildrenCache= new Hashtable(30000);
+}
+/**
+ * @see IJavaModel#close()
+ */
+public void close() throws JavaModelException {
+	//close any remaining "parent-less" handles in the LRUCache
+	Enumeration handles = fLRUCache.keys();
+	while (handles.hasMoreElements()) {
+		IJavaElement handle= (IJavaElement)handles.nextElement();
+		// can't close myself - (am in the process of that now)
+		if (!handle.equals(fJavaModel)) {
+			((IOpenable)handle).close();
 		}
 	}
-
-	/**
-	 * Returns the Java Model for this info.
-	 */
-	protected IJavaModel getJavaModel() {
-		return fJavaModel;
-	}
-
+}
+/**
+ * Returns the Java Model for this info.
+ */
+protected IJavaModel getJavaModel() {
+	return fJavaModel;
+}
 }

@@ -6,19 +6,15 @@ package org.eclipse.jdt.internal.core.builder.impl;
  */
 import org.eclipse.jdt.internal.core.builder.*;
 
-public class ConstructorImpl
-	extends AbstractMemberHandle
-	implements IConstructor {
-	ConstructorImpl(ClassOrInterfaceHandleImpl owner, IType[] paramTypes) {
+public class ConstructorImpl extends AbstractMemberHandle implements IConstructor {
+	ConstructorImpl (ClassOrInterfaceHandleImpl owner, IType[] paramTypes) {
 		fOwner = owner;
-		fSignature = computeSignature("", paramTypes);
+		fSignature = computeSignature(""/*nonNLS*/, paramTypes);
 	}
-
 	public ConstructorImpl(ClassOrInterfaceHandleImpl owner, String signature) {
 		fOwner = owner;
 		fSignature = signature;
 	}
-
 	/**
 	 * Returns an array of Type objects that represent the types of
 	 *	the checked exceptions thrown by the underlying constructor
@@ -30,9 +26,8 @@ public class ConstructorImpl
 	 *	The resulting Types are in no particular order.
 	 */
 	public IType[] getExceptionTypes() {
-		return nonStateSpecific(((IConstructor) inCurrentState()).getExceptionTypes());
+		return nonStateSpecific(((IConstructor)inCurrentState()).getExceptionTypes());
 	}
-
 	/**
 	 * Returns the simple name of the member represented by this object.
 	 *	If this Member represents a constructor, this returns 
@@ -40,10 +35,8 @@ public class ConstructorImpl
 	 *	This is a handle-only method.
 	 */
 	public String getName() {
-		return ((ClassOrInterfaceHandleImpl) getDeclaringClass())
-			.sourceNameFromHandle();
+		return ((ClassOrInterfaceHandleImpl)getDeclaringClass()).sourceNameFromHandle();
 	}
-
 	/**
 	 * Returns an array of Type objects that represent the formal
 	 *	parameter types, in declaration order, of the constructor
@@ -55,38 +48,33 @@ public class ConstructorImpl
 	public IType[] getParameterTypes() {
 		return getInternalDC().parameterTypesFromSignature(getSignature());
 	}
-
-	/**
-	 * Returns a state specific version of this handle in the given state.
-	 */
-	public IHandle inState(IState s)
-		throws org.eclipse.jdt.internal.core.builder.StateSpecificException {
-
-		return new ConstructorImplSWH((StateImpl) s, this);
-	}
-
+/**
+ * Returns a state specific version of this handle in the given state.
+ */
+public IHandle inState(IState s) throws org.eclipse.jdt.internal.core.builder.StateSpecificException {
+	
+	return new ConstructorImplSWH((StateImpl) s, this);
+}
 	/**
 	  * Returns a constant indicating what kind of handle this is.
 	  */
 	public int kind() {
 		return IHandle.K_JAVA_CONSTRUCTOR;
 	}
-
-	/**
-	 * toString method comment.
-	 */
-	public String toString() {
-		StringBuffer sb = new StringBuffer(getDeclaringClass().getName());
-		sb.append('(');
-		IType[] paramTypes = getParameterTypes();
-		for (int i = 0; i < paramTypes.length; ++i) {
-			if (i != 0) {
-				sb.append(',');
-			}
-			sb.append(paramTypes[i].getName());
+/**
+ * toString method comment.
+ */
+public String toString() {
+	StringBuffer sb = new StringBuffer(getDeclaringClass().getName());
+	sb.append('(');
+	IType[] paramTypes = getParameterTypes();
+	for (int i = 0; i < paramTypes.length; ++i) {
+		if (i != 0) {
+			sb.append(',');
 		}
-		sb.append(')');
-		return sb.toString();
+		sb.append(paramTypes[i].getName());
 	}
-
+	sb.append(')');
+	return sb.toString();
+}
 }

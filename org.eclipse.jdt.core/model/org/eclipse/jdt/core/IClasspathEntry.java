@@ -85,99 +85,99 @@ public interface IClasspathEntry {
 	 * a path that begins with a classpath variable reference.
 	 */
 	public static final int CPE_VARIABLE = 4;
-
-	/**
-	 * Returns the kind of files found in the package fragments identified by this
-	 * classpath entry.
-	 *
-	 * @return <code>IPackageFragmentRoot.K_SOURCE</code> for files containing
-	 *   source code, and <code>IPackageFragmentRoot.K_BINARY</code> for binary
-	 *   class files.
-	 *   There is no specified value for an entry denoting a variable (<code>CPE_VARIABLE</code>)
-	 */
-	int getContentKind();
-	/**
-	 * Returns the kind of this classpath entry.
-	 *
-	 * @return one of:
-	 * <ul>
-	 * <li><code>CPE_SOURCE</code> - this entry describes a source root in
-	 		its project
-	 * <li><code>CPE_LIBRARY</code> - this entry describes a folder or JAR
-	 		containing binaries
-	 * <li><code>CPE_PROJECT</code> - this entry describes another project
-	 *
-	 * <li><code>CPE_VARIABLE</code> - this entry describes a project or library
-	 *  	indirectly via a classpath variable in the first segment of the path
-	 * </ul>
-	 */
-	int getEntryKind();
-	/**
-	 * Returns the path of this classpath entry.
-	 *
-	 * The meaning of the path of a classpath entry depends on its entry kind:<ul>
-	 *	<li>Source code in the current project (<code>CPE_SOURCE</code>) -  
-	 *      The path associated with this entry is the absolute path to the root folder. </li>
-	 *	<li>A binary library in the current project (<code>CPE_LIBRARY</code>) - the path
-	 *		associated with this entry is the absolute path to the JAR (or root folder), and 
-	 *		in case it refers to an external JAR, then there is no associated resource in 
-	 *		the workbench.
-	 *	<li>A required project (<code>CPE_PROJECT</code>) - the path of the entry denotes the
-	 *		path to the corresponding project resource.</li>
-	 *  <li>A variable entry (<code>CPE_VARIABLE</code>) - the first segment of the path 
-	 *      is the name of a classpath variable. If this classpath variable
-	 *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
-	 *		is computed by appending to <it>P</it> the segments of the returned
-	 *		path without the variable.</li>
-	 * </ul>
-	 *
-	 * @return the path of this classpath entry
-	 */
-	IPath getPath();
-	/**
-	 * This is a helper method which returns the resolved classpath entry denoted 
-	 * by an entry (if it is a variable entry). It is obtained by resolving the variable 
-	 * reference in the first segment. Returns <node>null</code> if unable to resolve using 
-	 * the following algorithm:
-	 * <ul>
-	 * <li> if variable segment cannot be resolved, returns <code>null</code></li>
-	 * <li> finds a project, JAR or binary folder in the workspace at the resolved path location</li>
-	 * <li> if none finds an external JAR file or folder outside the workspace at the resolved path location </li>
-	 * <li> if none returns <code>null</code></li>
-	 * </ul>
-	 * <p>
-	 * Variable source attachment is also resolved and recorded in the resulting classpath entry.
-	 * <p>
-	 * @return the resolved library or project classpath entry, or <code>null</code>
-	 *   if the given path could not be resolved to a classpath entry
-	 *
-	 * @deprecated - use JavaCore.getResolvedClasspathEntry(...)
-	 */
-	IClasspathEntry getResolvedEntry();
-	/**
-	 * Returns the path to the source archive associated with this
-	 * classpath entry, or <code>null</code> if this classpath entry has no
-	 * source attachment.
-	 * <p>
-	 * Only library and variable classpath entries may have source attachments.
-	 * For library classpath entries, the result path (if present) locates a source
-	 * archive. For variable classpath entries, the result path (if present) has
-	 * an analogous form and meaning as the variable path, namely the first segment 
-	 * is the name of a classpath variable.
-	 * </p>
-	 *
-	 * @return the path to the source archive, or <code>null</code> if none
-	 */
-	IPath getSourceAttachmentPath();
-	/**
-	 * Returns the path within the source archive where package fragments
-	 * are located. An empty path indicates that packages are located at
-	 * the root of the source archive. Returns a non-<code>null</code> value
-	 * if and only if <code>getSourceAttachmentPath</code> returns 
-	 * a non-<code>null</code> value.
-	 *
-	 * @return the path within the source archive, or <code>null</code> if
-	 *    not applicable
-	 */
-	IPath getSourceAttachmentRootPath();
+	
+/**
+ * Returns the kind of files found in the package fragments identified by this
+ * classpath entry.
+ *
+ * @return <code>IPackageFragmentRoot.K_SOURCE</code> for files containing
+ *   source code, and <code>IPackageFragmentRoot.K_BINARY</code> for binary
+ *   class files.
+ *   There is no specified value for an entry denoting a variable (<code>CPE_VARIABLE</code>)
+ */
+int getContentKind();
+/**
+ * Returns the kind of this classpath entry.
+ *
+ * @return one of:
+ * <ul>
+ * <li><code>CPE_SOURCE</code> - this entry describes a source root in
+ 		its project
+ * <li><code>CPE_LIBRARY</code> - this entry describes a folder or JAR
+ 		containing binaries
+ * <li><code>CPE_PROJECT</code> - this entry describes another project
+ *
+ * <li><code>CPE_VARIABLE</code> - this entry describes a project or library
+ *  	indirectly via a classpath variable in the first segment of the path
+ * </ul>
+ */
+int getEntryKind();
+/**
+ * Returns the path of this classpath entry.
+ *
+ * The meaning of the path of a classpath entry depends on its entry kind:<ul>
+ *	<li>Source code in the current project (<code>CPE_SOURCE</code>) -  
+ *      The path associated with this entry is the absolute path to the root folder. </li>
+ *	<li>A binary library in the current project (<code>CPE_LIBRARY</code>) - the path
+ *		associated with this entry is the absolute path to the JAR (or root folder), and 
+ *		in case it refers to an external JAR, then there is no associated resource in 
+ *		the workbench.
+ *	<li>A required project (<code>CPE_PROJECT</code>) - the path of the entry denotes the
+ *		path to the corresponding project resource.</li>
+ *  <li>A variable entry (<code>CPE_VARIABLE</code>) - the first segment of the path 
+ *      is the name of a classpath variable. If this classpath variable
+ *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
+ *		is computed by appending to <it>P</it> the segments of the returned
+ *		path without the variable.</li>
+ * </ul>
+ *
+ * @return the path of this classpath entry
+ */
+IPath getPath();
+/**
+ * This is a helper method which returns the resolved classpath entry denoted 
+ * by an entry (if it is a variable entry). It is obtained by resolving the variable 
+ * reference in the first segment. Returns <node>null</code> if unable to resolve using 
+ * the following algorithm:
+ * <ul>
+ * <li> if variable segment cannot be resolved, returns <code>null</code></li>
+ * <li> finds a project, JAR or binary folder in the workspace at the resolved path location</li>
+ * <li> if none finds an external JAR file or folder outside the workspace at the resolved path location </li>
+ * <li> if none returns <code>null</code></li>
+ * </ul>
+ * <p>
+ * Variable source attachment is also resolved and recorded in the resulting classpath entry.
+ * <p>
+ * @return the resolved library or project classpath entry, or <code>null</code>
+ *   if the given path could not be resolved to a classpath entry
+ *
+ * @deprecated - use JavaCore.getResolvedClasspathEntry(...)
+ */
+IClasspathEntry getResolvedEntry();
+/**
+ * Returns the path to the source archive associated with this
+ * classpath entry, or <code>null</code> if this classpath entry has no
+ * source attachment.
+ * <p>
+ * Only library and variable classpath entries may have source attachments.
+ * For library classpath entries, the result path (if present) locates a source
+ * archive. For variable classpath entries, the result path (if present) has
+ * an analogous form and meaning as the variable path, namely the first segment 
+ * is the name of a classpath variable.
+ * </p>
+ *
+ * @return the path to the source archive, or <code>null</code> if none
+ */
+IPath getSourceAttachmentPath();
+/**
+ * Returns the path within the source archive where package fragments
+ * are located. An empty path indicates that packages are located at
+ * the root of the source archive. Returns a non-<code>null</code> value
+ * if and only if <code>getSourceAttachmentPath</code> returns 
+ * a non-<code>null</code> value.
+ *
+ * @return the path within the source archive, or <code>null</code> if
+ *    not applicable
+ */
+IPath getSourceAttachmentRootPath();
 }

@@ -18,50 +18,41 @@ import org.eclipse.jdt.core.*;
  * to an <code>IResource</code>.
  */
 public class ValidateSourceElementOperation extends JavaModelOperation {
-	/**
-	 * Validate the given Java Model element.
-	 */
-	public ValidateSourceElementOperation(IJavaElement element) {
-		super(element);
+/**
+ * Validate the given Java Model element.
+ */
+public ValidateSourceElementOperation(IJavaElement element) {
+	super(element);
+}
+/**
+ * Validate the element - TBD.
+ */
+protected void executeOperation() throws JavaModelException {}
+/**
+ * Returns the errors and warnings as a set of <code>IMarkers</code>,
+ * or <code>null</code> if no errors or warnings were found.
+ */
+public IMarker[] getResult() {
+	return null;
+}
+/**
+ * Possible failures: <ul>
+ *	<li>ELEMENTS_TO_PROCESS - an element was not provided
+ *	<li>INVALID_ELEMENT_TYPES - the element provided is not a source element
+ *	<li>ELEMENT_NOT_PRESENT - the element does not exist
+ * </ul>
+ */
+public IJavaModelStatus verify() {
+	IJavaModelStatus status = super.verify();
+	if (!status.isOK()) {
+		return status;
 	}
-
-	/**
-	 * Validate the element - TBD.
-	 */
-	protected void executeOperation() throws JavaModelException {
+	if (!(getElementToProcess() instanceof ISourceReference)) {
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, getElementToProcess());
 	}
-
-	/**
-	 * Returns the errors and warnings as a set of <code>IMarkers</code>,
-	 * or <code>null</code> if no errors or warnings were found.
-	 */
-	public IMarker[] getResult() {
-		return null;
+	if (!getElementToProcess().exists()) {
+		return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, getElementToProcess());
 	}
-
-	/**
-	 * Possible failures: <ul>
-	 *	<li>ELEMENTS_TO_PROCESS - an element was not provided
-	 *	<li>INVALID_ELEMENT_TYPES - the element provided is not a source element
-	 *	<li>ELEMENT_NOT_PRESENT - the element does not exist
-	 * </ul>
-	 */
-	public IJavaModelStatus verify() {
-		IJavaModelStatus status = super.verify();
-		if (!status.isOK()) {
-			return status;
-		}
-		if (!(getElementToProcess() instanceof ISourceReference)) {
-			return new JavaModelStatus(
-				IJavaModelStatusConstants.INVALID_ELEMENT_TYPES,
-				getElementToProcess());
-		}
-		if (!getElementToProcess().exists()) {
-			return new JavaModelStatus(
-				IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST,
-				getElementToProcess());
-		}
-		return JavaModelStatus.VERIFIED_OK;
-	}
-
+	return JavaModelStatus.VERIFIED_OK;
+}
 }

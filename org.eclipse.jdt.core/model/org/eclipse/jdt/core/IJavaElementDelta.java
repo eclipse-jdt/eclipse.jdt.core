@@ -161,71 +161,71 @@ public interface IJavaElementDelta {
 	/**
 	 * Change flag indicating that a source jar has been attached to a binary jar.
 	 */
-	public int F_SOURCEATTACHED = 0x1000;
+	public int F_SOURCEATTACHED = 0x1000;	
 
 	/**
 	 * Change flag indicating that a source jar has been detached to a binary jar.
 	 */
-	public int F_SOURCEDETACHED = 0x2000;
-	/**
-	 * Returns deltas for the children that have been added.
-	 */
-	public IJavaElementDelta[] getAddedChildren();
-	/**
-	 * Returns deltas for the affected (added, removed, or changed) children.
-	 */
-	public IJavaElementDelta[] getAffectedChildren();
-	/**
-	 * Returns deltas for the children which have changed.
-	 */
-	public IJavaElementDelta[] getChangedChildren();
-	/**
-	 * Returns the element that this delta describes a change to.
-	 */
-	public IJavaElement getElement();
-	/**
-	 * Returns flags that describe how an element has changed.
-	 *
-	 * @see IJavaElementDelta#F_CHILDREN
-	 * @see IJavaElementDelta#F_CONTENT
-	 * @see IJavaElementDelta#F_MODIFIERS
-	 * @see IJavaElementDelta#F_MOVED_FROM
-	 * @see IJavaElementDelta#F_MOVED_TO
-	 * @see IJavaElementDelta#F_ADDED_TO_CLASSPATH
-	 * @see IJavaElementDelta#F_REMOVED_FROM_CLASSPATH
-	 * @see IJavaElementDelta#F_CLASSPATH_REORDER
-	 */
-	public int getFlags();
-	/**
-	 * Returns the kind of this delta - one of <code>ADDED</code>, <code>REMOVED</code>,
-	 * or <code>CHANGED</code>.
-	 */
-	public int getKind();
-	/**
-	 * Returns an element describing this element before it was moved
-	 * to its current location, or <code>null</code> if the
-	 * <code>F_MOVED_FROM</code> change flag is not set. 
-	 */
-	public IJavaElement getMovedFromElement();
-	/**
-	 * Returns an element describing this element in its new location,
-	 * or <code>null</code> if the <code>F_MOVED_TO</code> change
-	 * flag is not set.
-	 */
-	public IJavaElement getMovedToElement();
-	/**
-	 * Returns deltas for the children which have been removed.
-	 */
-	public IJavaElementDelta[] getRemovedChildren();
-	/**
-	 * Returns the collection of resource deltas.
-	 * <p>
-	 * Note that resource deltas, like Java element deltas, are generally only valid
-	 * for the dynamic scope of an event notification. Clients must not hang on to
-	 * these objects.
-	 * </p>
-	 *
-	 * @return the underlying resource deltas, or <code>null</code> if none
-	 */
-	public IResourceDelta[] getResourceDeltas();
+	public int F_SOURCEDETACHED = 0x2000;	
+/**
+ * Returns deltas for the children that have been added.
+ */
+public IJavaElementDelta[] getAddedChildren();
+/**
+ * Returns deltas for the affected (added, removed, or changed) children.
+ */
+public IJavaElementDelta[] getAffectedChildren();
+/**
+ * Returns deltas for the children which have changed.
+ */
+public IJavaElementDelta[] getChangedChildren();
+/**
+ * Returns the element that this delta describes a change to.
+ */
+public IJavaElement getElement();
+/**
+ * Returns flags that describe how an element has changed.
+ *
+ * @see IJavaElementDelta#F_CHILDREN
+ * @see IJavaElementDelta#F_CONTENT
+ * @see IJavaElementDelta#F_MODIFIERS
+ * @see IJavaElementDelta#F_MOVED_FROM
+ * @see IJavaElementDelta#F_MOVED_TO
+ * @see IJavaElementDelta#F_ADDED_TO_CLASSPATH
+ * @see IJavaElementDelta#F_REMOVED_FROM_CLASSPATH
+ * @see IJavaElementDelta#F_CLASSPATH_REORDER
+ */
+public int getFlags();
+/**
+ * Returns the kind of this delta - one of <code>ADDED</code>, <code>REMOVED</code>,
+ * or <code>CHANGED</code>.
+ */
+public int getKind();
+/**
+ * Returns an element describing this element before it was moved
+ * to its current location, or <code>null</code> if the
+ * <code>F_MOVED_FROM</code> change flag is not set. 
+ */
+public IJavaElement getMovedFromElement();
+/**
+ * Returns an element describing this element in its new location,
+ * or <code>null</code> if the <code>F_MOVED_TO</code> change
+ * flag is not set.
+ */
+public IJavaElement getMovedToElement();
+/**
+ * Returns deltas for the children which have been removed.
+ */
+public IJavaElementDelta[] getRemovedChildren();
+/**
+ * Returns the collection of resource deltas.
+ * <p>
+ * Note that resource deltas, like Java element deltas, are generally only valid
+ * for the dynamic scope of an event notification. Clients must not hang on to
+ * these objects.
+ * </p>
+ *
+ * @return the underlying resource deltas, or <code>null</code> if none
+ */
+public IResourceDelta[] getResourceDeltas();
 }

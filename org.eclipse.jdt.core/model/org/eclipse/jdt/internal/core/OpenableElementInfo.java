@@ -7,7 +7,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 
 /** Element info for IOpenable elements. */
-/* package */
-class OpenableElementInfo extends JavaElementInfo {
+/* package */ class OpenableElementInfo extends JavaElementInfo {
+	
 
 }

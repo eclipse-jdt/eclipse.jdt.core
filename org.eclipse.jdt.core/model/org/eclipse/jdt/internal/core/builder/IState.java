@@ -11,28 +11,25 @@ import org.eclipse.core.resources.IResourceDelta;
  * This represents a specific, immutable state of the image described by the Development Context.
  */
 public interface IState {
-	/**
-	 * Performs an incremental build, given a new project
-	 * and a delta describing the differences between
-	 * the project for this state and the new project.
-	 * Returns an ImageBuilder representing the process of building
-	 * the new state.  The result object can be queried for the
-	 * new state and for the image delta between this state and
-	 * the new state.
-	 * 
-	 * <p> The given delta must represent the differences
-	 * between the project for this state and the new project.
-	 *
-	 * <p> Optionally, the build context for the new state can be
-	 * specified.  If null is specified, this state's build context 
-	 * is given to the new state.
-	 *
-	 * @see #getBuildContext
-	 */
-	IImageBuilder applySourceDelta(
-		IProject newProject,
-		IResourceDelta delta,
-		IImageContext buildContext);
+/**
+ * Performs an incremental build, given a new project
+ * and a delta describing the differences between
+ * the project for this state and the new project.
+ * Returns an ImageBuilder representing the process of building
+ * the new state.  The result object can be queried for the
+ * new state and for the image delta between this state and
+ * the new state.
+ * 
+ * <p> The given delta must represent the differences
+ * between the project for this state and the new project.
+ *
+ * <p> Optionally, the build context for the new state can be
+ * specified.  If null is specified, this state's build context 
+ * is given to the new state.
+ *
+ * @see #getBuildContext
+ */
+IImageBuilder applySourceDelta(IProject newProject, IResourceDelta delta, IImageContext buildContext);
 	/**
 	 * Compare two Objects for equality.  Returns true iff they represent the same state
 	 * in the same development context. 
@@ -74,21 +71,21 @@ public interface IState {
 	 * @see IDevelopmentContext#getImage
 	 */
 	IImage getImage();
-	/**
-	 * Returns the project which provides the source for this state.
-	 */
-	IProject getProject();
-	/**
-	 * Returns a report card for this state., restricted to
-	 * the given image context.
-	 * Problems are organized by workspace element identifiers.
-	 * This method is on <code>IState</code> rather than 
-	 * <code>IImage</code> to make it clear that
-	 * the result is inherently state-specific.
-	 * @param imageContext the image context in which to 
-	 *    restrict the report card.
-	 */
-	IReportCard getReportCard(IImageContext imageContext);
+/**
+ * Returns the project which provides the source for this state.
+ */
+IProject getProject();
+/**
+ * Returns a report card for this state., restricted to
+ * the given image context.
+ * Problems are organized by workspace element identifiers.
+ * This method is on <code>IState</code> rather than 
+ * <code>IImage</code> to make it clear that
+ * the result is inherently state-specific.
+ * @param imageContext the image context in which to 
+ *    restrict the report card.
+ */
+IReportCard getReportCard(IImageContext imageContext);
 	/**
 	 * Returns a new image delta representing the differences between the this
 	 * state and another one.  The delta is naive in that no delta information is initially provided.

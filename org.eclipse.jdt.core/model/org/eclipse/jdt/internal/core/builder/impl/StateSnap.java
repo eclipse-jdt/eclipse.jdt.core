@@ -57,50 +57,43 @@ public class StateSnap {
 	IPackage currentPackage;
 
 	static final int MAGIC = 0x53544154; // magic = "STAT"e
-	static final int VERSION5 = 0x0005;
-	static final int VERSION6 = 0x0006;
-	/**
-	 * Creates a new StateSnap.
-	 */
-	public StateSnap() {
-		super();
+	static final int VERSION5 = 0x0005;	
+	static final int VERSION6 = 0x0006;	
+/**
+ * Creates a new StateSnap.
+ */
+public StateSnap() {
+	super();
+}
+/** 
+ * Reads and reconstructs a state from the given input stream.
+ */
+public StateImpl read(JavaDevelopmentContextImpl dc, IProject project, DataInputStream in) throws IOException {
+
+	int magic = in.readInt();
+	int version = in.readShort();
+	if (magic != MAGIC) { // magic = "STAT"e
+		throw new IOException("Unrecognized format");
 	}
 
-	/** 
-	 * Reads and reconstructs a state from the given input stream.
-	 */
-	public StateImpl read(
-		JavaDevelopmentContextImpl dc,
-		IProject project,
-		DataInputStream in)
-		throws IOException {
-
-		int magic = in.readInt();
-		int version = in.readShort();
-		if (magic != MAGIC) { // magic = "STAT"e
-			throw new IOException("Unrecognized format");
-		}
-
-		/* dispatch to appropriate reader */
-		switch (version) {
-			case VERSION5 :
-				return new StateSnapV5().read(dc, project, in);
-			case VERSION6 :
-				return new StateSnapV6().read(dc, project, in);
-			default :
-				throw new IOException("Unrecognized state format");
-		}
+	/* dispatch to appropriate reader */
+	switch (version) {
+		case VERSION5:
+			return new StateSnapV5().read(dc, project, in);
+		case VERSION6:
+			return new StateSnapV6().read(dc, project, in);
+		default:
+			throw new IOException("Unrecognized state format");
 	}
+}
+/** 
+ * Saves key information about the given state
+ * to the given output stream.  This snapshot can be used
+ * subsequently in reconstructing the state.
+ */
+public void save(StateImpl state, DataOutputStream out) throws IOException {
 
-	/** 
-	 * Saves key information about the given state
-	 * to the given output stream.  This snapshot can be used
-	 * subsequently in reconstructing the state.
-	 */
-	public void save(StateImpl state, DataOutputStream out) throws IOException {
-
-		/* current version for writing state is version 6 */
-		new StateSnapV6().save(state, out);
-	}
-
+	/* current version for writing state is version 6 */
+	new StateSnapV6().save(state, out);
+}
 }

@@ -5,7 +5,7 @@ package org.eclipse.jdt.core.search;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.core.*;
-
+ 
 /**
  * A search pattern defines how search results are found. Use <code>SearchEngine.createSearchPattern</code>
  * to create a search pattern.

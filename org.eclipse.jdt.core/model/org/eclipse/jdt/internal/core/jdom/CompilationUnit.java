@@ -17,36 +17,31 @@ public class CompilationUnit implements ICompilationUnit {
 	protected char[] fContents;
 	protected char[] fFileName;
 	protected char[] fMainTypeName;
-	public CompilationUnit(char[] contents, char[] filename) {
-		fContents = contents;
-		fFileName = filename;
+public CompilationUnit(char[] contents, char[] filename) {
+	fContents = contents;
+	fFileName = filename;
 
-		String file = new String(filename);
-		int start = file.lastIndexOf("/") + 1;
-		if (start == 0 || start < file.lastIndexOf("\\"))
-			start = file.lastIndexOf("\\") + 1;
+	String file = new String(filename);
+	int start = file.lastIndexOf("/") + 1;
+	if (start == 0 || start < file.lastIndexOf("\\"))
+		start = file.lastIndexOf("\\") + 1;
 
-		int end = file.lastIndexOf(".");
-		if (end == -1)
-			end = file.length();
+	int end = file.lastIndexOf(".");
+	if (end == -1)
+		end = file.length();
 
-		fMainTypeName = file.substring(start, end).toCharArray();
-	}
-
-	public char[] getContents() {
-		return fContents;
-	}
-
-	public char[] getFileName() {
-		return fFileName;
-	}
-
-	public char[] getMainTypeName() {
-		return fMainTypeName;
-	}
-
-	public String toString() {
-		return "CompilationUnit[" + new String(fFileName) + "]";
-	}
-
+	fMainTypeName = file.substring(start, end).toCharArray();
+}
+public char[] getContents() {
+	return fContents;
+}
+public char[] getFileName() {
+	return fFileName;
+}
+public char[] getMainTypeName() {
+	return fMainTypeName;
+}
+public String toString() {
+	return "CompilationUnit[" + new String(fFileName) + "]"; 
+}
 }

@@ -38,72 +38,63 @@ public class CreateCompilationUnitOperation extends JavaModelOperation {
 	/**
 	 * The source code to use when creating the element.
 	 */
-	protected String fSource = null;
-	/**
-	 * When executed, this operation will create a compilation unit with the given name.
-	 * The name should have the ".java" suffix.
-	 */
-	public CreateCompilationUnitOperation(
-		IPackageFragment parentElement,
-		String name,
-		String source,
-		boolean force) {
-		super(null, new IJavaElement[] { parentElement }, force);
-		fName = name;
-		fSource = source;
+	protected String fSource= null;
+/**
+ * When executed, this operation will create a compilation unit with the given name.
+ * The name should have the ".java" suffix.
+ */
+public CreateCompilationUnitOperation(IPackageFragment parentElement, String name, String source, boolean force) {
+	super(null, new IJavaElement[] {parentElement}, force);
+	fName = name;
+	fSource = source;
+}
+/**
+ * Creates a compilation unit.
+ *
+ * @exception JavaModelException if unable to create the compilation unit.
+ */
+protected void executeOperation() throws JavaModelException {
+	beginTask(Util.bind("operation.createUnitProgress"/*nonNLS*/), 2);
+	JavaElementDelta delta = newJavaElementDelta();
+	ICompilationUnit unit = getCompilationUnit();
+	IPackageFragment pkg = (IPackageFragment) getParentElement();
+	IContainer folder = (IContainer) pkg.getUnderlyingResource();
+	InputStream stream = new ByteArrayInputStream(BufferManager.stringToBytes(fSource));
+	worked(1);
+	createFile(folder, unit.getElementName(), stream, fForce);
+	worked(1);
+	fResultElements = new IJavaElement[] {getCompilationUnit()};
+	for (int i = 0; i < fResultElements.length; i++) {
+		delta.added(fResultElements[i]);
 	}
-
-	/**
-	 * Creates a compilation unit.
-	 *
-	 * @exception JavaModelException if unable to create the compilation unit.
-	 */
-	protected void executeOperation() throws JavaModelException {
-		beginTask("Creating a compilation unit...", 2);
-		JavaElementDelta delta = newJavaElementDelta();
-		ICompilationUnit unit = getCompilationUnit();
-		IPackageFragment pkg = (IPackageFragment) getParentElement();
-		IContainer folder = (IContainer) pkg.getUnderlyingResource();
-		InputStream stream =
-			new ByteArrayInputStream(BufferManager.stringToBytes(fSource));
-		worked(1);
-		createFile(folder, unit.getElementName(), stream, fForce);
-		worked(1);
-		fResultElements = new IJavaElement[] { getCompilationUnit()};
-		for (int i = 0; i < fResultElements.length; i++) {
-			delta.added(fResultElements[i]);
-		}
-		addDelta(delta);
-		done();
+	addDelta(delta);
+	done();
+}
+/**
+ * @see CreateElementInCUOperation#getCompilationUnit()
+ */
+protected ICompilationUnit getCompilationUnit() {
+	return ((IPackageFragment)getParentElement()).getCompilationUnit(fName);
+}
+/**
+ * Possible failures: <ul>
+ *  <li>NO_ELEMENTS_TO_PROCESS - the package fragment supplied to the operation is
+ * 		<code>null</code>.
+ *	<li>INVALID_NAME - the compilation unit name provided to the operation 
+ * 		is <code>null</code> or has an invalid syntax
+ *  <li>INVALID_CONTENTS - the source specified for the compiliation unit is null
+ * </ul>
+ */
+public IJavaModelStatus verify() {
+	if (getParentElement() == null) {
+		return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 	}
-
-	/**
-	 * @see CreateElementInCUOperation#getCompilationUnit()
-	 */
-	protected ICompilationUnit getCompilationUnit() {
-		return ((IPackageFragment) getParentElement()).getCompilationUnit(fName);
+	if (!JavaConventions.validateCompilationUnitName(fName).isOK()) {
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fName);
 	}
-
-	/**
-	 * Possible failures: <ul>
-	 *  <li>NO_ELEMENTS_TO_PROCESS - the package fragment supplied to the operation is
-	 * 		<code>null</code>.
-	 *	<li>INVALID_NAME - the compilation unit name provided to the operation 
-	 * 		is <code>null</code> or has an invalid syntax
-	 *  <li>INVALID_CONTENTS - the source specified for the compiliation unit is null
-	 * </ul>
-	 */
-	public IJavaModelStatus verify() {
-		if (getParentElement() == null) {
-			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
-		}
-		if (!JavaConventions.validateCompilationUnitName(fName).isOK()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fName);
-		}
-		if (fSource == null) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
-		}
-		return JavaModelStatus.VERIFIED_OK;
+	if (fSource == null) {
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
 	}
-
+	return JavaModelStatus.VERIFIED_OK;
+}
 }

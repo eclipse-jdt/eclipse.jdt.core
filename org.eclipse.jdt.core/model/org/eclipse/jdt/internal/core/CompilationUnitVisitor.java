@@ -82,7 +82,7 @@ protected static IErrorHandlingPolicy getHandlingPolicy() {
 	// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)	
 	return new IErrorHandlingPolicy() {
 		public boolean stopOnFirstError() {
-			return true;
+			return false;
 		}
 		public boolean proceedOnErrors() {
 			return false; // stop if there are some errors 
@@ -99,24 +99,6 @@ protected static INameEnvironment getNameEnvironment(ICompilationUnit sourceUnit
 protected static ConfigurableOption[] getOptions() {
 	CompilerOptions options = new CompilerOptions();
 	return options.getConfigurableOptions(Locale.getDefault());
-}
-protected static IProblemFactory getProblemFactory(final IAbstractSyntaxTreeVisitor visitor) {
-
-	return new DefaultProblemFactory(Locale.getDefault()){
-		public IProblem createProblem(char[] originatingFileName, int problemId, String[] arguments, int severity, int startPosition, int endPosition, int lineNumber) {
-
-			IProblem problem = super.createProblem(
-				originatingFileName,
-				problemId,
-				arguments,
-				severity,
-				startPosition,
-				endPosition,
-				lineNumber);
-			visitor.acceptProblem(problem);
-			return problem;
-		}
-	};
 }
 /*
  * Answer the component to which will be handed back compilation results from the compiler
@@ -151,5 +133,24 @@ public static void visit(ICompilationUnit unitElement, IAbstractSyntaxTreeVisito
 			unit.cleanUp();
 		}
 	}
+}
+
+protected static IProblemFactory getProblemFactory(final IAbstractSyntaxTreeVisitor visitor) {
+
+	return new DefaultProblemFactory(Locale.getDefault()){
+		public IProblem createProblem(char[] originatingFileName, int problemId, String[] arguments, int severity, int startPosition, int endPosition, int lineNumber) {
+
+			IProblem problem = super.createProblem(
+				originatingFileName,
+				problemId,
+				arguments,
+				severity,
+				startPosition,
+				endPosition,
+				lineNumber);
+			visitor.acceptProblem(problem);
+			return problem;
+		}
+	};
 }
 }

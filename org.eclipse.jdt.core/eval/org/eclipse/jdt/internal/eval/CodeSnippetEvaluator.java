@@ -15,9 +15,7 @@ import java.util.*;
  * A code snippet evaluator compiles and returns class file for a code snippet.
  * Or it reports problems against the code snippet. 
  */
-public class CodeSnippetEvaluator
-	extends Evaluator
-	implements EvaluationConstants {
+public class CodeSnippetEvaluator extends Evaluator implements EvaluationConstants {
 	/**
 	 * Whether the code snippet support classes should be found in the provided name environment
 	 * or on disk.
@@ -33,183 +31,161 @@ public class CodeSnippetEvaluator
 	 * The code snippet to generated compilation unit mapper
 	 */
 	CodeSnippetToCuMapper mapper;
-	/**
-	 * Creates a new code snippet evaluator.
-	 */
-	CodeSnippetEvaluator(
-		char[] codeSnippet,
-		EvaluationContext context,
-		INameEnvironment environment,
-		ConfigurableOption[] options,
-		IRequestor requestor,
-		IProblemFactory problemFactory) {
-		super(context, environment, options, requestor, problemFactory);
-		this.codeSnippet = codeSnippet;
+/**
+ * Creates a new code snippet evaluator.
+ */
+CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnvironment environment, ConfigurableOption[] options, IRequestor requestor, IProblemFactory problemFactory) {
+	super(context, environment, options, requestor, problemFactory);
+	this.codeSnippet = codeSnippet;
+}
+/**
+ * @see org.eclipse.jdt.internal.eval.Evaluator
+ */
+protected void addEvaluationResultForCompilationProblem(Hashtable resultsByIDs, IProblem problem, char[] cuSource) {
+	CodeSnippetToCuMapper mapper = getMapper();
+	int pbLineNumber = problem.getSourceLineNumber();
+	int evaluationType = mapper.getEvaluationType(pbLineNumber);
+
+	char[] evaluationID = null;
+	switch(evaluationType) {
+		case EvaluationResult.T_PACKAGE:
+			evaluationID = this.context.packageName;
+			
+			// shift line number, source start and source end
+			problem.setSourceLineNumber(1);
+			problem.setSourceStart(0);
+			problem.setSourceEnd(evaluationID.length - 1);
+			break;
+			
+		case EvaluationResult.T_IMPORT:
+			evaluationID = mapper.getImport(pbLineNumber);
+
+			// shift line number, source start and source end
+			problem.setSourceLineNumber(1);
+			problem.setSourceStart(0);
+			problem.setSourceEnd(evaluationID.length - 1);
+			break;
+
+		case EvaluationResult.T_CODE_SNIPPET:
+			evaluationID = this.codeSnippet;
+		
+			// shift line number, source start and source end
+			problem.setSourceLineNumber(pbLineNumber - this.mapper.lineNumberOffset);
+			problem.setSourceStart(problem.getSourceStart() - this.mapper.startPosOffset);
+			problem.setSourceEnd(problem.getSourceEnd() - this.mapper.startPosOffset);
+			break;
+			
+		case EvaluationResult.T_INTERNAL:
+			evaluationID = cuSource;
+			break;
 	}
 
-	/**
-	 * @see org.eclipse.jdt.internal.eval.Evaluator
-	 */
-	protected void addEvaluationResultForCompilationProblem(
-		Hashtable resultsByIDs,
-		IProblem problem,
-		char[] cuSource) {
-		CodeSnippetToCuMapper mapper = getMapper();
-		int pbLineNumber = problem.getSourceLineNumber();
-		int evaluationType = mapper.getEvaluationType(pbLineNumber);
+	EvaluationResult result = (EvaluationResult)resultsByIDs.get(evaluationID);
+	if (result == null) {
+		resultsByIDs.put(evaluationID, new EvaluationResult(evaluationID, evaluationType, new IProblem[] {problem}));
+	} else {
+		result.addProblem(problem);
+	}
+}
+/**
+ * @see org.eclipse.jdt.internal.eval.Evaluator
+ */
+protected char[] getClassName() {
+	return CharOperation.concat(CODE_SNIPPET_CLASS_NAME_PREFIX, Integer.toString(this.context.CODE_SNIPPET_COUNTER + 1).toCharArray());
+}
+/**
+ * @see Evaluator.
+ */
+Compiler getCompiler(ICompilerRequestor requestor) {
+	Compiler compiler = null;
+	if (!DEVELOPMENT_MODE) {
+		// If we are not developping the code snippet support classes,
+		// use a regular compiler and feed its lookup environment with 
+		// the code snippet support classes
 
-		char[] evaluationID = null;
-		switch (evaluationType) {
-			case EvaluationResult.T_PACKAGE :
-				evaluationID = this.context.packageName;
-
-				// shift line number, source start and source end
-				problem.setSourceLineNumber(1);
-				problem.setSourceStart(0);
-				problem.setSourceEnd(evaluationID.length - 1);
-				break;
-
-			case EvaluationResult.T_IMPORT :
-				evaluationID = mapper.getImport(pbLineNumber);
-
-				// shift line number, source start and source end
-				problem.setSourceLineNumber(1);
-				problem.setSourceStart(0);
-				problem.setSourceEnd(evaluationID.length - 1);
-				break;
-
-			case EvaluationResult.T_CODE_SNIPPET :
-				evaluationID = this.codeSnippet;
-
-				// shift line number, source start and source end
-				problem.setSourceLineNumber(pbLineNumber - this.mapper.lineNumberOffset);
-				problem.setSourceStart(problem.getSourceStart() - this.mapper.startPosOffset);
-				problem.setSourceEnd(problem.getSourceEnd() - this.mapper.startPosOffset);
-				break;
-
-			case EvaluationResult.T_INTERNAL :
-				evaluationID = cuSource;
-				break;
+		compiler = 
+			new CodeSnippetCompiler(
+				this.environment, 
+				DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
+				this.options, 
+				requestor, 
+				this.problemFactory,
+				this.context,
+				getMapper().startPosOffset,
+				getMapper().startPosOffset + codeSnippet.length - 1);
+		// Initialize the compiler's lookup environment with the already compiled super classes
+		IBinaryType binary = this.context.getRootCodeSnippetBinary();
+		if (binary != null) {
+			compiler.lookupEnvironment.cacheBinaryType(binary);
 		}
-
-		EvaluationResult result = (EvaluationResult) resultsByIDs.get(evaluationID);
-		if (result == null) {
-			resultsByIDs.put(
-				evaluationID,
-				new EvaluationResult(evaluationID, evaluationType, new IProblem[] { problem }));
-		} else {
-			result.addProblem(problem);
-		}
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.eval.Evaluator
-	 */
-	protected char[] getClassName() {
-		return CharOperation.concat(
-			CODE_SNIPPET_CLASS_NAME_PREFIX,
-			Integer.toString(this.context.CODE_SNIPPET_COUNTER + 1).toCharArray());
-	}
-
-	/**
-	 * @see Evaluator.
-	 */
-	Compiler getCompiler(ICompilerRequestor requestor) {
-		Compiler compiler = null;
-		if (!DEVELOPMENT_MODE) {
-			// If we are not developping the code snippet support classes,
-			// use a regular compiler and feed its lookup environment with 
-			// the code snippet support classes
-
-			compiler =
-				new CodeSnippetCompiler(
-					this.environment,
-					DefaultErrorHandlingPolicies.exitAfterAllProblems(),
-					this.options,
-					requestor,
-					this.problemFactory,
-					this.context,
-					getMapper().startPosOffset,
-					getMapper().startPosOffset + codeSnippet.length - 1);
-			// Initialize the compiler's lookup environment with the already compiled super classes
-			IBinaryType binary = this.context.getRootCodeSnippetBinary();
-			if (binary != null) {
-				compiler.lookupEnvironment.cacheBinaryType(binary);
-			}
-			VariablesInfo installedVars = this.context.installedVars;
-			if (installedVars != null) {
-				ClassFile[] globalClassFiles = installedVars.classFiles;
-				for (int i = 0; i < globalClassFiles.length; i++) {
-					ClassFileReader binaryType = null;
-					try {
-						binaryType = new ClassFileReader(globalClassFiles[i].getBytes(), null);
-					} catch (ClassFormatException e) {
-						e.printStackTrace(); // Should never happen since we compiled this type
-					}
-					compiler.lookupEnvironment.cacheBinaryType(binaryType);
+		VariablesInfo installedVars = this.context.installedVars;
+		if (installedVars != null) {
+			ClassFile[] globalClassFiles = installedVars.classFiles;
+			for (int i = 0; i < globalClassFiles.length; i++) {
+				ClassFileReader binaryType = null;
+				try {
+					binaryType = new ClassFileReader(globalClassFiles[i].getBytes(), null);
+				} catch (ClassFormatException e) {
+					e.printStackTrace(); // Should never happen since we compiled this type
 				}
+				compiler.lookupEnvironment.cacheBinaryType(binaryType);
 			}
-		} else {
-			// If we are developping the code snippet support classes,
-			// use a wrapped environment so that if the code snippet classes are not found
-			// then a default implementation is provided.
-
-			compiler =
-				new Compiler(
-					getWrapperEnvironment(),
-					DefaultErrorHandlingPolicies.exitAfterAllProblems(),
-					this.options,
-					requestor,
-					this.problemFactory);
 		}
-		return compiler;
+	} else {
+		// If we are developping the code snippet support classes,
+		// use a wrapped environment so that if the code snippet classes are not found
+		// then a default implementation is provided.
+
+		compiler = new Compiler(
+			getWrapperEnvironment(), 
+			DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
+			this.options, 
+			requestor, 
+			this.problemFactory);
 	}
-
-	private CodeSnippetToCuMapper getMapper() {
-		if (this.mapper == null) {
-			char[] varClassName = null;
-			VariablesInfo installedVars = this.context.installedVars;
-			if (installedVars != null) {
-				char[] superPackageName = installedVars.packageName;
-				if (superPackageName != null && superPackageName.length != 0) {
-					varClassName =
-						CharOperation.concat(superPackageName, installedVars.className, '.');
-				} else {
-					varClassName = installedVars.className;
-				}
-
+	return compiler;
+}
+private CodeSnippetToCuMapper getMapper() {
+	if (this.mapper == null) {
+		char[] varClassName = null;
+		VariablesInfo installedVars = this.context.installedVars;
+		if (installedVars != null) {
+			char[] superPackageName = installedVars.packageName;
+			if (superPackageName != null && superPackageName.length != 0) {
+				varClassName = CharOperation.concat(superPackageName, installedVars.className, '.');
+			} else {
+				varClassName = installedVars.className;
 			}
-			this.mapper =
-				new CodeSnippetToCuMapper(
-					this.codeSnippet,
-					this.context.packageName,
-					this.context.imports,
-					getClassName(),
-					varClassName,
-					this.context.localVariableNames,
-					this.context.localVariableTypeNames,
-					this.context.localVariableModifiers,
-					this.context.declaringTypeName);
-
+			
 		}
-		return this.mapper;
-	}
+		this.mapper = new CodeSnippetToCuMapper(
+			this.codeSnippet,
+			this.context.packageName,
+			this.context.imports,
+			getClassName(),
+			varClassName,
+			this.context.localVariableNames, 
+			this.context.localVariableTypeNames, 
+			this.context.localVariableModifiers, 
+			this.context.declaringTypeName			
+		);
 
-	/**
-	 * @see org.eclipse.jdt.internal.eval.Evaluator
-	 */
-	protected char[] getSource() {
-		return getMapper().cuSource;
 	}
-
-	/**
-	 * Returns an environment that wraps the client's name environment.
-	 * This wrapper always considers the wrapped environment then if the name is
-	 * not found, it search in the code snippet support. This includes the superclass
-	 * org.eclipse.jdt.internal.eval.target.CodeSnippet as well as the global variable classes.
-	 */
-	private INameEnvironment getWrapperEnvironment() {
-		return new CodeSnippetEnvironment(this.environment, this.context);
-	}
-
+	return this.mapper;
+}
+/**
+ * @see org.eclipse.jdt.internal.eval.Evaluator
+ */
+protected char[] getSource() {
+	return getMapper().cuSource;
+}
+/**
+ * Returns an environment that wraps the client's name environment.
+ * This wrapper always considers the wrapped environment then if the name is
+ * not found, it search in the code snippet support. This includes the superclass
+ * org.eclipse.jdt.internal.eval.target.CodeSnippet as well as the global variable classes.
+ */
+private INameEnvironment getWrapperEnvironment() {
+	return new CodeSnippetEnvironment(this.environment, this.context);
+}
 }

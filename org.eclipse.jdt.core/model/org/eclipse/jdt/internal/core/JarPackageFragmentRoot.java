@@ -65,7 +65,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		try {
 			verifyAttachSource(zipPath);
 			if (monitor != null) {
-				monitor.beginTask("Attaching source...", 2);
+				monitor.beginTask(Util.bind("element.attachingSource"/*nonNLS*/), 2);
 			}
 			SourceMapper mapper= null;
 			SourceMapper oldMapper= getSourceMapper();
@@ -231,7 +231,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, Vector vChild
 					packageFragToTypes.put(eName, temp);
 				}
 			} else {
-				if (eName.toUpperCase().endsWith(".CLASS")) {
+				if (Util.isClassFileName(eName)) {
 					//only interested in class files
 					//store the class file entry name to be cached in the appropriate package fragment
 					//zip entries only use '/'
@@ -374,17 +374,17 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 		try {
 			entry = parentProject.getClasspathEntryFor(rootPath);
 			if (entry != null){
-				Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath());
+				Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
 				if (target instanceof IFile){
 					IFile file = (IFile) target;
-					if ("jar".equalsIgnoreCase(file.getFileExtension()) || "zip".equalsIgnoreCase(file.getFileExtension())){
+					if ("jar"/*nonNLS*/.equalsIgnoreCase(file.getFileExtension()) || "zip"/*nonNLS*/.equalsIgnoreCase(file.getFileExtension())){
 						return entry;
 					}
 				}
 				if (target instanceof java.io.File){
 					java.io.File file = (java.io.File) target;
-					String name = file.getName().toLowerCase();
-					if (name.endsWith(".jar") || name.endsWith(".zip")){
+					String name = file.getName();
+					if (Util.endsWithIgnoreCase(name, ".jar"/*nonNLS*/) || Util.endsWithIgnoreCase(name, ".zip"/*nonNLS*/)){
 						return entry;
 					}
 				}
@@ -401,17 +401,18 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 			try {
 				entry = jProject.getClasspathEntryFor(rootPath);
 				if (entry != null){
-					Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath());
+					Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
 					if (target instanceof IFile){
 						IFile file = (IFile) target;
-						if ("jar".equalsIgnoreCase(file.getFileExtension()) || "zip".equalsIgnoreCase(file.getFileExtension())){
+						String name = file.getName();
+						if (Util.endsWithIgnoreCase(name, ".jar"/*nonNLS*/) || Util.endsWithIgnoreCase(name, ".zip"/*nonNLS*/)){
 							return entry;
 						}
 					}
 					if (target instanceof java.io.File){
 						java.io.File file = (java.io.File) target;
-						String name = file.getName().toLowerCase();
-						if (name.endsWith(".jar") || name.endsWith(".zip")){
+						String name = file.getName();
+						if (Util.endsWithIgnoreCase(name, ".jar"/*nonNLS*/) || Util.endsWithIgnoreCase(name, ".zip"/*nonNLS*/)){
 							return entry;
 						}
 					}
@@ -423,15 +424,6 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	}
 
 	return null;
-}
-/**
- * @see JavaElement#getHandleMemento()
- */
-public String getHandleMemento(){
-	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
-	buff.append(getHandleMementoDelimiter());
-	buff.append(this.fJarPath.toString()); // 1GEP51U
-	return buff.toString();
 }
 	/**
 	 * Returns the underlying ZipFile for this Jar package fragment root.
@@ -491,6 +483,7 @@ public String getHandleMemento(){
 			return null;
 		}
 		int index= serverPathString.lastIndexOf(ATTACHMENT_PROPERTY_DELIMITER);
+		if (index < 0) return null;
 		String serverZipPathString= serverPathString.substring(0, index);
 		return new Path(serverZipPathString);
 	}
@@ -510,7 +503,7 @@ public String getHandleMemento(){
 				if (recommendation != null){
 					propertyString = recommendation.getSourceAttachmentPath().toString() 
 										+ ATTACHMENT_PROPERTY_DELIMITER 
-										+ (recommendation.getSourceAttachmentRootPath() == null ? "" : recommendation.getSourceAttachmentRootPath().toString());
+										+ (recommendation.getSourceAttachmentRootPath() == null ? ""/*nonNLS*/ : recommendation.getSourceAttachmentRootPath().toString());
 					getWorkspace().getRoot().setPersistentProperty(qName, propertyString);
 				}
 			}
@@ -527,7 +520,7 @@ public String getHandleMemento(){
 		ZipFile jarFile = null;
 		try {
 			jarFile = getJar();
-			return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + jarFile.getName());
+			return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: "/*nonNLS*/ + jarFile.getName());
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		} finally {
@@ -658,4 +651,14 @@ public String getHandleMemento(){
 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, zipPath));
 		}
 	}
+
+/**
+ * @see JavaElement#getHandleMemento()
+ */
+public String getHandleMemento(){
+	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
+	buff.append(getHandleMementoDelimiter());
+	buff.append(this.fJarPath.toString()); // 1GEP51U
+	return buff.toString();
+}
 }

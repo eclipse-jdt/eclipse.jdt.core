@@ -20,26 +20,23 @@ class JarPackageFragmentInfo extends PackageFragmentInfo {
 	 * The names of the zip entries that are the class files associated
 	 * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
 	 */
-	protected Vector fEntryNames = new Vector();
-	/**
-	 */
-	boolean containsJavaResources() {
-		return fEntryNames.size() != 0;
-	}
-
-	/**
-	 * Returns an array of non-java resources contained in the receiver.
-	 */
-	Object[] getNonJavaResources() {
-		return fNonJavaResources;
-	}
-
-	/**
-	 * Set the names of the zip entries that are the types associated
-	 * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
-	 */
-	protected void setEntryNames(Vector entries) {
-		fEntryNames = entries;
-	}
-
+	protected Vector fEntryNames= new Vector();
+/**
+ */
+boolean containsJavaResources() {
+	return fEntryNames.size() != 0;
+}
+/**
+ * Returns an array of non-java resources contained in the receiver.
+ */
+Object[] getNonJavaResources() {
+	return fNonJavaResources;
+}
+/**
+ * Set the names of the zip entries that are the types associated
+ * with this package fragment info in the JAR file of the JarPackageFragmentRootInfo.
+ */
+protected void setEntryNames(Vector entries) {
+	fEntryNames = entries;
+}
 }

@@ -4,13 +4,13 @@ public interface IIndexConstants {
 	/**
 	 * The signature of the index file.
 	 */
-	public static final String SIGNATURE = "INDEX FILE 0.001";
+	public static final String SIGNATURE= "INDEX FILE 0.001";
 	/**
 	 * The signature of the index file.
 	 */
-	public static final char FILE_SEPARATOR = '/';
+	public static final char FILE_SEPARATOR= '/';
 	/**
 	 * The size of a block for a <code>Block</code>.
 	 */
-	public static final int BLOCK_SIZE = 8192;
+	public static final int BLOCK_SIZE= 8192;
 }

@@ -13,14 +13,14 @@ public class StringMatcher {
 	protected boolean fIgnoreCase;
 	protected boolean fHasLeadingStar;
 	protected boolean fHasTrailingStar;
-	protected String fSegments[];
-	//the given pattern is split into * separated segments
+	protected String fSegments[]; //the given pattern is split into * separated segments
 
 	/* boundary value beyond which we don't need to search in the text */
 	protected int fBound = 0;
+	
 
 	protected static final char fSingleWildCard = '\u0000';
-
+	
 	public static class Position {
 		int start; //inclusive
 		int end; //exclusive
@@ -35,7 +35,6 @@ public class StringMatcher {
 			return end;
 		}
 	}
-
 	/**
 	 * StringMatcher constructor takes in a String object that is a simple 
 	 * pattern which may contain ‘*’ for 0 and many characters and
@@ -46,7 +45,6 @@ public class StringMatcher {
 	public StringMatcher(String aPattern, boolean ignoreCase) {
 		this(aPattern, ignoreCase, false);
 	}
-
 	/**
 	 * StringMatcher constructor takes in a String object that is a simple 
 	 * pattern which may contain ‘*’ for 0 and many characters and
@@ -67,10 +65,7 @@ public class StringMatcher {
 	 * @param ignoreWildCards if true, wild cards and their escape sequences are ignored
 	 * 		  (everything is taken literally).
 	 */
-	public StringMatcher(
-		String aPattern,
-		boolean ignoreCase,
-		boolean ignoreWildCards) {
+	public StringMatcher(String aPattern, boolean ignoreCase, boolean ignoreWildCards) {
 		fIgnoreCase = ignoreCase;
 		fIgnoreWildCards = ignoreWildCards;
 		fLength = aPattern.length();
@@ -81,14 +76,13 @@ public class StringMatcher {
 		} else {
 			fPattern = aPattern;
 		}
-
+		
 		if (fIgnoreWildCards) {
 			parseNoWildCards();
 		} else {
 			parseWildCards();
 		}
 	}
-
 	/**
 	 * Find the first occurrence of the pattern between <code>start</code)(inclusive) 
 	 * and <code>end</code>(exclusive).  
@@ -104,15 +98,15 @@ public class StringMatcher {
 	 */
 
 	public StringMatcher.Position find(String text, int start, int end) {
-		if (fPattern == null || text == null)
+		if (fPattern  == null|| text == null)
 			throw new IllegalArgumentException();
-
+			
 		int tlen = text.length();
 		if (start < 0)
 			start = 0;
 		if (end > tlen)
 			end = tlen;
-		if (end < 0 || start >= end)
+		if (end < 0 ||start >= end )
 			return null;
 		if (fLength == 0)
 			return new Position(start, start);
@@ -120,36 +114,34 @@ public class StringMatcher {
 			int x = posIn(text, start, end);
 			if (x < 0)
 				return null;
-			return new Position(x, x + fLength);
+			return new Position(x, x+fLength);
 		}
 
 		int segCount = fSegments.length;
-		if (segCount == 0) //pattern contains only '*'(s)
-			return new Position(start, end);
-
+		if (segCount == 0)//pattern contains only '*'(s)
+			return new Position (start, end);
+					
 		int curPos = start;
-		int matchStart = -1;
+		int matchStart = -1;  
 		for (int i = 0; i < segCount && curPos < end; ++i) {
 			String current = fSegments[i];
 			int nextMatch = regExpPosIn(text, curPos, end, current);
-			if (nextMatch < 0)
+			if (nextMatch < 0 )
 				return null;
-			if (i == 0)
+			if(i == 0)
 				matchStart = nextMatch;
 			curPos = nextMatch + current.length();
 		}
 		return new Position(matchStart, curPos);
 	}
-
 	/**
 	 * match the given <code>text</code> with the pattern 
 	 * @return true if matched eitherwise false
 	 * @param <code>text</code>, a String object 
 	 */
-	public boolean match(String text) {
+	public boolean  match(String text) {
 		return match(text, 0, text.length());
 	}
-
 	/**
 	 * Given the starting (inclusive) and the ending (exclusive) poisitions in the   
 	 * <code>text</code>, determine if the given substring matches with aPattern  
@@ -161,37 +153,37 @@ public class StringMatcher {
 	public boolean match(String text, int start, int end) {
 		if (null == fPattern || null == text)
 			throw new IllegalArgumentException();
-
+			
 		if (start > end)
 			return false;
-
+		
 		if (fIgnoreWildCards)
 			return fPattern.regionMatches(fIgnoreCase, 0, text, start, fLength);
 		int segCount = fSegments.length;
-		if (segCount == 0) //pattern contains only '*'(s) or empty pattern
+		if (segCount == 0)//pattern contains only '*'(s) or empty pattern
 			return true;
 		if (start == end)
 			return fLength == 0;
 		if (fLength == 0)
-			return start == end;
-
+			return start == end;	
+		 
 		int tlen = text.length();
 		if (start < 0)
 			start = 0;
 		if (end > tlen)
-			end = tlen;
-
+			end = tlen; 
+					
 		int tCurPos = start;
 		int bound = end - fBound;
-		if (bound < 0)
+		if ( bound < 0)
 			return false;
-		int i = 0;
+		int i=0;
 		String current = fSegments[i];
 		int segLength = current.length();
 
 		/* process first segment */
-		if (!fHasLeadingStar) {
-			if (!regExpRegionMatches(text, start, current, 0, segLength)) {
+		if (!fHasLeadingStar){ 
+			if(!regExpRegionMatches(text, start, current, 0, segLength)) {
 				return false;
 			} else {
 				++i;
@@ -199,8 +191,8 @@ public class StringMatcher {
 			}
 		}
 
-		/* process middle segments */
-		for (; i < segCount && tCurPos <= bound; ++i) {
+		/* process middle segments */	
+		for ( ; i < segCount && tCurPos <= bound; ++i) {
 			current = fSegments[i];
 			int currentMatch;
 			int k = current.indexOf(fSingleWildCard);
@@ -208,7 +200,7 @@ public class StringMatcher {
 				currentMatch = textPosIn(text, tCurPos, end, current);
 				if (currentMatch < 0)
 					return false;
-			} else {
+			} else { 
 				currentMatch = regExpPosIn(text, tCurPos, end, current);
 				if (currentMatch < 0)
 					return false;
@@ -221,9 +213,8 @@ public class StringMatcher {
 			int clen = current.length();
 			return regExpRegionMatches(text, end - clen, current, 0, clen);
 		}
-		return i == segCount;
+		return i == segCount ;
 	}
-
 	/**
 	 * This method parses the given pattern into segments seperated by wildcard '*' characters.
 	 * Since wildcards are not being used in this case, the pattern consists of a single segment.
@@ -233,15 +224,14 @@ public class StringMatcher {
 		fSegments[0] = fPattern;
 		fBound = fLength;
 	}
-
 	/**
 	 *  This method parses the given pattern into segments seperated by wildcard '*' characters.
 	 * @param p, a String object that is a simple regular expression with ‘*’ and/or ‘?’
 	 */
 	private void parseWildCards() {
-		if (fPattern.startsWith("*"))
+		if(fPattern.startsWith("*"/*nonNLS*/))
 			fHasLeadingStar = true;
-		if (fPattern.endsWith("*")) {
+		if(fPattern.endsWith("*"/*nonNLS*/)) {
 			/* make sure it's not an escaped wildcard */
 			if (fLength > 1 && fPattern.charAt(fLength - 2) != '\\') {
 				fHasTrailingStar = true;
@@ -255,7 +245,7 @@ public class StringMatcher {
 		while (pos < fLength) {
 			char c = fPattern.charAt(pos++);
 			switch (c) {
-				case '\\' :
+				case '\\':
 					if (pos >= fLength) {
 						buf.append(c);
 					} else {
@@ -269,20 +259,20 @@ public class StringMatcher {
 							buf.append(next);
 						}
 					}
-					break;
-				case '*' :
+				break;
+				case '*':
 					if (buf.length() > 0) {
 						/* new segment */
 						temp.addElement(buf.toString());
 						fBound += buf.length();
 						buf.setLength(0);
 					}
-					break;
-				case '?' :
+				break;
+				case '?':
 					/* append special character representing single match wildcard */
 					buf.append(fSingleWildCard);
-					break;
-				default :
+				break;
+				default:
 					buf.append(c);
 			}
 		}
@@ -292,38 +282,33 @@ public class StringMatcher {
 			temp.addElement(buf.toString());
 			fBound += buf.length();
 		}
-
+			
 		fSegments = new String[temp.size()];
 		temp.copyInto(fSegments);
 	}
-
 	/** 
 	 * @param <code>text</code>, a string which contains no wildcard
 	 * @param <code>start</code>, the starting index in the text for search, inclusive
 	 * @param <code>end</code>, the stopping point of search, exclusive
 	 * @return the starting index in the text of the pattern , or -1 if not found 
 	 */
-	protected int posIn(
-		String text,
-		int start,
-		int end) { //no wild card in pattern
+	protected int posIn(String text, int start, int end) {//no wild card in pattern
 		int max = end - fLength;
-
+		
 		if (!fIgnoreCase) {
 			int i = text.indexOf(fPattern, start);
 			if (i == -1 || i > max)
 				return -1;
 			return i;
 		}
-
+		
 		for (int i = start; i <= max; ++i) {
 			if (text.regionMatches(true, i, fPattern, 0, fLength))
 				return i;
 		}
-
+		
 		return -1;
 	}
-
 	/** 
 	 * @param <code>text</code>, a simple regular expression that may only contain '?'(s)
 	 * @param <code>start</code>, the starting index in the text for search, inclusive
@@ -334,7 +319,7 @@ public class StringMatcher {
 	 */
 	protected int regExpPosIn(String text, int start, int end, String p) {
 		int plen = p.length();
-
+		
 		int max = end - plen;
 		for (int i = start; i <= max; ++i) {
 			if (regExpRegionMatches(text, i, p, 0, plen))
@@ -342,7 +327,6 @@ public class StringMatcher {
 		}
 		return -1;
 	}
-
 	/**
 	 * 
 	 * @return boolean
@@ -352,12 +336,7 @@ public class StringMatcher {
 	 * @param <code>p</code>, String,  String, a simple regular expression that may contain '?'
 	 * @param <code>ignoreCase</code>, boolean indicating wether code>p</code> is case sensitive
 	 */
-	protected boolean regExpRegionMatches(
-		String text,
-		int tStart,
-		String p,
-		int pStart,
-		int plen) {
+	protected boolean regExpRegionMatches(String text, int tStart, String p, int pStart, int plen) {
 		while (plen-- > 0) {
 			char tchar = text.charAt(tStart++);
 			char pchar = p.charAt(pStart++);
@@ -380,7 +359,6 @@ public class StringMatcher {
 		}
 		return true;
 	}
-
 	/** 
 	 * @param <code>text</code>, the string to match
 	 * @param <code>start</code>, the starting index in the text for search, inclusive
@@ -389,24 +367,23 @@ public class StringMatcher {
 	 * @param <code>ignoreCase</code>, boolean indicating wether code>p</code> is case sensitive
 	 * @return the starting index in the text of the pattern , or -1 if not found 
 	 */
-	protected int textPosIn(String text, int start, int end, String p) {
-
+	protected int textPosIn(String text, int start, int end, String p) { 
+		
 		int plen = p.length();
 		int max = end - plen;
-
+		
 		if (!fIgnoreCase) {
 			int i = text.indexOf(p, start);
 			if (i == -1 || i > max)
 				return -1;
 			return i;
 		}
-
+		
 		for (int i = 0; i <= max; ++i) {
 			if (text.regionMatches(true, i, p, 0, plen))
 				return i;
 		}
-
+		
 		return -1;
 	}
-
 }

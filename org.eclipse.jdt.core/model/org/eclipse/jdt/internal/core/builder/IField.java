@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 public interface IField extends IMember {
 
+
 	/**
 	 * Compares this Field handle against the specified object.  Returns
 	 * true if the objects are the same.  Two Field handles are the same if

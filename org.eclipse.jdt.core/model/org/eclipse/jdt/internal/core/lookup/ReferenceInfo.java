@@ -22,42 +22,38 @@ public class ReferenceInfo {
 	public static final byte REFTYPE_derive = 0x10;
 	public static final byte REFTYPE_type = 0x20;
 	public static final byte REFTYPE_class = 0x40;
-	public static final byte REFTYPE_constant = (byte) 0x80;
-	//	public static final byte REFTYPE_label = 256;
+	public static final byte REFTYPE_constant = (byte)0x80;
+//	public static final byte REFTYPE_label = 256;
 
-	/**
-	 * Creates a new ReferenceInfo object.  There should be one per compilation unit.
-	 */
-	public ReferenceInfo(char[][] names, byte[] kinds) {
-		fNames = names;
-		fKinds = kinds;
+/**
+ * Creates a new ReferenceInfo object.  There should be one per compilation unit.
+ */
+public ReferenceInfo(char [][]names, byte[] kinds) {
+	fNames = names;
+	fKinds = kinds;
+}
+/**
+ * Returns the reference kinds array.
+ */
+public byte[] getKinds() {
+	return fKinds;
+}
+/**
+ * Returns the reference names array.
+ */
+public char[][] getNames() {
+	return fNames;
+}
+/**
+ * For debugging only
+ */
+public String toString() {
+	StringBuffer buf = new StringBuffer("ReferenceInfo(");
+	for (int i = 0; i < fNames.length; i++) {
+		buf.append(fNames[i]);
+		buf.append(" ");
 	}
-
-	/**
-	 * Returns the reference kinds array.
-	 */
-	public byte[] getKinds() {
-		return fKinds;
-	}
-
-	/**
-	 * Returns the reference names array.
-	 */
-	public char[][] getNames() {
-		return fNames;
-	}
-
-	/**
-	 * For debugging only
-	 */
-	public String toString() {
-		StringBuffer buf = new StringBuffer("ReferenceInfo(");
-		for (int i = 0; i < fNames.length; i++) {
-			buf.append(fNames[i]);
-			buf.append(" ");
-		}
-		buf.append(")");
-		return buf.toString();
-	}
-
+	buf.append(")");
+	return buf.toString();
+}
 }

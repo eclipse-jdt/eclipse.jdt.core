@@ -43,42 +43,42 @@ public interface IJavaSearchResultCollector {
 	 * but a problem prevented the search engine from being more accurate
 	 * (typically because of the classpath was not correctly set).
 	 */
-	int POTENTIAL_MATCH = 1;
+	 int POTENTIAL_MATCH = 1;
 
-	/**
-	 * Called before the actual search starts.
-	 */
-	public void aboutToStart();
-	/**
-	 * Accepts the given search result.
-	 *
-	 * @param resource the resource in which the match has been found
-	 * @param start the start position of the match, -1 if it is unknown
-	 * @param end the end position of the match, -1 if it is unknown;
-	 *  the ending offset is exclusive, meaning that the actual range of characters 
-	 *  covered is <code>[start, end]</code>
-	 * @param enclosingElement the Java element that contains the character range
-	 *	<code>[start, end]</code>; the value can be <code>null</code> indicating that
-	 *	no enclosing Java element has been found
-	 * @param accuracy the level of accuracy the search result has; either
-	 *  <code>EXACT_MATCH</code> or <code>POTENTIAL_MATCH</code>
-	 * @exception CoreException if this collector had a problem accepting the search result
-	 */
-	public void accept(
-		IResource resource,
-		int start,
-		int end,
-		IJavaElement enclosingElement,
-		int accuracy)
-		throws CoreException;
-	/**
-	 * Called when the search has ended.
-	 */
-	public void done();
-	/**
-	 * Returns the progress monitor used to setup and report progress.
-	 *
-	 * @return a progress monitor or null if no progress monitor is provided
-	 */
-	public IProgressMonitor getProgressMonitor();
+/**
+ * Called before the actual search starts.
+ */
+public void aboutToStart();
+/**
+ * Accepts the given search result.
+ *
+ * @param resource the resource in which the match has been found
+ * @param start the start position of the match, -1 if it is unknown
+ * @param end the end position of the match, -1 if it is unknown;
+ *  the ending offset is exclusive, meaning that the actual range of characters 
+ *  covered is <code>[start, end]</code>
+ * @param enclosingElement the Java element that contains the character range
+ *	<code>[start, end]</code>; the value can be <code>null</code> indicating that
+ *	no enclosing Java element has been found
+ * @param accuracy the level of accuracy the search result has; either
+ *  <code>EXACT_MATCH</code> or <code>POTENTIAL_MATCH</code>
+ * @exception CoreException if this collector had a problem accepting the search result
+ */
+public void accept(
+	IResource resource,
+	int start,
+	int end,
+	IJavaElement enclosingElement,
+	int accuracy)
+	throws CoreException;
+/**
+ * Called when the search has ended.
+ */
+public void done();
+/**
+ * Returns the progress monitor used to setup and report progress.
+ *
+ * @return a progress monitor or null if no progress monitor is provided
+ */
+public IProgressMonitor getProgressMonitor();
 }

@@ -11,18 +11,13 @@ import java.io.*;
  * on finalize.
  */
 public class SafeRandomAccessFile extends RandomAccessFile {
-	public SafeRandomAccessFile(java.io.File file, String mode)
-		throws java.io.IOException {
+	public SafeRandomAccessFile(java.io.File file, String mode) throws java.io.IOException {
 		super(file, mode);
 	}
-
-	public SafeRandomAccessFile(String name, String mode)
-		throws java.io.IOException {
+	public SafeRandomAccessFile(String name, String mode) throws java.io.IOException {
 		super(name, mode);
 	}
-
 	protected void finalize() throws IOException {
 		close();
 	}
-
 }

@@ -16,33 +16,24 @@ import java.io.*;
 public abstract class MultipleSearchPattern extends AndPattern {
 
 	protected char[] currentTag;
-	public boolean foundAmbiguousIndexMatches = false;
-	public MultipleSearchPattern(int matchMode, boolean isCaseSensitive) {
-		super(matchMode, isCaseSensitive);
+	public boolean foundAmbiguousIndexMatches = false;	
+public MultipleSearchPattern(int matchMode, boolean isCaseSensitive) {
+	super(matchMode, isCaseSensitive);
+}
+/**
+ * Query a given index for matching entries. 
+ */
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+
+	char[][] possibleTags = getPossibleTags();
+	
+	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
+
+	/* narrow down a set of entries using prefix criteria */
+	for (int i = 0, max = possibleTags.length; i < max; i++){
+		currentTag = possibleTags[i];
+		super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);
 	}
-
-	/**
-	 * Query a given index for matching entries. 
-	 */
-	public void findIndexMatches(
-		IndexInput input,
-		IIndexSearchRequestor requestor,
-		int detailLevel,
-		IProgressMonitor progressMonitor,
-		IJavaSearchScope scope)
-		throws IOException {
-
-		char[][] possibleTags = getPossibleTags();
-
-		if (progressMonitor != null && progressMonitor.isCanceled())
-			throw new OperationCanceledException();
-
-		/* narrow down a set of entries using prefix criteria */
-		for (int i = 0, max = possibleTags.length; i < max; i++) {
-			currentTag = possibleTags[i];
-			super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);
-		}
-	}
-
-	protected abstract char[][] getPossibleTags();
+}
+protected abstract char[][] getPossibleTags();
 }

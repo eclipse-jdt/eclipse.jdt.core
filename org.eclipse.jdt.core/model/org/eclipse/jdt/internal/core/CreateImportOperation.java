@@ -38,98 +38,90 @@ public class CreateImportOperation extends CreateElementInCUOperation {
 	 * The name of the import to be created.
 	 */
 	protected String fImportName;
-	/**
-	 * When executed, this operation will add an import to the given compilation unit.
-	 */
-	public CreateImportOperation(
-		String importName,
-		ICompilationUnit parentElement) {
-		super(parentElement);
-		fImportName = importName;
+/**
+ * When executed, this operation will add an import to the given compilation unit.
+ */
+public CreateImportOperation(String importName, ICompilationUnit parentElement) {
+	super(parentElement);
+	fImportName = importName;
+}
+/**
+ * @see CreateTypeMemberOperation#generateElementDOM
+ */
+protected IDOMNode generateElementDOM() throws JavaModelException {
+	if (fCUDOM.getChild(fImportName) == null) {
+		DOMFactory factory = new DOMFactory();
+		//not a duplicate
+		IDOMImport imp = factory.createImport();
+		imp.setName(fImportName);
+		return imp;
 	}
-
-	/**
-	 * @see CreateTypeMemberOperation#generateElementDOM
-	 */
-	protected IDOMNode generateElementDOM() throws JavaModelException {
-		if (fCUDOM.getChild(fImportName) == null) {
-			DOMFactory factory = new DOMFactory();
-			//not a duplicate
-			IDOMImport imp = factory.createImport();
-			imp.setName(fImportName);
-			return imp;
+	
+	//no new import was generated
+	fCreationOccurred = false;
+	//all the work has already been done
+	return null;
+}
+/**
+ * @see CreateElementInCUOperation#generateResultHandle
+ */
+protected IJavaElement generateResultHandle() {
+	return getCompilationUnit().getImport(fImportName);
+}
+/**
+ * @see CreateElementInCUOperation#getMainTaskName
+ */
+public String getMainTaskName(){
+	return Util.bind("operation.createImportsProgress"/*nonNLS*/);
+}
+/**
+ * Sets the correct position for the new import:<ul>
+ * <li> after the last import
+ * <li> if no imports, before the first type
+ * <li> if no type, after the package statement
+ * <li> and if no package statement - first thing in the CU
+ */
+protected void initializeDefaultPosition() {
+	try {
+		ICompilationUnit cu = getCompilationUnit();
+		IImportDeclaration[] imports = cu.getImports();
+		if (imports.length > 0) {
+			createAfter(imports[imports.length - 1]);
+			return;
 		}
-
-		//no new import was generated
-		fCreationOccurred = false;
-		//all the work has already been done
-		return null;
-	}
-
-	/**
-	 * @see CreateElementInCUOperation#generateResultHandle
-	 */
-	protected IJavaElement generateResultHandle() {
-		return getCompilationUnit().getImport(fImportName);
-	}
-
-	/**
-	 * @see CreateElementInCUOperation#getMainTaskName
-	 */
-	public String getMainTaskName() {
-		return "Creating imports...";
-	}
-
-	/**
-	 * Sets the correct position for the new import:<ul>
-	 * <li> after the last import
-	 * <li> if no imports, before the first type
-	 * <li> if no type, after the package statement
-	 * <li> and if no package statement - first thing in the CU
-	 */
-	protected void initializeDefaultPosition() {
-		try {
-			ICompilationUnit cu = getCompilationUnit();
-			IImportDeclaration[] imports = cu.getImports();
-			if (imports.length > 0) {
-				createAfter(imports[imports.length - 1]);
+		IType[] types = cu.getTypes();
+		if (types.length > 0) {
+			createBefore(types[0]);
+			return;
+		}
+		IJavaElement[] children = cu.getChildren();
+		//look for the package declaration
+		for (int i = 0; i < children.length; i++) {
+			if (children[i].getElementType() == IJavaElement.PACKAGE_DECLARATION) {
+				createAfter(children[i]);
 				return;
 			}
-			IType[] types = cu.getTypes();
-			if (types.length > 0) {
-				createBefore(types[0]);
-				return;
-			}
-			IJavaElement[] children = cu.getChildren();
-			//look for the package declaration
-			for (int i = 0; i < children.length; i++) {
-				if (children[i].getElementType() == IJavaElement.PACKAGE_DECLARATION) {
-					createAfter(children[i]);
-					return;
-				}
-			}
-		} catch (JavaModelException npe) {
 		}
+	} catch (JavaModelException npe) {
 	}
-
-	/**
-	 * Possible failures: <ul>
-	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is
-	 * 		<code>null</code>.
-	 *  <li>INVALID_NAME - not a valid import declaration name.
-	 * </ul>
-	 * @see IJavaModelStatus
-	 * @see JavaNamingConventions
-	 */
-	public IJavaModelStatus verify() {
-		IJavaModelStatus status = super.verify();
-		if (!status.isOK()) {
-			return status;
-		}
-		if (!JavaConventions.validateImportDeclaration(fImportName).isOK()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fImportName);
-		}
-		return JavaModelStatus.VERIFIED_OK;
+}
+/**
+ * Possible failures: <ul>
+ *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is
+ * 		<code>null</code>.
+ *  <li>INVALID_NAME - not a valid import declaration name.
+ * </ul>
+ * @see IJavaModelStatus
+ * @see JavaNamingConventions
+ */
+public IJavaModelStatus verify() {
+	IJavaModelStatus status = super.verify();
+	if (!status.isOK()) {
+		return status;
 	}
-
+	if (!JavaConventions.validateImportDeclaration(fImportName).isOK()) {
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fImportName);
+	}
+	return JavaModelStatus.VERIFIED_OK;
+}
 }

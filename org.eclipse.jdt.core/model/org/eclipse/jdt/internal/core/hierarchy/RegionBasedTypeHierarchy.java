@@ -30,89 +30,73 @@ public class RegionBasedTypeHierarchy extends TypeHierarchy {
 	 * provides the context (i.e. classpath and namelookup rules)
 	 */
 	protected IJavaProject fProject;
-	/**
-	 * Creates a TypeHierarchy on the types in the specified region,
-	 * using the given project for a name lookup contenxt. If a specific
-	 * type is also specified, the type hierarchy is pruned to only
-	 * contain the branch including the specified type.
-	 */
-	public RegionBasedTypeHierarchy(
-		IRegion region,
-		IJavaProject project,
-		IType type,
-		boolean computeSubtypes)
-		throws JavaModelException {
-		super(type, null, computeSubtypes);
-		fRegion = region;
-		fProject = project;
-	}
-
-	/**
-	 * Activates this hierarchy for change listeners
-	 */
-	protected void activate() {
-		super.activate();
-		IJavaElement[] roots = fRegion.getElements();
-		for (int i = 0; i < roots.length; i++) {
-			IJavaElement root = roots[i];
-			if (root instanceof IOpenable) {
-				this.files.put(root, root);
-			} else {
-				Openable o = (Openable) ((JavaElement) root).getOpenableParent();
-				if (o != null) {
-					this.files.put(o, o);
-				}
-			}
-			checkCanceled();
-		}
-	}
-
-	/**
-	 * Compute this type hierarchy.
-	 */
-	protected void compute() throws JavaModelException, CoreException {
-		HierarchyBuilder builder = new RegionBasedHierarchyBuilder(this);
-		builder.build(this.computeSubtypes);
-	}
-
-	protected void destroy() {
-		fRegion = new Region();
-		super.destroy();
-	}
-
-	protected boolean isAffectedByType(
-		IJavaElementDelta delta,
-		IJavaElement element) {
-		// ignore changes to working copies
-		if (element instanceof CompilationUnit
-			&& ((CompilationUnit) element).isWorkingCopy()) {
-			return false;
-		}
-
-		// if no focus, hierarchy is affected if the element is part of the region
-		if (fType == null) {
-			return fRegion.contains(element);
+/**
+ * Creates a TypeHierarchy on the types in the specified region,
+ * using the given project for a name lookup contenxt. If a specific
+ * type is also specified, the type hierarchy is pruned to only
+ * contain the branch including the specified type.
+ */
+public RegionBasedTypeHierarchy(IRegion region, IJavaProject project, IType type, boolean computeSubtypes) throws JavaModelException {
+	super(type, null, computeSubtypes);
+	fRegion = region;
+	fProject = project;
+}
+/**
+ * Activates this hierarchy for change listeners
+ */
+protected void activate() {
+	super.activate();
+	IJavaElement[] roots = fRegion.getElements();
+	for (int i = 0; i < roots.length; i++) {
+		IJavaElement root = roots[i];
+		if (root instanceof IOpenable) {
+			this.files.put(root, root);
 		} else {
-			return super.isAffectedByType(delta, element);
+			Openable o = (Openable) ((JavaElement) root).getOpenableParent();
+			if (o != null) {
+				this.files.put(o, o);
+			}
 		}
+		checkCanceled();
+	}
+}
+/**
+ * Compute this type hierarchy.
+ */
+protected void compute() throws JavaModelException, CoreException {
+	HierarchyBuilder builder = new RegionBasedHierarchyBuilder(this);
+	builder.build(this.computeSubtypes);
+}
+protected void destroy() {
+	fRegion = new Region();
+	super.destroy();	
+}
+protected boolean isAffectedByType(IJavaElementDelta delta, IJavaElement element) {
+	// ignore changes to working copies
+	if (element instanceof CompilationUnit && ((CompilationUnit)element).isWorkingCopy()) {
+		return false;
 	}
 
-	/**
-	 * Returns the java project this hierarchy was created in.
-	 */
-	public IJavaProject javaProject() {
-		return fProject;
+	// if no focus, hierarchy is affected if the element is part of the region
+	if (fType == null) {
+		return fRegion.contains(element);
+	} else {
+		return super.isAffectedByType(delta, element);
+	}
+}
+/**
+ * Returns the java project this hierarchy was created in.
+ */
+public IJavaProject javaProject() {
+	return fProject;
+}
+protected void pruneTypeHierarchy(IType type, IProgressMonitor monitor) throws JavaModelException {
+	// there is no pruning to do if the hierarchy was created for the single type
+	IJavaElement[] roots= fRegion.getElements();
+	if (roots.length == 1 && roots[0].equals(type)) {
+		return;
 	}
 
-	protected void pruneTypeHierarchy(IType type, IProgressMonitor monitor)
-		throws JavaModelException {
-		// there is no pruning to do if the hierarchy was created for the single type
-		IJavaElement[] roots = fRegion.getElements();
-		if (roots.length == 1 && roots[0].equals(type)) {
-			return;
-		}
-
-		super.pruneTypeHierarchy(type, monitor);
-	}
-
+	super.pruneTypeHierarchy(type, monitor);
+}
 }

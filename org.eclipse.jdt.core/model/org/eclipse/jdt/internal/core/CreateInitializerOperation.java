@@ -23,88 +23,82 @@ public class CreateInitializerOperation extends CreateTypeMemberOperation {
 	 * The current number of initializers in the parent type.
 	 * Used to retrieve the handle of the newly created initializer.
 	 */
-	protected int fNumberOfInitializers = 1;
-	/**
-	 * When executed, this operation will create an initializer with the given name
-	 * in the given type with the specified source.
-	 *
-	 * <p>By default the new initializer is positioned after the last existing initializer
-	 * declaration, or as the first member in the type if there are no
-	 * initializers.
-	 */
-	public CreateInitializerOperation(IType parentElement, String source) {
-		super(parentElement, source, false);
+	protected int fNumberOfInitializers= 1;
+/**
+ * When executed, this operation will create an initializer with the given name
+ * in the given type with the specified source.
+ *
+ * <p>By default the new initializer is positioned after the last existing initializer
+ * declaration, or as the first member in the type if there are no
+ * initializers.
+ */
+public CreateInitializerOperation(IType parentElement, String source) {
+	super(parentElement, source, false);
+}
+/**
+ * @see CreateTypeMemberOperation#generateElementDOM
+ */
+protected IDOMNode generateElementDOM() throws JavaModelException {
+	IDOMInitializer domInitializer = (new DOMFactory()).createInitializer(fSource);
+	if (domInitializer == null) {
+		domInitializer = (IDOMInitializer) generateSyntaxIncorrectDOM();
 	}
-
-	/**
-	 * @see CreateTypeMemberOperation#generateElementDOM
-	 */
-	protected IDOMNode generateElementDOM() throws JavaModelException {
-		IDOMInitializer domInitializer = (new DOMFactory()).createInitializer(fSource);
-		if (domInitializer == null) {
-			domInitializer = (IDOMInitializer) generateSyntaxIncorrectDOM();
-		}
-		return domInitializer;
-	}
-
-	/**
-	 * @see CreateElementInCUOperation#generateResultHandle
-	 */
-	protected IJavaElement generateResultHandle() {
-		try {
-			//update the children to be current
-			getType().getCompilationUnit().close();
-			if (fAnchorElement == null) {
-				return getType().getInitializer(fNumberOfInitializers);
-			} else {
-				IJavaElement[] children = getType().getChildren();
-				int count = 0;
-				for (int i = 0; i < children.length; i++) {
-					IJavaElement child = children[i];
-					if (child.equals(fAnchorElement)) {
-						if (child.getElementType() == IJavaElement.INITIALIZER
-							&& fInsertionPolicy == CreateElementInCUOperation.INSERT_AFTER) {
-							count++;
-						}
-						return getType().getInitializer(count);
-					} else
-						if (child.getElementType() == IJavaElement.INITIALIZER) {
-							count++;
-						}
-				}
+	return domInitializer;
+}
+/**
+ * @see CreateElementInCUOperation#generateResultHandle
+ */
+protected IJavaElement generateResultHandle() {
+	try {
+		//update the children to be current
+		getType().getCompilationUnit().close();
+		if (fAnchorElement == null) {
+			return getType().getInitializer(fNumberOfInitializers);
+		} else {
+			IJavaElement[] children = getType().getChildren();
+			int count = 0;
+			for (int i = 0; i < children.length; i++) {
+				IJavaElement child = children[i];
+				if (child.equals(fAnchorElement)) {
+					if (child .getElementType() == IJavaElement.INITIALIZER && fInsertionPolicy == CreateElementInCUOperation.INSERT_AFTER) {
+						count++;
+					}
+					return getType().getInitializer(count);
+				} else
+					if (child.getElementType() == IJavaElement.INITIALIZER) {
+						count++;
+					}
 			}
-		} catch (JavaModelException jme) {
 		}
-		return null;
+	} catch (JavaModelException jme) {
 	}
-
-	/**
-	 * @see CreateElementInCUOperation#getMainTaskName
-	 */
-	public String getMainTaskName() {
-		return "Creating an initializer...";
-	}
-
-	/**
-	 * By default the new initializer is positioned after the last existing initializer
-	 * declaration, or as the first member in the type if there are no
-	 * initializers.
-	 */
-	protected void initializeDefaultPosition() {
-		IType parentElement = getType();
-		try {
-			IJavaElement[] elements = parentElement.getInitializers();
+	return null;
+}
+/**
+ * @see CreateElementInCUOperation#getMainTaskName
+ */
+public String getMainTaskName(){
+	return Util.bind("operation.createInitializerProgress"/*nonNLS*/);
+}
+/**
+ * By default the new initializer is positioned after the last existing initializer
+ * declaration, or as the first member in the type if there are no
+ * initializers.
+ */
+protected void initializeDefaultPosition() {
+	IType parentElement = getType();
+	try {
+		IJavaElement[] elements = parentElement.getInitializers();
+		if (elements != null && elements.length > 0) {
+			fNumberOfInitializers= elements.length;
+			createAfter(elements[elements.length - 1]);
+		} else {
+			elements = parentElement.getChildren();
 			if (elements != null && elements.length > 0) {
-				fNumberOfInitializers = elements.length;
-				createAfter(elements[elements.length - 1]);
-			} else {
-				elements = parentElement.getChildren();
-				if (elements != null && elements.length > 0) {
-					createBefore(elements[0]);
-				}
+				createBefore(elements[0]);
 			}
-		} catch (JavaModelException e) {
 		}
+	} catch (JavaModelException e) {
 	}
-
+}
 }

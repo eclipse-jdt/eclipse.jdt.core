@@ -1,7 +1,7 @@
 package org.eclipse.jdt.internal.core.index.impl;
 
 public class MemoryCheckThread extends Thread {
-	Runtime rt = Runtime.getRuntime();
+	Runtime rt= Runtime.getRuntime();
 	int timeToSleep;
 	/**
 	 * MemoryCheckThread constructor comment.
@@ -11,21 +11,18 @@ public class MemoryCheckThread extends Thread {
 		setDaemon(true);
 		setPriority(Thread.MAX_PRIORITY);
 	}
-
 	/**
 	 * MemoryCheckThread constructor comment.
 	 */
 	public MemoryCheckThread(int time) {
 		super();
-		timeToSleep = time;
+		timeToSleep= time;
 		setDaemon(true);
 		setPriority(Thread.MAX_PRIORITY);
 	}
-
 	public long evaluateMemory() {
 		return rt.totalMemory() - rt.freeMemory();
 	}
-
 	/**
 	 * Insert the method's description here.
 	 * Creation date: (6/27/00 9:14:35 AM)
@@ -40,5 +37,4 @@ public class MemoryCheckThread extends Thread {
 			System.out.println(evaluateMemory());
 		}
 	}
-
 }

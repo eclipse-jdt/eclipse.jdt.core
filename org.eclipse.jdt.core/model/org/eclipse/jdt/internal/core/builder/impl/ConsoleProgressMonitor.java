@@ -22,7 +22,6 @@ class ConsoleProgressMonitor implements IProgressMonitor {
 		fTotalWork = totalWork;
 		fWorkDone = 0;
 	}
-
 	/**
 	 * done method comment.
 	 */
@@ -31,41 +30,35 @@ class ConsoleProgressMonitor implements IProgressMonitor {
 		fTotalWork = 0;
 		fWorkDone = 0;
 	}
-
-	public void internalWorked(double work) {
+public void internalWorked(double work) {
 		fWorkDone += work;
-		double percent = (double) fWorkDone / (double) fTotalWork;
+		double percent = (double)fWorkDone / (double)fTotalWork;
 		percent *= 100;
 		System.out.println("\t" + percent + "% work done");
 	}
-
 	/**
 	 * isCanceled method comment.
 	 */
 	public boolean isCanceled() {
 		return false;
 	}
-
 	/**
 	 * setCanceled method comment.
 	 */
 	public void setCanceled(boolean b) {
 	}
-
 	/**
 	 * setTaskName method comment.
 	 */
 	public void setTaskName(String name) {
 		System.out.println("\t" + name);
 	}
-
 	/**
 	 * subTask method comment.
 	 */
 	public void subTask(String name) {
 		System.out.println("\t" + name);
 	}
-
 	/**
 	 * Returns a String that represents the value of this object.
 	 * @return a string representation of the receiver
@@ -73,15 +66,13 @@ class ConsoleProgressMonitor implements IProgressMonitor {
 	public String toString() {
 		return "Default ImageBuilder Progress Monitor";
 	}
-
 	/**
 	 * worked method comment.
 	 */
 	public void worked(int work) {
 		fWorkDone += work;
-		double percent = (double) fWorkDone / (double) fTotalWork;
+		double percent = (double)fWorkDone / (double)fTotalWork;
 		percent *= 100;
 		System.out.println("\t" + percent + "% work done");
 	}
-
 }

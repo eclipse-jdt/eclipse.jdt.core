@@ -15,9 +15,7 @@ public class DocumentFactory {
 	public static IDocument newDocument(File file) {
 		return new FileDocument(file);
 	}
-
 	public static IDocument newDocument(IFile file) {
 		return new IFileDocument(file);
 	}
-
 }

@@ -13,7 +13,7 @@ import java.util.Vector;
  * given build.  This allows test suites to evaluate the efficiency of incremental
  * compilation.
  */
-public class BuildMonitorImpl implements IBuildMonitor {
+public class BuildMonitorImpl implements IBuildMonitor{
 	protected Vector fClasses = new Vector();
 
 	/**
@@ -21,30 +21,26 @@ public class BuildMonitorImpl implements IBuildMonitor {
 	 */
 	public BuildMonitorImpl() {
 	}
-
 	/**
 	 * Signals that a new build has begun.
 	 */
 	public void beginBuild(String message) {
-		//		System.out.println(message);
+//		System.out.println(message);
 		fClasses.removeAllElements();
 	}
-
 	/**
 	 * Signals that a compilation unit with the given name has been compiled
 	 */
 	public void compiled(String jcu) {
-		//		System.out.println("<BM>Compiled: " + jcu);
+//		System.out.println("<BM>Compiled: " + jcu);
 		fClasses.addElement(jcu);
 	}
-
 	/**
 	 * Signals that a new build has begun.
 	 */
 	public void endBuild(String message) {
-		//		System.out.println(message);		
+//		System.out.println(message);		
 	}
-
 	/**
 	 * Returns the compiled classes
 	 */
@@ -53,5 +49,4 @@ public class BuildMonitorImpl implements IBuildMonitor {
 		fClasses.copyInto(results);
 		return results;
 	}
-
 }

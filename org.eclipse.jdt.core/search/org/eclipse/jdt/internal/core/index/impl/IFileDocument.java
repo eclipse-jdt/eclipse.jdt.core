@@ -7,6 +7,8 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.*;
 import org.eclipse.core.resources.*;
 
+import org.eclipse.core.runtime.IPath;
+
 /**
  * An <code>IFileDocument</code> represents an IFile.
  */
@@ -21,65 +23,59 @@ public class IFileDocument extends PropertyDocument {
 	 * IFileDocument constructor comment.
 	 */
 	public IFileDocument(IFile file) {
-		this(file, (char[]) null);
+		this(file, (char[])null);
 	}
-
 	/**
 	 * IFileDocument constructor comment.
 	 */
 	public IFileDocument(IFile file, byte[] byteContents) {
-		this.file = file;
-		this.byteContents = byteContents;
+		this.file= file;
+		this.byteContents= byteContents;
 	}
-
 	/**
 	 * IFileDocument constructor comment.
 	 */
 	public IFileDocument(IFile file, char[] charContents) {
-		this.file = file;
-		this.charContents = charContents;
+		this.file= file;
+		this.charContents= charContents;
 	}
-
 	/**
 	 * @see IDocument#getByteContent
 	 */
 	public byte[] getByteContent() throws IOException {
-		if (byteContents != null)
-			return byteContents;
-		return byteContents = Util.getFileByteContent(file.getLocation().toFile());
+		if (byteContents != null) return byteContents;
+		IPath location = file.getLocation();
+		if (location == null) return new byte[0];
+		return byteContents = Util.getFileByteContent(location.toFile());
 	}
-
 	/**
 	 * @see IDocument#getCharContent
 	 */
 	public char[] getCharContent() throws IOException {
-		if (charContents != null)
-			return charContents;
-		return charContents = Util.getFileCharContent(file.getLocation().toFile());
+		if (charContents != null) return charContents;
+		IPath location = file.getLocation();
+		if (location == null) return new char[0];
+		return charContents = Util.getFileCharContent(location.toFile());
 	}
-
 	/**
 	 * @see IDocument#getName
 	 */
 	public String getName() {
 		return file.getFullPath().toString();
 	}
-
 	/**
 	 * @see IDocument#getStringContent
 	 */
 	public String getStringContent() throws java.io.IOException {
 		return new String(getCharContent());
 	}
-
 	/**
 	 * @see IDocument#getType
 	 */
 	public String getType() {
-		String extension = file.getFileExtension();
+		String extension= file.getFileExtension();
 		if (extension == null)
 			return "";
 		return extension;
 	}
-
 }
