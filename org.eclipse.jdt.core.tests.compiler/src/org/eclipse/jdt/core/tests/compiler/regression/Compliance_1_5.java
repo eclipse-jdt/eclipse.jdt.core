@@ -3162,6 +3162,62 @@ public void test092() {
 		""
 	);
 }
+public void test093() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X_1.java",
+			"package p;\n" + 
+			"/*   dena JTest Suite, Version 2.2, September 1997\n" + 
+			" *   Copyright (c) 1995-1997 Modena Software (I) Pvt. Ltd., All Rights Reserved\n" + 
+			" */\n" + 
+			"/*  Section    :  Inner classes \n" + 
+			" *  FileName   :  ciner026.java\n" + 
+			" *  Purpose    :  Positive test for Inner classes\n" + 
+			" *  \n" + 
+			" *  An anonymous class can have initializers but cannot have a constructor.\n" + 
+			" *  The argument list of the associated new expression is implicitely \n" + 
+			" *  passed to the constructor of the super class. \n" + 
+			" *\n" + 
+			" */\n" + 
+			" \n" + 
+			" class X_1 {\n" + 
+			"  static int xx = 100;\n" + 
+			"  //inner class Y  \n" + 
+			"  static class Y {  \n" + 
+			"   public int j = 0;\n" + 
+			"   Y(int x){ j = x; }\n" + 
+			"   }  \n" + 
+			" public void call_inner()\n" + 
+			" {\n" + 
+			"   int i = test_anonymous().j;\n" + 
+			" }     \n" + 
+			" public static void main(String argv[])\n" + 
+			" {\n" + 
+			"   X_1 ox = new X_1();\n" + 
+			"   ox.call_inner(); \n" + 
+			" }  \n" + 
+			"public void newMethod ( ) {\n" + 
+			"  Float f1 = null;\n" + 
+			"  f1=(f1==0.0)?1.0:f1;\n" + 
+			"}\n" + 
+			"   static Y test_anonymous()\n" + 
+			"   { \n" + 
+			"    //anonymous implementation of class Y\n" + 
+			"    return new Y(xx) //xx should be implicitely passed to Y()\n" + 
+			"    {\n" + 
+			"    };    \n" + 
+			"   \n" + 
+			"   } //end test_anonymous      \n" + 
+			"} ",
+		}, 
+		"----------\n" + 
+		"1. ERROR in p\\X_1.java (at line 33)\n" + 
+		"	f1=(f1==0.0)?1.0:f1;\n" + 
+		"	   ^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from double to Float\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }
