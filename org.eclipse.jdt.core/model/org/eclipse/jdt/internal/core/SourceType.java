@@ -367,7 +367,34 @@ public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monit
 	return loadTypeHierachy(input, DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /**
- * @see IType
+ * NOTE: This method is not part of the API has it is not clear clients would easily use it: they would need to
+ * first make sure all working copies for the given owner exist before calling it. This is especially har at startup 
+ * time.
+ * In case clients want this API, here is how it should be specified:
+ * <p>
+ * Loads a previously saved ITypeHierarchy from an input stream. A type hierarchy can
+ * be stored using ITypeHierachy#store(OutputStream). A compilation unit of a
+ * loaded type has the given owner if such a working copy exists, otherwise the type's 
+ * compilation unit is a primary compilation unit.
+ * 
+ * Only hierarchies originally created by the following methods can be loaded:
+ * <ul>
+ * <li>IType#newSupertypeHierarchy(IProgressMonitor)</li>
+ * <li>IType#newSupertypeHierarchy(WorkingCopyOwner, IProgressMonitor)</li>
+ * <li>IType#newTypeHierarchy(IJavaProject, IProgressMonitor)</li>
+ * <li>IType#newTypeHierarchy(IJavaProject, WorkingCopyOwner, IProgressMonitor)</li>
+ * <li>IType#newTypeHierarchy(IProgressMonitor)</li>
+ * <li>IType#newTypeHierarchy(WorkingCopyOwner, IProgressMonitor)</li>
+ * </u>
+ * 
+ * @param input stream where hierarchy will be read
+ * @param monitor the given progress monitor
+ * @return the stored hierarchy
+ * @exception JavaModelException if the hierarchy could not be restored, reasons include:
+ *      - type is not the focus of the hierarchy or 
+ *		- unable to read the input stream (wrong format, IOException during reading, ...)
+ * @see ITypeHierarchy#store(OutputStream, IProgressMonitor)
+ * @since 3.0
  */
 public ITypeHierarchy loadTypeHierachy(InputStream input, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 	return TypeHierarchy.load(this, input, owner);

@@ -540,32 +540,6 @@ public interface IType extends IMember, IParent {
 	 */
 	ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monitor) throws JavaModelException;
 	/**
-	 * Loads a previously saved ITypeHierarchy from an input stream. A type hierarchy can
-	 * be stored using ITypeHierachy#store(OutputStream). A compilation unit of a
-	 * loaded type has the given owner if such a working copy exists, otherwise the type's 
-	 * compilation unit is a primary compilation unit.
-	 * 
-	 * Only hierarchies originally created by the following methods can be loaded:
-	 * <ul>
-	 * <li>IType#newSupertypeHierarchy(IProgressMonitor)</li>
-	 * <li>IType#newSupertypeHierarchy(WorkingCopyOwner, IProgressMonitor)</li>
-	 * <li>IType#newTypeHierarchy(IJavaProject, IProgressMonitor)</li>
-	 * <li>IType#newTypeHierarchy(IJavaProject, WorkingCopyOwner, IProgressMonitor)</li>
-	 * <li>IType#newTypeHierarchy(IProgressMonitor)</li>
-	 * <li>IType#newTypeHierarchy(WorkingCopyOwner, IProgressMonitor)</li>
-	 * </u>
-	 * 
-	 * @param input stream where hierarchy will be read
-	 * @param monitor the given progress monitor
-	 * @return the stored hierarchy
-	 * @exception JavaModelException if the hierarchy could not be restored, reasons include:
-	 *      - type is not the focus of the hierarchy or 
-	 *		- unable to read the input stream (wrong format, IOException during reading, ...)
-	 * @see ITypeHierarchy#store(OutputStream, IProgressMonitor)
-	 * @since 3.0
-	 */
-	ITypeHierarchy loadTypeHierachy(InputStream input, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
-	/**
 	 * Creates and returns a type hierarchy for this type containing
 	 * this type and all of its supertypes.
 	 *
