@@ -285,6 +285,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *  <li>The output location path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)
 	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
 	 * </ul>
+	 * @deprecated - use setRawClasspath(readRawClasspath(), readOutputLocation(), monitor) instead
 	 * @since 3.0
 	 */
 	void forceClasspathReload(IProgressMonitor monitor) throws JavaModelException;
