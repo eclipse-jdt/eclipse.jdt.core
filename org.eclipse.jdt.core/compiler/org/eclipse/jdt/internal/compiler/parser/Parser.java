@@ -700,7 +700,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 protected void adjustInterfaceModifiers() {
 	this.intStack[this.intPtr - 1] |= AccInterface;
 }
-public final void arrayInitializer(int length) {
+public void arrayInitializer(int length) {
 	//length is the size of the array Initializer
 	//expressionPtr points on the last elt of the arrayInitializer, 
 	// in other words, it has not been decremented yet.
@@ -840,7 +840,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	return element;
 }
 
-public final void checkAndSetModifiers(int flag){
+public void checkAndSetModifiers(int flag){
 	/*modify the current modifiers buffer.
 	When the startPosition of the modifiers is 0
 	it means that the modifier being parsed is the first
@@ -959,13 +959,13 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		markInitializersWithLocalType(anonymousTypeDeclaration);
 	}
 }
-protected final void concatExpressionLists() {
+protected void concatExpressionLists() {
 	this.expressionLengthStack[--this.expressionLengthPtr]++;
 }
-private final void concatGenericsLists() {
+protected void concatGenericsLists() {
 	this.genericsLengthStack[this.genericsLengthPtr - 1] += this.genericsLengthStack[this.genericsLengthPtr--];
 }
-private final void concatNodeLists() {
+protected void concatNodeLists() {
 	/*
 	 * This is a case where you have two sublists into the this.astStack that you want
 	 * to merge in one list. There is no action required on the this.astStack. The only
@@ -2477,7 +2477,7 @@ protected void consumeEmptyMemberValuePairsopt() {
 protected void consumeEmptyMemberValueArrayInitializer() {
 	// MemberValueArrayInitializer ::= '{' ',' '}'
 	// MemberValueArrayInitializer ::= '{' '}'
-	memberValueArrayInitializer(0);
+	arrayInitializer(0);
 }
 protected void consumeEmptyStatement() {
 	// EmptyStatement ::= ';'
@@ -3552,7 +3552,7 @@ protected void consumeMarkerAnnotation() {
 protected void consumeMemberValueArrayInitializer() {
 	// MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
 	// MemberValueArrayInitializer ::= '{' MemberValues '}'
-	memberValueArrayInitializer(this.expressionLengthStack[this.expressionLengthPtr--]);
+	arrayInitializer(this.expressionLengthStack[this.expressionLengthPtr--]);
 }
 protected void consumeMemberValueAsName() {
 	pushOnExpressionStack(getUnspecifiedReferenceOptimized());	
@@ -7389,7 +7389,7 @@ public int flushCommentsDefinedPriorTo(int position) {
 	this.scanner.commentPtr = validCount - 1;
 	return position;
 }
-public final int getFirstToken() {
+public int getFirstToken() {
 	// the first token is a virtual token that
 	// allows the parser to parse several goals
 	// even if they aren't LALR(1)....
@@ -7938,7 +7938,7 @@ public void initializeScanner(){
 		this.options.taskPriorites/*taskPriorities*/,
 		this.options.isTaskCaseSensitive/*taskCaseSensitive*/);
 }
-public final void jumpOverMethodBody() {
+public void jumpOverMethodBody() {
 	//on diet parsing.....do not buffer method statements
 
 	//the scanner.diet is reinitialized to false
@@ -7973,21 +7973,6 @@ protected void markInitializersWithLocalType(TypeDeclaration type) {
 			field.bits |= ASTNode.HasLocalTypeMASK;
 		}
 	}
-}
-public final void memberValueArrayInitializer(int length) {
-	//length is the size of the array Initializer
-	//expressionPtr points on the last elt of the arrayInitializer, 
-	// in other words, it has not been decremented yet.
-
-	ArrayInitializer memberValueArrayInitializer = new ArrayInitializer();
-	if (length != 0) {
-		this.expressionPtr -= length;
-		System.arraycopy(this.expressionStack, this.expressionPtr + 1, memberValueArrayInitializer.expressions = new Expression[length], 0, length);
-	}
-	pushOnExpressionStack(memberValueArrayInitializer);
-	//positionning
-	memberValueArrayInitializer.sourceEnd = this.endStatementPosition;
-	memberValueArrayInitializer.sourceStart = this.intStack[this.intPtr--];
 }
 /*
  * Move checkpoint location (current implementation is moving it by one token)
@@ -8141,7 +8126,7 @@ protected MessageSend newMessageSendWithTypeArguments() {
 	}
 	return m;
 }
-private final void optimizedConcatNodeLists() {
+protected void optimizedConcatNodeLists() {
 	/*back from a recursive loop. Virtualy group the
 	astNode into an array using this.astLengthStack*/
 
