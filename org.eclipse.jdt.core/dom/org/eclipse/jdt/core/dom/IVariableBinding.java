@@ -45,7 +45,8 @@ public interface IVariableBinding extends IBinding {
 	 * that declares this field.
 	 * <p>
 	 * The declaring class of a field is the class or interface of which it is
-	 * a member. Local variables have no declaring class.
+	 * a member. Local variables have no declaring class. The field length of an 
+	 * array type has no declaring class.
 	 * </p>
 	 * 
 	 * @return the binding of the class or interface that declares this field,
