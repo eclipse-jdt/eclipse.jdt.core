@@ -15,6 +15,14 @@ Eclipse SDK Build 200203?? - ??th March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Performance improvement:
+     <ul>
+     	<li> Search doesn't populate the Java Model any longer. Thus the memory
+     	    used by a search operation can be reclaimed at the end. </li>
+     	<li> Access to zip and jar files has been improved, which should result
+     	     in better performance on a slow network. </li>
+     </ul>
+     </li>
 <li> Added flag <code>IJavaElementDelta.F_FINE_GRAINED</code> that indicates
      that a fine-grained delta was computed for a given delta.
      Clients can use this flag to find out if a compilation unit 
