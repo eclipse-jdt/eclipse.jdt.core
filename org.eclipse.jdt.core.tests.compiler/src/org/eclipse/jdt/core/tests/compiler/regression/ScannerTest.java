@@ -40,6 +40,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		try {
 			token = scanner.getNextToken();
 		} catch (InvalidInputException e) {
+			assertTrue(false);
 		}
 		assertEquals("Wrong token type", ITerminalSymbols.TokenNameSEMICOLON, token);
 	}
@@ -58,6 +59,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
+			assertTrue(false);
 		}
 	}
 	/**
@@ -77,6 +79,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
+			assertTrue(false);
 		}
 	}				
 	
@@ -93,7 +96,26 @@ public class ScannerTest extends AbstractRegressionTest {
 			token = scanner.getNextToken();
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameFloatingPointLiteral, token);
 		} catch (InvalidInputException e) {
+			assertTrue(false);
 		}
 	}						
-			
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43437
+	 */
+	public void test005() {
+		String source =	"\"hello\"";
+		IScanner scanner = ToolFactory.createScanner(true, true, true, true);
+		scanner.setSource(source.toCharArray());
+		int token = 0;
+		try {
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameStringLiteral, token);
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}						
+
 }
