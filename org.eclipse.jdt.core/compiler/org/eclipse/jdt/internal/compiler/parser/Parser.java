@@ -2826,6 +2826,9 @@ protected void consumeEnumConstantHeaderName() {
 		this.lastCheckPoint = enumConstant.sourceEnd + 1;
 		this.currentElement = this.currentElement.add(enumConstant, 0);		
 	}
+	// javadoc
+	enumConstant.javadoc = this.javadoc;
+	this.javadoc = null;
 }
 protected void consumeEnumConstantHeader() {
    FieldDeclaration enumConstant = (FieldDeclaration) this.astStack[this.astPtr];

@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 
 public class EnumTest extends AbstractComparisonTest {
 	
+	String reportMissingJavadocComments = null;
+
 	public EnumTest(String name) {
 		super(name);
 	}
@@ -31,6 +37,25 @@ public class EnumTest extends AbstractComparisonTest {
 
 	public static Class testClass() {  
 		return EnumTest.class;
+	}
+
+	protected Map getCompilerOptions() {
+		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PRIVATE);
+		if (reportMissingJavadocComments != null)
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
+		return options;
+	}
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void setUp() throws Exception {
+		super.setUp();
+		reportMissingJavadocComments = null;
 	}
 
 	// test simple valid enum and its usage
@@ -931,7 +956,7 @@ public class EnumTest extends AbstractComparisonTest {
 	}	
 	
 	// check Enum cannot be used as supertype (explicitly)
-	public void test027() {
+	public void test032() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -945,6 +970,346 @@ public class EnumTest extends AbstractComparisonTest {
 			"The type X may not subclass Enum explicitly\n" + 
 			"----------\n");
 	}		
+
+	// Javadoc in enum (see bug 78018)
+	public void test033() {
+		this.runConformTest(
+			new String[] {
+				"E.java",
+				"	/**\n" +
+					"	 * Valid javadoc\n" +
+					"	 * @author ffr\n" +
+					"	 */\n" +
+					"public enum E {\n" +
+					"	/** Valid javadoc */\n" +
+					"	TEST,\n" +
+					"	/** Valid javadoc */\n" +
+					"	VALID;\n" +
+					"	/** Valid javadoc */\n" +
+					"	public void foo() {}\n" +
+					"}\n"
+			}
+		);
+	}
+	public void test034() {
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"	/**\n" +
+					"	 * Invalid javadoc\n" +
+					"	 * @exception NullPointerException Invalid tag\n" +
+					"	 * @throws NullPointerException Invalid tag\n" +
+					"	 * @return Invalid tag\n" +
+					"	 * @param x Invalid tag\n" +
+					"	 */\n" +
+					"public enum E { TEST, VALID }\n"
+			},
+			"----------\n" +
+				"1. ERROR in E.java (at line 3)\n" +
+				"	* @exception NullPointerException Invalid tag\n" +
+				"	   ^^^^^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n" +
+				"2. ERROR in E.java (at line 4)\n" +
+				"	* @throws NullPointerException Invalid tag\n" +
+				"	   ^^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n" +
+				"3. ERROR in E.java (at line 5)\n" +
+				"	* @return Invalid tag\n" +
+				"	   ^^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n" +
+				"4. ERROR in E.java (at line 6)\n" +
+				"	* @param x Invalid tag\n" +
+				"	   ^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n"
+		);
+	}
+	public void test035() {
+		this.runConformTest(
+			new String[] {
+				"E.java",
+				"	/**\n" +
+					"	 * @see \"Valid normal string\"\n" +
+					"	 * @see <a href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Valid URL link reference</a>\n" +
+					"	 * @see Object\n" +
+					"	 * @see #TEST\n" +
+					"	 * @see E\n" +
+					"	 * @see E#TEST\n" +
+					"	 */\n" +
+					"public enum E { TEST, VALID }\n"
+			}
+		);
+	}
+	public void test036() {
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"	/**\n" +
+					"	 * @see \"invalid\" no text allowed after the string\n" +
+					"	 * @see <a href=\"invalid\">invalid</a> no text allowed after the href\n" +
+					"	 * @see\n" +
+					"	 * @see #VALIDE\n" +
+					"	 */\n" +
+					"public enum E { TEST, VALID }\n"
+			},
+			"----------\n" +
+				"1. ERROR in E.java (at line 2)\n" + 
+				"	* @see \"invalid\" no text allowed after the string\n" + 
+				"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
+				"----------\n" + 
+				"2. ERROR in E.java (at line 3)\n" + 
+				"	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n" + 
+				"	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
+				"----------\n" + 
+				"3. ERROR in E.java (at line 4)\n" + 
+				"	* @see\n" + 
+				"	   ^^^\n" + 
+				"Javadoc: Missing reference\n" + 
+				"----------\n" + 
+				"4. ERROR in E.java (at line 5)\n" + 
+				"	* @see #VALIDE\n" + 
+				"	        ^^^^^^\n" + 
+				"Javadoc: VALIDE cannot be resolved or is not a field\n" + 
+				"----------\n"
+		);
+	}
+	public void test037() {
+		this.runConformTest(
+			new String[] {
+				"E.java",
+				"	/**\n" +
+					"	 * Value test: {@value #TEST}\n" +
+					"	 * or: {@value E#TEST}\n" +
+					"	 */\n" +
+					"public enum E { TEST, VALID }\n"
+			}
+		);
+	}
+	public void test038() {
+		reportMissingJavadocComments = CompilerOptions.ERROR;
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"public enum E { TEST, VALID;\n" +
+				"	public void foo() {}\n" +
+				"}"
+			},
+			"----------\n" + 
+				"1. ERROR in E.java (at line 1)\n" + 
+				"	public enum E { TEST, VALID;\n" + 
+				"	            ^\n" + 
+				"Javadoc: Missing comment for public declaration\n" + 
+				"----------\n" + 
+				"2. ERROR in E.java (at line 1)\n" + 
+				"	public enum E { TEST, VALID;\n" + 
+				"	                ^^^^\n" + 
+				"Javadoc: Missing comment for public declaration\n" + 
+				"----------\n" + 
+				"3. ERROR in E.java (at line 1)\n" + 
+				"	public enum E { TEST, VALID;\n" + 
+				"	                      ^^^^^\n" + 
+				"Javadoc: Missing comment for public declaration\n" + 
+				"----------\n" + 
+				"4. ERROR in E.java (at line 2)\n" + 
+				"	public void foo() {}\n" + 
+				"	            ^^^^^\n" + 
+				"Javadoc: Missing comment for public declaration\n" + 
+				"----------\n"
+		);
+	}
+	public void test039() {
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"public enum E {\n" +
+					"	/**\n" +
+					"	 * @exception NullPointerException Invalid tag\n" +
+					"	 * @throws NullPointerException Invalid tag\n" +
+					"	 * @return Invalid tag\n" +
+					"	 * @param x Invalid tag\n" +
+					"	 */\n" +
+					"	TEST,\n" +
+					"	VALID;\n" +
+					"}\n"
+			},
+			"----------\n" +
+				"1. ERROR in E.java (at line 3)\n" +
+				"	* @exception NullPointerException Invalid tag\n" +
+				"	   ^^^^^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n" +
+				"2. ERROR in E.java (at line 4)\n" +
+				"	* @throws NullPointerException Invalid tag\n" +
+				"	   ^^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n" +
+				"3. ERROR in E.java (at line 5)\n" +
+				"	* @return Invalid tag\n" +
+				"	   ^^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n" +
+				"4. ERROR in E.java (at line 6)\n" +
+				"	* @param x Invalid tag\n" +
+				"	   ^^^^^\n" +
+				"Javadoc: Unexpected tag\n" +
+				"----------\n"
+		);
+	}
+	public void test040() {
+		this.runConformTest(
+			new String[] {
+				"E.java",
+				"public enum E {\n" +
+					"	/**\n" +
+					"	 * @see E\n" +
+					"	 * @see #VALID\n" +
+					"	 */\n" +
+					"	TEST,\n" +
+					"	/**\n" +
+					"	 * @see E#TEST\n" +
+					"	 * @see E\n" +
+					"	 */\n" +
+					"	VALID;\n" +
+					"	/**\n" +
+					"	 * @param x the object\n" +
+					"	 * @return String\n" +
+					"	 * @see Object\n" +
+					"	 */\n" +
+					"	public String val(Object x) { return x.toString(); }\n" +
+					"}\n"
+			}
+		);
+	}
+	public void test041() {
+		this.runNegativeTest(
+			new String[] {
+				"E.java",
+				"public enum E {\n" +
+					"	/**\n" +
+					"	 * @see e\n" +
+					"	 * @see #VALIDE\n" +
+					"	 */\n" +
+					"	TEST,\n" +
+					"	/**\n" +
+					"	 * @see E#test\n" +
+					"	 * @see EUX\n" +
+					"	 */\n" +
+					"	VALID;\n" +
+					"	/**\n" +
+					"	 * @param obj the object\n" +
+					"	 * @return\n" +
+					"	 * @see Objet\n" +
+					"	 */\n" +
+					"	public String val(Object x) { return x.toString(); }\n" +
+					"}\n"
+			},
+			"----------\n" +
+				"1. ERROR in E.java (at line 3)\n" + 
+				"	* @see e\n" + 
+				"	       ^\n" + 
+				"Javadoc: e cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in E.java (at line 4)\n" + 
+				"	* @see #VALIDE\n" + 
+				"	        ^^^^^^\n" + 
+				"Javadoc: VALIDE cannot be resolved or is not a field\n" + 
+				"----------\n" + 
+				"3. ERROR in E.java (at line 8)\n" + 
+				"	* @see E#test\n" + 
+				"	         ^^^^\n" + 
+				"Javadoc: test cannot be resolved or is not a field\n" + 
+				"----------\n" + 
+				"4. ERROR in E.java (at line 9)\n" + 
+				"	* @see EUX\n" + 
+				"	       ^^^\n" + 
+				"Javadoc: EUX cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in E.java (at line 13)\n" + 
+				"	* @param obj the object\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Parameter obj is not declared\n" + 
+				"----------\n" + 
+				"6. ERROR in E.java (at line 14)\n" + 
+				"	* @return\n" + 
+				"	   ^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n" + 
+				"7. ERROR in E.java (at line 15)\n" + 
+				"	* @see Objet\n" + 
+				"	       ^^^^^\n" + 
+				"Javadoc: Objet cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"8. ERROR in E.java (at line 17)\n" + 
+				"	public String val(Object x) { return x.toString(); }\n" + 
+				"	                         ^\n" + 
+				"Javadoc: Missing tag for parameter x\n" + 
+				"----------\n"
+		);
+	}
+	public void test042() {
+		this.runConformTest(
+			new String[] {
+				"E.java",
+				"public enum E {\n" +
+					"	/**\n" +
+					"	 * Test value: {@value #TEST}\n" +
+					"	 */\n" +
+					"	TEST,\n" +
+					"	/**\n" +
+					"	 * Valid value: {@value E#VALID}\n" +
+					"	 */\n" +
+					"	VALID;\n" +
+					"	/**\n" +
+					"	 * Test value: {@value #TEST}\n" +
+					"	 * Valid value: {@value E#VALID}\n" +
+					"	 * @param x the object\n" +
+					"	 * @return String\n" +
+					"	 */\n" +
+					"	public String val(Object x) { return x.toString(); }\n" +
+					"}\n"
+			}
+		);
+	}
+	
+	// External javadoc references to enum
+	public void test043() {
+		this.runConformTest(
+			new String[] {
+				"test/E.java",
+				"package test;\n" +
+					"public enum E { TEST, VALID }\n",
+				"test/X.java",
+				"import static test.E.TEST;\n" +
+					"	/**\n" +
+					"	 * @see test.E\n" +
+					"	 * @see test.E#VALID\n" +
+					"	 * @see #TEST\n" +
+					"	 */\n" +
+					"public class X {}\n"
+			}
+		);
+	}
+	public void test044() {
+		this.runConformTest(
+			new String[] {
+				"test/E.java",
+				"package test;\n" +
+					"public enum E { TEST, VALID }\n",
+				"test/X.java",
+				"import static test.E.TEST;\n" +
+					"	/**\n" +
+					"	 * Valid value = {@value test.E#VALID}\n" +
+					"	 * Test value = {@value #TEST}\n" +
+					"	 */\n" +
+					"public class X {}\n"
+			}
+		);
+	}
 	// enum cannot be declared as local type
 	
 	// check abstract conditions
