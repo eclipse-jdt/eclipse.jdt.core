@@ -183,7 +183,7 @@ public void accept(ICompilationUnit sourceUnit) {
 	try {
 		CompilationUnitDeclaration parsedUnit = basicParser().dietParse(sourceUnit, unitResult);
 		lookupEnvironment.buildTypeBindings(parsedUnit);
-		lookupEnvironment.completeTypeBindings(parsedUnit);
+		lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	} catch (AbortCompilationUnit e) {
 		// at this point, currentCompilationUnitResult may not be sourceUnit, but some other
 		// one requested further along to resolve sourceUnit.

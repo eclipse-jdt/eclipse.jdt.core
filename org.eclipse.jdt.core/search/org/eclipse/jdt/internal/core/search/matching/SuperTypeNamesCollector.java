@@ -20,11 +20,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.ISourceType;
-import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.Util;
@@ -37,7 +33,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  * Returns NOT_FOUND_DECLARING_TYPE if the declaring type was not found.
  * Returns null if the declaring type pattern doesn't require an exact match.
  */
-public class SuperTypeNamesCollector implements ITypeRequestor {
+public class SuperTypeNamesCollector {
 
 SearchPattern pattern;
 char[] typeSimpleName;
@@ -90,7 +86,7 @@ public class TypeDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return false; // don't visit method declarations
 	}
 }
-	
+
 public SuperTypeNamesCollector(
 	SearchPattern pattern,
 	char[] typeSimpleName,
@@ -98,7 +94,7 @@ public SuperTypeNamesCollector(
 	MatchLocator locator,
 	IType type, 
 	IProgressMonitor progressMonitor) {
-		
+
 	this.pattern = pattern;
 	this.typeSimpleName = typeSimpleName;
 	this.typeQualification = typeQualification;
@@ -107,39 +103,6 @@ public SuperTypeNamesCollector(
 	this.progressMonitor = progressMonitor;
 }
 
-/*
- * @see ITypeRequestor#accept(IBinaryType, PackageBinding)
- */
-public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
-	this.locator.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
-}
-/*
- * @see ITypeRequestor#accept(ISourceType[], PackageBinding)
- */
-public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
-	CompilationResult compilationResult = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, 0);
-	CompilationUnitDeclaration unit = SourceTypeConverter.buildCompilationUnit(
-		sourceTypes, //sourceTypes[0] is always toplevel here
-		// no need for field and methods
-		SourceTypeConverter.MEMBER_TYPE, // need member types
-		// no need for field initialization
-		this.locator.lookupEnvironment.problemReporter, 
-		compilationResult);
-
-	if (unit != null) {
-		this.locator.lookupEnvironment.buildTypeBindings(unit);
-		this.locator.lookupEnvironment.completeTypeBindings(unit, false);
-	}
-}
-/*
- * @see ITypeRequestor#accept(ICompilationUnit)
- */
-public void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit) {
-	this.locator.lookupEnvironment.problemReporter.abortDueToInternalError(
-		new StringBuffer(org.eclipse.jdt.internal.compiler.util.Util.bind("accept.cannot")) //$NON-NLS-1$
-			.append(sourceUnit.getFileName())
-			.toString());
-}
 protected void addToResult(char[][] compoundName) {
 	int resultLength = this.result.length;
 	for (int i = 0; i < resultLength; i++)
@@ -192,10 +155,10 @@ public char[][][] collect() throws JavaModelException {
 			if (this.type.isBinary()) {
 				BinaryTypeBinding binding = this.locator.cacheBinaryType(this.type);
 				if (binding != null)
-					this.collectSuperTypeNames(binding);
+					collectSuperTypeNames(binding);
 			} else {
 				ICompilationUnit unit = this.type.getCompilationUnit();
-				CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
+				CompilationUnitDeclaration parsedUnit = buildBindings(unit);
 				if (parsedUnit != null)
 					parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
 			}
@@ -236,14 +199,14 @@ public char[][][] collect() throws JavaModelException {
 				}
 				if (openable instanceof ICompilationUnit) {
 					ICompilationUnit unit = (ICompilationUnit) openable;
-					CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
+					CompilationUnitDeclaration parsedUnit = buildBindings(unit);
 					if (parsedUnit != null)
 						parsedUnit.traverse(new TypeDeclarationVisitor(), parsedUnit.scope);
 				} else if (openable instanceof IClassFile) {
 					IClassFile classFile = (IClassFile) openable;
 					BinaryTypeBinding binding = this.locator.cacheBinaryType(classFile.getType());
-					if (this.matches(binding))
-						this.collectSuperTypeNames(binding);
+					if (matches(binding))
+						collectSuperTypeNames(binding);
 				}
 			} catch (AbortCompilation e) {
 				// ignore: continue with next element
