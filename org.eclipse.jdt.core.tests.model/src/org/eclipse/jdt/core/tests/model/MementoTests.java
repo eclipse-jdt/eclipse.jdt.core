@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
@@ -256,10 +258,12 @@ public void testExternalJarBinaryTypeMemento() throws JavaModelException {
 /**
  * Tests that a class file in an external jar at the root of the file system can be persisted and restored using its memento.
  */
-public void testExternalJarClassFileMemento() throws JavaModelException {	
-	IClassFile classFile = getClassFile("P", "C:\\lib.jar", "p", "X.class");
+public void testExternalJarClassFileMemento() throws JavaModelException {
+	char separator = File.separatorChar;
+	String device = separator == '/' ? "" : "C:";
+	IClassFile classFile = getClassFile("P", device + separator + "lib.jar", "p", "X.class");
 	assertMemento(
-		"=P/C:/lib.jar<p(X.class",
+		"=P/" + device + "/lib.jar<p(X.class",
 		classFile);	
 }
 /**
