@@ -1345,28 +1345,28 @@ public TypeBinding resolveType(BlockScope scope) {
 	switch (result & 0xF) {// record the current ReturnTypeID
 		// only switch on possible result type.....
 		case T_boolean :
-			type = BooleanBinding;
+			this.type = BooleanBinding;
 			break;
 		case T_byte :
-			type = ByteBinding;
+			this.type = ByteBinding;
 			break;
 		case T_char :
-			type = CharBinding;
+			this.type = CharBinding;
 			break;
 		case T_double :
-			type = DoubleBinding;
+			this.type = DoubleBinding;
 			break;
 		case T_float :
-			type = FloatBinding;
+			this.type = FloatBinding;
 			break;
 		case T_int :
-			type = IntBinding;
+			this.type = IntBinding;
 			break;
 		case T_long :
-			type = LongBinding;
+			this.type = LongBinding;
 			break;
 		case T_String :
-			type = scope.getJavaLangString();
+			this.type = scope.getJavaLangString();
 			break;
 		default : //error........
 			constant = Constant.NotAConstant;
@@ -1376,7 +1376,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// compute the constant when valid
 	computeConstant(scope, leftId, rightId);
-	return type;
+	return this.type;
 }
 public String toStringExpressionNoParenthesis(){
 	/* slow code*/
