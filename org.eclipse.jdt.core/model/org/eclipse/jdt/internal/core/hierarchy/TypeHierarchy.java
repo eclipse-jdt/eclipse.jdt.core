@@ -60,10 +60,10 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	
 	static final byte VERSION = 0x0000;
 	// SEPARATOR
-	static final byte SEPARATOR1 = '\n';//0x0000;
-	static final byte SEPARATOR2 = ',';//0x0001;
-	static final byte SEPARATOR3 = '>';//0x0002;
-	static final byte SEPARATOR4 = '\r';//0x0003;
+	static final byte SEPARATOR1 = '\n';
+	static final byte SEPARATOR2 = ',';
+	static final byte SEPARATOR3 = '>';
+	static final byte SEPARATOR4 = '\r';
 	// general info
 	static final byte COMPUTE_SUBTYPES = 0x0001;
 	
