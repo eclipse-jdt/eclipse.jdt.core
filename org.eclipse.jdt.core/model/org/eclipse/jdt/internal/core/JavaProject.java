@@ -26,6 +26,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
@@ -899,33 +900,80 @@ public class JavaProject
 				fullyQualifiedName, 
 				false,
 				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-		if (type == null) {
-			// try to find enclosing type
-			int lastDot = fullyQualifiedName.lastIndexOf('.');
-			if (lastDot == -1) return null;
+		if (type != null) return type;
+
+		// try to find enclosing type
+		int lastDot = fullyQualifiedName.lastIndexOf('.');
+		if (lastDot > 0) {
 			type = this.findType(fullyQualifiedName.substring(0, lastDot));
 			if (type != null) {
 				type = type.getType(fullyQualifiedName.substring(lastDot+1));
-				if (!type.exists()) {
-					return null;
-				}
+				if (type.exists()) return type;
 			}
 		}
-		return type;
+		return findSecondaryType("", fullyQualifiedName);
 	}
 	
 	/**
 	 * @see IJavaProject#findType(String, String)
 	 */
 	public IType findType(String packageName, String typeQualifiedName) throws JavaModelException {
-		return 
-			this.getNameLookup().findType(
-				typeQualifiedName, 
-				packageName,
-				false,
-				NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
-	}	
+		IType type =  this.getNameLookup().findType(
+			typeQualifiedName, 
+			packageName,
+			false,
+			NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
+		if (type == null)
+			type = findSecondaryType(packageName, typeQualifiedName);
+		return type;
+	}
 	
+	private IType findSecondaryType(String packageName, String typeName) {
+		try {
+			final ArrayList paths = new ArrayList();
+			ITypeNameRequestor nameRequestor = new ITypeNameRequestor() {
+				public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+					if (enclosingTypeNames == null || enclosingTypeNames.length == 0) // accept only top level types
+						paths.add(path);
+				}
+				public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+					if (enclosingTypeNames == null || enclosingTypeNames.length == 0) // accept only top level types
+						paths.add(path);
+				}
+			};
+
+			int index = typeName.lastIndexOf('.');
+			if (index > 0) {
+				// ignore the package name if the type name is a qualified name
+				packageName = typeName.substring(0, index);
+				typeName = typeName.substring(index + 1);
+			}
+			new SearchEngine().searchAllTypeNames(
+				getProject().getWorkspace(),
+				packageName.toCharArray(),
+				typeName.toCharArray(),
+				IJavaSearchConstants.EXACT_MATCH,
+				IJavaSearchConstants.CASE_SENSITIVE,
+				IJavaSearchConstants.TYPE,
+				SearchEngine.createJavaSearchScope(new IJavaElement[] {this}, false),
+				nameRequestor,
+				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+				null);
+
+			if (!paths.isEmpty()) {
+				for (int i = 0, l = paths.size(); i < l; i++) {
+					String pathname = (String) paths.get(i);
+					if (Util.isJavaFileName(pathname)) {
+						IFile file = getProject().getWorkspace().getRoot().getFile(new Path(pathname));
+						ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
+						return unit.getType(typeName);
+					}
+				}
+			}
+		} catch (JavaModelException ignore) {}
+		return null;
+	}
+
 	/**
 	 * Remove all markers denoting classpath problems
 	 */
