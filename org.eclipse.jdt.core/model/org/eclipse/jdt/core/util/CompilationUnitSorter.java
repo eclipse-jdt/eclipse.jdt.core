@@ -56,6 +56,33 @@ public class CompilationUnitSorter {
 			this.collator = Collator.getInstance();
 		}
 
+		/**
+		 * This constructor is used to specify customized values for the different categories. They are a convinient way to
+		 * distinguish AST nodes. The lower a value is, the higher the node will appear in the sorted compilation unit.
+		 * 
+		 * There are nine categories:
+		 * <ol>
+		 * <li>static types</li>
+		 * <li>static fields</li>
+		 * <li>static initializers</li>
+		 * <li>static methods</li>
+		 * <li>types</li>
+		 * <li>fields</li>
+		 * <li>initializers</li>
+		 * <li>constructors</li>
+		 * <li>methods</li>
+		 * </ol>
+		 * 
+		 * @param staticTypeCategory the given value for the static type category
+		 * @param staticFieldCategory the given value for the static field category
+		 * @param staticInitializerCategory the given value for the static initializer category
+		 * @param staticMethodCategory the given value for static the method category
+		 * @param typeCategory the given value for the type category
+		 * @param fieldCategory the given value for field category
+		 * @param initializerCategory the given value for initializer category
+		 * @param constructorCategory the given value for constructor category
+		 * @param methodCategory the given value for method category
+		 */
 		public DefaultJavaElementComparator(
 			int staticTypeCategory,
 			int staticFieldCategory,
@@ -145,54 +172,53 @@ public class CompilationUnitSorter {
 			if (o1 == o2) {
 				return 0;
 			}
-			switch(node1.getNodeType()) {
-				case ASTNode.METHOD_DECLARATION :
-					MethodDeclaration method1 = (MethodDeclaration) node1;
-					MethodDeclaration method2 = (MethodDeclaration) node2;
-					
-					if (method1.isConstructor()) {
-						return compareParams(method1, method2);
-					}
-					int compare = this.collator.compare(method1.getName().getIdentifier(), method2.getName().getIdentifier());
-					if (compare != 0) {
-						return compare;
-					}
-					return compareParams(method1, method2);
-				case ASTNode.FIELD_DECLARATION :
-					FieldDeclaration fieldDeclaration1 = (FieldDeclaration) node1;
-					FieldDeclaration fieldDeclaration2 = (FieldDeclaration) node2;
-					VariableDeclarationFragment fragment1 = (VariableDeclarationFragment) fieldDeclaration1.fragments().get(0);
-					VariableDeclarationFragment fragment2 = (VariableDeclarationFragment) fieldDeclaration2.fragments().get(0);
-					return this.collator.compare(fragment1.getName().getIdentifier(), fragment2.getName().getIdentifier());
-				case ASTNode.INITIALIZER :
-					return ((Integer) node1.getProperty(CompilationUnitSorter.SOURCE_START)).intValue() - ((Integer) node2.getProperty(CompilationUnitSorter.SOURCE_START)).intValue();
-				case ASTNode.TYPE_DECLARATION :
-					TypeDeclaration typeDeclaration1 = (TypeDeclaration) node1;
-					TypeDeclaration typeDeclaration2 = (TypeDeclaration) node2;
-					return this.collator.compare(typeDeclaration1.getName().getIdentifier(), typeDeclaration2.getName().getIdentifier());
-			}
-			return 0;
-		}
-	
-		int compareParams(
-			MethodDeclaration method1,
-			MethodDeclaration method2) {
-			int compare;
-			final List parameters1 = method1.parameters();
-			final List parameters2 = method2.parameters();
-			int length1 = parameters1.size();
-			int length2 = parameters2.size();
-			int len= Math.min(length1, length2);
-			for (int i = 0; i < len; i++) {
-				compare = this.collator.compare(((SingleVariableDeclaration) parameters1.get(i)).getName().getIdentifier(), ((SingleVariableDeclaration) parameters2.get(i)).getName().getIdentifier());
+			String node1Signature = buildSignature(node1);
+			String node2Signature = buildSignature(node2);
+			if (node1Signature == null || node2Signature == null) {
+				return 0;
+			} else if (node1Signature.length() != 0 && node2Signature.length() != 0) {
+				int compare = this.collator.compare(node1Signature, node2Signature);
 				if (compare != 0) {
 					return compare;
 				}
 			}
-			return length1 - length2;
+			int sourceStart1 = ((Integer) node1.getProperty(CompilationUnitSorter.SOURCE_START)).intValue();
+			int sourceStart2 = ((Integer) node2.getProperty(CompilationUnitSorter.SOURCE_START)).intValue();
+			return sourceStart1 - sourceStart2;
+		}
+
+		private String buildSignature(BodyDeclaration node) {
+			switch(node.getNodeType()) {
+				case ASTNode.METHOD_DECLARATION :
+					MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+					StringBuffer buffer = new StringBuffer();
+					buffer.append(methodDeclaration.getName().getIdentifier());
+					final List parameters = methodDeclaration.parameters();
+					int length1 = parameters.size();
+					for (int i = 0; i < length1; i++) {
+						buffer.append(((SingleVariableDeclaration) parameters.get(i)).getName().getIdentifier());
+					}
+					return buffer.toString();
+				case ASTNode.FIELD_DECLARATION :
+					FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+					return ((VariableDeclarationFragment) fieldDeclaration.fragments().get(0)).getName().getIdentifier();
+				case ASTNode.INITIALIZER :
+					return ((Integer) node.getProperty(CompilationUnitSorter.SOURCE_START)).toString();
+				case ASTNode.TYPE_DECLARATION :
+					TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+					return typeDeclaration.getName().getIdentifier();
+			}
+			return null;
 		}
 	}
 
+	/**
+	 * This field is used to retrieve a property of the AST node used by the compare method. This
+	 * property returns an integer which is the corresponding source start of the node.
+	 * 		(Integer) node.getProperty(CompilationUnitSorter.SOURCE_START)
+	 * 
+	 * @since 2.1
+	 */
 	public static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
 
 	/**
