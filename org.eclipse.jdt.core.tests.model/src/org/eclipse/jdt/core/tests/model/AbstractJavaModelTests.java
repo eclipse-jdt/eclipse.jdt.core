@@ -225,10 +225,10 @@ protected void copyDirectory(File source, File target) throws IOException {
 }
 
 /*
- * Creates a Java project where prj=src=bin
+ * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
  */
 protected IJavaProject createJavaProject(String projectName) throws CoreException {
-	return this.createJavaProject(projectName, new String[] {""}, "");
+	return this.createJavaProject(projectName, new String[] {""}, new String[] {"JCL_LIB"}, "");
 }
 /*
  * Creates a Java project with the given source folders an output location. 

@@ -984,7 +984,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			searchPattern = createPackagePattern(element.getElementName(), limitTo, EXACT_MATCH, CASE_SENSITIVE);
 			break;
 	}
-	if (searchPattern != null && limitTo == IJavaSearchConstants.REFERENCES) {
+	if (searchPattern != null) {
 		searchPattern.focus = element;
 	}
 	return searchPattern;
