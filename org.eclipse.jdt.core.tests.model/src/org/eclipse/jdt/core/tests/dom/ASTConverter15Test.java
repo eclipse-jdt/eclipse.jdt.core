@@ -876,13 +876,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 2, bodyDeclarations.size());
 		EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
 		checkSourceRange(enumConstantDeclaration.getName(), "PLUS", source);
-		checkSourceRange(enumConstantDeclaration, "PLUS {\n" + 
+		checkSourceRange(enumConstantDeclaration, "PLUS {\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x + y; }\n" + 
 				"    }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 		AnonymousClassDeclaration anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
-		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+		checkSourceRange(anonymousClassDeclaration, "{\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x + y; }\n" + 
 				"    }", source);
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
@@ -894,12 +896,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
-		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x + y; }", source);
+		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x + y; }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 		
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration.getName(), "MINUS", source);
-		checkSourceRange(enumConstantDeclaration, "MINUS {\n" + 
+		checkSourceRange(enumConstantDeclaration, "MINUS {\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x - y; }\n" + 
 				"    }", source);
 		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
@@ -907,7 +910,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
 		assertTrue("Not a enum type", typeBinding.isEnum());
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
-		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+		checkSourceRange(anonymousClassDeclaration, "{\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x - y; }\n" + 
 				"    }", source);
 		bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
@@ -916,17 +920,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
 		methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
-		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x - y; }", source);
+		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x - y; }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
 		checkSourceRange(enumConstantDeclaration.getName(), "TIMES", source);
-		checkSourceRange(enumConstantDeclaration, "TIMES {\n" + 
+		checkSourceRange(enumConstantDeclaration, "TIMES {\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x * y; }\n" + 
 				"    }", source);
 		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
-		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+		checkSourceRange(anonymousClassDeclaration, "{\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x * y; }\n" + 
 				"    }", source);
 		typeBinding = anonymousClassDeclaration.resolveBinding();
@@ -938,17 +944,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
 		methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
-		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x * y; }", source);
+		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x * y; }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
 		checkSourceRange(enumConstantDeclaration.getName(), "DIVIDED_BY", source);
-		checkSourceRange(enumConstantDeclaration, "DIVIDED_BY {\n" + 
+		checkSourceRange(enumConstantDeclaration, "DIVIDED_BY {\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x / y; }\n" + 
 				"    }", source);
 		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
-		checkSourceRange(anonymousClassDeclaration, "{\n" + 
+		checkSourceRange(anonymousClassDeclaration, "{\n" +
+				"        @Override\n" + 
 				"        double eval(double x, double y) { return x / y; }\n" + 
 				"    }", source);
 		typeBinding = anonymousClassDeclaration.resolveBinding();
@@ -960,7 +968,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
 		methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
-		checkSourceRange(methodDeclaration, "double eval(double x, double y) { return x / y; }", source);
+		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x / y; }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
 	}
 	

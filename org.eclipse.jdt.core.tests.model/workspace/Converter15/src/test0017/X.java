@@ -7,6 +7,7 @@ class A<E> {
 		this.e = e;
 	}
 	
+	@Override
 	public String toString() {
 		return String.valueOf(this.e);
 	}
@@ -15,6 +16,7 @@ class A<E> {
 		B(T t) {
 			this.t = t;
 		}
+		@Override
 		public String toString() {
 			return String.valueOf(this.t);
 		}

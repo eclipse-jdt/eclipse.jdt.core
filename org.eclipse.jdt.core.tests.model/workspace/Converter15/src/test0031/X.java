@@ -18,6 +18,7 @@ class F {
     public int goo(int param0) {
         class C extends X.A {
             A1 b;
+			@Override
             public int foo() {
                 return 3;		
             }

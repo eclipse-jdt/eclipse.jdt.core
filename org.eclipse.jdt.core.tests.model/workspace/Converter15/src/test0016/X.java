@@ -21,6 +21,7 @@ class Seq<E> {
 				new Pair<E,T>(this.head, that.head),
 					this.tail.zip(that.tail));
 	}
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		if (head != null) {
@@ -50,6 +51,7 @@ class Pair<A, B> {
 		this.fst = a;
 		this.snd = b;
 	}
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("(");
@@ -59,6 +61,7 @@ class Pair<A, B> {
 		buffer.append(")");
 		return String.valueOf(buffer);
 	}
+	@Override
 	public boolean equals(Object other) {
 		return other instanceof Pair &&
 				equals(fst, ((Pair)other).fst) &&

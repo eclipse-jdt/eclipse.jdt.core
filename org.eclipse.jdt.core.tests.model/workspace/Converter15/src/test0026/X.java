@@ -2,19 +2,23 @@ package test0026;
 
 public enum X {
     PLUS {
+        @Override
         double eval(double x, double y) { return x + y; }
     } // comment
     ,
 
     MINUS {
+        @Override
         double eval(double x, double y) { return x - y; }
     },
 
     TIMES {
+        @Override
         double eval(double x, double y) { return x * y; }
     },
 
     DIVIDED_BY {
+        @Override
         double eval(double x, double y) { return x / y; }
     };
 
