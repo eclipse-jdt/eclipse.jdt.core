@@ -1025,7 +1025,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
         formatLeftCurlyBrace(line, class_declaration_brace);
 		formatTypeOpeningBrace(class_declaration_brace, space_before_opening_brace, typeDeclaration);
 		
-		
 		boolean indent_body_declarations_compare_to_header;
 		switch(typeDeclaration.getKind()) {
 			case IGenericType.ENUM :
@@ -1059,8 +1058,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.printTrailingComment();
 					}
 				}
-			} else {
-				this.scribe.printNewLine();
+				this.scribe.printNewLine();				
 			}
 			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
@@ -1076,8 +1074,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.unIndent();
 		}
 		
-		if (this.preferences.insert_new_line_in_empty_type_declaration) {
-			this.scribe.printNewLine();
+		switch(typeDeclaration.getKind()) {
+			case IGenericType.ENUM :
+				if (this.preferences.insert_new_line_in_empty_enum_declaration) {
+					this.scribe.printNewLine();
+				}
+				break;
+			default :
+				if (this.preferences.insert_new_line_in_empty_type_declaration) {
+					this.scribe.printNewLine();
+				}
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
@@ -1878,7 +1884,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.exitMemberAlignment(memberAlignment);
 	}
 
-	private void formatTypeOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace, TypeDeclaration typeDeclaration) {
+	private void formatTypeOpeningBraceForEnumConstant(String bracePosition, boolean insertSpaceBeforeBrace, TypeDeclaration typeDeclaration) {
 		int fieldCount = (typeDeclaration.fields == null) ? 0 : typeDeclaration.fields.length;
 		int methodCount = (typeDeclaration.methods == null) ? 0 : typeDeclaration.methods.length;
 		int typeCount = (typeDeclaration.memberTypes == null) ? 0 : typeDeclaration.memberTypes.length;
@@ -1892,6 +1898,32 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		if (!insertNewLine) {
 			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+				insertNewLine = this.preferences.insert_new_line_in_empty_enum_constant;
+			}
+		}
+	
+		formatOpeningBrace(bracePosition, insertSpaceBeforeBrace);
+		
+		if (insertNewLine) {
+			this.scribe.printNewLine();
+		}
+	}
+	private void formatTypeOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace, TypeDeclaration typeDeclaration) {
+		int fieldCount = (typeDeclaration.fields == null) ? 0 : typeDeclaration.fields.length;
+		int methodCount = (typeDeclaration.methods == null) ? 0 : typeDeclaration.methods.length;
+		int typeCount = (typeDeclaration.memberTypes == null) ? 0 : typeDeclaration.memberTypes.length;
+	
+		if (methodCount == 1 && typeDeclaration.methods[0].isDefaultConstructor()) {
+			methodCount = 0;
+		}
+		final int memberLength = fieldCount + methodCount + typeCount;
+
+		boolean insertNewLine = memberLength > 0;
+		
+		if (!insertNewLine) {
+			if (typeDeclaration.getKind() == IGenericType.ENUM) {
+				insertNewLine = this.preferences.insert_new_line_in_empty_enum_declaration;
+			} else if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
 			} else {
 				insertNewLine = this.preferences.insert_new_line_in_empty_type_declaration;
@@ -3191,7 +3223,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			String enum_constant_brace = this.preferences.brace_position_for_enum_constant;
 	
 	        formatLeftCurlyBrace(line, enum_constant_brace);
-			formatTypeOpeningBrace(enum_constant_brace, this.preferences.insert_space_before_opening_brace_in_enum_constant, typeDeclaration);
+			formatTypeOpeningBraceForEnumConstant(enum_constant_brace, this.preferences.insert_space_before_opening_brace_in_enum_constant, typeDeclaration);
 			
 			if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
 				this.scribe.indent();
