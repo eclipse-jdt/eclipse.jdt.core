@@ -192,16 +192,18 @@ public void run() throws IOException {
 				try {
 					loadAndRun(className);
 					out.writeBoolean(true);
+					System.err.println(VerifyTests.class.getName());
+					System.out.println(VerifyTests.class.getName());
 				} catch (Throwable e) {
 					e.printStackTrace();
 					try {
+						System.err.println(VerifyTests.class.getName());
+						System.out.println(VerifyTests.class.getName());
 						out.writeBoolean(false);
 					} catch (IOException e1) {
 						// ignore
 					}
 				}
-				System.err.println(VerifyTests.class.getName());
-				System.out.println(VerifyTests.class.getName());
 			}
 		};
 		thread.start();
