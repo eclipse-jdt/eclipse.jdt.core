@@ -73,20 +73,20 @@ public String operatorToString() {
 }
 public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;
-	TypeBinding lhsTb = lhs.resolveType(scope);
-	TypeBinding expressionTb = expression.resolveType(scope);
-	if (lhsTb == null || expressionTb == null)
+	TypeBinding lhsType = lhs.resolveType(scope);
+	TypeBinding expressionType = expression.resolveType(scope);
+	if (lhsType == null || expressionType == null)
 		return null;
 
-	int lhsId = lhsTb.id;
-	int expressionId = expressionTb.id;
-	if (restrainUsageToNumericTypes() && !lhsTb.isNumericType()) {
-		scope.problemReporter().operatorOnlyValidOnNumericType(this, lhsTb, expressionTb);
+	int lhsId = lhsType.id;
+	int expressionId = expressionType.id;
+	if (restrainUsageToNumericTypes() && !lhsType.isNumericType()) {
+		scope.problemReporter().operatorOnlyValidOnNumericType(this, lhsType, expressionType);
 		return null;
 	}
 	if (lhsId > 15 || expressionId > 15) {
 		if (lhsId != T_String) { // String += Object is valid wheraas Object -= String is not
-			scope.problemReporter().invalidOperator(this, lhsTb, expressionTb);
+			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
 		}
 		expressionId = T_Object; // use the Object has tag table
@@ -100,19 +100,24 @@ public TypeBinding resolveType(BlockScope scope) {
 	// the conversion is stored INTO the reference (info needed for the code gen)
 	int result = OperatorExpression.ResolveTypeTables[operator][ (lhsId << 4) + expressionId];
 	if (result == T_undefined) {
-		scope.problemReporter().invalidOperator(this, lhsTb, expressionTb);
+		scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 		return null;
 	}
-	if (operator == PLUS && scope.isJavaLangObject(lhsTb)) {
-		// Object o = "hello"; 
-		// o += " world"  // <--illegal
-		scope.problemReporter().invalidOperator(this, lhsTb, expressionTb);
-		return null;
+	if (operator == PLUS){
+		if(scope.isJavaLangObject(lhsType)) {
+			// <Object> += <String> is illegal
+			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
+			return null;
+		} else if (lhsType.isNumericType() && !expressionType.isNumericType()){
+			// <int> += <String> is illegal
+			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
+			return null;
+		}
 	}
 	lhs.implicitConversion = result >>> 12;
 	expression.implicitConversion = (result >>> 4) & 0x000FF;
 	assignmentImplicitConversion = (lhsId << 4) + (result & 0x0000F);
-	return lhsTb;
+	return lhsType;
 }
 public boolean restrainUsageToNumericTypes(){
 	return false ;}
