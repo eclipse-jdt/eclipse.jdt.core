@@ -51,24 +51,22 @@ class AddFolderToIndex extends IndexRequest {
 			final IPath container = this.indexPath;
 			final IndexManager indexManager = this.manager;
 			final char[][] pattern = exclusionPattern;
-// KJ : Release next week
-//			folder.accept(new IResourceProxyVisitor() {
-//				public boolean visit(IResourceProxy proxy) throws CoreException {
-//					if (proxy.getType() == IResource.FILE) {
-//						if (Util.isJavaFileName(proxy.getName())) { 
-//							IResource resource = proxy.requestResource();
-//							if (!Util.isExcluded(resource, exclusionPattern))
-			folder.accept(new IResourceVisitor() {
-				public boolean visit(IResource resource) throws CoreException {
-					if (resource.getType() == IResource.FILE) {
-						if (Util.isJavaFileName(resource.getName()) && !Util.isExcluded(resource, pattern)) {
-							indexManager.addSource((IFile)resource, container);
+			folder.accept(
+				new IResourceProxyVisitor() {
+					public boolean visit(IResourceProxy proxy) throws CoreException {
+						if (proxy.getType() == IResource.FILE) {
+							if (Util.isJavaFileName(proxy.getName())) {
+								IResource resource = proxy.requestResource();
+								if (!Util.isExcluded(resource, exclusionPattern))
+									indexManager.addSource((IFile)resource, container);
+							}
+							return false;
 						}
-						return false;
+						return true;
 					}
-					return true;
-				}
-			});
+				},
+				IResource.NONE
+			);
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to add " + this.folderPath + " to index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
