@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -746,14 +745,13 @@ public void deprecatedType(TypeBinding type, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void duplicateCase(AstNode statement, Constant constant) {
-	String[] arguments = new String[] {String.valueOf(constant.intValue())};
+public void duplicateCase(CaseStatement caseStatement) {
 	this.handle(
 		IProblem.DuplicateCase,
-		arguments,
-		arguments,
-		statement.sourceStart,
-		statement.sourceEnd);
+		NoArgument,
+		NoArgument,
+		caseStatement.sourceStart,
+		caseStatement.sourceEnd);
 }
 public void duplicateDefaultCase(AstNode statement) {
 	this.handle(

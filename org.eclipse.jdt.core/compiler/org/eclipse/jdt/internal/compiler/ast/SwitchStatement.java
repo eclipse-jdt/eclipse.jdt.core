@@ -205,7 +205,7 @@ public class SwitchStatement extends Statement {
 	}
 
 	public void resolve(BlockScope upperScope) {
-
+	
 		TypeBinding testType = testExpression.resolveType(upperScope);
 		if (testType == null)
 			return;
@@ -222,16 +222,38 @@ public class SwitchStatement extends Statement {
 			// collection of cases is too big but we will only iterate until caseCount
 			cases = new CaseStatement[length = statements.length];
 			int[] casesValues = new int[length];
+			CaseStatement[] duplicateCaseStatements = null;
+			int duplicateCaseStatementsCounter = 0;
 			int counter = 0;
 			for (int i = 0; i < length; i++) {
 				Constant cst;
-				if ((cst = statements[i].resolveCase(scope, testType, this)) != null) {
+				final Statement statement = statements[i];
+				if ((cst = statement.resolveCase(scope, testType, this)) != null) {
 					//----check for duplicate case statement------------
 					if (cst != NotAConstant) {
 						int key = cst.intValue();
 						for (int j = 0; j < counter; j++) {
 							if (casesValues[j] == key) {
-								scope.problemReporter().duplicateCase((CaseStatement) statements[i], cst); //TODO: (olivier) could improve diagnosis to indicate colliding case
+								final CaseStatement currentCaseStatement = (CaseStatement) statement;
+								if (duplicateCaseStatements == null) {
+									scope.problemReporter().duplicateCase(cases[j]);
+									scope.problemReporter().duplicateCase(currentCaseStatement);
+									duplicateCaseStatements = new CaseStatement[length];
+									duplicateCaseStatements[duplicateCaseStatementsCounter++] = cases[j];
+									duplicateCaseStatements[duplicateCaseStatementsCounter++] = currentCaseStatement;
+								} else {
+									boolean found = false;
+									searchReportedDuplicate: for (int k = 2; k < duplicateCaseStatementsCounter; k++) {
+										if (duplicateCaseStatements[k] == statement) {
+											found = true;
+											break searchReportedDuplicate;
+										}
+									}
+									if (!found) {
+										scope.problemReporter().duplicateCase(currentCaseStatement);
+										duplicateCaseStatements[duplicateCaseStatementsCounter++] = currentCaseStatement;
+									}
+								}
 							}
 						}
 						casesValues[counter++] = key;
