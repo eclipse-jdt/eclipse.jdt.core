@@ -60,6 +60,30 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 	
+	/* A problem requestor that auto-cancels on first problem */
+	class CancelingProblemRequestor extends ProblemRequestor {
+		IProgressMonitor progressMonitor = new IProgressMonitor() {
+			boolean isCanceled = false;
+			public void beginTask(String name, int totalWork) {}
+			public void done() {}
+			public void internalWorked(double work) {}
+			public boolean isCanceled() {
+				return this.isCanceled;
+			}
+			public void setCanceled(boolean value) {
+				this.isCanceled = value;
+			}
+			public void setTaskName(String name) {}
+			public void subTask(String name) {}
+			public void worked(int work) {}
+		};
+	
+		boolean isCanceling = false;
+		public void acceptProblem(IProblem problem) {
+			if (isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
+			super.acceptProblem(problem);
+		}		
+	}
 /**
  */
 public ReconcilerTests(String name) {
@@ -562,29 +586,6 @@ public void testMethodWithError3() throws JavaModelException, CoreException {
  */
 public void testMethodWithError4() throws JavaModelException, CoreException {
 
-	final IProgressMonitor myMonitor = new IProgressMonitor() {
-		boolean isCanceled = false;
-		public void beginTask(String name, int totalWork) {}
-		public void done() {}
-		public void internalWorked(double work) {}
-		public boolean isCanceled() {
-			return this.isCanceled;
-		}
-		public void setCanceled(boolean value) {
-			this.isCanceled = value;
-		}
-		public void setTaskName(String name) {}
-		public void subTask(String name) {}
-		public void worked(int work) {}
-	};
-
-	class CancelingProblemRequestor extends ProblemRequestor {
-		boolean isCanceling = false;
-		public void acceptProblem(IProblem problem) {
-			if (isCanceling) myMonitor.setCanceled(true); // auto-cancel on first problem
-			super.acceptProblem(problem);
-		}		
-	}
 	CancelingProblemRequestor myPbRequestor = new CancelingProblemRequestor();
 	
 	this.workingCopy.discardWorkingCopy();
@@ -606,7 +607,7 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 	// use force flag to refresh problems			
 	myPbRequestor.isCanceling = true;
 	myPbRequestor.initialize(contents.toCharArray());
-	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, myMonitor);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, myPbRequestor.progressMonitor);
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 
