@@ -30,9 +30,9 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	 * 	of the original compilation unit fails
 	 */
 	protected void executeOperation() throws JavaModelException {
-		if (fMonitor != null){
-			if (fMonitor.isCanceled()) return;
-			fMonitor.beginTask(Util.bind("element.reconciling"), 10); //$NON-NLS-1$
+		if (progressMonitor != null){
+			if (progressMonitor.isCanceled()) return;
+			progressMonitor.beginTask(Util.bind("element.reconciling"), 10); //$NON-NLS-1$
 		}
 	
 		CompilationUnit workingCopy = getWorkingCopy();
@@ -45,21 +45,21 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 				
 				// update the element infos with the content of the working copy
-				workingCopy.makeConsistent(fMonitor);
+				workingCopy.makeConsistent(progressMonitor);
 				deltaBuilder.buildDeltas();
 		
 			}
 	
-			if (fMonitor != null) fMonitor.worked(2);
+			if (progressMonitor != null) progressMonitor.worked(2);
 			
 			// force problem detection? - if structure was consistent
 			if (forceProblemDetection && wasConsistent){
-				if (fMonitor != null && fMonitor.isCanceled()) return;
+				if (progressMonitor != null && progressMonitor.isCanceled()) return;
 		
 				IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
 				if (problemRequestor != null && problemRequestor.isActive()){
 					problemRequestor.beginReporting();
-					CompilationUnitProblemFinder.process(workingCopy, problemRequestor, fMonitor);
+					CompilationUnitProblemFinder.process(workingCopy, problemRequestor, progressMonitor);
 					problemRequestor.endReporting();
 				}
 			}
@@ -71,7 +71,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				}
 			}
 		} finally {
-			if (fMonitor != null) fMonitor.done();
+			if (progressMonitor != null) progressMonitor.done();
 		}
 	}
 	/**

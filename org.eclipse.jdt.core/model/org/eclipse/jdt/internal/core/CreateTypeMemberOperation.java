@@ -49,7 +49,7 @@ public abstract class CreateTypeMemberOperation extends CreateElementInCUOperati
 public CreateTypeMemberOperation(IJavaElement parentElement, String source, boolean force) {
 	super(parentElement);
 	fSource= source;
-	fForce= force;
+	this.force= force;
 }
 /**
  * @see CreateElementInCUOperation#generateNewCompilationUnitDOM
@@ -126,7 +126,7 @@ public IJavaModelStatus verify() {
 	if (fSource == null) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
 	}
-	if (!fForce) {
+	if (!force) {
 		//check for name collisions
 		try {
 			generateElementDOM();

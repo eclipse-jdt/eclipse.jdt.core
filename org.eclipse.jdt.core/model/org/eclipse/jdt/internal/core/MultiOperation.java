@@ -114,11 +114,11 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * values are the new name.
 	 */
 	private void initializeRenamings() {
-		if (this.renamingsList != null && this.renamingsList.length == fElementsToProcess.length) {
+		if (this.renamingsList != null && this.renamingsList.length == elementsToProcess.length) {
 			this.renamings = new HashMap(this.renamingsList.length);
 			for (int i = 0; i < this.renamingsList.length; i++) {
 				if (this.renamingsList[i] != null) {
-					this.renamings.put(fElementsToProcess[i], this.renamingsList[i]);
+					this.renamings.put(elementsToProcess[i], this.renamingsList[i]);
 				}
 			}
 		}
@@ -151,13 +151,13 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * be completed.
 	 */
 	protected void processElements() throws JavaModelException {
-		beginTask(getMainTaskName(), fElementsToProcess.length);
+		beginTask(getMainTaskName(), elementsToProcess.length);
 		IJavaModelStatus[] errors = new IJavaModelStatus[3];
 		int errorsCounter = 0;
-		for (int i = 0; i < fElementsToProcess.length; i++) {
+		for (int i = 0; i < elementsToProcess.length; i++) {
 			try {
-				verify(fElementsToProcess[i]);
-				processElement(fElementsToProcess[i]);
+				verify(elementsToProcess[i]);
+				processElement(elementsToProcess[i]);
 			} catch (JavaModelException jme) {
 				if (errorsCounter == errors.length) {
 					// resize

@@ -96,7 +96,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 						IBuffer workingCopyBuffer = workingCopy.getBuffer();
 						if (workingCopyBuffer == null) return;
 						primaryBuffer.setContents(workingCopyBuffer.getCharacters());
-						primaryBuffer.save(fMonitor, fForce);
+						primaryBuffer.save(progressMonitor, force);
 						primary.makeConsistent(this);
 						hasSaved = true;
 					} finally {
@@ -107,7 +107,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 					}
 				} else {
 					// for a primary working copy no need to set the content of the buffer again
-					primaryBuffer.save(fMonitor, fForce);
+					primaryBuffer.save(progressMonitor, force);
 					primary.makeConsistent(this);
 				}
 			} else {
@@ -123,13 +123,13 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 					if (resource.exists()) {
 						resource.setContents(
 							stream, 
-							fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+							force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 							null);
 					} else {
 						resource.create(
 							stream,
-							fForce,
-							fMonitor);
+							force,
+							progressMonitor);
 					}
 				} catch (CoreException e) {
 					throw new JavaModelException(e);
@@ -182,7 +182,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 		if (!cu.isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, cu);
 		}
-		if (cu.hasResourceChanged() && !fForce) {
+		if (cu.hasResourceChanged() && !force) {
 			return new JavaModelStatus(IJavaModelStatusConstants.UPDATE_CONFLICT);
 		}
 		// no read-only check, since some repository adapters can change the flag on save

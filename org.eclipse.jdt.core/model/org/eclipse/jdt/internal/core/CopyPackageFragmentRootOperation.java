@@ -69,10 +69,10 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 				if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0) {
 					if (rootEntry.getPath().equals(this.destination)) return;
 					if ((destRes = workspaceRoot.findMember(this.destination)) != null) {
-						destRes.delete(this.updateResourceFlags, fMonitor);
+						destRes.delete(this.updateResourceFlags, progressMonitor);
 					}
 				}
-				rootResource.copy(this.destination, this.updateResourceFlags, fMonitor);
+				rootResource.copy(this.destination, this.updateResourceFlags, progressMonitor);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}
@@ -95,7 +95,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 										&& folder.exists()) {
 									return true;
 								}
-								folder.create(updateResourceFlags, true, fMonitor);
+								folder.create(updateResourceFlags, true, progressMonitor);
 								return true;
 							}
 						} else {
@@ -104,9 +104,9 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 							IResource destRes;
 							if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
 									&& (destRes = workspaceRoot.findMember(destPath)) != null) {
-								destRes.delete(updateResourceFlags, fMonitor);
+								destRes.delete(updateResourceFlags, progressMonitor);
 							}
-							proxy.requestResource().copy(destPath, updateResourceFlags, fMonitor);
+							proxy.requestResource().copy(destPath, updateResourceFlags, progressMonitor);
 							return false;
 						}
 					} else {
@@ -115,9 +115,9 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 						IResource destRes;
 						if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
 								&& (destRes = workspaceRoot.findMember(destPath)) != null) {
-							destRes.delete(updateResourceFlags, fMonitor);
+							destRes.delete(updateResourceFlags, progressMonitor);
 						}
-						proxy.requestResource().copy(destPath, updateResourceFlags, fMonitor);
+						proxy.requestResource().copy(destPath, updateResourceFlags, progressMonitor);
 						return false;
 					}
 				}
@@ -146,7 +146,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 					newClasspath = new IClasspathEntry[length];
 					System.arraycopy(classpath, 0, newClasspath, 0, length);
 					newClasspath[i] = copy(rootEntry);
-					jProject.setRawClasspath(newClasspath, fMonitor);
+					jProject.setRawClasspath(newClasspath, progressMonitor);
 					return;
 				}
 			}
@@ -179,7 +179,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		}
 		IClasspathEntry newEntry = copy(rootEntry);
 		newClasspath[position] = newEntry;
-		jProject.setRawClasspath(newClasspath, fMonitor);
+		jProject.setRawClasspath(newClasspath, progressMonitor);
 	}
 	/*
 	 * Copies the given classpath entry replacing its path with the destination path

@@ -99,7 +99,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 * Only allow cancelling if this operation is not nested.
 	 */
 	protected void checkCanceled() {
-		if (!fNested) {
+		if (!isNested) {
 			super.checkCanceled();
 		}
 	}
@@ -156,12 +156,12 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 				if (!isWorkingCopy)
 					this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
 				worked(1);
-				fResultElements = generateResultHandles();
+				resultElements = generateResultHandles();
 				if (!isWorkingCopy // if unit is working copy, then save will have already fired the delta
 						&& !Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
-					for (int i = 0; i < fResultElements.length; i++) {
-						delta.added(fResultElements[i]);
+					for (int i = 0; i < resultElements.length; i++) {
+						delta.added(resultElements[i]);
 					}
 					addDelta(delta);
 				} // else unit is created outside classpath
@@ -220,12 +220,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 * progress reporting.
 	 */
 	public abstract String getMainTaskName();
-	/**
-	 * Returns the elements created by this operation.
-	 */
-	public IJavaElement[] getResultElements() {
-		return fResultElements;
-	}
+
 	/**
 	 * Sets the default position in which to create the new type
 	 * member. 

@@ -3120,18 +3120,6 @@ public final class JavaCore extends Plugin {
 								oldResolvedPaths[i],
 								false, // updating - no need for early validation
 								false); // updating - no need to save
-						// ensures the project is getting rebuilt if only variable is modified
-						if (canChangeResources) {
-							try {
-								affectedProject.getProject().touch(progressMonitor);
-							} catch (CoreException e) {
-								if (JavaModelManager.CP_RESOLVE_VERBOSE){
-									System.out.println("CPContainer SET - FAILED to touch project: "+ affectedProject.getElementName()+" for "+containerPath); //$NON-NLS-1$//$NON-NLS-2$
-									e.printStackTrace();
-								}
-							}
-						}
-						
 					}
 				}
 			},
@@ -3461,18 +3449,6 @@ public final class JavaCore extends Plugin {
 										(IClasspathEntry[]) affectedProjectClasspaths.get(affectedProject),
 										false, // updating - no need for early validation
 										false); // updating - no need to save
-								// ensures the project is getting rebuilt if only variable is modified
-								if (canChangeResources) {
-									try {
-										affectedProject.getProject().touch(progressMonitor);
-									} catch (CoreException e) {
-										if (JavaModelManager.CP_RESOLVE_VERBOSE){
-											System.out.println("CPVariable SET - FAILED to touch project: "+ affectedProject.getElementName()+" for "+ org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$//$NON-NLS-2$
-											e.printStackTrace();
-										}
-									}
-										
-								}
 							}
 						}
 					},

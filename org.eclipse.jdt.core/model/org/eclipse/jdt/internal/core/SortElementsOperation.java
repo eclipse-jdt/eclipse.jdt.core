@@ -52,7 +52,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * progress reporting.
 	 */
 	protected int getMainAmountOfWork(){
-		return fElementsToProcess.length;
+		return elementsToProcess.length;
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
-			CompilationUnit copy = (CompilationUnit) fElementsToProcess[0];
+			CompilationUnit copy = (CompilationUnit) elementsToProcess[0];
 			ICompilationUnit unit = copy.getPrimary();
 			IBuffer buffer = copy.getBuffer();
 			if (buffer  == null) { 
@@ -123,14 +123,14 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @see JavaConventions
 	 */
 	public IJavaModelStatus verify() {
-		if (fElementsToProcess.length != 1) {
+		if (elementsToProcess.length != 1) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (fElementsToProcess[0] == null) {
+		if (elementsToProcess[0] == null) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (!(fElementsToProcess[0] instanceof ICompilationUnit) || !((ICompilationUnit) fElementsToProcess[0]).isWorkingCopy()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, fElementsToProcess[0]);
+		if (!(elementsToProcess[0] instanceof ICompilationUnit) || !((ICompilationUnit) elementsToProcess[0]).isWorkingCopy()) {
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, elementsToProcess[0]);
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}

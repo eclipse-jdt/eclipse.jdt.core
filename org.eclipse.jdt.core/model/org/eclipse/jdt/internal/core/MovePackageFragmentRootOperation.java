@@ -54,7 +54,7 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 			if (newCPIndex < newClasspath.length) {
 				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
 			}
-			project.setRawClasspath(newClasspath, fMonitor);
+			project.setRawClasspath(newClasspath, progressMonitor);
 		}
 	}
 
@@ -122,9 +122,9 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 				IResource destRes;
 				if ((this.updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
 						&& (destRes = workspaceRoot.findMember(this.destination)) != null) {
-					destRes.delete(this.updateResourceFlags, fMonitor);
+					destRes.delete(this.updateResourceFlags, progressMonitor);
 				}
-				rootResource.move(this.destination, this.updateResourceFlags, fMonitor);
+				rootResource.move(this.destination, this.updateResourceFlags, progressMonitor);
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}
@@ -147,7 +147,7 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 										&& folder.exists()) {
 									return true;
 								}
-								folder.create(updateResourceFlags, true, fMonitor);
+								folder.create(updateResourceFlags, true, progressMonitor);
 								return true;
 							}
 						} else {
@@ -156,9 +156,9 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 							IResource destRes;
 							if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
 									&& (destRes = workspaceRoot.findMember(destPath)) != null) {
-								destRes.delete(updateResourceFlags, fMonitor);
+								destRes.delete(updateResourceFlags, progressMonitor);
 							}
-							proxy.requestResource().move(destPath, updateResourceFlags, fMonitor);
+							proxy.requestResource().move(destPath, updateResourceFlags, progressMonitor);
 							return false;
 						}
 					} else {
@@ -167,9 +167,9 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 						IResource destRes;
 						if ((updateModelFlags & IPackageFragmentRoot.REPLACE) != 0
 								&& (destRes = workspaceRoot.findMember(destPath)) != null) {
-							destRes.delete(updateResourceFlags, fMonitor);
+							destRes.delete(updateResourceFlags, progressMonitor);
 						}
-						proxy.requestResource().move(destPath, updateResourceFlags, fMonitor);
+						proxy.requestResource().move(destPath, updateResourceFlags, progressMonitor);
 						return false;
 					}
 				}
@@ -221,7 +221,7 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 			if (newCPIndex < newClasspath.length) {
 				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
 			}
-			project.setRawClasspath(newClasspath, fMonitor);
+			project.setRawClasspath(newClasspath, progressMonitor);
 		}
 	}
 }
