@@ -367,7 +367,7 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 		// Process resources
 		if (shouldMoveFolder) {
 			// move underlying resource
-			srcFolder.move(destPath, fForce, getSubProgressMonitor(1));
+			srcFolder.move(destPath, fForce, true /* keep history */, getSubProgressMonitor(1));
 			this.hasModifiedResource = true;
 		} else {
 			// process the leaf resources
