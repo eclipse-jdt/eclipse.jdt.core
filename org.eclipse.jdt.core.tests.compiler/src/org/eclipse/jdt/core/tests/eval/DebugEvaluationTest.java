@@ -87,7 +87,7 @@ public void compileAndDeploy(String source, String className) {
 		.append(EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY)
 		.append("\" -nowarn -g -classpath \"")
 		.append(Util.getJavaClassLibsAsString())
-		.append(";")
+		.append(File.pathSeparatorChar)
 		.append(SOURCE_DIRECTORY)
 		.append("\"");
 	org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
