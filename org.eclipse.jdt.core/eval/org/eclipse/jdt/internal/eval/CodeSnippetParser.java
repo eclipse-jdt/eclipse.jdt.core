@@ -95,7 +95,7 @@ protected void consumeClassDeclaration() {
 	/* recovery */
 	recordLastStatementIfNeeded();
 }
-protected void consumeClassHeaderName() {
+protected void consumeClassHeaderName1() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 	TypeDeclaration typeDecl;
 	if (this.nestedMethod[this.nestedType] == 0) {
@@ -178,7 +178,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		this.expressionStack[this.expressionPtr] = fr;
 	}
 }
-protected void consumeInterfaceHeaderName() {
+protected void consumeInterfaceHeaderName1() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 	TypeDeclaration typeDecl;
 	if (this.nestedMethod[this.nestedType] == 0) {

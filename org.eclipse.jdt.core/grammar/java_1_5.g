@@ -431,10 +431,14 @@ ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
 -----------------------------------------------
 -- 1.5 features : generics
 -----------------------------------------------
-ClassHeaderName ::= Modifiersopt 'class' 'Identifier' TypeParameters
-/.$putCase consumeClassHeaderNameWithTypeParameters(); $break ./
-ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
-/.$putCase consumeClassHeaderName(); $break ./
+ClassHeaderName ::= ClassHeaderName1 TypeParameters
+/.$putCase consumeTypeHeaderNameWithTypeParameters(); $break ./
+
+ClassHeaderName -> ClassHeaderName1
+/:$readableName ClassHeaderName:/
+
+ClassHeaderName1 ::= Modifiersopt 'class' 'Identifier'
+/.$putCase consumeClassHeaderName1(); $break ./
 /:$readableName ClassHeaderName:/
 
 ClassHeaderExtends ::= 'extends' ClassType
@@ -719,10 +723,14 @@ InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt
 -----------------------------------------------
 -- 1.5 features : generics
 -----------------------------------------------
-InterfaceHeaderName ::= Modifiersopt interface Identifier TypeParameters
-/.$putCase consumeInterfaceHeaderNameWithTypeParameters(); $break ./
-InterfaceHeaderName ::= Modifiersopt interface Identifier
-/.$putCase consumeInterfaceHeaderName(); $break ./
+InterfaceHeaderName ::= InterfaceHeaderName1 TypeParameters
+/.$putCase consumeTypeHeaderNameWithTypeParameters(); $break ./
+
+InterfaceHeaderName -> InterfaceHeaderName1
+/:$readableName InterfaceHeaderName:/
+
+InterfaceHeaderName1 ::= Modifiersopt interface Identifier
+/.$putCase consumeInterfaceHeaderName1(); $break ./
 /:$readableName InterfaceHeaderName:/
 
 -- This rule will be used to accept inner local interface and then report a relevant error message
@@ -1753,6 +1761,11 @@ WildcardBounds3 ::= 'super' ReferenceType3
 /:$readableName WildcardBound3:/
 /:$compliance 1.5:/
 
+TypeParameterHeader ::= Identifier
+/.$putCase consumeTypeParameterHeader(); $break ./
+/:$readableName TypeParameter:/
+/:$compliance 1.5:/
+
 TypeParameters ::= '<' TypeParameterList1
 /.$putCase consumeTypeParameters(); $break ./
 /:$readableName TypeParameters:/
@@ -1765,13 +1778,12 @@ TypeParameterList ::= TypeParameterList ',' TypeParameter
 /:$readableName TypeParameterList:/
 /:$compliance 1.5:/
 
-TypeParameter ::= Identifier
-/.$putCase consumeTypeParameter(); $break ./
+TypeParameter -> TypeParameterHeader
 /:$compliance 1.5:/
-TypeParameter ::= Identifier 'extends' ReferenceType
+TypeParameter ::= TypeParameterHeader 'extends' ReferenceType
 /.$putCase consumeTypeParameterWithExtends(); $break ./
 /:$compliance 1.5:/
-TypeParameter ::= Identifier 'extends' ReferenceType AdditionalBoundList
+TypeParameter ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList
 /.$putCase consumeTypeParameterWithExtendsAndBounds(); $break ./
 /:$readableName TypeParameter:/
 /:$compliance 1.5:/
@@ -1794,13 +1806,12 @@ TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
 /:$readableName TypeParameterList1:/
 /:$compliance 1.5:/
 
-TypeParameter1 ::= Identifier '>'
-/.$putCase consumeTypeParameter1(); $break ./
+TypeParameter1 ::= TypeParameterHeader '>'
 /:$compliance 1.5:/
-TypeParameter1 ::= Identifier 'extends' ReferenceType1
+TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType1
 /.$putCase consumeTypeParameter1WithExtends(); $break ./
 /:$compliance 1.5:/
-TypeParameter1 ::= Identifier 'extends' ReferenceType AdditionalBoundList1
+TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList1
 /.$putCase consumeTypeParameter1WithExtendsAndBounds(); $break ./
 /:$readableName TypeParameter1:/
 /:$compliance 1.5:/

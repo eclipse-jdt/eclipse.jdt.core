@@ -220,7 +220,7 @@ protected void consumeClassHeader() {
 
 	}
 }
-protected void consumeClassHeaderName() {
+protected void consumeClassHeaderName1() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
@@ -669,7 +669,7 @@ protected void consumeInterfaceHeader() {
 		interfacenameEnds, 
 		scanner.currentPosition - 1); 
 }
-protected void consumeInterfaceHeaderName() {
+protected void consumeInterfaceHeaderName1() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {

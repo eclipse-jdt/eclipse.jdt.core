@@ -1099,8 +1099,8 @@ protected void consumeClassBodyopt() {
 	popElement(K_SELECTOR_INVOCATION_TYPE);
 	super.consumeClassBodyopt();
 }
-protected void consumeClassHeaderName() {
-	super.consumeClassHeaderName();
+protected void consumeClassHeaderName1() {
+	super.consumeClassHeaderName1();
 
 	if (currentElement != null
 		&& currentToken == TokenNameIdentifier
@@ -1430,8 +1430,8 @@ protected void consumeInstanceOfExpressionWithName(int op) {
 		assistNodeParent = exp;
 	}
 }
-protected void consumeInterfaceHeaderName() {
-	super.consumeInterfaceHeaderName();
+protected void consumeInterfaceHeaderName1() {
+	super.consumeInterfaceHeaderName1();
 	
 	if (currentElement != null
 		&& currentToken == TokenNameIdentifier

@@ -1375,6 +1375,11 @@ public void test0032() {
 		"	public class X <T1 extends String, T2 extends Y {\n" + 
 		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error on token(s), misplaced construct(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2 extends Y {\n" + 
+		"	                                              ^\n" + 
+		"Y cannot be resolved to a type\n" + 
 		"----------\n";
 	String expected14ProblemeLog =
 		expected13ProblemeLog;
@@ -1385,6 +1390,11 @@ public void test0032() {
 		"	public class X <T1 extends String, T2 extends Y {\n" + 
 		"	                                              ^\n" + 
 		"Syntax error, insert \">\" to complete ReferenceType1\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T1 extends String, T2 extends Y {\n" + 
+		"	                                              ^\n" + 
+		"Y cannot be resolved to a type\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(
@@ -1454,10 +1464,15 @@ public void test0034() {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 1)\n" + 
 		"	public class X <T1 extnds String, T2> extends Y {\n" + 
+		"	                   ^^^^^^\n" + 
+		"extnds cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T1 extnds String, T2> extends Y {\n" + 
 		"	                          ^^^^^^\n" + 
 		"Syntax error on token \"String\", delete this token\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 3)\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
 		"	}\n" + 
 		"	^\n" + 
 		"Syntax error, insert \"}\" to complete ClassBody\n" + 
@@ -1471,6 +1486,11 @@ public void test0034() {
 		"	public class X <T1 extnds String, T2> extends Y {\n" + 
 		"	                   ^^^^^^\n" + 
 		"Syntax error on token \"extnds\", extends expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
+		"	public class X <T1 extnds String, T2> extends Y {\n" + 
+		"	                   ^^^^^^\n" + 
+		"extnds cannot be resolved to a type\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(
