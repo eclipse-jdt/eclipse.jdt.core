@@ -149,7 +149,8 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 * Returns the message that is relevant to the code of this status.
 	 */
 	public String getMessage() {
-		if (getException() == null) {
+		Throwable exception = getException();
+		if (exception == null) {
 			switch (getCode()) {
 				case CORE_EXCEPTION :
 					return Util.bind("status.coreException"); //$NON-NLS-1$
@@ -245,7 +246,12 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				return ""; // //$NON-NLS-1$
 			}
 		} else {
-			return getException().getMessage();
+			String message = exception.getMessage();
+			if (message != null) {
+				return message;
+			} else {
+				return exception.toString();
+			}
 		}
 	}
 	/**
