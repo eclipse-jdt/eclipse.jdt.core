@@ -590,7 +590,7 @@ public class ASTParser {
      * A successful call to this method returns all settings to their
      * default values so the object is ready to be reused.
      * </p><p>
-	 * Note that this API is under development and suggest to change without notice.
+	 * Note that this API is under development and subject to change without notice.
 	 * </p>
      * 
      * @param requestor the AST requestor that provides sources and that collects abtract syntax trees

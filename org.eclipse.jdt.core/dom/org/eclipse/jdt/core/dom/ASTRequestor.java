@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
  * <p>
  * This class is intended to be subclassed by clients.
  * </p><p>
- * Note that this API is under development and suggest to change without notice.
+ * Note that this API is under development and subject to change without notice.
  * </p>
  * 
  * @see ASTParser#createASTs(ASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
