@@ -1938,7 +1938,7 @@ public final class JavaCore extends Plugin {
 	 *    to the access restriction specifications.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
+	 *     - default:           "warning"
 	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.

@@ -51,7 +51,16 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Default severity for access restriction violations got raised to "warning".</li>
+<li>Default severity for access restriction violations got raised to "warning".
+<pre>
+* COMPILER / Reporting Forbidden Reference to Type with Restricted Access
+*    When enabled, the compiler will issue an error or a warning when referring to a type with restricted access, as defined according
+*    to the access restriction specifications.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
