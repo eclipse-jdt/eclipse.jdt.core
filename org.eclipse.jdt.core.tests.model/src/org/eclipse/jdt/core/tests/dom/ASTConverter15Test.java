@@ -3921,6 +3921,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ITypeBinding typeBinding = type.resolveBinding();
     	assertNotNull("No binding", typeBinding);
     	assertFalse("An array", typeBinding.isArray());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
+		ITypeBinding parameterType = parameterTypes[0];
+    	assertTrue("Not an array binding", parameterType.isArray());
+    	assertEquals("wrong dimension", 1, parameterType.getDimensions());
     }
     
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
@@ -3959,6 +3964,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not a simple type", type.isSimpleType());
     	checkSourceRange(type, "String", contents);
     	assertEquals("Wrong extra dimension", 1, singleVariableDeclaration.getExtraDimensions());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
+		ITypeBinding parameterType = parameterTypes[0];
+    	assertTrue("Not an array binding", parameterType.isArray());
+    	assertEquals("wrong dimension", 3, parameterType.getDimensions());		
     }
     
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84181
@@ -4285,5 +4295,47 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		IVariableBinding variableBinding2 = variableBinding.getVariableDeclaration();
 		assertTrue("Bindings are equals", variableBinding.isEqualTo(variableBinding2));
+    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
+    public void test0143() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" +
+    		"	public void bar(String[]... args){\n" +
+    		"	}\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+    	List parameters = methodDeclaration.parameters();
+    	assertEquals("Wrong size", 1, parameters.size());
+    	SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+    	assertTrue("Not a var args", singleVariableDeclaration.isVarargs());
+    	Type type = singleVariableDeclaration.getType();
+    	checkSourceRange(type, "String[]", contents);
+    	assertTrue("Not an array type", type.isArrayType());
+    	ITypeBinding typeBinding = type.resolveBinding();
+    	assertNotNull("No binding", typeBinding);
+    	assertTrue("Not an array", typeBinding.isArray());
+    	assertEquals("wrong dimensions", 1, typeBinding.getDimensions());
+    	ArrayType arrayType = (ArrayType) type;
+    	assertEquals("Wrong dimension", 1, arrayType.getDimensions());
+    	type = arrayType.getComponentType();
+    	assertTrue("Not a simple type", type.isSimpleType());
+    	checkSourceRange(type, "String", contents);
+    	assertEquals("Wrong extra dimension", 0, singleVariableDeclaration.getExtraDimensions());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
+		ITypeBinding parameterType = parameterTypes[0];
+    	assertTrue("Not an array binding", parameterType.isArray());
+    	assertEquals("wrong dimension", 2, parameterType.getDimensions());		
     }
 }
