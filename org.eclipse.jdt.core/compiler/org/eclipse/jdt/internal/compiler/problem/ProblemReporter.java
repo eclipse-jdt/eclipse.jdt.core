@@ -2433,7 +2433,23 @@ public void invalidUnaryExpression(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void invalidUsageOfEnumsDeclarations(EnumDeclaration enumDeclaration) {
+public void invalidUsageOfAnnotation(Annotation annotation) {
+	this.handle(
+		IProblem.InvalidUsageOfAnnotations,
+		NoArgument, 
+		NoArgument,
+		annotation.sourceStart,
+		annotation.sourceEnd);	
+}
+public void invalidUsageOfAnnotationDeclarations(AnnotationTypeDeclaration annotationTypeDeclaration) {
+	this.handle(
+		IProblem.InvalidUsageOfAnnotationDeclarations,
+		NoArgument, 
+		NoArgument, 
+		annotationTypeDeclaration.modifiersSourceStart,
+		annotationTypeDeclaration.sourceEnd);
+}
+public void invalidUsageOfEnumDeclarations(EnumDeclaration enumDeclaration) {
 	this.handle(
 		IProblem.InvalidUsageOfEnumDeclarations,
 		NoArgument, 

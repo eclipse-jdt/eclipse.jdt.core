@@ -963,6 +963,8 @@ public interface IProblem {
     int InvalidUsageOfVarargs = Syntax + Internal + 595;
     /** @since 3.1 */
     int InvalidUsageOfAnnotations = Syntax + Internal + 596;
+    /** @since 3.1 */
+    int InvalidUsageOfAnnotationDeclarations = Syntax + Internal + 597;
     
     /**
      * Annotation

@@ -843,7 +843,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	return element;
 }
 
-public void checkAndSetModifiers(int flag){
+protected void checkAndSetModifiers(int flag){
 	/*modify the current modifiers buffer.
 	When the startPosition of the modifiers is 0
 	it means that the modifier being parsed is the first
@@ -1109,6 +1109,10 @@ protected void consumeAnnotationTypeDeclarationHeader() {
 	annotationTypeDeclaration.javadoc = this.javadoc;
 	this.javadoc = null;	
 	pushOnAstStack(annotationTypeDeclaration);
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		this.problemReporter().invalidUsageOfAnnotationDeclarations(annotationTypeDeclaration);
+	}	
 }
 protected void consumeAnnotationTypeMemberDeclarationHeader() {
 	// AnnotationTypeMemberDeclarationHeader ::= Modifiersopt Type Identifier '(' ')'
@@ -2944,7 +2948,7 @@ protected void consumeEnumHeader() {
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		//TODO this code will be never run while 'enum' is an identifier in 1.3 scanner 
-		this.problemReporter().invalidUsageOfEnumsDeclarations(enumDeclaration);
+		this.problemReporter().invalidUsageOfEnumDeclarations(enumDeclaration);
 	}
 	
 	// recovery
@@ -3562,6 +3566,10 @@ protected void consumeMarkerAnnotation() {
 	}
 	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
 	pushOnExpressionStack(markerAnnotation);
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		this.problemReporter().invalidUsageOfAnnotation(markerAnnotation);
+	}
 }
 protected void consumeMemberValueArrayInitializer() {
 	// MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
@@ -4045,6 +4053,10 @@ protected void consumeNormalAnnotation() {
 	}
 	normalAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(normalAnnotation);
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		this.problemReporter().invalidUsageOfAnnotation(normalAnnotation);
+	}
 }
 protected void consumeOneDimLoop() {
 	// OneDimLoop ::= '[' ']'
@@ -5945,6 +5957,10 @@ protected void consumeSingleMemberAnnotation() {
 	}
 	singleMemberAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(singleMemberAnnotation);
+	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		this.problemReporter().invalidUsageOfAnnotation(singleMemberAnnotation);
+	}
 }
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
