@@ -1867,7 +1867,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, SetClasspathOperation.ReuseOutputLocation, monitor, true, true, getExpandedClasspath(true), true);
+		setRawClasspath(entries, SetClasspathOperation.ReuseOutputLocation, monitor, true, true, getResolvedClasspath(true), true);
 	}
 
 	/**
@@ -1879,7 +1879,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, outputLocation, monitor, true, true, getExpandedClasspath(true), true);
+		setRawClasspath(entries, outputLocation, monitor, true, true, getResolvedClasspath(true), true);
 	}
 
 	public void setRawClasspath(
@@ -1888,7 +1888,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 		IProgressMonitor monitor,
 		boolean canChangeResource,
 		boolean forceSave,
-		IClasspathEntry[] oldClasspath,
+		IClasspathEntry[] oldResolvedPath,
 		boolean mayChangeProjectDependencies)
 		throws JavaModelException {
 
@@ -1902,7 +1902,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 			SetClasspathOperation op =
 				new SetClasspathOperation(
 					this, 
-					oldClasspath, 
+					oldResolvedPath, 
 					newRawPath, 
 					newOutputLocation,
 					canChangeResource, 
@@ -1968,7 +1968,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 
 	public void updateClassPath(IProgressMonitor monitor, boolean canChangeResource, boolean mayChangeProjectDependencies) throws JavaModelException {
 
-		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getExpandedClasspath(true), mayChangeProjectDependencies);
+		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getResolvedClasspath(true), mayChangeProjectDependencies);
 	}
 
 	/**

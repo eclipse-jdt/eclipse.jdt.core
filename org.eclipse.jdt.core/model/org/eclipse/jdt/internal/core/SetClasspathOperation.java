@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  */
 public class SetClasspathOperation extends JavaModelOperation {
 
-	IClasspathEntry[] oldExpandedPath;
+	IClasspathEntry[] oldResolvedPath;
 	IClasspathEntry[] newRawPath;
 	boolean canChangeResource;
 	boolean forceSave;
@@ -36,7 +36,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	public SetClasspathOperation(
 		IJavaProject project,
-		IClasspathEntry[] oldExpandedPath,
+		IClasspathEntry[] oldResolvedPath,
 		IClasspathEntry[] newRawPath,
 		IPath newOutputLocation,
 		boolean canChangeResource,
@@ -44,7 +44,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		boolean mayChangeProjectDependencies) {
 
 		super(new IJavaElement[] { project });
-		this.oldExpandedPath = oldExpandedPath;
+		this.oldResolvedPath = oldResolvedPath;
 		this.newRawPath = newRawPath;
 		this.newOutputLocation = newOutputLocation;
 		this.canChangeResource = canChangeResource;
@@ -140,13 +140,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 		project.setRawClasspath0(this.newRawPath);
 
 		// resolve new path (asking for marker creation if problems)
-		IClasspathEntry[] newExpandedPath = 
-			project.getExpandedClasspath(true, this.canChangeResource);
+		IClasspathEntry[] newResolvedPath = 
+			project.getResolvedClasspath(true,  this.canChangeResource);// also update cp markers
 
-		if (this.oldExpandedPath != null) {
+		if (this.oldResolvedPath != null) {
 			generateClasspathChangeDeltas(
-				this.oldExpandedPath,
-				newExpandedPath,
+				this.oldResolvedPath,
+				newResolvedPath,
 				project.getJavaModelManager(),
 				project);
 		} else {
@@ -275,7 +275,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 			
 		IndexManager indexManager = manager.getIndexManager();
 		for (int i = 0; i < oldResolvedPath.length; i++) {
-
+			// do not notify remote project changes
+			if (oldResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) continue; 
 			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
 			if (index == -1) {
 				IPackageFragmentRoot[] pkgFragmentRoots =
@@ -315,6 +316,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 
 		for (int i = 0; i < newResolvedPath.length; i++) {
+
+			// do not notify remote project changes
+			if (newResolvedPath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) continue; 
 
 			int index = classpathContains(oldResolvedPath, newResolvedPath[i]);
 			if (index == -1) {
@@ -449,7 +453,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				try {
 					JavaProject project = (JavaProject) projects[i];
-					IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+					// consider ALL dependents (even indirect ones), since they may need to
+					// flush their respective namelookup caches (all pkg fragment roots).
+					IClasspathEntry[] classpath = project.getExpandedClasspath(true);
 					for (int j = 0, entryCount = classpath.length; j < entryCount; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
