@@ -1546,7 +1546,7 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 		}
 		SplitLine splitLine = null;
 		if (options.maxLineLength == 0
-			|| currentString.length() < options.maxLineLength
+			|| getLength(currentString, depth) < options.maxLineLength
 			|| (splitLine = split(currentString, offsetInGlobalLine)) == null) {
 
 			// depending on the type of operator, outputs new line before of after dumping it
@@ -2485,6 +2485,24 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 			mappedPositions[indexInMap] += splitDelta;
 			indexInMap++;
 		}
+	}
+	
+	private int getLength(String s, int tabDepth) {
+		int length = 0;
+		for (int i = 0; i < tabDepth; i++) {
+			length += options.tabSize;
+		}
+		for (int i = 0, max = s.length(); i < max; i++) {
+			char currentChar = s.charAt(i);
+			switch (currentChar) {
+				case '\t' :
+					length += options.tabSize;
+					break;
+				default :
+					length++;
+			}
+		}
+		return length;
 	}
 	
 	/** 
