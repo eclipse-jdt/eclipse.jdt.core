@@ -38,7 +38,7 @@ class RemoveFromIndex implements IJob {
 		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 		
 		try {
-			IIndex index = manager.getIndex(this.indexedContainer);
+			IIndex index = manager.getIndex(this.indexedContainer, true /*reuse index file*/, true /*create if none*/);
 			if (index == null)
 				return COMPLETE;
 

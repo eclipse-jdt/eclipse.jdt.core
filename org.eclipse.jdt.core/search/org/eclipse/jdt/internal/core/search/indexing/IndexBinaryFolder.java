@@ -62,7 +62,7 @@ public int hashCode() {
 		if (!this.folder.isAccessible())
 			return COMPLETE; // nothing to do
 
-		IIndex index = manager.getIndex(this.folder.getFullPath());
+		IIndex index = manager.getIndex(this.folder.getFullPath(), true /*reuse index file*/, true /*create if none*/);
 		if (index == null)
 			return COMPLETE;
 		ReadWriteMonitor monitor = manager.getMonitorFor(index);

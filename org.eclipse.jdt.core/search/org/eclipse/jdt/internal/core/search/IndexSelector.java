@@ -126,7 +126,7 @@ private void computeIndexes() {
 				continue;
 		}
 		if (this.focus == null || this.canSeeFocus(path)) {
-			IIndex index = this.indexManager.getIndex(path, false);
+			IIndex index = this.indexManager.getIndex(path, true /*reuse index file*/, false /*do not create if none*/);
 			if (index != null && indexesInScope.indexOf(index) == -1) {
 				indexesInScope.add(index);
 			}

@@ -64,7 +64,7 @@ public int hashCode() {
 		if (!project.isOpen())
 			return COMPLETE; // nothing to do
 
-		IIndex index = manager.getIndex(project.getFullPath());
+		IIndex index = manager.getIndex(project.getFullPath(), true /*reuse index file*/, true /*create if none*/);
 		if (index == null)
 			return COMPLETE;
 		ReadWriteMonitor monitor = manager.getMonitorFor(index);

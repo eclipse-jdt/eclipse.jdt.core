@@ -71,14 +71,14 @@ public int hashCode() {
 		try {
 			IPath indexedPath = this.path;
 			// if index already cached, then do not perform any check
-			IIndex index = (IIndex) manager.getIndex(indexedPath, false);
+			IIndex index = (IIndex) manager.getIndex(indexedPath, false /*do not reuse index file*/, false /*do not create if none*/);
 			if (index != null) {
 				if (JobManager.VERBOSE) 
 					JobManager.verbose("-> no indexing required (index already exists) for " + this.path); //$NON-NLS-1$
 				return COMPLETE;
 			}
 
-			index = manager.getIndex(indexedPath);
+			index = manager.getIndex(indexedPath, true /*reuse index file*/, true /*create if none*/);
 			if (index == null) {
 				if (JobManager.VERBOSE) 
 					JobManager.verbose("-> index could not be created for " + this.path); //$NON-NLS-1$

@@ -38,7 +38,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.index.IndexFactory;
+import org.eclipse.jdt.internal.core.index.impl.Index;
 import org.eclipse.jdt.internal.core.search.IndexSelector;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.Util;
@@ -62,9 +62,9 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	private static final CRC32 checksumCalculator = new CRC32();
 	private IPath javaPluginLocation = null;
 	
-	/* queue of awaiting index requests
-	 * if null, requests are fired right away, otherwise this is done with fireIndexRequests() */
-
+	/* projects to check consistency for */
+	IProject[] projectsToCheck = null;
+	
 /**
  * Before processing all jobs, need to ensure that the indexes are up to date.
  */
@@ -147,12 +147,15 @@ public void checkIndexConsistency() {
 
 		IWorkspace workspace =  ResourcesPlugin.getWorkspace();
 		if (workspace == null) return; // NB: workspace can be null if it has shut down (see http://dev.eclipse.org/bugs/show_bug.cgi?id=16175)
-		IProject[] projects = workspace.getRoot().getProjects();
-		for (int i = 0, max = projects.length; i < max; i++){
-			IProject project = projects[i];
-			// not only java project, given at startup nature may not have been set yet
-			if (project.isOpen()) { 
-				indexAll(project);
+		if (this.projectsToCheck != null){
+			IProject[] projects = this.projectsToCheck;
+			this.projectsToCheck = null;
+			for (int i = 0, max = projects.length; i < max; i++){
+				IProject project = projects[i];
+				// not only java project, given at startup nature may not have been set yet
+				if (project.isOpen()) { 
+					indexAll(project);
+				}
 			}
 		}
 	} finally {
@@ -177,33 +180,44 @@ private String computeIndexName(IPath path) {
 	} 
 }
 
-
-
 /**
- * Returns the index for a given project, if none then create an empty one.
- * Note: if there is an existing index file already, it will be reused. 
+ * Returns the index for a given project, according to the following algorithm:
+ * - if index is already in memory: answers this one back
+ * - if (reuseExistingFile) then read it and return this index and record it in memory
+ * - if (createIfMissing) then create a new empty index and record it in memory
+ * 
  * Warning: Does not check whether index is consistent (not being used)
  */
-public IIndex getIndex(IPath path) {
-	return this.getIndex(path, true);
-}
-/**
- * Returns the index for a given project, if none and asked for then create an empty one.
- * Note: if there is an existing index file already, it will be reused. 
- * Warning: Does not check whether index is consistent (not being used)
- */
-public synchronized IIndex getIndex(IPath path, boolean mustCreate) {
+public synchronized IIndex getIndex(IPath path, boolean reuseExistingFile, boolean createIfMissing) {
 	// Path is already canonical per construction
 	IIndex index = (IIndex) indexes.get(path);
 	if (index == null) {
 		try {
-			if (!mustCreate) return null;
-
-			String indexPath = computeIndexName(path);
-			index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
-			indexes.put(path, index);
-			monitors.put(index, new ReadWriteMonitor());
+			String indexPath = null;
 			
+			// index isn't cached, consider reusing an existing index file
+			if (reuseExistingFile){
+				indexPath = computeIndexName(path);
+				File indexFile = new File(indexPath);
+				if (indexFile.exists()){ // check before creating index so as to avoid creating a new empty index if file is missing
+					index = new Index(indexPath, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
+					if (index != null){
+						indexes.put(path, index);
+						monitors.put(index, new ReadWriteMonitor());
+						return index;
+					}
+				}
+			} 
+			// index wasn't found on disk, consider creating an empty new one
+			if (createIfMissing){
+				if (indexPath == null) indexPath = computeIndexName(path);
+				index = new Index(indexPath, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
+				if (index != null){
+					indexes.put(path, index);
+					monitors.put(index, new ReadWriteMonitor());
+					return index;
+				}
+			}
 		} catch (IOException e) {
 			// The file could not be created. Possible reason: the project has been deleted.
 			return null;
@@ -240,13 +254,9 @@ public void indexAll(IProject project) {
 		IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 		IJavaProject javaProject = ((JavaModel) model).getJavaProject(project);	
 		// only consider immediate libraries - each project will do the same
-		IClasspathEntry[] entries;
-		if (javaProject.isOpen()){
-			entries = javaProject.getResolvedClasspath(true);	
-		} else {
-			// if project isn't yet initialized, do not want to trigger CP initializers inside background thread 13395)
-			entries = javaProject.getRawClasspath();
-		}
+		// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
+		// will be run in the current thread.
+		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);	
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry= entries[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
@@ -294,7 +304,7 @@ public synchronized IIndex recreateIndex(IPath path) {
 			// Path is already canonical
 			String indexPath = computeIndexName(path);
 			ReadWriteMonitor monitor = (ReadWriteMonitor)monitors.remove(index);
-			index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
+			index = new Index(indexPath, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
 			index.empty();
 			indexes.put(path, index);
 			monitors.put(index, monitor);
@@ -357,6 +367,19 @@ public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFol
  */
 public void reset(){
 
+	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	if (workspace != null){
+		// force to resolve classpaths for projects to check, so as to avoid running CP variable initializers in the background thread
+		this.projectsToCheck = workspace.getRoot().getProjects();
+		for (int i = 0, max = this.projectsToCheck == null ? 0 : this.projectsToCheck.length; i < max; i++){
+			IJavaProject project = JavaCore.create(this.projectsToCheck[i]);
+			try {
+				// force to resolve CP variables before calling indexer - 19303 (indirectly through consistency check)
+				project.getResolvedClasspath(true);
+			} catch (JavaModelException e) {
+			}
+		} 
+	}
 	super.reset();
 	if (indexes != null){
 		indexes = new HashMap(5);

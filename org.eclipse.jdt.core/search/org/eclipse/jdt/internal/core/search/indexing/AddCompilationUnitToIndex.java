@@ -39,7 +39,7 @@ class AddCompilationUnitToIndex extends IndexRequest {
 
 		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 		try {
-			IIndex index = manager.getIndex(this.indexedContainer);
+			IIndex index = manager.getIndex(this.indexedContainer, true /*reuse index file*/, true /*create if none*/);
 
 			/* ensure no concurrent write access to index */
 			if (index == null)

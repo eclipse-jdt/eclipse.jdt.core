@@ -65,24 +65,24 @@ public class Index implements IIndex {
 	 * String representation of this index.
 	 */
 	private String toString;
-	public Index(File indexDirectory) throws IOException {
-		this(indexDirectory,".index"); //$NON-NLS-1$
+	public Index(File indexDirectory, boolean reuseExistingFile) throws IOException {
+		this(indexDirectory,".index", reuseExistingFile); //$NON-NLS-1$
 	}
-	public Index(File indexDirectory, String indexName) throws IOException {
+	public Index(File indexDirectory, String indexName, boolean reuseExistingFile) throws IOException {
 		super();
 		state= MERGED;
 		indexFile= new File(indexDirectory, indexName);
-		initialize();
+		initialize(reuseExistingFile);
 	}
-	public Index(String indexName) throws IOException {
-		this(indexName, null);
+	public Index(String indexName, boolean reuseExistingFile) throws IOException {
+		this(indexName, null, reuseExistingFile);
 	}
-	public Index(String indexName, String toString) throws IOException {
+	public Index(String indexName, String toString, boolean reuseExistingFile) throws IOException {
 		super();
 		state= MERGED;
 		indexFile= new File(indexName);
 		this.toString = toString;
-		initialize();
+		initialize(reuseExistingFile);
 	}
 	/**
 	 * Indexes the given document, using the appropriate indexer registered in the indexerRegistry.
@@ -187,7 +187,7 @@ public class Index implements IIndex {
 	/**
 	 * Initialises the indexGenerator.
 	 */
-	public void initialize() throws IOException {
+	public void initialize(boolean reuseExistingFile) throws IOException {
 		
 		//initialisation of addsIndex
 		addsIndex= new InMemoryIndex();
@@ -198,7 +198,7 @@ public class Index implements IIndex {
 		removedInOld= new HashMap(11);
 
 		// check whether existing index file can be read
-		if (indexFile.exists()) {
+		if (reuseExistingFile && indexFile.exists()) {
 			IndexInput mainIndexInput= new BlocksIndexInput(indexFile);
 			try {
 				mainIndexInput.open();
