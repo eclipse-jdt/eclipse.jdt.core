@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2001, 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IElementChangedListener;
@@ -524,7 +525,7 @@ public int getCachedFlags(IType type) {
  */
 public IType[] getExtendingInterfaces(IType type) {
 	try {
-		if (type.isClass()) {
+		if (!this.isInterface(type)) {
 			return new IType[] {};
 		}
 	} catch (JavaModelException npe) {
@@ -542,7 +543,7 @@ private IType[] getExtendingInterfaces0(IType interfce) {
 	while (iter.hasNext()) {
 		IType type = (IType) iter.next();
 		try {
-			if (type.isClass()) {
+			if (!this.isInterface(type)) {
 				continue;
 			}
 		} catch (JavaModelException npe) {
@@ -567,7 +568,7 @@ private IType[] getExtendingInterfaces0(IType interfce) {
  */
 public IType[] getImplementingClasses(IType type) {
 	try {
-		if (type.isClass()) {
+		if (!this.isInterface(type)) {
 			return NO_TYPE;
 		}
 	} catch (JavaModelException npe) {
@@ -586,7 +587,7 @@ private IType[] getImplementingClasses0(IType interfce) {
 	while (iter.hasNext()) {
 		IType type = (IType) iter.next();
 		try {
-			if (type.isInterface()) {
+			if (this.isInterface(type)) {
 				continue;
 			}
 		} catch (JavaModelException npe) {
@@ -634,7 +635,7 @@ public IType[] getRootInterfaces() {
  */
 public IType[] getSubclasses(IType type) {
 	try {
-		if (type.isInterface()) {
+		if (this.isInterface(type)) {
 			return NO_TYPE;
 		}
 	} catch (JavaModelException npe) {
@@ -667,7 +668,7 @@ private IType[] getSubtypesForType(IType type) {
  */
 public IType getSuperclass(IType type) {
 	try {
-		if (type.isInterface()) {
+		if (this.isInterface(type)) {
 			return null;
 		}
 		return (IType) this.classToSuperclass.get(type);
@@ -1091,6 +1092,14 @@ protected boolean isAffectedByType(IJavaElementDelta delta, IType type, boolean 
 	}
 	return false;
 } 
+private boolean isInterface(IType type) throws JavaModelException {
+	int flags = this.getCachedFlags(type);
+	if (flags == -1) {
+		return type.isInterface();
+	} else {
+		return Flags.isInterface(flags);
+	}
+}
 /**
  * Returns the java project this hierarchy was created in.
  */
