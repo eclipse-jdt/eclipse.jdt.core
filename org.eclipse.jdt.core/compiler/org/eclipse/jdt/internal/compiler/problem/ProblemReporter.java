@@ -531,7 +531,7 @@ public int computeSeverity(int problemId){
 
 		case IProblem.InexactParameterToVarargsConstructor :
 		case IProblem.InexactParameterToVarargsMethod :
-			return Warning; // TODO (philippe) need this to default to a warning this.options.getSeverity(CompilerOptions.InexactParameterToVarargs);
+			return this.options.getSeverity(CompilerOptions.InexactVarargsArgument);
 
 		/*
 		 * Javadoc syntax errors

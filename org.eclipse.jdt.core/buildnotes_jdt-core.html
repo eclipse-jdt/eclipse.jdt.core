@@ -40,6 +40,7 @@
 	</td>
   </tr>
 </table>
+
 <a name="v_516"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
@@ -50,12 +51,24 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added compiler option to diagnose inexact argument for varargs method invocations. Matching problem IDs are 
+<code>IProblem.InexactParameterToVarargsMethod</code> & <code>IProblem.InexactParameterToVarargsConstructor</code>
+<pre>
+* COMPILER / Reporting Inexact Argument for Varargs Method/Constructor Invocation
+*    When enabled, the compiler will issue an error or a warning whenever a varargs method/constructor is invoked with an inexact 
+*    argument (e.g. Class.getMethod(String name, Class ... args )  invoked with arguments ("foo", null))
+*    with inexact type match.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.inexactVarargsArgument"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76524">76524</a>
 need a isVarargs() method on IMethodBinding
-
+	 
 <a name="v_515"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>

@@ -237,7 +237,7 @@ public class VarargTest extends AbstractComparisonTest {
 			},
 			"");
 	}
-
+	// TODO (kent) split in smaller test cases
 	public void test006() { // array dimension test compatibility with Object
 		this.runNegativeTest(
 			new String[] {
@@ -291,7 +291,7 @@ public class VarargTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	Y.byte2(null);\n" + 
 			"	^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method byte2(byte[][]) from the type Y\n" + 
+			"Inexact argument for the varargs method byte2(byte[][]) from the type Y\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	Y.byte2((byte) 1);\n" + 
@@ -306,32 +306,32 @@ public class VarargTest extends AbstractComparisonTest {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Y.object(null);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object(Object[]) from the type Y\n" + 
+			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 11)\n" + 
 			"	Y.object(new byte[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object(Object[]) from the type Y\n" + 
+			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 12)\n" + 
 			"	Y.object(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object(Object[]) from the type Y\n" + 
+			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 15)\n" + 
 			"	Y.object(new String[] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object(Object[]) from the type Y\n" + 
+			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 16)\n" + 
 			"	Y.object(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object(Object[]) from the type Y\n" + 
+			"Inexact argument for the varargs method object(Object[]) from the type Y\n" + 
 			"----------\n" + 
 			"9. WARNING in X.java (at line 18)\n" + 
 			"	Y.object2(null);\n" + 
 			"	^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object2(Object[][]) from the type Y\n" + 
+			"Inexact argument for the varargs method object2(Object[][]) from the type Y\n" + 
 			"----------\n" + 
 			"10. ERROR in X.java (at line 19)\n" + 
 			"	Y.object2((byte) 1);\n" + 
@@ -346,7 +346,7 @@ public class VarargTest extends AbstractComparisonTest {
 			"12. WARNING in X.java (at line 22)\n" + 
 			"	Y.object2(new byte[][][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object2(Object[][]) from the type Y\n" + 
+			"Inexact argument for the varargs method object2(Object[][]) from the type Y\n" + 
 			"----------\n" + 
 			"13. ERROR in X.java (at line 24)\n" + 
 			"	Y.object2(new String());\n" + 
@@ -356,12 +356,12 @@ public class VarargTest extends AbstractComparisonTest {
 			"14. WARNING in X.java (at line 26)\n" + 
 			"	Y.object2(new String[][] {});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method object2(Object[][]) from the type Y\n" + 
+			"Inexact argument for the varargs method object2(Object[][]) from the type Y\n" + 
 			"----------\n" + 
 			"15. WARNING in X.java (at line 28)\n" + 
 			"	Y.string(null);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg method string(String[]) from the type Y\n" + 
+			"Inexact argument for the varargs method string(String[]) from the type Y\n" + 
 			"----------\n" + 
 			"16. ERROR in X.java (at line 31)\n" + 
 			"	Y.string(new String[][] {});\n" + 
@@ -406,12 +406,14 @@ public class VarargTest extends AbstractComparisonTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	y = new Y(true, null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg constructor Y(boolean, Object[])\n" + 
+			"Inexact argument for the vararg constructor Y(boolean, Object[])\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	y = new Y(\'i\', null);\n" + 
 			"	    ^^^^^^^^^^^^^^^^\n" + 
-			"Inexact parameter for the vararg constructor Y(char, int[][])\n" + 
+			"Inexact argument for the vararg constructor Y(char, int[][])\n" + 
 			"----------\n");
 	}
+	// check overloading varargs method with non varargs one
+	// check inexact argument for explicit constructor call scenario
 }

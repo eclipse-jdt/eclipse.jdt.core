@@ -399,6 +399,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_INEXACT_VARARGS_ARGUMENT = PLUGIN_ID + ".compiler.problem.inexactVarargsArgument"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
@@ -1793,6 +1799,14 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning whenever a serializable class is missing a local declaration 
 	 *    of a serialVersionUID field. This field must be declared as static final and be of type long.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingSerialVersion"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 * 
+	 * COMPILER / Reporting Inexact Argument for Varargs Method/Constructor Invocation
+	 *    When enabled, the compiler will issue an error or a warning whenever a varargs method/constructor is invoked with an inexact 
+	 *    argument (e.g. Class.getMethod(String name, Class ... args )  invoked with arguments ("foo", null))
+	 *    with inexact type match.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.inexactVarargsArgument"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 

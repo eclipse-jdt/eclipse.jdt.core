@@ -2833,6 +2833,77 @@ public void test087() {
 			"----------\n"
 		);
 }
+public void test088() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"import java.util.Date;\n" + 
+			"import java.lang.reflect.*;\n" + 
+			"public class X extends Date implements Runnable{\n" + 
+			" \n" + 
+			" Integer w = new Integer(90);\n" + 
+			" protected double x = 91.1;\n" + 
+			" public long y = 92;\n" + 
+			" static public Boolean z = new Boolean(true); \n" + 
+			" public class X_inner {\n" + 
+			"  public X_inner() {\n" + 
+			"   this.super();\n" + 
+			"   System.out.println(\"....\");\n" + 
+			"  }\n" + 
+			" }\n" + 
+			" X_inner a = new X_inner();\n" + 
+			" public interface X_interface {\n" + 
+			"   public void f(); \n" + 
+			" }\n" + 
+			" static {\n" + 
+			"  System.out.println(\"Static initializer\");\n" + 
+			" }\n" + 
+			" public X() { } \n" + 
+			" public X(int a1,int b1) { } \n" + 
+			" private void a() { System.out.println(\"A\");} \n" + 
+			" protected void b() { System.out.println(\"B\");} \n" + 
+			" public void c() { System.out.println(\"C\");} \n" + 
+			" static public int d() {System.out.println(\"Static D\");return -1;} \n" + 
+			" public static void main(String args[]) {\n" + 
+			"  X  b = new X();\n" + 
+			"  Class c = b.getClass();\n" + 
+			"  Class _getClasses [] = X.class.getClasses(); \n" + 
+			"//  System.out.println(_getClasses[0].toString());\n" + 
+			"//  System.out.println(_getClasses[1].toString());\n" + 
+			"  if (_getClasses.length == 0) {System.out.println(\"FAILED\");};\n" + 
+			"  Constructor _getConstructors[] = c.getConstructors(); \n" + 
+			"  try {\n" + 
+			"   Field _getField = c.getField(\"y\");\n" + 
+			"   Method _getMethod = c.getMethod(\"d\",null);\n" + 
+			" \n" + 
+			"   Boolean b_z = X.z; \n" + 
+			"  }\n" + 
+			"  catch (NoSuchFieldException e) { System.out.println(\"NoSuchFieldException\");}\n" + 
+			"  catch (NoSuchMethodException e) { System.out.println(\"NoSuchMethodException\");};\n" + 
+			" } \n" + 
+			" public void run() {System.out.println(\"RUN\");} \n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 4)\n" + 
+		"	public class X extends Date implements Runnable{\n" + 
+		"	             ^\n" + 
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 12)\n" + 
+		"	this.super();\n" + 
+		"	^^^^\n" + 
+		"Illegal enclosing instance specification for type Object\n" + 
+		"----------\n" + 
+		"3. WARNING in p\\X.java (at line 25)\n" + 
+		"	private void a() { System.out.println(\"A\");} \n" + 
+		"	             ^^^\n" + 
+		"The private method a() from the type X is never used locally\n" + 
+		"----------\n"
+	);
+}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
