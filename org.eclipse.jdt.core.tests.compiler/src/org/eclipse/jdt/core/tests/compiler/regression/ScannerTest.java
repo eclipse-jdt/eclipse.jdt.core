@@ -439,4 +439,22 @@ public class ScannerTest extends AbstractRegressionTest {
 		}
 		assertEquals("Wrong number of tokens", 1, counter);
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78905 
+	 */
+	public void test023() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_5);
+		char[] source = "0x.p-2".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
+			}
+			assertTrue(false);
+		} catch (InvalidInputException e) {
+			assertTrue(true);
+		}
+	}
+
 }

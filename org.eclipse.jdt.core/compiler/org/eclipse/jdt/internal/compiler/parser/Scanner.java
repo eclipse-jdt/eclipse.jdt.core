@@ -3062,7 +3062,13 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 				}
 				// hexadeciman floating point literal
 				// read decimal part
+				boolean hasNoDigitsBeforeDot = end == start;
+				start = this.currentPosition;
 				while (getNextCharAsDigit(16)){/*empty*/}
+				end = this.currentPosition;
+				if (hasNoDigitsBeforeDot && end == start) {
+					throw new InvalidInputException(INVALID_HEXA);
+				}
 				
 				if (getNextChar('p', 'P') >= 0) { // consume next character
 					this.unicodeAsBackSlash = false;
