@@ -7,12 +7,13 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.*;
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.core.search.indexing.*;
+
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.newbuilder.JavaBuilder;
-import org.eclipse.jdt.internal.core.search.indexing.*;
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;
@@ -817,6 +818,8 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
 					if (in.readBoolean())
 						return JavaBuilder.readState(in);
+					else if (JavaBuilder.DEBUG)
+						System.out.println("Saved state thinks last build failed for " + project.getName()); //$NON-NLS-1$
 				} finally {
 					in.close();
 				}
@@ -1022,7 +1025,7 @@ public void rollback(ISaveContext context){
 					out.writeBoolean(false);
 				} else {
 					out.writeBoolean(true);
-					org.eclipse.jdt.internal.core.newbuilder.JavaBuilder.writeState(info.savedState, out);
+					JavaBuilder.writeState(info.savedState, out);
 				}
 			} finally {
 				out.close();
