@@ -143,7 +143,7 @@ public Object getWrappedConstantValue() {
 					this.wrappedConstantValue = new Double(fieldConstant.doubleValue());
 					break;
 				case T_boolean :
-					this.wrappedConstantValue = new Boolean(fieldConstant.booleanValue());
+					this.wrappedConstantValue = Boolean.valueOf(fieldConstant.booleanValue());
 					break;
 				case T_long :
 					this.wrappedConstantValue = new Long(fieldConstant.longValue());

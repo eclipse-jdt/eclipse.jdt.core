@@ -402,7 +402,7 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 				new Object[] { 
 					task.getMessage(),
 					new Integer(priority),
-					new Boolean(false),
+					Boolean.valueOf(false),
 					new Integer(task.getSourceStart()),
 					new Integer(task.getSourceEnd() + 1),
 					new Integer(task.getSourceLineNumber()),
