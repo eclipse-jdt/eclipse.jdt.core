@@ -226,6 +226,16 @@ public final class Signature {
 	
 	private static final char[] NO_CHAR = new char[0];
 	private static final char[][] NO_CHAR_CHAR = new char[0][];
+	private static final char[] BOOLEAN = {'b', 'o', 'o', 'l', 'e', 'a', 'n'};
+	private static final char[] BYTE = {'b', 'y', 't', 'e'};
+	private static final char[] CHAR = {'c', 'h', 'a', 'r'};
+	private static final char[] DOUBLE = {'d', 'o', 'u', 'b', 'l', 'e'};
+	private static final char[] FLOAT = {'f', 'l', 'o', 'a', 't'};
+	private static final char[] INT = {'i', 'n', 't'};
+	private static final char[] LONG = {'l', 'o', 'n', 'g'};
+	private static final char[] SHORT = {'s', 'h', 'o', 'r', 't'};
+	private static final char[] VOID = {'v', 'o', 'i', 'd'};
+	
 	
 /**
  * Not instantiable.
@@ -244,6 +254,82 @@ private static String arrayIfy(String typeName, int arrayCount) {
 		sb.append("[]"); //$NON-NLS-1$
 	}
 	return sb.toString();
+}
+private static long copyType(char[] signature, int sigPos, char[] dest, int index, boolean fullyQualifyTypeNames) {
+	int arrayCount = 0;
+	loop: while (true) {
+		switch (signature[sigPos++]) {
+			case C_ARRAY :
+				arrayCount++;
+				break;
+			case C_BOOLEAN :
+				int length = BOOLEAN.length;
+				System.arraycopy(BOOLEAN, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_BYTE :
+				length = BYTE.length;
+				System.arraycopy(BYTE, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_CHAR :
+				length = CHAR.length;
+				System.arraycopy(CHAR, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_DOUBLE :
+				length = DOUBLE.length;
+				System.arraycopy(DOUBLE, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_FLOAT :
+				length = FLOAT.length;
+				System.arraycopy(FLOAT, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_INT :
+				length = INT.length;
+				System.arraycopy(INT, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_LONG :
+				length = LONG.length;
+				System.arraycopy(LONG, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_SHORT :
+				length = SHORT.length;
+				System.arraycopy(SHORT, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_VOID :
+				length = VOID.length;
+				System.arraycopy(VOID, 0, dest, index, length);
+				index += length;
+				break loop;
+			case C_RESOLVED :
+			case C_UNRESOLVED :
+				int end = CharOperation.indexOf(C_SEMICOLON, signature, sigPos);
+				if (end == -1) throw new IllegalArgumentException();
+				int start;
+				if (fullyQualifyTypeNames) {
+					start = sigPos;
+				} else {
+					start = CharOperation.lastIndexOf(C_DOT, signature, sigPos, end)+1;
+					if (start == 0) start = sigPos;
+				} 
+				length = end-start;
+				System.arraycopy(signature, start, dest, index, length);
+				sigPos = end+1;
+				index += length;
+				break loop;
+		}
+	}
+	while (arrayCount-- > 0) {
+		dest[index++] = '[';
+		dest[index++] = ']';
+	}
+	return (((long) index) << 32) + sigPos;
 }
 /**
  * Creates a new type signature with the given amount of array nesting added 
@@ -925,53 +1011,49 @@ public static String[] getSimpleNames(String name) {
  * @since 2.0
  */
 public static char[] toCharArray(char[] methodSignature, char[] methodName, char[][] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType) {
-	int length = parameterNames.length;
-	String[] parameters = new String[length];
-	for (int i=0;i<length;i++) {
-		parameters[i] = new String(parameterNames[i]);
-	}
-	return toString(new String(methodSignature), new String(methodName), parameters, fullyQualifyTypeNames, includeReturnType).toCharArray();
-	/*
-	
 	try {
+		int firstParen = CharOperation.indexOf(C_PARAM_START, methodSignature);
+		if (firstParen == -1) throw new IllegalArgumentException();
+		
 		int sigLength = methodSignature.length;
 		
 		// compute result length
 		
 		// method signature
+		int paramCount = 0;
 		int lastParen = -1;
 		int resultLength = 0;
-		signature: for (int i = 0; i < sigLength; i++) {
+		signature: for (int i = firstParen; i < sigLength; i++) {
 			switch (methodSignature[i]) {
 				case C_ARRAY :
-					resultLength += 2;
-					break;
+					resultLength += 2; // []
+					continue signature;
 				case C_BOOLEAN :
-					resultLength += 7; // boolean
+					resultLength += BOOLEAN.length;
 					break;
 				case C_BYTE :
-					resultLength += 4; // byte
+					resultLength += BYTE.length;
 					break;
 				case C_CHAR :
-					resultLength += 4; // char
+					resultLength += CHAR.length;
 					break;
 				case C_DOUBLE :
-					resultLength += 6; // double
+					resultLength += DOUBLE.length;
 					break;
 				case C_FLOAT :
-					resultLength += 5; // float
+					resultLength += FLOAT.length;
 					break;
 				case C_INT :
-					resultLength += 3; // int
+					resultLength += INT.length;
 					break;
 				case C_LONG :
-					resultLength += 4; // long
+					resultLength += LONG.length;
 					break;
 				case C_SHORT :
-					resultLength += 5; // short
+					resultLength += SHORT.length;
 					break;
 				case C_VOID :
-					resultLength += 4; // void
+					resultLength += VOID.length;
 					break;
 				case C_RESOLVED :
 				case C_UNRESOLVED :
@@ -981,21 +1063,26 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 					if (fullyQualifyTypeNames) {
 						start = i+1;
 					} else {
-						start = CharOperation.lastIndexOf(C_DOT, methodSignature, i, end);
+						start = CharOperation.lastIndexOf(C_DOT, methodSignature, i, end)+1;
 						if (start == -1) start = i+1;
 					} 
 					resultLength += end-start;
 					i = end;
 					break;
 				case C_PARAM_START :
-					resultLength++; // space for "("
-					break;
+					// add space for "("
+					resultLength++;
+					continue signature;
 				case C_PARAM_END :
 					lastParen = i;
 					if (includeReturnType) {
-						// remove space for ", " that was added with last parameter and add space for ") "
-						// -> noop
-						break;
+						// remove space for ", " that was added with last parameter and remove space that is going to be added for ", " after return type 
+						// and add space for ") "
+						resultLength -= 2;
+						
+						// decrement param count because it is going to be added for return type
+						paramCount--;
+						continue signature;
 					} else {
 						// remove space for ", " that was added with last parameter and add space for ")"
 						resultLength--;
@@ -1005,184 +1092,64 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 					throw new IllegalArgumentException();
 			}
 			resultLength += 2; // add space for ", "
+			paramCount++;
 		}
 		
 		// parameter names
-		int parameterNamesLength = parameterNames.length;
+		int parameterNamesLength = parameterNames == null ? 0 : parameterNames.length;
 		for (int i = 0; i <parameterNamesLength; i++) {
 			resultLength += parameterNames[i].length + 1; // parameter name + space
 		}
-		// remove last space
-		if (parameterNamesLength > 0) resultLength--;
+		
+		// selector
+		int selectorLength = methodName == null ? 0 : methodName.length;
+		resultLength += selectorLength;
 		
 		// create resulting char array
 		char[] result = new char[resultLength];
 		
 		// returned type
+		int index = 0;
 		if (includeReturnType) {
-			int arrayCount = 0;
-			for (int i = lastParen+1; i < sigLength; i++) {
-				switch (methodSignature[i]) {
-					case C_ARRAY :
-						arrayCount++;
-						break;
-					case C_BOOLEAN :
-						resultLength += 7; // boolean
-						break;
-					case C_BYTE :
-						resultLength += 4; // byte
-						break;
-					case C_CHAR :
-						resultLength += 4; // char
-						break;
-					case C_DOUBLE :
-						resultLength += 6; // double
-						break;
-					case C_FLOAT :
-						resultLength += 5; // float
-						break;
-					case C_INT :
-						resultLength += 3; // int
-						break;
-					case C_LONG :
-						resultLength += 4; // long
-						break;
-					case C_SHORT :
-						resultLength += 5; // short
-						break;
-					case C_VOID :
-						resultLength += 4; // void
-						break;
-					case C_RESOLVED :
-					case C_UNRESOLVED :
-						int end = CharOperation.indexOf(C_SEMICOLON, methodSignature, i);
-						if (end == -1) throw new IllegalArgumentException();
-						int start;
-						if (fullyQualifyTypeNames) {
-							start = i+1;
-						} else {
-							start = CharOperation.lastIndexOf(C_DOT, methodSignature, i, end);
-							if (start == -1) start = i+1;
-						} 
-						resultLength += end-start;
-						i = end;
-						break;
-				}
-			}
-			
+			long pos = copyType(methodSignature, lastParen+1, result, index, fullyQualifyTypeNames);
+			index = (int) (pos >>> 32);
+			result[index++] = ' ';
 		}
-	
-		int count = getParameterCount(methodSignature);
-		char[][] result = new char[count][];
-		if (count == 0)
-			return result;
-		int i = CharOperation.indexOf(C_PARAM_START, methodSignature) + 1;
-		count = 0;
-		int start = i;
-		for (;;) {
-			char c = methodSignature[i++];
-			switch (c) {
-				case C_ARRAY :
-					// array depth is i - start;
-					break;
-				case C_BOOLEAN :
-				case C_BYTE :
-				case C_CHAR :
-				case C_DOUBLE :
-				case C_FLOAT :
-				case C_INT :
-				case C_LONG :
-				case C_SHORT :
-				case C_VOID :
-					// common case of base types
-					if (i - start == 1) {
-						switch (c) {
-							case C_BOOLEAN :
-								result[count++] = new char[] {C_BOOLEAN};
-								break;
-							case C_BYTE :
-								result[count++] = new char[] {C_BYTE};
-								break;
-							case C_CHAR :
-								result[count++] = new char[] {C_CHAR};
-								break;
-							case C_DOUBLE :
-								result[count++] = new char[] {C_DOUBLE};
-								break;
-							case C_FLOAT :
-								result[count++] = new char[] {C_FLOAT};
-								break;
-							case C_INT :
-								result[count++] = new char[] {C_INT};
-								break;
-							case C_LONG :
-								result[count++] = new char[] {C_LONG};
-								break;
-							case C_SHORT :
-								result[count++] = new char[] {C_SHORT};
-								break;
-							case C_VOID :
-								result[count++] = new char[] {C_VOID};
-								break;
-						}
-					} else {
-						result[count++] = CharOperation.subarray(methodSignature, start, i);
-					}
-					start = i;
-					break;
-				case C_RESOLVED :
-				case C_UNRESOLVED :
-					i = CharOperation.indexOf(C_SEMICOLON, methodSignature, i) + 1;
-					if (i == 0)
-						throw new IllegalArgumentException();
-					result[count++] = CharOperation.subarray(methodSignature, start, i);
-					start = i;
-					break;
-				case C_PARAM_END:
-					return result;
-				default :
-					throw new IllegalArgumentException();
+		
+		// selector
+		if (methodName != null) {
+			System.arraycopy(methodName, 0, result, index, selectorLength);
+			index += selectorLength;
+		}
+		
+		// parameters
+		result[index++] = C_PARAM_START;
+		int sigPos = firstParen+1;
+		for (int i = 0; i < paramCount; i++) {
+			long pos = copyType(methodSignature, sigPos, result, index, fullyQualifyTypeNames);
+			index = (int) (pos >>> 32);
+			sigPos = (int)pos;
+			if (parameterNames != null) {
+				result[index++] = ' ';
+				char[] parameterName = parameterNames[i];
+				int paramLength = parameterName.length;
+				System.arraycopy(parameterName, 0, result, index, paramLength);
+				index += paramLength;
+			}
+			if (i != paramCount-1) {
+				result[index++] = ',';
+				result[index++] = ' ';
 			}
 		}
-	
-	StringBuffer sb = new StringBuffer();
-	String[] paramTypes = getParameterTypes(methodSignature);
-	if (includeReturnType) {
-		String returnType = getReturnType(methodSignature);
-		if (returnType.length() != 0) {
-			returnType = toString(returnType);
-			if (!fullyQualifyTypeNames) {
-				int lastDot = returnType.lastIndexOf(C_DOT);
-				if (lastDot != -1) {
-					returnType = returnType.substring(lastDot + 1);
-				}
-			}
-			sb.append(returnType);
-			sb.append(' ');
+		if (sigPos >= sigLength) {
+			throw new IllegalArgumentException(); // should be on last paren
 		}
-	}
-	if (methodName != null)
-		sb.append(methodName);
-	sb.append(C_PARAM_START);
-	for (int i = 0; i < paramTypes.length; ++i) {
-		if (i != 0)
-			sb.append(", "); //$NON-NLS-1$
-		String readableParamType = toString(paramTypes[i]);
-		if (!fullyQualifyTypeNames) {
-			int lastDot = readableParamType.lastIndexOf(C_DOT);
-			if (lastDot != -1) {
-				readableParamType = readableParamType.substring(lastDot + 1);
-			}
-		}
-		sb.append(readableParamType);
-		if (parameterNames != null) {
-			sb.append(' ');
-			sb.append(parameterNames[i]);
-		}
-	}
-	sb.append(C_PARAM_END);
-	return sb.toString();
-	*/
+		result[index++] = C_PARAM_END;
+		
+		return result;
+	} catch (ArrayIndexOutOfBoundsException e) {
+		throw new IllegalArgumentException();
+	}		
 }
 /**
  * Converts the given type signature to a readable string. The signature is expected to
@@ -1379,42 +1346,16 @@ public static String toString(String signature) throws IllegalArgumentException 
  * @return the string representation of the method signature
  */
 public static String toString(String methodSignature, String methodName, String[] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType) {
-	StringBuffer sb = new StringBuffer();
-	String[] paramTypes = getParameterTypes(methodSignature);
-	if (includeReturnType) {
-		String returnType = getReturnType(methodSignature);
-		if (returnType.length() != 0) {
-			returnType = toString(returnType);
-			if (!fullyQualifyTypeNames) {
-				int lastDot = returnType.lastIndexOf(C_DOT);
-				if (lastDot != -1) {
-					returnType = returnType.substring(lastDot + 1);
-				}
-			}
-			sb.append(returnType);
-			sb.append(' ');
+	char[][] params;
+	if (parameterNames == null) {
+		params = null;
+	} else {
+		int paramLength = parameterNames.length;
+		params = new char[paramLength][];
+		for (int i = 0; i < paramLength; i++) {
+			params[i] = parameterNames[i].toCharArray();
 		}
 	}
-	if (methodName != null)
-		sb.append(methodName);
-	sb.append(C_PARAM_START);
-	for (int i = 0; i < paramTypes.length; ++i) {
-		if (i != 0)
-			sb.append(", "); //$NON-NLS-1$
-		String readableParamType = toString(paramTypes[i]);
-		if (!fullyQualifyTypeNames) {
-			int lastDot = readableParamType.lastIndexOf(C_DOT);
-			if (lastDot != -1) {
-				readableParamType = readableParamType.substring(lastDot + 1);
-			}
-		}
-		sb.append(readableParamType);
-		if (parameterNames != null) {
-			sb.append(' ');
-			sb.append(parameterNames[i]);
-		}
-	}
-	sb.append(C_PARAM_END);
-	return sb.toString();
+	return new String(toCharArray(methodSignature.toCharArray(), methodName == null ? null : methodName.toCharArray(), params, fullyQualifyTypeNames, includeReturnType));
 }
 }
