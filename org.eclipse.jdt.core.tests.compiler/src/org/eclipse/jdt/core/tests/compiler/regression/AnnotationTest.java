@@ -2137,4 +2137,43 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"The value for annotation attribute I.ids must be a constant expression\n" + 
 			"----------\n");
 	}	
+
+	// check annotation type cannot override any supertype method
+	public void test071() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"	int hashCode();\n" + 
+				"	Object clone();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(hashCode = 0) public void foo(){\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int hashCode();\n" + 
+			"	    ^^^^^^^^\n" + 
+			"The annotation type I cannot override the method Object.hashCode()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	Object clone();\n" + 
+			"	^^^^^^\n" + 
+			"Invalid type Object for the annotation attribute I.clone; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	Object clone();\n" + 
+			"	       ^^^^^\n" + 
+			"The annotation type I cannot override the method Object.clone()\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	@I(hashCode = 0) public void foo(){\n" + 
+			"	^^\n" + 
+			"The annotation @I must define the attribute clone\n" + 
+			"----------\n");
+	}	
+
 }

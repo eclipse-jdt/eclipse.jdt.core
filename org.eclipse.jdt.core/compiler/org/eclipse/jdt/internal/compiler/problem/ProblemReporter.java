@@ -135,6 +135,23 @@ public void annotationCircularity(TypeBinding sourceType, TypeBinding otherType,
 			reference.sourceStart,
 			reference.sourceEnd);
 }
+public void annotationCannotOverrideMethod(MethodBinding overrideMethod, MethodBinding inheritedMethod) {
+	ASTNode location = overrideMethod.sourceMethod();
+	this.handle(
+		IProblem.AnnotationCannotOverrideMethod,
+		new String[] {
+				new String(overrideMethod.declaringClass.readableName()),
+				new String(inheritedMethod.declaringClass.readableName()),
+				new String(inheritedMethod.selector), 
+				typesAsString(inheritedMethod.isVarargs(), inheritedMethod.parameters, false)},
+		new String[] {
+				new String(overrideMethod.declaringClass.shortReadableName()),
+				new String(inheritedMethod.declaringClass.shortReadableName()),
+				new String(inheritedMethod.selector), 
+				typesAsString(inheritedMethod.isVarargs(), inheritedMethod.parameters, true)},
+		location.sourceStart,
+		location.sourceEnd);	
+}
 public void annotationFieldNeedConstantInitialization(FieldDeclaration fieldDecl) {
 	String str = new String(fieldDecl.name);
 	this.handle(

@@ -91,6 +91,7 @@ void checkAbstractMethod(MethodBinding abstractMethod) {
 	}
 }
 void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
+	boolean isAnnotationMember = this.type.isAnnotationType();
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
 		if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
@@ -105,6 +106,11 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 		}
 
+		if (isAnnotationMember) {
+			// annotation cannot override any method
+			problemReporter().annotationCannotOverrideMethod(currentMethod, inheritedMethod);
+			continue nextMethod;
+		}		
 		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
 			problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 		} else {

@@ -995,6 +995,8 @@ public interface IProblem {
 	int AnnotationFieldNeedConstantInitialization = Internal + 614;
 	/** @since 3.1 */
 	int IllegalModifierForAnnotationField = Internal + 615;
+	/** @since 3.1 */
+	int AnnotationCannotOverrideMethod = MethodRelated + 616;
 
 	/**
 	 * Corrupted binaries
