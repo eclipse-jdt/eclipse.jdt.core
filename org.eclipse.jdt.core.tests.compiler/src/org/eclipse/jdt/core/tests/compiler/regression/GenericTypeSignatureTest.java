@@ -18,7 +18,6 @@ import java.io.InputStreamReader;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -71,12 +70,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
 			return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
 		} else {
-			if (true) {
-				return setupSuite(testClass());
-			}
-			TestSuite suite = new TestSuite(testClass().getName());
-			suite.addTest(new GenericTypeSignatureTest("test004"));
-			return suite;
+			return setupSuite(testClass());
 		}
 	}
 
