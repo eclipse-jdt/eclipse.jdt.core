@@ -230,6 +230,9 @@ public static IJavaSearchScope createWorkspaceScope() {
  * <code>search(ws,"run()",METHOD,REFERENCES,col)</code>
  * searchs for all references to the method <code>run</code>.
  *
+ * Note that by default the pattern will be case insensitive. For specifying case s
+ * sensitive search, use <code>search(workspace, createSearchPattern(patternString, searchFor, limitTo, true), scope, resultCollector);</code>
+ * 
  * @param workspace the workspace
  * @param pattern the pattern to be searched for
  * @param searchFor a hint what kind of Java element the string pattern represents.
@@ -255,7 +258,7 @@ public static IJavaSearchScope createWorkspaceScope() {
  */
 public void search(IWorkspace workspace, String patternString, int searchFor, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 
-	search(workspace, createSearchPattern(patternString, searchFor, limitTo, true), scope, resultCollector);
+	search(workspace, createSearchPattern(patternString, searchFor, limitTo, false), scope, resultCollector);
 }
 /**
  * Searches for the given Java element.
