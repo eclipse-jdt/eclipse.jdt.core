@@ -269,6 +269,24 @@ public void test010() {
 		"----------\n");
 }
 
+public void test011() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Object & Comparable<? super T>> {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<Foo>();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new X<Foo>();\n" + 
+		"	      ^^^\n" + 
+		"Foo cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }

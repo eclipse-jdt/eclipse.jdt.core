@@ -83,7 +83,8 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		for (int j = 0; j < argLength; j++) {
-		    argTypes[j] = this.typeArguments[j].resolveType(scope);
+		    if ((argTypes[j] = this.typeArguments[j].resolveType(scope)) == null)
+		    	return null;
 		}
 		if (typeVariables == NoTypeVariables) { // check generic
 				scope.problemReporter().nonGenericTypeCannotBeParameterized(this, currentType, argTypes);
