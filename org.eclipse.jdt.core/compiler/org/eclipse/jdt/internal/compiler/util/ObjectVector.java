@@ -40,10 +40,21 @@ public final class ObjectVector {
 	/**
 	 * Identity check
 	 */
-	public boolean contains(Object element) {
+	public boolean containsIdentical(Object element) {
 
 		for (int i = this.size; --i >= 0;)
 			if (element == this.elements[i])
+				return true;
+		return false;
+	}
+
+	/**
+	 * Identity check
+	 */
+	public boolean contains(Object element) {
+
+		for (int i = this.size; --i >= 0;)
+			if (element.equals(this.elements[i]))
 				return true;
 		return false;
 	}
@@ -61,7 +72,7 @@ public final class ObjectVector {
 	public Object find(Object element) {
 
 		for (int i = this.size; --i >= 0;)
-			if (element == this.elements[i])
+			if (element.equals(this.elements[i]))
 				return element;
 		return null;
 	}
@@ -70,7 +81,7 @@ public final class ObjectVector {
 
 		// assumes only one occurrence of the element exists
 		for (int i = this.size; --i >= 0;)
-			if (element == this.elements[i]) {
+			if (element.equals(this.elements[i])) {
 				// shift the remaining elements down one spot
 				System.arraycopy(this.elements, i + 1, this.elements, i, --this.size - i);
 				this.elements[this.size] = null;

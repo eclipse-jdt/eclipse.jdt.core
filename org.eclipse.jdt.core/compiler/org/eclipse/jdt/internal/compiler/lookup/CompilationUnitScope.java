@@ -37,7 +37,7 @@ public void addNamespaceReference(PackageBinding packageBinding) {
 	if (namespaceDependencies == null) return; // we're not recording dependencies
 
 	if (packageBinding.isValidBinding()) {
-		if (!namespaceDependencies.contains(packageBinding))
+		if (!namespaceDependencies.containsIdentical(packageBinding))
 			namespaceDependencies.add(packageBinding);
 	} else {
 		for (int i = namespaceDependencies.size; --i >= 0;) {
@@ -55,7 +55,7 @@ public void addTypeReference(TypeBinding type) {
 		type = ((ArrayBinding) type).leafComponentType;
 	if (!type.isBaseType()) {
 		ReferenceBinding actualType = (ReferenceBinding) type;
-		if (!typeDependencies.contains(actualType))
+		if (!typeDependencies.containsIdentical(actualType))
 			typeDependencies.add(actualType);
 	}
 }

@@ -10,6 +10,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.util.*;
@@ -1022,20 +1023,24 @@ public class JavaProject
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError)	throws JavaModelException {
 
-		Vector accumulatedEntries = new Vector();		
-		computeExpandedClasspath(false, ignoreUnresolvedVariable, generateMarkerOnError, new Vector(), accumulatedEntries);
+		ObjectVector accumulatedEntries = new ObjectVector();		
+		computeExpandedClasspath(this, ignoreUnresolvedVariable, generateMarkerOnError, new ObjectVector(), accumulatedEntries);
 		
 		IClasspathEntry[] result = new IClasspathEntry[accumulatedEntries.size()];
 		accumulatedEntries.copyInto(result);
 		return result;
 	}
-			
+
+	/**
+	 * Internal computation of an expanded classpath. It will eliminate duplicates, and produce copies
+	 * of exported classpath entries to avoid possible side-effects ever after.
+	 */			
 	private void computeExpandedClasspath(
-		boolean restrainToExportedEntries, 
+		JavaProject initialProject, 
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError,
-		Vector visitedProjects, 
-		Vector accumulatedEntries) throws JavaModelException {
+		ObjectVector visitedProjects, 
+		ObjectVector accumulatedEntries) throws JavaModelException {
 		
 		if (visitedProjects.contains(this)) return; // break cycles if any
 		visitedProjects.add(this);
@@ -1044,7 +1049,9 @@ public class JavaProject
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
 			IClasspathEntry entry = immediateClasspath[i];
 
-			if (!restrainToExportedEntries || entry.isExported()){
+			boolean isInitialProject = this.equals(initialProject);
+			if (isInitialProject || entry.isExported()){
+				
 				accumulatedEntries.add(entry);
 				if (entry.getEntryKind() == ClasspathEntry.CPE_PROJECT) {
 						IProject projRsc = (IProject) getWorkspace().getRoot().findMember(entry.getPath());
@@ -1052,7 +1059,7 @@ public class JavaProject
 							JavaProject project = (JavaProject) JavaCore.create(projRsc);
 							// recurse in project to get all its indirect exports (only consider exported entries from there on)
 							project.computeExpandedClasspath(
-								true, 
+								initialProject, 
 								ignoreUnresolvedVariable, 
 								generateMarkerOnError,
 								visitedProjects, 
