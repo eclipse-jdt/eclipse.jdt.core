@@ -146,27 +146,27 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
  * @see Openable#canBeRemovedFromCache
  */
 public boolean canBeRemovedFromCache() {
-	if (isWorkingCopy()) return false; // working copies should remain in the cache until they are destroyed
+	if (getPerWorkingCopyInfo() != null) return false; // working copies should remain in the cache until they are destroyed
 	return super.canBeRemovedFromCache();
 }
 /*
  * @see Openable#canBufferBeRemovedFromCache
  */
 public boolean canBufferBeRemovedFromCache(IBuffer buffer) {
-	if (isWorkingCopy()) return false; // working copy buffers should remain in the cache until working copy is destroyed
+	if (getPerWorkingCopyInfo() != null) return false; // working copy buffers should remain in the cache until working copy is destroyed
 	return super.canBufferBeRemovedFromCache(buffer);
 }/*
  * @see IOpenable#close
  */
 public void close() throws JavaModelException {
-	if (isWorkingCopy()) return; // a working copy must remain opened until it is discarded
+	if (getPerWorkingCopyInfo() != null) return; // a working copy must remain opened until it is discarded
 	super.close();
 }
 /*
  * @see Openable#closing
  */
 protected void closing(Object info) throws JavaModelException {
-	if (!isWorkingCopy()) {
+	if (getPerWorkingCopyInfo() == null) {
 		super.closing(info);
 	} // else the buffer of a working copy must remain open for the lifetime of the working copy
 }
@@ -406,7 +406,7 @@ protected boolean equalsDOMNode(IDOMNode node) {
 }
 public boolean exists() {
 	// working copy always exists in the model until it is gotten rid of
-	if (isWorkingCopy()) return true;	
+	if (getPerWorkingCopyInfo() != null) return true;	
 	
 	return super.exists();
 }
