@@ -1275,7 +1275,6 @@ public boolean isCompactableOperation() {
 	return true;
 }
 public void optimizedBooleanConstant(int leftId, int operator, int rightId) {
-	//watch for optimizedBooleanConstant 
 
 	switch (operator) {
 		case AND :
