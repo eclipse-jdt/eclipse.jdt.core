@@ -31,6 +31,82 @@ public static Test suite() {
 	return new Suite(JavaSearchMultipleProjectsTests.class);
 }
 /**
+ * Field occurences in 2 working copies within 2 projects (one prereq this other one).
+ * (regression test for bug 41534 incorrect shadowing reported by rename [refactoring])
+ */
+public void testFieldOccurencesInWorkingCopies() throws CoreException {
+	ICompilationUnit wc1 = null, wc2 = null;
+	try {
+		// setup project P1
+		IJavaProject p1 = createJavaProject("P1");
+		createFolder("/P1/p1");
+		createFile(
+			"/P1/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"    public static int FOO;\n" +
+			"}"
+		);
+		
+		// setup project P2
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFolder("/P2/p2");
+		createFile(
+			"/P2/p2/Y.java",
+			"package p2;\n" +
+			"import p1.X;\n" +
+			"public class Y {\n" +
+			"    int bar() {\n" +
+			"      return X.FOO;\n" +
+			"}"
+		);
+		
+		// create working copies and rename X.FOO to X.BAR in these working copies
+		wc1 = getCompilationUnit("P1/p1/X.java").getWorkingCopy(null);
+		wc1.getBuffer().setContents(
+			"package p1;\n" +
+			"public class X {\n" +
+			"    public static int BAR;\n" +
+			"}"
+		);
+		wc1.reconcile();
+		wc2 = getCompilationUnit("P2/p2/Y.java").getWorkingCopy(null);
+		wc2.getBuffer().setContents(
+			"package p2;\n" +
+			"import p1.X;\n" +
+			"public class Y {\n" +
+			"    int bar() {\n" +
+			"      return X.BAR;\n" +
+			"}"
+		);
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		IField field = wc1.getType("X").getField("BAR");
+		new SearchEngine(new IWorkingCopy[] {wc1, wc2}).search(
+			getWorkspace(), 
+			field,
+			ALL_OCCURRENCES, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"Unexpected occurences of fiel p1.X.BAR",
+			"p1/X.java [in P1] p1.X.BAR [BAR]\n" +
+			"p2/Y.java [in P2] p2.Y.bar() -> int [BAR]", 
+			resultCollector.toString());
+	} finally {
+		if (wc1 != null) {
+			wc1.destroy();
+		}
+		if (wc2 != null) {
+			wc2.destroy();
+		}
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
  * Search for references in a hierarchy should find matches in super type.
  * (regression test for bug 31748 [search] search for reference is broken 2.1 M5)
  */

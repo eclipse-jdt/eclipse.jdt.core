@@ -529,59 +529,65 @@ public void initialize(JavaProject project, int potentialMatchSize) throws JavaM
 	this.matchesToProcess = new PotentialMatch[potentialMatchSize];
 }
 protected void locateMatches(JavaProject javaProject, PotentialMatch[] potentialMatches, int start, int length) throws JavaModelException {
+	
 	initialize(javaProject, length);
-
-	// create and resolve binding (equivalent to beginCompilation() in Compiler)
-	boolean bindingsWereCreated = true;
 	try {
-		for (int i = start, maxUnits = start + length; i < maxUnits; i++)
-			buildBindings(potentialMatches[i]);
-		lookupEnvironment.completeTypeBindings();
-
-		// create hierarchy resolver if needed
-		IType focusType = getFocusType();
-		if (focusType == null) {
-			this.hierarchyResolver = null;
-		} else if (!createHierarchyResolver(focusType, potentialMatches)) {
-			// focus type is not visible, use the super type names instead of the bindings
-			if (computeSuperTypeNames(focusType) == null) return;
-		}
-	} catch (AbortCompilation e) {
-		bindingsWereCreated = false;
-	}
-
-	// potential match resolution
-	for (int i = 0; i < this.numberOfMatches; i++) {
-		if (this.progressMonitor != null && this.progressMonitor.isCanceled())
-			throw new OperationCanceledException();
-		PotentialMatch potentialMatch = this.matchesToProcess[i];
-		this.matchesToProcess[i] = null; // release reference to processed potential match
+		this.nameLookup.setUnitsToLookInside(this.workingCopies);
+	
+		// create and resolve binding (equivalent to beginCompilation() in Compiler)
+		boolean bindingsWereCreated = true;
 		try {
-			process(potentialMatch, bindingsWereCreated);
+			for (int i = start, maxUnits = start + length; i < maxUnits; i++)
+				buildBindings(potentialMatches[i]);
+			lookupEnvironment.completeTypeBindings();
+	
+			// create hierarchy resolver if needed
+			IType focusType = getFocusType();
+			if (focusType == null) {
+				this.hierarchyResolver = null;
+			} else if (!createHierarchyResolver(focusType, potentialMatches)) {
+				// focus type is not visible, use the super type names instead of the bindings
+				if (computeSuperTypeNames(focusType) == null) return;
+			}
 		} catch (AbortCompilation e) {
-			// problem with class path: it could not find base classes
-			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
 			bindingsWereCreated = false;
-		} catch (JavaModelException e) {
-			// problem with class path: it could not find base classes
-			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
-			bindingsWereCreated = false;
-		} catch (CoreException e) {
-			// core exception thrown by client's code: let it through
-			throw new JavaModelException(e);
-		} finally {
-			if (this.options.verbose)
-				System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
-					new String[] {
-						String.valueOf(i + 1),
-						String.valueOf(numberOfMatches),
-						new String(potentialMatch.parsedUnit.getFileName())}));
-			// cleanup compilation unit result
-			potentialMatch.parsedUnit.cleanUp();
-			potentialMatch.parsedUnit = null;
 		}
-		if (this.progressMonitor != null)
-			this.progressMonitor.worked(5);
+	
+		// potential match resolution
+		for (int i = 0; i < this.numberOfMatches; i++) {
+			if (this.progressMonitor != null && this.progressMonitor.isCanceled())
+				throw new OperationCanceledException();
+			PotentialMatch potentialMatch = this.matchesToProcess[i];
+			this.matchesToProcess[i] = null; // release reference to processed potential match
+			try {
+				process(potentialMatch, bindingsWereCreated);
+			} catch (AbortCompilation e) {
+				// problem with class path: it could not find base classes
+				// continue and try next matching openable reporting innacurate matches (since bindings will be null)
+				bindingsWereCreated = false;
+			} catch (JavaModelException e) {
+				// problem with class path: it could not find base classes
+				// continue and try next matching openable reporting innacurate matches (since bindings will be null)
+				bindingsWereCreated = false;
+			} catch (CoreException e) {
+				// core exception thrown by client's code: let it through
+				throw new JavaModelException(e);
+			} finally {
+				if (this.options.verbose)
+					System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
+						new String[] {
+							String.valueOf(i + 1),
+							String.valueOf(numberOfMatches),
+							new String(potentialMatch.parsedUnit.getFileName())}));
+				// cleanup compilation unit result
+				potentialMatch.parsedUnit.cleanUp();
+				potentialMatch.parsedUnit = null;
+			}
+			if (this.progressMonitor != null)
+				this.progressMonitor.worked(5);
+		}
+	} finally {
+		this.nameLookup.setUnitsToLookInside(null);
 	}
 }
 /**
