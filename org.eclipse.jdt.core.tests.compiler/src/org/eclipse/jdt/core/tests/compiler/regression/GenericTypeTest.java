@@ -13372,4 +13372,30 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Bound mismatch: The generic method nextTry(I, N) of type X is not applicable for the arguments (Integer, Number) since the type Number is not a valid substitute for the bounded parameter <N extends I>\n" + 
 			"----------\n");
 	}	
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84422
+	public void test495() {
+		this.runConformTest(
+			new String[] {
+				"X.java",//====================================
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	List l= null; \n" + 
+				"\n" + 
+				"	void add(String s) {\n" + 
+				"		l.add(s);\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	void addAll(String[] ss) {\n" + 
+				"		l.addAll(Arrays.asList(ss));\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	String[] get() {\n" + 
+				"		return (String[])l.toArray(new String[l.size()]);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
 }
