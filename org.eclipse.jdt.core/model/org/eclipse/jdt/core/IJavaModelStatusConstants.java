@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  * 
- * TODO: missing 2.1 and subsequent contributions
+ * TODO missing 2.1 and subsequent contributions
  * COMPILER_FAILURE
  *******************************************************************************/
 package org.eclipse.jdt.core;

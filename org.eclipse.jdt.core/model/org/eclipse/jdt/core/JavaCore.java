@@ -1959,7 +1959,7 @@ public final class JavaCore extends Plugin {
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
-	 *///TODO: should return a Map for 3.0
+	 *///TODO should return a Map for 3.0
 	public static Hashtable getOptions() {
 		
 		Hashtable options = new Hashtable(10);
@@ -2287,7 +2287,7 @@ public final class JavaCore extends Plugin {
 		preferences.setDefault(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
 		
-		// TODO : (david) can be removed when the new syntax error diagnose is officially released.
+		// TODO (david) can be removed when the new syntax error diagnose is officially released.
 		final String NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION = JavaCore.PLUGIN_ID + ".newsyntaxerrordiagnose.activation"; //$NON-NLS-1$
 		preferences.setDefault(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION, ENABLED); //$NON-NLS-1$
 		optionNames.add(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION);
@@ -3294,7 +3294,7 @@ public final class JavaCore extends Plugin {
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
 	 * @see JavaCore#getDefaultOptions()
-	 *///TODO: should use a Map for 3.0
+	 *///TODO should use a Map for 3.0
 	public static void setOptions(Hashtable newOptions) {
 		
 		// see #initializeDefaultPluginPreferences() for changing default settings

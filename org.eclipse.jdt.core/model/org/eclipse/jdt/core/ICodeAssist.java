@@ -37,7 +37,7 @@ public interface ICodeAssist {
 	 *
 	 * @exception IllegalArgumentException if <code>requestor</code> is <code>null</code>
 	 * @deprecated - use codeComplete(int, ICompletionRequestor) instead
-	 * TODO: remove before 3.0
+	 * TODO remove before 3.0
 	 */
 	void codeComplete(int offset, ICodeCompletionRequestor requestor)
 		throws JavaModelException;

@@ -77,7 +77,7 @@ public static Class testClass() {
  * in one of its methods.
  */
 public void testExpressionInInnerClass() {
-	//TODO: Syntax error diagnose should be improve in this case.
+	//TODO Syntax error diagnose should be improved in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"class X {",
 		"	int foo() {",
@@ -91,7 +91,7 @@ public void testExpressionInInnerClass() {
  * Test extra closing curly bracket.
  */
 public void testExtraClosingCurlyBracket() {
-	//TODO: Syntax error diagnose should be improve in this case.
+	//TODO Syntax error diagnose should be improved in this case.
 	// just an expression with an extra curly bracket
 	evaluateWithExpectedProblem(
 		"1 + 2}".toCharArray(), 
@@ -243,7 +243,7 @@ public void testProblemInInnerClass() {
  * Test a problem in the statement before the returned expression.
  */
 public void testProblemInPreviousStatement() {
-	//TODO: Syntax error diagnose should be improve in this case.
+	//TODO Syntax error diagnose should be improved in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"return foo(a a);",
 		"1 + 3"}), 

@@ -69,7 +69,7 @@ public class IncrementalTests extends Tests {
 		expectingNoProblems();
 	}
 
-	// TODO: excluded test
+	// TODO excluded test
 	public void _testNewJCL() {
 		//----------------------------
 		//           Step 1
@@ -554,7 +554,7 @@ public class IncrementalTests extends Tests {
 	
 	/**
 	 * Bugs 6461 
-	 * TODO: excluded test
+	 * TODO excluded test
 	 */
 	public void _testWrongCompilationUnitLocation() throws JavaModelException {
 		//----------------------------

@@ -453,7 +453,7 @@ public class NameLookup implements SuffixConstants {
 		return type;
 	}
 
-	// TODO : (kent) enable once index support is in
+	// TODO (kent) enable once index support is in
 	IType findSecondaryType(String typeName, IPackageFragment pkg, boolean partialMatch, final int acceptFlags) {
 		try {
 			final ArrayList paths = new ArrayList();

@@ -659,7 +659,7 @@ public class AnnotationParser {
 	}
 
 	private void pushParamName(AnnotationSingleNameReference arg) {
-		// TODO: (frederic) To be changed when mixed tags declaration will be accepted
+		// TODO (frederic) To be changed when mixed tags declaration will be accepted
 		switch (this.astLengthPtr) {
 			case -1 :
 				// push first param name
@@ -675,7 +675,7 @@ public class AnnotationParser {
 	}
 
 	private void pushSeeRef(Statement statement) {
-		// TODO: (frederic) To be changed when mixed tags declaration will be accepted
+		// TODO (frederic) To be changed when mixed tags declaration will be accepted
 		switch (this.astLengthPtr) {
 			case -1 :
 				// no @param previously declared, nor @throw/@exception
@@ -697,7 +697,7 @@ public class AnnotationParser {
 	}
 
 	private void pushThrowName(TypeReference typeRef) {
-		// TODO: (frederic) To be changed when mixed tags declaration will be accepted
+		// TODO (frederic) To be changed when mixed tags declaration will be accepted
 		switch (this.astLengthPtr) {
 			case -1 :
 				// no @param previously declared
@@ -788,7 +788,7 @@ public class AnnotationParser {
 			}
 
 			// Flag all nodes got from other ast length stack pointer values as invalid....
-			// TODO: (frederic) To be changed when mixed tags declaration will be accepted
+			// TODO (frederic) To be changed when mixed tags declaration will be accepted
 			else {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				if (size > 0) {

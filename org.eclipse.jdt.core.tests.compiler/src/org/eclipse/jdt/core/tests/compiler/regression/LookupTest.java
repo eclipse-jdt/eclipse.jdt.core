@@ -1244,7 +1244,7 @@ public void test036() {
 		"	class Z extends Y implements p.X.I {	\n" + 
 		"	      ^\n" + 
 		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
-		"----------\n" + // TODO: (philippe) should not have following error due to default abstract?
+		"----------\n" + // TODO (philippe) should not have following error due to default abstract?
 		"3. ERROR in q\\Y.java (at line 5)\n" + 
 		"	class Z extends Y implements p.X.I {	\n" + 
 		"	      ^\n" + 

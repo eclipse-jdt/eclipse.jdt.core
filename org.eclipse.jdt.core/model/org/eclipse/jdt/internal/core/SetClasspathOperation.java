@@ -367,7 +367,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 									if (deltaState.otherRoots.get(path) == null) { // if root was not shared
 										indexManager.discardJobs(path.toString());
 										indexManager.removeIndex(path);
-										// TODO: (kent) we could just remove the in-memory index and have the indexing check for timestamps
+										// TODO (kent) we could just remove the in-memory index and have the indexing check for timestamps
 									}
 								}
 							}, 

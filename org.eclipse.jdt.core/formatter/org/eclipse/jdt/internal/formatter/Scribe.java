@@ -42,7 +42,7 @@ public class Scribe {
 	public int editsIndex;
 	private OptimizedReplaceEdit[] edits;
 	
-	// TODO: to remove when the testing is done
+	// TODO to remove when the testing is done
 	private char fillingSpace;
 	public CodeFormatterVisitor formatter;
 	public int indentationLevel;	

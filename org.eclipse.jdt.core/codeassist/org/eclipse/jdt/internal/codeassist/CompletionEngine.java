@@ -195,7 +195,7 @@ public final class CompletionEngine
 							start,
 							end,
 							lineNumber);
-						// TODO : (david) problems could be detected in other units which got requested (see CompilationUnitProblemFinder)
+						// TODO (david) problems could be detected in other units which got requested (see CompilationUnitProblemFinder)
 						if(actualCompletionPosition > start
 							&& lastErrorStart < start
 							&& pb.isError()
@@ -777,7 +777,7 @@ public final class CompletionEngine
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
 	
 		try {
-			//TODO: (david) should be instead be using SourceTypeConverter?
+			//TODO (david) should be instead be using SourceTypeConverter?
 			TypeDeclaration typeDeclaration = TypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult);
 		
 			if(typeDeclaration != null) {	

@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 
 /**
  * Wraps an IBufferFactory.
- * TODO: remove when removing IBufferFactory
+ * TODO remove when removing IBufferFactory
  */
 public class BufferFactoryWrapper extends WorkingCopyOwner {
 

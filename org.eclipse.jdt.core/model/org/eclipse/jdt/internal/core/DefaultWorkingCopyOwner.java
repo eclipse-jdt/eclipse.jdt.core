@@ -24,7 +24,7 @@ public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 	/**
 	 * Note this field is temporary public so that JDT/UI can reach in and change the factory. It will disapear before 3.0.
 	 */
-	public IBufferFactory factory; // TODO: remove before 3.0
+	public IBufferFactory factory; // TODO remove before 3.0
 		
 	public static final DefaultWorkingCopyOwner PRIMARY =  new DefaultWorkingCopyOwner() {
 

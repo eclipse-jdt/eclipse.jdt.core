@@ -161,7 +161,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	public Scribe scribe;
 	
 	/*
-	 * TODO: See how to choose the formatter's options. The extension point is calling
+	 * TODO See how to choose the formatter's options. The extension point is calling
 	 * this constructor, but then there is no way to initialize the option used by the formatter.
 	 */ 
 	public CodeFormatterVisitor() {

@@ -2145,7 +2145,7 @@ public final void pushLineSeparator() {
 	// cr 000D
 	if (currentCharacter == '\r') {
 		int separatorPos = currentPosition - 1;
-		//TODO : (olivier) david - why the following line was "if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;" ?
+		//TODO (olivier) david - why the following line was "if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;" ?
 		if ((linePtr >= 0) && (lineEnds[linePtr] >= separatorPos)) return;
 		//System.out.println("CR-" + separatorPos);
 		try {
@@ -2179,7 +2179,7 @@ public final void pushLineSeparator() {
 				lineEnds[linePtr] = currentPosition - 1;
 			} else {
 				int separatorPos = currentPosition - 1;
-				//TODO : (olivier) david - why the following line was "if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;" ?
+				//TODO (olivier) david - why the following line was "if ((linePtr > 0) && (lineEnds[linePtr] >= separatorPos)) return;" ?
 				if ((linePtr >= 0) && (lineEnds[linePtr] >= separatorPos)) return;
 				// System.out.println("LF-" + separatorPos);							
 				try {

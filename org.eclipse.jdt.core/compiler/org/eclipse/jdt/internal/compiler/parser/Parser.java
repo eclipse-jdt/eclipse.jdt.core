@@ -49,7 +49,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 	protected boolean hasError;
 	protected boolean hasReportedError;
-	public static boolean fineErrorDiagnose = true; //TODO: (david) remove the static modifier when new diagnose is ready
+	public static boolean fineErrorDiagnose = true; //TODO (david) remove the static modifier when new diagnose is ready
 	public boolean reportSyntaxErrorIsRequired = true;
 	public boolean reportOnlyOneSyntaxError = false;
 	protected int recoveredStaticInitializerStart;
@@ -3814,7 +3814,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault/*TODO: (olivier) update for static imports*/));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault/*TODO (olivier) update for static imports*/));
 
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
@@ -4529,7 +4529,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccDefault/*TODO: (olivier) update for static imports*/));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccDefault/*TODO (olivier) update for static imports*/));
 
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;

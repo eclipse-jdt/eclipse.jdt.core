@@ -393,7 +393,7 @@ public interface IEvaluationContext {
 	 *	    length (INDEX_OUT_OF_BOUNDS)</li>
 	 *  </ul>
 	 * @deprecated - use codeComplete(String, int, ICompletionRequestor) instead
-	 * TODO: remove before 3.0
+	 * TODO remove before 3.0
 	 */
 	public void codeComplete(
 		String codeSnippet,
