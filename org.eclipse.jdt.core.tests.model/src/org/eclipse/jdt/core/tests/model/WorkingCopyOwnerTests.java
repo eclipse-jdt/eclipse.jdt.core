@@ -398,7 +398,34 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			}
 			deleteFile("P/Y.java");
 		}
-		
+	}
+
+	/*
+	 * Ensures that a REMOVED delta is issued when a primary working copy becomes a compilation unit
+	 * and this compilation unit doesn't exist on disk.
+	 * (regression test for bug 44084 No refresh when deleting edited unit)
+	 */
+	public void testDeltaDiscardPrimaryWorkingCopy3() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getCompilationUnit("P/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+
+			startDeltas();
+			workingCopy.discardWorkingCopy();
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			Y.java[-]: {}"
+			);
+		} finally {
+			stopDeltas();
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
 	}
 
 	/*
@@ -521,6 +548,28 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		}
 	}
 	
+	/*
+	 * Tests that a primary working copy  is removed from its parent after it is discarded and 
+	 * there is no underlying resource.
+	 */
+	public void testDiscardWorkingCopy5() throws CoreException {
+		ICompilationUnit cu = null;
+		try {
+			cu = getCompilationUnit("P/Y.java");
+			cu.becomeWorkingCopy(null, null);
+			
+			cu.discardWorkingCopy();
+			assertElementsEqual(
+				"Unexpected children of default package",
+				"X.java [in <default> [in <project root> [in P]]]",
+				getPackage("/P").getChildren());
+		} finally {
+			if (cu != null) {
+				cu.discardWorkingCopy();
+			}
+		}
+	}
+
 	/*
 	 * Ensures that getCorrespondingResource() returns a non-null value for a primary working copy.
 	 * (regression test for bug 44065 NPE during hot code replace)

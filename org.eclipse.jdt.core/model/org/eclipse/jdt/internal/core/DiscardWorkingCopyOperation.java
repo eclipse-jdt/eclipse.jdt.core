@@ -35,10 +35,18 @@ public class DiscardWorkingCopyOperation extends JavaModelOperation {
 				addDelta(delta);
 				removeReconcileDelta(workingCopy);
 			} else {
-				// report a F_PRIMARY_WORKING_COPY change delta for a primary working copy
-				JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
-				delta.changed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
-				addDelta(delta);			
+				if (workingCopy.getResource().isAccessible()) {
+					// report a F_PRIMARY_WORKING_COPY change delta for a primary working copy
+					JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+					delta.changed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
+					addDelta(delta);
+				} else {
+					// report a REMOVED delta
+					JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
+					delta.removed(workingCopy);
+					addDelta(delta);
+					
+				}
 			}
 		}
 	}

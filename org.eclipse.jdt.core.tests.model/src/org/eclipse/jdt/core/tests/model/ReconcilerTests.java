@@ -33,15 +33,15 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			this.initialize();
 		}
 		public void acceptProblem(IProblem problem) {
-				problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
-				problems.append(" in " + new String(problem.getOriginatingFileName()).replace('/', '\\'));
-				try {
-					problems.append(((DefaultProblem)problem).errorReportSource((org.eclipse.jdt.internal.compiler.env.ICompilationUnit)(workingCopy == null ? cu : workingCopy)));
-					problems.append("\n");
-					problems.append(problem.getMessage());
-					problems.append("\n");
-				} catch (Exception e) {
-				}
+			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+			problems.append(" in " + new String(problem.getOriginatingFileName()).replace('/', '\\'));
+			try {
+				problems.append(((DefaultProblem)problem).errorReportSource((org.eclipse.jdt.internal.compiler.env.ICompilationUnit)(workingCopy == null ? cu : workingCopy)));
+				problems.append("\n");
+				problems.append(problem.getMessage());
+				problems.append("\n");
+			} catch (Exception e) {
+			}
 		}
 		public void beginReporting() {
 			this.problems.append("----------\n");
