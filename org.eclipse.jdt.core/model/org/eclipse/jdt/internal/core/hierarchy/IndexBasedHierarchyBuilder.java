@@ -166,7 +166,7 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 			}
 		}
 
-		SearchableEnvironment searchableEnvironment = (SearchableEnvironment)project.newSearchableNameEnvironment(unitsToLookInside);
+		SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside);
 		this.nameLookup = searchableEnvironment.nameLookup;
 		this.hierarchyResolver = 
 			new HierarchyResolver(searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());

@@ -83,7 +83,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		} else {
 			unitsToLookInside = workingCopies;
 		}
-		SearchableEnvironment searchableEnvironment = (SearchableEnvironment) project.newSearchableNameEnvironment(unitsToLookInside);
+		SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside);
 		this.nameLookup = searchableEnvironment.nameLookup;
 		this.hierarchyResolver =
 			new HierarchyResolver(

@@ -109,7 +109,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
 	JavaProject project = (JavaProject) getJavaProject();
-	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
+	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
 
 	// set unit to skip
 	environment.unitToSkip = unitToSkip;
@@ -121,7 +121,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
 
 	JavaProject project = (JavaProject)getJavaProject();
-	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
+	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
 	
 	SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, this);
 	IBuffer buffer = getBuffer();

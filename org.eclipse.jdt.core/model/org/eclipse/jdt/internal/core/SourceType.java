@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionRequestorWrapper;
-import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
@@ -82,7 +81,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	}
 	
 	JavaProject project = (JavaProject) getJavaProject();
-	SearchableEnvironment environment = (SearchableEnvironment) project.newSearchableNameEnvironment(owner);
+	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
 	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project);
 
 	String source = getCompilationUnit().getSource();
@@ -750,7 +749,7 @@ public String[][] resolveType(String typeName) throws JavaModelException {
 public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
 	ISourceType info = (ISourceType) getElementInfo();
 	JavaProject project = (JavaProject) getJavaProject();
-	ISearchableNameEnvironment environment = project.newSearchableNameEnvironment(owner);
+	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
 
 	class TypeResolveRequestor implements ISelectionRequestor {
 		String[][] answers = null;

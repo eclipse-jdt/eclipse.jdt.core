@@ -107,7 +107,7 @@ public void codeComplete(String codeSnippet, int position, CompletionRequestor r
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, CompletionRequestor, WorkingCopyOwner)
  */
 public void codeComplete(String codeSnippet, int position, CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
-	SearchableEnvironment environment = (SearchableEnvironment) this.project.newSearchableNameEnvironment(owner);
+	SearchableEnvironment environment = this.project.newSearchableNameEnvironment(owner);
 	this.context.complete(
 		codeSnippet.toCharArray(),
 		position,
@@ -127,7 +127,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeSelect(String, int, int, WorkingCopyOwner)
  */
 public IJavaElement[] codeSelect(String codeSnippet, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
-	SearchableEnvironment environment = (SearchableEnvironment) this.project.newSearchableNameEnvironment(owner);
+	SearchableEnvironment environment = this.project.newSearchableNameEnvironment(owner);
 	SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, null); // null because there is no need to look inside the code snippet itself
 	this.context.select(
 		codeSnippet.toCharArray(),

@@ -683,7 +683,7 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	if (this.nameEnvironment != null)
 		this.nameEnvironment.cleanup();
 
-	SearchableEnvironment searchableEnvironment = (SearchableEnvironment) project.newSearchableNameEnvironment(this.workingCopies);
+	SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.workingCopies);
 	
 	// if only one possible match, a file name environment costs too much,
 	// so use the existing searchable  environment which will populate the java model

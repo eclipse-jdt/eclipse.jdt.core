@@ -24,11 +24,11 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
-import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
  *	uses the Java model as a search tool.  
  */
 public class SearchableEnvironment
-	implements ISearchableNameEnvironment, IJavaSearchConstants {
+	implements INameEnvironment, IJavaSearchConstants {
 	
 	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
@@ -141,7 +141,11 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see ISearchableNameEnvironment#findPackages(char[], ISearchRequestor)
+	 * Find the packages that start with the given prefix.
+	 * A valid prefix is a qualified name separated by periods
+	 * (ex. java.util).
+	 * The packages found are passed to:
+	 *    ISearchRequestor.acceptPackage(char[][] packageName)
 	 */
 	public void findPackages(char[] prefix, ISearchRequestor requestor) {
 		this.nameLookup.seekPackageFragments(
@@ -183,7 +187,19 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * @see ISearchableNameEnvironment#findTypes(char[], ISearchRequestor)
+	 * Find the top-level types (classes and interfaces) that are defined
+	 * in the current environment and whose name starts with the
+	 * given prefix. The prefix is a qualified name separated by periods
+	 * or a simple name (ex. java.util.V or V).
+	 *
+	 * The types found are passed to one of the following methods (if additional
+	 * information is known about the types):
+	 *    ISearchRequestor.acceptType(char[][] packageName, char[] typeName)
+	 *    ISearchRequestor.acceptClass(char[][] packageName, char[] typeName, int modifiers)
+	 *    ISearchRequestor.acceptInterface(char[][] packageName, char[] typeName, int modifiers)
+	 *
+	 * This method can not be used to find member types... member
+	 * types are found relative to their enclosing type.
 	 */
 	public void findTypes(char[] prefix, final ISearchRequestor storage) {
 

@@ -17,7 +17,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
-import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ClassFile;
@@ -483,7 +482,7 @@ public GlobalVariable newVariable(char[] typeName, char[] name, char[] initializ
  * 
  *  @param selectionSourceEnd int
  * 
- *  @param environment org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment
+ *  @param environment org.eclipse.jdt.internal.core.SearchableEnvironment
  *      used to resolve type/package references and search for types/packages
  *      based on partial names.
  *
@@ -498,7 +497,7 @@ public void select(
 	char[] codeSnippet,
 	int selectionSourceStart,
 	int selectionSourceEnd,
-	ISearchableNameEnvironment environment, 
+	SearchableEnvironment environment, 
 	ISelectionRequestor requestor,
 	Map options) {
 		

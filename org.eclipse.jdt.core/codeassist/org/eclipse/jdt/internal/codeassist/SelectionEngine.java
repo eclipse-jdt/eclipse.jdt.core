@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
@@ -64,7 +65,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 * It requires a searchable name environment, which supports some
 	 * specific search APIs, and a requestor to feed back the results to a UI.
 	 *
-	 *  @param nameEnvironment org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment
+	 *  @param nameEnvironment org.eclipse.jdt.internal.core.SearchableEnvironment
 	 *      used to resolve type/package references and search for types/packages
 	 *      based on partial names.
 	 *
@@ -76,7 +77,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 *		set of options used to configure the code assist engine.
 	 */
 	public SelectionEngine(
-		ISearchableNameEnvironment nameEnvironment,
+		SearchableEnvironment nameEnvironment,
 		ISelectionRequestor requestor,
 		Map settings) {
 

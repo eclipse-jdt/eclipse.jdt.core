@@ -4104,7 +4104,7 @@ public final class CompletionEngine
 	
 	protected CompletionProposal createProposal(int kind, int compteionOffset) {
 		CompletionProposal proposal = CompletionProposal.create(kind, compteionOffset);
-		proposal.nameLookup = ((SearchableEnvironment)this.nameEnvironment).nameLookup;
+		proposal.nameLookup = this.nameEnvironment.nameLookup;
 		proposal.completionEngine = this;
 		return proposal;
 	}
