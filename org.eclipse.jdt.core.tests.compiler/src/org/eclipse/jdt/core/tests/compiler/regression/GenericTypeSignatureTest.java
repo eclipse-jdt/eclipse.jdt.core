@@ -1029,4 +1029,38 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}	
+	// 70975 - invalid signature for method with array of type variables
+	public void test016() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"	public <U> void foo(U[] arr) {\n" + 
+			"	}\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
+			char[] signature = methods[2].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "<U:Ljava/lang/Object;>([TU;)V", new String(signature));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}	
 }
