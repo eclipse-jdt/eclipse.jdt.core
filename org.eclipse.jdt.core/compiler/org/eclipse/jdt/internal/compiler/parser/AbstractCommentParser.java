@@ -433,6 +433,7 @@ public abstract class AbstractCommentParser {
 		int iToken = 0;
 		char[] argName = null;
 		List arguments = new ArrayList(10);
+		int start = this.scanner.getCurrentTokenStartPosition();
 		
 		// Parse arguments declaration if method reference
 		nextArg : while (this.index < this.scanner.eofPosition) {
@@ -453,6 +454,11 @@ public abstract class AbstractCommentParser {
 			}
 			if (typeRef == null) {
 				if (firstArg && this.currentTokenType == TerminalTokens.TokenNameRPAREN) {
+					char pc = peekChar();
+					if (!Character.isWhitespace(pc) && (!this.inlineTagStarted || pc != '}')) {
+						if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, this.lineEnd);
+						return null;
+					}
 					this.lineStarted = true;
 					return createMethodReference(receiver, null);
 				}
@@ -516,6 +522,11 @@ public abstract class AbstractCommentParser {
 				consumeToken();
 				iToken++;
 			} else if (token == TerminalTokens.TokenNameRPAREN) {
+				char pc = peekChar();
+				if (!Character.isWhitespace(pc) && (!this.inlineTagStarted || pc != '}')) {
+					if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, this.lineEnd);
+					return null;
+				}
 				// Create new argument
 				Object argument = createArgumentReference(name, dim, typeRef, dimPositions, argNamePos);
 				arguments.add(argument);
@@ -962,6 +973,26 @@ public abstract class AbstractCommentParser {
 	protected abstract void pushText(int start, int end);
 	protected void refreshInlineTagPosition(int previousPosition) {
 		// do nothing by default
+	}
+
+	/*
+	 * Return current character without move index position.
+	 */
+	private char peekChar() {
+		int idx = this.index;
+		char c = this.source[idx++];
+		if (c == '\\' && this.source[idx] == 'u') {
+			int c1, c2, c3, c4;
+			idx++;
+			while (this.source[idx] == 'u')
+				idx++;
+			if (!(((c1 = Character.getNumericValue(this.source[idx++])) > 15 || c1 < 0)
+					|| ((c2 = Character.getNumericValue(this.source[idx++])) > 15 || c2 < 0)
+					|| ((c3 = Character.getNumericValue(this.source[idx++])) > 15 || c3 < 0) || ((c4 = Character.getNumericValue(this.source[idx++])) > 15 || c4 < 0))) {
+				c = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+			}
+		}
+		return c;
 	}
 
 	/*

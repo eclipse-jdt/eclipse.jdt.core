@@ -534,6 +534,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocDuplicateReturnTag:
 		case IProblem.JavadocInvalidThrowsClass:
 		case IProblem.JavadocInvalidSeeReference:
+		case IProblem.JavadocMalformedSeeReference:
 		case IProblem.JavadocInvalidSeeHref:
 		case IProblem.JavadocInvalidSeeArgs:
 		case IProblem.JavadocInvalidTag:
@@ -2462,6 +2463,9 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 			location.sourceStart,
 			location.sourceEnd);
 	}
+}
+public void javadocMalformedSeeReference(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocMalformedSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissing(int sourceStart, int sourceEnd, int modifiers){
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;

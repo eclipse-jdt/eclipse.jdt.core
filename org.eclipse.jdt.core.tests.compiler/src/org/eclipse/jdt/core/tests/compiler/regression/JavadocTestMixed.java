@@ -35,7 +35,7 @@ public class JavadocTestMixed extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug53290" };
+//		testsNames = new String[] { "Bug62812", "Bug62812a" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -2405,6 +2405,80 @@ public class JavadocTestMixed extends JavadocTest {
 				"	*  @link Object\n" + 
 				"	    ^^^^\n" + 
 				"Javadoc: Unexpected tag\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 62812: Some malformed javadoc tags are not reported as malformed
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62812">62812</a>
+	 */
+	public void testBug62812() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * @see Object#clone())\n" + 
+					" * @see Object#equals(Object)}\n" + 
+					" * @see Object#equals(Object))\n" + 
+					" * @see Object#equals(Object)xx\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 2)\n" + 
+				"	* @see Object#clone())\n" + 
+				"	                   ^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"2. ERROR in Test.java (at line 3)\n" + 
+				"	* @see Object#equals(Object)}\n" + 
+				"	                    ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"3. ERROR in Test.java (at line 4)\n" + 
+				"	* @see Object#equals(Object))\n" + 
+				"	                    ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"4. ERROR in Test.java (at line 5)\n" + 
+				"	* @see Object#equals(Object)xx\n" + 
+				"	                    ^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug62812a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * {@link Object#clone())}\n" + 
+					" * {@link Object#equals(Object)}\n" + 
+					" * {@link Object#equals(Object))}\n" + 
+					" * {@link Object#equals(Object)xx}\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 2)\n" + 
+				"	* {@link Object#clone())}\n" + 
+				"	                     ^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"2. ERROR in Test.java (at line 4)\n" + 
+				"	* {@link Object#equals(Object))}\n" + 
+				"	                      ^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"3. ERROR in Test.java (at line 5)\n" + 
+				"	* {@link Object#equals(Object)xx}\n" + 
+				"	                      ^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
 				"----------\n"
 		);
 	}
