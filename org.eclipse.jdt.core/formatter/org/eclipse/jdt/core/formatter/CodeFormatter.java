@@ -48,7 +48,7 @@ public abstract class CodeFormatter {
 	 * Format <code>source</code>,
 	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
 	 * It returns null if the given string cannot be formatted.
-	 * 
+	 * TODO (olivier) explain the subtility when offset is used and matching code is led by whitespaces (no edit) switch(1){case 1:}  vs. switch(1){   case 1:}
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
 	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN
 	 * @param source the source to format
