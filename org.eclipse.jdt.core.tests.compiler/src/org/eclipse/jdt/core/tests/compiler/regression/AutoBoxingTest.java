@@ -2620,4 +2620,25 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"----------\n"
         );
     }       
+    
+    // inference and autoboxing
+    public void test091() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Comparable<?> c1 = foo(\"\", new Integer(5));\n" + 
+				"        Object o = foo(\"\", 5);\n" + 
+				"    }\n" + 
+				"    public static <T> T foo(T t1, T t2) { \n" + 
+				"    	System.out.print(\"foo(\"+t1.getClass().getSimpleName()+\",\"+t2.getClass().getSimpleName()+\")\");\n" + 
+				"    	return null; \n" + 
+				"    }\n" + 
+				"}\n"
+            },
+			"foo(String,Integer)foo(String,Integer)"
+        );
+    }         
 }
