@@ -52,7 +52,9 @@ public class Problem {
 	}
 	
 	public String toString(){
-		return "Problem : " + message + " [ resource : <" + resourcePath + "> location <"+ location + "> ]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+// ignore locations since the builder no longer finds exact Java elements
+//		return "Problem : " + message + " [ resource : <" + resourcePath + "> location <"+ location + "> ]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		return "Problem : " + message + " [ resource : <" + resourcePath + "> ]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 	
 	public boolean equals(Object o){
