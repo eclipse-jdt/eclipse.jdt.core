@@ -1125,20 +1125,21 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 	IJavaElement enclosingElement = null;
 	if (accuracy > -1) {
 		enclosingElement = createHandle(method, parent);
+		if (enclosingElement != null) { // skip if unable to find method
+			// compute source positions of the selector 
+			Scanner scanner = parser.scanner;
+			int nameSourceStart = method.sourceStart;
+			scanner.setSource(this.currentPossibleMatch.getContents());
+			scanner.resetTo(nameSourceStart, method.sourceEnd);
+			try {
+				scanner.getNextToken();
+			} catch (InvalidInputException e) {
+				// ignore
+			}
+			int nameSourceEnd = scanner.currentPosition - 1;
 
-		// compute source positions of the selector 
-		Scanner scanner = parser.scanner;
-		int nameSourceStart = method.sourceStart;
-		scanner.setSource(this.currentPossibleMatch.getContents());
-		scanner.resetTo(nameSourceStart, method.sourceEnd);
-		try {
-			scanner.getNextToken();
-		} catch (InvalidInputException e) {
-			// ignore
+			report(nameSourceStart, nameSourceEnd, enclosingElement, accuracy);
 		}
-		int nameSourceEnd = scanner.currentPosition - 1;
-
-		report(nameSourceStart, nameSourceEnd, enclosingElement, accuracy);
 	}
 
 	// handle nodes for the local type first
@@ -1157,18 +1158,20 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 	if (typeInHierarchy) {
 		AstNode[] nodes = nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
 		if (nodes != null) {
-			if ((this.matchContainer & PatternLocator.METHOD_CONTAINER) == 0) {
-				for (int i = 0, l = nodes.length; i < l; i++)
-					nodeSet.matchingNodes.removeKey(nodes[i]);
-			} else {
+			if ((this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0) {
 				if (enclosingElement == null)
 					enclosingElement = createHandle(method, parent);
-				for (int i = 0, l = nodes.length; i < l; i++) {
-					AstNode node = nodes[i];
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+				if (enclosingElement != null) { // skip if unable to find method
+					for (int i = 0, l = nodes.length; i < l; i++) {
+						AstNode node = nodes[i];
+						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+						this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+					}
+					return;
 				}
 			}
+			for (int i = 0, l = nodes.length; i < l; i++)
+				nodeSet.matchingNodes.removeKey(nodes[i]);
 		}
 	}
 }
