@@ -15,10 +15,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -30,6 +33,9 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.ITypeNameRequestor;
+import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.PerThreadObject;
 /**
@@ -356,8 +362,11 @@ public class NameLookup implements SuffixConstants {
 	 * 
 	 */
 	public IType findType(String typeName, String packageName, boolean partialMatch, int acceptFlags) {
-		if (packageName == null) {
+		if (packageName == null || packageName.length() == 0) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
+		} else if (typeName.length() > 0 && Character.isLowerCase(typeName.charAt(0))) {
+			// see if this is a known package and not a type
+			if (findPackageFragments(packageName + "." + typeName, false) != null) return null;
 		}
 		JavaElementRequestor elementRequestor = new JavaElementRequestor();
 		seekPackageFragments(packageName, false, elementRequestor);
@@ -432,14 +441,58 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_INTERFACES
 	 */
 	public IType findType(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags) {
-		if (pkg == null) {
-			return null;
-		}
+		if (pkg == null) return null;
+
 		// Return first found (ignore duplicates).
 		SingleTypeRequestor typeRequestor = new SingleTypeRequestor();
 		seekTypes(name, pkg, partialMatch, acceptFlags, typeRequestor);
-		IType type= typeRequestor.getType();
+		IType type = typeRequestor.getType();
+//		if (type == null)
+//			type = findSecondaryType(name, pkg, partialMatch, acceptFlags);
 		return type;
+	}
+
+	private IType findSecondaryType(String typeName, IPackageFragment pkg, boolean partialMatch, final int acceptFlags) {
+		try {
+			final ArrayList paths = new ArrayList();
+			ITypeNameRequestor nameRequestor = new ITypeNameRequestor() {
+				public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+					if ((acceptFlags & ACCEPT_CLASSES) != 0)
+						if (enclosingTypeNames == null || enclosingTypeNames.length == 0) // accept only top level types
+							paths.add(path);
+				}
+				public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+					if ((acceptFlags & ACCEPT_INTERFACES) != 0)
+						if (enclosingTypeNames == null || enclosingTypeNames.length == 0) // accept only top level types
+							paths.add(path);
+				}
+			};
+
+			new SearchEngine().searchAllTypeNames(
+				workspace,
+				pkg.getElementName().toCharArray(),
+				typeName.toCharArray(),
+				partialMatch ? IJavaSearchConstants.PREFIX_MATCH : IJavaSearchConstants.EXACT_MATCH,
+				partialMatch ? IJavaSearchConstants.CASE_INSENSITIVE : IJavaSearchConstants.CASE_SENSITIVE,
+				IJavaSearchConstants.TYPE,
+				SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg}, false),
+				nameRequestor,
+				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+				null);
+
+			if (!paths.isEmpty()) {
+				for (int i = 0, l = paths.size(); i < l; i++) {
+					String pathname = (String) paths.get(i);
+					if (Util.isJavaFileName(pathname)) {
+						IFile file = workspace.getRoot().getFile(new Path(pathname));
+						ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
+						return unit.getType(typeName);
+					}
+				}
+			}
+		} catch (JavaModelException ignore) {
+		} catch (OperationCanceledException ignore) {}
+		return null;
 	}
 
 	/**
