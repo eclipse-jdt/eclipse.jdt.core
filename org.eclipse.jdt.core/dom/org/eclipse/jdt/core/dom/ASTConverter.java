@@ -1012,17 +1012,21 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(assignment, expression);
 		}
-		assignment.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
-		assignment.setLeftHandSide(convert(expression.lhs));
+		Expression lhs = convert(expression.lhs);
+		assignment.setLeftHandSide(lhs);
 		assignment.setOperator(Assignment.Operator.ASSIGN);
 		assignment.setRightHandSide(convert(expression.expression));
+		int start = lhs.getStartPosition();
+		assignment.setSourceRange(start, expression.sourceEnd - start + 1);
 		return assignment;
 	}
 
 	public Assignment convert(CompoundAssignment expression) {
 		Assignment assignment = this.ast.newAssignment();
-		assignment.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
-		assignment.setLeftHandSide(convert(expression.lhs));
+		Expression lhs = convert(expression.lhs);
+		assignment.setLeftHandSide(lhs);
+		int start = lhs.getStartPosition();
+		assignment.setSourceRange(start, expression.sourceEnd - start + 1);
 		switch (expression.operator) {
 			case OperatorIds.PLUS :
 				assignment.setOperator(Assignment.Operator.PLUS_ASSIGN);
