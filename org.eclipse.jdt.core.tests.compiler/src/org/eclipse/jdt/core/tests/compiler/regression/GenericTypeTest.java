@@ -9354,33 +9354,33 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"----------\n");
 	}
 	// 76720
-//	public void test358() {
-//		this.runConformTest(
-//			new String[] {
-//				"MyClass.java",
-//				"public class MyClass {}\n",
-//				"A.java",
-//				"public interface A<M extends MyClass> {}\n",
-//				"B.java",
-//				"public interface B<M extends MyClass> extends A<M> {}\n",
-//				"C.java",
-//				"public class C implements B<MyClass>\n",
-//			},
-//			"");
-//	}	
-//		this.runConformTest(
-//			new String[] {
-//				"MyClass.java",
-//				"public class MyClass {}\n",
-//				"A.java",
-//				"public interface A<M extends MyClass> {}\n",
-//				"B.java",
-//				"public interface B<M extends MyClass> extends A<M> {}\n",
-//				"C.java",
-//				"public class C implements B<MyClass>\n",
-//			},
-//			"",
-//			);
-//	}	
+	public void test358() {
+		this.runConformTest(
+			new String[] {
+				"MyClass.java",
+				"public class MyClass {}\n",
+				"A.java",
+				"public interface A<M extends MyClass> {}\n",
+				"B.java",
+				"public interface B<M extends MyClass> extends A<M> {}\n",
+				"C.java",
+				"public class C implements B<MyClass> {}\n", // compile against sources
+				"D.java",
+				"public class D implements A<MyClass>{}\n", // compile against sources
+			},
+			"");
+		// compile against generated binaries
+		this.runConformTest(
+			new String[] {
+				"C.java",
+				"public class C implements B<MyClass> {}\n",
+				"D.java",
+				"public class D implements A<MyClass>{}\n",
+			},
+			"",
+			null,
+			false,
+			null);
+	}	
 	
 }

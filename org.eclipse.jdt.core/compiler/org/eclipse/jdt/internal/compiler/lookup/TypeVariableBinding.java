@@ -192,6 +192,30 @@ public class TypeVariableBinding extends ReferenceBinding {
     public char[] readableName() {
         return this.sourceName;
     }
+   
+	ReferenceBinding resolve(LookupEnvironment environment) {
+		if ((this.modifiers & AccUnresolved) == 0)
+			return this;
+	
+		if (this.superclass != null)
+			this.superclass = BinaryTypeBinding.resolveUnresolvedType(this.superclass, environment, true);
+		if (this.firstBound != null)
+			this.firstBound = BinaryTypeBinding.resolveUnresolvedType(this.firstBound, environment, true);
+		ReferenceBinding[] interfaces = this.superInterfaces;
+		for (int i = interfaces.length; --i >= 0;)
+			interfaces[i] = BinaryTypeBinding.resolveUnresolvedType(interfaces[i], environment, true);
+		this.modifiers &= ~AccUnresolved;
+	
+		// finish resolving the types
+		if (this.superclass != null)
+			this.superclass = BinaryTypeBinding.resolveType(this.superclass, environment, true);
+		if (this.firstBound != null)
+			this.firstBound = BinaryTypeBinding.resolveType(this.firstBound, environment, true);
+		for (int i = interfaces.length; --i >= 0;)
+			interfaces[i] = BinaryTypeBinding.resolveType(interfaces[i], environment, true);
+		return this;
+	}
+	
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#shortReadableName()
      */

@@ -57,17 +57,31 @@ public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironm
 	return type;
 }
 public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
-	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(environment, parameterizedType == null);
-	if (type.isParameterizedType())
-		return ((ParameterizedTypeBinding) type).resolve();
-	if (type.isWildcard())
-		return ((WildcardBinding) type).resolve();
-	if (type.isArrayType())
-		resolveType(((ArrayBinding) type).leafComponentType, environment, parameterizedType, rank);
-
-	if (parameterizedType == null && type.isGenericType()) // raw reference to generic ?
-	    return environment.createRawType((ReferenceBinding) type, null);
+	switch (type.bindingType()) {
+		
+		case Binding.PARAMETERIZED_TYPE :
+			return ((ParameterizedTypeBinding) type).resolve();
+			
+		case Binding.WILDCARD_TYPE :
+			return ((WildcardBinding) type).resolve();
+			
+		case Binding.ARRAY_TYPE :
+			resolveType(((ArrayBinding) type).leafComponentType, environment, parameterizedType, rank);
+			break;
+			
+		case Binding.TYPE_PARAMETER :
+			((TypeVariableBinding) type).resolve(environment);
+			break;
+						
+		case Binding.GENERIC_TYPE :
+			if (parameterizedType == null) // raw reference to generic ?
+			    return environment.createRawType((ReferenceBinding) type, null);
+			break;
+			
+		default:			
+			if (type instanceof UnresolvedReferenceBinding)
+				return ((UnresolvedReferenceBinding) type).resolve(environment, parameterizedType == null);
+	}
 	return type;
 }
 // resolve hierarchy types in 2 steps by first resolving any UnresolvedTypes
@@ -591,7 +605,7 @@ public boolean hasMemberTypes() {
 
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	TypeVariableBinding variable = super.getTypeVariable(variableName);
-	resolveTypesFor(variable);
+	variable.resolve(this.environment);
 	return variable;
 }
 private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBinding[] existingVariables, SignatureWrapper wrapper) {
@@ -695,32 +709,11 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 	for (int i = method.thrownExceptions.length; --i >= 0;)
 		method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
 	for (int i = method.typeVariables.length; --i >= 0;)
-		resolveTypesFor(method.typeVariables[i]);
+		method.typeVariables[i].resolve(this.environment);
 	method.modifiers &= ~AccUnresolved;
 	return method;
 }
-private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
-	if ((variable.modifiers & AccUnresolved) == 0)
-		return variable;
 
-	if (variable.superclass != null)
-		variable.superclass = resolveUnresolvedType(variable.superclass, this.environment, true);
-	if (variable.firstBound != null)
-		variable.firstBound = resolveUnresolvedType(variable.firstBound, this.environment, true);
-	ReferenceBinding[] interfaces = variable.superInterfaces;
-	for (int i = interfaces.length; --i >= 0;)
-		interfaces[i] = resolveUnresolvedType(interfaces[i], this.environment, true);
-	variable.modifiers &= ~AccUnresolved;
-
-	// finish resolving the types
-	if (variable.superclass != null)
-		variable.superclass = resolveType(variable.superclass, this.environment, true);
-	if (variable.firstBound != null)
-		variable.firstBound = resolveType(variable.firstBound, this.environment, true);
-	for (int i = interfaces.length; --i >= 0;)
-		interfaces[i] = resolveType(interfaces[i], this.environment, true);
-	return variable;
-}
 /* Answer the receiver's superclass... null if the receiver is Object or an interface.
 *
 * NOTE: superclass of a binary type is resolved when needed
@@ -756,7 +749,7 @@ public TypeVariableBinding[] typeVariables() {
 		return this.typeVariables;
 
  	for (int i = this.typeVariables.length; --i >= 0;)
-		resolveTypesFor(this.typeVariables[i]);
+		this.typeVariables[i].resolve(this.environment);
 	this.tagBits &= ~HasUnresolvedTypeVariables;
 	return this.typeVariables;
 }
