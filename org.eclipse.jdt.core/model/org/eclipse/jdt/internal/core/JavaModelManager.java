@@ -579,7 +579,7 @@ public void doneSaving(ISaveContext context){
 		IPath rootPath= new Path(rootName);
 		IPackageFragmentRoot root= null;
 		if (rootPath.isAbsolute()) {
-			root= proj.getPackageFragmentRoot(rootName);
+			root= proj.getPackageFragmentRoot(rootPath);
 		} else {
 			root= proj.getPackageFragmentRoot(proj.getProject().getFullPath().append(rootName));
 		}
