@@ -5190,6 +5190,9 @@ public void initialize() {
 	scanner.commentPtr = -1;
 	scanner.foundTaskCount = 0;
 	scanner.eofPosition = Integer.MAX_VALUE;
+	scanner.wasNonExternalizedStringLiteral = false;
+	scanner.nonNLSStrings = null;
+	scanner.currentLine = null;	
 
 	resetModifiers();
 
@@ -5302,6 +5305,7 @@ protected boolean moveRecoveryCheckpoint() {
 	/* if about to restart, then no need to shift token */
 	if (restartRecovery){
 		lastIgnoredToken = -1;
+		scanner.currentLine = null;
 		return true;
 	}
 	
@@ -5323,6 +5327,7 @@ protected boolean moveRecoveryCheckpoint() {
 	
 	if (nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
 		if (currentToken == TokenNameEOF) { // already tried one iteration on EOF
+			scanner.currentLine = null;
 			return false;
 		}
 	}
@@ -5333,6 +5338,7 @@ protected boolean moveRecoveryCheckpoint() {
 	scanner.currentPosition = pos;
 	scanner.commentPtr = -1;
 	scanner.foundTaskCount = 0;
+	scanner.currentLine = null;
 
 	return true;
 
@@ -6255,7 +6261,9 @@ protected boolean resumeAfterRecovery() {
 	this.resetStacks();
 	
 	/* attempt to move checkpoint location */
-	if (!this.moveRecoveryCheckpoint()) return false;
+	if (!this.moveRecoveryCheckpoint()) {
+		return false;
+	}
 
 	// only look for headers
 	if (referenceContext instanceof CompilationUnitDeclaration){
