@@ -8,8 +8,11 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 
 import org.eclipse.jdt.internal.core.JavaModel;
 import java.io.File;
@@ -20,21 +23,41 @@ import java.util.zip.ZipFile;
 /**
  * Scope limited to the subtype and supertype hierarchy of a given type.
  */
-public class HierarchyScope
-	extends AbstractSearchScope
-	implements IJavaSearchScope {
+public class HierarchyScope extends AbstractSearchScope {
 
 	private ITypeHierarchy fHierarchy;
 	private IType[] fTypes;
-	private HashSet resourcePaths = new HashSet();
+	private HashSet resourcePaths;
 	private IPath[] enclosingProjectsAndJars;
 
-	/**
+	protected IResource[] elements;
+	protected int elementCount;
+	
+	protected boolean needsRefresh;
+
+	/* (non-Javadoc)
+	 * Adds the given resource to this search scope.
+	 */
+	public void add(IResource element) {
+		if (this.elementCount == this.elements.length) {
+			System.arraycopy(
+				this.elements,
+				0,
+				this.elements = new IResource[this.elementCount * 2],
+				0,
+				this.elementCount);
+		}
+		elements[elementCount++] = element;
+	}
+	
+	/* (non-Javadoc)
 	 * Creates a new hiearchy scope for the given type.
 	 */
 	public HierarchyScope(IType type) throws JavaModelException {
+		this.initialize();
 		fHierarchy = type.newTypeHierarchy(null);
 		buildResourceVector();
+		JavaModelManager.getJavaModelManager().rememberScope(this);
 	}
 	private void buildResourceVector() throws JavaModelException {
 		HashMap resources = new HashMap();
@@ -88,6 +111,13 @@ public class HierarchyScope
 	 * @see IJavaSearchScope#encloses(String)
 	 */
 	public boolean encloses(String resourcePath) {
+		if (this.needsRefresh) {
+			try {
+				this.refresh();
+			} catch(JavaModelException e) {
+				return false;
+			}
+		}
 		int separatorIndex = resourcePath.indexOf(JAR_FILE_ENTRY_SEPARATOR);
 		if (separatorIndex != -1) {
 			return this.resourcePaths.contains(resourcePath);
@@ -104,6 +134,13 @@ public class HierarchyScope
 	 * @see IJavaSearchScope#encloses(IJavaElement)
 	 */
 	public boolean encloses(IJavaElement element) {
+		if (this.needsRefresh) {
+			try {
+				this.refresh();
+			} catch(JavaModelException e) {
+				return false;
+			}
+		}
 		if (element instanceof IType) {
 			return fHierarchy.contains((IType) element);
 		} else if (element instanceof IMember) {
@@ -112,10 +149,29 @@ public class HierarchyScope
 		return false;
 	}
 	/* (non-Javadoc)
+	 * Returns whether this search scope encloses the given resource.
+	 */
+	protected boolean encloses(IResource element) {
+		IPath elementPath = element.getFullPath();
+		for (int i = 0; i < elementCount; i++) {
+			if (this.elements[i].getFullPath().isPrefixOf(elementPath)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/* (non-Javadoc)
 	 * @see IJavaSearchScope#enclosingProjectsAndJars()
 	 * @deprecated
 	 */
 	public IPath[] enclosingProjectsAndJars() {
+		if (this.needsRefresh) {
+			try {
+				this.refresh();
+			} catch(JavaModelException e) {
+				return new IPath[0];
+			}
+		}
 		return this.enclosingProjectsAndJars;
 	}
 	/* (non-Javadoc)
@@ -132,6 +188,24 @@ public class HierarchyScope
 	public boolean includesClasspaths() {
 		return true;
 	}
+	protected void initialize() {
+		this.resourcePaths = new HashSet();
+		this.elements = new IResource[5];
+		this.elementCount = 0;
+		this.needsRefresh = false;		
+	}
+	/*
+	 * @see AbstractSearchScope#processDelta(IJavaElementDelta)
+	 */
+	public void processDelta(IJavaElementDelta delta) {
+		if (this.needsRefresh) return;
+		this.needsRefresh = ((TypeHierarchy)fHierarchy).isAffected(delta);
+	}
+	protected void refresh() throws JavaModelException {
+		this.initialize();
+		fHierarchy.refresh(null);
+		this.buildResourceVector();
+	}
 	/* (non-Javadoc)
 	 * @see IJavaSearchScope#setIncludesBinaries(boolean)
 	 * @deprecated
@@ -144,4 +218,5 @@ public class HierarchyScope
 	 */
 	public void setIncludesClasspaths(boolean includesClasspaths) {
 	}
+
 }

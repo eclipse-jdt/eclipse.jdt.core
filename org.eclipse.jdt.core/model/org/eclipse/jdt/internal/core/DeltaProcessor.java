@@ -1155,6 +1155,9 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 				case IResourceDelta.OPEN :
 					indexManager.indexAll(element.getJavaProject().getProject());
 					break;
+				case IResourceDelta.REMOVED :
+					indexManager.removeIndex(element.getJavaProject().getProject().getFullPath());
+					break;
 			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT :

@@ -123,13 +123,6 @@ private String computeIndexName(String pathString) {
  */
 public void deleting(IProject project) {
 	discardJobsUntilNextProjectAddition(project.getName());
-
-	IPath path = project.getFullPath();
-	IIndex index = (IIndex) indexes.get(path);
-	if (index != null){
-		indexes.remove(path);
-		monitors.remove(index);
-	}
 }
 /**
  * Remove the index from cache for a given project.

@@ -778,7 +778,7 @@ protected boolean isActivated() {
 /**
  * Returns true if the given delta could change this type hierarchy
  */
-private boolean isAffected(IJavaElementDelta delta) {
+public boolean isAffected(IJavaElementDelta delta) {
 	IJavaElement element= delta.getElement();
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:

@@ -18,18 +18,23 @@ import java.util.*;
 /**
  * A Java-specific scope for searching relative to one or more java elements.
  */
-public class JavaSearchScope implements IJavaSearchScope {
+public class JavaSearchScope extends AbstractSearchScope {
 	
 	private ArrayList elements;
 
 	/* The paths of the resources in this search scope 
 	   (or the classpath entries' paths 
 	   if the resources are projects) */
-	private IPath[] paths = new IPath[1];
-	private boolean[] pathWithSubFolders = new boolean[1];
-	private int pathsCount = 0;
+	private IPath[] paths;
+	private boolean[] pathWithSubFolders;
+	private int pathsCount;
 	
-	private IPath[] enclosingProjectsAndJars = new IPath[0];
+	private IPath[] enclosingProjectsAndJars;
+	
+public JavaSearchScope() {
+	this.initialize();
+	JavaModelManager.getJavaModelManager().rememberScope(this);
+}
 	
 private void addEnclosingProjectOrJar(IPath path) {
 	int length = this.enclosingProjectsAndJars.length;
@@ -247,11 +252,58 @@ public boolean includesBinaries() {
 public boolean includesClasspaths() {
 	return true;
 }
-
-/* (non-Javadoc)
- * @see IJavaSearchScope#setIncludesBinaries
- * @deprecated
+protected void initialize() {
+	this.paths = new IPath[1];
+	this.pathWithSubFolders = new boolean[1];
+	this.pathsCount = 0;
+	this.enclosingProjectsAndJars = new IPath[0];
+}
+/*
+ * @see AbstractSearchScope#processDelta(IJavaElementDelta)
  */
+public void processDelta(IJavaElementDelta delta) {
+	switch (delta.getKind()) {
+		case IJavaElementDelta.CHANGED:
+			IJavaElementDelta[] children = delta.getAffectedChildren();
+			for (int i = 0, length = children.length; i < length; i++) {
+				IJavaElementDelta child = children[i];
+				this.processDelta(child);
+			}
+			break;
+		case IJavaElementDelta.REMOVED:
+			IJavaElement element = delta.getElement();
+			if (this.encloses(element)) {
+				if (this.elements != null) {
+					this.elements.remove(element);
+				} 
+				IPath path = null;
+				switch (element.getElementType()) {
+					case IJavaElement.JAVA_PROJECT:
+						path = ((IJavaProject)element).getProject().getFullPath();
+					case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+						if (path == null) {
+							path = ((IPackageFragmentRoot)element).getPath();
+						}
+						int toRemove = -1;
+						for (int i = 0; i < this.pathsCount; i++) {
+							if (this.paths[i].equals(path)) {
+								toRemove = i;
+								break;
+							}
+						}
+						if (toRemove != -1) {
+							int last = this.pathsCount-1;
+							if (toRemove != last) {
+								this.paths[toRemove] = this.paths[last];
+								this.pathWithSubFolders[toRemove] = this.pathWithSubFolders[last];
+							}
+							this.pathsCount--;
+						}
+				}
+			}
+			break;
+	}
+}
 public void setIncludesBinaries(boolean includesBinaries) {
 }
 

@@ -9,6 +9,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -329,6 +330,11 @@ public static IJavaElement determineIfOnClasspath(
 	 * of the shared working copies.
 	 */
 	protected Map sharedWorkingCopies = new HashMap();
+	
+	/**
+	 * A weak set of the known scopes.
+	 */
+	protected WeakHashMap scopes = new WeakHashMap();
 
 	static class PerProjectInfo {
 		IProject project;
@@ -457,6 +463,14 @@ public void doneSaving(ISaveContext context){
 					if (DeltaProcessor.VERBOSE){
 						System.out.println("FIRING Delta ["+Thread.currentThread()+"]:\n" + delta);//$NON-NLS-1$//$NON-NLS-2$
 					}
+					
+					// Refresh internal scopes
+					Iterator scopes = this.scopes.keySet().iterator();
+					while (scopes.hasNext()) {
+						AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
+						scope.processDelta(delta);
+					}
+					
 					ElementChangedEvent event= new ElementChangedEvent(delta);
 					// Clone the listeners since they could remove themselves when told about the event 
 					// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
@@ -938,6 +952,14 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 	 */
 	protected void registerJavaModelDelta(IJavaElementDelta delta) {
 		fJavaModelDeltas.add(delta);
+	}
+	/**
+	 * Remembers the given scope in a weak set
+	 * (so no need to remove it: it will be removed by the garbage collector)
+	 */
+	public void rememberScope(AbstractSearchScope scope) {
+		// NB: The value has to be null so as to not create a strong reference on the scope
+		this.scopes.put(scope, null); 
 	}
 
 	/**
