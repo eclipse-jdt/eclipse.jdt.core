@@ -1618,6 +1618,76 @@ public void _test43() {
 		false, // do not flush previous output dir content
 		null); // no special vm args		
 }
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442
+ * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
+ */
+public void test47() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends AbstractDoubleAlgorithm {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		((ObjectAlgorithm)(new X())).operate(new Double(0));\n" + 
+			"	}\n" + 
+			"    public void operate(Double pDouble)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"abstract class AbstractDoubleAlgorithm implements DoubleAlgorithm {\n" + 
+			"    public void operate(Object pObject)\n" + 
+			"    {\n" + 
+			"        operate((Double)pObject);\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"interface DoubleAlgorithm extends ObjectAlgorithm {\n" + 
+			"    void operate(Double pDouble);\n" + 
+			"}\n" + 
+			"interface ObjectAlgorithm {\n" + 
+			"    void operate(Object pObject);\n" + 
+			"}"
+		},
+		"SUCCESS"
+	);
+}
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442
+ * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
+ * variation with 2 found methods
+ */
+public void test48() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends AbstractDoubleAlgorithm {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		((ObjectAlgorithm)(new X())).operate(new Double(0));\n" + 
+			"	}\n" + 
+			"    public void operate(Double pDouble)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"abstract class AbstractDoubleAlgorithm implements DoubleAlgorithm {\n" + 
+			"    public void operate(Object pObject)\n" + 
+			"    {\n" + 
+			"        operate((Double)pObject);\n" + 
+			"    }\n" + 
+			"    public void operate(X x) {}\n" + 
+			"}\n" + 
+			"interface DoubleAlgorithm extends ObjectAlgorithm {\n" + 
+			"    void operate(Double pDouble);\n" + 
+			"}\n" + 
+			"interface ObjectAlgorithm {\n" + 
+			"    void operate(Object pObject);\n" + 
+			"}"
+		},
+		"SUCCESS"
+	);
+}
 
 public static Class testClass() {
 	return Compliance_1_3.class;
