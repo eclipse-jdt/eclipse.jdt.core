@@ -153,6 +153,7 @@ protected void codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit
 protected OpenableElementInfo createElementInfo() {
 	return new OpenableElementInfo();
 }
+
 /**
  * Builds this element's structure and properties in the given
  * info object, based on this element's current contents (i.e. buffer
@@ -204,6 +205,21 @@ protected BufferManager getBufferManager() {
 public IResource getCorrespondingResource() throws JavaModelException {
 	return getUnderlyingResource();
 }
+
+/**
+ * Answer the path of the corresponding resource or associated file (JARs)
+ */
+public IPath getPath(){
+	try {
+		IResource resource = this.getCorrespondingResource();
+		if (resource != null){
+			return resource.getFullPath();
+		}
+	} catch(JavaModelException e){
+	}
+	return null;
+}
+
 /**
  * @see IJavaElement
  */
@@ -225,6 +241,17 @@ public IResource getUnderlyingResource() throws JavaModelException {
 		return parentResource;
 	}
 }
+
+public boolean exists(){
+	
+	IPath path = this.getPath();
+	if (path != null){
+		return parentExists() 
+					&& resourceExists();
+	}
+	return super.exists();
+}	
+
 /**
  * Returns true if this element may have an associated source buffer,
  * otherwise false. Subclasses must override as required.
@@ -390,6 +417,25 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 }
 
 /**
+ *  Answers true if the parent exists (null parent is answering true)
+ * 
+ */
+protected boolean parentExists(){
+	
+	IJavaElement parent = this.getParent();
+	if (parent == null) return true;
+	return parent.exists();
+}
+
+/**
+ * Returns whether the corresponding resource or associated file exists
+ */
+protected boolean resourceExists() {
+	
+	return JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.getPath(), true) != null;
+}
+
+/**
  * @see IOpenable
  */
 public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
@@ -471,4 +517,5 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 			}
 		});
 }
+
 }

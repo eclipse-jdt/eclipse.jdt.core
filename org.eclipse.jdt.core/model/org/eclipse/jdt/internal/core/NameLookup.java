@@ -211,6 +211,10 @@ public class NameLookup {
 		if (!path.isAbsolute()) {
 			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
 		}
+/*
+ * this code should rather use the package fragment map to find the candidate package, then
+ * check if the respective enclosing root maps to the one on this given IPath.
+ */		
 		IResource possibleFragment = workspace.getRoot().findMember(path);
 		if (possibleFragment == null) {
 			//external jar
@@ -236,8 +240,7 @@ public class NameLookup {
 					for (int j = 0; j < elementCount; j++) {
 						IPackageFragment packageFragment = (IPackageFragment) list[j];
 						if (nameMatches(name, packageFragment, false)) {
-							if (packageFragment.exists())
-								return packageFragment;
+							return packageFragment;
 						}
 					}
 				}

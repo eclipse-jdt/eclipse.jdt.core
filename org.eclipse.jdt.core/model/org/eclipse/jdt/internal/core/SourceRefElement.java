@@ -44,6 +44,7 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 	IJavaElement[] elements = new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
 }
+
 /**
  * @see IMember
  */
@@ -64,11 +65,14 @@ public IResource getCorrespondingResource() throws JavaModelException {
  * type (going up the hierarchy from this type);
  */
 public IOpenable getOpenableParent() {
-	// to optimize
-	IJavaElement parent = getParent();
-	if (parent instanceof IOpenable)
-		return (IOpenable) parent;
-	return ((JavaElement) parent).getOpenableParent();
+	IJavaElement current = getParent();
+	while (current != null){
+		if (current instanceof IOpenable){
+			return (IOpenable) current;
+		}
+		current = current.getParent();
+	}
+	return null;
 }
 /**
  * @see ISourceReference

@@ -146,13 +146,15 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
  * @see IJavaElement
  */
 public boolean exists() {
+	
 	try {
 		getRawInfo();
 		return true;
 	} catch (JavaModelException e) {
-		return false;
 	}
+	return false;
 }
+
 /**
  * Returns the <code>IDOMNode</code> that corresponds to this <code>JavaElement</code>
  * or <code>null</code> if there is no corresponding node.
@@ -345,6 +347,7 @@ public IOpenable getOpenableParent() {
 public IJavaElement getParent() {
 	return fParent;
 }
+
 /**
  * Returns the info for this handle.  
  * If this element is not already open, it and all of its parents are opened.
@@ -429,6 +432,7 @@ protected boolean isAncestorOf(IJavaElement e) {
 	}
 	return parent != null;
 }
+
 /**
  * @see IJavaElement
  */
@@ -484,12 +488,16 @@ protected void openHierarchy() throws JavaModelException {
  */
 protected void opening(Object info) {
 }
+
+
+
 /**
  */
 public String readableName() {
 
 	return this.getElementName();
 }
+
 /**
  * Removes all cached info from the Java Model, including all children,
  * but does not close this element.

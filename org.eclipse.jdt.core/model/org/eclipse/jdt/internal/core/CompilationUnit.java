@@ -559,6 +559,14 @@ protected void openParent(IProgressMonitor pm) throws JavaModelException {
 	}
 }
 /**
+ *  Answers true if the parent exists (null parent is answering true)
+ * 
+ */
+protected boolean parentExists(){
+	
+	return true; // tolerate units outside classpath
+}
+/**
  * @see IWorkingCopy
  */
 public IMarker[] reconcile() throws JavaModelException {

@@ -149,7 +149,15 @@ public boolean equals(Object o) {
 			fOccurrenceCount == other.fOccurrenceCount;
 }
 
-	
+/**
+ * @see IJavaElement
+ */
+public boolean exists() {
+
+	return super.exists() 
+				&& isOnClasspath();
+}
+		
 public boolean exists0() {
 	if (!JavaModelManager.USING_NEW_BUILDER) {
 		return this.resourceExists();
@@ -159,43 +167,6 @@ public boolean exists0() {
 	}
 }
 
-protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
-	if (!this.resourceExists() || !this.isOnClasspath()) throw newNotPresentException();
-	super.openWhenClosed(pm, buffer);
-}
-
-/*
- * Returns whether this package fragment root is on the classpath of its project.
- */
-private boolean isOnClasspath() throws JavaModelException {
-	IPath path = this.getPath();
-	IJavaProject project = this.getJavaProject();
-
-	// special permission granted to project binary output (when using old builder)
-	if (!JavaModelManager.USING_NEW_BUILDER && project.getOutputLocation().equals(path)) { 
-		return true;
-	}
-	
-	// check package fragment root on classpath of its project
-	IClasspathEntry[] classpath = project.getResolvedClasspath(true);	
-	for (int i = 0, length = classpath.length; i < length; i++) {
-		IClasspathEntry entry = classpath[i];
-		if (entry.getPath().equals(path)) {
-			return true;
-		}
-	}
-	return false;
-
-}
-
-/*
- * Returns whether the java.io.File (a folder, an internal jar, or an external one)
- * corresponding to this package fragment root exists.
- */
-private boolean resourceExists() {
-	return JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.getPath(), true) != null;
-}
-	
 /**
  * @see Openable
  */
@@ -293,6 +264,46 @@ public boolean isArchive() {
 public boolean isExternal() {
 	return false;
 }
+
+/*
+ * Returns whether this package fragment root is on the classpath of its project.
+ */
+protected boolean isOnClasspath() {
+
+	IJavaProject project = this.getJavaProject();
+
+	if (this.getElementType() == IJavaElement.JAVA_PROJECT){
+		return true;
+	}
+	
+	IPath path = this.getPath();
+
+	try {
+		// special permission granted to project binary output (when using old builder)
+		if (!JavaModelManager.USING_NEW_BUILDER && project.getOutputLocation().isPrefixOf(path)) { 
+			return true;
+		}
+	
+		// check package fragment root on classpath of its project
+		IClasspathEntry[] classpath = project.getResolvedClasspath(true);	
+		for (int i = 0, length = classpath.length; i < length; i++) {
+			IClasspathEntry entry = classpath[i];
+			if (entry.getPath().isPrefixOf(path)) {
+				return true;
+			}
+		}
+	} catch(JavaModelException e){
+		// could not read classpath, then assume it is outside
+	}
+	return false;
+
+}
+
+protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+	if (!this.resourceExists() || !this.isOnClasspath()) throw newNotPresentException();
+	super.openWhenClosed(pm, buffer);
+}
+
 /**
  * Recomputes the children of this element, based on the current state
  * of the workbench.
