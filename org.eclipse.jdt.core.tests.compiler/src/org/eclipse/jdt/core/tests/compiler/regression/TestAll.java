@@ -49,6 +49,7 @@ public static Test suite() {
 	addTest(suite, LookupTest.class);
 	addTest(suite, ProblemConstructorTest.class);
 	addTest(suite, UtilTest.class);
+	addTest(suite, ScannerTest.class);
 		
 	if (EXPERT) {
 		return new RegressionTestSetup(suite);
