@@ -113,6 +113,8 @@ public static ClasspathLocation[] computeLocations(
 						if (prereqOutputFolder == null || !prereqOutputFolder.exists() || !(prereqOutputFolder instanceof IFolder))
 							continue nextEntry;
 					}
+					if (prereqOutputFolder.getLocation() == null) // sanity check
+						continue nextEntry;
 					if (prereqOutputFolders != null)
 						prereqOutputFolders.put(prereqProject, prereqOutputFolder);
 					classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(prereqOutputFolder.getLocation().toString());
