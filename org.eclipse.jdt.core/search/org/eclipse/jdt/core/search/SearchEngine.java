@@ -81,8 +81,30 @@ public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
  * be children of the given elements.
  * <p>
  * If an element is an IJavaProject, then the project's source folders, 
- * its jars (external and internal) and its references projects (with their source 
+ * its jars (external and internal) and its referenced projects (with their source 
  * folders and jars, recursively) will be included.
+ * If an element is an IPackageFragmentRoot, then only the package fragments of 
+ * this package fragment root will be included.
+ * If an element is an IPackageFragment, then only the compilation unit and class 
+ * files of this package fragment will be included. Subpackages will NOT be 
+ * included.
+ * <p>
+ * In other words, this is equivalent to using SearchEngine.createJavaSearchScope(elements, true)
+ *
+ * @param elements the java elements the scope is limited to
+ * @return a new java search scope
+ */
+public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
+	return createJavaSearchScope(elements, true);
+}
+/**
+ * Returns a java search scope limited to the given java elements.
+ * The java elements resulting from a search with this scope will
+ * be children of the given elements.
+ * <p>
+ * If an element is an IJavaProject, then the project's source folders, 
+ * its jars (external and internal) and - if specified - its referenced projects 
+ * (with their source folders and jars, recursively) will be included.
  * If an element is an IPackageFragmentRoot, then only the package fragments of 
  * this package fragment root will be included.
  * If an element is an IPackageFragment, then only the compilation unit and class 
@@ -90,15 +112,22 @@ public static IJavaSearchScope createJavaSearchScope(IResource[] resources) {
  * included.
  *
  * @param elements the java elements the scope is limited to
+ * @param includeReferencedProjects a flag indicating if referenced projects must be 
+ * 									 recursively included
  * @return a new java search scope
  */
-public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
+public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
 	JavaSearchScope scope = new JavaSearchScope();
+	Hashtable visitedProjects = new Hashtable(2);
 	for (int i = 0, length = elements.length; i < length; i++) {
 		IJavaElement element = elements[i];
 		if (element != null) {
 			try {
-				scope.add(element);
+				if (element instanceof IJavaProject) {
+					scope.add((IJavaProject)element, includeReferencedProjects, visitedProjects);
+				} else {
+					scope.add(element);
+				}
 			} catch (JavaModelException e) {
 				// ignore
 			}
