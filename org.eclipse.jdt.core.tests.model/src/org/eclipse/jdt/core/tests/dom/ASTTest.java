@@ -1427,6 +1427,22 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		}
 		
+		// check that property cannot be set to keyword or reserved work
+		String[] bogus  = 
+				new String[] {
+						"a b", "a ", " a", // literals //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						"a-b", "a[]", "a<T>", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+						"", " ", "a.b"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (int i=0; i<bogus.length; i++) {
+			try {
+				x.setIdentifier(bogus[i]);
+//				assertTrue(false);
+				System.out.println("Error: SimpleName.setIdentifier(\"" + bogus[i] + "\") was not rejected");
+			} catch (RuntimeException e) {
+				// pass
+				System.out.println("SimpleName.setIdentifier(\"" + bogus[i] + "\") was rejected");
+			}
+		}
 		// check that "assert" is not considered a keyword
 		// "assert" only became a keyword in J2SE 1.4 and we do *not* want to
 		// preclude the AST API from being used to analyze pre-1.4 code
@@ -1551,6 +1567,57 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	}		
 
+	public void testNameFactories() {
+		long previousCount = ast.modificationCount();
+		Name x = ast.newName("foo"); //$NON-NLS-1$
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue("foo".equals(x.getFullyQualifiedName())); //$NON-NLS-1$
+		assertTrue(x.getNodeType() == ASTNode.SIMPLE_NAME);
+
+		previousCount = ast.modificationCount();
+		x = ast.newName("foo.bar"); //$NON-NLS-1$
+		assertTrue(ast.modificationCount() > previousCount);
+		previousCount = ast.modificationCount();
+		assertTrue(x.getAST() == ast);
+		assertTrue(x.getParent() == null);
+		assertTrue("foo.bar".equals(x.getFullyQualifiedName())); //$NON-NLS-1$
+		assertTrue(x.getNodeType() == ASTNode.QUALIFIED_NAME);
+		QualifiedName q = (QualifiedName) x;
+		assertTrue("bar".equals(q.getName().getFullyQualifiedName())); //$NON-NLS-1$
+		assertTrue("foo".equals(q.getQualifier().getFullyQualifiedName())); //$NON-NLS-1$
+		
+		// check that simple and qualified names work
+		String[] legal  = 
+				new String[] {
+						"a", "abcdef", "XYZZY", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						"a.b", "java.lang.Object", "a.b.c.d.e"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		for (int i=0; i<legal.length; i++) {
+			try {
+				x = ast.newName(legal[i]);
+				assertTrue(legal[i].equals(x.getFullyQualifiedName()));
+			} catch (RuntimeException e) {
+				assertTrue(false);
+			}
+		}
+		
+		// check that property cannot be set to keyword or reserved work
+		String[] bogus  = 
+				new String[] {
+						"", ".", ".a", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						"a.", "a..b", "..a"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		for (int i=0; i<bogus.length; i++) {
+			try {
+				x = ast.newName(bogus[i]);
+				assertTrue(false);
+			} catch (RuntimeException e) {
+				// pass
+			}
+		}
+	}		
+	
 	public void testNullLiteral() {
 		long previousCount = ast.modificationCount();
 		NullLiteral x = ast.newNullLiteral();
