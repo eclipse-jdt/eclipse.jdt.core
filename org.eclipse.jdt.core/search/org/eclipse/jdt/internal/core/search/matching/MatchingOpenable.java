@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -187,16 +186,7 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 		// resolve
 		BinaryTypeBinding binding = null;
 		try {
-			binding = this.locator.lookupEnvironment.cacheBinaryType(info);
-			if (binding == null) { // it was already cached as a result of a previous query
-				char[][] compoundName = CharOperation.splitOn('.', binaryType.getFullyQualifiedName().toCharArray());
-				ReferenceBinding referenceBinding = this.locator.lookupEnvironment.getCachedType(compoundName);
-				if (referenceBinding != null && (referenceBinding instanceof BinaryTypeBinding)) {
-					// if the binding could be found and if it comes from a binary type,
-					binding = (BinaryTypeBinding)referenceBinding;
-				}
-			}
-
+			binding = this.locator.cacheBinaryType(binaryType);
 			if (binding != null) {
 				// filter out element not in hierarchy scope
 				if (this.locator.hierarchyResolver != null 

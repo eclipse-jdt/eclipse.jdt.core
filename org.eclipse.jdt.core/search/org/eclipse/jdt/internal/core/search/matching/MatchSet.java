@@ -182,7 +182,7 @@ public Integer removeTrustedMatch(AstNode node) {
  * search pattern (ie. the ones in the matching nodes set)
  * Note that the method declaration has already been checked.
  */
-private void reportMatching(AbstractMethodDeclaration method, IJavaElement parent) throws CoreException {
+private void reportMatching(AbstractMethodDeclaration method, IJavaElement parent, boolean typeInHierarchy) throws CoreException {
 	// declaration in this method
 	// (NB: declarations must be searched first (see bug 20631 Declaration of local binary type not found)
 	if ((method.bits & AstNode.HasLocalTypeMASK) != 0) {
@@ -199,24 +199,26 @@ private void reportMatching(AbstractMethodDeclaration method, IJavaElement paren
 	}
 	
 	// references in this method
-	AstNode[] nodes = this.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
-	for (int i = 0; i < nodes.length; i++) {
-		AstNode node = nodes[i];
-		Integer level = (Integer)this.matchingNodes.get(node);
-		if ((this.matchContainer & SearchPattern.METHOD) != 0) {
-			this.locator.reportReference(
-				node, 
-				method, 
-				parent, 
-				level.intValue() == SearchPattern.ACCURATE_MATCH ?
-					IJavaSearchResultCollector.EXACT_MATCH :
-					IJavaSearchResultCollector.POTENTIAL_MATCH);
-			this.matchingNodes.remove(node);
+	if (typeInHierarchy) {
+		AstNode[] nodes = this.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
+		for (int i = 0; i < nodes.length; i++) {
+			AstNode node = nodes[i];
+			Integer level = (Integer)this.matchingNodes.get(node);
+			if ((this.matchContainer & SearchPattern.METHOD) != 0) {
+				this.locator.reportReference(
+					node, 
+					method, 
+					parent, 
+					level.intValue() == SearchPattern.ACCURATE_MATCH ?
+						IJavaSearchResultCollector.EXACT_MATCH :
+						IJavaSearchResultCollector.POTENTIAL_MATCH);
+				this.matchingNodes.remove(node);
+			}
 		}
-	}
-	if (this.potentialMatchingNodes(method.declarationSourceStart, method.declarationSourceEnd).length == 0) {
-		// no need to resolve the statements in the method
-		method.statements = null;
+		if (this.potentialMatchingNodes(method.declarationSourceStart, method.declarationSourceEnd).length == 0) {
+			// no need to resolve the statements in the method
+			method.statements = null;
+		}
 	}
 }
 /**
@@ -314,21 +316,23 @@ public void reportMatching(CompilationUnitDeclaration unit) throws CoreException
  * search pattern (ie. the ones in the matching nodes set)
  * Note that the field declaration has already been checked.
  */
-private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDeclaration type) throws CoreException {
-	AstNode[] nodes = this.matchingNodes(field.declarationSourceStart, field.declarationSourceEnd);
-	for (int i = 0; i < nodes.length; i++) {
-		AstNode node = nodes[i];
-		Integer level = (Integer)this.matchingNodes.get(node);
-		if ((this.matchContainer & SearchPattern.FIELD) != 0) {
-			this.locator.reportReference(
-				node, 
-				type, 
-				field, 
-				parent, 
-				level.intValue() == SearchPattern.ACCURATE_MATCH ?
-					IJavaSearchResultCollector.EXACT_MATCH :
-					IJavaSearchResultCollector.POTENTIAL_MATCH);
-			this.matchingNodes.remove(node);
+private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDeclaration type, boolean typeInHierarchy) throws CoreException {
+	if (typeInHierarchy) {
+		AstNode[] nodes = this.matchingNodes(field.declarationSourceStart, field.declarationSourceEnd);
+		for (int i = 0; i < nodes.length; i++) {
+			AstNode node = nodes[i];
+			Integer level = (Integer)this.matchingNodes.get(node);
+			if ((this.matchContainer & SearchPattern.FIELD) != 0) {
+				this.locator.reportReference(
+					node, 
+					type, 
+					field, 
+					parent, 
+					level.intValue() == SearchPattern.ACCURATE_MATCH ?
+						IJavaSearchResultCollector.EXACT_MATCH :
+						IJavaSearchResultCollector.POTENTIAL_MATCH);
+				this.matchingNodes.remove(node);
+			}
 		}
 	}
 	if ((field.bits & AstNode.HasLocalTypeMASK) != 0) {
@@ -376,17 +380,17 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 	if (fields != null && typeInHierarchy) {
 		for (int i = 0; i < fields.length; i++) {
 			FieldDeclaration field = fields[i];
-			if ((level = (Integer)this.matchingNodes.remove(field)) != null) {
-				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
+			if ((level = (Integer)this.matchingNodes.remove(field)) != null
+				&& typeInHierarchy
+				&& (this.matchContainer & SearchPattern.CLASS) != 0) {
 					this.locator.reportFieldDeclaration(
 						field, 
 						enclosingElement, 
 						level.intValue() == SearchPattern.ACCURATE_MATCH ?
 							IJavaSearchResultCollector.EXACT_MATCH :
 							IJavaSearchResultCollector.POTENTIAL_MATCH);
-				}
 			}
-			this.reportMatching(field, enclosingElement, type);
+			this.reportMatching(field, enclosingElement, type, typeInHierarchy);
 		}
 	}
 
@@ -395,17 +399,17 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 	if (methods != null && typeInHierarchy) {
 		for (int i = 0; i < methods.length; i++) {
 			AbstractMethodDeclaration method = methods[i];
-			if ((level = (Integer)this.matchingNodes.remove(method)) != null) {
-				if ((this.matchContainer & SearchPattern.CLASS) != 0) {
+			if ((level = (Integer)this.matchingNodes.remove(method)) != null
+				&& typeInHierarchy
+				&& (this.matchContainer & SearchPattern.CLASS) != 0) {
 					this.locator.reportMethodDeclaration(
 						method, 
 						enclosingElement, 
 						level.intValue() == SearchPattern.ACCURATE_MATCH ?
 							IJavaSearchResultCollector.EXACT_MATCH :
 							IJavaSearchResultCollector.POTENTIAL_MATCH);
-				}
 			}
-			this.reportMatching(method, enclosingElement);
+			this.reportMatching(method, enclosingElement, typeInHierarchy);
 		}
 	}
 

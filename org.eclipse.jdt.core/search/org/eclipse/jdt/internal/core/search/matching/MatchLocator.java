@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
+import org.eclipse.jdt.internal.core.search.HierarchyScope;
 /**
  * Locate matches in compilation units.
  */
@@ -369,21 +370,6 @@ public class MatchLocator implements ITypeRequestor {
 		
 		// remember project's name lookup
 		this.nameLookup = project.getNameLookup();
-
-		// create hierarchy resolver if scope is a hierarchy scope
-/*	if (this.scope instanceof HierarchyScope) {
-			IType focusType = ((HierarchyScope)this.scope).focusType;
-			if (focusType != null) {
-					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-					this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed);
-					this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
-			} else {
-				this.hierarchyResolver = null;
-			}
-		} else {
-			this.hierarchyResolver = null;
-		}
-*/
 	}
 
 	public void initializeNameEnvironment(JavaProject project) throws JavaModelException {
@@ -1086,6 +1072,29 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 		this.matchingOpenables.add(matchingOpenable);
 	}
 }
+/*
+ * Caches the given binary type in the lookup environment and returns it.
+ * Returns the existing one if already cached.
+ * Returns null if source type binding was cached.
+ */
+BinaryTypeBinding cacheBinaryType(IType type) throws JavaModelException {
+	IType enclosingType = type.getDeclaringType();
+	if (enclosingType != null) {
+		// force caching of enclosing types first, so that binary type can be found in lookup enviroment
+		this.cacheBinaryType(enclosingType);
+	}
+	IBinaryType binaryType = (IBinaryType)((BinaryType)type).getRawInfo();
+	BinaryTypeBinding binding = this.lookupEnvironment.cacheBinaryType(binaryType);
+	if (binding == null) { // it was already cached as a result of a previous query
+		char[][] compoundName = CharOperation.splitOn('.', type.getFullyQualifiedName().toCharArray());
+		ReferenceBinding referenceBinding = this.lookupEnvironment.getCachedType(compoundName);
+		if (referenceBinding != null && (referenceBinding instanceof BinaryTypeBinding)) {
+			// if the binding could be found and if it comes from a binary type,
+			binding = (BinaryTypeBinding)referenceBinding;
+		}
+	}
+	return binding;
+}
 
 
 	private INameEnvironment getNameEnvironment(JavaProject project) throws JavaModelException {
@@ -1190,6 +1199,20 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 
 		if (this.pattern.needsResolve) {
 			this.createAndResolveBindings(openables);
+		}
+
+		// create hierarchy resolver if scope is a hierarchy scope
+		if (this.scope instanceof HierarchyScope) {
+			IType focusType = ((HierarchyScope)this.scope).focusType;
+			if (focusType != null) {
+					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+					this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
+					this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+			} else {
+				this.hierarchyResolver = null;
+			}
+		} else {
+			this.hierarchyResolver = null;
 		}
 
 		// matching openable resolution

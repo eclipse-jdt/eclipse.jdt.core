@@ -46,7 +46,6 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
@@ -178,15 +177,7 @@ private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUni
 	}
 	return unit;
 }
-private BinaryTypeBinding cacheBinaryType(IType type) throws JavaModelException {
-	IType enclosingType = type.getDeclaringType();
-	if (enclosingType != null) {
-		// force caching of enclosing types first, so that binary type can be found in lookup enviroment
-		this.cacheBinaryType(enclosingType);
-	}
-	IBinaryType binaryType = (IBinaryType)((BinaryType)type).getRawInfo();
-	return this.locator.lookupEnvironment.cacheBinaryType(binaryType);
-}
+
 
 protected char[][][] collect() throws JavaModelException {
 	
@@ -201,8 +192,10 @@ protected char[][][] collect() throws JavaModelException {
 			this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies);
 			try {
 				if (this.type.isBinary()) {
-					BinaryTypeBinding binding = this.cacheBinaryType(this.type);
-					this.collectSuperTypeNames(binding);
+					BinaryTypeBinding binding = this.locator.cacheBinaryType(this.type);
+					if (binding != null) {
+						this.collectSuperTypeNames(binding);
+					}
 				} else {
 					ICompilationUnit unit = this.type.getCompilationUnit();
 					CompilationUnitDeclaration parsedUnit = this.buildBindings(unit);
@@ -254,7 +247,7 @@ protected char[][][] collect() throws JavaModelException {
 							}
 						} else if (openable instanceof IClassFile) {
 							IClassFile classFile = (IClassFile)openable;
-							BinaryTypeBinding binding = this.cacheBinaryType(classFile.getType());
+							BinaryTypeBinding binding = this.locator.cacheBinaryType(classFile.getType());
 							if (this.matches(binding)) {
 								this.collectSuperTypeNames(binding);
 							}
