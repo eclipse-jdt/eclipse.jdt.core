@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class QualifiedNameReference extends NameReference {
 	
@@ -767,7 +768,9 @@ public class QualifiedNameReference extends NameReference {
 								scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
 								}
 						}
-						if (!fieldBinding.isStatic() && this.indexOfFirstFieldBinding == 1) {
+						if (!fieldBinding.isStatic() 
+								&& this.indexOfFirstFieldBinding == 1
+								&& scope.environment().options.getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 							scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 						}
 						bits &= ~RestrictiveFlagMASK; // clear bits

@@ -1631,40 +1631,34 @@ public class DeltaProcessor {
 	/*
 	 * Update the JavaModel according to a .classpath file change. The file can have changed as a result of a previous
 	 * call to JavaProject#setRawClasspath or as a result of some user update (through repository)
-	 * If no delta is passed, then will trigger a reload of the file)
 	 */
 	private void reconcileClasspathFileUpdate(IResourceDelta delta, JavaProject project) {
 		
-		boolean reloadClasspath = true;
-		if (delta != null) {
-			reloadClasspath = false; // narrow down need to reload based on delta
-			switch (delta.getKind()) {
-				case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
-					try {
-						JavaModelManager.PerProjectInfo info = project.getPerProjectInfo();
-						if (info.rawClasspath != null) { // if there is an in-memory classpath
-							project.saveClasspath(info.rawClasspath, info.outputLocation);
-						}
-					} catch (JavaModelException e) {
-						if (project.getProject().isAccessible()) {
-							Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
-						}
+		switch (delta.getKind()) {
+			case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
+				try {
+					JavaModelManager.PerProjectInfo info = project.getPerProjectInfo();
+					if (info.rawClasspath != null) { // if there is an in-memory classpath
+						project.saveClasspath(info.rawClasspath, info.outputLocation);
 					}
+				} catch (JavaModelException e) {
+					if (project.getProject().isAccessible()) {
+						Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
+					}
+				}
+				break;
+			case IResourceDelta.CHANGED :
+				if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
+						&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) {// and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
 					break;
-				case IResourceDelta.CHANGED :
-					if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
-							&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) // and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
-						break;
-				case IResourceDelta.ADDED :
-					reloadClasspath = true;
-			}
-		}
-		if (reloadClasspath) {
-			try {
-				project.forceClasspathReload(null);
-			} catch (RuntimeException e) {
-			} catch (JavaModelException e) {	
-			}
+				}
+				// fall through
+			case IResourceDelta.ADDED :
+				try {
+					project.forceClasspathReload(null);
+				} catch (RuntimeException e) { 		// ignore
+				} catch (JavaModelException e) {	// ignore
+				}
 		}
 	}
 	/*

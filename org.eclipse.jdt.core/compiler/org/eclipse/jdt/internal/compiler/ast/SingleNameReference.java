@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class SingleNameReference extends NameReference implements OperatorIds {
 	public char[] token;
@@ -649,7 +650,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						}
 						// a field
 						FieldBinding field = (FieldBinding) this.binding;
-						if (!field.isStatic()) {
+						if (!field.isStatic() && scope.environment().options.getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 							scope.problemReporter().unqualifiedFieldAccess(this, field);
 						}
 						return this.resolvedType = checkFieldAccess(scope);
