@@ -797,16 +797,18 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(signatureAttribute.getSignature());
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
-			buffer
-				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
-				.append(Util.bind("classfileformat.maxStack")) //$NON-NLS-1$
-				.append(codeAttribute.getMaxStack())
-				.append(Util.bind("disassembler.comma"))//$NON-NLS-1$
-				.append(Util.bind("disassembler.space"))//$NON-NLS-1$
-				.append(Util.bind("classfileformat.maxLocals")) //$NON-NLS-1$
-				.append(codeAttribute.getMaxLocals());
+			if (codeAttribute != null) {
+				buffer
+					.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
+					.append(Util.bind("classfileformat.maxStack")) //$NON-NLS-1$
+					.append(codeAttribute.getMaxStack())
+					.append(Util.bind("disassembler.comma"))//$NON-NLS-1$
+					.append(Util.bind("disassembler.space"))//$NON-NLS-1$
+					.append(Util.bind("classfileformat.maxLocals")) //$NON-NLS-1$
+					.append(codeAttribute.getMaxLocals());
+				writeNewLine(buffer, lineSeparator, tabNumber);
+			}
 		}		
-		writeNewLine(buffer, lineSeparator, tabNumber);
 		int accessFlags = methodInfo.getAccessFlags();
 		decodeModifiersForMethod(buffer, accessFlags);
 		if (methodInfo.isSynthetic()) {
