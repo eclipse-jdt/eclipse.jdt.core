@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 
@@ -69,8 +70,11 @@ private void addEnclosingProjectOrJar(IPath path) {
 	this.enclosingProjectsAndJars[length] = path;
 }
 
-public void add(IJavaProject project, boolean includesPrereqProjects) throws JavaModelException {
-
+public void add(IJavaProject project, boolean includesPrereqProjects, Hashtable visitedProjects) throws JavaModelException {
+	
+	if (visitedProjects.get(project) != null) return;
+	visitedProjects.put(project, project);
+	
 	this.addEnclosingProjectOrJar(project.getProject().getFullPath());
 
 	IWorkspaceRoot root = project.getUnderlyingResource().getWorkspace().getRoot();
@@ -86,7 +90,7 @@ public void add(IJavaProject project, boolean includesPrereqProjects) throws Jav
 				break;
 			case IClasspathEntry.CPE_PROJECT:
 				if (includesPrereqProjects) {
-					this.add(model.getJavaProject(entry.getPath().lastSegment()), true);
+					this.add(model.getJavaProject(entry.getPath().lastSegment()), true, visitedProjects);
 				}
 				break;
 			case IClasspathEntry.CPE_SOURCE:
@@ -106,7 +110,7 @@ public void add(IJavaElement element) throws JavaModelException {
 	IPackageFragmentRoot root = null;
 	if (element instanceof IJavaProject) {
 		IJavaProject project = (IJavaProject)element;
-		this.add(project, true);
+		this.add(project, true, new Hashtable(2));
 	} else if (element instanceof IPackageFragmentRoot) {
 		root = (IPackageFragmentRoot)element;
 		if (root.isArchive()) {
