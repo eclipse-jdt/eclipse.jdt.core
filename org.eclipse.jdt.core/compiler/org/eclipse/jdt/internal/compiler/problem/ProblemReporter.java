@@ -1280,13 +1280,20 @@ public void illegalStaticModifierForMemberType(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void illegalUsageOfQualifiedTypeReference(TypeReference typeReference) {
+public void illegalUsageOfQualifiedTypeReference(QualifiedTypeReference qualifiedTypeReference) {
+	StringBuffer buffer = new StringBuffer();
+	char[][] tokens = qualifiedTypeReference.tokens;
+	for (int i = 0; i < tokens.length; i++) {
+		if (i > 0) buffer.append('.');
+		buffer.append(tokens[i]);
+	}
+	String[] arguments = new String[] { String.valueOf(buffer)};
 	this.handle(
 		IProblem.IllegalUsageOfQualifiedTypeReference,
-		NoArgument,
-		NoArgument,
-		typeReference.sourceStart,
-		typeReference.sourceEnd);	
+		arguments,
+		arguments,
+		qualifiedTypeReference.sourceStart,
+		qualifiedTypeReference.sourceEnd);	
 }
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};

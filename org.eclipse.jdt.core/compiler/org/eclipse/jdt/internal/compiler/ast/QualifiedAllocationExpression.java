@@ -210,7 +210,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					enclosingInstance);
 				hasError = true;
 			} else if (type instanceof QualifiedTypeReference) {
-				scope.problemReporter().illegalUsageOfQualifiedTypeReference(type);
+				scope.problemReporter().illegalUsageOfQualifiedTypeReference((QualifiedTypeReference)type);
 				hasError = true;
 			} else {
 				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType);
