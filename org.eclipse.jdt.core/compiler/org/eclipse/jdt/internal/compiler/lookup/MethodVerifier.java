@@ -287,7 +287,7 @@ private void computeInheritedMethods() {
 	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[3][];
 	int lastPosition = -1;
 	ReferenceBinding[] itsInterfaces = type.superInterfaces();
-	if (itsInterfaces != NoSuperInterfaces)
+	if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) // cannot be null, but protect against bug 49809
 		interfacesToVisit[++lastPosition] = itsInterfaces;
 
 	ReferenceBinding superType = this.type.isClass()
@@ -298,7 +298,7 @@ private void computeInheritedMethods() {
 
 	while (superType != null) {
 		if (superType.isValidBinding()) {
-			if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+			if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces && itsInterfaces != null) {
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
@@ -367,7 +367,7 @@ private void computeInheritedMethods() {
 			if ((superType.tagBits & InterfaceVisited) == 0) {
 				superType.tagBits |= InterfaceVisited;
 				if (superType.isValidBinding()) {
-					if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+					if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces && itsInterfaces != null) {
 						if (++lastPosition == interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 						interfacesToVisit[lastPosition] = itsInterfaces;
