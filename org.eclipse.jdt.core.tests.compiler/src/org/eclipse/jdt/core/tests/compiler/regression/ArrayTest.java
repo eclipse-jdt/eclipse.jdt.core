@@ -157,9 +157,31 @@ public void test006() {
 		"----------\n");
 }
 /**
- * http://bugs.eclipse.org/bugs/show_bug.cgi?id=85125
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=85203
  */
 public void test007() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static long lfield;\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		lfield = args.length;\n" + 
+			"		lfield = args(args).length;\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	static String[] args(String[] args) {\n" + 
+			"		return args;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=85125
+ */
+public void test008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

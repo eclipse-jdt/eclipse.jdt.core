@@ -335,7 +335,12 @@ public class QualifiedNameReference extends NameReference {
 					if (valueRequired  || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
 						if (lastFieldBinding.declaringClass == null) { // array length
 							codeStream.arraylength();
-							codeStream.generateImplicitConversion(implicitConversion);
+							if (valueRequired) {
+								codeStream.generateImplicitConversion(implicitConversion);
+							} else {
+								// could occur if !valueRequired but compliance >= 1.4
+								codeStream.pop();
+							}
 						} else {
 							SyntheticMethodBinding accessor =
 								syntheticReadAccessors == null

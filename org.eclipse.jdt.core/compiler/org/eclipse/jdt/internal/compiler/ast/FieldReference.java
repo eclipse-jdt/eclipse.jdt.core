@@ -206,6 +206,12 @@ public class FieldReference extends Reference implements InvocationSite {
 				if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
 					if (this.codegenBinding.declaringClass == null) { // array length
 						codeStream.arraylength();
+						if (valueRequired) {
+							codeStream.generateImplicitConversion(implicitConversion);
+						} else {
+							// could occur if !valueRequired but compliance >= 1.4
+							codeStream.pop();
+						}
 					} else {
 						if (syntheticAccessors == null || syntheticAccessors[READ] == null) {
 							if (isStatic) {
