@@ -126,7 +126,6 @@ class DefaultBindingResolver extends BindingResolver {
 		TypeDeclaration type = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = type.resolveBinding();
 		return typeBinding.getPackage();
-		
 	}
 	/*
 	 * Method declared on BindingResolver.
@@ -553,6 +552,8 @@ class DefaultBindingResolver extends BindingResolver {
 			return this.getTypeBinding(qualifiedSuperReference.qualification.binding);
 		} else if (node instanceof LocalDeclaration) {
 			return this.getVariableBinding(((LocalDeclaration)node).binding);
+		} else if (node instanceof FieldReference) {
+			return getVariableBinding(((FieldReference) node).binding);
 		}
 		return null;
 	}
@@ -572,8 +573,11 @@ class DefaultBindingResolver extends BindingResolver {
 				if (node instanceof MessageSend) {
 					MessageSend messageSend = (MessageSend) node;
 					return getMethodBinding(messageSend.binding);
+				} else if (name.isQualifiedName()) {
+					return this.internalResolveNameForQualifiedName(name);
+				} else {
+					return this.internalResolveNameForSimpleName(name);
 				}
-				return null;
 			}
 		} else {
 			SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation) parent;
@@ -588,22 +592,22 @@ class DefaultBindingResolver extends BindingResolver {
 				if (node instanceof MessageSend) {
 					MessageSend messageSend = (MessageSend) node;
 					return getMethodBinding(messageSend.binding);
+				} else if (name.isQualifiedName()) {
+					return this.internalResolveNameForQualifiedName(name);
+				} else {
+					return this.internalResolveNameForSimpleName(name);
 				}
-				return null;
 			}
 		}
 	}
 	
 	private IBinding internalResolveNameForFieldAccess(Name name) {
-		AstNode node = (AstNode) this.newAstToOldAst.get(name);
-		if (node instanceof FieldReference) {
-			return getVariableBinding(((FieldReference) node).binding);
-		} else if (node instanceof QualifiedSuperReference) {
-			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
-			return this.getTypeBinding(qualifiedSuperReference.qualification.binding);
+		if (name.isQualifiedName()) {
+			return this.internalResolveNameForQualifiedName(name);
+		} else {
+			return this.internalResolveNameForSimpleName(name);
 		}
-		return null;
-	}	
+	}
 
 	private IBinding internalResolveNameForSimpleType(Name name) {
 		AstNode node = (AstNode) this.newAstToOldAst.get(name);
