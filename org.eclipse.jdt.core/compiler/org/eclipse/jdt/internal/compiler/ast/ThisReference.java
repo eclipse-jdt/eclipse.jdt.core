@@ -29,7 +29,7 @@ public class ThisReference extends Reference {
 		this.sourceEnd = sourceEnd;
 	}
 
-	protected boolean checkAccess(MethodScope methodScope) {
+	public boolean checkAccess(MethodScope methodScope) {
 	
 		// this/super cannot be used in constructor call
 		if (methodScope.isConstructorCall) {

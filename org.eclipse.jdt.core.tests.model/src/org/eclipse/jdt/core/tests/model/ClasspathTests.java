@@ -894,7 +894,7 @@ public void testClasspathValidation14() throws CoreException {
 	}
 }
 /**
- * Should not allow nested source folders on the classpath if exclusion filter has no training slash.
+ * Should not allow nested source folders on the classpath if exclusion filter has no trailing slash.
  */ 
 public void testClasspathValidation15() throws CoreException {
 	try {
@@ -903,7 +903,7 @@ public void testClasspathValidation15() throws CoreException {
 	
 		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
 		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
-		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("src")});
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("**/src")});
 		
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		

@@ -38,7 +38,7 @@ public CodeSnippetThisReference(int s, int sourceEnd, EvaluationContext evaluati
 	this.evaluationContext = evaluationContext;
 	this.isImplicit = isImplicit;
 }
-protected boolean checkAccess(MethodScope methodScope) {
+public boolean checkAccess(MethodScope methodScope) {
 	// this/super cannot be used in constructor call
 	if (evaluationContext.isConstructorCall) {
 		methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);

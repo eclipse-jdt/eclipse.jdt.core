@@ -43,26 +43,6 @@ public class QualifiedThisReference extends ThisReference {
 		return flowInfo;
 	}
 
-	protected boolean checkAccess(
-		MethodScope methodScope,
-		TypeBinding targetType) {
-//TODO: access check will occur during path emulation...
-		// this/super cannot be used in constructor call
-		if (methodScope.isConstructorCall) { 
-			if (targetType == methodScope.enclosingSourceType()) {
-				methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
-			}
-			return false;
-		}
-
-		// static may not refer to this/super
-		if (methodScope.isStatic) {
-			methodScope.problemReporter().noSuchEnclosingInstance(targetType, this, false);
-			return false;
-		}
-		return true;
-	}
-
 	/**
 	 * Code generation for QualifiedThisReference
 	 *
@@ -114,22 +94,8 @@ public class QualifiedThisReference extends ThisReference {
 
 		// Ensure one cannot write code like: B() { super(B.this); }
 		if (depth == 0) {
-			checkAccess(scope.methodScope(), this.resolvedType);
-		} else {
-			// Could also be targeting an enclosing instance inside a super constructor invocation
-			//	class X {
-			//		public X(int i) {
-			//			this(new Object() { Object obj = X.this; });
-			//		}
-			//	}
-
-			MethodScope methodScope = scope.methodScope();
-			while (methodScope != null) {
-				if (!this.checkAccess(methodScope, this.resolvedType)) break;
-				if (methodScope.enclosingSourceType() == this.currentCompatibleType) break;
-				methodScope = methodScope.parent.methodScope();
-			}
-		}
+			checkAccess(scope.methodScope());
+		} // if depth>0, path emulation will diagnose bad scenarii
 		return this.resolvedType;
 	}
 

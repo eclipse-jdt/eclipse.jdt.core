@@ -89,7 +89,7 @@ public void testAddExclusionOnCompilationUnit() throws CoreException {
 	);
 	
 	clearDeltas();
-	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -209,7 +209,7 @@ public void testAddToExcludedFolder() throws CoreException {
  * Ensure that creating an excluded compilation unit 
  * doesn't make it appear as a child of its package but it is a non-java resource. */
 public void testCreateExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
 	IPackageFragment pkg = getPackage("/P/src/p");
 
@@ -271,7 +271,7 @@ public void testCreateExcludedPackage() throws CoreException {
  * doesn't make it appear as a child of its package but it is a non-java resource.
  */
 public void testCreateResourceExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
 	
 	clearDeltas();
@@ -350,7 +350,7 @@ public void testIsOnClasspath1() throws CoreException {
  * Ensures that a cu that is excluded is not on the classpath of the project.
  */
 public void testIsOnClasspath2() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
 	IFile file = this.createFile(
 		"/P/src/p/A.java",
@@ -498,7 +498,7 @@ public void testNestedSourceFolder6() throws CoreException {
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */
 public void testRenameExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
 	IPackageFragment pkg = getPackage("/P/src/p");
 	ICompilationUnit cu = pkg.createCompilationUnit(
@@ -568,7 +568,7 @@ public void testRenameExcludedPackage() throws CoreException {
  * makes it appears as a child of its package and it is removed from the non-java resources.
  */
 public void testRenameResourceExcludedCompilationUnit() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
 	IFile file = this.createFile(
 		"/P/src/p/A.java",
@@ -604,7 +604,7 @@ public void testRenameResourceExcludedCompilationUnit() throws CoreException {
  * Ensure search doesn't find matches in an excluded compilation unit.
  */
 public void testSearchWithExcludedCompilationUnit1() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "A.java"});
+	this.setClasspath(new String[] {"/P/src", "**/A.java"});
 	this.createFolder("/P/src/p");
 	this.createFile(
 		"/P/src/p/A.java",
