@@ -1536,7 +1536,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * COMPILER / Reporting Non-Externalized String Literal
 	 *    When enabled, the compiler will issue an error or a warning for non externalized 
-	 *    String literal (that is, not tagged with //$NON-NLS-<n>$). 
+	 *    String literal (that is, not tagged with //$NON-NLS-&lt;n&gt;$). 
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
@@ -1733,7 +1733,7 @@ public final class JavaCore extends Plugin {
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.maxProblemPerUnit"
-	 *     - possible values:	"<n>" where <n> is zero or a positive integer (if zero then all problems are reported).
+	 *     - possible values:	"&lt;n&gt;n>" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
 	 *     - default:           "100"
 	 * 
 	 * COMPILER / Define the Automatic Task Tags
@@ -1746,7 +1746,7 @@ public final class JavaCore extends Plugin {
 	 *    by a letter or digit to be recognized ("ToDofoo" will not be recognized as a task for tag "ToDo", but "ToDo:foo" will
 	 *    be detected either for tag "ToDo" or "ToDo:").
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskTags"
-	 *     - possible values:   { "<tag>[,<tag>]*" } where <tag> is a String without any wild-card or leading/trailing spaces 
+	 *     - possible values:   { "&lt;tag&gt;[,&lt;tag&gt;]*" } where &lt;tag&gt; is a String without any wild-card or leading/trailing spaces 
 	 *     - default:           ""
 	 * 
 	 * COMPILER / Define the Automatic Task Priorities
@@ -1754,13 +1754,13 @@ public final class JavaCore extends Plugin {
 	 *    of the task markers issued by the compiler.
 	 *    If the default is specified, the priority of each task marker is "NORMAL".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskPriorities"
-	 *     - possible values:   { "<priority>[,<priority>]*" } where <priority> is one of "HIGH", "NORMAL" or "LOW"
+	 *     - possible values:   { "&lt;priority&gt;[,&lt;priority&gt;]*" } where &lt;priority&gt; is one of "HIGH", "NORMAL" or "LOW"
 	 *     - default:           ""
 	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *     - option id:         "org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
-	 *     - possible values:   { "<name>[,<name>]* } where <name> is a file name pattern (* and ? wild-cards allowed)
+	 *     - possible values:   { "&lt;name&gt;[,&lt;name&gt;]* } where &lt;name&gt; is a file name pattern (* and ? wild-cards allowed)
 	 *       or the name of a folder which ends with '/'
 	 *     - default:           ""
 	 * 
@@ -1797,7 +1797,7 @@ public final class JavaCore extends Plugin {
 	 *    to 'ResourcesPlugin.getEncoding()'.
 	 *     - option id:         "org.eclipse.jdt.core.encoding"
 	 *     - possible values:   { any of the supported encoding name}.
-	 *     - default:           <platform default>
+	 *     - default:           &lt;platform default&gt;
 	 * 
 	 * JAVACORE / Reporting Incomplete Classpath
 	 *    Indicate the severity of the problem reported when an entry on the classpath does not exist, 
@@ -1872,7 +1872,7 @@ public final class JavaCore extends Plugin {
 	 *    Enable splitting of long lines (exceeding the configurable length). Length of 0 will
 	 *    disable line splitting
 	 *     - option id:         "org.eclipse.jdt.core.formatter.lineSplit"
-	 *     - possible values:	"<n>", where n is zero or a positive integer
+	 *     - possible values:	""&lt;n&gt;"", where n is zero or a positive integer
 	 *     - default:           "80"
 	 * 
 	 *	FORMATTER / Compacting Assignment
@@ -1892,7 +1892,7 @@ public final class JavaCore extends Plugin {
 	 *    When using spaces, set the amount of space characters to use for each 
 	 *    indentation mark.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
-	 *     - possible values:	"<n>", where n is a positive integer
+	 *     - possible values:	""&lt;n&gt;"", where n is a positive integer
 	 *     - default:           "4"
 	 * 
 	 *	FORMATTER / Inserting space in cast expression
@@ -1919,56 +1919,56 @@ public final class JavaCore extends Plugin {
 	 *    When the prefixes is non empty, completion for field name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldPrefixes"
-	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Prefixes for Static Field Name
 	 *    When the prefixes is non empty, completion for static field name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldPrefixes"
-	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Prefixes for Local Variable Name
 	 *    When the prefixes is non empty, completion for local variable name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localPrefixes"
-	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Prefixes for Argument Name
 	 *    When the prefixes is non empty, completion for argument name will begin with
 	 *    one of the proposed prefixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentPrefixes"
-	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;prefix&gt;[,&lt;prefix&gt;]*" } where &lt;prefix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Field Name
 	 *    When the suffixes is non empty, completion for field name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldSuffixes"
-	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Static Field Name
 	 *    When the suffixes is non empty, completion for static field name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"
-	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Local Variable Name
 	 *    When the suffixes is non empty, completion for local variable name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localSuffixes"
-	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * 
 	 *  CODEASSIST / Define the Suffixes for Argument Name
 	 *    When the suffixes is non empty, completion for argument name will end with
 	 *    one of the proposed suffixes.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentSuffixes"
-	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <prefix> is a String without any wild-card 
+	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 * </pre>
 	 * 
