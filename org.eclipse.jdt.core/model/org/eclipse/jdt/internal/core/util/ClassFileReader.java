@@ -78,6 +78,10 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 		int[] constantPoolOffsets;
 		try {
 			this.magicNumber = (int) u4At(classFileBytes, 0, 0);
+			if (this.magicNumber != 0xCAFEBABE) {
+				throw new ClassFormatException(ClassFormatException.INVALID_MAGIC_NUMBER);
+			}
+			
 			int readOffset = 10;
 			this.minorVersion = this.u2At(classFileBytes, 4, 0);
 			this.majorVersion = this.u2At(classFileBytes, 6, 0);

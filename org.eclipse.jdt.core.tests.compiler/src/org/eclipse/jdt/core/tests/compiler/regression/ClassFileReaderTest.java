@@ -2763,12 +2763,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"public interface I {\n" + 
 			"}";
 		String expectedOutput =
-			"/* Compiled from I.java\n" + 
-			" * Version (target 1.2) \n" + 
-			" * - magic: CAFEBABE\n" + 
-			" * - minor: 0\n" + 
-			" * - major: 46\n" + 
-			" * ACC_SUPER bit is not set\n" + 
+			"/* Compiled from I.java (version 1.2 : 46.0, no super bit)\n" + 
 			" */\n" + 
 			"abstract public interface I extends java.lang.Object {\n" + 
 			"}";

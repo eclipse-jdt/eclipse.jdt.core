@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.*;
@@ -40,6 +41,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private static final char[] ANY_EXCEPTION = Util.bind("classfileformat.anyexceptionhandler").toCharArray();	 //$NON-NLS-1$
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
+	private static final String VERSION_UNKNOWN = "unknown";//$NON-NLS-1$
 
 	private void decodeModifiersForField(StringBuffer buffer, int accessFlags) {
 		boolean firstModifier = true;
@@ -381,7 +383,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode) {
 		if (classFileReader == null) return EMPTY_OUTPUT;
-		
 		StringBuffer buffer = new StringBuffer();
 
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
@@ -392,9 +393,31 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			int majorVersion = classFileReader.getMajorVersion();
 			buffer.append(Util.bind("disassembler.commentstart")); //$NON-NLS-1$
 			if (sourceAttribute != null) {
-				buffer.append(Util.bind("classfileformat.sourcename")); //$NON-NLS-1$
+				buffer.append(Util.bind("disassembler.sourceattributeheader")); //$NON-NLS-1$
 				buffer.append(sourceAttribute.getSourceFileName());
 			}
+			String versionNumber = VERSION_UNKNOWN;//$NON-NLS-1$
+			if (minorVersion == 3 && majorVersion == 45) {
+				versionNumber = JavaCore.VERSION_1_1;
+			} else if (minorVersion == 0 && majorVersion == 46) {
+				versionNumber = JavaCore.VERSION_1_2;
+			} else if (minorVersion == 0 && majorVersion == 47) {
+				versionNumber = JavaCore.VERSION_1_3;
+			} else if (minorVersion == 0 && majorVersion == 48) {
+				versionNumber = JavaCore.VERSION_1_4;
+			} else if (minorVersion == 0 && majorVersion == 49) {
+				versionNumber = JavaCore.VERSION_1_5;
+			}
+			buffer.append(
+				Util.bind("classfileformat.versiondetails",//$NON-NLS-1$
+				new String[] {
+					versionNumber,
+					Integer.toString(majorVersion),
+					Integer.toString(minorVersion),
+					(accesssFlags & IModifierConstants.ACC_SUPER) != 0
+							? Util.bind("classfileformat.superflagisset")//$NON-NLS-1$
+							: Util.bind("classfileformat.superflagisnotset")//$NON-NLS-1$
+				}));
 			writeNewLine(buffer, lineSeparator, 0);
 			if (signatureAttribute != null) {
 				buffer
@@ -403,38 +426,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(signatureAttribute.getSignature());
 				writeNewLine(buffer, lineSeparator, 0);
 			}
-			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
-			if (minorVersion == 3 && majorVersion == 45) {
-				buffer.append(Util.bind("classfileformat.targetoption", " 1.1"));//$NON-NLS-1$//$NON-NLS-2$
-			} else if (minorVersion == 0 && majorVersion == 46) {
-				buffer.append(Util.bind("classfileformat.targetoption", "1.2"));//$NON-NLS-1$//$NON-NLS-2$
-			} else if (minorVersion == 0 && majorVersion == 47) {
-				buffer.append(Util.bind("classfileformat.targetoption", "1.3"));//$NON-NLS-1$//$NON-NLS-2$
-			} else if (minorVersion == 0 && majorVersion == 48) {
-				buffer.append(Util.bind("classfileformat.targetoption", "1.4"));//$NON-NLS-1$//$NON-NLS-2$
-			} else if (minorVersion == 0 && majorVersion == 49) {
-				buffer.append(Util.bind("classfileformat.targetoption", "1.5"));//$NON-NLS-1$//$NON-NLS-2$
-			}
-			writeNewLine(buffer, lineSeparator, 0);
-			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
-			buffer.append(Util.bind("classfileformat.magicnumber")); //$NON-NLS-1$
-			buffer.append(Integer.toHexString(classFileReader.getMagic()).toUpperCase());
-			writeNewLine(buffer, lineSeparator, 0);
-			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
-			buffer.append(Util.bind("classfileformat.minorversion")); //$NON-NLS-1$
-			buffer.append(minorVersion);
-			writeNewLine(buffer, lineSeparator, 0);
-			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
-			buffer.append(Util.bind("classfileformat.majorversion")); //$NON-NLS-1$
-			buffer.append(majorVersion);
-			writeNewLine(buffer, lineSeparator, 0);
-			buffer.append(Util.bind("disassembler.begincommentline")); //$NON-NLS-1$
-			if ((accesssFlags & IModifierConstants.ACC_SUPER) != 0) {
-				buffer.append(Util.bind("classfileformat.superflagisset")); //$NON-NLS-1$
-			} else {
-				buffer.append(Util.bind("classfileformat.superflagisnotset")); //$NON-NLS-1$
-			}
-			writeNewLine(buffer, lineSeparator, 0);
 			buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, 0);
 		}
