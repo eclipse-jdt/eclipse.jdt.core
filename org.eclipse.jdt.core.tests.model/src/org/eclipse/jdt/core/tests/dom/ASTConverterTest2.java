@@ -276,9 +276,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			assertEquals("Wrong number of errors", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
 			BindingsCollectorVisitor bindingsCollectorVisitor = new BindingsCollectorVisitor();
 			compilationUnit.accept(bindingsCollectorVisitor);
-			assertEquals("wrong number", 5, bindingsCollectorVisitor.getUnresolvedNodesSet().size()); //$NON-NLS-1$
+			assertEquals("wrong number", 3, bindingsCollectorVisitor.getUnresolvedNodesSet().size()); //$NON-NLS-1$
 			Map bindingsMap = bindingsCollectorVisitor.getBindingsMap();
-			assertEquals("wrong number", 185, bindingsMap.size()); //$NON-NLS-1$
+			assertEquals("wrong number", 187, bindingsMap.size()); //$NON-NLS-1$
 			ASTNodesCollectorVisitor nodesCollector = new ASTNodesCollectorVisitor();
 			compilationUnit.accept(nodesCollector);
 			Set detachedNodes = nodesCollector.getDetachedAstNodes();
@@ -1250,6 +1250,23 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of errors", 4, unit.getProblems().length); //$NON-NLS-1$<
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25330
+	 */
+	public void test0448() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0448", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", node.getNodeType(), ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Not a constructor", methodDeclaration.isConstructor());
+		ITypeBinding returnTypeBinding = methodDeclaration.getReturnType().resolveBinding();
+		assertNotNull("No return type binding", returnTypeBinding);
 	}
 }
 
