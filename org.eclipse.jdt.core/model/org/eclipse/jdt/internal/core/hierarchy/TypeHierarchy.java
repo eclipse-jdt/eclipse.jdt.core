@@ -336,7 +336,8 @@ protected void fireChange() {
 		return;
 	}
 	if (DEBUG) {
-		System.out.println("FIRING hierarchy change for hierarchy focused on " + ((JavaElement)fType).toStringWithAncestors()); //$NON-NLS-1$
+		System.out.println("FIRING hierarchy change ["+Thread.currentThread()+"]");
+		System.out.println("    for hierarchy focused on " + ((JavaElement)fType).toStringWithAncestors()); //$NON-NLS-1$
 	}
 	ArrayList listeners= (ArrayList)fChangeListeners.clone();
 	for (int i= 0; i < listeners.size(); i++) {

@@ -494,7 +494,7 @@ public void doneSaving(ISaveContext context){
 				while (iterator.hasNext()) {
 					IJavaElementDelta delta= (IJavaElementDelta) iterator.next();
 					if (DeltaProcessor.VERBOSE){
-						System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);//$NON-NLS-1$//$NON-NLS-2$
+						System.out.println("FIRING Delta ["+Thread.currentThread()+"]:\n" + delta);//$NON-NLS-1$//$NON-NLS-2$
 					}
 					ElementChangedEvent event= new ElementChangedEvent(delta);
 					// Clone the listeners since they could remove themselves when told about the event 
@@ -851,11 +851,18 @@ public void doneSaving(ISaveContext context){
 public void mergeDeltas() {
 	if (fJavaModelDeltas.size() <= 1) return;
 	
+	if (DeltaProcessor.VERBOSE) {
+		System.out.println("MERGING " + fJavaModelDeltas.size() + " DELTAS ["+Thread.currentThread()+"]");
+	}
+	
 	Iterator deltas = fJavaModelDeltas.iterator();
 	JavaElementDelta rootDelta = new JavaElementDelta(getJavaModel());
 	boolean insertedTree = false;
 	while (deltas.hasNext()) {
 		IJavaElementDelta delta = (IJavaElementDelta)deltas.next();
+		if (DeltaProcessor.VERBOSE) {
+			System.out.println(delta.toString());
+		}
 		IJavaElementDelta[] children = delta.getAffectedChildren();
 		for (int j = 0; j < children.length; j++) {
 			JavaElementDelta projectDelta = (JavaElementDelta) children[j];

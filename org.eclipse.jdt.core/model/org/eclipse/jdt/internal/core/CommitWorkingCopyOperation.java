@@ -92,6 +92,10 @@ protected void executeOperation() throws JavaModelException {
 
 	
 	// creates the delta builder (this remembers the content of the cu)	
+	if (!original.isOpen()) {
+		// force opening so that the delta builder can get the old info
+		original.open(null);
+	}
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(original);
 
 	// save the cu

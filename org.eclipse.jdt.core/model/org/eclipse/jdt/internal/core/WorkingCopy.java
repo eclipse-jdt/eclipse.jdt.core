@@ -313,9 +313,8 @@ public IJavaElement rootedAt(IJavaProject project) {
 /**
  * @private Debugging purposes
  */
-protected void toString(int tab, StringBuffer buffer) {
-	buffer.append(this.tabString(tab));
-	buffer.append("(working copy)\n"); //$NON-NLS-1$
-	super.toString(tab, buffer);
+protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	buffer.append("[Working copy] ");
+	super.toStringInfo(tab, buffer, info);
 }
 }
