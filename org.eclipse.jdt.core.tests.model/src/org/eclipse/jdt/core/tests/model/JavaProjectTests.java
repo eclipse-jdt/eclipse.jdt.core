@@ -87,6 +87,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
 	suite.addTest(new JavaProjectTests("testGetClasspathOnClosedProject"));
 	suite.addTest(new JavaProjectTests("testGetRequiredProjectNames"));
+	suite.addTest(new JavaProjectTests("testGetNonJavaResources"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -391,6 +392,22 @@ public void testGetClasspathOnClosedProject() throws CoreException {
 	}
 }
 /*
+ * Ensures that the non-java resources for a project do not contain the output location. 
+ */
+public void testGetNonJavaResources() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertResources(
+			"Unexpected non-java resources for project",
+			"/P/.classpath\n" +
+			"/P/.project",
+			(IResource[])project.getNonJavaResources());
+	} finally {
+		this.deleteProject("P");
+	}
+} 
+/*
  * Ensures that getRequiredProjectNames() returns the project names in the classpath order
  * (regression test for bug 25605 [API] someJavaProject.getRequiredProjectNames(); API should specify that the array is returned in ClassPath order)
  */
@@ -417,8 +434,7 @@ public void testGetRequiredProjectNames() throws CoreException {
 	} finally {
 		this.deleteProject("P");
 	}
-} 
-
+}
 /**
  * Test that an (internal) jar
  * has a corresponding resource.
