@@ -5418,18 +5418,20 @@ final public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] k
 	defaultLabel.branch();
 	writeSignedWord(low);
 	writeSignedWord(high);
-	int j = low;
+	int i = low, j = low;
 	// the index j is used to know if the index i is one of the missing entries in case of an 
 	// optimized tableswitch
-	for (int i = low; i <= high; i++) {
+	while (true) {
 		int index;
 		int key = keys[index = sortedIndexes[j - low]];
 		if (key == i) {
 			casesLabel[index].branch();
 			j++;
+			if (i == high) break; // if high is maxint, then avoids wrapping to minint.
 		} else {
 			defaultLabel.branch();
 		}
+		i++;
 	}
 }
 public String toString() {
