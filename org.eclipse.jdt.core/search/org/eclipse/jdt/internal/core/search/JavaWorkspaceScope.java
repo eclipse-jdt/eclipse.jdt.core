@@ -42,6 +42,9 @@ public IPath[] enclosingProjectsAndJars() {
 	}
 	return super.enclosingProjectsAndJars();
 }
+public boolean equals(Object o) {
+  return o instanceof JavaWorkspaceScope;
+}
 public void initialize() {
 	super.initialize();
 	JavaCore javaCore = JavaCore.getJavaCore();
