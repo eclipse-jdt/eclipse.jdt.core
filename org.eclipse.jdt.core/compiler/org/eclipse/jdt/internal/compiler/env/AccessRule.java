@@ -11,26 +11,26 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 public class AccessRule {
 	
 	public char[] pattern;
-	public int severity;
+	public int problemId;
 	
-	public AccessRule(char[] pattern, int severity) {
+	public AccessRule(char[] pattern, int problemId) {
 		this.pattern = pattern;
-		this.severity = severity;
+		this.problemId = problemId;
 	}
 	
 	public int hashCode() {
-		return this.severity * 17 + CharOperation.hashCode(this.pattern);
+		return this.problemId * 17 + CharOperation.hashCode(this.pattern);
 	}
 	
 	public boolean equals(Object obj) {
 		if (!(obj instanceof AccessRule)) return false;
 		AccessRule other = (AccessRule) obj;
-		if (this.severity != other.severity) return false;
+		if (this.problemId != other.problemId) return false;
 		return CharOperation.equals(this.pattern, other.pattern);
 	}
 
@@ -38,11 +38,11 @@ public class AccessRule {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("pattern="); //$NON-NLS-1$
 		buffer.append(this.pattern);
-		switch (this.severity) {
-			case ProblemSeverities.Error:
+		switch (this.problemId) {
+			case IProblem.ForbiddenReference:
 				buffer.append(" (NON ACCESSIBLE)"); //$NON-NLS-1$
 				break;
-			case ProblemSeverities.Warning:
+			case IProblem.DiscouragedReference:
 				buffer.append(" (DISCOURAGED)"); //$NON-NLS-1$
 				break;
 			default:

@@ -28,8 +28,8 @@ public class AccessRestriction {
 		return this.messageTemplate;
 	}
 	
-	public int getSeverity() {
-		return this.accessRule.severity;
+	public int getProblemId() {
+		return this.accessRule.problemId;
 	}
 
 }

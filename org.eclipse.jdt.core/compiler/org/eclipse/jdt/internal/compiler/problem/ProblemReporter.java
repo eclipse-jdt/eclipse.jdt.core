@@ -1372,10 +1372,9 @@ public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference t
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
-public void forbiddenReference(TypeBinding type, ASTNode location, String messageTemplate, int severity) {
+public void forbiddenReference(TypeBinding type, ASTNode location, String messageTemplate, int problemId) {
 	if (location == null) return;
 	// this problem has a message template extracted from the access restriction rule
-	int problemId = severity == ProblemSeverities.Error ? IProblem.ForbiddenReference : IProblem.DiscouragedReference;
 	this.handle(
 		problemId,
 		new String[] { new String(type.readableName()) }, // distinct from msg arg for quickfix purpose

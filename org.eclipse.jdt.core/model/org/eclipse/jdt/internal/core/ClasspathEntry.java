@@ -33,10 +33,10 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -480,11 +480,11 @@ public class ClasspathEntry implements IClasspathEntry {
 		HashMap parameters = new HashMap();
 		parameters.put(TAG_PATTERN, new String(accessRule.pattern));
 		
-		switch (accessRule.severity) {
-			case ProblemSeverities.Error:
+		switch (accessRule.problemId) {
+			case IProblem.ForbiddenReference:
 				parameters.put(TAG_KIND, TAG_NON_ACCESSIBLE);
 				break;
-			case ProblemSeverities.Warning:
+			case IProblem.DiscouragedReference:
 				parameters.put(TAG_KIND, TAG_DISCOURAGED);
 				break;
 			default:
@@ -775,19 +775,20 @@ public class ClasspathEntry implements IClasspathEntry {
 	// TODO (jerome) remove before 3.1 M6
 	public IPath[] getNonAccessibleFiles() {
 		if (this.accessRuleSet == null) return EXCLUDE_NONE;
-		IPath[] result = getFilePaths(this.accessRuleSet.getAccessRules(), ProblemSeverities.Error);
+		IPath[] result = getFilePaths(this.accessRuleSet.getAccessRules(), IProblem.ForbiddenReference);
 		if (result == null) return EXCLUDE_NONE;
 		return result;
 	}
 	
-	private IPath[] getFilePaths(AccessRule[] rules, int severity) {
+	// TODO (jerome) remove before 3.1 M6
+	private IPath[] getFilePaths(AccessRule[] rules, int problemId) {
 		int length;
 		if (rules == null || (length = rules.length) == 0) return null;
 		IPath[] result = new IPath[length];
 		int index = 0;
 		for (int i = 0; i < length; i++) {
 			AccessRule accessRule = rules[i];
-			if (accessRule.severity == severity)
+			if (accessRule.problemId == problemId)
 				result[index++] = new Path(new String(accessRule.pattern));
 		}
 		if (index != length)

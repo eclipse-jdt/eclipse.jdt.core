@@ -330,7 +330,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (refType.hasRestrictedAccess()) {
 			AccessRestriction restriction = scope.environment().getAccessRestriction(type);
 			if (restriction != null) {
-				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getSeverity());
+				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getProblemId());
 			}
 		}
 		if (!refType.isViewedAsDeprecated()) return false;

@@ -13,25 +13,26 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 	
 	public ClasspathAccessRule(IPath pattern, int kind) {
-		this(pattern.toString().toCharArray(), toSeverity(kind));
+		this(pattern.toString().toCharArray(), toProblemId(kind));
 	}
 	
-	public ClasspathAccessRule(char[] pattern, int severity) {
-		super(pattern, severity);
+	public ClasspathAccessRule(char[] pattern, int problemId) {
+		super(pattern, problemId);
 	}
 	
-	private static int toSeverity(int kind) {
+	private static int toProblemId(int kind) {
 		switch (kind) {
 			case K_NON_ACCESSIBLE:
-				return ProblemSeverities.Error;
+				return IProblem.ForbiddenReference;
 			case K_DISCOURAGED:
-				return ProblemSeverities.Warning;
+				return IProblem.DiscouragedReference;
 			default:
 				return -1;
 		}
@@ -42,10 +43,10 @@ public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 	}
 
 	public int getKind() {
-		switch (this.severity) {
-			case ProblemSeverities.Error:
+		switch (this.problemId) {
+			case IProblem.ForbiddenReference:
 				return K_NON_ACCESSIBLE;
-			case ProblemSeverities.Warning:
+			case IProblem.DiscouragedReference:
 				return K_DISCOURAGED;
 			default:
 				return K_ACCESSIBLE;

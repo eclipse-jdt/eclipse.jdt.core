@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
  * Definition of a set of access rules used to flag forbidden references to non API code.
@@ -57,10 +57,9 @@ public class AccessRuleSet {
 		for (int i = 0, length = this.accessRules.length; i < length; i++) {
 			AccessRule accessRule = this.accessRules[i];
 			if (CharOperation.pathMatch(accessRule.pattern, targetTypeFilePath, true/*case sensitive*/, '/')) {
-				int severity = accessRule.severity;
-				switch (severity) {
-					case ProblemSeverities.Error:
-					case ProblemSeverities.Warning:
+				switch (accessRule.problemId) {
+					case IProblem.ForbiddenReference:
+					case IProblem.DiscouragedReference:
 						return new AccessRestriction(accessRule, this.messageTemplate);
 					default:
 						return null;
