@@ -50,7 +50,7 @@ public class JavaSearchScope extends AbstractSearchScope {
 	private int pathsCount;
 	
 	private IPath[] enclosingProjectsAndJars;
-	public final static AccessRestriction UNINIT_RESTRICTION = new AccessRestriction(null, null, null, null);
+	public final static AccessRestriction NOT_INITIALIZED_RESTRICTION = new AccessRestriction(null, null, null, null);
 	
 public JavaSearchScope() {
 	this.initialize();
@@ -373,7 +373,7 @@ public AccessRestriction getAccessRestriction(String path) {
 	int index = encloses(fullPath(path));
 	if (index == -1) {
 		// this search scope does not enclose given path
-		return UNINIT_RESTRICTION;
+		return NOT_INITIALIZED_RESTRICTION;
 	}
 	return this.pathRestrictions[index];
 }

@@ -40,7 +40,7 @@ public abstract class InternalSearchPattern {
 			// Get document path access restriction from java search scope
 			// Note that requestor has to verify if needed whether the document violates the access restriction or not
 			AccessRestriction access = javaSearchScope.getAccessRestriction(documentPath);
-			if (JavaSearchScope.UNINIT_RESTRICTION != access) { // scope encloses the document path
+			if (JavaSearchScope.NOT_INITIALIZED_RESTRICTION != access) { // scope encloses the document path
 				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, access)) 
 					throw new OperationCanceledException();
 			}

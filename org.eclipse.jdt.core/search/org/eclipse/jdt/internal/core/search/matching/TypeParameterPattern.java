@@ -91,7 +91,7 @@ public class TypeParameterPattern extends JavaSearchPattern implements IIndexCon
 			// Get document path access restriction from java search scope
 			// Note that requestor has to verify if needed whether the document violates the access restriction or not
 			AccessRestriction access = javaSearchScope.getAccessRestriction(path);
-			if (!JavaSearchScope.UNINIT_RESTRICTION.equals(access)) { // scope encloses the path
+			if (JavaSearchScope.NOT_INITIALIZED_RESTRICTION != access) { // scope encloses the path
 				if (!requestor.acceptIndexMatch(path, this, participant, access)) 
 					throw new OperationCanceledException();
 			}

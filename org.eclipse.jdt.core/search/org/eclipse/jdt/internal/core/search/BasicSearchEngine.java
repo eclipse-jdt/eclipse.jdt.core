@@ -161,8 +161,10 @@ public class BasicSearchEngine {
 		/* initialize progress monitor */
 		if (monitor != null)
 			monitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
-		if (BasicSearchEngine.VERBOSE)
-			System.out.println("Searching for " + this + " in " + scope); //$NON-NLS-1$//$NON-NLS-2$
+		if (BasicSearchEngine.VERBOSE) {
+			System.out.println("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
+			System.out.println(scope); //$NON-NLS-1$
+		}
 	
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		try {
