@@ -34,6 +34,7 @@ protected ArrayList qualifiedStrings;
 protected ArrayList simpleStrings;
 protected SimpleLookupTable secondaryTypesToRemove;
 protected boolean hasStructuralChanges;
+protected int compileLoop;
 
 public static int MaxCompileLoop = 5; // perform a full build if it takes more than ? incremental compile loops
 
@@ -47,6 +48,7 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 	this.qualifiedStrings = new ArrayList(33);
 	this.simpleStrings = new ArrayList(33);
 	this.hasStructuralChanges = false;
+	this.compileLoop = 0;
 }
 
 public boolean build(SimpleLookupTable deltas) {
@@ -88,10 +90,10 @@ public boolean build(SimpleLookupTable deltas) {
 		addAffectedSourceFiles();
 		notifier.updateProgressDelta(0.05f);
 
-		int compileLoop = 0;
+		this.compileLoop = 0;
 		float increment = 0.40f;
 		while (sourceFiles.size() > 0) { // added to in acceptResult
-			if (++compileLoop > MaxCompileLoop) {
+			if (++this.compileLoop > MaxCompileLoop) {
 				if (JavaBuilder.DEBUG)
 					System.out.println("ABORTING incremental build... exceeded loop count"); //$NON-NLS-1$
 				return false;
@@ -201,6 +203,7 @@ protected void cleanUp() {
 	this.simpleStrings = null;
 	this.secondaryTypesToRemove = null;
 	this.hasStructuralChanges = false;
+	this.compileLoop = 0;
 }
 
 protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocation[] classFoldersAndJars) {
@@ -581,10 +584,12 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newBytes) throws CoreException {
 	try {
 		byte[] oldBytes = Util.getResourceContentsAsByteArray(file);
-		notEqual : if (newBytes.length == oldBytes.length) {
-			for (int i = newBytes.length; --i >= 0;)
-				if (newBytes[i] != oldBytes[i]) break notEqual;
-			return false; // bytes are identical so skip them
+		if (this.compileLoop > 1) { // only optimize files which were recompiled during the dependent pass
+			notEqual : if (newBytes.length == oldBytes.length) {
+				for (int i = newBytes.length; --i >= 0;)
+					if (newBytes[i] != oldBytes[i]) break notEqual;
+				return false; // bytes are identical so skip them
+			}
 		}
 		IPath location = file.getLocation();
 		if (location == null) return false; // unable to determine location of this class file
