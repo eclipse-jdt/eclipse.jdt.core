@@ -96,8 +96,9 @@ public class CompilationUnitDeclaration
 				cleanUp(this.types[i]);
 			}
 			for (int i = 0, max = this.localTypeCount; i < max; i++) {
+			    LocalTypeBinding localType = localTypes[i];
 				// null out the type's scope backpointers
-				localTypes[i].scope = null; // local members are already in the list
+				localType.scope = null; // local members are already in the list
 			}
 		}
 		ClassFile[] classFiles = compilationResult.getClassFiles();

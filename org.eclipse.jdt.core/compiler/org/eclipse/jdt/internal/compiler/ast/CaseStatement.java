@@ -78,12 +78,14 @@ public class CaseStatement extends Statement {
 		TypeBinding switchType,
 		SwitchStatement switchStatement) {
 
+	    scope.switchCase = this; // record entering in a switch case block
+	    
 		if (constantExpression == null) {
 			// remember the default case into the associated switch statement
 			if (switchStatement.defaultCase != null)
 				scope.problemReporter().duplicateDefaultCase(this);
 	
-			// on error the last default will be the selected one .... (why not) ....	
+			// on error the last default will be the selected one ...	
 			switchStatement.defaultCase = this;
 			return null;
 		}

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -18,18 +19,20 @@ public final class LocalTypeBinding extends NestedTypeBinding {
 	final static char[] LocalTypePrefix = { '$', 'L', 'o', 'c', 'a', 'l', '$' };
 
 	private InnerEmulationDependency[] dependents;
-	ArrayBinding[] localArrayBindings; // used to cache array bindings of various dimensions for this local type
-
-public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType) {
+	public ArrayBinding[] localArrayBindings; // used to cache array bindings of various dimensions for this local type
+	public CaseStatement switchCase; // from 1.4 on, local types should not be accessed across switch case blocks (52221)
+	
+public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseStatement switchCase) {
 	super(
 		new char[][] {CharOperation.concat(LocalTypePrefix, scope.referenceContext.name)},
 		scope,
 		enclosingType);
-
+	
 	if (this.sourceName == TypeDeclaration.ANONYMOUS_EMPTY_NAME)
 		this.tagBits |= AnonymousTypeMask;
 	else
 		this.tagBits |= LocalTypeMask;
+	this.switchCase = switchCase;
 }
 /* Record a dependency onto a source target type which may be altered
 * by the end of the innerclass emulation. Later on, we will revisit

@@ -1735,4 +1735,17 @@ public abstract class Scope
 	int startIndex() {
 		return 0;
 	}
+	
+	/**
+	 * Returns the immediately enclosing switchCase statement (carried by closest blockScope),
+	 */
+	public CaseStatement switchCase() {
+		Scope scope = this;
+		do {
+			if (scope instanceof BlockScope)
+				return ((BlockScope) scope).switchCase;
+			scope = scope.parent;
+		} while (scope != null);
+		return null;
+	}
 }

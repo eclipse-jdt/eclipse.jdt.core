@@ -2519,6 +2519,93 @@ public void test072() {
 		"----------\n");
 }
 
+// 52221
+public void test073() {
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        \n" + 
+			"        switch(args.length) {\n" + 
+			"            \n" + 
+			"            case 1:\n" + 
+			"                int i = 0;\n" + 
+			"                class Local {\n" + 
+			"	            }\n" + 
+			"                break;\n" + 
+			"                \n" + 
+			"			case 0 :\n" + 
+			"			    System.out.println(i); // local var can be referred to, only an initialization pb\n" + 
+			"			    System.out.println(new Local());\n" + 
+			"        		break;\n" + 
+			"\n" + 
+			"			case 2 :\n" + 
+			"                class Local { // not a duplicate\n" + 
+			"	            }\n" + 
+			"        		break;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 18)\n" + 
+		"	class Local { // not a duplicate\n" + 
+		"	      ^^^^^\n" + 
+		"Duplicate nested type Local\n" + 
+		"----------\n");
+}
+
+// checking for captured outer local initialization status
+// NOTE: only complain against non-inlinable outer locals
+// http://bugs.eclipse.org/bugs/show_bug.cgi?id=26134
+public void test074() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"    public static void main(String[] args) {	\n" +
+			"    	String nonInlinedString = \"[Local]\";	\n" +
+			"    	int i = 2;	\n" +
+			"		switch(i){	\n" +
+			"			case 1:	\n" +
+			"				final String displayString = nonInlinedString;\n" +
+			"				final String inlinedString = \"a\";	\n" +
+			"				class Local {	\n" +
+			"					public String toString() {	\n" +
+			"						return inlinedString + displayString;	\n" +
+			"					}	\n" +
+			"				}	\n" +
+			"			case 2:	\n" +
+			"				System.out.print(new Local());	\n" +
+			"				System.out.print(\"-\");	\n" +
+			"				System.out.println(new Local(){	\n" +
+			"					public String toString() {	\n" +
+			"						return super.toString()+\": anonymous\";	\n" +
+			"					}	\n" +
+			"				});	\n" +
+			"		}	\n" +
+			"    }	\n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	System.out.print(new Local());	\n" + 
+		"	                 ^^^^^^^^^^^\n" + 
+		"The local variable displayString may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	System.out.println(new Local(){	\n" + 
+		"					public String toString() {	\n" + 
+		"						return super.toString()+\": anonymous\";	\n" + 
+		"					}	\n" + 
+		"				});	\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The local variable displayString may not have been initialized\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
