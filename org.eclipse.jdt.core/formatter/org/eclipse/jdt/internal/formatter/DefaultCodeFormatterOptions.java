@@ -616,6 +616,423 @@ public class DefaultCodeFormatterOptions {
 
 	public DefaultCodeFormatterOptions(Map settings) {
 		this();
-		// TODO change options according to settings
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SEPARATOR) != null) {
+			this.line_delimiter = (String) settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SEPARATOR);
+		}
+		final Object tabChar = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR);
+		if (tabChar != null) {
+			this.use_tab = JavaCore.TAB.equals(tabChar);
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE) != null) { 
+			this.tab_size = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT) != null) { 
+			this.page_width = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE) != null) { 
+			this.blank_lines_before_package = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE) != null) { 
+			this.blank_lines_after_package = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_PACKAGE));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_IMPORTS) != null) { 
+			this.blank_lines_before_imports = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_IMPORTS));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS) != null) { 
+			this.blank_lines_after_imports = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INITIAL_INDENTATION_LEVEL) != null) { 
+			this.initial_indentation_level = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INITIAL_INDENTATION_LEVEL));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION) != null) { 
+			this.continuation_indentation = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_BRACE_POSITION) != null) { 
+			this.type_declaration_brace_position = (String) settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_BRACE_POSITION);
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_BRACE_POSITION) != null) { 
+			this.method_declaration_brace_position = (String) settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_BRACE_POSITION);
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN) != null) { 
+			this.insert_space_before_method_declaration_open_paren = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_DECLARATION_OPEN_PAREN)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE) != null) { 
+			this.insert_space_before_type_open_brace = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_TYPE_OPEN_BRACE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE) != null) { 
+			this.insert_space_before_method_open_brace = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_METHOD_OPEN_BRACE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS) != null) { 
+			this.insert_space_between_empty_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_ARGUMENT) != null) { 
+			this.insert_space_before_first_argument = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_ARGUMENT)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN) != null) { 
+			this.insert_space_before_closing_paren = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS) != null) { 
+			this.insert_space_after_assignment_operators = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATORS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATORS) != null) { 
+			this.insert_space_before_assignment_operators = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATORS)).booleanValue();
+		}								
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE) != null) { 
+			this.put_empty_statement_on_new_line = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE)).booleanValue();
+		}								
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON) != null) { 
+			this.insert_space_before_semicolon = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_WITHIN_MESSAGE_SEND) != null) { 
+			this.insert_space_within_message_send = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_WITHIN_MESSAGE_SEND)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_MESSAGE_SEND) != null) { 
+			this.insert_space_before_message_send = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_MESSAGE_SEND)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_INITIALIZER) != null) { 
+			this.insert_space_before_first_initializer = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FIRST_INITIALIZER)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER) != null) { 
+			this.insert_space_before_closing_brace_in_array_initializer = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLOCK_BRACE_POSITION) != null) { 
+			this.block_brace_position = (String) settings.get(DefaultCodeFormatterConstants.FORMATTER_BLOCK_BRACE_POSITION);
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE) != null) { 
+			this.insert_space_before_block_open_brace = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BLOCK_OPEN_BRACE)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CASE) != null) { 
+			this.insert_space_before_colon_in_case = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CASE)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST) != null) { 
+			this.insert_space_after_opening_paren_in_cast = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_CAST)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST) != null) { 
+			this.insert_space_before_closing_paren_in_cast = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_CAST)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT) != null) { 
+			this.insert_space_before_colon_in_default = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_DEFAULT)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_WHILE_CONDITION) != null) { 
+			this.insert_space_in_while_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_WHILE_CONDITION)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_IF_CONDITION) != null) { 
+			this.insert_space_in_if_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_IF_CONDITION)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF) != null) { 
+			this.compact_else_if = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_COMPACT_ELSE_IF)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_IF_CONDITION) != null) { 
+			this.insert_space_before_if_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_IF_CONDITION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FOR_PAREN) != null) { 
+			this.insert_space_before_for_paren = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_FOR_PAREN)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_FOR_PARENS) != null) { 
+			this.insert_space_in_for_parens = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_FOR_PARENS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_SWITCH_BRACE_POSITION) != null) { 
+			this.switch_brace_position = (String) settings.get(DefaultCodeFormatterConstants.FORMATTER_SWITCH_BRACE_POSITION);
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE) != null) { 
+			this.insert_space_before_switch_open_brace = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_OPEN_BRACE)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SWITCH_CONDITION) != null) { 
+			this.insert_space_in_switch_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SWITCH_CONDITION)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_CONDITION) != null) { 
+			this.insert_space_before_switch_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SWITCH_CONDITION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SYNCHRONIZED_CONDITION) != null) { 
+			this.insert_space_in_synchronized_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_SYNCHRONIZED_CONDITION)).booleanValue();
+		}	
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION) != null) { 
+			this.insert_space_before_synchronized_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SYNCHRONIZED_CONDITION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_CATCH_EXPRESSION) != null) { 
+			this.insert_space_in_catch_expression = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_IN_CATCH_EXPRESSION)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CATCH_EXPRESSION) != null) { 
+			this.insert_space_before_catch_expression = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CATCH_EXPRESSION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_WHILE_CONDITION) != null) { 
+			this.insert_space_before_while_condition = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_WHILE_CONDITION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS) != null) { 
+			this.insert_new_line_in_control_statements = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR) != null) { 
+			this.insert_space_before_binary_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR) != null) { 
+			this.insert_space_after_binary_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_UNARY_OPERATOR) != null) { 
+			this.insert_space_before_unary_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_UNARY_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR) != null) { 
+			this.insert_space_after_unary_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS) != null) { 
+			this.insert_space_before_comma_in_multiple_field_declarations = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS) != null) { 
+			this.insert_space_after_comma_in_multiple_field_declarations = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES) != null) { 
+			this.insert_space_before_comma_in_superinterfaces = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES) != null) { 
+			this.insert_space_after_comma_in_superinterfaces = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ALLOCATION_EXPRESSION) != null) { 
+			this.insert_space_before_comma_in_allocation_expression = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ALLOCATION_EXPRESSION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ALLOCATION_EXPRESSION) != null) { 
+			this.insert_space_after_comma_in_allocation_expression = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ALLOCATION_EXPRESSION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ARRAY_INITIALIZER) != null) { 
+			this.insert_space_before_comma_in_array_initializer = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_ARRAY_INITIALIZER)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ARRAY_INITIALIZER) != null) { 
+			this.insert_space_after_comma_in_array_initializer = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_ARRAY_INITIALIZER)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_ASSERT) != null) { 
+			this.insert_space_before_colon_in_assert = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_ASSERT)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_ASSERT) != null) { 
+			this.insert_space_after_colon_in_assert = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_ASSERT)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL) != null) { 
+			this.insert_space_before_question_in_conditional = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_QUESTION_IN_CONDITIONAL) != null) { 
+			this.insert_space_after_question_in_conditional = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_QUESTION_IN_CONDITIONAL)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CONDITIONAL) != null) { 
+			this.insert_space_before_colon_in_conditional = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_CONDITIONAL)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_CONDITIONAL) != null) { 
+			this.insert_space_after_colon_in_conditional = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_CONDITIONAL)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_ARGUMENTS) != null) { 
+			this.insert_space_before_comma_in_constructor_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_ARGUMENTS) != null) { 
+			this.insert_space_after_comma_in_constructor_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS) != null) { 
+			this.insert_space_before_comma_in_constructor_throws = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_CONSTRUCTOR_THROWS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_THROWS) != null) { 
+			this.insert_space_after_comma_in_constructor_throws = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_CONSTRUCTOR_THROWS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INCREMENTS) != null) { 
+			this.insert_space_before_comma_in_for_increments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INCREMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INCREMENTS) != null) { 
+			this.insert_space_after_comma_in_for_increments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INCREMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS) != null) { 
+			this.insert_space_before_comma_in_explicitconstructorcall_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS) != null) { 
+			this.insert_space_after_comma_in_explicitconstructorcall_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_EXPLICITCONSTRUCTORCALL_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_LABELED_STATEMENT) != null) { 
+			this.insert_space_before_colon_in_labeled_statement = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COLON_IN_LABELED_STATEMENT)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_LABELED_STATEMENT) != null) { 
+			this.insert_space_after_colon_in_labeled_statement = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COLON_IN_LABELED_STATEMENT)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MESSAGESEND_ARGUMENTS) != null) { 
+			this.insert_space_before_comma_in_messagesend_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MESSAGESEND_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MESSAGESEND_ARGUMENTS) != null) { 
+			this.insert_space_after_comma_in_messagesend_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MESSAGESEND_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_ARGUMENTS) != null) { 
+			this.insert_space_before_comma_in_method_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_ARGUMENTS) != null) { 
+			this.insert_space_after_comma_in_method_arguments = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_ARGUMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_THROWS) != null) { 
+			this.insert_space_before_comma_in_method_throws = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_THROWS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_THROWS) != null) { 
+			this.insert_space_after_comma_in_method_throws = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_METHOD_THROWS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS) != null) { 
+			this.insert_space_before_comma_in_multiple_local_declarations = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS) != null) { 
+			this.insert_space_after_comma_in_multiple_local_declarations = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INITS) != null) { 
+			this.insert_space_before_comma_in_for_inits = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_FOR_INITS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INITS) != null) { 
+			this.insert_space_after_comma_in_for_inits = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_FOR_INITS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR) != null) { 
+			this.insert_space_after_semicolon_in_for = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR) != null) { 
+			this.insert_space_before_postfix_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_POSTFIX_OPERATOR) != null) { 
+			this.insert_space_after_postfix_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_POSTFIX_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PREFIX_OPERATOR) != null) { 
+			this.insert_space_before_prefix_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PREFIX_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_PREFIX_OPERATOR) != null) { 
+			this.insert_space_after_prefix_operator = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_PREFIX_OPERATOR)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH) != null) { 
+			this.indent_switchstatements_compare_to_switch = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES) != null) { 
+			this.indent_switchstatements_compare_to_cases = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES) != null) { 
+			this.indent_breaks_compare_to_cases = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES)).booleanValue();
+		}		
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION) != null) { 
+			this.anonymous_type_declaration_brace_position = (String) settings.get(DefaultCodeFormatterConstants.FORMATTER_ANONYMOUS_TYPE_DECLARATION_BRACE_POSITION);
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE) != null) { 
+			this.insert_space_before_anonymous_type_open_brace = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER) != null) { 
+			this.indent_body_declarations_compare_to_type_header = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE) != null) { 
+			this.filling_space = ((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE)).charAt(0);
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST) != null) { 
+			this.insert_space_after_closing_paren_in_cast = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY) != null) { 
+			this.number_of_blank_lines_to_insert_at_beginning_of_method_body = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE) != null) { 
+			this.keep_simple_if_on_one_line = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE) != null) { 
+			this.format_guardian_clause_on_one_line = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_FORMAT_GUARDIAN_CLAUSE_ON_ONE_LINE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHIZED_EXPRESSION) != null) { 
+			this.insert_space_before_open_paren_in_parenthesized_expression = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPEN_PAREN_IN_PARENTHIZED_EXPRESSION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPEN_PAREN_IN_PARENTHIZED_EXPRESSION) != null) { 
+			this.insert_space_after_open_paren_in_parenthesized_expression = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPEN_PAREN_IN_PARENTHIZED_EXPRESSION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHIZED_EXPRESSION) != null) { 
+			this.insert_space_before_closing_paren_in_parenthesized_expression = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHIZED_EXPRESSION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE) != null) { 
+			this.keep_then_statement_on_same_line = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_NEW_CHUNK) != null) { 
+			this.blank_lines_before_new_chunk = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_NEW_CHUNK));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIELD) != null) { 
+			this.blank_lines_before_field = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_FIELD));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD) != null) { 
+			this.blank_lines_before_method = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_MEMBER_TYPE) != null) { 
+			this.blank_lines_before_member_type = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_MEMBER_TYPE));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE) != null) {
+			this.insert_space_after_block_close_brace = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BLOCK_CLOSE_BRACE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_ELSE_STATEMENT_ON_SAME_LINE) != null) {
+			this.keep_else_statement_on_same_line = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_ELSE_STATEMENT_ON_SAME_LINE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE) != null) {
+			this.insert_space_before_bracket_in_array_type_reference = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_TYPE_REFERENCE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE) != null) {
+			this.insert_space_between_brackets_in_array_type_reference = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_TYPE_REFERENCE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_COMPACT_IF_ALIGNMENT) != null) { 
+			this.compact_if_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_COMPACT_IF_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT) != null) { 
+			this.type_declaration_superclass_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERCLASS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT) != null) { 
+			this.type_declaration_superinterfaces_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_DECLARATION_SUPERINTERFACES_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT) != null) { 
+			this.method_declaration_arguments_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_DECLARATION_ARGUMENTS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT) != null) { 
+			this.message_send_arguments_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_ARGUMENTS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_SELECTOR_ALIGNMENT) != null) { 
+			this.message_send_selector_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_MESSAGE_SEND_SELECTOR_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_THROWS_CLAUSE_ALIGNMENT) != null) { 
+			this.method_throws_clause_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_METHOD_THROWS_CLAUSE_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_MEMBER_ALIGNMENT) != null) { 
+			this.type_member_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_TYPE_MEMBER_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT) != null) { 
+			this.allocation_expression_arguments_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT) != null) { 
+			this.qualified_allocation_expression_arguments_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_QUALIFIED_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT) != null) { 
+			this.array_initializer_expressions_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_ARRAY_INITIALIZER_EXPRESSIONS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT) != null) { 
+			this.explicit_constructor_arguments_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_EXPLICIT_CONSTRUCTOR_ARGUMENTS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_CONDITIONAL_EXPRESSION_ALIGNMENT) != null) { 
+			this.conditional_expression_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_CONDITIONAL_EXPRESSION_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_BINARY_EXPRESSION_ALIGNMENT) != null) { 
+			this.binary_expression_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_BINARY_EXPRESSION_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY) != null) {
+			this.insert_new_line_in_empty_method_body = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_METHOD_BODY)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION) != null) {
+			this.insert_new_line_in_empty_type_declaration = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_TYPE_DECLARATION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION) != null) {
+			this.insert_new_line_in_empty_anonymous_type_declaration = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_ANONYMOUS_TYPE_DECLARATION)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK) != null) {
+			this.insert_new_line_in_empty_block = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE) != null) { 
+			this.number_of_empty_lines_to_preserve = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER) != null) {
+			this.insert_new_line_before_closing_brace_in_array_initializer = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_BEFORE_CLOSING_BRACE_IN_ARRAY_INITIALIZER)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_MULTIPLE_FIELDS_ALIGNMENT) != null) { 
+			this.multiple_fields_alignment = Integer.parseInt((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_MULTIPLE_FIELDS_ALIGNMENT));
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE) != null) {
+			this.insert_space_before_bracket_in_array_reference = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BRACKET_IN_ARRAY_REFERENCE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE) != null) {
+			this.insert_space_between_brackets_in_array_reference = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_BRACKETS_IN_ARRAY_REFERENCE)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BLOCK_STATEMENTS) != null) {
+			this.indent_block_statements = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BLOCK_STATEMENTS)).booleanValue();
+		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER) != null) {
+			this.insert_space_before_opening_brace_in_array_initializer = Boolean.valueOf((String)settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER)).booleanValue();
+		}
 	}
 }
