@@ -7852,5 +7852,110 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			null,
 			false, // do not flush output
 			null);		
+	}
+	// 73837 variation
+	public void test294() {
+		this.runConformTest(
+			new String[] {
+				"B.java", //---------------------------
+				"public class B<X>{\n"+
+				"    public B(X str, B<D> dValue){}\n"+
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"	,
+				"D.java", //---------------------------
+				"public class D<Y>{}\n",
+			},
+			"SUCCESS");
+
+		this.runNegativeTest(
+			new String[] {
+				"C.java", //---------------------------
+				"public class C<Z,Y> {\n" + 
+				"    public B<Z> test(Z zValue,B<D<Y>> yValue){ return new B<Z>(zValue,yValue); }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 2)\r\n" + 
+			"	public B<Z> test(Z zValue,B<D<Y>> yValue){ return new B<Z>(zValue,yValue); }\r\n" + 
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor B<Z>(Z, B<D<Y>>) is undefined\n" + 
+			"----------\n",
+			null,
+			false, // do not flush output
+			null);		
+	}
+	// non-static method #start() gets its type substituted when accessed through raw type
+	public void test295() {
+		this.runNegativeTest(
+			new String[] {
+				"C.java", //---------------------------
+				"public class C<U> {\n" + 
+				"\n" + 
+				"	void bar() {\n" + 
+				"		new B().start().get(new B().start()).get(new B().start());\n" + 
+				"	}\n" + 
+				"}\n",
+				"B.java", //---------------------------
+				"public class B<X>{\n" + 
+				"	X get(B<X> bx) { return null; }\n" + 
+				"	B<B<D>> start() { return null; }\n" + 
+				"}",
+				"D.java", //---------------------------
+				"public class D<Y>{}\n",
+			},
+		"----------\n" + 
+		"1. WARNING in C.java (at line 4)\n" + 
+		"	new B().start().get(new B().start()).get(new B().start());\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe type operation: Should not invoke the method get(B<X>) of raw type B. References to generic type B<X> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 4)\n" + 
+		"	new B().start().get(new B().start()).get(new B().start());\n" + 
+		"	                                     ^^^\n" + 
+		"The method get(B) is undefined for the type Object\n" + 
+		"----------\n");
+	}
+	// static method #start() gets its type does not get substituted when accessed through raw type
+	public void test296() {
+		this.runNegativeTest(
+			new String[] {
+				"C.java", //---------------------------
+				"public class C<U> {\n" + 
+				"\n" + 
+				"	void bar() {\n" + 
+				"		new B().start().get(new B().start()).get(new B().start());\n" + 
+				"	}\n" + 
+				"}\n",
+				"B.java", //---------------------------
+				"public class B<X>{\n" + 
+				"	X get(B<X> bx) { return null; }\n" + 
+				"	static B<B<D>> start() { return null; }\n" + 
+				"}",
+				"D.java", //---------------------------
+				"public class D<Y>{}\n",
+			},
+		"----------\n" + 
+		"1. WARNING in C.java (at line 4)\n" + 
+		"	new B().start().get(new B().start()).get(new B().start());\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"The static method start() from the type B should be accessed in a static way\n" + 
+		"----------\n" + 
+		"2. WARNING in C.java (at line 4)\n" + 
+		"	new B().start().get(new B().start()).get(new B().start());\n" + 
+		"	                    ^^^^^^^^^^^^^^^\n" + 
+		"The static method start() from the type B should be accessed in a static way\n" + 
+		"----------\n" + 
+		"3. ERROR in C.java (at line 4)\n" + 
+		"	new B().start().get(new B().start()).get(new B().start());\n" + 
+		"	                                     ^^^\n" + 
+		"The method get(B<D>) in the type B<D> is not applicable for the arguments (B<B<D>>)\n" + 
+		"----------\n" + 
+		"4. WARNING in C.java (at line 4)\n" + 
+		"	new B().start().get(new B().start()).get(new B().start());\n" + 
+		"	                                         ^^^^^^^^^^^^^^^\n" + 
+		"The static method start() from the type B should be accessed in a static way\n" + 
+		"----------\n");
 	}			
 }

@@ -25,7 +25,7 @@ public class ParameterizedFieldBinding extends FieldBinding {
 	public ParameterizedFieldBinding(ParameterizedTypeBinding parameterizedDeclaringClass, FieldBinding originalField) {
 	    super (
 	            originalField.name, 
-	            parameterizedDeclaringClass.substitute(originalField.type), 
+	            originalField.isStatic() ? originalField.type : parameterizedDeclaringClass.substitute(originalField.type), 
 	            originalField.modifiers, 
 	            parameterizedDeclaringClass, 
 	            null);

@@ -61,9 +61,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.typeVariables = NoTypeVariables;
 	    this.typeArguments = rawArguments;
 	    this.originalMethod = originalMethod;
-	    this.parameters = Scope.substitute(this, Scope.substitute(rawType, originalMethod.parameters));
-	    this.thrownExceptions = Scope.substitute(this, Scope.substitute(rawType, originalMethod.thrownExceptions));
-	    this.returnType = this.substitute(rawType.substitute(originalMethod.returnType));
+		boolean isStatic = originalMethod.isStatic();
+	    this.parameters = Scope.substitute(this, 
+	    										isStatic ? originalMethod.parameters : Scope.substitute(rawType, originalMethod.parameters));
+	    this.thrownExceptions = Scope.substitute(this, 
+	    										isStatic ? originalMethod.thrownExceptions : Scope.substitute(rawType, originalMethod.thrownExceptions));
+	    this.returnType = this.substitute(isStatic ? originalMethod.returnType : rawType.substitute(originalMethod.returnType));
 	}
 	
 	/**

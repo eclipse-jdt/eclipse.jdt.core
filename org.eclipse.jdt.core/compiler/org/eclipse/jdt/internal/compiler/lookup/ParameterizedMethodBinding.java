@@ -25,14 +25,20 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	/**
 	 * Create method of parameterized type, substituting original parameters/exception/return type with type arguments.
 	 */
-	public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
+	public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod, boolean isStatic) {
 
 		super(
 				originalMethod.modifiers,
 				originalMethod.selector,
-				parameterizedDeclaringClass.substitute(originalMethod.returnType),
-				Scope.substitute(parameterizedDeclaringClass, originalMethod.parameters),
-				Scope.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
+				isStatic // no substitution if original was static
+						? originalMethod.returnType
+						: parameterizedDeclaringClass.substitute(originalMethod.returnType),
+				isStatic // no substitution if original was static
+					? originalMethod.parameters
+					: Scope.substitute(parameterizedDeclaringClass, originalMethod.parameters),
+				isStatic // no substitution if original was static
+					? originalMethod.thrownExceptions
+					: Scope.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
 				parameterizedDeclaringClass);
 		this.originalMethod = originalMethod;
 		this.typeVariables = originalMethod.typeVariables;

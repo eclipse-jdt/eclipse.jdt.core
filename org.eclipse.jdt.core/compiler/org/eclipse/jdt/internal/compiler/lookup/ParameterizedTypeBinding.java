@@ -82,7 +82,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public ParameterizedMethodBinding createParameterizedMethod(MethodBinding originalMethod) {
-		return new ParameterizedMethodBinding(this, originalMethod);
+		return new ParameterizedMethodBinding(this, originalMethod, originalMethod.isStatic());
 	}
 	
 	/**
