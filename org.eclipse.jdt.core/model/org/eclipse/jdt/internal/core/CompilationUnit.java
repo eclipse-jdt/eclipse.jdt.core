@@ -762,39 +762,20 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
  * @see ICompilationUnit#getWorkingCopy(IProgressMonitor)
  */
 public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
-	if (isWorkingCopy()) return this;
-	
-	WorkingCopyOwner workingCopyOwner = new DefaultWorkingCopyOwner();
-	CompilationUnit workingCopy = 
-		new CompilationUnit(
-			(PackageFragment)getParent(), 
-			getElementName(), 
-			workingCopyOwner);
-	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, getPath(), null);
-	runOperation(op, monitor);
-	return workingCopy;
+	return getWorkingCopy(new DefaultWorkingCopyOwner(), null/*no problem requestor*/, monitor);
 }
 /**
  * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  * @deprecated
  */
 public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
-	if (isWorkingCopy()) return this;
-	
-	CompilationUnit workingCopy = 
-		new CompilationUnit(
-			(PackageFragment)getParent(), 
-			getElementName(), 
-			new BufferFactoryWrapper(factory));
-	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, getPath(), problemRequestor);
-	runOperation(op, monitor);
-	return workingCopy;
+	return getWorkingCopy(new BufferFactoryWrapper(factory), problemRequestor, monitor);
 }
 /**
  * @see IWorkingCopy#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
  */
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
-	if (isWorkingCopy()) return this;
+	if (this.owner != DefaultWorkingCopyOwner.PRIMARY) return this;
 	
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	

@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Nick Teryaev - fix for bug (https://bugs.eclipse.org/bugs/show_bug.cgi?id=40752)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -267,7 +268,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
 		}
 		if (containsCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, (ReferenceBinding)receiverType, binding, this.arguments, argumentTypes, this);
+			CastExpression.checkNeedForArgumentCasts(scope, this.receiver, receiverType, binding, this.arguments, argumentTypes, this);
 		}
 	}
 	//-------message send that are known to fail at compile time-----------

@@ -330,8 +330,8 @@ IType getType(String name);
  */
 IType[] getTypes() throws JavaModelException;
 /**
- * Returns a new working copy of this element if this element is not
- * a working copy, or this element if this element is already a working copy.
+ * Returns a new working copy of this compilation unit if it is a primary compilation unit, 
+ * or this compilation unit if it is already a non-primary working copy.
  * <p>
  * Note: if intending to share a working copy amongst several clients, then 
  * <code>#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</code> 
@@ -354,8 +354,8 @@ IType[] getTypes() throws JavaModelException;
  */
 ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException;
 /**
- * Returns a shared working copy on this element using the given working copy owner to create
- * the buffer, or this element if this element is already a working copy.
+ * Returns a shared working copy on this compilation unit using the given working copy owner to create
+ * the buffer, or this compilation unit if it is already a non-primary working copy.
  * This API can only answer an already existing working copy if it is based on the same
  * original compilation unit AND was using the same working copy owner (that is, as defined by <code>Object.equals</code>).	 
  * <p>
