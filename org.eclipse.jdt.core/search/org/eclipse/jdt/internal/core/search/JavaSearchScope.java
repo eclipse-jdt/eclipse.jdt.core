@@ -25,12 +25,13 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A Java-specific scope for searching relative to one or more java elements.
@@ -138,7 +139,8 @@ public void add(IJavaElement element) throws JavaModelException {
 		case IJavaElement.PACKAGE_FRAGMENT:
 			root = (IPackageFragmentRoot)element.getParent();
 			if (root.isArchive()) {
-				this.add(root.getPath().append(new Path(element.getElementName().replace('.', '/'))), false);
+				String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
+				this.add(root.getPath().append(new Path(relativePath)), false);
 			} else {
 				IResource resource = element.getResource();
 				if (resource != null && resource.isAccessible()) {
@@ -269,8 +271,9 @@ private IPath fullPath(IJavaElement element) {
 	IJavaElement parent = element.getParent();
 	IPath parentPath = parent == null ? null : this.fullPath(parent);
 	IPath childPath;
-	if (element instanceof IPackageFragment) {
-		childPath = new Path(element.getElementName().replace('.', '/'));
+	if (element instanceof PackageFragment) {
+		String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
+		childPath = new Path(relativePath);
 	} else if (element instanceof IOpenable) {
 		childPath = new Path(element.getElementName());
 	} else {

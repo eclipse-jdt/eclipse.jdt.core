@@ -67,7 +67,6 @@ public class Util {
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
-	public static final String[] fgEmptyStringArray = new String[0];
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
 	static {
@@ -78,6 +77,55 @@ public class Util {
 		// cannot be instantiated
 	}
 	
+	/**
+	 * Returns a new array adding the second array at the end of first array.
+	 * It answers null if the first and second are null.
+	 * If the first array is null or if it is empty, then a new array is created with second.
+	 * If the second array is null, then the first array is returned.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = "a"
+	 *    => result = {"a"}
+	 * </pre>
+	 * <li><pre>
+	 *    first = {"a"}
+	 *    second = null
+	 *    => result = {"a"}
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = {"a"}
+	 *    second = {"b"}
+	 *    => result = {"a", "b"}
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param first the first array to concatenate
+	 * @param second the array to add at the end of the first array
+	 * @return a new array adding the second array at the end of first array, or null if the two arrays are null.
+	 */
+	public static final String[] arrayConcat(String[] first, String second) {
+		if (second == null)
+			return first;
+		if (first == null)
+			return new String[] {second};
+
+		int length = first.length;
+		if (first.length == 0) {
+			return new String[] {second};
+		}
+		
+		String[] result = new String[length + 1];
+		System.arraycopy(first, 0, result, 0, length);
+		result[length] = second;
+		return result;
+	}
+
 	/**
 	 * Lookup the message with the given ID in this catalog 
 	 */
@@ -304,6 +352,90 @@ public class Util {
 		return new String(buf);
 	}
 
+	/**
+	 * Returns the concatenation of the given array parts using the given separator between each part.
+	 * <br>
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    array = {"a", "b"}
+	 *    separator = '.'
+	 *    => result = "a.b"
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = {}
+	 *    separator = '.'
+	 *    => result = ""
+	 * </pre></li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param separator the given separator
+	 * @return the concatenation of the given array parts using the given separator between each part
+	 */
+	public static final String concatWith(String[] array, char separator) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = array.length; i < length; i++) {
+			buffer.append(array[i]);
+			if (i < length - 1)
+				buffer.append('.');
+		}
+		return buffer.toString();
+	}
+	
+	/**
+	 * Returns the concatenation of the given array parts using the given separator between each
+	 * part and appending the given name at the end.
+	 * <br>
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    name = "c"
+	 *    array = { "a", "b" }
+	 *    separator = '.'
+	 *    => result = "a.b.c"
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    name = null
+	 *    array = { "a", "b" }
+	 *    separator = '.'
+	 *    => result = "a.b"
+	 * </pre></li>
+	 * <li><pre>
+	 *    name = " c"
+	 *    array = null
+	 *    separator = '.'
+	 *    => result = "c"
+	 * </pre></li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param name the given name
+	 * @param separator the given separator
+	 * @return the concatenation of the given array parts using the given separator between each
+	 * part and appending the given name at the end
+	 */
+	public static final String concatWith(
+		String[] array,
+		String name,
+		char separator) {
+		
+		if (array == null || array.length == 0) return name;
+		if (name == null || name.length() == 0) return concatWith(array, separator);
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = array.length; i < length; i++) {
+			buffer.append(array[i]);
+			buffer.append(separator);
+		}
+		buffer.append(name);
+		return buffer.toString();
+		
+	}
+	
 	/**
 	 * Concatenate three strings.
 	 * @see #concat(String, String)
@@ -859,7 +991,6 @@ public class Util {
 	 */
 	public static String[] getTrimmedSimpleNames(String name) {
 		String[] result = Signature.getSimpleNames(name);
-		if (result == null) return null;
 		for (int i = 0, length = result.length; i < length; i++) {
 			result[i] = result[i].trim();
 		}
@@ -1580,19 +1711,9 @@ public class Util {
 		int len = a.length;
 		char[][] result = new char[len][];
 		for (int i = 0; i < len; ++i) {
-			result[i] = toChars(a[i]);
+			result[i] = a[i].toCharArray();
 		}
 		return result;
-	}
-
-	/**
-	 * Converts a String to char[].
-	 */
-	public static char[] toChars(String s) {
-		int len = s.length();
-		char[] chars = new char[len];
-		s.getChars(0, len, chars, 0);
-		return chars;
 	}
 
 	/**
@@ -1618,7 +1739,7 @@ public class Util {
 		}
 		return segs;
 	}
-
+	
 	/**
 	 * Converts a char[] to String.
 	 */

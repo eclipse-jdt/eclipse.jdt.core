@@ -228,11 +228,11 @@ public class JavaProject
 	 * @see #setProject(IProject)
 	 */
 	public JavaProject() {
-		super(null, null);
+		super(null);
 	}
 
 	public JavaProject(IProject project, JavaElement parent) {
-		super(parent, project.getName());
+		super(parent);
 		this.project = project;
 	}
 
@@ -1287,6 +1287,10 @@ public class JavaProject
 		return null;
 	}
 
+	public String getElementName() {
+		return this.project.getName();
+	}
+	
 	/**
 	 * @see IJavaElement
 	 */
@@ -1535,9 +1539,9 @@ public class JavaProject
 					return null;
 				}
 			case IResource.FOLDER:
-				return new PackageFragmentRoot(resource, this, resource.getName());
+				return new PackageFragmentRoot(resource, this);
 			case IResource.PROJECT:
-				return new PackageFragmentRoot(resource, this, ""); //$NON-NLS-1$
+				return new PackageFragmentRoot(resource, this); //$NON-NLS-1$
 			default:
 				return null;
 		}
@@ -2622,7 +2626,6 @@ public class JavaProject
 
 		this.project = project;
 		this.parent = JavaModelManager.getJavaModelManager().getJavaModel();
-		this.name = project.getName();
 	}
 
 	/**

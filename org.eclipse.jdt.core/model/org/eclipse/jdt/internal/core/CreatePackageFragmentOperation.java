@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -47,7 +48,7 @@ public class CreatePackageFragmentOperation extends JavaModelOperation {
 	/**
 	 * The fully qualified, dot-delimited, package name.
 	 */
-	protected String fName;
+	protected String[] pkgName;
 /**
  * When executed, this operation will create a package fragment with the given name
  * under the given package fragment root. The dot-separated name is broken into
@@ -56,7 +57,7 @@ public class CreatePackageFragmentOperation extends JavaModelOperation {
  */
 public CreatePackageFragmentOperation(IPackageFragmentRoot parentElement, String packageName, boolean force) {
 	super(null, new IJavaElement[]{parentElement}, force);
-	fName = packageName;
+	this.pkgName = packageName == null ? null : Util.getTrimmedSimpleNames(packageName);
 }
 /**
  * Execute the operation - creates the new package fragment and any
@@ -66,18 +67,17 @@ public CreatePackageFragmentOperation(IPackageFragmentRoot parentElement, String
  */
 protected void executeOperation() throws JavaModelException {
 	JavaElementDelta delta = null;
-	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
-	String[] names = Util.getTrimmedSimpleNames(fName);
-	beginTask(Util.bind("operation.createPackageFragmentProgress"), names.length); //$NON-NLS-1$
+	PackageFragmentRoot root = (PackageFragmentRoot) getParentElement();
+	beginTask(Util.bind("operation.createPackageFragmentProgress"), this.pkgName.length); //$NON-NLS-1$
 	IContainer parentFolder = (IContainer) root.getResource();
-	String sideEffectPackageName = ""; //$NON-NLS-1$
-	ArrayList results = new ArrayList(names.length);
-	char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
-	char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
+	String[] sideEffectPackageName = CharOperation.NO_STRINGS; 
+	ArrayList results = new ArrayList(this.pkgName.length);
+	char[][] inclusionPatterns = root.fullInclusionPatternChars();
+	char[][] exclusionPatterns = root.fullExclusionPatternChars();
 	int i;
-	for (i = 0; i < names.length; i++) {
-		String subFolderName = names[i];
-		sideEffectPackageName += subFolderName;
+	for (i = 0; i < this.pkgName.length; i++) {
+		String subFolderName = this.pkgName[i];
+		sideEffectPackageName = Util.arrayConcat(sideEffectPackageName, subFolderName);
 		IResource subFolder = parentFolder.findMember(subFolderName);
 		if (subFolder == null) {
 			createFolder(parentFolder, subFolderName, force);
@@ -93,12 +93,11 @@ protected void executeOperation() throws JavaModelException {
 		} else {
 			parentFolder = (IContainer) subFolder;
 		}
-		sideEffectPackageName += '.';
 		worked(1);
 	}
 	if (results.size() > 0) {
-		resultElements = new IJavaElement[results.size()];
-		results.toArray(resultElements);
+		this.resultElements = new IJavaElement[results.size()];
+		results.toArray(this.resultElements);
 		if (delta != null) {
 			addDelta(delta);
 		}
@@ -124,18 +123,18 @@ public IJavaModelStatus verify() {
 		return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 	}
 	
-	if (fName == null || (fName.length() > 0 && JavaConventions.validatePackageName(fName).getSeverity() == IStatus.ERROR)) {
-		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, fName);
+	String packageName = this.pkgName == null ? null : Util.concatWith(this.pkgName, '.');
+	if (this.pkgName == null || (this.pkgName.length > 0 && JavaConventions.validatePackageName(packageName).getSeverity() == IStatus.ERROR)) {
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, packageName);
 	}
 	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
 	if (root.isReadOnly()) {
 		return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, root);
 	}
-	String[] names = Util.getTrimmedSimpleNames(fName);
 	IContainer parentFolder = (IContainer) root.getResource();
 	int i;
-	for (i = 0; i < names.length; i++) {
-		IResource subFolder = parentFolder.findMember(names[i]);
+	for (i = 0; i < this.pkgName.length; i++) {
+		IResource subFolder = parentFolder.findMember(this.pkgName[i]);
 		if (subFolder != null) {
 			if (subFolder.getType() != IResource.FOLDER) {
 				return new JavaModelStatus(

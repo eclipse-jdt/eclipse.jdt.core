@@ -190,7 +190,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		 * that lives in the given cache, and opens it.
 		 */
 		public OverflowingTestOpenable(OverflowingTestBuffer buffer, OverflowingLRUCache cache) {
-			super(null, "OverflowingTestOpenable");
+			super(null);
 			this.buffer = buffer;
 			buffer.owner = this;
 			this.cache= cache;

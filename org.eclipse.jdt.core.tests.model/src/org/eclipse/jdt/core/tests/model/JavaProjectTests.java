@@ -880,19 +880,19 @@ public void testProjectGetChildren() throws JavaModelException {
 public void testProjectGetPackageFragments() throws JavaModelException {
 	IJavaProject project= getJavaProject("JavaProjectTests");
 	IPackageFragment[] fragments= project.getPackageFragments();
-	assertElementsEqual(
+	assertSortedElementsEqual(
 		"unexpected package fragments",
+		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
+		"<default> [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
+		"META-INF [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
+		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
+		"java [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
+		"java.lang [in "+ getExternalJCLPathString() + " [in JavaProjectTests]]\n" + 
+		"p [in lib.jar [in JavaProjectTests]]\n" + 
 		"q [in <project root> [in JavaProjectTests]]\n" + 
 		"x [in <project root> [in JavaProjectTests]]\n" + 
-		"x.y [in <project root> [in JavaProjectTests]]\n" + 
-		"java [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
-		"java.lang [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
-		"META-INF [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
-		"<default> [in "+  getExternalJCLPathString() +" [in JavaProjectTests]]\n" + 
-		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
-		"p [in lib.jar [in JavaProjectTests]]\n" + 
-		"<default> [in lib.jar [in JavaProjectTests]]",
+		"x.y [in <project root> [in JavaProjectTests]]",
 		fragments);
 }
 /**

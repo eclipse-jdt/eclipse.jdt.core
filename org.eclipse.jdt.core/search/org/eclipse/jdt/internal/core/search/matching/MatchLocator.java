@@ -209,7 +209,7 @@ public static ClassFileReader classFileReader(IType type) {
 	if (classFile.isOpen())
 		return (ClassFileReader) manager.getInfo(type);
 
-	IPackageFragment pkg = type.getPackageFragment();
+	PackageFragment pkg = (PackageFragment) type.getPackageFragment();
 	IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 	try {
 		if (!root.isArchive())
@@ -222,11 +222,9 @@ public static ClassFileReader classFileReader(IType type) {
 			if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 				System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
 			zipFile = manager.getZipFile(zipPath);
-			char[] pkgPath = pkg.getElementName().toCharArray();
-			CharOperation.replace(pkgPath, '.', '/');
-			char[] classFileName = classFile.getElementName().toCharArray();
-			char[] path = pkgPath.length == 0 ? classFileName : CharOperation.concat(pkgPath, classFileName, '/');
-			return ClassFileReader.read(zipFile, new String(path));
+			String classFileName = classFile.getElementName();
+			String path = Util.concatWith(pkg.names, classFileName, '/');
+			return ClassFileReader.read(zipFile, path);
 		} finally {
 			manager.closeZipFile(zipFile);
 		}
@@ -606,14 +604,12 @@ protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) thr
 	// create a temporary info
 	IBinaryType info;
 	try {
-		IJavaElement pkg = classFile.getParent();
+		PackageFragment pkg = (PackageFragment) classFile.getParent();
 		PackageFragmentRoot root = (PackageFragmentRoot) pkg.getParent();
 		if (root.isArchive()) {
 			// class file in a jar
-			String pkgPath = pkg.getElementName().replace('.', '/');
-			String classFilePath = pkgPath.length() > 0
-				? pkgPath + "/" + classFile.getElementName() //$NON-NLS-1$
-				: classFile.getElementName();
+			String classFileName = classFile.getElementName();
+			String classFilePath = Util.concatWith(pkg.names, classFileName, '/');
 			ZipFile zipFile = null;
 			try {
 				zipFile = ((JarPackageFragmentRoot) root).getJar();

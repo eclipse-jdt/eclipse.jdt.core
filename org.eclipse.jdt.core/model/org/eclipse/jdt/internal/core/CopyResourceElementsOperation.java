@@ -139,21 +139,20 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * Creates any destination package fragment(s) which do not exists yet.
 	 * Return true if a read-only package fragment has been found among package fragments, false otherwise
 	 */
-	private boolean createNeededPackageFragments(IContainer sourceFolder, IPackageFragmentRoot root, String newFragName, boolean moveFolder) throws JavaModelException {
+	private boolean createNeededPackageFragments(IContainer sourceFolder, PackageFragmentRoot root, String[] newFragName, boolean moveFolder) throws JavaModelException {
 		boolean containsReadOnlyPackageFragment = false;
 		IContainer parentFolder = (IContainer) root.getResource();
 		JavaElementDelta projectDelta = null;
-		String[] names = Util.getTrimmedSimpleNames(newFragName);
-		StringBuffer sideEffectPackageName = new StringBuffer();
-		char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
-		char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
-		for (int i = 0; i < names.length; i++) {
-			String subFolderName = names[i];
-			sideEffectPackageName.append(subFolderName);
+		String[] sideEffectPackageName = null;
+		char[][] inclusionPatterns = root.fullInclusionPatternChars();
+		char[][] exclusionPatterns = root.fullExclusionPatternChars();
+		for (int i = 0; i < newFragName.length; i++) {
+			String subFolderName = newFragName[i];
+			sideEffectPackageName = Util.arrayConcat(sideEffectPackageName, subFolderName);
 			IResource subFolder = parentFolder.findMember(subFolderName);
 			if (subFolder == null) {
 				// create deepest folder only if not a move (folder will be moved in processPackageFragmentResource)
-				if (!(moveFolder && i == names.length-1)) {
+				if (!(moveFolder && i == newFragName.length-1)) {
 					createFolder(parentFolder, subFolderName, force);
 				}
 				parentFolder = parentFolder.getFolder(new Path(subFolderName));
@@ -161,8 +160,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				if (sourceFolder.isReadOnly()) {
 					containsReadOnlyPackageFragment = true;
 				}
-				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName.toString());
-				if (i < names.length - 1 // all but the last one are side effect packages
+				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName);
+				if (i < newFragName.length - 1 // all but the last one are side effect packages
 						&& !Util.isExcluded(parentFolder, inclusionPatterns, exclusionPatterns)) { 
 					if (projectDelta == null) {
 						projectDelta = getDeltaFor(root.getJavaProject());
@@ -173,7 +172,6 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			} else {
 				parentFolder = (IContainer) subFolder;
 			}
-			sideEffectPackageName.append('.');
 		}
 		return containsReadOnlyPackageFragment;
 	}
@@ -228,7 +226,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * @exception JavaModelException if the operation is unable to
 	 * complete
 	 */
-	private void processCompilationUnitResource(ICompilationUnit source, IPackageFragment dest) throws JavaModelException {
+	private void processCompilationUnitResource(ICompilationUnit source, PackageFragment dest) throws JavaModelException {
 		String newCUName = getNewNameFor(source);
 		String destName = (newCUName != null) ? newCUName : source.getElementName();
 		String newContent = updatedContent(source, dest, newCUName); // null if unchanged
@@ -371,11 +369,11 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		IJavaElement dest = getDestinationParent(element);
 		switch (element.getElementType()) {
 			case IJavaElement.COMPILATION_UNIT :
-				processCompilationUnitResource((ICompilationUnit) element, (IPackageFragment) dest);
+				processCompilationUnitResource((ICompilationUnit) element, (PackageFragment) dest);
 				createdElements.add(((IPackageFragment) dest).getCompilationUnit(element.getElementName()));
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
-				processPackageFragmentResource((IPackageFragment) element, (IPackageFragmentRoot) dest, getNewNameFor(element));
+				processPackageFragmentResource((PackageFragment) element, (PackageFragmentRoot) dest, getNewNameFor(element));
 				break;
 			default :
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element));
@@ -407,9 +405,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
     // TODO - JDOM - remove once model ported off of JDOM
-	private void processPackageFragmentResource(IPackageFragment source, IPackageFragmentRoot root, String newName) throws JavaModelException {
+	private void processPackageFragmentResource(PackageFragment source, PackageFragmentRoot root, String newName) throws JavaModelException {
 		try {
-			String newFragName = (newName == null) ? source.getElementName() : newName;
+			String[] newFragName = (newName == null) ? source.names : Util.getTrimmedSimpleNames(newName);
 			IPackageFragment newFrag = root.getPackageFragment(newFragName);
 			IResource[] resources = collectResourcesOfInterest(source);
 			
@@ -490,9 +488,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			}
 	
 			// Update package statement in compilation unit if needed
-			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
-				char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
-				char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
+			if (!Util.equalArraysOrNull(newFragName, source.names)) { // if package has been renamed, update the compilation units
+				char[][] inclusionPatterns = root.fullInclusionPatternChars();
+				char[][] exclusionPatterns = root.fullExclusionPatternChars();
 				for (int i = 0; i < resources.length; i++) {
 					if (resources[i].getName().endsWith(SUFFIX_STRING_java)) {
 						// we only consider potential compilation units
@@ -579,10 +577,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
     // TODO - JDOM - remove once model ported off of JDOM
-	private String updatedContent(ICompilationUnit cu, IPackageFragment dest, String newName) throws JavaModelException {
-		String currPackageName = cu.getParent().getElementName();
-		String destPackageName = dest.getElementName();
-		if (currPackageName.equals(destPackageName) && newName == null) {
+	private String updatedContent(ICompilationUnit cu, PackageFragment dest, String newName) throws JavaModelException {
+		String[] currPackageName = ((PackageFragment) cu.getParent()).names;
+		String[] destPackageName = dest.names;
+		if (Util.equalArraysOrNull(currPackageName, destPackageName) && newName == null) {
 			return null; //nothing to change
 		} else {
 			String typeName = cu.getElementName();
@@ -603,15 +601,15 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * @deprecated marked deprecated to suppress JDOM-related deprecation warnings
 	 */
     // TODO - JDOM - remove once model ported off of JDOM
-	private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) {
-		boolean defaultPackage = pkgName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	private void updatePackageStatement(IDOMCompilationUnit domCU, String[] pkgName) {
+		boolean defaultPackage = pkgName.length == 0;
 		boolean seenPackageNode = false;
 		Enumeration nodes = domCU.getChildren();
 		while (nodes.hasMoreElements()) {
 			IDOMNode node = (IDOMNode) nodes.nextElement();
 			if (node.getNodeType() == IDOMNode.PACKAGE) {
 				if (! defaultPackage) {
-					node.setName(pkgName);
+					node.setName(Util.concatWith(pkgName, '.'));
 				} else {
 					node.remove();
 				}
@@ -630,37 +628,29 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		}
 	}
 	
-	private void updateReadOnlyPackageFragmentsForCopy(IContainer sourceFolder, IPackageFragmentRoot root, String newFragName) {
+	private void updateReadOnlyPackageFragmentsForCopy(IContainer sourceFolder, IPackageFragmentRoot root, String[] newFragName) {
 		IContainer parentFolder = (IContainer) root.getResource();
-		String[] names = Util.getTrimmedSimpleNames(newFragName);
-		StringBuffer sideEffectPackageName = new StringBuffer();
-		for (int i = 0, nameLength = names.length; i < nameLength; i++) {
-			String subFolderName = names[i];
-			sideEffectPackageName.append(subFolderName);
+		for (int i = 0, length = newFragName.length; i <length; i++) {
+			String subFolderName = newFragName[i];
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
 			if (sourceFolder.exists() && sourceFolder.isReadOnly()) {
 				parentFolder.setReadOnly(true);
 			}
-			sideEffectPackageName.append('.');
 		}
 	}
 
-	private void updateReadOnlyPackageFragmentsForMove(IContainer sourceFolder, IPackageFragmentRoot root, String newFragName, boolean sourceFolderIsReadOnly) {
+	private void updateReadOnlyPackageFragmentsForMove(IContainer sourceFolder, IPackageFragmentRoot root, String[] newFragName, boolean sourceFolderIsReadOnly) {
 		IContainer parentFolder = (IContainer) root.getResource();
-		String[] names = Util.getTrimmedSimpleNames(newFragName);
-		StringBuffer sideEffectPackageName = new StringBuffer();
-		for (int i = 0, nameLength = names.length; i < nameLength; i++) {
-			String subFolderName = names[i];
-			sideEffectPackageName.append(subFolderName);
+		for (int i = 0, length = newFragName.length; i < length; i++) {
+			String subFolderName = newFragName[i];
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
-			if ((sourceFolder.exists() && sourceFolder.isReadOnly()) || (i == nameLength - 1 && sourceFolderIsReadOnly)) {
+			if ((sourceFolder.exists() && sourceFolder.isReadOnly()) || (i == length - 1 && sourceFolderIsReadOnly)) {
 				parentFolder.setReadOnly(true);
 				// the source folder will be deleted anyway (move operation)
 				sourceFolder.setReadOnly(false);
 			}
-			sideEffectPackageName.append('.');
 		}
 	}
 		/**

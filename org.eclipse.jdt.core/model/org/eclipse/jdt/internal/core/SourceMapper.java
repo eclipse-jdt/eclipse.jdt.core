@@ -33,7 +33,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
@@ -807,12 +806,8 @@ public class SourceMapper
 		if (VERBOSE) {
 			time = System.currentTimeMillis();
 		}
-		String name = simpleSourceFileName;
-		IPackageFragment pkgFrag = type.getPackageFragment();
-		if (!pkgFrag.isDefaultPackage()) {
-			String pkg = pkgFrag.getElementName().replace('.', '/');
-			name = pkg + '/' + name;
-		}
+		PackageFragment pkgFrag = (PackageFragment) type.getPackageFragment();
+		String name = org.eclipse.jdt.internal.core.util.Util.concatWith(pkgFrag.names, simpleSourceFileName, '/');
 	
 		char[] source = null;
 		

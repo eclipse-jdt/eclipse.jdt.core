@@ -22,13 +22,15 @@ import org.eclipse.jdt.core.jdom.*;
 
 /* package */ class ImportDeclaration extends SourceRefElement implements IImportDeclaration {
 
-
+	protected String name;
+	
 /**
  * Constructs an ImportDeclaration in the given import container
  * with the given name.
  */
 protected ImportDeclaration(ImportContainer parent, String name) {
-	super(parent, name);
+	super(parent);
+	this.name = name;
 }
 public boolean equals(Object o) {
 	if (!(o instanceof ImportDeclaration)) return false;
@@ -41,6 +43,9 @@ public boolean equals(Object o) {
 // TODO - JDOM - remove once model ported off of JDOM
 protected boolean equalsDOMNode(IDOMNode node) {
 	return (node.getNodeType() == IDOMNode.IMPORT) && getElementName().equals(node.getName());
+}
+public String getElementName() {
+	return this.name;
 }
 /**
  * @see IJavaElement

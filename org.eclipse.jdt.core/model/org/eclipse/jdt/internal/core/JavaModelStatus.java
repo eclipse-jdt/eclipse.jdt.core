@@ -250,8 +250,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				case NAME_COLLISION:
 					if (elements != null && elements.length > 0) {
 						IJavaElement element = elements[0];
-						String name = element.getElementName();
-						if (element instanceof IPackageFragment && name.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
+						if (element instanceof PackageFragment && ((PackageFragment) element).isDefaultPackage()) {
 							return Util.bind("operation.cannotRenameDefaultPackage"); //$NON-NLS-1$
 						}
 					}

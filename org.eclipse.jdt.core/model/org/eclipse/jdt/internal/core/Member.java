@@ -37,8 +37,8 @@ public abstract class Member extends SourceRefElement implements IMember {
 	 */
 	protected static final String[] EmptyStringList = new String[0];
 
-protected Member(JavaElement parent, String name) {
-	super(parent, name);
+protected Member(JavaElement parent) {
+	super(parent);
 }
 protected boolean areSimilarMethods(
 	String name1, String[] params1, 

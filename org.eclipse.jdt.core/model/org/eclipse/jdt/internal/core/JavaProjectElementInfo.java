@@ -180,16 +180,17 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			IPackageFragment[] frags = this.getPackageFragmentsInRoots(roots, project);
 			for (int i= 0; i < frags.length; i++) {
 				IPackageFragment fragment= frags[i];
-				IPackageFragment[] entry= (IPackageFragment[]) cache.get(fragment.getElementName());
+				String pkgName = fragment.getElementName();
+				IPackageFragment[] entry= (IPackageFragment[]) cache.get(pkgName);
 				if (entry == null) {
 					entry= new IPackageFragment[1];
 					entry[0]= fragment;
-					cache.put(fragment.getElementName(), entry);
+					cache.put(pkgName, entry);
 				} else {
 					IPackageFragment[] copy= new IPackageFragment[entry.length + 1];
 					System.arraycopy(entry, 0, copy, 0, entry.length);
 					copy[entry.length]= fragment;
-					cache.put(fragment.getElementName(), copy);
+					cache.put(pkgName, copy);
 				}
 			}
 			this.allPkgFragmentsCache = cache;
@@ -219,7 +220,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		// The following code assumes that all the roots have the given project as their parent
 		ArrayList frags = new ArrayList();
 		for (int i = 0; i < roots.length; i++) {
-			IPackageFragmentRoot root = roots[i];
+			PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
 			try {
 				IJavaElement[] pkgs = root.getChildren();
 
@@ -240,7 +241,8 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				} else {
 					// create a new handle with the root as the parent
 					for (int j = 0; j < length; j++) {
-						frags.add(root.getPackageFragment(pkgs[j].getElementName()));
+						String[] pkgName = ((PackageFragment) pkgs[j]).names;
+						frags.add(root.getPackageFragment(pkgName));
 					}
 				}
 			} catch (JavaModelException e) {

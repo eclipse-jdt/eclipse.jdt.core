@@ -28,6 +28,12 @@ public final class CharOperation {
 	public static final char[][] NO_CHAR_CHAR = new char[0][];
 	
 	/**
+	 * Constant for an empty String array.
+	 * @since 3.1
+	 */
+	public static final String[] NO_STRINGS = new String[0];
+	
+	/**
 	 * Answers a new array with appending the suffix character at the end of the array.
 	 * <br>
 	 * <br>
@@ -171,13 +177,14 @@ public final class CharOperation {
 	 * @since 3.0
 	 */
 	public static String[] charArrayToStringArray(char[][] charArrays) {
-		if (charArrays == null) {
+		if (charArrays == null)
 			return null;
-		}
-		String[] strings= new String[charArrays.length];
-		for (int i= 0; i < charArrays.length; i++) {
+		int length = charArrays.length;
+		if (length == 0)
+			return NO_STRINGS;
+		String[] strings= new String[length];
+		for (int i= 0; i < length; i++)
 			strings[i]= new String(charArrays[i]);
-		}
 		return strings;
 	}
 	/**

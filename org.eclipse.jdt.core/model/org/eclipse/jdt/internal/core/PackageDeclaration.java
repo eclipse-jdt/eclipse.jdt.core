@@ -19,8 +19,12 @@ import org.eclipse.jdt.core.jdom.*;
  */
 
 /* package */ class PackageDeclaration extends SourceRefElement implements IPackageDeclaration {
+	
+	String name;
+	
 protected PackageDeclaration(CompilationUnit parent, String name) {
-	super(parent, name);
+	super(parent);
+	this.name = name;
 }
 public boolean equals(Object o) {
 	if (!(o instanceof PackageDeclaration)) return false;
@@ -33,6 +37,9 @@ public boolean equals(Object o) {
 // TODO - JDOM - remove once model ported off of JDOM
 protected boolean equalsDOMNode(IDOMNode node) {
 	return (node.getNodeType() == IDOMNode.PACKAGE) && getElementName().equals(node.getName());
+}
+public String getElementName() {
+	return this.name;
 }
 /**
  * @see IJavaElement

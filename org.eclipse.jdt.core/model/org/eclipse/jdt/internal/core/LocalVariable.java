@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
+	String name;
 	public int declarationSourceStart, declarationSourceEnd;
 	public int nameStart, nameEnd;
 	String typeSignature;
@@ -38,7 +39,8 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			int nameEnd,
 			String typeSignature) {
 		
-		super(parent, name);
+		super(parent);
+		this.name = name;
 		this.declarationSourceStart = declarationSourceStart;
 		this.declarationSourceEnd = declarationSourceEnd;
 		this.nameStart = nameStart;
@@ -111,6 +113,10 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	public IResource getCorrespondingResource() {
 		return null;
+	}
+	
+	public String getElementName() {
+		return this.name;
 	}
 
 	public int getElementType() {

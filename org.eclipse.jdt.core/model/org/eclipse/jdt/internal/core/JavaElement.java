@@ -49,29 +49,21 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected JavaElement parent;
 
-	/**
-	 * This element's name, or an empty <code>String</code> if this
-	 * element does not have a name.
-	 */
-	protected String name;
-
 	protected static final JavaElement[] NO_ELEMENTS = new JavaElement[0];
 	protected static final Object NO_INFO = new Object();
 	
 	/**
 	 * Constructs a handle for a java element with
-	 * the given parent element and name.
+	 * the given parent element.
 	 *
 	 * @param parent The parent of java element
-	 * @param name The name of java element
 	 *
 	 * @exception IllegalArgumentException if the type is not one of the valid
 	 *		Java element type constants
 	 *
 	 */
-	protected JavaElement(JavaElement parent, String name) throws IllegalArgumentException {
+	protected JavaElement(JavaElement parent) throws IllegalArgumentException {
 		this.parent = parent;
-		this.name = name;
 	}
 	/**
 	 * @see IOpenable
@@ -107,7 +99,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	
 		// assume instanceof check is done in subclass
 		JavaElement other = (JavaElement) o;		
-		return this.name.equals(other.name) &&
+		return getElementName().equals(other.getElementName()) &&
 				this.parent.equals(other.parent);
 	}
 	/**
@@ -301,7 +293,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IAdaptable
 	 */
 	public String getElementName() {
-		return this.name;
+		return ""; //$NON-NLS-1$
 	}
 	/*
 	 * Creates a Java element handle from the given memento.
@@ -507,7 +499,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public int hashCode() {
 		if (this.parent == null) return super.hashCode();
-		return Util.combineHashCodes(this.name.hashCode(), this.parent.hashCode());
+		return Util.combineHashCodes(getElementName().hashCode(), this.parent.hashCode());
 	}
 	/**
 	 * Returns true if this element is an ancestor of the given element,

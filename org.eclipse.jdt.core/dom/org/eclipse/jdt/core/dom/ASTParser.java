@@ -17,19 +17,19 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
+import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A Java language parser for creating abstract syntax trees (ASTs).
@@ -606,9 +606,9 @@ public class ASTParser {
 							// no source, then we cannot build anything
 							throw new IllegalStateException();
 						}
-						IPackageFragment packageFragment = (IPackageFragment)this.compilationUnitSource.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+						PackageFragment packageFragment = (PackageFragment)this.compilationUnitSource.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 						if (packageFragment != null){
-							packageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+							packageName = Util.toCharArrays(packageFragment.names);
 						}
 						fileName = this.compilationUnitSource.getElementName();
 					} else if (this.classFileSource != null) {
@@ -624,7 +624,8 @@ public class ASTParser {
 						}
 						source = sourceString.toCharArray();
 						try {
-							packageName = CharOperation.splitOn('.', this.classFileSource.getType().getPackageFragment().getElementName().toCharArray());
+							PackageFragment packageFragment = (PackageFragment) this.classFileSource.getType().getPackageFragment();
+							packageName = Util.toCharArrays(packageFragment.names);
 							StringBuffer buffer = new StringBuffer(SuffixConstants.SUFFIX_STRING_java);
 							String classFileName = this.classFileSource.getElementName(); // this includes the trailing .class
 							buffer.insert(0, classFileName.toCharArray(), 0, classFileName.indexOf('.'));

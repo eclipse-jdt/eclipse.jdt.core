@@ -17,14 +17,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
-//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
@@ -35,6 +34,7 @@ import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	/**
@@ -303,8 +303,8 @@ protected IBinaryType createInfoFromClassFile(Openable handle, String osPath) {
  * Create a type info from the given class file in a jar and adds it to the given list of infos.
  */
 protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
-	IJavaElement pkg = classFile.getParent();
-	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName(); //$NON-NLS-1$
+	PackageFragment pkg = (PackageFragment) classFile.getParent();
+	String classFilePath = Util.concatWith(pkg.names, classFile.getElementName(), '/');
 	IBinaryType info = null;
 	java.util.zip.ZipFile zipFile = null;
 	try {

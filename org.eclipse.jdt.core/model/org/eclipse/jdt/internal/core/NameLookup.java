@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
@@ -89,7 +90,7 @@ public class NameLookup implements SuffixConstants {
 	 */
 	protected HashMap unitsToLookInside;
 
-	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashMap packageFragments, ICompilationUnit[] workingCopies) {
+	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, Map packageFragments, ICompilationUnit[] workingCopies) {
 		this.packageFragmentRoots = packageFragmentRoots;
 		this.packageFragments = packageFragments;
 		if (workingCopies != null) {
@@ -273,7 +274,7 @@ public class NameLookup implements SuffixConstants {
 					}
 					return null;
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-					return ((IPackageFragmentRoot)fromFactory).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+					return ((PackageFragmentRoot)fromFactory).getPackageFragment(CharOperation.NO_STRINGS);
 			}
 		}
 		return null;

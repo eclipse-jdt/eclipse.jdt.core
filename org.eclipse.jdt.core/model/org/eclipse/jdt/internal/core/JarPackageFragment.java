@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A package fragment that represents a package fragment found in a JAR.
@@ -32,8 +33,8 @@ class JarPackageFragment extends PackageFragment implements SuffixConstants {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.
  */
-protected JarPackageFragment(PackageFragmentRoot root, String name) {
-	super(root, name);
+protected JarPackageFragment(PackageFragmentRoot root, String[] names) {
+	super(root, names);
 }
 /**
  * Compute the children of this package fragment. Children of jar package fragments
@@ -73,9 +74,7 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 			String resName = resNames[i];
 			// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
 			if (!resName.toLowerCase().endsWith(SUFFIX_STRING_java)) {
-				if (!this.isDefaultPackage()) {
-					resName = this.getElementName().replace('.', '/') + "/" + resName;//$NON-NLS-1$
-				}
+				resName = Util.concatWith(this.names, resName, '/');
 				res[index++] = new JarEntryFile(resName, zipName);
 			}
 		} 

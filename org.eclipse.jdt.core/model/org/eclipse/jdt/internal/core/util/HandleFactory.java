@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.util;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -72,7 +71,7 @@ public class HandleFactory {
 	/**
 	 * Cache package handles to optimize memory.
 	 */
-	private Map packageHandles;
+	private HashtableOfArrayToObject packageHandles;
 
 	private JavaModel javaModel;
 
@@ -102,43 +101,58 @@ public class HandleFactory {
 					return null; // match is outside classpath
 				this.lastPkgFragmentRootPath= jarPath;
 				this.lastPkgFragmentRoot= root;
-				this.packageHandles= new HashMap(5);
+				this.packageHandles= new HashtableOfArrayToObject(5);
 			}
 			// create handle
 			String classFilePath= resourcePath.substring(separatorIndex + 1);
-			int lastSlash= classFilePath.lastIndexOf('/');
-			String packageName= lastSlash > -1 ? classFilePath.substring(0, lastSlash).replace('/', '.') : IPackageFragment.DEFAULT_PACKAGE_NAME;
-			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(packageName);
-			if (pkgFragment == null) {
-				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(packageName);
-				this.packageHandles.put(packageName, pkgFragment);
+			String[] simpleNames = new Path(classFilePath).segments();
+			String[] pkgName;
+			int length = simpleNames.length-1;
+			if (length > 0) {
+				pkgName = new String[length];
+				System.arraycopy(simpleNames, 0, pkgName, 0, length);
+			} else {
+				pkgName = CharOperation.NO_STRINGS;
 			}
-			IClassFile classFile= pkgFragment.getClassFile(classFilePath.substring(lastSlash + 1));
+			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
+			if (pkgFragment == null) {
+				pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName);
+				this.packageHandles.put(pkgName, pkgFragment);
+			}
+			IClassFile classFile= pkgFragment.getClassFile(simpleNames[length]);
 			return (Openable) classFile;
 		} else {
 			// path to a file in a directory
 			// Optimization: cache package fragment root handle and package handles
-			int length = -1;
+			int rootPathLength = -1;
 			if (this.lastPkgFragmentRootPath == null 
 				|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath) 
-					&& (length = this.lastPkgFragmentRootPath.length()) > 0
-					&& resourcePath.charAt(length) == '/')) {
+					&& (rootPathLength = this.lastPkgFragmentRootPath.length()) > 0
+					&& resourcePath.charAt(rootPathLength) == '/')) {
 				IPackageFragmentRoot root= this.getPkgFragmentRoot(resourcePath);
 				if (root == null)
 					return null; // match is outside classpath
-				this.lastPkgFragmentRoot= root;
-				this.lastPkgFragmentRootPath= this.lastPkgFragmentRoot.getPath().toString();
-				this.packageHandles= new HashMap(5);
+				this.lastPkgFragmentRoot = root;
+				this.lastPkgFragmentRootPath = this.lastPkgFragmentRoot.getPath().toString();
+				this.packageHandles = new HashtableOfArrayToObject(5);
 			}
 			// create handle
-			int lastSlash= resourcePath.lastIndexOf(IPath.SEPARATOR);
-			String packageName= lastSlash > (length= this.lastPkgFragmentRootPath.length()) ? resourcePath.substring(length + 1, lastSlash).replace(IPath.SEPARATOR, '.') : IPackageFragment.DEFAULT_PACKAGE_NAME;
-			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(packageName);
-			if (pkgFragment == null) {
-				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(packageName);
-				this.packageHandles.put(packageName, pkgFragment);
+			resourcePath = resourcePath.substring(this.lastPkgFragmentRootPath.length() + 1);
+			String[] simpleNames = new Path(resourcePath).segments();
+			String[] pkgName;
+			int length = simpleNames.length-1;
+			if (length > 0) {
+				pkgName = new String[length];
+				System.arraycopy(simpleNames, 0, pkgName, 0, length);
+			} else {
+				pkgName = CharOperation.NO_STRINGS;
 			}
-			String simpleName= resourcePath.substring(lastSlash + 1);
+			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
+			if (pkgFragment == null) {
+				pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName);
+				this.packageHandles.put(pkgName, pkgFragment);
+			}
+			String simpleName= simpleNames[length];
 			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;

@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	
+	protected String name;
 	public WorkingCopyOwner owner;
 
 /**
@@ -44,7 +45,8 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
  * does not end with ".java"
  */
 protected CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner owner) {
-	super(parent, name);
+	super(parent);
+	this.name = name;
 	this.owner = owner;
 }
 /**
@@ -373,7 +375,7 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 		//autogenerate this compilation unit
 		IPackageFragment pkg = (IPackageFragment) getParent();
 		String source = ""; //$NON-NLS-1$
-		if (pkg.getElementName().length() > 0) {
+		if (!pkg.isDefaultPackage()) {
 			//not the default package...add the package declaration
 			source = "package " + pkg.getElementName() + ";"  + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -623,6 +625,9 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 	} else {
 		return e;
 	}
+}
+public String getElementName() {
+	return this.name;
 }
 /**
  * @see IJavaElement

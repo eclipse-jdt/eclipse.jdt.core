@@ -267,7 +267,7 @@ public abstract class MultiOperation extends JavaModelOperation {
 	
 		switch (element.getElementType()) {
 			case IJavaElement.PACKAGE_FRAGMENT :
-				if (element.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
+				if (((IPackageFragment) element).isDefaultPackage()) {
 					// don't allow renaming of default package (see PR #1G47GUM)
 					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, element));
 				}

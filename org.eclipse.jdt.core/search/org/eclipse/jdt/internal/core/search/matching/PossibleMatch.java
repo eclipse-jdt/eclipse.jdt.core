@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class PossibleMatch implements ICompilationUnit {
 
@@ -105,10 +106,8 @@ private char[] getQualifiedName() {
 			return ((ClassFile) this.openable).getType().getFullyQualifiedName('.').toCharArray();
 
 		String simpleName = fileName.substring(0, fileName.length() - 5); // length-".java".length()
-		String pkgName = this.openable.getParent().getElementName();
-		if (pkgName.length() == 0)
-			return simpleName.toCharArray();
-		return (pkgName + '.' + simpleName).toCharArray();
+		PackageFragment pkg = (PackageFragment) this.openable.getParent();
+		return Util.concatWith(pkg.names, simpleName, '.').toCharArray();
 	}
 	return null;
 }

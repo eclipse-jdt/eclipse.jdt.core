@@ -59,7 +59,7 @@ public class JavaModel extends Openable implements IJavaModel {
  * @exception Error if called more than once
  */
 protected JavaModel() throws Error {
-	super(null, "" /*workspace has empty name*/); //$NON-NLS-1$
+	super(null);
 }
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource)	/*throws JavaModelException*/ {
 

@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /* package */ class Initializer extends Member implements IInitializer {
 
 protected Initializer(JavaElement parent, int count) {
-	super(parent, ""); //$NON-NLS-1$
+	super(parent);
 	// 0 is not valid: this first occurrence is occurrence 1.
 	if (count <= 0)
 		throw new IllegalArgumentException();

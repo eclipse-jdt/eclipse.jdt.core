@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.JavaModelException;
 /**
  * Common functionality for Binary member handles.
  */
-public abstract class BinaryMember extends Member {
+public abstract class BinaryMember extends NamedMember {
 /*
  * Constructs a binary member.
  */

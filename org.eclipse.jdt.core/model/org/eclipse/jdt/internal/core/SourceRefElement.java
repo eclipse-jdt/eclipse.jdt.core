@@ -40,8 +40,8 @@ public abstract class SourceRefElement extends JavaElement implements ISourceRef
 	 */
 	public int occurrenceCount = 1;
 
-protected SourceRefElement(JavaElement parent, String name) {
-	super(parent, name);
+protected SourceRefElement(JavaElement parent) {
+	super(parent);
 }
 /**
  * This element is being closed.  Do any necessary cleanup.

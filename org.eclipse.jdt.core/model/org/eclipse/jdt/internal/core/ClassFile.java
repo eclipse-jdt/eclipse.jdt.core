@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.ISourceRange;
@@ -53,13 +52,16 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 public class ClassFile extends Openable implements IClassFile, SuffixConstants {
+
+	protected String name;
 	protected BinaryType binaryType = null;
 	private boolean checkAutomaticSourceMapping;
 /*
  * Creates a handle to a class file.
  */
 protected ClassFile(PackageFragment parent, String name) {
-	super(parent, name);
+	super(parent);
+	this.name = name;
 	this.checkAutomaticSourceMapping = false;
 }
 
@@ -211,13 +213,8 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 			ZipFile zip = null;
 			try {
 				zip = root.getJar();
-				String entryName = getParent().getElementName();
-				entryName = entryName.replace('.', '/');
-				if (entryName.equals("")) { //$NON-NLS-1$
-					entryName += getElementName();
-				} else {
-					entryName += '/' + getElementName();
-				}
+				PackageFragment pkg = (PackageFragment) getParent();
+				String entryName = Util.concatWith(pkg.names, getElementName(), '/');
 				info = ClassFileReader.read(zip, entryName, true);
 			} finally {
 				JavaModelManager.getJavaModelManager().closeZipFile(zip);
@@ -298,6 +295,9 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 		IType type = getType();
 		return findElement(type, position, mapper);
 	}
+}
+public String getElementName() {
+	return this.name;
 }
 /**
  * @see IJavaElement
@@ -493,13 +493,8 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 			ZipFile jar = null;
 			try {
 				jar = jarPackageFragmentRoot.getJar();
-				IPackageFragment packageFragment = (IPackageFragment) getParent();
-				ZipEntry zipEntry = null;
-				if (packageFragment.isDefaultPackage()) {
-					zipEntry = jar.getEntry(sourceFileName.toString());
-				} else {
-					zipEntry = jar.getEntry(getParent().getElementName() + '/' + sourceFileName.toString());
-				}
+				PackageFragment packageFragment = (PackageFragment) getParent();
+				ZipEntry zipEntry = jar.getEntry(Util.concatWith(packageFragment.names, sourceFileName.toString(), '/'));
 				if (zipEntry != null) {
 					// found a source file
 					this.checkAutomaticSourceMapping = true;

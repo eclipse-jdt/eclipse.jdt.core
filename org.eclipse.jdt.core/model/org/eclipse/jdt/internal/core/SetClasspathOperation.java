@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.File;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -214,7 +213,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				IPath path = classpath[i].getPath();
 				if (entry.getEntryKind() != IClasspathEntry.CPE_PROJECT && path.isPrefixOf(location) && !path.equals(location)) {
 					IPackageFragmentRoot[] roots = project.computePackageFragmentRoots(classpath[i]);
-					IPackageFragmentRoot root = roots[0];
+					PackageFragmentRoot root = (PackageFragmentRoot) roots[0];
 					// now the output location becomes a package fragment - along with any subfolders
 					ArrayList folders = new ArrayList();
 					folders.add(folder);
@@ -224,12 +223,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 					while (elements.hasNext()) {
 						IFolder f = (IFolder) elements.next();
 						IPath relativePath = f.getFullPath().removeFirstSegments(segments);
-						String name = relativePath.toOSString();
-						name = name.replace(File.pathSeparatorChar, '.');
-						if (name.endsWith(".")) { //$NON-NLS-1$
-							name = name.substring(0, name.length() - 1);
-						}
-						IPackageFragment pkg = root.getPackageFragment(name);
+						String[] pkgName = relativePath.segments();
+						IPackageFragment pkg = root.getPackageFragment(pkgName);
 						fragments.add(pkg);
 					}
 				}

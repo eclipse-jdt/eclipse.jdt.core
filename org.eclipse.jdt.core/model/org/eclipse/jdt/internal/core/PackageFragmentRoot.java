@@ -56,8 +56,8 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
  * Constructs a package fragment root which is the root of the java package
  * directory hierarchy.
  */
-protected PackageFragmentRoot(IResource resource, JavaProject project, String name) {
-	super(project, name);
+protected PackageFragmentRoot(IResource resource, JavaProject project) {
+	super(project);
 	this.resource = resource;
 }
 
@@ -210,7 +210,7 @@ protected boolean computeChildren(OpenableElementInfo info, Map newElements) thr
 			IContainer rootFolder = (IContainer) underlyingResource;
 			char[][] inclusionPatterns = fullInclusionPatternChars();
 			char[][] exclusionPatterns = fullExclusionPatternChars();
-			computeFolderChildren(rootFolder, !Util.isExcluded(rootFolder, inclusionPatterns, exclusionPatterns), "", vChildren, inclusionPatterns, exclusionPatterns); //$NON-NLS-1$
+			computeFolderChildren(rootFolder, !Util.isExcluded(rootFolder, inclusionPatterns, exclusionPatterns), CharOperation.NO_STRINGS, vChildren, inclusionPatterns, exclusionPatterns); //$NON-NLS-1$
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.toArray(children);
 			info.setChildren(children);
@@ -229,10 +229,10 @@ protected boolean computeChildren(OpenableElementInfo info, Map newElements) thr
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-protected void computeFolderChildren(IContainer folder, boolean isIncluded, String prefix, ArrayList vChildren, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
+protected void computeFolderChildren(IContainer folder, boolean isIncluded, String[] pkgName, ArrayList vChildren, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
 
 	if (isIncluded) {
-	    IPackageFragment pkg = getPackageFragment(prefix);
+	    IPackageFragment pkg = getPackageFragment(pkgName);
 		vChildren.add(pkg);
 	}
 	try {
@@ -252,13 +252,8 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 					    if (isMemberIncluded || inclusionPatterns != null) { 
 							// eliminate binary output only if nested inside direct subfolders
 							if (javaProject.contains(member)) {
-								String newPrefix;
-								if (prefix.length() == 0) {
-									newPrefix = memberName;
-								} else {
-									newPrefix = prefix + "." + memberName; //$NON-NLS-1$
-								}
-								computeFolderChildren((IFolder) member, isMemberIncluded, newPrefix, vChildren, inclusionPatterns, exclusionPatterns);
+								String[] newNames = Util.arrayConcat(pkgName, memberName);
+								computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
 							}
 						}
 					}
@@ -269,7 +264,7 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 								&& Util.isValidCompilationUnitName(memberName)
 								&& !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)) {
 						hasIncluded = true;
-					    IPackageFragment pkg = getPackageFragment(prefix);
+					    IPackageFragment pkg = getPackageFragment(pkgName);
 					    vChildren.add(pkg); 
 					}
 			        break;
@@ -311,7 +306,7 @@ protected Object createElementInfo() {
 public IPackageFragment createPackageFragment(String pkgName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CreatePackageFragmentOperation op = new CreatePackageFragmentOperation(this, pkgName, force);
 	op.runOperation(monitor);
-	return getPackageFragment(pkgName);
+	return getPackageFragment(op.pkgName);
 }
 
 /**
@@ -467,7 +462,11 @@ public char[][] fullInclusionPatternChars() {
 		return null;
 	}
 }		
-
+public String getElementName() {
+	if (this.resource instanceof IFolder)
+		return ((IFolder) this.resource).getName();
+	return ""; //$NON-NLS-1$
+}
 /**
  * @see IJavaElement
  */
@@ -548,20 +547,13 @@ public Object[] getNonJavaResources() throws JavaModelException {
  * @see IPackageFragmentRoot
  */
 public IPackageFragment getPackageFragment(String packageName) {
-	if (packageName.indexOf(' ') != -1) { // tolerate package names with spaces (e.g. 'x . y') (http://bugs.eclipse.org/bugs/show_bug.cgi?id=21957)
-		char[][] compoundName = Util.toCompoundChars(packageName);
-		StringBuffer buffer = new StringBuffer(packageName.length());
-		for (int i = 0, length = compoundName.length; i < length; i++) {
-			buffer.append(CharOperation.trim(compoundName[i]));
-			if (i != length-1) {
-				buffer.append('.');
-			}
-		}
-		packageName = buffer.toString();
-	}
-	return new PackageFragment(this, packageName);
+	// tolerate package names with spaces (e.g. 'x . y') (http://bugs.eclipse.org/bugs/show_bug.cgi?id=21957)
+	String[] pkgName = Util.getTrimmedSimpleNames(packageName); 
+	return getPackageFragment(pkgName);
 }
-
+public PackageFragment getPackageFragment(String[] pkgName) {
+	return new PackageFragment(this, pkgName);
+}
 /**
  * Returns the package name for the given folder
  * (which is a decendent of this root).

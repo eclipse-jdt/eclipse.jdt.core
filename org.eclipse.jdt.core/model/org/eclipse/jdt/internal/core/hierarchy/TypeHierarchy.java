@@ -820,7 +820,7 @@ public synchronized boolean isAffected(IJavaElementDelta delta) {
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			return isAffectedByPackageFragmentRoot(delta, element);
 		case IJavaElement.PACKAGE_FRAGMENT:
-			return isAffectedByPackageFragment(delta, element);
+			return isAffectedByPackageFragment(delta, (PackageFragment) element);
 		case IJavaElement.CLASS_FILE:
 		case IJavaElement.COMPILATION_UNIT:
 			return isAffectedByOpenable(delta, element);
@@ -902,7 +902,7 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 /**
  * Returns true if the given package fragment delta could affect this type hierarchy
  */
-private boolean isAffectedByPackageFragment(IJavaElementDelta delta, IJavaElement element) {
+private boolean isAffectedByPackageFragment(IJavaElementDelta delta, PackageFragment element) {
 	switch (delta.getKind()) {
 		case IJavaElementDelta.ADDED :
 			// if the package fragment is in the projects being considered, this could
@@ -1201,12 +1201,12 @@ public static ITypeHierarchy load(IType type, InputStream input, WorkingCopyOwne
  * Returns <code>true</code> if an equivalent package fragment is included in the package
  * region. Package fragments are equivalent if they both have the same name.
  */
-protected boolean packageRegionContainsSamePackageFragment(IJavaElement element) {
+protected boolean packageRegionContainsSamePackageFragment(PackageFragment element) {
 	IJavaElement[] pkgs = this.packageRegion.getElements();
 	for (int i = 0; i < pkgs.length; i++) {
-		if (pkgs[i].getElementName().equals(element.getElementName())) {
+		PackageFragment pkg = (PackageFragment) pkgs[i];
+		if (Util.equalArraysOrNull(pkg.names, element.names))
 			return true;
-		}
 	}
 	return false;
 }

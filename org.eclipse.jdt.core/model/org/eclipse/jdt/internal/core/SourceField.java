@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.jdom.*;
  * @see IField
  */
 
-/* package */ class SourceField extends Member implements IField {
+/* package */ class SourceField extends NamedMember implements IField {
 
 /**
  * Constructs a handle to the field with the given name in the specified type. 

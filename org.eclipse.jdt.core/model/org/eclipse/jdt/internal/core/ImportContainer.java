@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
  */
 public class ImportContainer extends SourceRefElement implements IImportContainer {
 protected ImportContainer(CompilationUnit parent) {
-	super(parent, ""); //$NON-NLS-1$
+	super(parent);
 }
 public boolean equals(Object o) {
 	if (!(o instanceof ImportContainer)) return false;

@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IType
  */
 
-public class SourceType extends Member implements IType {
+public class SourceType extends NamedMember implements IType {
 	
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);

@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -612,12 +613,11 @@ public class DeltaProcessor {
 			case IJavaElement.PACKAGE_FRAGMENT:
 				if (rootInfo != null) {
 					if (rootInfo.project.contains(resource)) {
-						IPackageFragmentRoot root = rootInfo.getPackageFragmentRoot(null);
+						PackageFragmentRoot root = (PackageFragmentRoot) rootInfo.getPackageFragmentRoot(null);
 						// create package handle
 						IPath pkgPath = path.removeFirstSegments(rootInfo.rootPath.segmentCount());
-						String pkg = Util.packageName(pkgPath);
-						if (pkg == null) return null;
-						element = root.getPackageFragment(pkg);
+						String[] pkgName = pkgPath.segments();
+						element = root.getPackageFragment(pkgName);
 					}
 				} else {
 					// find the element that encloses the resource
@@ -627,15 +627,14 @@ public class DeltaProcessor {
 						element = JavaCore.create(resource);
 					} else {
 						// find the root
-						IPackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
+						PackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
 						if (root == null) {
 							element =  JavaCore.create(resource);
 						} else if (((JavaProject)root.getJavaProject()).contains(resource)) {
 							// create package handle
 							IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
-							String pkg = Util.packageName(pkgPath);
-							if (pkg == null) return null;
-							element = root.getPackageFragment(pkg);
+							String[] pkgName = pkgPath.segments();
+							element = root.getPackageFragment(pkgName);
 						}
 					}
 				}
@@ -652,13 +651,11 @@ public class DeltaProcessor {
 					IPackageFragment pkgFragment = null;
 					switch (this.currentElement.getElementType()) {
 						case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-							IPackageFragmentRoot root = (IPackageFragmentRoot)this.currentElement;
+							PackageFragmentRoot root = (PackageFragmentRoot)this.currentElement;
 							IPath rootPath = root.getPath();
 							IPath pkgPath = path.removeLastSegments(1);
-							String pkgName = Util.packageName(pkgPath.removeFirstSegments(rootPath.segmentCount()));
-							if (pkgName != null) {
-								pkgFragment = root.getPackageFragment(pkgName);
-							}
+							String[] pkgName = pkgPath.removeFirstSegments(rootPath.segmentCount()).segments();
+							pkgFragment = root.getPackageFragment(pkgName);
 							break;
 						case IJavaElement.PACKAGE_FRAGMENT:
 							Openable pkg = this.currentElement;
@@ -1567,7 +1564,7 @@ public class DeltaProcessor {
 			}
 			if (currentElementPath != null) {
 				if (this.currentElement instanceof IPackageFragment 
-					&& this.currentElement.getElementName().length() == 0
+					&& ((IPackageFragment) this.currentElement).isDefaultPackage()
 					&& currentElementPath.segmentCount() != path.segmentCount()-1) {
 						// default package and path is not a direct child
 						this.currentElement = (Openable)this.currentElement.getParent();
@@ -2304,8 +2301,8 @@ public class DeltaProcessor {
 				}
 				int kind = delta.getKind();
 				if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED) {
-					IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-					this.updateRootIndex(root, root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME), delta);
+					PackageFragmentRoot root = (PackageFragmentRoot)element;
+					this.updateRootIndex(root, CharOperation.NO_STRINGS, delta);
 					break;
 				}
 				// don't break as packages of the package fragment root can be indexed below
@@ -2315,8 +2312,8 @@ public class DeltaProcessor {
 					case IResourceDelta.REMOVED:
 						IPackageFragment pkg = null;
 						if (element instanceof IPackageFragmentRoot) {
-							IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-							pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+							PackageFragmentRoot root = (PackageFragmentRoot)element;
+							pkg = root.getPackageFragment(CharOperation.NO_STRINGS);
 						} else {
 							pkg = (IPackageFragment)element;
 						}
@@ -2404,20 +2401,16 @@ public class DeltaProcessor {
 	 * Updates the index of the given root (assuming it's an addition or a removal).
 	 * This is done recusively, pkg being the current package.
 	 */
-	private void updateRootIndex(IPackageFragmentRoot root, IPackageFragment pkg, IResourceDelta delta) {
-		this.updateIndex((Openable)pkg, delta);
+	private void updateRootIndex(PackageFragmentRoot root, String[] pkgName, IResourceDelta delta) {
+		Openable pkg = root.getPackageFragment(pkgName);
+		this.updateIndex(pkg, delta);
 		IResourceDelta[] children = delta.getAffectedChildren();
-		String name = pkg.getElementName();
 		for (int i = 0, length = children.length; i < length; i++) {
 			IResourceDelta child = children[i];
 			IResource resource = child.getResource();
 			if (resource instanceof IFolder) {
-				String subpkgName = 
-					name.length() == 0 ? 
-						resource.getName() : 
-						name + "." + resource.getName(); //$NON-NLS-1$
-				IPackageFragment subpkg = root.getPackageFragment(subpkgName);
-				this.updateRootIndex(root, subpkg, child);
+				String[] subpkgName = Util.arrayConcat(pkgName, resource.getName());
+				this.updateRootIndex(root, subpkgName, child);
 			}
 		}
 	}

@@ -37,8 +37,8 @@ import org.eclipse.jdt.internal.codeassist.SelectionEngine;
  */
 public abstract class Openable extends JavaElement implements IOpenable, IBufferChangedListener {
 
-protected Openable(JavaElement parent, String name) {
-	super(parent, name);
+protected Openable(JavaElement parent) {
+	super(parent);
 }
 /**
  * The buffer associated with this element has changed. Registers
@@ -261,7 +261,7 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	int type = parentResource.getType();
 	if (type == IResource.FOLDER || type == IResource.PROJECT) {
 		IContainer folder = (IContainer) parentResource;
-		IResource resource = folder.findMember(this.name);
+		IResource resource = folder.findMember(getElementName());
 		if (resource == null) {
 			throw newNotPresentException();
 		} else {

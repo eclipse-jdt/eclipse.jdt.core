@@ -23,6 +23,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
@@ -373,8 +374,8 @@ public class JavaModelManager implements ISaveParticipant {
 		if (pkg == null) {
 			// fix for 1FVS7WE
 			// not on classpath - make the root its folder, and a default package
-			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			PackageFragmentRoot root = (PackageFragmentRoot) project.getPackageFragmentRoot(file.getParent());
+			pkg = root.getPackageFragment(CharOperation.NO_STRINGS);
 		}
 		return pkg.getClassFile(file.getName());
 	}
@@ -462,7 +463,7 @@ public class JavaModelManager implements ISaveParticipant {
 					// allow creation of package fragment if it contains a .java file that is included
 					if (!Util.isExcluded(resource, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars())) {
 						// given we have a resource child of the root, it cannot be a JAR pkg root
-						IPackageFragmentRoot root = ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
+						PackageFragmentRoot root =(PackageFragmentRoot) ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
 						if (root == null) return null;
 						IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
 	
@@ -471,8 +472,8 @@ public class JavaModelManager implements ISaveParticipant {
 							// is the file name in the package
 							pkgPath = pkgPath.removeLastSegments(1);
 						}
-						String pkgName = Util.packageName(pkgPath);
-						if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
+						String[] pkgName = pkgPath.segments();
+						if (pkgName == null || JavaConventions.validatePackageName(Util.packageName(pkgPath)).getSeverity() == IStatus.ERROR) {
 							return null;
 						}
 						return root.getPackageFragment(pkgName);

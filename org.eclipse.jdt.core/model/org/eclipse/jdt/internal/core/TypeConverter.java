@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Converter from a type to an AST type declaration.
@@ -42,10 +43,11 @@ public class TypeConverter {
 	 * Convert a type into an AST type declaration and put it in the given compilation unit.
 	 */
 	public static TypeDeclaration buildTypeDeclaration(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult)  throws JavaModelException {
-		char[] packageName = type.getPackageFragment().getElementName().toCharArray();
+		PackageFragment pkg = (PackageFragment) type.getPackageFragment();
+		char[][] packageName = Util.toCharArrays(pkg.names);
 		
-		if (packageName != null && packageName.length > 0) { 
-			compilationUnit.currentPackage = new ImportReference(CharOperation.splitOn('.', packageName), new long[]{0}, false, CompilerModifiers.AccDefault);
+		if (packageName.length > 0) { 
+			compilationUnit.currentPackage = new ImportReference(packageName, new long[]{0}, false, CompilerModifiers.AccDefault);
 		}
 	
 		/* convert type */

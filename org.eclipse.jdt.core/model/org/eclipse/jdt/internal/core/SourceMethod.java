@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IMethod
  */
 
-/* package */ class SourceMethod extends Member implements IMethod {
+/* package */ class SourceMethod extends NamedMember implements IMethod {
 
 	/**
 	 * The parameter type signatures of the method - stored locally
