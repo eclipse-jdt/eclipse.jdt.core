@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0490"));
+		suite.addTest(new ASTConverterTest2("test0492"));
 		return suite;
 	}
 	/**
@@ -2545,6 +2545,57 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42647
+	 */
+	public void test0491() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		try {
+			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			JavaCore.setOptions(newOptions);
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0491", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			char[] source = sourceUnit.getSource().toCharArray();
+			ASTNode result = runConversion(sourceUnit, true);
+			assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+			CompilationUnit unit = (CompilationUnit) result;
+			assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+			ASTNode node = getASTNode(unit, 0, 0, 0);
+			assertTrue("not an assert statement", node.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+			AssertStatement assertStatement = (AssertStatement) node;
+			Expression expression = assertStatement.getExpression();
+			assertTrue("not a parenthesized expression", expression.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
+			checkSourceRange(expression, "(loginName != null)", source);
+		} finally {
+			JavaCore.setOptions(options);
+		}
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42647
+	 */
+	public void test0492() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		try {
+			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			JavaCore.setOptions(newOptions);
+			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0492", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			char[] source = sourceUnit.getSource().toCharArray();
+			ASTNode result = runConversion(sourceUnit, true);
+			assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+			CompilationUnit unit = (CompilationUnit) result;
+			assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+			ASTNode node = getASTNode(unit, 0, 0, 0);
+			assertTrue("not an assert statement", node.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+			AssertStatement assertStatement = (AssertStatement) node;
+			Expression expression = assertStatement.getExpression();
+			checkSourceRange(expression, "loginName != null", source);
+		} finally {
+			JavaCore.setOptions(options);
+		}
 	}
 }
 
