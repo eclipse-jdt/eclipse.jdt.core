@@ -26,6 +26,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -516,6 +517,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 	}
 
+	protected ISchedulingRule getSchedulingRule() {
+		// only lock the .classpath file during a set classpath operation
+		return this.project.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
+	}
 	/*
 	 * Returns the source attachment flag for the delta between the 2 give source paths.
 	 * Returns either F_SOURCEATTACHED, F_SOURCEDETACHED, F_SOURCEATTACHED | F_SOURCEDETACHED

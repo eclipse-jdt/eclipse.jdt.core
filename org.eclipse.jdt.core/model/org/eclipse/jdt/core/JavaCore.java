@@ -3225,7 +3225,8 @@ public final class JavaCore extends Plugin {
 	 * In reaction to changing container values, the JavaModel will be updated to reflect the new
 	 * state of the updated container. A combined Java element delta will be notified to describe the corresponding 
 	 * classpath changes resulting from the container update. This operation is batched, and automatically eliminates
-	 * unnecessary updates (new container is same as old one). This operation does not acquire any resource lock.
+	 * unnecessary updates (new container is same as old one). This operation acquires a lock on the ".classpath" file 
+	 * of each affected project.
 	 * <p>
 	 * This functionality cannot be used while the workspace is locked, since
 	 * it may create/remove some resource markers.
@@ -3433,7 +3434,7 @@ public final class JavaCore extends Plugin {
 	 * A combined Java element delta will be notified to describe the corresponding 
 	 * classpath changes resulting from the variables update. This operation is batched, 
 	 * and automatically eliminates unnecessary updates (new variable is same as old one). 
-	 * This operation does not acquire any resource lock.
+	 * This operation acquires a lock on the ".classpath" file of each affected project.
 	 * <p>
 	 * This functionality cannot be used while the workspace is locked, since
 	 * it may create/remove some resource markers.
