@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * AST node for a Javadoc-style doc comment.
  * <pre>
  * Javadoc:
- *   <b>/&ast;&ast;</b> { TagElement } <b>&ast;/</b>
+ *   <b>/** </b> { TagElement } <b>*</b><b>/</b>
  * </pre>
  * 
  * @since 2.0
@@ -76,7 +76,7 @@ public class Javadoc extends Comment {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0

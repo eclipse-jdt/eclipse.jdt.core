@@ -17,7 +17,7 @@ import java.util.List;
  * Static or instance initializer AST node type.
  * <pre>
  * Initializer:
- *     { <b>static</b> } Block
+ *     [ <b>static</b> ] Block
  * </pre>
  * 
  * @since 2.0
@@ -88,7 +88,7 @@ public class Initializer extends BodyDeclaration {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

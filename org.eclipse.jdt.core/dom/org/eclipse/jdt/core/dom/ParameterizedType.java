@@ -15,6 +15,8 @@ import java.util.List;
 
 /**
  * Type node for a parameterized type (added in 3.0 API).
+ * These nodes are used for type references (as opposed to
+ * declarations of parameterized types.)
  * <pre>
  * ParameterizedType:
  *    Type <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
@@ -74,7 +76,7 @@ public class ParameterizedType extends Type {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

@@ -69,6 +69,9 @@ import org.eclipse.text.edits.TextEdit;
  * TextEdit edits = cu.rewrite(document, null);
  * UndoEdit undo = edits.apply(document);
  * </pre>
+ * See also {@link org.eclipse.jdt.core.dom.rewrite.ASTRewrite} for
+ * an alternative way to describe and serialize changes to a
+ * read-only AST.
  * </p>
  * <p>
  * Clients may create instances of this class, which is not intended to be
@@ -1664,7 +1667,7 @@ public final class AST {
 	
 	/**
 	 * Creates an unparented node of the given node class
-	 * (non-abstract subclass of {@link ASTNode}. 
+	 * (non-abstract subclass of {@link ASTNode}). 
 	 * 
 	 * @param nodeClass AST node class
 	 * @return a new unparented node owned by this AST
@@ -3028,14 +3031,14 @@ public final class AST {
 	 * Examples:
 	 * <code>
 	 * <pre>
-	 * 	// new String[len]
+	 * // new String[len]
 	 * ArrayCreation ac1 = ast.newArrayCreation();
 	 * ac1.setType(
 	 *    ast.newArrayType(
 	 *       ast.newSimpleType(ast.newSimpleName("String"))));
 	 * ac1.dimensions().add(ast.newSimpleName("len"));
-
-	 * 	// new double[7][24][]
+     *
+	 * // new double[7][24][]
 	 * ArrayCreation ac2 = ast.newArrayCreation();
 	 * ac2.setType(
 	 *    ast.newArrayType(

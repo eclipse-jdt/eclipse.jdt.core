@@ -112,8 +112,10 @@ public abstract class Statement extends ASTNode {
 	 * only a partial, and inadequate, solution to the issue of associating
 	 * comments with statements. Furthermore, AST.parseCompilationUnit did not
 	 * associate leading comments, making this moot. Clients that need to access
-	 * comments preceding a statement should use a scanner to reanalyze the
-	 * source text immediately preceding the statement's source range.
+	 * comments preceding a statement should either consult the compilation
+	 * unit's {@linkplain CompilationUnit#getCommentList() comment table}
+	 * or use a scanner to reanalyze the source text immediately preceding
+	 * the statement's source range.
 	 */
 	public String getLeadingComment() {
 		return optionalLeadingComment;

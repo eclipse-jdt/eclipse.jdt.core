@@ -49,7 +49,7 @@ public class CharacterLiteral extends Expression {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
@@ -187,7 +187,6 @@ public class CharacterLiteral extends Expression {
 	 * Returns the value of this literal node. 
 	 * <p>
 	 * For example,
-	 * <code>
 	 * <pre>
 	 * CharacterLiteral s;
 	 * s.setEscapedValue("\'x\'");
@@ -279,7 +278,6 @@ public class CharacterLiteral extends Expression {
 	 * Sets the value of this character literal node to the given character. 
 	 * <p>
 	 * For example,
-	 * <code>
 	 * <pre>
 	 * CharacterLiteral s;
 	 * s.setCharValue('x');

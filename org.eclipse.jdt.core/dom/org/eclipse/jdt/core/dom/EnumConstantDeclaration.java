@@ -19,9 +19,9 @@ import java.util.List;
  *
  * <pre>
  * EnumConstantDeclaration:
- *      [ Javadoc ] { ExtendedModifier } Identifier
- *            [ <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b> ]
- *			  [ <b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b> ]
+ *     [ Javadoc ] { ExtendedModifier } Identifier
+ *         [ <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b> ]
+ *         [ <b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b> ]
  * </pre>
  * <p>
  * When a Javadoc comment is present, the source
@@ -53,7 +53,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 		internalJavadocPropertyFactory(EnumConstantDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type).
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
 		internalModifiers2PropertyFactory(EnumConstantDeclaration.class);
@@ -98,7 +98,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

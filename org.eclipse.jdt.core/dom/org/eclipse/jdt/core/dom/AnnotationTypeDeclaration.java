@@ -56,7 +56,7 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 		internalJavadocPropertyFactory(AnnotationTypeDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type.
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
 		internalModifiers2PropertyFactory(AnnotationTypeDeclaration.class);
@@ -68,7 +68,7 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 		internalNamePropertyFactory(AnnotationTypeDeclaration.class);
 
 	/**
-	 * The "bodyDeclarations" structural property of this node type (added in 3.0 API).
+	 * The "bodyDeclarations" structural property of this node type.
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY = 
 		internalBodyDeclarationPropertyFactory(AnnotationTypeDeclaration.class);
@@ -94,7 +94,7 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

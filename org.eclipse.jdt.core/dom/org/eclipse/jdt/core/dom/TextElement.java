@@ -17,7 +17,7 @@ import java.util.List;
  * AST node for a text element within a doc comment.
  * <pre>
  * TextElement:
- *     Sequence of characters not including a close comment delimiter &ast/
+ *     Sequence of characters not including a close comment delimiter <b>*</b><b>/</b>
  * </pre>
  * 
  * @see Javadoc
@@ -52,7 +52,7 @@ public final class TextElement extends ASTNode implements IDocElement {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
@@ -157,7 +157,7 @@ public final class TextElement extends ASTNode implements IDocElement {
 	 * The text element typically includes leading and trailing
 	 * whitespace that separates it from the immediately preceding
 	 * or following elements. The text element must not include
-	 * a block comment closing delimiter "&ast;/".
+	 * a block comment closing delimiter "*"+"/".
 	 * </p>
 	 * 
 	 * @param text the text of this node

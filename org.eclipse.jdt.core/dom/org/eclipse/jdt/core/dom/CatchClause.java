@@ -18,7 +18,7 @@ import java.util.List;
  *
  * <pre>
  * CatchClause:
- * 			<b>catch</b> <b>(</b> FormalParameter <b>)</b> Block
+ *    <b>catch</b> <b>(</b> FormalParameter <b>)</b> Block
  * </pre>
  * 
  * @since 2.0
@@ -58,7 +58,7 @@ public class CatchClause extends ASTNode {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

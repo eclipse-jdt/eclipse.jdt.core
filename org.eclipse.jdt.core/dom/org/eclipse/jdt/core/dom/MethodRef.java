@@ -19,7 +19,7 @@ import java.util.List;
  * tag elements, for references to method and constructor members.
  * <pre>
  * MethodRef:
- * 		[ Name ] <b>#</b> Identifier  
+ *     [ Name ] <b>#</b> Identifier  
  *         <b>(</b> [ MethodRefParameter | { <b>,</b> MethodRefParameter } ] <b>)</b>
  * </pre>
  * 

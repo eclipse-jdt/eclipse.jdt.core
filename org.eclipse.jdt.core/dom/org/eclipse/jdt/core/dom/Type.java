@@ -42,7 +42,7 @@ package org.eclipse.jdt.core.dom;
  * SimpleType:
  *    TypeName
  * ParameterizedType:
- *    Name <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
+ *    Type <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
  * QualifiedType:
  *    Type <b>.</b> SimpleName
  * WildcardType:

@@ -19,12 +19,12 @@ import java.util.List;
  *
  * <pre>
  * EnumDeclaration:
- *      [ Javadoc ] { ExtendedModifier } <b>enum</b> Identifier
- *			[ <b>implements</b> Type { <b>,</b> Type } ]
- *			<b>{</b>
- *               [ EnumConstantDeclaration { <b>,</b> EnumConstantDeclaration } ] [ <b>,</b> ]
- *               [ <b>;</b> { ClassBodyDeclaration | <b>;</b> } ]
- *          <b>}</b>
+ *     [ Javadoc ] { ExtendedModifier } <b>enum</b> Identifier
+ *         [ <b>implements</b> Type { <b>,</b> Type } ]
+ *         <b>{</b>
+ *         [ EnumConstantDeclaration { <b>,</b> EnumConstantDeclaration } ] [ <b>,</b> ]
+ *         [ <b>;</b> { ClassBodyDeclaration | <b>;</b> } ]
+ *         <b>}</b>
  * </pre>
  * <p>
  * When a Javadoc comment is present, the source
@@ -97,7 +97,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_*</code>LEVEL
+	 * <code>AST.LEVEL_&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})

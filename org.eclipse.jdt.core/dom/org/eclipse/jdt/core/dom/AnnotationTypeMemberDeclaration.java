@@ -51,7 +51,7 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 		internalJavadocPropertyFactory(AnnotationTypeMemberDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * The "modifiers" structural property of this node type.
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
@@ -99,7 +99,8 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 * Returns a list of structural property descriptors for this node type.
 	 * Clients must not modify the result.
 	 * 
-	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 */
