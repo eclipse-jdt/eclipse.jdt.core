@@ -3831,8 +3831,8 @@ public final class CompletionEngine
 		} else if(parent instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) parent;
 
-			if(messageSend.receiverType instanceof ReferenceBinding) {
-				ReferenceBinding binding = (ReferenceBinding)messageSend.receiverType;
+			if(messageSend.actualReceiverType instanceof ReferenceBinding) {
+				ReferenceBinding binding = (ReferenceBinding)messageSend.actualReceiverType;
 				boolean isStatic = messageSend.receiver.isTypeReference();
 				
 				while(binding != null) {	
@@ -3840,7 +3840,7 @@ public final class CompletionEngine
 						binding,
 						messageSend.selector,
 						messageSend.arguments,
-						(ReferenceBinding)messageSend.receiverType,
+						(ReferenceBinding)messageSend.actualReceiverType,
 						scope,
 						messageSend,
 						isStatic);
@@ -3848,7 +3848,7 @@ public final class CompletionEngine
 						binding,
 						messageSend.selector,
 						messageSend.arguments,
-						(ReferenceBinding)messageSend.receiverType,
+						(ReferenceBinding)messageSend.actualReceiverType,
 						scope,
 						messageSend,
 						isStatic);

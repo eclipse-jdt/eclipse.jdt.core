@@ -40,11 +40,11 @@ public class JavadocMessageSend extends MessageSend {
 		// Base type promotion
 		this.constant = NotAConstant;
 		if (this.receiver == null) {
-			this.receiverType = scope.enclosingSourceType();
+			this.actualReceiverType = scope.enclosingSourceType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {
-			this.receiverType = this.receiver.resolveType((ClassScope) scope);
+			this.actualReceiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			this.receiverType = this.receiver.resolveType((BlockScope) scope);
+			this.actualReceiverType = this.receiver.resolveType((BlockScope) scope);
 		}
 
 		// will check for null after args are resolved
@@ -70,20 +70,19 @@ public class JavadocMessageSend extends MessageSend {
 		}
 
 		// check receiver type
-		if (this.receiverType == null) {
+		if (this.actualReceiverType == null) {
 			return null;
 		}
-		this.qualifyingType = this.receiverType;
-		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.receiverType);
+		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.actualReceiverType);
 
 		// base type cannot receive any message
-		if (this.receiverType.isBaseType()) {
-			scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getDeclarationModifiers());
+		if (this.actualReceiverType.isBaseType()) {
+			scope.problemReporter().javadocErrorNoMethodFor(this, this.actualReceiverType, argumentTypes, scope.getDeclarationModifiers());
 			return null;
 		}
 		this.binding = (this.receiver != null && this.receiver.isThis())
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
-			: scope.getMethod(this.receiverType, this.selector, argumentTypes, this);
+			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
 			// implicit lookup may discover issues due to static/constructor contexts. javadoc must be resilient
 			switch (this.binding.problemId()) {
@@ -98,10 +97,10 @@ public class JavadocMessageSend extends MessageSend {
 		}
 		if (!this.binding.isValidBinding()) {
 			if (this.binding.declaringClass == null) {
-				if (this.receiverType instanceof ReferenceBinding) {
-					this.binding.declaringClass = (ReferenceBinding) this.receiverType;
+				if (this.actualReceiverType instanceof ReferenceBinding) {
+					this.binding.declaringClass = (ReferenceBinding) this.actualReceiverType;
 				} else { 
-					scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getDeclarationModifiers());
+					scope.problemReporter().javadocErrorNoMethodFor(this, this.actualReceiverType, argumentTypes, scope.getDeclarationModifiers());
 					return null;
 				}
 			}

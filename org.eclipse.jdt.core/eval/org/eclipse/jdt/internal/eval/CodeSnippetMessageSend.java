@@ -49,7 +49,7 @@ public void generateCode(
 
 	int pc = codeStream.position;
 
-	if (this.codegenBinding.canBeSeenBy(this.receiverType, this, currentScope)) {
+	if (this.codegenBinding.canBeSeenBy(this.actualReceiverType, this, currentScope)) {
 		// generate receiver/enclosing instance access
 		boolean isStatic = this.codegenBinding.isStatic();
 		// outer access ?
@@ -178,13 +178,13 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
-	if (this.binding.declaringClass != this.qualifyingType
-		&& !this.qualifyingType.isArrayType()
+	if (this.binding.declaringClass != this.actualReceiverType
+		&& !this.actualReceiverType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (!this.receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
-		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.codegenBinding, (ReferenceBinding) this.qualifyingType.erasure());
+		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
 	}	
 }
 public TypeBinding resolveType(BlockScope scope) {
@@ -192,7 +192,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 
 	this.constant = NotAConstant;
-	this.qualifyingType = this.receiverType = this.receiver.resolveType(scope); 
+	this.actualReceiverType = this.receiver.resolveType(scope); 
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = NoParameters;
 	if (this.arguments != null) {
@@ -205,19 +205,19 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (argHasError)
 			return null;
 	}
-	if (this.receiverType == null) 
+	if (this.actualReceiverType == null) 
 		return null;
 
 	// base type cannot receive any message
-	if (this.receiverType.isBaseType()) {
-		scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
+	if (this.actualReceiverType.isBaseType()) {
+		scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 		return null;
 	}
 
 	this.binding = 
 		this.receiver.isImplicitThis()
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
-			: scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
+			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this); 
 	if (!this.binding.isValidBinding()) {
 		if (this.binding instanceof ProblemMethodBinding
 			&& ((ProblemMethodBinding) this.binding).problemId() == NotVisible) {
@@ -240,10 +240,10 @@ public TypeBinding resolveType(BlockScope scope) {
 					: localScope.getMethod(this.delegateThis.type, this.selector, argumentTypes, this); 
 			if (!privateBinding.isValidBinding()) {
 				if (this.binding.declaringClass == null) {
-					if (this.receiverType instanceof ReferenceBinding) {
-						this.binding.declaringClass = (ReferenceBinding) this.receiverType;
+					if (this.actualReceiverType instanceof ReferenceBinding) {
+						this.binding.declaringClass = (ReferenceBinding) this.actualReceiverType;
 					} else { // really bad error ....
-						scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
+						scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 						return null;
 					}
 				}
@@ -254,10 +254,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		} else {
 			if (this.binding.declaringClass == null) {
-				if (this.receiverType instanceof ReferenceBinding) {
-					this.binding.declaringClass = (ReferenceBinding) this.receiverType;
+				if (this.actualReceiverType instanceof ReferenceBinding) {
+					this.binding.declaringClass = (ReferenceBinding) this.actualReceiverType;
 				} else { // really bad error ....
-					scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
+					scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 					return null;
 				}
 			}

@@ -47,13 +47,13 @@ public class CompletionOnMessageSend extends MessageSend {
 		if (receiver.isImplicitThis())
 			throw new CompletionNodeFound(this, null, scope);
 
-		this.receiverType = receiver.resolveType(scope);
-		if (this.receiverType == null || this.receiverType.isBaseType())
+		this.actualReceiverType = receiver.resolveType(scope);
+		if (this.actualReceiverType == null || this.actualReceiverType.isBaseType())
 			throw new CompletionNodeFound();
 
-		if (this.receiverType.isArrayType())
-			this.receiverType = scope.getJavaLangObject();
-		throw new CompletionNodeFound(this, this.receiverType, scope);
+		if (this.actualReceiverType.isArrayType())
+			this.actualReceiverType = scope.getJavaLangObject();
+		throw new CompletionNodeFound(this, this.actualReceiverType, scope);
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

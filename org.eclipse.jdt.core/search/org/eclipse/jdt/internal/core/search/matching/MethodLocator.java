@@ -259,7 +259,7 @@ protected int resolveLevel(MessageSend messageSend) {
 	if (qualifiedPattern == null) return methodLevel; // since any declaring class will do
 
 	int declaringLevel;
-	if (isVirtualInvoke(method, messageSend) && !(messageSend.receiverType instanceof ArrayBinding)) {
+	if (isVirtualInvoke(method, messageSend) && !(messageSend.actualReceiverType instanceof ArrayBinding)) {
 		declaringLevel = resolveLevelAsSubtype(qualifiedPattern, method.declaringClass);
 		if (declaringLevel == IMPOSSIBLE_MATCH) {
 			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {

@@ -29,7 +29,7 @@ public class MessageSend extends Expression implements InvocationSite {
 
 	public long nameSourcePosition ; //(start<<32)+end
 
-	public TypeBinding receiverType, qualifyingType; // TODO (philippe) could remove this field, and simply reuse receiverType
+	public TypeBinding actualReceiverType;
 	public TypeBinding genericCast;
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
@@ -185,15 +185,15 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
-	if (this.binding.declaringClass != this.qualifyingType
-		&& !this.qualifyingType.isArrayType()
+	if (this.binding.declaringClass != this.actualReceiverType
+		&& !this.actualReceiverType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (!receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
 
 		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
-		        										this.codegenBinding, (ReferenceBinding) this.qualifyingType.erasure());
+		        										this.codegenBinding, (ReferenceBinding) this.actualReceiverType.erasure());
 
 		// Post 1.4.0 target, array clone() invocations are qualified with array type 
 		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
@@ -233,10 +233,10 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		receiverCast = true;
 	}
-	this.qualifyingType = this.receiverType = receiver.resolveType(scope); 
-	if (receiverCast && this.receiverType != null) {
+	this.actualReceiverType = receiver.resolveType(scope); 
+	if (receiverCast && this.actualReceiverType != null) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
-		if (((CastExpression)this.receiver).expression.resolvedType == this.receiverType) { 
+		if (((CastExpression)this.receiver).expression.resolvedType == this.actualReceiverType) { 
 			scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
 		}
 	}
@@ -271,31 +271,31 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError) {
-			if(receiverType instanceof ReferenceBinding) {
+			if(actualReceiverType instanceof ReferenceBinding) {
 				// record any selector match, for clients who may still need hint about possible method match
-				this.binding = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
+				this.binding = scope.findMethod((ReferenceBinding)actualReceiverType, selector, new TypeBinding[]{}, this);
 			}			
 			return null;
 		}
 	}
-	if (this.receiverType == null) {
+	if (this.actualReceiverType == null) {
 		return null;
 	}
 	// base type cannot receive any message
-	if (this.receiverType.isBaseType()) {
-		scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
+	if (this.actualReceiverType.isBaseType()) {
+		scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 		return null;
 	}
 	this.binding = 
 		receiver.isImplicitThis()
 			? scope.getImplicitMethod(selector, argumentTypes, this)
-			: scope.getMethod(this.receiverType, selector, argumentTypes, this); 
+			: scope.getMethod(this.actualReceiverType, selector, argumentTypes, this); 
 	if (!binding.isValidBinding()) {
 		if (binding.declaringClass == null) {
-			if (this.receiverType instanceof ReferenceBinding) {
-				binding.declaringClass = (ReferenceBinding) this.receiverType;
+			if (this.actualReceiverType instanceof ReferenceBinding) {
+				binding.declaringClass = (ReferenceBinding) this.actualReceiverType;
 			} else { 
-				scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
+				scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 				return null;
 			}
 		}
@@ -329,11 +329,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
 		}
 		// compute generic cast if necessary
-		TypeBinding expectedQualifyingType = this.qualifyingType.erasure().isCompatibleWith(this.binding.declaringClass.erasure())
-			? this.qualifyingType
+		TypeBinding expectedReceiverType = this.actualReceiverType.erasure().isCompatibleWith(this.binding.declaringClass.erasure())
+			? this.actualReceiverType
 			: this.binding.declaringClass;
-		receiver.computeConversion(scope, expectedQualifyingType, receiverType);
-		if (expectedQualifyingType != this.qualifyingType) this.qualifyingType = expectedQualifyingType;
+		receiver.computeConversion(scope, expectedReceiverType, actualReceiverType);
+		if (expectedReceiverType != this.actualReceiverType) this.actualReceiverType = expectedReceiverType;
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
 		if (!(receiver.isImplicitThis()
@@ -342,12 +342,12 @@ public TypeBinding resolveType(BlockScope scope) {
 					&& (((NameReference) receiver).bits & Binding.TYPE) != 0))) {
 			scope.problemReporter().nonStaticAccessToStaticMethod(this, binding);
 		}
-		if (!receiver.isImplicitThis() && binding.declaringClass != receiverType) {
+		if (!receiver.isImplicitThis() && binding.declaringClass != actualReceiverType) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, binding);
 		}		
 	}
 	if (this.arguments != null) 
-		checkInvocationArguments(scope, this.receiver, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
+		checkInvocationArguments(scope, this.receiver, actualReceiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 
 	//-------message send that are known to fail at compile time-----------
 	if (binding.isAbstract()) {
@@ -362,7 +362,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	return this.resolvedType = this.binding.returnType;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {
-	this.qualifyingType = receiverType;
+	this.actualReceiverType = receiverType;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)

@@ -133,7 +133,7 @@ public class Javadoc extends ASTNode {
 						JavadocMessageSend messageSend = (JavadocMessageSend) this.references[i];
 						// if binding is valid then look if we have a reference to an overriden method/constructor
 						if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
-							if (methDecl.binding.declaringClass.isCompatibleWith(messageSend.receiverType) &&
+							if (methDecl.binding.declaringClass.isCompatibleWith(messageSend.actualReceiverType) &&
 								CharOperation.equals(messageSend.selector, methDecl.selector) &&
 								(messageSend.binding.returnType == methDecl.binding.returnType)) {
 								if (messageSend.arguments == null && methDecl.arguments == null) {
