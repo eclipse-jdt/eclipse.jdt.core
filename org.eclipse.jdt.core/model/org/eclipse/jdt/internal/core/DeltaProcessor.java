@@ -383,7 +383,6 @@ public class DeltaProcessor {
 									if (isJavaProject) {
 										this.addToParentInfo(javaProject);
 									} else {
-										this.state.rootsAreStale = true;
 										// remove classpath cache so that initializeRoots() will not consider the project has a classpath
 										this.manager.removePerProjectInfo((JavaProject)JavaCore.create(project));
 										// close project
@@ -394,6 +393,7 @@ public class DeltaProcessor {
 										}
 										this.removeFromParentInfo(javaProject);
 									}
+									this.state.rootsAreStale = true;
 								} else {
 									// in case the project was removed then added then changed (see bug 19799)
 									if (isJavaProject) { // need nature check - 18698

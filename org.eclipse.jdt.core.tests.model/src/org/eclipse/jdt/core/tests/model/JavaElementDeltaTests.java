@@ -97,6 +97,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testRemoveAddJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveAddBinaryProject"));
 	suite.addTest(new JavaElementDeltaTests("testAddJavaNature"));
+	suite.addTest(new JavaElementDeltaTests("testAddJavaNatureAndClasspath"));
 	suite.addTest(new JavaElementDeltaTests("testRemoveJavaNature"));
 	suite.addTest(new JavaElementDeltaTests("testOpenJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testCloseJavaProject"));
@@ -377,6 +378,42 @@ public void testAddJavaNature() throws CoreException {
 			"Unexpected delta", 
 			"P[+]: {}\n" + 
 			"ResourceDelta(/P)"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+
+/*
+ * Add the java nature to an existing project and set the classpath in an IWorkspaceRunnable.
+ * Ensures that adding a non-java resource reports the correct delta.
+ * (regression test for bug 44066 Package Explorer doesn't show new file)
+ */
+public void testAddJavaNatureAndClasspath() throws CoreException {
+	try {
+		createProject("P");
+		ResourcesPlugin.getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					addJavaNature("P");
+					createFolder("/P/src");
+					getJavaProject("P").setRawClasspath(
+						new IClasspathEntry[] {JavaCore.newSourceEntry(new Path("/P/src"))},
+						new Path("/P/bin"),
+						null
+					);
+				}
+			},
+			null
+		);
+		startDeltas();
+		createFile("/P/src/file.txt", "");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {CONTENT}\n" + 
+			"		ResourceDelta(/P/src/file.txt)[+]"
 		);
 	} finally {
 		this.stopDeltas();
