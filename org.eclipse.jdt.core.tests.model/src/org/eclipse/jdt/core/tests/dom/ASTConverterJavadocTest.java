@@ -21,7 +21,6 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -133,7 +132,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
 	 */
@@ -159,11 +158,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String strUnix = this.unix ? " - Unix" : "";
 		return "Doc "+this.docCommentSupport+strUnix+" - "+super.getName();
 	}
-	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-		File dir = new Path(path).removeLastSegments(1).toFile();
-		dir.mkdirs();
-		return super.getWorkingCopy(path, source);
-	}	
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
