@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * All Rights Reserved.
  */
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -83,7 +82,6 @@ void buildFieldsAndMethods() {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
 		topLevelTypes[i].scope.buildFieldsAndMethods();
 }
-
 void buildTypeBindings() {
 	topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
 	if (referenceContext.compilationResult.compilationUnit != null) {

@@ -1733,7 +1733,7 @@ public void packageCollidesWithType(CompilationUnitDeclaration compUnitDecl) {
 public void packageIsNotExpectedPackage(CompilationUnitDeclaration compUnitDecl) {
 	this.handle(
 		PackageIsNotExpectedPackage,
-		new String[0],
+		new String[] {CharOperation.toString(compUnitDecl.compilationResult.compilationUnit.getPackageName())},
 		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceStart,
 		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceEnd);
 }
