@@ -2716,7 +2716,6 @@ protected void consumeGenericTypeNameArrayType() {
 }
 protected void consumeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
-	resetModifiers();
 	ImportReference impt = (ImportReference) astStack[astPtr];
 	// flush annotations defined prior to import statements
 	impt.declarationEnd = endStatementPosition;
@@ -5231,6 +5230,9 @@ protected void consumeSingleStaticImportDeclarationName() {
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccStatic));
 
+	modifiers = AccDefault;
+	modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+	
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
 	} else {
@@ -5261,7 +5263,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault));
-
+	
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
 	} else {
@@ -5591,6 +5593,9 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccStatic));
 
+	modifiers = AccDefault;
+	modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
+	
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
 	} else {
