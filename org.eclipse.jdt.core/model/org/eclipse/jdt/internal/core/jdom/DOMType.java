@@ -387,10 +387,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 			return ((ICompilationUnit)parent).getType(getName());
 		case IJavaElement.TYPE:
 			return ((IType)parent).getType(getName());
-		case IJavaElement.FIELD:
-		case IJavaElement.INITIALIZER:
-		case IJavaElement.METHOD:
-			return ((IMember)parent).getType(getName(), 1); // TODO (jerome) compute occurenceCount
+		// Note: creating local/anonymous type is not supported 
 		default:
 			throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
