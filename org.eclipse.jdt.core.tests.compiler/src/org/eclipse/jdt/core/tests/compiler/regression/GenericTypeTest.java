@@ -3386,7 +3386,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"SUCCESS");		
 	}			
 	// test member types
-	// TODO (philippe) Type mismatch b/w Thread & <T extends X.MX<Runnable>
 	public void test117() {
 		this.runConformTest(
 			new String[] {
@@ -3408,7 +3407,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");		
 	}				
-	// TODO (philippe) this should work, shouldn't it?
+	// TODO (kent) reenable once binary member signature for generics are supported
 	public void _test118() {
 		this.runConformTest(
 			new String[] {
