@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 /**
@@ -67,19 +68,6 @@ public ConstantPool(ClassFile classFile) {
 public byte[] dumpBytes() {
 	System.arraycopy(poolContent, 0, (poolContent = new byte[currentOffset]), 0, currentOffset);
 	return poolContent;
-}
-
-protected int getFromCache(FieldBinding binding) {
-	return getFromCache(binding.declaringClass.constantPoolName(), binding.name, binding.type.signature());
-}
-protected int getFromCache(MethodBinding binding) {
-	return getFromCache(binding.constantPoolDeclaringClass().constantPoolName(), binding.selector, binding.signature());
-}
-protected int getFromNameAndTypeCache(MethodBinding binding) {
-	return getFromNameAndTypeCache(binding.selector, binding.signature());
-}
-protected int getFromNameAndTypeCache(FieldBinding binding) {
-	return getFromNameAndTypeCache(binding.name, binding.type.signature());
 }
 private int getFromCache(char[] declaringClass, char[] name, char[] signature) {
 	HashtableOfObject value = (HashtableOfObject) this.methodsAndFieldsCache.get(declaringClass);
@@ -382,11 +370,14 @@ public int literalIndex(String stringConstant) {
  */
 public int literalIndex(FieldBinding aFieldBinding) {
 	int index;
-	if ((index = getFromCache(aFieldBinding)) < 0) {
+	final char[] name = aFieldBinding.name;
+	final char[] signature = aFieldBinding.type.signature();
+	final char[] declaringClassConstantPoolName = aFieldBinding.declaringClass.constantPoolName();
+	if ((index = getFromCache(declaringClassConstantPoolName, name, signature)) < 0) {
 		// The entry doesn't exit yet
-		int classIndex = literalIndexForType(aFieldBinding.declaringClass.constantPoolName());
-		int nameAndTypeIndex = literalIndexForFields(literalIndex(aFieldBinding.name), literalIndex(aFieldBinding.type.signature()), aFieldBinding);
-		index = putInCache(aFieldBinding, currentIndex++);
+		int classIndex = literalIndexForType(declaringClassConstantPoolName);
+		int nameAndTypeIndex = literalIndexForFields(literalIndex(name), literalIndex(signature), name, signature);
+		index = putInCache(declaringClassConstantPoolName, name, signature, currentIndex++);
 		if (index > 0xFFFF){
 			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
 		}
@@ -407,16 +398,20 @@ public int literalIndex(FieldBinding aFieldBinding) {
  */
 public int literalIndex(MethodBinding aMethodBinding) {
 	int index;
-	if ((index = getFromCache(aMethodBinding)) < 0) {
-		int classIndex = literalIndexForType(aMethodBinding.constantPoolDeclaringClass().constantPoolName());
-		int nameAndTypeIndex = literalIndexForMethods(literalIndex(aMethodBinding.constantPoolName()), literalIndex(aMethodBinding.signature()), aMethodBinding);
-		index = putInCache(aMethodBinding, currentIndex++);
+	final TypeBinding constantPoolDeclaringClass = aMethodBinding.constantPoolDeclaringClass();
+	final char[] declaringClassConstantPoolName = constantPoolDeclaringClass.constantPoolName();
+	final char[] selector = aMethodBinding.selector;
+	final char[] signature = aMethodBinding.signature();
+	if ((index = getFromCache(declaringClassConstantPoolName, selector, signature)) < 0) {
+		int classIndex = literalIndexForType(constantPoolDeclaringClass.constantPoolName());
+		int nameAndTypeIndex = literalIndexForMethods(literalIndex(selector), literalIndex(signature), selector, signature);
+		index = putInCache(declaringClassConstantPoolName, selector, signature, currentIndex++);
 		if (index > 0xFFFF){
 			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
 		}
 		// Write the interface method ref constant into the constant pool
 		// First add the tag
-		writeU1(aMethodBinding.constantPoolDeclaringClass().isInterface() ? InterfaceMethodRefTag : MethodRefTag);
+		writeU1(constantPoolDeclaringClass.isInterface() ? InterfaceMethodRefTag : MethodRefTag);
 		// Then write the class index
 		writeU2(classIndex);
 		// The write the nameAndType index
@@ -541,15 +536,16 @@ public int literalIndexForField(char[] declaringClass, char[] name, char[] signa
  *
  * @param nameIndex the given name index
  * @param typeIndex the given type index
- * @param key the given field binding
+ * @param name the given field name
+ * @param signature the given field signature
  * @return the index into the constantPool corresponding 
  * nameAndType constant with nameIndex, typeInde
  */
-private int literalIndexForFields(int nameIndex, int typeIndex, FieldBinding key) {
+private int literalIndexForFields(int nameIndex, int typeIndex, char[] name, char[] signature) {
 	int index;
-	if ((index = getFromNameAndTypeCache(key)) == -1) {
+	if ((index = getFromNameAndTypeCache(name, signature)) == -1) {
 		// The entry doesn't exit yet
-		index = putInNameAndTypeCache(key, currentIndex++);
+		index = putInNameAndTypeCache(name, signature, currentIndex++);
 		if (index > 0xFFFF){
 			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
 		}
@@ -632,16 +628,17 @@ public int literalIndexForLdc(char[] stringCharArray) {
  * This method returns the index into the constantPool corresponding 
  * nameAndType constant with nameIndex, typeIndex.
  *
- * @param nameIndex int
- * @param typeIndex int
- * @param key org.eclipse.jdt.internal.compiler.lookup.MethodBinding
+ * @param nameIndex the given name index
+ * @param typeIndex the given type index
+ * @param selector the given method selector
+ * @param signature the given method signature
  * @return <CODE>int</CODE>
  */
-public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding key) {
+public int literalIndexForMethods(int nameIndex, int typeIndex, char[] selector, char[] signature) {
 	int index;
-	if ((index = getFromNameAndTypeCache(key)) == -1) {
+	if ((index = getFromNameAndTypeCache(selector, signature)) == -1) {
 		// The entry doesn't exit yet
-		index = putInNameAndTypeCache(key, currentIndex++);
+		index = putInNameAndTypeCache(selector, signature, currentIndex++);
 		if (index > 0xFFFF){
 			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
 		}
@@ -650,26 +647,6 @@ public int literalIndexForMethods(int nameIndex, int typeIndex, MethodBinding ke
 		writeU2(typeIndex);
 	}
 	return index;
-}
-protected int putInCache(FieldBinding binding, int index) {
-	return putInCache(
-			binding.declaringClass.constantPoolName(),
-			binding.name,
-			binding.type.signature(),
-			index);
-}
-protected int putInCache(MethodBinding binding, int index) {
-	return putInCache(
-			binding.constantPoolDeclaringClass().constantPoolName(),
-			binding.selector,
-			binding.signature(),
-			index);
-}
-protected int putInNameAndTypeCache(FieldBinding binding, int index) {
-	return putInNameAndTypeCache(binding.name, binding.type.signature(), index);
-}
-protected int putInNameAndTypeCache(MethodBinding binding, int index) {
-	return putInNameAndTypeCache(binding.selector, binding.signature(), index);
 }
 private int putInNameAndTypeCache(final char[] key1, final char[] key2, int index) {
 	CharArrayCache value = (CharArrayCache) this.nameAndTypeCacheForFieldsAndMethods.get(key1);
