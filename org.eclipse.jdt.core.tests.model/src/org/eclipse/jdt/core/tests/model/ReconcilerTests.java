@@ -133,7 +133,7 @@ public void testAddDuplicateMember() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	foo[+]: {}"
+		"	foo()[+]: {}"
 	);
 }
 /**
@@ -157,9 +157,9 @@ public void testAddFieldAndConstructor() throws JavaModelException {
 	this.workingCopy.reconcile();
 	assertDeltas(
 		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	i[+]: {}\n" +
-		"	X[+]: {}"
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	i[+]: {}\n" + 
+		"	X(int)[+]: {}"
 	);
 }
 /**
@@ -206,7 +206,7 @@ public void testAddMethod1() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	bar[+]: {}"
+		"	bar()[+]: {}"
 	);
 }
 /**
@@ -227,8 +227,8 @@ public void testAddPartialMethod1() throws JavaModelException {
 	this.workingCopy.reconcile();
 	assertDeltas(
 		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	some[+]: {}"
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	some()[+]: {}"
 	);
 }
 /**
@@ -284,7 +284,7 @@ public void testChangeMethodVisibility() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	foo[*]: {MODIFIERS CHANGED}"
+		"	foo()[*]: {MODIFIERS CHANGED}"
 	);
 }
 /**
@@ -306,7 +306,7 @@ public void testCloseWorkingCopy() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	bar[+]: {}"
+		"	bar()[+]: {}"
 	);
 }
 
@@ -359,7 +359,7 @@ public void testDeleteMethod1() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	foo[-]: {}"
+		"	foo()[-]: {}"
 	);
 }
 /**
@@ -392,8 +392,8 @@ public void testDeleteTwoMethods() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	bar[-]: {}\n" +
-		"	foo[-]: {}"
+		"	bar()[-]: {}\n" +
+		"	foo()[-]: {}"
 	);
 }
 /**
@@ -451,7 +451,7 @@ public void testMethodWithError() throws JavaModelException, CoreException {
 	assertDeltas(
 		"Unexpected delta after syntax error", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	foo[*]: {MODIFIERS CHANGED}"
+		"	foo()[*]: {MODIFIERS CHANGED}"
 	);
 	assertProblems(
 		"Unexpected problems",
@@ -477,7 +477,7 @@ public void testMethodWithError() throws JavaModelException, CoreException {
 	assertDeltas(
 		"Unexpected delta after fixing syntax error", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	foo[*]: {MODIFIERS CHANGED}"
+		"	foo()[*]: {MODIFIERS CHANGED}"
 	);
 	assertProblems(
 		"Unexpected problems",
@@ -815,8 +815,8 @@ public void testMoveMember() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	bar[*]: {REORDERED}\n" + 
-		"	foo[*]: {REORDERED}"
+		"	bar()[*]: {REORDERED}\n" + 
+		"	foo()[*]: {REORDERED}"
 	);
 }
 /**
@@ -870,8 +870,8 @@ public void testRenameMethod1() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	bar[+]: {}\n" + 
-		"	foo[-]: {}"
+		"	bar()[+]: {}\n" + 
+		"	foo()[-]: {}"
 	);
 }
 /**
@@ -893,8 +893,8 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	bar[+]: {}\n" + 
-		"	foo[-]: {}"
+		"	bar()[+]: {}\n" + 
+		"	foo()[-]: {}"
 	);
 	assertProblems(
 		"Unexpected problems",

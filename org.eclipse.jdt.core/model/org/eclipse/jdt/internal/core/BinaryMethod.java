@@ -283,9 +283,11 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
 		buffer.append(getElementName());
+		toStringParameters(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
 		buffer.append(getElementName());
+		toStringParameters(buffer);
 	} else {
 		try {
 			if (Flags.isStatic(this.getFlags())) {
@@ -296,21 +298,24 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 				buffer.append(' ');
 			}
 			buffer.append(this.getElementName());
-			buffer.append('(');
-			String[] paramTypes = this.parameterTypes;
-			int length;
-			if (paramTypes != null && (length = paramTypes.length) > 0) {
-				for (int i = 0; i < length; i++) {
-					buffer.append(Signature.toString(paramTypes[i]));
-					if (i < length - 1) {
-						buffer.append(", "); //$NON-NLS-1$
-					}
-				}
-			}
-			buffer.append(')');
+			toStringParameters(buffer);
 		} catch (JavaModelException e) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}
 	}
+}
+private void toStringParameters(StringBuffer buffer) {
+	buffer.append('(');
+	String[] parameters = this.getParameterTypes();
+	int length;
+	if (parameters != null && (length = parameters.length) > 0) {
+		for (int i = 0; i < length; i++) {
+			buffer.append(Signature.toString(parameters[i]));
+			if (i < length - 1) {
+				buffer.append(", "); //$NON-NLS-1$
+			}
+		}
+	}
+	buffer.append(')');
 }
 }

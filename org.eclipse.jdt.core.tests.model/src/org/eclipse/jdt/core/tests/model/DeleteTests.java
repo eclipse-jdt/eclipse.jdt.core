@@ -293,7 +293,7 @@ public void testDeleteConstructor() throws CoreException {
 			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					X[-]: {}"
+			"					X(String)[-]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -434,7 +434,7 @@ public void testDeleteMethod() throws CoreException {
 			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					foo[-]: {}"
+			"					foo()[-]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -521,13 +521,13 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
 			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					import java.util.Vector[-]: {}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					main[-]: {}\n" + 
+			"					main(String[])[-]: {}\n" + 
 			"					Bar[-]: {}\n" + 
 			"		a.b[*]: {CHILDREN}\n" + 
 			"			Y.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					foo[-]: {}\n" + 
-			"					main[-]: {}"
+			"					main(String[])[-]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -742,7 +742,7 @@ public void testDeleteSyntaxErrorInMethod1() throws CoreException {
 			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					foo[-]: {}"
+			"					foo()[-]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -772,7 +772,7 @@ public void testDeleteSyntaxErrorInMethod2() throws CoreException {
 			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					foo[-]: {}"
+			"					foo()[-]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -803,7 +803,7 @@ public void testDeleteSyntaxErrorInMethod3() throws CoreException {
 			"		<default>[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					foo[-]: {}"
+			"					foo()[-]: {}"
 		);
 	} finally {
 		stopDeltas();

@@ -1036,7 +1036,7 @@ public void testListenerAutoBuild() throws CoreException {
 		assertEquals(
 			"Unexpected delta after committing working copy",
 			"X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"	foo[+]: {}\n" +
+			"	foo()[+]: {}\n" +
 			"A[-]: {}",
 			listener.toString());
 		listener.flush();
@@ -1147,7 +1147,7 @@ public void testListenerPostChange() throws CoreException {
 			"		<default>[*]: {CHILDREN}\n" +
 			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo[+]: {}\n" +
+			"					foo()[+]: {}\n" +
 			"				A[-]: {}",
 			listener.toString());
 		listener.flush();
@@ -1235,7 +1235,7 @@ public void testListenerReconcile() throws CoreException {
 		assertEquals(
 			"Unexpected delta after reconciling working copy",
 			"X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"	foo[+]: {}\n" +
+			"	foo()[+]: {}\n" +
 			"A[-]: {}",
 			listener.toString());
 		listener.flush();
@@ -2120,13 +2120,13 @@ public void testRenameMethodAndSave() throws CoreException {
 		workingCopy.commit(true, null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		x.y[*]: {CHILDREN}\n" +
-			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
-			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo2[+]: {}\n" +
-			"					foo1[-]: {}"
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		x.y[*]: {CHILDREN}\n" + 
+			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"				A[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"					foo2()[+]: {}\n" + 
+			"					foo1()[-]: {}"
 		);
 	} finally {
 		this.stopDeltas();
@@ -2206,12 +2206,12 @@ public void testSaveWorkingCopy() throws CoreException {
 		copy.commit(true, null);
 		assertDeltas(
 			"Unexpected delta after committing working copy", 
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		<default>[*]: {CHILDREN}\n" +
-			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" +
-			"				X[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo[+]: {}"
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
+			"			X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"					foo()[+]: {}"
 		);
 	} finally {
 		this.stopDeltas();
@@ -2336,12 +2336,12 @@ public void testWorkingCopyCommit() throws CoreException {
 		copy.commit(true, null);
 		assertDeltas(
 			"Unexpected delta after commit", 
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		x.y[*]: {CHILDREN}\n" +
-			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" +
-			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					foo[+]: {}"
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		x.y[*]: {CHILDREN}\n" + 
+			"			A.java[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"				A[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"					foo()[+]: {}"
 		);
 	} finally {
 		this.stopDeltas();

@@ -70,7 +70,7 @@ public void testResolveAbstractMethod() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo [in SuperInterface [in SuperInterface.java [in <default> [in src [in Resolve]]]]]",
+		"foo() [in SuperInterface [in SuperInterface.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -337,7 +337,7 @@ public void testResolveConstructor() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"ResolveConstructor [in ResolveConstructor [in ResolveConstructor.java [in <default> [in src [in Resolve]]]]]",
+		"ResolveConstructor(String) [in ResolveConstructor [in ResolveConstructor.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -356,7 +356,7 @@ public void testResolveConstructorCallOfMemberType() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"Inner [in Inner [in ResolveConstructorCallOfMemberType$Inner.class [in <default> [in class-folder [in Resolve]]]]]",
+		"Inner(ResolveConstructorCallOfMemberType) [in Inner [in ResolveConstructorCallOfMemberType$Inner.class [in <default> [in class-folder [in Resolve]]]]]",
 		elements
 	);
 }
@@ -375,7 +375,7 @@ public void testResolveConstructorDeclaration() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"ResolveConstructorDeclaration [in ResolveConstructorDeclaration [in ResolveConstructorDeclaration.java [in <default> [in src [in Resolve]]]]]",
+		"ResolveConstructorDeclaration(int) [in ResolveConstructorDeclaration [in ResolveConstructorDeclaration.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -433,7 +433,7 @@ public void testResolveEmptySelectionOnMethod() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo [in ResolveEmptySelectionOnMethod [in ResolveEmptySelectionOnMethod.java [in <default> [in src [in Resolve]]]]]",
+		"foo() [in ResolveEmptySelectionOnMethod [in ResolveEmptySelectionOnMethod.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -452,7 +452,7 @@ public void testResolveExplicitSuperConstructorCall() throws JavaModelException 
 
 	assertElementsEqual(
 		"Unexpected elements",
-		"SuperClass [in SuperClass [in SuperClass.java [in <default> [in src [in Resolve]]]]]",
+		"SuperClass(int) [in SuperClass [in SuperClass.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -471,7 +471,7 @@ public void testResolveExplicitThisConstructorCall() throws JavaModelException {
 
 	assertElementsEqual(
 		"Unexpected elements",
-		"ResolveExplicitThisConstructorCall [in ResolveExplicitThisConstructorCall [in ResolveExplicitThisConstructorCall.java [in <default> [in src [in Resolve]]]]]",
+		"ResolveExplicitThisConstructorCall() [in ResolveExplicitThisConstructorCall [in ResolveExplicitThisConstructorCall.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -583,7 +583,7 @@ public void testResolveInnerClassAsParamater() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo [in ResolveInnerClassAsParamater [in ResolveInnerClassAsParamater.java [in <default> [in src [in Resolve]]]]]",
+		"foo(Inner) [in ResolveInnerClassAsParamater [in ResolveInnerClassAsParamater.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -729,7 +729,7 @@ public void testResolveMethod() throws JavaModelException {
 
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo [in ResolveMethod [in ResolveMethod.java [in <default> [in src [in Resolve]]]]]",
+		"foo(String) [in ResolveMethod [in ResolveMethod.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -748,7 +748,7 @@ public void testResolveMethodDeclaration() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo [in ResolveMethodDeclaration [in ResolveMethodDeclaration.java [in <default> [in src [in Resolve]]]]]",
+		"foo(int) [in ResolveMethodDeclaration [in ResolveMethodDeclaration.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -766,7 +766,7 @@ public void testResolveMethodWithIncorrectParameter() throws JavaModelException 
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"foo [in ResolveMethodWithIncorrectParameter [in ResolveMethodWithIncorrectParameter.java [in <default> [in src [in Resolve]]]]]",
+		"foo(int) [in ResolveMethodWithIncorrectParameter [in ResolveMethodWithIncorrectParameter.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
 }
@@ -785,7 +785,7 @@ public void testResolveMethodWithInnerTypeInClassFile() throws JavaModelExceptio
 
 	assertElementsEqual(
 		"Unexpected elements",
-		"test [in MyClass [in MyClass.class [in <default> [in zzz.jar [in Resolve]]]]]",
+		"test() [in MyClass [in MyClass.class [in <default> [in zzz.jar [in Resolve]]]]]",
 		elements
 	);
 }
@@ -804,7 +804,7 @@ public void testResolveMethodWithInnerTypeInClassFile2() throws JavaModelExcepti
 
 	assertElementsEqual(
 		"Unexpected elements",
-		"method [in MyClass2 [in MyClass2.class [in <default> [in zzz.jar [in Resolve]]]]]",
+		"method(MyClass2.Inner[]) [in MyClass2 [in MyClass2.class [in <default> [in zzz.jar [in Resolve]]]]]",
 		elements
 	);
 		
@@ -888,7 +888,7 @@ public void testResolveStaticClassConstructor() throws JavaModelException {
 
 	assertElementsEqual(
 		"Unexpected elements",
-		"StaticInnerClass [in StaticInnerClass [in ResolveStaticClassConstructor$StaticInnerClass.class [in <default> [in test25888.jar [in Resolve]]]]]",
+		"StaticInnerClass() [in StaticInnerClass [in ResolveStaticClassConstructor$StaticInnerClass.class [in <default> [in test25888.jar [in Resolve]]]]]",
 		elements
 	);
 }

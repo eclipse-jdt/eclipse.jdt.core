@@ -221,8 +221,8 @@ public class LocalElementTests extends ModifyingResourceTests {
 			"<anonymous #1> [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
 			"Y [in <initializer #1> [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
 			"<anonymous #1> [in f [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
-			"<anonymous #1> [in foo [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
-			"Z [in foo [in X [in X.java [in <default> [in <project root> [in P]]]]]]",
+			"<anonymous #1> [in foo(int, String) [in X [in X.java [in <default> [in <project root> [in P]]]]]]\n" + 
+			"Z [in foo(int, String) [in X [in X.java [in <default> [in <project root> [in P]]]]]]",
 			types);
 	}
 	
