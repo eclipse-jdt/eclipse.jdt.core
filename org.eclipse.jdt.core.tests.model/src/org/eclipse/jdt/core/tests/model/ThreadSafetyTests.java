@@ -34,7 +34,7 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ThreadSafetyTests.class.getName());
-		suite.addTest(new ClasspathTests("testDeadlock01"));
+		suite.addTest(new ThreadSafetyTests("testDeadlock01"));
 		return suite;
 	}
 	return new Suite(ThreadSafetyTests.class);	
