@@ -109,8 +109,9 @@ protected void cleanOutputFolders() throws CoreException {
 			}
 			copyExtraResourcesBack(sourceLocation, deleteAll);
 		} else {
+			boolean isOutputFolder = sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder);
 			final char[][] exclusionPatterns =
-				sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder)
+				isOutputFolder
 					? sourceLocation.exclusionPatterns
 					: null; // ignore exclusionPatterns if output folder == another source folder... not this one
 			sourceLocation.binaryFolder.accept(
@@ -127,8 +128,10 @@ protected void cleanOutputFolders() throws CoreException {
 					}
 				}
 			);
-			notifier.checkCancel();
+			if (!isOutputFolder)
+				copyPackages(sourceLocation);
 		}
+		notifier.checkCancel();
 	}
 }
 
@@ -163,6 +166,30 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						}
 						resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
 						copiedResource.setDerived(true);
+						return false;
+					case IResource.FOLDER :
+						if (resource.equals(outputFolder)) return false;
+						if (javaBuilder.filterExtraResource(resource)) return false;
+						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
+							return false;
+
+						createFolder(resource.getFullPath().removeFirstSegments(segmentCount), outputFolder);
+				}
+				return true;
+			}
+		}
+	);
+}
+
+protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreException {
+	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
+	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+	final IContainer outputFolder = sourceLocation.binaryFolder;
+	sourceLocation.sourceFolder.accept(
+		new IResourceVisitor() {
+			public boolean visit(IResource resource) throws CoreException {
+				switch(resource.getType()) {
+					case IResource.FILE :
 						return false;
 					case IResource.FOLDER :
 						if (resource.equals(outputFolder)) return false;
