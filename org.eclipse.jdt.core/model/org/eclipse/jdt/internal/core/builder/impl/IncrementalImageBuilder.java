@@ -324,6 +324,8 @@ protected void changedSourceElement(SourceEntry newEntry) {
 	PackageElement element = fNewState.packageElementFromSourceEntry(newEntry);
 	if (element.isSource()) {
 		fWorkQueue.add(element);
+	} else {
+		markDependentsAsNeedingCompile(element);
 	}
 
 	/* remove problems for this source entry */

@@ -15,6 +15,7 @@ PRs Fixed in 1.0NL stream (since 1.0)
   5218      AccSuper is not set properly  
   5136		ArrayIndexOutOfBoundsException when a field declaration is an anonymous class   
   1GL4QKI:  ITPJCORE:ALL - VerifyError when running app
+  eBay Defect 186249 - OTI PR# 1GLEYT1
    
 *********************************************************************************
 * BUILD 137 (R 1.0) *************************************************************
