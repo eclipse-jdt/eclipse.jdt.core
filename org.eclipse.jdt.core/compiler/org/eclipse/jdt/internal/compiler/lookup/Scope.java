@@ -871,15 +871,14 @@ public abstract class Scope
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 
-			/*
-			 * if 1.4 compliant, must filter out redundant protected methods from superclasses
-			 */
-			if (isCompliant14) {
+			if (isCompliant14 && matchingMethod != null || found.size > 0) {
 				nextMethod: for (int i = 0; i < currentLength; i++) {
 					MethodBinding currentMethod = currentMethods[i];
+					// if 1.4 compliant, must filter out redundant protected methods from superclasses
 					// protected method need to be checked only - default access is already dealt with in #canBeSeen implementation
 					// when checking that p.C -> q.B -> p.A cannot see default access members from A through B.
-					if ((currentMethod.modifiers & AccProtected) == 0) continue nextMethod;
+					// if ((currentMethod.modifiers & AccProtected) == 0) continue nextMethod;
+					// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 					if (matchingMethod != null) {
 						if (currentMethod.areParametersEqual(matchingMethod)) {
 							currentLength--;
@@ -905,7 +904,6 @@ public abstract class Scope
 					found.add(matchingMethod);
 					matchingMethod = null;
 				}
-				// TODO (kent) should skip inherited methods that are overridden
 				// append currentMethods, filtering out null entries
 				int maxMethod = currentMethods.length;
 				if (maxMethod == currentLength) { // no method was eliminated for 1.4 compliance (see above)

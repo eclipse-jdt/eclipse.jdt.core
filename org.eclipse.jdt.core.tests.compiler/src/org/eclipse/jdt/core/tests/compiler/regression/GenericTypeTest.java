@@ -11648,7 +11648,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		"*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80028
-	public void _test436() {
+	public void test436() {
 		this.runConformTest(
 			new String[] {
 				"A.java",

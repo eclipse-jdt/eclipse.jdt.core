@@ -931,6 +931,8 @@ public interface IProblem {
 	int StaticMemberOfParameterizedType = TypeRelated + 563;	
     /** @since 3.1 */
 	int BoundHasConflictingArguments = TypeRelated + 564;	
+    /** @since 3.1 */
+	int DuplicateParameterizedMethods = MethodRelated + 565;
 
 	/**
 	 * Foreach

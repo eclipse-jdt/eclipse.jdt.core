@@ -31,8 +31,8 @@ boolean areMethodsEqual(MethodBinding one, MethodBinding substituteTwo) {
 				if (!areTypesEqual(oneParams[i], twoParams[i])) {
 					while (!checkParameters && ++i < length)
 						checkParameters |= oneParams[i].leafComponentType().isParameterizedType();
-					if (checkParameters && one.areParameterErasuresEqual(substituteTwo)) // at least one parameter may cause a name clash
-						detectNameClash(one, substituteTwo, true);
+					if (one.areParameterErasuresEqual(substituteTwo)) // at least one parameter may cause a name clash
+						detectNameClash(one, substituteTwo, checkParameters);
 					return false; // no match but needed to check for a name clash
 				}
 			}
@@ -71,6 +71,16 @@ boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	//		return ((UnresolvedReferenceBinding) two).resolvedType == one;
 	return false; // all other type bindings are identical
 }
+boolean canSkipInheritedMethods() {
+	if (this.type.superclass() != null)
+		if (this.type.superclass().isAbstract() || this.type.superclass().isParameterizedType())
+			return false;
+	return this.type.superInterfaces() == NoSuperInterfaces;
+}
+boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
+	return two == null // already know one is not null
+		|| (one.declaringClass == two.declaringClass && !one.declaringClass.isParameterizedType());
+}
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	MethodBinding originalInherited = inheritedMethod.original();
 	if (inheritedMethod != originalInherited) {
@@ -101,6 +111,32 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 		}   
 	}
 	this.type.addSyntheticBridgeMethod(originalInherited, currentMethod);
+}
+void checkInheritedMethods(MethodBinding[] methods, int length) {
+	int count = length;
+	nextMethod : for (int i = 0, l = length - 1; i < l;) {
+		MethodBinding method = methods[i++];
+		for (int j = i; j <= l; j++) {
+			if (method.declaringClass == methods[j].declaringClass && doesMethodOverride(method, methods[j])) {
+				// found an inherited ParameterizedType that defines duplicate methods
+				problemReporter().duplicateInheritedMethods(this.type, method, methods[j]);
+				count--;
+				methods[i - 1] = null;
+				continue nextMethod;
+			}
+		}
+	}
+	if (count < length) {
+		if (count == 1) return; // no need to continue since only 1 inherited method is left
+		MethodBinding[] newMethods = new MethodBinding[count];
+		for (int i = length; --i >= 0;)
+			if (methods[i] != null)
+				newMethods[--count] = methods[i];
+		methods = newMethods;
+		length = newMethods.length;
+	}
+
+	super.checkInheritedMethods(methods, length);
 }
 MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
 	if (inheritedMethod == null) return null;
@@ -167,6 +203,7 @@ boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	TypeBinding[] inheritedVars = substituteTwo.original().typeVariables;
 	return currentVars.length != inheritedVars.length
 		&& currentVars.length > 0 && inheritedVars.length > 0; // must match unless all are replaced
+//		&& currentVars.length > 0;
 }
 boolean hasBoundedParameters(ParameterizedTypeBinding parameterizedType) {
 	TypeBinding[] arguments = parameterizedType.arguments;

@@ -1083,7 +1083,7 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 		);
 	}
 
-	public void _test023() { // 80739
+	public void test023() { // 80739
 		this.runNegativeTest(
 			new String[] {
 				"A.java",

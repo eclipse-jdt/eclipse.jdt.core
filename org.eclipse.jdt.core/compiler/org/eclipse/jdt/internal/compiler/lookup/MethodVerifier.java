@@ -66,6 +66,15 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 boolean areReturnTypesEqual(MethodBinding one, MethodBinding two) {
 	return areTypesEqual(one.returnType, two.returnType);
 }
+boolean canSkipInheritedMethods() {
+	if (this.type.superclass() != null && this.type.superclass().isAbstract())
+		return false;
+	return this.type.superInterfaces() == NoSuperInterfaces;
+}
+boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
+	return two == null // already know one is not null
+		|| one.declaringClass == two.declaringClass;
+}
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
 
@@ -105,6 +114,10 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			} else {
 				currentMethod.modifiers |= CompilerModifiers.AccImplementing | CompilerModifiers.AccOverriding;
 			}
+// with the above change an abstract method is tagged as implementing the inherited abstract method
+//		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
+//			if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
+//				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
 		} else {
 			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 		}
@@ -233,8 +246,7 @@ For each inherited method identifier (message pattern - vm signature minus the r
 */
 void checkMethods() {
 	boolean mustImplementAbstractMethods = ((this.type.modifiers & IConstants.AccInterface) == 0) && !this.type.isAbstract();
-	boolean skipInheritedMethods = mustImplementAbstractMethods && this.type.superInterfaces() == NoSuperInterfaces
-		&& this.type.superclass() != null && !this.type.superclass().isAbstract(); // have a single concrete superclass so only check overridden methods
+	boolean skipInheritedMethods = mustImplementAbstractMethods && canSkipInheritedMethods(); // have a single concrete superclass so only check overridden methods
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
 	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
 		if (methodSelectors[s] == null) continue nextSelector;
@@ -278,12 +290,12 @@ void checkMethods() {
 				matchingInherited[++index] = inheritedMethod;
 				for (int j = i + 1; j < length; j++) {
 					MethodBinding otherInheritedMethod = inherited[j];
-					if (otherInheritedMethod != null && otherInheritedMethod.declaringClass != inheritedMethod.declaringClass) { // must be from a different class for their params to be equal
-						otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
-						if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
-							matchingInherited[++index] = otherInheritedMethod;
-							inherited[j] = null; // do not want to find it again
-						}
+					if (canSkipInheritedMethods(inheritedMethod, otherInheritedMethod))
+						continue;
+					otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
+					if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
+						matchingInherited[++index] = otherInheritedMethod;
+						inherited[j] = null; // do not want to find it again
 					}
 				}
 			}
@@ -371,7 +383,7 @@ void computeInheritedMethods() {
 			MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(inheritedMethod.selector);
 			if (existingMethods != null) {
 				for (int i = 0, length = existingMethods.length; i < length; i++) {
-					if (doesMethodOverride(existingMethods[i], inheritedMethod)) {
+					if (existingMethods[i].declaringClass != inheritedMethod.declaringClass && doesMethodOverride(existingMethods[i], inheritedMethod)) {
 						if (inheritedMethod.isDefault() && inheritedMethod.isAbstract())
 							checkPackagePrivateAbstractMethod(inheritedMethod);
 						continue nextMethod;

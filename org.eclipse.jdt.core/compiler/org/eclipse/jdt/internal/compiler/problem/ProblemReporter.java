@@ -948,6 +948,22 @@ public void duplicateImport(ImportReference importRef) {
 		importRef.sourceStart,
 		importRef.sourceEnd);
 }
+public void duplicateInheritedMethods(SourceTypeBinding type, MethodBinding inheritedMethod1, MethodBinding inheritedMethod2) {
+	this.handle(
+		IProblem.DuplicateParameterizedMethods,
+		new String[] {
+	        new String(inheritedMethod1.selector),
+			new String(inheritedMethod1.declaringClass.readableName()),
+			typesAsString(inheritedMethod1.isVarargs(), inheritedMethod1.original().parameters, false),	
+			typesAsString(inheritedMethod2.isVarargs(), inheritedMethod2.original().parameters, false)},
+		new String[] {
+			new String(inheritedMethod1.selector),
+			new String(inheritedMethod1.declaringClass.shortReadableName()),
+			typesAsString(inheritedMethod1.isVarargs(), inheritedMethod1.original().parameters, true),	
+			typesAsString(inheritedMethod2.isVarargs(), inheritedMethod2.original().parameters, true)},
+		type.sourceStart(),
+		type.sourceEnd());
+}
 public void duplicateInitializationOfBlankFinalField(FieldBinding field, Reference reference) {
 	String[] arguments = new String[]{ new String(field.readableName())};
 	this.handle(
