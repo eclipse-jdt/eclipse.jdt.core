@@ -841,6 +841,8 @@ public interface IProblem {
 	int JavadocEmptyReturnTag = Javadoc + Internal + 515;
 	/** @since 3.1 */
 	int JavadocInvalidValueReference = Javadoc + Internal + 516;
+	/** @since 3.1 */
+	int JavadocUnexpectedText = Javadoc + Internal + 517;
 	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 519;
 
