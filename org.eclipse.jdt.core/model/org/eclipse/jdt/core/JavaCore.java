@@ -202,6 +202,30 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
+	public static final String COMPILER_TASK_PRIORITIES = PLUGIN_ID + ".compiler.taskPriorities"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value for COMPILER_TASK_PRIORITIES.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_TASK_PRIORITY_HIGH = "HIGH"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value for COMPILER_TASK_PRIORITIES.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_TASK_PRIORITY_LOW = "LOW"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value for COMPILER_TASK_PRIORITIES.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_TASK_PRIORITY_NORMAL = "NORMAL"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
 	public static final String COMPILER_TASK_TAGS = PLUGIN_ID + ".compiler.taskTags"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -1043,6 +1067,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "<tag>[,<tag>]*" } where <tag> is a String without any wild-card 
 	 *     - default:			""
 	 * 
+	 * COMPILER / Define the Automatic Task Priorities
+	 *    In parallel with the Automatic Task Tags, this list defines the priorities (high, normal or low)
+	 *    of the task markers issued by the compiler.
+	 *    If the default is specified, the priority of each task marker is "NORMAL".
+	 *     - option id:			"org.eclipse.jdt.core.compiler.taskPriorities"
+	 *     - possible values:	{ "<priority>[,<priority>]*" } where <priority> is one of "HIGH", "NORMAL" or "LOW"
+	 *     - default:			""
+	 * 
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *     - option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
@@ -1518,6 +1550,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 		optionNames.add(COMPILER_TASK_TAGS);
+
+		preferences.setDefault(COMPILER_TASK_PRIORITIES, ""); //$NON-NLS-1$
+		optionNames.add(COMPILER_TASK_PRIORITIES);
 
 		preferences.setDefault(COMPILER_SOURCE, VERSION_1_3);
 		optionNames.add(COMPILER_SOURCE);

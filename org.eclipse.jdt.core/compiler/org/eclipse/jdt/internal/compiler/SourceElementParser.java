@@ -1134,6 +1134,7 @@ public void parseTypeMemberDeclarations(
 		scanner.setSource(contents);
 		scanner.recordLineSeparator = false;
 		scanner.taskTags = null;
+		scanner.taskPriorities = null;
 		scanner.resetTo(start, end);
 
 		/* unit creation */

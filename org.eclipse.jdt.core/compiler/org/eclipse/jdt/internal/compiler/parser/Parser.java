@@ -4759,8 +4759,13 @@ protected CompilationUnitDeclaration endParse(int act) {
 		compilationUnit.compilationResult.lineSeparatorPositions = scanner.getLineEnds();
 	}
 	if (scanner.taskTags != null){
-		for (int i = 0; i < scanner.taskCount; i++){
-			problemReporter().task(new String(scanner.taskMessages[i]), scanner.taskPositions[i][0], scanner.taskPositions[i][1]);
+		for (int i = 0; i < scanner.foundTaskCount; i++){
+			problemReporter().task(
+				new String(scanner.foundTaskTags[i]), 
+				new String(scanner.foundTaskMessages[i]),
+				scanner.foundTaskPriorities[i] == null ? null : new String(scanner.foundTaskPriorities[i]), 
+				scanner.foundTaskPositions[i][0], 
+				scanner.foundTaskPositions[i][1]);
 		}
 	}
 	return compilationUnit;
@@ -5043,7 +5048,7 @@ public void goForCompilationUnit(){
 
 	firstToken = TokenNamePLUS_PLUS ;
 	scanner.linePtr = -1;	
-	scanner.taskCount = 0;
+	scanner.foundTaskCount = 0;
 	scanner.recordLineSeparator = true;
 	scanner.currentLine= null;
 	scanner.lines= new ArrayList();
@@ -6500,7 +6505,7 @@ public void initialize() {
 
 	// reset scanner state
 	scanner.commentPtr = -1;
-	scanner.taskCount = 0;
+	scanner.foundTaskCount = 0;
 	scanner.eofPosition = Integer.MAX_VALUE;
 
 	resetModifiers();
@@ -6522,7 +6527,8 @@ public void initializeScanner(){
 		false /*whitespace*/, 
 		options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
 		this.assertMode /*assert*/, 
-		options.taskTags/*tasks*/);
+		options.taskTags/*taskTags*/,
+		options.taskPriorites/*taskPriorities*/);
 }
 public final static void initTables() throws java.io.IOException {
 
@@ -6622,7 +6628,7 @@ protected boolean moveRecoveryCheckpoint() {
 	scanner.startPosition = pos;
 	scanner.currentPosition = pos;
 	scanner.commentPtr = -1;
-	scanner.taskCount = 0;
+	scanner.foundTaskCount = 0;
 
 	return true;
 

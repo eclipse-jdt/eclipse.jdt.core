@@ -38,11 +38,24 @@ Eclipse SDK 2.1 Build - ?th October 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li></li>
+ <li> JavaCore option added for specifying the task priorities (default is <code>""</code> meaning 
+ tasks have normal priority).
+<pre>
+ * COMPILER / Define the Automatic Task Priorities
+ *    In parallel with the Automatic Task Tags, this list defines the priorities (high, normal or low)
+ *    of the task markers issued by the compiler.
+ *    If the default is specified, the priority of each task marker is "NORMAL".
+ *     - option id:			"org.eclipse.jdt.core.compiler.taskPriorities"
+ *     - possible values:	{ "priority[,priority]*" } where priority is one of "HIGH", "NORMAL" or "LOW"
+ *     - default:			""
+</pre>	 
+ </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22840">22840</a>  
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23812">23812</a>  
+Configurable (TODO) Markers priority in takslist  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22840">22840</a>  
 Refactor->Move doesn't update Local History  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24685">24685</a>  
 Inner package fragments gets deleted - model out of synch  

@@ -2576,11 +2576,11 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclarat
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
-public void task(String message, int start, int end){
+public void task(String tag, String message, String priority, int start, int end){
 	this.handle(
 		IProblem.Task,
-		new String[] { message },
-		new String[] { message },
+		new String[] { tag, message, priority/*secret argument that is not surfaced in getMessage()*/},
+		new String[] { tag, message, priority/*secret argument that is not surfaced in getMessage()*/}, 
 		start,
 		end);
 }

@@ -35,7 +35,7 @@ class ASTConverter {
 	
 	public ASTConverter(boolean resolveBindings) {
 		this.resolveBindings = resolveBindings;
-		scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null /*task*/);
+		scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
 	}
 	
 	public void setAST(AST ast) {
@@ -3102,7 +3102,7 @@ class ASTConverter {
 		int trimRigthPosition = expression.sourceEnd;
 		boolean first = true;
 		try {
-			scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*task*/);
+			scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
 			scanner.setSource(this.compilationUnitSource);
 			scanner.resetTo(start, end);
 			while (true) {
@@ -3129,7 +3129,7 @@ class ASTConverter {
 			}
 		} catch (InvalidInputException e){
 		} finally {
-			scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null /*task*/);
+			scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
 			scanner.setSource(this.compilationUnitSource);
 		}
 	}

@@ -50,6 +50,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String OPTION_ReportStaticAccessReceiver = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
+	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -144,6 +145,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	
 	// tags used to recognize tasks in comments
 	public char[][] taskTags = null;
+
+	// priorities of tasks in comments
+	public char[][] taskPriorites = null;
 
 	// deprecation report
 	public boolean reportDeprecationInsideDeprecatedCode = false;
@@ -476,6 +480,14 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			} 
+			if(optionID.equals(OPTION_TaskPriorities)){
+				if (optionValue.length() == 0) {
+					this.taskPriorites = null;
+				} else {
+					this.taskPriorites = CharOperation.splitAndTrimOn(',', optionValue.toCharArray());
+				}
+				continue;
+			} 
 		}
 	}
 	
@@ -665,7 +677,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
 		buf.append("\n-encoding : " + (defaultEncoding == null ? "<default>" : defaultEncoding)); //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-task tag : " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')))); //$NON-NLS-1$
+		buf.append("\n-task tags: " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')))); //$NON-NLS-1$
+		buf.append("\n-task priorities : " + (this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,',')))); //$NON-NLS-1$
 		buf.append("\n-report deprecation inside deprecated code : " + (reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}

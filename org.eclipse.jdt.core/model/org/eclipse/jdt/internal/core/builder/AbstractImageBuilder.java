@@ -372,6 +372,13 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 				});
 		} else {
 			marker = resource.createMarker(IJavaModelMarker.TASK_MARKER);
+			int priority = IMarker.PRIORITY_NORMAL;
+			String compilerPriority = problem.getArguments()[2];
+			if (JavaCore.COMPILER_TASK_PRIORITY_HIGH.equals(compilerPriority)) {
+				priority = IMarker.PRIORITY_HIGH;
+			} else if (JavaCore.COMPILER_TASK_PRIORITY_LOW.equals(compilerPriority)) {
+				priority = IMarker.PRIORITY_LOW;
+			}
 			marker.setAttributes(
 				new String[] {
 					IMarker.MESSAGE, 
@@ -382,7 +389,7 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) throws 
 					IMarker.LINE_NUMBER},
 				new Object[] { 
 					problem.getMessage(),
-					new Integer(IMarker.PRIORITY_NORMAL),
+					new Integer(priority),
 					new Boolean(false),
 					new Integer(problem.getSourceStart()),
 					new Integer(problem.getSourceEnd() + 1),
