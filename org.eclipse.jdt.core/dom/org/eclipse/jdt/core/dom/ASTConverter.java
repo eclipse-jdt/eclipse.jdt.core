@@ -1295,6 +1295,7 @@ class ASTConverter {
 					AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
 					int start = retrieveStartBlockPosition(anonymousType.sourceEnd, anonymousType.bodyEnd);
 					int end = retrieveRightBrace(anonymousType.bodyEnd, declarationSourceEnd);
+					if (end == -1) end = anonymousType.bodyEnd;
 					anonymousClassDeclaration.setSourceRange(start, end - start + 1);
 					enumConstantDeclaration.setAnonymousClassDeclaration(anonymousClassDeclaration);
 					buildBodyDeclarations(anonymousType, anonymousClassDeclaration);
