@@ -233,6 +233,23 @@ public void test008() {
 		"----------\n");
 }
 
+// Object cannot be generic
+public void test009() {
+	this.runNegativeTest(
+		new String[] {
+			"Object.java",
+			"package java.lang;\n" +
+			"public class Object <T> {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Object.java (at line 1)\n" + 
+		"	package java.lang;\n" + 
+		"	^\n" + 
+		"The type java.lang.Object cannot be declared as generic\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
