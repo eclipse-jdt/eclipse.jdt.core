@@ -517,7 +517,7 @@ public class Scribe {
 		}
 	}
 	
-	public void printNewLine() {
+	public void printNewLine() {	
 		if (lastNumberOfNewLines >= 1) {
 			column = 1; // ensure that the scribe is at the beginning of a new line
 			return;

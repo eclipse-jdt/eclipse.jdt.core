@@ -1119,8 +1119,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 					this.scribe.printTrailingComment();
 				}
-			} else {
-				this.scribe.printTrailingComment();
 			}
 			if (i != statementsLength - 1 || (i == statementsLength - 1 && insertNewLineAfterLastStatement)) {
 				this.scribe.printNewLine();
@@ -1558,7 +1556,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						}
 						this.scribe.alignFragment(expressionsAlignment, 0);
 						expressions[0].traverse(this, scope);
-						this.scribe.printTrailingComment();
 						for (int i = 1; i < expressionsLength; i++) {
 							this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
 							if (this.preferences.insert_space_after_comma_in_array_initializer) {
@@ -1566,7 +1563,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							}
 							this.scribe.alignFragment(expressionsAlignment, i);
 							expressions[i].traverse(this, scope);
-							this.scribe.printTrailingComment();
 							if (i == expressionsLength - 1) {
 								if (isComma()) {
 									this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_array_initializer);
@@ -1858,7 +1854,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.unIndent();
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACE);
-	
+		this.scribe.printTrailingComment();
 		if (block_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}		
@@ -2252,15 +2248,12 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				this.scribe.indent();
 				action.traverse(this, scope);
 				this.scribe.unIndent();
-				this.scribe.printTrailingComment();
 				this.scribe.printNewLine();
 			}
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
 				this.scribe.printNewLine();
-			} else if (action instanceof Block && this.preferences.insert_new_line_in_control_statements) {
-				this.scribe.printTrailingComment();
 			}
 		} else {
 			this.scribe.indent();
@@ -2511,10 +2504,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
-			} else if (action instanceof Block && this.preferences.insert_new_line_in_control_statements) {
-				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
 			}
 		} else {
 			this.scribe.indent();
@@ -2562,8 +2551,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						thenStatement.traverse(this, scope);
 						this.scribe.unIndent();
 					}
-					if (elseStatement == null || this.preferences.insert_new_line_in_control_statements) {
-						this.scribe.printTrailingComment();
+					if (elseStatement != null && this.preferences.insert_new_line_in_control_statements) {
 						this.scribe.printNewLine();
 					}
 				}
@@ -2595,37 +2583,40 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				thenStatement.traverse(this, scope);
 				if (thenStatement instanceof Expression) {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printTrailingComment();
 				}
-				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
+				if (elseStatement != null) {
+					this.scribe.printNewLine();
+				}
 			} else {
-				this.scribe.printTrailingComment();
 				this.scribe.printNewLine();
 				this.scribe.indent();
 				thenStatement.traverse(this, scope);
 				if (thenStatement instanceof Expression) {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printTrailingComment();
 				}
-				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
+				if (elseStatement != null) {
+					this.scribe.printNewLine();
+				}
 				this.scribe.unIndent();
 			}
 		}
 		
 		if (elseStatement != null) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameelse, true);
-			this.scribe.printTrailingComment();
+			if (this.preferences.insert_new_line_in_control_statements) {
+				this.scribe.printTrailingComment();
+			}
 			if (elseStatement instanceof Block) {
 				elseStatement.traverse(this, scope);
 			} else if (elseStatement instanceof IfStatement) {
 				if (!this.preferences.compact_else_if) {
-					this.scribe.printTrailingComment();
 					this.scribe.indent();
 				}
 				this.scribe.space();				
 				elseStatement.traverse(this, scope);
 				if (!this.preferences.compact_else_if) {
-					this.scribe.printTrailingComment();
 					this.scribe.unIndent();
 				}
 			} else if (this.preferences.keep_else_statement_on_same_line) {
@@ -2633,19 +2624,15 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				elseStatement.traverse(this, scope);
 				if (elseStatement instanceof Expression) {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printTrailingComment();
 				}
-				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
 			} else {
-				this.scribe.printTrailingComment();
 				this.scribe.printNewLine();
 				this.scribe.indent();
 				elseStatement.traverse(this, scope);
 				if (elseStatement instanceof Expression) {
 					this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				}
-				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
 				this.scribe.unIndent();
 			}
 		}
@@ -2684,7 +2671,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamestatic);
 		}
 		initializer.block.traverse(this, scope);
-		this.scribe.printTrailingComment();
 		return false;
 	}
 
@@ -3410,8 +3396,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
-				} else {
-					this.scribe.printTrailingComment();
 				}
 				this.scribe.printNewLine();
 			}
@@ -3447,7 +3431,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, this.preferences.insert_space_in_synchronized_condition);
 		
 		synchronizedStatement.block.traverse(this, scope);
-		this.scribe.printTrailingComment();
 		return false;
 	}
 	/**
@@ -3509,7 +3492,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.printNextToken(ITerminalSymbols.TokenNametry);
 		tryStatement.tryBlock.traverse(this, scope);
 		if (this.preferences.insert_new_line_in_control_statements) {
-			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
 		}	
 		if (tryStatement.catchArguments != null) {
 			for (int i = 0, max = tryStatement.catchBlocks.length; i < max; i++) {
@@ -3526,16 +3509,13 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				
 				tryStatement.catchBlocks[i].traverse(this, scope);
 				if (this.preferences.insert_new_line_in_control_statements) {
-					this.scribe.printTrailingComment();
+					this.scribe.printNewLine();
 				}	
 			}
 		}
 		if (tryStatement.finallyBlock != null) {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNamefinally, this.preferences.insert_space_after_block_close_brace);
 			tryStatement.finallyBlock.traverse(this, scope);
-			if (this.preferences.insert_new_line_in_control_statements) {
-				this.scribe.printTrailingComment();
-			}	
 		}
 		return false;
 	}
@@ -3623,12 +3603,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
-			} else if (action instanceof Block) {
-				this.scribe.printTrailingComment();
-			} else {
-				this.scribe.printTrailingComment();
-				this.scribe.printNewLine();
 			}
 		} else {
 			this.scribe.indent();
