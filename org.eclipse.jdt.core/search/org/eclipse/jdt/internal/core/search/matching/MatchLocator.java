@@ -457,7 +457,7 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 			System.out.println("Locating matches in files ["); //$NON-NLS-1$
 			for (int i = 0, length = filePaths.length; i < length; i++) {
 				String path = filePaths[i];
-				System.out.println("\t" + path);
+				System.out.println("\t" + path); //$NON-NLS-1$
 			}
 			System.out.println("]"); //$NON-NLS-1$
 			if (workingCopies != null) {
@@ -715,7 +715,7 @@ public IType lookupType(TypeBinding typeBinding) {
 			if (SearchEngine.VERBOSE) {
 				IResource res = this.getCurrentResource();
 				System.out.println("Reporting match"); //$NON-NLS-1$
-				System.out.println("\tResource: " + (res == null ? " <unknown> " : res.getFullPath().toString())); //$NON-NLS-1$
+				System.out.println("\tResource: " + (res == null ? " <unknown> " : res.getFullPath().toString())); //$NON-NLS-2$//$NON-NLS-1$
 				System.out.println("\tPositions: [" + sourceStart + ", " + sourceEnd + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				System.out.println("\tJava element: " + ((JavaElement)element).toStringWithAncestors()); //$NON-NLS-1$
 				if (accuracy == IJavaSearchResultCollector.EXACT_MATCH) {

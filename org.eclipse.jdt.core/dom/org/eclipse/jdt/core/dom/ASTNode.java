@@ -1057,7 +1057,7 @@ public abstract class ASTNode {
 			// since debugger sometimes call toString methods, problems can easily happen when
 			// toString is called on an instance that is being initialized
 			buffer.setLength(p);
-			buffer.append("!");
+			buffer.append("!"); //$NON-NLS-1$
 			buffer.append(standardToString());
 		}
 		// convert to a string, but lose the extra space in the string buffer by copying

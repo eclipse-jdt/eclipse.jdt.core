@@ -566,7 +566,7 @@ public class TypeDeclaration
 		methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~AccAbstract;
 
 		if (argumentsLength > 0) {
-			String baseName = "arg";
+			String baseName = "arg";//$NON-NLS-1$
 			Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
 			for (int i = argumentsLength; --i >= 0;) {
 				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
@@ -976,13 +976,11 @@ public class TypeDeclaration
 		if (modifiers != AccDefault) {
 			s += modifiersString(modifiers);
 		}
-		s += (isInterface() ? "interface " : "class ") + new String(name);
-		//$NON-NLS-1$ //$NON-NLS-2$
+		s += (isInterface() ? "interface " : "class ") + new String(name);//$NON-NLS-1$ //$NON-NLS-2$
 		if (superclass != null)
 			s += " extends " + superclass.toString(0); //$NON-NLS-1$
 		if (superInterfaces != null && superInterfaces.length > 0) {
-			s += (isInterface() ? " extends " : " implements ");
-			//$NON-NLS-2$ //$NON-NLS-1$
+			s += (isInterface() ? " extends " : " implements ");//$NON-NLS-2$ //$NON-NLS-1$
 			for (int i = 0; i < superInterfaces.length; i++) {
 				s += superInterfaces[i].toString(0);
 				if (i != superInterfaces.length - 1)

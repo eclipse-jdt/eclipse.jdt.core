@@ -26,7 +26,7 @@ public class SelectionOnLocalName extends LocalDeclaration{
 		}
 		s += type.toString(0) + " " + new String(name()); //$NON-NLS-1$
 		if (initialization != null) s += " = " + initialization.toStringExpression(); //$NON-NLS-1$
-		s+= ">";
+		s+= ">";//$NON-NLS-1$
 		return s;	
 	}
 }

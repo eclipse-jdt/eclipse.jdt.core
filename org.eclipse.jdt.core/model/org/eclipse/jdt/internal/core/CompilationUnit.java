@@ -536,7 +536,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 		workingCopy.useCount++;
 
 		if (SHARED_WC_VERBOSE) {
-			System.out.println("Incrementing use count of shared working copy " + workingCopy.toDebugString());
+			System.out.println("Incrementing use count of shared working copy " + workingCopy.toDebugString()); //$NON-NLS-1$
 		}
 
 		return workingCopy;
@@ -545,7 +545,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 		sharedWorkingCopies.put(this, workingCopy);
 
 		if (SHARED_WC_VERBOSE) {
-			System.out.println("Creating shared working copy " + workingCopy.toDebugString());
+			System.out.println("Creating shared working copy " + workingCopy.toDebugString()); //$NON-NLS-1$
 		}
 
 		// report added java delta

@@ -59,8 +59,8 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
  */
 class DefaultBindingResolver extends BindingResolver {
 	
-	private static final char[][] JAVA_LANG_STRINGBUFFER = new char[][] {"java".toCharArray(), "lang".toCharArray(), "StringBuffer".toCharArray()};
-	private static final char[][] JAVA_LANG_EXCEPTION = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Exception".toCharArray()};
+	private static final char[][] JAVA_LANG_STRINGBUFFER = new char[][] {"java".toCharArray(), "lang".toCharArray(), "StringBuffer".toCharArray()}; //$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+	private static final char[][] JAVA_LANG_EXCEPTION = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Exception".toCharArray()};//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
 
 	/**
 	 * This map is used to keep the correspondance between new bindings and the 
@@ -197,31 +197,31 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	ITypeBinding resolveWellKnownType(String name) {
-		if (("boolean".equals(name))
-			|| ("char".equals(name))
-			|| ("byte".equals(name))
-			|| ("short".equals(name))
-			|| ("int".equals(name))
-			|| ("long".equals(name))
-			|| ("float".equals(name))
-			|| ("double".equals(name))
-			|| ("void".equals(name))) {
+		if (("boolean".equals(name))//$NON-NLS-1$
+			|| ("char".equals(name))//$NON-NLS-1$
+			|| ("byte".equals(name))//$NON-NLS-1$
+			|| ("short".equals(name))//$NON-NLS-1$
+			|| ("int".equals(name))//$NON-NLS-1$
+			|| ("long".equals(name))//$NON-NLS-1$
+			|| ("float".equals(name))//$NON-NLS-1$
+			|| ("double".equals(name))//$NON-NLS-1$
+			|| ("void".equals(name))) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getBaseType(name.toCharArray()));
-		} else if ("java.lang.Object".equals(name)) {
+		} else if ("java.lang.Object".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangObject());
-		} else if ("java.lang.String".equals(name)) {
+		} else if ("java.lang.String".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangString());
-		} else if ("java.lang.StringBuffer".equals(name)) {
+		} else if ("java.lang.StringBuffer".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getType(JAVA_LANG_STRINGBUFFER));
-		} else if ("java.lang.Throwable".equals(name)) {
+		} else if ("java.lang.Throwable".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangThrowable());
-		} else if ("java.lang.Exception".equals(name)) {
+		} else if ("java.lang.Exception".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getType(JAVA_LANG_EXCEPTION));
-		} else if ("java.lang.RuntimeException".equals(name)) {
+		} else if ("java.lang.RuntimeException".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangRuntimeException());
-		} else if ("java.lang.Error".equals(name)) {
+		} else if ("java.lang.Error".equals(name)) {//$NON-NLS-1$
 			return this.getTypeBinding(this.scope.getJavaLangError());
-		} else if ("java.lang.Class".equals(name)) {
+		} else if ("java.lang.Class".equals(name)) {//$NON-NLS-1$ 
 			return this.getTypeBinding(this.scope.getJavaLangClass());
 	    } else {
 			return super.resolveWellKnownType(name);

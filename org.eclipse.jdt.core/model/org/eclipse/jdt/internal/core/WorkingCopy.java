@@ -72,7 +72,7 @@ protected OpenableElementInfo createElementInfo() {
 public void destroy() {
 	if (--this.useCount > 0) {
 		if (SHARED_WC_VERBOSE) {
-			System.out.println("Decrementing use count of shared working copy " + this.toDebugString());
+			System.out.println("Decrementing use count of shared working copy " + this.toDebugString());//$NON-NLS-1$
 		}
 		return;
 	}
@@ -89,7 +89,7 @@ public void destroy() {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		if (manager.sharedWorkingCopies.remove(originalElement) != null) {
 			if (SHARED_WC_VERBOSE) {
-				System.out.println("Destroying shared working copy " + this.toDebugString());
+				System.out.println("Destroying shared working copy " + this.toDebugString());//$NON-NLS-1$
 			}
 
 			// report removed java delta

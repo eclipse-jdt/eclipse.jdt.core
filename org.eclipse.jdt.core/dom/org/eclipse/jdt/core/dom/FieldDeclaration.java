@@ -199,18 +199,18 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	void appendDebugString(StringBuffer buffer) {
-		buffer.append("FieldDeclaration[");
-		buffer.append("field ");
+		buffer.append("FieldDeclaration["); //$NON-NLS-1$
+		buffer.append("field "); //$NON-NLS-1$
 		getType().appendPrintString(buffer);
-		buffer.append(" ");
+		buffer.append(" "); //$NON-NLS-1$
 		for (Iterator it = fragments().iterator(); it.hasNext(); ) {
 			VariableDeclarationFragment d = (VariableDeclarationFragment) it.next();
 			d.getName().appendPrintString(buffer);
 			if (it.hasNext()) {
-				buffer.append(",");
+				buffer.append(","); //$NON-NLS-1$
 			}
 		}
-		buffer.append("]");
+		buffer.append("]"); //$NON-NLS-1$
 	}
 
 	/* (omit javadoc for this method)

@@ -639,7 +639,7 @@ public final class CompletionEngine
 			topLevelType = topLevelType.getDeclaringType();
 		}
 		
-		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + ".java").toCharArray(), 1, 1);
+		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + ".java").toCharArray(), 1, 1); //$NON-NLS-1$
 	
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
 	
@@ -658,7 +658,7 @@ public final class CompletionEngine
 				typeDeclaration.fields = newFields;
 		
 				if(DEBUG) {
-					System.out.println("SNIPPET COMPLETION AST :");
+					System.out.println("SNIPPET COMPLETION AST :"); //$NON-NLS-1$
 					System.out.println(compilationUnit.toString());
 				}
 				

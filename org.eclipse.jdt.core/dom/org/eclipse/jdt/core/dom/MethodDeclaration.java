@@ -380,23 +380,23 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	void appendDebugString(StringBuffer buffer) {
-		buffer.append("MethodDeclaration[");
-		buffer.append(isConstructor() ? "constructor " : "method ");
+		buffer.append("MethodDeclaration[");//$NON-NLS-1$
+		buffer.append(isConstructor() ? "constructor " : "method ");//$NON-NLS-2$//$NON-NLS-1$
 		buffer.append(getName().getIdentifier());
-		buffer.append("(");
+		buffer.append("(");//$NON-NLS-1$
 		for (Iterator it = parameters().iterator(); it.hasNext(); ) {
 			SingleVariableDeclaration d = (SingleVariableDeclaration) it.next();
 			d.getType().appendPrintString(buffer);
 			if (it.hasNext()) {
-				buffer.append(";");
+				buffer.append(";");//$NON-NLS-1$
 			}
 		}
-		buffer.append(")");
+		buffer.append(")");//$NON-NLS-1$
 		if (!isConstructor()) {
-			buffer.append(" returns ");
+			buffer.append(" returns ");//$NON-NLS-1$
 			getReturnType().appendPrintString(buffer);
 		}
-		buffer.append("]");
+		buffer.append("]");//$NON-NLS-1$
 	}
 
 	/* (omit javadoc for this method)

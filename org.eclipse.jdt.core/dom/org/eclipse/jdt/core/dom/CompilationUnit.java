@@ -325,17 +325,17 @@ public class CompilationUnit extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	void appendDebugString(StringBuffer buffer) {
-		buffer.append("CompilationUnit");
+		buffer.append("CompilationUnit"); //$NON-NLS-1$
 		// include the type names
-		buffer.append("[");
+		buffer.append("["); //$NON-NLS-1$
 		for (Iterator it = types().iterator(); it.hasNext(); ) {
 			TypeDeclaration d = (TypeDeclaration) it.next();
 			buffer.append(d.getName().getIdentifier());
 			if (it.hasNext()) {
-				buffer.append(",");
+				buffer.append(","); //$NON-NLS-1$
 			}
 		}
-		buffer.append("]");
+		buffer.append("]"); //$NON-NLS-1$
 	}
 		
 	/* (omit javadoc for this method)
