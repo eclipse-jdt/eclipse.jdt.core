@@ -92,6 +92,15 @@ public interface IMethodBinding extends IBinding {
 	 * in declaration order, of this method or constructor. Returns an array of
 	 * length 0 if this method or constructor does not takes any parameters.
 	 * <p>
+	 * Note that the binding for the last parameter type of a vararg method
+	 * declaration like <code>void fun(Foo... args)</code> is always for
+	 * an array type (i.e., <code>Foo[]</code>) reflecting the the way varargs
+	 * get compiled. However, the type binding obtained directly from
+	 * the <code>SingleVariableDeclaration</code> for the vararg parameter
+	 * is always for the type as written; i.e., the type binding for
+	 * <code>Foo</code>.
+	 * </p>
+	 * <p>
 	 * Note: The result does not include synthetic parameters introduced by
 	 * inner class emulation.
 	 * </p>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -523,10 +523,13 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Returns whether this declaration declares the last parameter of
 	 * a variable arity method (added in JLS3 API).
 	 * <p>
-	 * Note: This API element is only needed for dealing with Java code that uses
-	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
-	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
-	 * may change slightly before reaching its final form.
+	 * Note that the binding for the type <code>Foo</code>in the vararg method
+	 * declaration <code>void fun(Foo... args)</code> is always for the type as 
+	 * written; i.e., the type binding for <code>Foo</code>. However, if you
+	 * navigate from the method declaration to its method binding to the
+	 * type binding for its last parameter, the type binding for the vararg
+	 * parameter is always an array type (i.e., <code>Foo[]</code>) reflecting
+	 * the way vararg methods get compiled.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a variable arity parameter declaration,
