@@ -19,7 +19,7 @@ public class AnnotationTestForClass extends AnnotationTest {
 			TestSuite ts;
 			//some of the tests depend on the order of this suite.
 			ts = new TestSuite();
-			for (int i=7; i<=9; i++) {
+			for (int i=30; i<=30; i++) {
 				String meth = "test";
 				if (i<10) {
 					meth += "0";
@@ -723,12 +723,12 @@ public class AnnotationTestForClass extends AnnotationTest {
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 7)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
-				+ "	               ^^^^^^^^^^^^\n"
+				+ "	                ^^^^^^^^^\n"
 				+ "Annotation: Hashtable cannot be resolved or is not a type\n"
 				+ "----------\n"
 				+ "5. ERROR in X.java (at line 7)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
-				+ "	                           ^^^^^^^^^^\n"
+				+ "	                             ^^^^^^\n"
 				+ "Annotation: Vector cannot be resolved or is not a type\n"
 				+ "----------\n");
 	}

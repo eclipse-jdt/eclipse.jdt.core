@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AnnotationTestMixed extends AnnotationTest {
@@ -762,5 +765,37 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "	^\n"
 				+ "Syntax error on token \"}\", delete this token\n"
 				+ "----------\n");
+	}
+
+	/**
+	 * Test fix for bug 45198.
+	 * When this bug happened a NPE was thrown in factory.createMethod(...)
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45198">45198</a>
+	 */
+	public void testMethodCreateFromSource() {
+		Hashtable savedOptions = JavaCore.getOptions();
+		Map options = getCompilerOptions();
+		Hashtable newOptions = new Hashtable(options.size());
+		newOptions.putAll(options);
+		JavaCore.setOptions(newOptions);
+		try {
+			IDOMFactory factory= new DOMFactory();
+			IDOMMethod m= factory.createMethod(
+				"/**" + LINE_SEPARATOR +
+				" * @return Returns the content." + LINE_SEPARATOR +
+				" */" + LINE_SEPARATOR +
+				"public String getContent() {" + LINE_SEPARATOR +
+				"	return fContent;" + LINE_SEPARATOR +
+				"}" + LINE_SEPARATOR);
+			assertTrue("initial contents wrong", equals(m.getContents(), 
+				"/**" + LINE_SEPARATOR +
+				" * @return Returns the content." + LINE_SEPARATOR +
+				" */" + LINE_SEPARATOR +
+				"public String getContent() {" + LINE_SEPARATOR +
+				"	return fContent;" + LINE_SEPARATOR +
+				"}" + LINE_SEPARATOR));
+		} finally {
+			JavaCore.setOptions(savedOptions);
+		}
 	}
 }

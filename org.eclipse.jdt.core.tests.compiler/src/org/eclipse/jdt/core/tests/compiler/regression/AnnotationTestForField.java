@@ -746,12 +746,12 @@ public class AnnotationTestForField extends AnnotationTest {
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
-				+ "	               ^^^^^^^^^^^^\n"
+				+ "	                ^^^^^^^^^\n"
 				+ "Annotation: Hashtable cannot be resolved or is not a type\n"
 				+ "----------\n"
 				+ "5. ERROR in X.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
-				+ "	                           ^^^^^^^^^^\n"
+				+ "	                             ^^^^^^\n"
 				+ "Annotation: Vector cannot be resolved or is not a type\n"
 				+ "----------\n");
 	}

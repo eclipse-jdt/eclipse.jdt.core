@@ -12,6 +12,7 @@ public abstract class AnnotationTest extends AbstractRegressionTest {
 	
 boolean useLibrary = false;
 static String zipFile = "/TestAnnotationVisibility.zip";
+static final String LINE_SEPARATOR = System.getProperty("line.separator");
 public static ArrayList allTestClasses = null;
 
 static {
@@ -39,6 +40,16 @@ public static Test suite() {
 
 public AnnotationTest(String name) {
 	super(name);
+}
+
+public static boolean equals(String c, String s) {
+	if (c == null) {
+		if (s == null)
+			return true;
+		else
+			return false;
+	}
+	return c.equals(s);
 }
 
 protected Map getCompilerOptions() {
