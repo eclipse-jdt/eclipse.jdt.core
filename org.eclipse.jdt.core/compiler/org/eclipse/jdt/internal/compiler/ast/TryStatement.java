@@ -441,7 +441,7 @@ public class TryStatement extends SubRoutineStatement {
 		if (finallyBlock != null) {
 			if (finallyBlock.isEmptyBlock()) {
 				if ((finallyBlock.bits & UndocumentedEmptyBlockMASK) != 0) {
-					scope.problemReporter().undocumentedEmptyBlock(finallyBlock);
+					scope.problemReporter().undocumentedEmptyBlock(finallyBlock.sourceStart, finallyBlock.sourceEnd);
 				}
 			} else {
 				finallyScope = new BlockScope(scope, false); // don't add it yet to parent scope

@@ -1647,6 +1647,12 @@ protected void consumeConstructorDeclaration() {
 		cd.constructorCall.sourceStart = cd.sourceStart;
 	}
 
+	if (!diet && (statements == null && constructorCall.isImplicitSuper())) {
+		if (!containsComment(cd.bodyStart, endPosition)) {
+			cd.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}
+	}
+
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
 	// store the endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
@@ -2410,13 +2416,14 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	if (isNotAbstract) {
 		//statements
 		explicitDeclarations = realBlockStack[realBlockPtr--];
-		if ((length = astLengthStack[astLengthPtr--]) != 0)
+		if ((length = astLengthStack[astLengthPtr--]) != 0) {
 			System.arraycopy(
 				astStack, 
 				(astPtr -= length) + 1, 
 				statements = new Statement[length], 
 				0, 
 				length); 
+		}
 	}
 
 	// now we know that we have a method declaration at the top of the ast stack
@@ -2428,6 +2435,12 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	// is a body when we reduce the method header
 	if (!isNotAbstract) { //remember the fact that the method has a semicolon body
 		md.modifiers |= AccSemicolonBody;
+	} else {
+		if (!diet && statements == null) {
+			if (!containsComment(md.bodyStart, endPosition)) {
+				md.bits |= AstNode.UndocumentedEmptyBlockMASK;
+			}
+		}
 	}
 	// store the endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
@@ -5695,6 +5708,9 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
 		}
 	} else {
 		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
+			cd.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}		
 	}
 
 	if (cd.constructorCall.sourceEnd == 0) {
@@ -5834,13 +5850,18 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	//refill statements
 	md.explicitDeclarations = realBlockStack[realBlockPtr--];
 	int length;
-	if ((length = astLengthStack[astLengthPtr--]) != 0)
+	if ((length = astLengthStack[astLengthPtr--]) != 0) {
 		System.arraycopy(
 			astStack, 
 			(astPtr -= length) + 1, 
 			md.statements = new Statement[length], 
 			0, 
 			length); 
+	} else {
+		if (!containsComment(md.bodyStart, md.bodyEnd)) {
+			md.bits |= AstNode.UndocumentedEmptyBlockMASK;
+		}
+	}
 }
 // A P I
 

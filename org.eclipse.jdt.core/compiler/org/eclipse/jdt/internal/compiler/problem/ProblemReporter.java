@@ -2829,14 +2829,14 @@ public void undefinedLabel(BranchStatement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void undocumentedEmptyBlock(Block block) {
+public void undocumentedEmptyBlock(int blockStart, int blockEnd) {
 	String[] arguments = new String[] {};
 	this.handle(
 		IProblem.UndocumentedEmptyBlock,
 		arguments,
 		arguments,
-		block.sourceStart,
-		block.sourceEnd);
+		blockStart,
+		blockEnd);
 }
 public void unexpectedStaticModifierForField(SourceTypeBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
