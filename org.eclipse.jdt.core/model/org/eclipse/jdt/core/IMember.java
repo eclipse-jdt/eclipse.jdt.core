@@ -84,6 +84,7 @@ ISourceRange getNameRange() throws JavaModelException;
  * @param the given simple name
  * @param occurrenceCount the specified position
  * @return the type with the given name and/or with the specified position relative to the order they are defined in the source
+ * @since 3.0
  */
 IType getType(String name, int occurrenceCount);
 /**
