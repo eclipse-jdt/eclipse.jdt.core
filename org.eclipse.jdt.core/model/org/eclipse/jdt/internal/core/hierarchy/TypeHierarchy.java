@@ -197,9 +197,9 @@ protected void activate() {
 		IPackageFragment pkg = type.getPackageFragment();
 		this.packageRegion.add(pkg);
 		this.rootRegion.add(pkg.getParent());
-		IJavaProject project = type.getJavaProject();
-		if (project != null) {
-			this.projectRegion.add(project);
+		IJavaProject declaringProject = type.getJavaProject();
+		if (declaringProject != null) {
+			this.projectRegion.add(declaringProject);
 		}
 		checkCanceled();
 	}
@@ -595,9 +595,9 @@ public IType[] getExtendingInterfaces(IType type) {
  * Assumes that the type is an interface
  * @see getExtendingInterfaces
  */
-private IType[] getExtendingInterfaces0(IType interfce) {
+private IType[] getExtendingInterfaces0(IType extendedInterface) {
 	Iterator iter = this.typeToSuperInterfaces.keySet().iterator();
-	ArrayList xers = new ArrayList();
+	ArrayList interfaceList = new ArrayList();
 	while (iter.hasNext()) {
 		IType type = (IType) iter.next();
 		try {
@@ -607,19 +607,19 @@ private IType[] getExtendingInterfaces0(IType interfce) {
 		} catch (JavaModelException npe) {
 			continue;
 		}
-		IType[] interfaces = (IType[]) this.typeToSuperInterfaces.get(type);
-		if (interfaces != null) {
-			for (int i = 0; i < interfaces.length; i++) {
-				IType iFace = interfaces[i];
-				if (iFace.equals(interfce)) {
-					xers.add(type);
+		IType[] superInterfaces = (IType[]) this.typeToSuperInterfaces.get(type);
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfaces.length; i++) {
+				IType superInterface = superInterfaces[i];
+				if (superInterface.equals(extendedInterface)) {
+					interfaceList.add(type);
 				}
 			}
 		}
 	}
-	IType[] extenders = new IType[xers.size()];
-	xers.toArray(extenders);
-	return extenders;
+	IType[] extendingInterfaces = new IType[interfaceList.size()];
+	interfaceList.toArray(extendingInterfaces);
+	return extendingInterfaces;
 }
 /**
  * @see ITypeHierarchy

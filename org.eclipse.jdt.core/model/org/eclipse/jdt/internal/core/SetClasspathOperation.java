@@ -54,7 +54,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 	boolean needValidation;
 	boolean needSave;
 	IPath newOutputLocation;
-	
+	JavaProject project;
+
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
 	public static final IClasspathEntry[] UpdateClasspath = new IClasspathEntry[0];
 	// if reusing output location, then also reuse clean flag
@@ -64,7 +65,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 * When executed, this operation sets the classpath of the given project.
 	 */
 	public SetClasspathOperation(
-		IJavaProject project,
+		JavaProject project,
 		IClasspathEntry[] oldResolvedPath,
 		IClasspathEntry[] newRawPath,
 		IPath newOutputLocation,
@@ -79,6 +80,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		this.canChangeResource = canChangeResource;
 		this.needValidation = needValidation;
 		this.needSave = needSave;
+		this.project = project;
 	}
 
 	/**
@@ -180,7 +182,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected ArrayList determineAffectedPackageFragments(IPath location) throws JavaModelException {
 		ArrayList fragments = new ArrayList();
-		JavaProject project =getProject();
 	
 		// see if this will cause any package fragments to be affected
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -237,7 +238,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelException originalException = null;
 
 		try {
-			JavaProject project = getProject();
 			if (this.newRawPath == UpdateClasspath) this.newRawPath = project.getRawClasspath();
 			if (this.newRawPath != ReuseClasspath){
 				updateClasspath();
@@ -267,10 +267,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 * Use three deltas in case the same root is removed/added/reordered (for
 	 * instance, if it is changed from K_SOURCE to K_BINARY or vice versa)
 	 */
-	protected void generateClasspathChangeDeltas(
-		IClasspathEntry[] oldResolvedPath,
-		IClasspathEntry[] newResolvedPath,
-		final JavaProject project) {
+	protected void generateClasspathChangeDeltas() {
 
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean needToUpdateDependents = false;
@@ -492,10 +489,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 	}
 
-	protected JavaProject getProject() {
-		return ((JavaProject) getElementsToProcess()[0]);
-	}
-
 	/*
 	 * Returns the source attachment flag for the delta between the 2 give source paths.
 	 * Returns either F_SOURCEATTACHED, F_SOURCEDETACHED, F_SOURCEATTACHED | F_SOURCEDETACHED
@@ -535,7 +528,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		if (!this.canChangeResource || !this.needSave) return;
 				
 		IClasspathEntry[] classpathForSave;
-		JavaProject project = getProject();
 		if (this.newRawPath == ReuseClasspath || this.newRawPath == UpdateClasspath){
 			classpathForSave = project.getRawClasspath();
 		} else {
@@ -578,8 +570,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 	private void updateClasspath() throws JavaModelException {
 
-		JavaProject project = ((JavaProject) getElementsToProcess()[0]);
-
 		beginTask(Util.bind("classpath.settingProgress", project.getElementName()), 2); //$NON-NLS-1$
 
 		// SIDE-EFFECT: from thereon, the classpath got modified
@@ -591,16 +581,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		
 		if (this.oldResolvedPath != null) {
-			generateClasspathChangeDeltas(
-				this.oldResolvedPath,
-				this.newResolvedPath,
-				project);
+			generateClasspathChangeDeltas();
 		} else {
 			this.needCycleCheck = true;
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
 		
-		updateCycleMarkersIfNecessary(newResolvedPath);
+		updateCycleMarkersIfNecessary();
 	}
 
 	/**
@@ -611,27 +598,27 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		try {
 			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-			IJavaProject originatingProject = getProject();
+			IJavaProject initialProject = this.project;
 			IJavaProject[] projects = model.getJavaProjects();
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				try {
-					JavaProject project = (JavaProject) projects[i];
-					if (project.equals(originatingProject)) continue; // skip itself
+					JavaProject affectedProject = (JavaProject) projects[i];
+					if (affectedProject.equals(initialProject)) continue; // skip itself
 					
 					// consider ALL dependents (even indirect ones), since they may need to
 					// flush their respective namelookup caches (all pkg fragment roots).
 
-					IClasspathEntry[] classpath = project.getExpandedClasspath(true);
+					IClasspathEntry[] classpath = affectedProject.getExpandedClasspath(true);
 					for (int j = 0, entryCount = classpath.length; j < entryCount; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(prerequisiteProjectPath)) {
-							project.setRawClasspath(
+							affectedProject.setRawClasspath(
 								UpdateClasspath, 
 								SetClasspathOperation.ReuseOutputLocation, 
 								this.fMonitor, 
 								this.canChangeResource,  
-								project.getResolvedClasspath(true), 
+								affectedProject.getResolvedClasspath(true), 
 								false, // updating only - no validation
 								false); // updating only - no need to save
 							break;
@@ -648,12 +635,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 	/**
 	 * Update cycle markers
 	 */
-	protected void updateCycleMarkersIfNecessary(IClasspathEntry[] newResolvedPath) {
+	protected void updateCycleMarkersIfNecessary() {
 
 		if (!this.needCycleCheck) return;
 		if (!this.canChangeResource) return;
 		 
-		JavaProject project = getProject();
 		if (!project.hasCycleMarker() && !project.hasClasspathCycle(newResolvedPath)){
 			return;
 		}
@@ -678,8 +664,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void updateOutputLocation() throws JavaModelException {
 		
-		JavaProject project= ((JavaProject) getElementsToProcess()[0]);
-
 		beginTask(Util.bind("classpath.settingOutputLocationProgress", project.getElementName()), 2); //$NON-NLS-1$
 		
 		IPath oldLocation= project.getOutputLocation();
@@ -729,17 +713,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 		if (!this.canChangeResource) return;
 		if (this.newRawPath == ReuseClasspath || this.newRawPath == UpdateClasspath) return;
 	
-		JavaProject jproject = getProject();
-		String[] oldRequired = jproject.projectPrerequisites(this.oldResolvedPath);
+		String[] oldRequired = this.project.projectPrerequisites(this.oldResolvedPath);
 
 		if (this.newResolvedPath == null) {
-			this.newResolvedPath = jproject.getResolvedClasspath(this.newRawPath, null, true, true, null/*no reverse map*/);
+			this.newResolvedPath = this.project.getResolvedClasspath(this.newRawPath, null, true, true, null/*no reverse map*/);
 		}
-		String[] newRequired = jproject.projectPrerequisites(this.newResolvedPath);
+		String[] newRequired = this.project.projectPrerequisites(this.newResolvedPath);
 	
 		try {		
-			IProject project = jproject.getProject();
-			IProjectDescription description = project.getDescription();
+			IProject projectResource = this.project.getProject();
+			IProjectDescription description = projectResource.getDescription();
 			 
 			IProject[] projectReferences = description.getReferencedProjects();
 			
@@ -782,13 +765,13 @@ public class SetClasspathOperation extends JavaModelOperation {
 			Util.sort(requiredProjectNames); // ensure that if changed, the order is consistent
 			
 			IProject[] requiredProjectArray = new IProject[newSize];
-			IWorkspaceRoot wksRoot = project.getWorkspace().getRoot();
+			IWorkspaceRoot wksRoot = projectResource.getWorkspace().getRoot();
 			for (int i = 0; i < newSize; i++){
 				requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
 			}
 	
 			description.setReferencedProjects(requiredProjectArray);
-			project.setDescription(description, this.fMonitor);
+			projectResource.setDescription(description, this.fMonitor);
 	
 		} catch(CoreException e){
 			throw new JavaModelException(e);
@@ -803,7 +786,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 
 		if (needValidation) {
-			IJavaProject project = (IJavaProject) getElementToProcess();
 			// retrieve classpath 
 			IClasspathEntry[] entries = this.newRawPath;
 			if (entries == ReuseClasspath){
