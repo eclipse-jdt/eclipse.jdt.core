@@ -955,6 +955,17 @@ public boolean hasChildren() throws JavaModelException {
 		return true;
 	}
 }
+
+/**
+ * @see IOpenable
+ */
+public boolean hasUnsavedChanges() throws JavaModelException{
+	// TODO workaround 
+	if (this.isWorkingCopy()) return true;
+	return super.hasUnsavedChanges();
+}
+
+
 /*
  * @see ICompilationUnit#isBasedOn(IResource)
  */
