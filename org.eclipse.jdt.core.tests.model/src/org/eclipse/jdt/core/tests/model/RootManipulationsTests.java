@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -37,6 +38,37 @@ protected void assertJavaProject(String expected, IJavaProject project) throws C
 	 	System.out.println(Util.displayString(actual, 3));
 	}
 	assertEquals(expected, actual);
+}
+protected void copy(IPackageFragmentRoot root, IPath destination) throws JavaModelException {
+	copy(root, destination, null);
+}
+protected void copy(IPackageFragmentRoot root, IPath destination, IClasspathEntry sibling) throws JavaModelException {
+	root.copy(
+		destination,
+		IResource.NONE,
+		IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH,
+		sibling,
+		null);
+}
+protected void delete(IPackageFragmentRoot root) throws JavaModelException {
+	root.delete(
+		IResource.NONE,
+		IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH
+			| IPackageFragmentRoot.OTHER_REFERRING_PROJECTS_CLASSPATH,
+		null);
+}
+protected void move(IPackageFragmentRoot root, IPath destination) throws JavaModelException {
+	move(root, destination, null);
+}
+protected void move(IPackageFragmentRoot root, IPath destination, IClasspathEntry sibling) throws JavaModelException {
+	root.move(
+		destination, 
+		IResource.NONE, 
+		IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH
+			| IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH
+			| IPackageFragmentRoot.OTHER_REFERRING_PROJECTS_CLASSPATH,
+		sibling, 
+		null);
 }
 protected void populate(StringBuffer buffer, IJavaElement element, int indent) throws CoreException {
 	if (!(element instanceof IParent) || !(element instanceof IOpenable)) return;
@@ -110,7 +142,7 @@ public void testCopySourceFolder1() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
 		this.startDeltas();
-		root.copy(new Path("/P2/src"), IResource.NONE, true, null, null);
+		this.copy(root, new Path("/P2/src"));
 		assertDeltas(
 			"Unexpected delta",
 			"P2[*]: {CHILDREN}\n" + 
@@ -142,7 +174,7 @@ public void testCopySourceFolder2() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
 		this.startDeltas();
-		root.copy(new Path("/P2/src2"), IResource.NONE, true, null, null);
+		this.copy(root, new Path("/P2/src2"));
 		assertDeltas(
 			"Unexpected delta",
 			"P2[*]: {CHILDREN}\n" + 
@@ -182,7 +214,7 @@ public void testCopySourceFolder3() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src1");
 		this.startDeltas();
-		root.copy(new Path("/P2/src1"), IResource.NONE, true, null, null);
+		this.copy(root, new Path("/P2/src1"));
 		assertDeltas(
 			"Unexpected delta",
 			"P2[*]: {CHILDREN}\n" + 
@@ -212,7 +244,7 @@ public void testCopySourceFolder4() throws CoreException {
 		// insert first
 		IClasspathEntry sibling = JavaCore.newSourceEntry(new Path("/P2/src1"));
 		this.startDeltas();
-		root.copy(new Path("/P2/src"), IResource.NONE, true, sibling, null);
+		this.copy(root, new Path("/P2/src"), sibling);
 		assertDeltas(
 			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN}\n" + 
@@ -229,7 +261,7 @@ public void testCopySourceFolder4() throws CoreException {
 		// insert in the middle
 		sibling = JavaCore.newSourceEntry(new Path("/P2/src2"));
 		this.startDeltas();
-		root.copy(new Path("/P2/src3"), IResource.NONE, true, sibling, null);
+		this.copy(root, new Path("/P2/src3"), sibling);
 		assertDeltas(
 			"Unexpected delta (2)",
 			"P2[*]: {CHILDREN}\n" + 
@@ -246,7 +278,7 @@ public void testCopySourceFolder4() throws CoreException {
 			
 		// insert last
 		this.startDeltas();
-		root.copy(new Path("/P2/src4"), IResource.NONE, true, null, null);
+		this.copy(root, new Path("/P2/src4"), null);
 		assertDeltas(
 			"Unexpected delta (3)",
 			"P2[*]: {CHILDREN}\n" + 
@@ -278,7 +310,7 @@ public void testDeleteJarFile1() throws CoreException {
 
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/myLib.jar");
 		this.startDeltas();
-		root.delete(IResource.NONE, true, null);
+		this.delete(root);
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
@@ -309,7 +341,7 @@ public void testDeleteJarFile2() throws CoreException {
 
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/myLib.jar");
 		this.startDeltas();
-		root.delete(IResource.NONE, true, null);
+		this.delete(root);
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
@@ -355,7 +387,7 @@ public void testDeleteSourceFolder1() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src");
 		this.startDeltas();
-		root.delete(IResource.NONE, true, null);
+		this.delete(root);
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
@@ -396,7 +428,7 @@ public void testDeleteSourceFolder2() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src1");
 		this.startDeltas();
-		root.delete(IResource.NONE, true, null);
+		this.delete(root);
 		
 		assertDeltas(
 			"Unexpected delta",
@@ -442,7 +474,7 @@ public void testMoveSourceFolder1() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
 		this.startDeltas();
-		root.move(new Path("/P2/src"), IResource.NONE, true, null, null);
+		this.move(root, new Path("/P2/src"));
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
@@ -489,7 +521,7 @@ public void testMoveSourceFolder2() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
 		this.startDeltas();
-		root.move(new Path("/P2/src2"), IResource.NONE, true, null, null);
+		this.move(root, new Path("/P2/src2"));
 		
 		assertDeltas(
 			"Unexpected delta",
@@ -546,7 +578,7 @@ public void testMoveSourceFolder3() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src1");
 		this.startDeltas();
-		root.move(new Path("/P2/src1"), IResource.NONE, true, null, null);
+		this.move(root, new Path("/P2/src1"));
 		
 		assertDeltas(
 			"Unexpected delta",
@@ -598,7 +630,7 @@ public void testMoveSourceFolder4() throws CoreException {
 		// insert first
 		IClasspathEntry sibling = JavaCore.newSourceEntry(new Path("/P2/src1"));
 		this.startDeltas();
-		root.move(new Path("/P2/src"), IResource.NONE, true, sibling, null);
+		this.move(root, new Path("/P2/src"), sibling);
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
@@ -643,7 +675,7 @@ public void testMoveSourceFolder5() throws CoreException {
 		// insert in the middle
 		IClasspathEntry sibling = JavaCore.newSourceEntry(new Path("/P2/src2"));
 		this.startDeltas();
-		root.move(new Path("/P2/src"), IResource.NONE, true, sibling, null);
+		this.move(root, new Path("/P2/src"), sibling);
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
@@ -687,7 +719,7 @@ public void testMoveSourceFolder6() throws CoreException {
 			
 		// insert last
 		this.startDeltas();
-		root.move(new Path("/P2/src"), IResource.NONE, true, null, null);
+		this.move(root, new Path("/P2/src"), null);
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
@@ -735,7 +767,7 @@ public void testRenameSourceFolder1() throws CoreException {
 		);
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src1");
 		this.startDeltas();
-		root.move(new Path("/P/src2"), IResource.NONE, true, null, null);
+		this.move(root, new Path("/P/src2"));
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
@@ -768,7 +800,7 @@ public void testRenameJarFile1() throws CoreException {
 
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/myLib.jar");
 		this.startDeltas();
-		root.move(new Path("/P/myLib2.jar"), IResource.NONE, true, null, null);
+		this.move(root, new Path("/P/myLib2.jar"));
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
@@ -801,7 +833,7 @@ public void testRenameJarFile2() throws CoreException {
 
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/myLib.jar");
 		this.startDeltas();
-		root.move(new Path("/P1/myLib2.jar"), IResource.NONE, true, null, null);
+		this.move(root, new Path("/P1/myLib2.jar"));
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
