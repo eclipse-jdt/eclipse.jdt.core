@@ -51,7 +51,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug80264";
-//		TESTS_NAMES = new String[] { "testBug83304" };
+//		TESTS_NAMES = new String[] { "testBug70827" };
 //		TESTS_NUMBERS = new int[] { 83693 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -126,7 +126,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	 * Bug 70827: [Search] wrong reference match to private method of supertype
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=70827"
 	 */
-	public void testBug70827() throws CoreException {
+	// Fix was disabled as too much time consuming
+	public void _testBug70827() throws CoreException {
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b70827/A.java",
 			"package b70827;\n" + 

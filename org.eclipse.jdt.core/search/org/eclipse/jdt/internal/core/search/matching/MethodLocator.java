@@ -208,6 +208,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	} else {
 		match = locator.newMethodReferenceMatch(element, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
 		if (this.pattern.findReferences && reference instanceof MessageSend) {
+			/* Disabled bug 70827 fix as too much time consuming
 			IJavaElement focus = ((InternalSearchPattern) this.pattern).focus;
 			// verify closest match if pattern was bound
 			// (see bug 70827)
@@ -222,6 +223,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 					}
 				}
 			}
+			*/
 			matchReportReference((MessageSend)reference, locator, ((MessageSend)reference).binding);
 		} else {
 			int offset = reference.sourceStart;
