@@ -263,26 +263,27 @@ class DefaultCommentMapper {
 		}
 	}
 
-	/*
-	 * Store leading comments of a node from a previous extended position.
-	 * By default, if no leading comment is found, then return node start position.
+	/**
+	 * Search and store node leading comments. Comments are searched in position range
+	 * from previous extended position to node start position. If one or several comment are found,
+	 * returns first comment start position, otherwise returns node start position.
 	 * 
-	 * Starts comments search from nodes and goes up in comments list.
-	 * To get this comment, uses global comment index to reduce range for scope
-	 * (see method doExtraRangesForChildren(ASTNode,Scanner)).
+	 * First look after first comment before node start position using global comment index
+	 * to reduce range of search. Obviously returns if no comment is found before the node...
+	 * @see #doExtraRangesForChildren(ASTNode, Scanner)
 	 *
-	 * If none of following condition is true then current comment becomes current
-	 * node and loop on comment before, otherwise stop the search:
-	 * 	1) comment is over previous end
-	 * 	2) there's other than white characters between current node and comment
-	 * 	3) there's more than 1 line between current node and comment
+	 * When first comment was found before node, goes up in comment list until one of
+	 * following condition becomes true:
+	 * 	1) comment end is before previous end
+	 * 	2) comment start and previous end is on the same line but not on same line of node start
+	 * 	3) there's other than white characters between current node and comment
+	 * 	4) there's more than 1 line between current node and comment
 	 * 
 	 * If at least one potential comment has been found, then no token should be on
 	 * on the same line before, so remove all comments which do not verify this assumption.
 	 * 
 	 * If finally there is a subset of comments, then store start and end indexes 
 	 * in leading comments table.
-	 * 
 	 */
 	int storeLeadingComments(ASTNode node, int previousEnd, Scanner scanner) {
 		// Init extended position
@@ -310,12 +311,14 @@ class DefaultCommentMapper {
 			int end = commentStart+comment.getLength()-1;
 			int commentLine = scanner.getLineNumber(commentStart);
 			if (end <= previousEnd || (commentLine == previousEndLine && commentLine != nodeStartLine)) {
+				// stop search on condition 1) and 2)
 				break;
 			} else if ((end+1) < previousStart) { // may be equals => then no scan is necessary
 				scanner.resetTo(end+1, previousStart);
 				try {
 					int token = scanner.getNextToken();
 					if (token != TerminalTokens.TokenNameWHITESPACE || scanner.currentPosition != previousStart) {
+						// stop search on condition 3)
 						// if first comment fails, then there's no extended position in fact
 						if (idx == endIdx) {
 							return nodeStart;
@@ -334,6 +337,7 @@ class DefaultCommentMapper {
 					nbrLine++;
 				}
 				if (nbrLine > 1) {
+					// stop search on condition 4)
 					break;
 				}
 			}
@@ -372,27 +376,27 @@ class DefaultCommentMapper {
 		return extended;
 	}
 
-	/*
-	 * Store trailing comments of a node until next node starting position.
-	 * By default, if no trailing comments are found, then position after given node.
+	/**
+	 * Search and store node trailing comments. Comments are searched in position range
+	 * from node end position to specified next start. If one or several comment are found,
+	 * returns last comment end position, otherwise returns node end position.
 	 * 
-	 * Starts comments search from nodes and goes down in comments list.
-	 * To get this comment, uses global comment index to reduce range for scope
-	 * (see method doExtraRangesForChildren(ASTNode,Scanner)).
+	 * First look after first comment after node end position using global comment index
+	 * to reduce range of search. Obviously returns if no comment is found after the node...
+	 * @see #doExtraRangesForChildren(ASTNode, Scanner)
 	 *
-	 * If none of following condition is true then current comment becomes current
-	 * node and loop on comment after, otherwise stop the search:
-	 * 	1) comment is after next start
+	 * When first comment was found after node, goes down in comment list until one of
+	 * following condition becomes true:
+	 * 	1) comment start is after next start
 	 * 	2) there's other than white characters between current node and comment
 	 * 	3) there's more than 1 line between current node and comment
 	 * 
-	 * If at least one potential comment has been found, then last comment should be
-	 * separated from next start line (ie. at least two lines after). If this is not the case
-	 * then skip all comments which were not on the same line than the end of the node.
+	 * If at least one potential comment has been found, then all of them has to be separated
+	 * from following node. So, remove all comments which do not verify this assumption.
+	 * Note that this verification is not applicable on last node.
 	 * 
 	 * If finally there is a subset of comments, then store start and end indexes 
 	 * in trailing comments table.
-	 * 
 	 */
 	int storeTrailingComments(ASTNode node, int nextStart, Scanner scanner, boolean lastChild) {
 		// Init extended position
@@ -404,7 +408,10 @@ class DefaultCommentMapper {
 		
 		// Find comments range index
 		int idx = getCommentIndex(this.commentIndex, nodeEnd, 1);
-		
+		if (idx == -1) {
+			return nodeEnd;
+		}
+
 		// Look after potential comments
 		int startIdx = idx;
 		int endIdx = -1;
@@ -418,12 +425,14 @@ class DefaultCommentMapper {
 			commentStart = comment.getStartPosition();
 			// verify that there's nothing else than white spaces between node/comments
 			if (commentStart >= nextStart) {
+				// stop search on condition 1)
 				break;
 			} else if (previousEnd < commentStart) {
 				scanner.resetTo(previousEnd, commentStart);
 				try {
 					int token = scanner.getNextToken();
 					if (token != TerminalTokens.TokenNameWHITESPACE || scanner.currentPosition != commentStart) {
+						// stop search on condition 2)
 						// if first index fails, then there's no extended position in fact...
 						if (idx == startIdx) {
 							return nodeEnd;
@@ -443,6 +452,7 @@ class DefaultCommentMapper {
 					nbrLine++;
 				}
 				if (nbrLine > 1) {
+					// stop search on condition 3)
 					break;
 				}
 			}
@@ -465,7 +475,7 @@ class DefaultCommentMapper {
 					endIdx = sameLineIdx;
 				}
 			}
-			// Store leading comments indexes
+			// Store trailing comments indexes
 			this.trailingComments.put(node, new int[] { startIdx, endIdx });
 			extended = this.comments[endIdx].getStartPosition()+this.comments[endIdx].getLength()-1;
 			this.commentIndex = endIdx;
