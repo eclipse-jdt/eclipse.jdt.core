@@ -347,7 +347,7 @@ class BindingResolver {
 	 *    if no binding is available
 	 * @since 3.0
 	 */
-	IVariableBinding resolveMember(AnnotationTypeMemberDeclaration member) {
+	IMethodBinding resolveMember(AnnotationTypeMemberDeclaration member) {
 		return null;
 	}
 	

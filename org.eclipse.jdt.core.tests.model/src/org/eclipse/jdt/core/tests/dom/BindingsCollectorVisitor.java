@@ -58,7 +58,7 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	 * @since 3.0
 	 */
 	public void endVisit(AnnotationTypeMemberDeclaration node) {
-		IVariableBinding binding = node.resolveBinding();
+		IMethodBinding binding = node.resolveBinding();
 		collectBindings(node, binding);
 	}
 

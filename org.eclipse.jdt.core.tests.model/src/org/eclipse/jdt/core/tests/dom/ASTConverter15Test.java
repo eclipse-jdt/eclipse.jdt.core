@@ -281,6 +281,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertEquals("wrong type", ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION, bodyDeclaration.getNodeType());
 		AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) bodyDeclaration;
+		IMethodBinding methodBinding = annotationTypeMemberDeclaration.resolveBinding();
+		assertNotNull("No binding", methodBinding);
 		checkSourceRange(annotationTypeMemberDeclaration, "String first() default \"Joe\";", source);
 		Expression expression = annotationTypeMemberDeclaration.getDefault();
 		checkSourceRange(expression, "\"Joe\"", source);

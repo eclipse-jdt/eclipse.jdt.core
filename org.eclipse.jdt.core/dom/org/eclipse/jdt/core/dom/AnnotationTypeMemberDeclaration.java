@@ -400,7 +400,7 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 * @return the binding, or <code>null</code> if the binding cannot be 
 	 *    resolved
 	 */	
-	public IVariableBinding resolveBinding() {
+	public IMethodBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveMember(this);
 	}
 

@@ -590,9 +590,24 @@ class DefaultBindingResolver extends BindingResolver {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.BindingResolver#resolveMember(org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration)
 	 */
-	IVariableBinding resolveMember(AnnotationTypeMemberDeclaration member) {
-		// TODO (olivier) - missing implementation
-		return super.resolveMember(member);
+	IMethodBinding resolveMember(AnnotationTypeMemberDeclaration declaration) {
+		Object oldNode = this.newAstToOldAst.get(declaration);
+		if (oldNode instanceof AbstractMethodDeclaration) {
+			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) oldNode;
+			if (methodDeclaration != null) {
+				IMethodBinding methodBinding = this.getMethodBinding(methodDeclaration.binding);
+				if (methodBinding == null) {
+					return null;
+				}
+				this.bindingsToAstNodes.put(methodBinding, declaration);
+				String key = methodBinding.getKey();
+				if (key != null) {
+					this.bindingTables.bindingKeysToBindings.put(key, methodBinding);				
+				}
+				return methodBinding;
+			}
+		}
+		return null;
 	}
 	
 	/*
