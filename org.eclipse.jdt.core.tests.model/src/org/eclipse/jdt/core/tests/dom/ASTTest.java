@@ -572,131 +572,131 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 */
 	public void testExampleSnippets() {
 		{
-			AST ast = new AST();
-			CompilationUnit cu = ast.newCompilationUnit();
+			AST localAst = new AST();
+			CompilationUnit cu = localAst.newCompilationUnit();
 
 			// package com.example;
-			PackageDeclaration pd = ast.newPackageDeclaration();
-			pd.setName(ast.newName(new String[]{"com", "example"})); //$NON-NLS-1$ //$NON-NLS-2$
+			PackageDeclaration pd = localAst.newPackageDeclaration();
+			pd.setName(localAst.newName(new String[]{"com", "example"})); //$NON-NLS-1$ //$NON-NLS-2$
 			cu.setPackage(pd);
 			assertTrue(pd.getRoot() == cu);
 
 			// import java.io;*;
-			ImportDeclaration im1 = ast.newImportDeclaration();
-			im1.setName(ast.newName(new String[]{"java", "io"})); //$NON-NLS-1$ //$NON-NLS-2$
+			ImportDeclaration im1 = localAst.newImportDeclaration();
+			im1.setName(localAst.newName(new String[]{"java", "io"})); //$NON-NLS-1$ //$NON-NLS-2$
 			im1.setOnDemand(true);
 			cu.imports().add(im1);
 			assertTrue(im1.getRoot() == cu);
 			
 			// import java.util.List;
-			ImportDeclaration im2 = ast.newImportDeclaration();
-			im2.setName(ast.newName(new String[]{"java", "util", "List"})); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			ImportDeclaration im2 = localAst.newImportDeclaration();
+			im2.setName(localAst.newName(new String[]{"java", "util", "List"})); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			im2.setOnDemand(false);
 			cu.imports().add(im2);
 			assertTrue(im2.getRoot() == cu);
 			
 			// public class MyClass {}
-			TypeDeclaration td = ast.newTypeDeclaration();
+			TypeDeclaration td = localAst.newTypeDeclaration();
 			td.setModifiers(Modifier.PUBLIC);
 			td.setInterface(false); 
-			td.setName(ast.newSimpleName("MyClass")); //$NON-NLS-1$
+			td.setName(localAst.newSimpleName("MyClass")); //$NON-NLS-1$
 			cu.types().add(td);
 			assertTrue(td.getRoot() == cu);
 			
 			// private static boolean DEBUG = true;
-			VariableDeclarationFragment f1 = ast.newVariableDeclarationFragment();
-			f1.setName(ast.newSimpleName("DEBUG")); //$NON-NLS-1$
-			f1.setInitializer(ast.newBooleanLiteral(true));
-			FieldDeclaration fd = ast.newFieldDeclaration(f1);
-			fd.setType(ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+			VariableDeclarationFragment f1 = localAst.newVariableDeclarationFragment();
+			f1.setName(localAst.newSimpleName("DEBUG")); //$NON-NLS-1$
+			f1.setInitializer(localAst.newBooleanLiteral(true));
+			FieldDeclaration fd = localAst.newFieldDeclaration(f1);
+			fd.setType(localAst.newPrimitiveType(PrimitiveType.BOOLEAN));
 			fd.setModifiers(Modifier.PRIVATE | Modifier.STATIC);
 			td.bodyDeclarations().add(fd);
 			assertTrue(fd.getRoot() == cu);
 			
 			// public static void main();
-			MethodDeclaration md = ast.newMethodDeclaration();
+			MethodDeclaration md = localAst.newMethodDeclaration();
 			md.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
 			md.setConstructor(false);
-			md.setName(ast.newSimpleName("main")); //$NON-NLS-1$
-			md.setReturnType(ast.newPrimitiveType(PrimitiveType.VOID));
+			md.setName(localAst.newSimpleName("main")); //$NON-NLS-1$
+			md.setReturnType(localAst.newPrimitiveType(PrimitiveType.VOID));
 			td.bodyDeclarations().add(md);
 			assertTrue(md.getRoot() == cu);
 			
 			// String[] args
-			SingleVariableDeclaration a1 = ast.newSingleVariableDeclaration();
-			a1.setType(ast.newArrayType(
-				ast.newSimpleType(ast.newSimpleName("String")))); //$NON-NLS-1$
-			a1.setName(ast.newSimpleName("args")); //$NON-NLS-1$
+			SingleVariableDeclaration a1 = localAst.newSingleVariableDeclaration();
+			a1.setType(localAst.newArrayType(
+				localAst.newSimpleType(localAst.newSimpleName("String")))); //$NON-NLS-1$
+			a1.setName(localAst.newSimpleName("args")); //$NON-NLS-1$
 			md.parameters().add(a1);
 			assertTrue(a1.getRoot() == cu);
 			
 			// {}
-			Block b = ast.newBlock();
+			Block b = localAst.newBlock();
 			md.setBody(b);
 			assertTrue(b.getRoot() == cu);
 
 			// System.out.println("hello world");		
-			MethodInvocation e = ast.newMethodInvocation();
-			e.setExpression(ast.newName(new String[] {"System", "out"})); //$NON-NLS-1$ //$NON-NLS-2$
-			e.setName(ast.newSimpleName("println")); //$NON-NLS-1$
-			StringLiteral h = ast.newStringLiteral();
+			MethodInvocation e = localAst.newMethodInvocation();
+			e.setExpression(localAst.newName(new String[] {"System", "out"})); //$NON-NLS-1$ //$NON-NLS-2$
+			e.setName(localAst.newSimpleName("println")); //$NON-NLS-1$
+			StringLiteral h = localAst.newStringLiteral();
 			h.setLiteralValue("hello world"); //$NON-NLS-1$
 			e.arguments().add(h);
 			
-			b.statements().add(ast.newExpressionStatement(e));
+			b.statements().add(localAst.newExpressionStatement(e));
 			assertTrue(e.getRoot() == cu);
 			assertTrue(h.getRoot() == cu);
 			
 			// new String[len]
-			ArrayCreation ac1 = ast.newArrayCreation();
+			ArrayCreation ac1 = localAst.newArrayCreation();
 			ac1.setType(
-				ast.newArrayType(
-					ast.newSimpleType(ast.newSimpleName("String")))); //$NON-NLS-1$
-			ac1.dimensions().add(ast.newSimpleName("len")); //$NON-NLS-1$
-			b.statements().add(ast.newExpressionStatement(ac1));
+				localAst.newArrayType(
+					localAst.newSimpleType(localAst.newSimpleName("String")))); //$NON-NLS-1$
+			ac1.dimensions().add(localAst.newSimpleName("len")); //$NON-NLS-1$
+			b.statements().add(localAst.newExpressionStatement(ac1));
 			assertTrue(ac1.getRoot() == cu);
 
 			// new double[7][24][]
-			ArrayCreation ac2 = ast.newArrayCreation();
+			ArrayCreation ac2 = localAst.newArrayCreation();
 			ac2.setType(
-				ast.newArrayType(
-					ast.newPrimitiveType(PrimitiveType.DOUBLE), 3));
-			ac2.dimensions().add(ast.newNumberLiteral("7")); //$NON-NLS-1$
-			ac2.dimensions().add(ast.newNumberLiteral("24")); //$NON-NLS-1$
-			b.statements().add(ast.newExpressionStatement(ac2));
+				localAst.newArrayType(
+					localAst.newPrimitiveType(PrimitiveType.DOUBLE), 3));
+			ac2.dimensions().add(localAst.newNumberLiteral("7")); //$NON-NLS-1$
+			ac2.dimensions().add(localAst.newNumberLiteral("24")); //$NON-NLS-1$
+			b.statements().add(localAst.newExpressionStatement(ac2));
 			assertTrue(ac2.getRoot() == cu);
 
 			// new int[] {1, 2}
-			ArrayCreation ac3 = ast.newArrayCreation();
+			ArrayCreation ac3 = localAst.newArrayCreation();
 			ac3.setType(
-				ast.newArrayType(
-					ast.newPrimitiveType(PrimitiveType.INT)));
-			ArrayInitializer ai = ast.newArrayInitializer();
+				localAst.newArrayType(
+					localAst.newPrimitiveType(PrimitiveType.INT)));
+			ArrayInitializer ai = localAst.newArrayInitializer();
 			ac3.setInitializer(ai);
-			ai.expressions().add(ast.newNumberLiteral("1")); //$NON-NLS-1$
-			ai.expressions().add(ast.newNumberLiteral("2")); //$NON-NLS-1$
-			b.statements().add(ast.newExpressionStatement(ac3));
+			ai.expressions().add(localAst.newNumberLiteral("1")); //$NON-NLS-1$
+			ai.expressions().add(localAst.newNumberLiteral("2")); //$NON-NLS-1$
+			b.statements().add(localAst.newExpressionStatement(ac3));
 			assertTrue(ac3.getRoot() == cu);
 			assertTrue(ai.getRoot() == cu);
 			
 			// new String(10)
-			ClassInstanceCreation cr1 = ast.newClassInstanceCreation();
-			cr1.setName(ast.newSimpleName("String")); //$NON-NLS-1$
-			cr1.arguments().add(ast.newNumberLiteral("10"));		 //$NON-NLS-1$
-			b.statements().add(ast.newExpressionStatement(cr1));
+			ClassInstanceCreation cr1 = localAst.newClassInstanceCreation();
+			cr1.setName(localAst.newSimpleName("String")); //$NON-NLS-1$
+			cr1.arguments().add(localAst.newNumberLiteral("10"));		 //$NON-NLS-1$
+			b.statements().add(localAst.newExpressionStatement(cr1));
 			assertTrue(cr1.getRoot() == cu);
 
 			// new Listener() {public void handleEvent() {} }
-			ClassInstanceCreation cr2 = ast.newClassInstanceCreation();
-			AnonymousClassDeclaration ad1 = ast.newAnonymousClassDeclaration();
+			ClassInstanceCreation cr2 = localAst.newClassInstanceCreation();
+			AnonymousClassDeclaration ad1 = localAst.newAnonymousClassDeclaration();
 			cr2.setAnonymousClassDeclaration(ad1);
-			cr2.setName(ast.newSimpleName("Listener")); //$NON-NLS-1$
-			MethodDeclaration md0 = ast.newMethodDeclaration();
+			cr2.setName(localAst.newSimpleName("Listener")); //$NON-NLS-1$
+			MethodDeclaration md0 = localAst.newMethodDeclaration();
 			md0.setModifiers(Modifier.PUBLIC);
-			md0.setName(ast.newSimpleName("handleEvent")); //$NON-NLS-1$
-			md0.setBody(ast.newBlock());
+			md0.setName(localAst.newSimpleName("handleEvent")); //$NON-NLS-1$
+			md0.setBody(localAst.newBlock());
 			ad1.bodyDeclarations().add(md0);
-			b.statements().add(ast.newExpressionStatement(cr2));
+			b.statements().add(localAst.newExpressionStatement(cr2));
 			assertTrue(cr2.getRoot() == cu);
 			assertTrue(md0.getRoot() == cu);
 			assertTrue(ad1.getRoot() == cu);
@@ -728,7 +728,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 *    parented, and <code>false</code> if unparented
 		 * @return a sample node
 		 */
-		public abstract ASTNode sample(AST ast, boolean parented);
+		public abstract ASTNode sample(AST newValue, boolean parented);
 
 		/**
 		 * Returns a sample node of a type suitable for storing
@@ -1285,44 +1285,44 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}		
 
 	public void testStringLiteralUnicode() {
-		AST ast = new AST();
-		StringLiteral literal = ast.newStringLiteral();
+		AST localAst = new AST();
+		StringLiteral literal = localAst.newStringLiteral();
 		literal.setEscapedValue("\"hello\\u0026\\u0050worl\\u0064\""); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello&Pworld")); //$NON-NLS-1$
 		
-		ast = new AST();
-		literal = ast.newStringLiteral();
+		localAst = new AST();
+		literal = localAst.newStringLiteral();
 		literal.setEscapedValue("\"hello\\nworld\""); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\nworld")); //$NON-NLS-1$
 		
-		ast = new AST();
-		literal = ast.newStringLiteral();
+		localAst = new AST();
+		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("hello\nworld"); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\nworld")); //$NON-NLS-1$
 		
-		ast = new AST();
-		literal = ast.newStringLiteral();
+		localAst = new AST();
+		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("\n"); //$NON-NLS-1$
 		assertTrue(literal.getEscapedValue().equals("\"\\n\"")); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("\n")); //$NON-NLS-1$
 		
-		ast = new AST();
-		literal = ast.newStringLiteral();
+		localAst = new AST();
+		literal = localAst.newStringLiteral();
 		literal.setEscapedValue("\"hello\\\"world\""); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\"world")); //$NON-NLS-1$
 		
-		ast = new AST();
-		literal = ast.newStringLiteral();
+		localAst = new AST();
+		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("hello\\u0026world"); //$NON-NLS-1$
 		assertTrue(literal.getLiteralValue().equals("hello\\u0026world")); //$NON-NLS-1$
 		
-		ast = new AST();
-		literal = ast.newStringLiteral();
+		localAst = new AST();
+		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("hello\\u0026world"); //$NON-NLS-1$
 		assertTrue(literal.getEscapedValue().equals("\"hello\\\\u0026world\"")); //$NON-NLS-1$
 		
-		ast = new AST();
-		literal = ast.newStringLiteral();
+		localAst = new AST();
+		literal = localAst.newStringLiteral();
 		literal.setLiteralValue("\\u0001"); //$NON-NLS-1$
 		assertTrue(literal.getEscapedValue().equals("\"\\\\u0001\"")); //$NON-NLS-1$
 	}		
@@ -3082,10 +3082,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3188,10 +3188,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3267,10 +3267,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3692,10 +3692,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 
 		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3741,10 +3741,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3791,10 +3791,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3823,10 +3823,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 
 		genericPropertyTest(x, new Property("Message", false, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3873,10 +3873,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 		
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3943,10 +3943,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -3995,10 +3995,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tLeadingComment(x);
 		
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -4503,10 +4503,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 
 		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -4751,10 +4751,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -4976,10 +4976,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 		
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5063,10 +5063,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(PrefixExpression.Operator.toOperator("huh") == null); //$NON-NLS-1$
 
 		genericPropertyTest(x, new Property("Operand", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5142,10 +5142,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(PostfixExpression.Operator.toOperator("huh") == null); //$NON-NLS-1$
 
 		genericPropertyTest(x, new Property("Operand", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5257,10 +5257,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(InfixExpression.Operator.toOperator("huh") == null); //$NON-NLS-1$
 
 		genericPropertyTest(x, new Property("LeftOperand", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5282,10 +5282,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 
 		genericPropertyTest(x, new Property("RightOperand", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5343,10 +5343,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() == previousCount);
 						
 		genericPropertyTest(x, new Property("LeftOperand", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5368,10 +5368,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 
 		genericPropertyTest(x, new Property("RightOperand", true, Type.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Type result = ast.newSimpleType(ast.newSimpleName("Object")); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Type result = localAst.newSimpleType(localAst.newSimpleName("Object")); //$NON-NLS-1$
 				if (parented) {
-					ast.newArrayType(result);
+					localAst.newArrayType(result);
 				}
 				return result;
 			}
@@ -5409,10 +5409,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5434,10 +5434,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 		
 		genericPropertyTest(x, new Property("ThenExpression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5459,10 +5459,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 		
 		genericPropertyTest(x, new Property("ElseExpression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5499,10 +5499,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyTest(x, new Property("Array", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5524,10 +5524,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 
 		genericPropertyTest(x, new Property("Index", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
@@ -5834,10 +5834,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() == previousCount);
 
 		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
-			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
+			public ASTNode sample(AST localAst, boolean parented) {
+				Expression result = localAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
-					ast.newExpressionStatement(result);
+					localAst.newExpressionStatement(result);
 				}
 				return result;
 			}
