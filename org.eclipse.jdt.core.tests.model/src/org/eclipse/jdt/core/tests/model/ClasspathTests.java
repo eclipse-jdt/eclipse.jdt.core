@@ -190,9 +190,9 @@ public void testClasspathChangeExternalResources() throws CoreException {
 		setClasspath(proj, swappedEntries);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" + 
-			"	" + getExternalJCLPath().toString() + "[*]: {REORDERED}\n" + 
-			"	" + getExternalJCLSourcePath().toString() + "[*]: {REORDERED}\n" + 
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"	"+  getExternalJCLPath() +"[*]: {REORDERED}\n" + 
+			"	"+  getExternalJCLSourcePath() +"[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
@@ -1646,7 +1646,7 @@ public void testEmptyClasspath() throws CoreException {
 		// ensure the deltas are correct
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN}\n" + 
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);

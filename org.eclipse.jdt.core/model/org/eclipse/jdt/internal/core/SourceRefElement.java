@@ -171,6 +171,12 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	return getParent().getUnderlyingResource();
 }
 /**
+ * @see IParent 
+ */
+public boolean hasChildren() throws JavaModelException {
+	return getChildren().length > 0;
+}
+/**
  * @see ISourceManipulation
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {

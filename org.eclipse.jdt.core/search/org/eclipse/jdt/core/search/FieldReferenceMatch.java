@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.search.matching.JavaSearchMatch;
 
 /**
  * TODO add spec
@@ -20,8 +19,20 @@ import org.eclipse.jdt.internal.core.search.matching.JavaSearchMatch;
  */
 public class FieldReferenceMatch extends JavaSearchMatch {
 
-	public FieldReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
+	private boolean isReadAccess;
+	private boolean isWriteAccess;
+	public FieldReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, boolean isReadAccess, boolean isWriteAccess, SearchParticipant participant, IResource resource) {
 		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
+		this.isReadAccess = isReadAccess;
+		this.isWriteAccess = isWriteAccess;
+	}
+	
+	// important point is that a match can be read & write at once in case of compound assignments:  e.g. i += 0;
+	public boolean isReadAccess() {
+		return this.isReadAccess;
 	}
 
+	public boolean isWriteAccess() {
+		return this.isWriteAccess;
+	}
 }

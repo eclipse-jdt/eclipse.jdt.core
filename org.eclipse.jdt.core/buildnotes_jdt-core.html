@@ -54,16 +54,52 @@ Handling of additional bounds in type parameters
 ArrayStoreException in 1.5 parser
 
 
+<a name="v_411"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M8 Build - 3rd March 2004
+<br>Project org.eclipse.jdt.core v_411
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_411">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added new constant <code>IJavaElementDelta.F_CLASSPATH_CHANGED</code> that indicates that
+	  the project's raw classpath has changed.
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49986">49986</a>
+setRawClasspath(...) should fire a F_CLASSPATH_CHANGED delta 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53242">53242</a>
+Consitent Out of Memory problems indexing (with multiple Java libraries)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52474">52474</a>
+UI Blocked when opening Java Perspective during CVS check out 
+
 <a name="v_410"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M8 Build - ?th February 2004
+Eclipse SDK 3.0M8 Build - 2nd March 2004
 <br>Project org.eclipse.jdt.core v_410
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_410">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added following APIs to <code>org.eclipse.jdt.core.dom.CompilationUnit</code>:
+<ul>
+<li><code>getCommentList()</code>: Returns a list of the comments encountered while parsing the compilation unit.</li>
+<li><code>getExtendedStartPosition(ASTNode)</code>: Returns the extended start position of the given node.</li>
+<li><code>getExtendedLength(ASTNode)</code>: Returns the extended source length of the given node.</li>
+</li>
+</ul>
+Unlike <code>ASTNode#getStartPosition()</code> and <code>ASTNode#getLength()</code>, the extended source range may include
+comments and whitespace immediately before or after the normal source range for the node.
+<br>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53445">53445</a> for more details on heuristic to find leading and trailing comments.
+</li>
+<li>Added API <code>FieldReferenceMatch.isReadAccess()</code> and <code>isWriteAccess()</code>.
 <li>Added API <code>JavaCore.run(IWorkspaceRunnable action, ISchedulingRule rule, IProgressMonitor monitor)</code> 
 	 to control the scheduling rule during a Java batch operation.
 </li>
@@ -79,7 +115,15 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52691">52691</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53445">53445</a>
+[DCR] [DOM Comments] Provide extended ranges including leading/trailing comments for AST nodes
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53276">53276</a>
+[DOM Comments] Wrong text element length when containing '\' character
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52908">52908</a>
+[DOM Comments] Wrong text element positions when starting/ending with { or }
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48337">48337</a>
+[Search] FieldReferenceMatch should report read/write access 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52691">52691</a>
 Add batch compiler option for maxProblemsPerUnit
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51045">51045</a>
 Offer to call JavaCore.run with scheduling rule 

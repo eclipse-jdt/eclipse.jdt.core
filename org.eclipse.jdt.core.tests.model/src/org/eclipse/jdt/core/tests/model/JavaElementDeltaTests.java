@@ -633,8 +633,8 @@ public void testChangeCustomOutput() throws CoreException {
 			});
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" +
-			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
@@ -657,8 +657,8 @@ public void testChangeRootKind() throws CoreException {
 			});
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" +
-			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
@@ -935,7 +935,7 @@ public void testDeleteProjectSetCPAnotherProject() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected deltas",
-			"P1[*]: {CHILDREN}\n" + 
+			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
@@ -1740,7 +1740,7 @@ public void testRemoveAddBinaryProject() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" + 
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
 			"	lib.jar[-]: {}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
@@ -1837,7 +1837,7 @@ public void testRemoveCPEntryAndRoot2() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" + 
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -1869,7 +1869,7 @@ public void testRemoveCPEntryAndRoot3() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" + 
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
 			"	src[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -2178,11 +2178,12 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 		p1.setRawClasspath(classpath, null);
 		assertDeltas(
 			"Should notice src2 and myLib additions to the classpath", 
-			"P1[*]: {CHILDREN}\n" + 
+			"P1[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
 			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
-			"	ResourceDelta(/P1/.classpath)[*]");
+			"	ResourceDelta(/P1/.classpath)[*]"
+		);
 	} finally {
 		this.stopDeltas();
 		this.deleteProject("P1");

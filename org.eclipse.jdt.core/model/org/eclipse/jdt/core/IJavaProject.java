@@ -781,6 +781,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * to the project closing the cycle.
 	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
 	 * before setting the classpath.
+	 * <p>
+	 * This operation acquires a lock on the workspace's root.
 	 *
 	 * @param entries a list of classpath entries
 	 * @param monitor the given progress monitor
@@ -820,6 +822,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * be added to the project closing the cycle. To avoid this problem, use
 	 * <code>hasClasspathCycle(IClasspathEntry[] entries)</code> before setting
 	 * the classpath.
+	 * </p>
+	 * <p>
+	 * This operation acquires a lock on the workspace's root.
 	 * </p>
 	 * 
 	 * @param entries a list of classpath entries

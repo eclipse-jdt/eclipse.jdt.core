@@ -44,16 +44,16 @@ private LocalVariable getLocalVariable() {
 }
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (reference instanceof SingleNameReference) {
-		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.LOCAL_VARIABLE, element, accuracy, reference.sourceStart, reference.sourceEnd+1, locator);
+		SearchMatch match = locator.newReferenceMatch(IJavaElement.LOCAL_VARIABLE, element, accuracy, reference.sourceStart, reference.sourceEnd+1);
 		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		long sourcePosition = qNameRef.sourcePositions[0];
-		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.LOCAL_VARIABLE, element, accuracy, ((int) (sourcePosition >>> 32)), ((int) sourcePosition)+1, locator);
+		SearchMatch match = locator.newReferenceMatch(IJavaElement.LOCAL_VARIABLE, element, accuracy, ((int) (sourcePosition >>> 32)), ((int) sourcePosition)+1);
 		locator.report(match);
 	} else if (reference instanceof LocalDeclaration) {
 		LocalVariable localVariable = getLocalVariable();
-		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.LOCAL_VARIABLE, localVariable, accuracy, localVariable.nameStart, localVariable.nameEnd+1, locator);
+		SearchMatch match = locator.newReferenceMatch(IJavaElement.LOCAL_VARIABLE, localVariable, accuracy, localVariable.nameStart, localVariable.nameEnd+1);
 		locator.report(match);
 	}
 }

@@ -333,6 +333,12 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	}
 }
 /**
+ * @see IParent 
+ */
+public boolean hasChildren() throws JavaModelException {
+	return getChildren().length > 0;
+}
+/**
  * @see IPackageFragment#hasSubpackages()
  */
 public boolean hasSubpackages() throws JavaModelException {

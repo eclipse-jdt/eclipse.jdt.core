@@ -226,7 +226,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
  * Reports the match of the given reference.
  */
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	SearchMatch match = JavaSearchMatch.newReferenceMatch(referenceType(), element, accuracy, reference.sourceStart, reference.sourceEnd+1, locator);
+	SearchMatch match = locator.newReferenceMatch(referenceType(), element, accuracy, reference.sourceStart, reference.sourceEnd+1);
 	locator.report(match);
 }
 protected int referenceType() {

@@ -280,12 +280,13 @@ public class Javadoc extends ASTNode {
 		int thrownExceptionLength = md.thrownExceptions == null ? 0 : md.thrownExceptions.length;
 		if (throwsTagsLength == 0) {
 			if (reportMissing) {
-				for (int i = 0, j=0; i < boundExceptionLength; i++) {
+				for (int i = 0; i < boundExceptionLength; i++) {
 					ReferenceBinding exceptionBinding = md.binding.thrownExceptions[i];
 					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
-						while (j<thrownExceptionLength && exceptionBinding != md.thrownExceptions[j++].resolvedType);
-						if (j<=thrownExceptionLength) {
-							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[j-1], md.binding.modifiers);
+						int j=i;
+						while (j<thrownExceptionLength && exceptionBinding != md.thrownExceptions[j].resolvedType) j++;
+						if (j<thrownExceptionLength) {
+							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[j], md.binding.modifiers);
 						}
 					}
 				}
@@ -306,7 +307,7 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Look for undocumented thrown exception
-			for (int i = 0, k=0; i < boundExceptionLength; i++) {
+			for (int i = 0; i < boundExceptionLength; i++) {
 				ReferenceBinding exceptionBinding = md.binding.thrownExceptions[i];
 				boolean found = false;
 				for (int j = 0; j < maxRef && !found; j++) {
@@ -320,9 +321,10 @@ public class Javadoc extends ASTNode {
 				}
 				if (!found && reportMissing) {
 					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
-						while (k<thrownExceptionLength && exceptionBinding != md.thrownExceptions[k++].resolvedType);
-						if (k<=thrownExceptionLength) {
-							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[k-1], md.binding.modifiers);
+						int k=i;
+						while (k<thrownExceptionLength && exceptionBinding != md.thrownExceptions[k].resolvedType) k++;
+						if (k<thrownExceptionLength) {
+							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[k], md.binding.modifiers);
 						}
 					}
 				}

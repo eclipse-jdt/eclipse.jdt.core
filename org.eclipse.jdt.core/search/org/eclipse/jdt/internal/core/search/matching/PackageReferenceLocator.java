@@ -127,7 +127,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 				if (pkgBinding != null)
 					last = pkgBinding.compoundName.length;
 			}
-			SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.PACKAGE_FRAGMENT, element, accuracy, ((int) (positions[0] >>> 32)), ((int) positions[last - 1])+1, locator);
+			SearchMatch match = locator.newReferenceMatch(IJavaElement.PACKAGE_FRAGMENT, element, accuracy, ((int) (positions[0] >>> 32)), ((int) positions[last - 1])+1);
 			locator.report(match);
 		}
 	}
@@ -188,7 +188,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	}
 	int sourceStart = (int) (positions[0] >>> 32);
 	int sourceEnd = ((int) positions[last - 1])+1;
-	SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.PACKAGE_FRAGMENT, element, accuracy, sourceStart, sourceEnd, locator);
+	SearchMatch match = locator.newReferenceMatch(IJavaElement.PACKAGE_FRAGMENT, element, accuracy, sourceStart, sourceEnd);
 	locator.report(match);
 }
 protected int referenceType() {

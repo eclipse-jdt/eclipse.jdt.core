@@ -137,7 +137,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = importRef.sourcePositions;
-					SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.TYPE, element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1, locator);
+					SearchMatch match = locator.newReferenceMatch(IJavaElement.TYPE, element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1);
 					locator.report(match);
 				}
 				return;
@@ -146,16 +146,16 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 			typeBinding = typeBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(IJavaElement.TYPE, importRef.sourceStart, importRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+	locator.reportAccurateTypeReference(importRef, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.pattern.simpleName == null) {
 		if (locator.encloses(element)) {
-			SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.TYPE, element, accuracy, arrayRef.sourceStart, arrayRef.sourceEnd+1, locator);
+			SearchMatch match = locator.newReferenceMatch(IJavaElement.TYPE, element, accuracy, arrayRef.sourceStart, arrayRef.sourceEnd+1);
 			locator.report(match);
 		}
 	} else
-		locator.reportAccurateReference(IJavaElement.TYPE, arrayRef.sourceStart, arrayRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+		locator.reportAccurateTypeReference(arrayRef, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedTypesPattern) {
@@ -171,7 +171,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	else if (reference instanceof ArrayTypeReference)
 		matchReportReference((ArrayTypeReference) reference, element, accuracy, locator);
 	else {
-		SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.TYPE, element, accuracy, reference.sourceStart, reference.sourceEnd+1, locator);
+		SearchMatch match = locator.newReferenceMatch(IJavaElement.TYPE, element, accuracy, reference.sourceStart, reference.sourceEnd+1);
 		locator.report(match);
 	}
 }
@@ -212,7 +212,7 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, refBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = qNameRef.sourcePositions;
-					SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.TYPE, element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1, locator);
+					SearchMatch match = locator.newReferenceMatch(IJavaElement.TYPE, element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1);
 					locator.report(match);
 				}
 				return;
@@ -221,7 +221,7 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 			refBinding = refBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(IJavaElement.TYPE, qNameRef.sourceStart, qNameRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+	locator.reportAccurateTypeReference(qNameRef, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	TypeBinding typeBinding = qTypeRef.resolvedType;
@@ -240,7 +240,7 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, refBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = qTypeRef.sourcePositions;
-					SearchMatch match = JavaSearchMatch.newReferenceMatch(IJavaElement.TYPE, element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1, locator);
+					SearchMatch match = locator.newReferenceMatch(IJavaElement.TYPE, element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1);
 					locator.report(match);
 				}
 				return;
@@ -249,7 +249,7 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 			refBinding = refBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(IJavaElement.TYPE, qTypeRef.sourceStart, qTypeRef.sourceEnd, this.pattern.simpleName, element, accuracy);
+	locator.reportAccurateTypeReference(qTypeRef, this.pattern.simpleName, element, accuracy);
 }
 protected int referenceType() {
 	return IJavaElement.TYPE;

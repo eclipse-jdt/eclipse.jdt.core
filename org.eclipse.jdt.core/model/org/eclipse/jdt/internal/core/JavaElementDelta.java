@@ -662,6 +662,12 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 		buffer.append("PRIMARY WORKING COPY"); //$NON-NLS-1$
 		prev = true;
 	}
+	if ((flags & IJavaElementDelta.F_CLASSPATH_CHANGED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("CLASSPATH CHANGED"); //$NON-NLS-1$
+		prev = true;
+	}
 	return prev;
 }
 /** 

@@ -129,6 +129,7 @@ class ASTConverter {
 				compilationUnit.imports().add(convertImport(imports[i]));
 			}
 		}
+
 		// Parse comments
 		int[][] comments = unit.comments;
 		if (comments != null && this.insideComments) {
@@ -159,6 +160,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			lookupForScopes();
 		}
+		compilationUnit.initCommentMapper(this.scanner);
 		return compilationUnit;
 	}
 	

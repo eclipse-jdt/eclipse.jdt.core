@@ -481,7 +481,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IParent 
 	 */
 	public boolean hasChildren() throws JavaModelException {
-		return getChildren().length > 0;
+		// if I am not open, return true to avoid opening (case of a Java project, a compilation unit or a class file).
+		// also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52474
+		Object elementInfo = JavaModelManager.getJavaModelManager().getInfo(this);
+		if (elementInfo instanceof JavaElementInfo) {
+			return ((JavaElementInfo)elementInfo).getChildren().length > 0;
+		} else {
+			return true;
+		}
 	}
 
 	/**

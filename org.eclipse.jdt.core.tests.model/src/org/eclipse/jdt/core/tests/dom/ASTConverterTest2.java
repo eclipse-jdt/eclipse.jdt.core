@@ -3401,8 +3401,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) root;
 		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
-		assertNotNull("No comments", compilationUnit.getCommentTable());
-		assertEquals("Wrong size", 3, compilationUnit.getCommentTable().length);
+		assertNotNull("No comments", compilationUnit.getCommentList());
+		assertEquals("Wrong size", 3, compilationUnit.getCommentList().size());
 	}	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3413,8 +3413,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
-		assertNotNull("No comments", unit.getCommentTable());
-		assertEquals("Wrong size", 3, unit.getCommentTable().length);
+		assertNotNull("No comments", unit.getCommentList());
+		assertEquals("Wrong size", 3, unit.getCommentList().size());
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
@@ -3437,8 +3437,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) root;
 		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
-		assertNotNull("No comments", compilationUnit.getCommentTable());
-		assertEquals("Wrong size", 2, compilationUnit.getCommentTable().length);
+		assertNotNull("No comments", compilationUnit.getCommentList());
+		assertEquals("Wrong size", 2, compilationUnit.getCommentList().size());
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3471,8 +3471,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) root;
 		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
-		assertNotNull("No comments", compilationUnit.getCommentTable());
-		assertEquals("Wrong size", 3, compilationUnit.getCommentTable().length);
+		assertNotNull("No comments", compilationUnit.getCommentList());
+		assertEquals("Wrong size", 3, compilationUnit.getCommentList().size());
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3483,8 +3483,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
-		assertNotNull("No comments", unit.getCommentTable());
-		assertEquals("Wrong size", 2, unit.getCommentTable().length);
+		assertNotNull("No comments", unit.getCommentList());
+		assertEquals("Wrong size", 2, unit.getCommentList().size());
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		ASTNode statement = node;
@@ -3506,8 +3506,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) root;
 		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
-		assertNotNull("No comments", compilationUnit.getCommentTable());
-		assertEquals("Wrong size", 1, compilationUnit.getCommentTable().length);
+		assertNotNull("No comments", compilationUnit.getCommentList());
+		assertEquals("Wrong size", 1, compilationUnit.getCommentList().size());
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3518,8 +3518,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
-		assertNotNull("No comments", unit.getCommentTable());
-		assertEquals("Wrong size", 2, unit.getCommentTable().length);
+		assertNotNull("No comments", unit.getCommentList());
+		assertEquals("Wrong size", 2, unit.getCommentList().size());
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a block", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
@@ -3539,8 +3539,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) root;
 		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
-		assertNotNull("No comments", compilationUnit.getCommentTable());
-		assertEquals("Wrong size", 1, compilationUnit.getCommentTable().length);
+		assertNotNull("No comments", compilationUnit.getCommentList());
+		assertEquals("Wrong size", 1, compilationUnit.getCommentList().size());
 	}
 	/*
 	 * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled

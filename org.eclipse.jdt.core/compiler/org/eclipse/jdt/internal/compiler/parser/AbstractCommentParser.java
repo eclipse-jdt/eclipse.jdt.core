@@ -214,6 +214,61 @@ public abstract class AbstractCommentParser {
 										case TerminalTokens.TokenNamethrows :
 											valid = parseThrows(true);
 											break;
+										default:
+											if (this.kind == DOM_PARSER) {
+												switch (tk) {
+													case TerminalTokens.TokenNameabstract:
+													case TerminalTokens.TokenNameassert:
+													case TerminalTokens.TokenNameboolean:
+													case TerminalTokens.TokenNamebreak:
+													case TerminalTokens.TokenNamebyte:
+													case TerminalTokens.TokenNamecase:
+													case TerminalTokens.TokenNamecatch:
+													case TerminalTokens.TokenNamechar:
+													case TerminalTokens.TokenNameclass:
+													case TerminalTokens.TokenNamecontinue:
+													case TerminalTokens.TokenNamedefault:
+													case TerminalTokens.TokenNamedo:
+													case TerminalTokens.TokenNamedouble:
+													case TerminalTokens.TokenNameelse:
+													case TerminalTokens.TokenNameextends:
+													case TerminalTokens.TokenNamefalse:
+													case TerminalTokens.TokenNamefinal:
+													case TerminalTokens.TokenNamefinally:
+													case TerminalTokens.TokenNamefloat:
+													case TerminalTokens.TokenNamefor:
+													case TerminalTokens.TokenNameif:
+													case TerminalTokens.TokenNameimplements:
+													case TerminalTokens.TokenNameimport:
+													case TerminalTokens.TokenNameinstanceof:
+													case TerminalTokens.TokenNameint:
+													case TerminalTokens.TokenNameinterface:
+													case TerminalTokens.TokenNamelong:
+													case TerminalTokens.TokenNamenative:
+													case TerminalTokens.TokenNamenew:
+													case TerminalTokens.TokenNamenull:
+													case TerminalTokens.TokenNamepackage:
+													case TerminalTokens.TokenNameprivate:
+													case TerminalTokens.TokenNameprotected:
+													case TerminalTokens.TokenNamepublic:
+													case TerminalTokens.TokenNameshort:
+													case TerminalTokens.TokenNamestatic:
+													case TerminalTokens.TokenNamestrictfp:
+													case TerminalTokens.TokenNamesuper:
+													case TerminalTokens.TokenNameswitch:
+													case TerminalTokens.TokenNamesynchronized:
+													case TerminalTokens.TokenNamethis:
+													case TerminalTokens.TokenNamethrow:
+													case TerminalTokens.TokenNametransient:
+													case TerminalTokens.TokenNametrue:
+													case TerminalTokens.TokenNametry:
+													case TerminalTokens.TokenNamevoid:
+													case TerminalTokens.TokenNamevolatile:
+													case TerminalTokens.TokenNamewhile:
+														valid = parseTag();
+														break;
+												}
+											}
 									}
 									if (!valid) {
 										this.inlineTagStarted = false;
@@ -228,10 +283,12 @@ public abstract class AbstractCommentParser {
 						break;
 					case '\r':
 					case '\n':
-						if (this.lineStarted && this.textStart <= charPosition) {
-							pushText(this.textStart, charPosition);
+						int position = previousChar == '{' ? this.inlineTagStart : charPosition;
+						if (this.lineStarted && this.textStart <= position) {
+							pushText(this.textStart, position);
 						}
 						this.lineStarted = false;
+						this.inlineTagStarted = false;
 						// Fix bug 51650
 						this.textStart = -1;
 						break;
@@ -243,8 +300,10 @@ public abstract class AbstractCommentParser {
 							if (this.kind == DOM_PARSER) refreshInlineTagPosition(previousPosition);
 							this.textStart = this.index;
 							this.inlineTagStarted = false;
-						}
-						if (this.index < this.lineEnd) {
+						} else /*if (this.index <= this.lineEnd)*/ {
+							if (!this.lineStarted) {
+								this.textStart = previousPosition;
+							}
 							this.lineStarted = true;
 							charPosition = previousPosition;
 						}
@@ -254,6 +313,10 @@ public abstract class AbstractCommentParser {
 							this.inlineTagStarted = false;
 							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidTag(this.inlineTagStart, this.index);
 						} else {
+							if (!this.lineStarted) {
+								this.textStart = previousPosition;
+							}
+							this.lineStarted = true;
 							this.inlineTagStart = previousPosition;
 						}
 						break;
@@ -833,10 +896,11 @@ public abstract class AbstractCommentParser {
 	protected abstract boolean pushThrowName(Object typeRef, boolean real);
 
 	protected char readChar() {
-
+	
 		char c = this.source[this.index++];
-		if (c == '\\') {
+		if (c == '\\' && this.source[this.index] == 'u') {
 			int c1, c2, c3, c4;
+			int pos = this.index;
 			this.index++;
 			while (this.source[this.index] == 'u')
 				this.index++;
@@ -844,6 +908,9 @@ public abstract class AbstractCommentParser {
 					|| ((c2 = Character.getNumericValue(this.source[this.index++])) > 15 || c2 < 0)
 					|| ((c3 = Character.getNumericValue(this.source[this.index++])) > 15 || c3 < 0) || ((c4 = Character.getNumericValue(this.source[this.index++])) > 15 || c4 < 0))) {
 				c = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+			} else {
+				// TODO (frederic) currently reset to previous position, perhaps signal a syntax error would be more appropriate
+				this.index = pos;
 			}
 		}
 		return c;

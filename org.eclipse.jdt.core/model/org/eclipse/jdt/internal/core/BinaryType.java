@@ -461,12 +461,6 @@ public IType[] getTypes() throws JavaModelException {
 	}
 }
 /*
- * @see IParent#hasChildren()
- */
-public boolean hasChildren() throws JavaModelException {
-	return getChildren().length > 0;
-}
-/*
  * @see IType#isAnonymous()
  */
 public boolean isAnonymous() throws JavaModelException {
