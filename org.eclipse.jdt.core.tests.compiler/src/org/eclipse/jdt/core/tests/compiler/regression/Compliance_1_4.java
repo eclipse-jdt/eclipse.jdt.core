@@ -16,7 +16,6 @@ import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.index.IDocument;
@@ -748,6 +747,7 @@ public void test21() {
 					public String getStringContent() throws IOException { return null; }
 					public String getType() { return "class"; }
 					public void setProperty(String attribute, String value) { }
+					public String getEncoding() { return null; }
 				}, 
 				new IIndexerOutput() {
 					public void addDocument(IDocument document) { }
