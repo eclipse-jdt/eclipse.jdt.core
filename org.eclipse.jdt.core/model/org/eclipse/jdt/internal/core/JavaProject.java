@@ -122,17 +122,20 @@ public class JavaProject
 		}
 		
 		IPath result;
-		if (externalPath.isAbsolute()) {
+		int canonicalLength = canonicalPath.segmentCount();
+		if (canonicalLength == 0) {
+			// the java.io.File canonicalization failed
+			return externalPath;
+		} else if (externalPath.isAbsolute()) {
 			result = canonicalPath;
 		} else {
 			// if path is relative, remove the first segments that were added by the java.io.File canonicalization
 			// e.g. 'lib/classes.zip' was converted to 'd:/myfolder/lib/classes.zip'
 			int externalLength = externalPath.segmentCount();
-			int canonicalLength = canonicalPath.segmentCount();
-			if (canonicalLength > externalLength) {
+			if (canonicalLength >= externalLength) {
 				result = canonicalPath.removeFirstSegments(canonicalLength - externalLength);
 			} else {
-				result = canonicalPath;
+				return externalPath;
 			}
 		}
 		
