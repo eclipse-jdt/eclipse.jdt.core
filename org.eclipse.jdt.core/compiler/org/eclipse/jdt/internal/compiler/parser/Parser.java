@@ -7847,6 +7847,10 @@ protected void resetStacks() {
 	listLength = 0;
 	// Fix for http://dev.eclipse.org/bugs/show_bug.cgi?id=29365
 	if (this.scanner != null) this.scanner.currentLine = null;
+	
+	genericsIdentifiersLengthPtr = -1;
+	genericsLengthPtr = -1;
+	genericsPtr = -1;
 }
 /*
  * Reset context so as to resume to regular parse loop
