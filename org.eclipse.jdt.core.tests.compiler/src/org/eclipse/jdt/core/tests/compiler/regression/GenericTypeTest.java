@@ -8044,4 +8044,80 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			},
 			"");	
 	}				
+	// 76729
+	public void _test319() {
+		this.runConformTest(
+			new String[] {
+				"test/Test1.java",
+				"package test;\n" + 
+				"\n" + 
+				"class A<BB extends B>\n" + 
+				"{}\n" + 
+				"\n" + 
+				"class B<AA extends A>\n" + 
+				"{}\n" + 
+				"\n" + 
+				"public interface Test1<C extends B<?>, D extends A<?>>\n" + 
+				"{}\n" + 
+				"\n" + 
+				"class AbstractA extends A<AbstractB> {};\n" + 
+				"class AbstractB extends B<AbstractA> {};\n" + 
+				"\n" + 
+				"class Test2<E extends AbstractB, F extends AbstractA> implements Test1<E, F>\n" + 
+				"{}"
+			},
+			"");	
+	}				
+	// 74032
+	public void _test320() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"class TestElement extends ArrayList implements Runnable {\n" + 
+				"  public void run() {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"public class X <E extends List & Runnable> {\n" + 
+				"  public X(E element) {\n" + 
+				"    element.run();\n" + 
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    new X<TestElement>(new TestElement());\n" + 
+				"    System.out.println(\"SUCCESS\");\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"SUCCESS");	
+	}			
+	// need to resolve thru all bounds of wildcards
+	public void _test321() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"class TestElement extends ArrayList implements Runnable {\n" + 
+				"  static final long serialVersionUID = 1l;\n" + 
+				"  public void run() {\n" + 
+				"  	// empty\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"public class X <E extends List & Runnable> {\n" + 
+				"	E element;\n" + 
+				"  public X(E element) {\n" + 
+				"  	this.element = element;\n" + 
+				"    element.run();\n" + 
+				"  }\n" + 
+				"  public X(X<?> x) {\n" + 
+				"    x.element.run();\n" + // should be able to bind to #run()
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    new X<TestElement>(new TestElement());\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"SUCCESS");	
+	}			
 }
