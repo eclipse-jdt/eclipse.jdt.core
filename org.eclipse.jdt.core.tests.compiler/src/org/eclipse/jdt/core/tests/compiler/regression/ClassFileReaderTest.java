@@ -19,22 +19,11 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.core.util.IClassFileReader;
-import org.eclipse.jdt.core.util.ICodeAttribute;
-import org.eclipse.jdt.core.util.IExceptionTableEntry;
-import org.eclipse.jdt.core.util.ILineNumberAttribute;
-import org.eclipse.jdt.core.util.IMethodInfo;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
-import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 
 public class ClassFileReaderTest extends AbstractRegressionTest {
-	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	private static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
-
-	public ClassFileReaderTest(String name) {
-		super(name);
-	}
+	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	public static Test suite() {
 		return setupSuite(testClass());
 	}
@@ -43,29 +32,30 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		return ClassFileReaderTest.class;
 	}
 
-	public void removeTempClass(String className) {
-		File dir = new File(SOURCE_DIRECTORY);
-		String[] fileNames = dir.list();
-		if (fileNames != null) {
-			for (int i = 0, max = fileNames.length; i < max; i++) {
-				if (fileNames[i].indexOf(className) != -1) {
-					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
-				}
-			}
-		}
-		
-		dir = new File(EVAL_DIRECTORY);
-		fileNames = dir.list();
-		if (fileNames != null) {
-			for (int i = 0, max = fileNames.length; i < max; i++) {
-				if (fileNames[i].indexOf(className) != -1) {
-					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
-				}
-			}
-		}
-	
+	public ClassFileReaderTest(String name) {
+		super(name);
 	}
 
+	private void checkClassFile(String className, String source, String expectedOutput) {
+		compileAndDeploy(source, className);
+		try {
+			File f = new File(EVAL_DIRECTORY + File.separator + className + ".class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			if (!result.equals(expectedOutput)) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			assertEquals("Wrong contents", expectedOutput, result);
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		} finally {
+			removeTempClass(className);
+		}
+	}
+	
 	public void compileAndDeploy(String source, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
@@ -96,719 +86,1206 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			.append("\"");
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
 	}
+
+	public void removeTempClass(String className) {
+		File dir = new File(SOURCE_DIRECTORY);
+		String[] fileNames = dir.list();
+		if (fileNames != null) {
+			for (int i = 0, max = fileNames.length; i < max; i++) {
+				if (fileNames[i].indexOf(className) != -1) {
+					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
+				}
+			}
+		}
+		
+		dir = new File(EVAL_DIRECTORY);
+		fileNames = dir.list();
+		if (fileNames != null) {
+			for (int i = 0, max = fileNames.length; i < max; i++) {
+				if (fileNames[i].indexOf(className) != -1) {
+					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
+				}
+			}
+		}
+	
+	}
 	
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=15051
 	 */
 	public void test001() {
-		try {
-			String sourceA001 =
-				"public class A001 {\n" +
-				"	private int i = 6;\n" +
-				"	public int foo() {\n" +
-				"		class A {\n" +
-				"			int get() {\n" +
-				"				return i;\n" +
-				"			}\n" +
-				"		}\n" +
-				"		return new A().get();\n" +
-				"	}\n" +
-				"};";
-			compileAndDeploy(sourceA001, "A001");
-			try {
-				org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(EVAL_DIRECTORY + File.separator + "A001.class");
-				IBinaryMethod[] methods = classFileReader.getMethods();
-				assertEquals("wrong size", 3, methods.length);
-				MethodInfo methodInfo = (MethodInfo) methods[2];
-				assertEquals("wrong name", "access$0", new String(methodInfo.getSelector()));
-				assertTrue("Not synthetic", methodInfo.isSynthetic());
-			} catch (ClassFormatException e) {
-				assertTrue(false);
-			} catch (IOException e) {
-				assertTrue(false);
-			}
-		} finally {
-			removeTempClass("A001");
-		}
+		String source =
+			"public class A001 {\n" +
+			"	private int i = 6;\n" +
+			"	public int foo() {\n" +
+			"		class A {\n" +
+			"			int get() {\n" +
+			"				return i;\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return new A().get();\n" +
+			"	}\n" +
+			"};";
+		String expectedOutput = 
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A001.java\n" + 
+			"class A001 extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  private int i;\n" + 
+			"  /*  Field descriptor #6 I */\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #8 ()V */\n" + 
+			"  public A001();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  aload_0\n" + 
+			"       1  invokespecial #11 <Constructor java.lang.Object()>\n" + 
+			"       4  aload_0\n" + 
+			"       5  bipush 6\n" + 
+			"       7  putfield #13 <Field A001#i int>\n" + 
+			"      10  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"      [pc: 4, line: 2]\n" + 
+			"      [pc: 10, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 11] local: this index: 0 type: A001\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #19 ()I */\n" + 
+			"  public int foo();\n" + 
+			"    /* Stack: 3, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  new #21 A001$1$A\n" + 
+			"       3  dup\n" + 
+			"       4  aload_0\n" + 
+			"       5  invokespecial #24 <Constructor A001$1$A(A001 arg)>\n" + 
+			"       8  invokevirtual #27 <Method A001$1$A#get() int>\n" + 
+			"      11  ireturn\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 12] local: this index: 0 type: A001\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #29 (LA001;)I */\n" + 
+			"  static int access$0(A001 arg);\n" + 
+			"    \n" + 
+			"    Attribute:\n" + 
+			"      Name: Synthetic Length: 0\n" + 
+			"  /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  getfield #13 <Field A001#i int>\n" + 
+			"      4  ireturn\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 2]\n" + 
+			"  \n" + 
+			"  Inner classes attributes:\n" + 
+			"    [\n" + 
+			"      inner class info name: #21 A001$1$A\n" + 
+			"      outer class info name: #0\n" + 
+			"      inner name: #34 A\n" + 
+			"      accessflags: 2 private ]\n" + 
+			"}";
+		checkClassFile("A001", source, expectedOutput);
 	}			
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25188
 	 */
 	public void test002() {
-		try {
-			String sourceA002 =
-				"public class A002 {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(); /* \\u000d: CARRIAGE RETURN */\n" +
-				"		System.out.println();\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA002, "A002");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A002.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 3, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 6, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 12, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-		} finally {
-			removeTempClass("A002");
-		}
+		String source =
+			"public class A002 {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(); /* \\u000d: CARRIAGE RETURN */\n" +
+			"		System.out.println();\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A002.java\n" + 
+			"public class A002 extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A002();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A002\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       3  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 6, line: 4]\n" + 
+			"      [pc: 12, line: 5]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A002", source, expectedOutput);
 	}
 	
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26098
 	 */
 	public void test003() {
-		try {
-			String sourceA003 =
-				"public class A003 {\n" +
-				"\n" +
-				"	public int bar() {\n" +
-				"		return 0;\n" +
-				"	}\n" +
-				"	\n" +
-				"	public void foo() {\n" +
-				"		System.out.println(bar());\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA003, "A003");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A003.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 3, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[2];
-			assertEquals("wrong name", "foo", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 2, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 8, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 10, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 9, lineNumberTable[1][1]);
-		} finally {
-			removeTempClass("A003");
-		}
+		String source =
+			"public class A003 {\n" +
+			"\n" +
+			"	public int bar() {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void foo() {\n" +
+			"		System.out.println(bar());\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput = 
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A003.java\n" + 
+			"public class A003 extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A003();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A003\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ()I */\n" + 
+			"  public int bar();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_0\n" + 
+			"      1  ireturn\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 4]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 2] local: this index: 0 type: A003\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public void foo();\n" + 
+			"    /* Stack: 2, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  getstatic #22 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       3  aload_0\n" + 
+			"       4  invokevirtual #24 <Method A003#bar() int>\n" + 
+			"       7  invokevirtual #30 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      10  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 8]\n" + 
+			"      [pc: 10, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 11] local: this index: 0 type: A003\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A003", source, expectedOutput);
 	}
 	
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test004() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   && !b) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 6, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 5, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 11, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 15, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 7, lineNumberTable[4][1]);
-			assertEquals("wrong pc[5]", 22, lineNumberTable[5][0]);
-			assertEquals("wrong line[5]", 9, lineNumberTable[5][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   && !b) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 3 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  bipush 6\n" + 
+			"       4  istore_2\n" + 
+			"       5  iload_2\n" + 
+			"       6  bipush 6\n" + 
+			"       8  if_icmpne 22\n" + 
+			"      11  iload_1\n" + 
+			"      12  ifne 22\n" + 
+			"      15  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      18  iload_2\n" + 
+			"      19  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      22  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 4]\n" + 
+			"      [pc: 5, line: 5]\n" + 
+			"      [pc: 11, line: 6]\n" + 
+			"      [pc: 15, line: 7]\n" + 
+			"      [pc: 22, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 23] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
+			"      [pc: 5, pc: 23] local: i index: 2 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test005() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   && true) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   && true) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpne 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test006() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   && false) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 3, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 8, lineNumberTable[2][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   && false) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpne 9\n" + 
+			"       9  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 10] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 10] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test007() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (true\n" +
-				"		   && !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (true\n" +
+			"		   && !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput = 
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifne 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test008() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (false\n" +
-				"		   && !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 2, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 8, lineNumberTable[1][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (false\n" +
+			"		   && !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput = 
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_0\n" + 
+			"      1  istore_1\n" + 
+			"      2  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 3] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 3] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test009() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   || !b) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 6, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 5, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 11, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 15, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 7, lineNumberTable[4][1]);
-			assertEquals("wrong pc[5]", 22, lineNumberTable[5][0]);
-			assertEquals("wrong line[5]", 9, lineNumberTable[5][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   || !b) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 3 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  bipush 6\n" + 
+			"       4  istore_2\n" + 
+			"       5  iload_2\n" + 
+			"       6  bipush 6\n" + 
+			"       8  if_icmpeq 15\n" + 
+			"      11  iload_1\n" + 
+			"      12  ifne 22\n" + 
+			"      15  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      18  iload_2\n" + 
+			"      19  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      22  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 4]\n" + 
+			"      [pc: 5, line: 5]\n" + 
+			"      [pc: 11, line: 6]\n" + 
+			"      [pc: 15, line: 7]\n" + 
+			"      [pc: 22, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 23] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 23] local: b index: 1 type: boolean\n" + 
+			"      [pc: 5, pc: 23] local: i index: 2 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test010() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   || true) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   || true) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 9\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test011() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   || false) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   || false) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpne 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test012() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (true\n" +
-				"		   || !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 3, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 6, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 8, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 8, lineNumberTable[2][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (true\n" +
+			"		   || !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_0\n" + 
+			"      1  istore_1\n" + 
+			"      2  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      5  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      8  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 6]\n" + 
+			"      [pc: 8, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 9] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 9] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test013() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (false\n" +
-				"		   || !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (false\n" +
+			"		   || !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifne 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test014() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   == !b) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 6, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 5, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 28, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 7, lineNumberTable[4][1]);
-			assertEquals("wrong pc[5]", 35, lineNumberTable[5][0]);
-			assertEquals("wrong line[5]", 9, lineNumberTable[5][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   == !b) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 3 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  bipush 6\n" + 
+			"       4  istore_2\n" + 
+			"       5  iload_2\n" + 
+			"       6  bipush 6\n" + 
+			"       8  if_icmpne 15\n" + 
+			"      11  iconst_1\n" + 
+			"      12  goto 16\n" + 
+			"      15  iconst_0\n" + 
+			"      16  iload_1\n" + 
+			"      17  ifeq 24\n" + 
+			"      20  iconst_0\n" + 
+			"      21  goto 25\n" + 
+			"      24  iconst_1\n" + 
+			"      25  if_icmpne 35\n" + 
+			"      28  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      31  iload_2\n" + 
+			"      32  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      35  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 4]\n" + 
+			"      [pc: 5, line: 5]\n" + 
+			"      [pc: 16, line: 6]\n" + 
+			"      [pc: 28, line: 7]\n" + 
+			"      [pc: 35, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 36] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 36] local: b index: 1 type: boolean\n" + 
+			"      [pc: 5, pc: 36] local: i index: 2 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test015() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   == true) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   == true) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpne 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test016() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   == false) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   == false) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test017() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (true\n" +
-				"		   == !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (true\n" +
+			"		   == !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifne 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test018() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (false\n" +
-				"		   == !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (false\n" +
+			"		   == !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifeq 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
@@ -816,289 +1293,457 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	 * http:  //bugs.eclipse.org/bugs/show_bug.cgi?id=26881
 	 */
 	public void test019() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 5)\n" +
-				"			? b : !b) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 6, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 5, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 10, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 21, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 7, lineNumberTable[4][1]);
-			assertEquals("wrong pc[5]", 28, lineNumberTable[5][0]);
-			assertEquals("wrong line[5]", 9, lineNumberTable[5][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 5)\n" +
+			"			? b : !b) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 3 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  bipush 6\n" + 
+			"       4  istore_2\n" + 
+			"       5  iload_2\n" + 
+			"       6  iconst_5\n" + 
+			"       7  if_icmpne 17\n" + 
+			"      10  iload_1\n" + 
+			"      11  ifeq 28\n" + 
+			"      14  goto 21\n" + 
+			"      17  iload_1\n" + 
+			"      18  ifne 28\n" + 
+			"      21  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      24  iload_2\n" + 
+			"      25  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      28  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 4]\n" + 
+			"      [pc: 5, line: 5]\n" + 
+			"      [pc: 10, line: 6]\n" + 
+			"      [pc: 21, line: 7]\n" + 
+			"      [pc: 28, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 29] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 29] local: b index: 1 type: boolean\n" + 
+			"      [pc: 5, pc: 29] local: i index: 2 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test020() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			>= 5) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 5, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 4, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 8, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 15, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 8, lineNumberTable[4][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			>= 5) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  iconst_5\n" + 
+			"       5  if_icmplt 15\n" + 
+			"       8  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      11  iload_1\n" + 
+			"      12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      15  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 4, line: 5]\n" + 
+			"      [pc: 8, line: 6]\n" + 
+			"      [pc: 15, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test021() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			>= 0) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			>= 0) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  iflt 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test022() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (0\n" +
-				"			>= i) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (0\n" +
+			"			>= i) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  ifgt 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 5]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 	
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test023() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			> 0) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			> 0) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  ifle 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 	
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test024() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (0\n" +
-				"			> i) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (0\n" +
+			"			> i) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  ifge 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 5]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test025() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			> 5) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 5, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 4, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 8, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 15, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 8, lineNumberTable[4][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			> 5) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  iconst_5\n" + 
+			"       5  if_icmple 15\n" + 
+			"       8  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      11  iload_1\n" + 
+			"      12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      15  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 4, line: 5]\n" + 
+			"      [pc: 8, line: 6]\n" + 
+			"      [pc: 15, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 
@@ -1106,40 +1751,63 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test026() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			< 0) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			< 0) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  ifge 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 
@@ -1147,122 +1815,191 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test027() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (0\n" +
-				"			< i) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (0\n" +
+			"			< i) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  ifle 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 5]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test028() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			< 5) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 5, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 4, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 8, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 15, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 8, lineNumberTable[4][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			< 5) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  iconst_5\n" + 
+			"       5  if_icmpge 15\n" + 
+			"       8  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      11  iload_1\n" + 
+			"      12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      15  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 4, line: 5]\n" + 
+			"      [pc: 8, line: 6]\n" + 
+			"      [pc: 15, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test029() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			<= 0) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			<= 0) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  ifgt 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 
@@ -1270,794 +2007,1270 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test030() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (0\n" +
-				"			<= i) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 7, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 14, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (0\n" +
+			"			<= i) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  iflt 14\n" + 
+			"       7  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      10  iload_1\n" + 
+			"      11  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      14  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 5]\n" + 
+			"      [pc: 7, line: 6]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 15] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 15] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test031() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			<= 5) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 5, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 4, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 8, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 15, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 8, lineNumberTable[4][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			<= 5) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  iconst_5\n" + 
+			"       5  if_icmpgt 15\n" + 
+			"       8  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      11  iload_1\n" + 
+			"      12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      15  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 4, line: 5]\n" + 
+			"      [pc: 8, line: 6]\n" + 
+			"      [pc: 15, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 	
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test032() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if (i\n" +
-				"			<= 5) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 5, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 4, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 8, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 15, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 8, lineNumberTable[4][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if (i\n" +
+			"			<= 5) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  iconst_5\n" + 
+			"       5  if_icmpgt 15\n" + 
+			"       8  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      11  iload_1\n" + 
+			"      12  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      15  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 4, line: 5]\n" + 
+			"      [pc: 8, line: 6]\n" + 
+			"      [pc: 15, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 16] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 16] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}		
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test033() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   & !b) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 6, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 5, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 29, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 7, lineNumberTable[4][1]);
-			assertEquals("wrong pc[5]", 36, lineNumberTable[5][0]);
-			assertEquals("wrong line[5]", 9, lineNumberTable[5][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   & !b) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 3 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  bipush 6\n" + 
+			"       4  istore_2\n" + 
+			"       5  iload_2\n" + 
+			"       6  bipush 6\n" + 
+			"       8  if_icmpne 15\n" + 
+			"      11  iconst_1\n" + 
+			"      12  goto 16\n" + 
+			"      15  iconst_0\n" + 
+			"      16  iload_1\n" + 
+			"      17  ifeq 24\n" + 
+			"      20  iconst_0\n" + 
+			"      21  goto 25\n" + 
+			"      24  iconst_1\n" + 
+			"      25  iand\n" + 
+			"      26  ifeq 36\n" + 
+			"      29  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      32  iload_2\n" + 
+			"      33  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      36  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 4]\n" + 
+			"      [pc: 5, line: 5]\n" + 
+			"      [pc: 16, line: 6]\n" + 
+			"      [pc: 29, line: 7]\n" + 
+			"      [pc: 36, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
+			"      [pc: 5, pc: 37] local: i index: 2 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test034() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   & true) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   & true) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpne 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test035() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   & false) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 2, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 8, lineNumberTable[1][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   & false) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  bipush 6\n" + 
+			"      2  istore_1\n" + 
+			"      3  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 4] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 4] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test036() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (true\n" +
-				"		   & !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (true\n" +
+			"		   & !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifne 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test037() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (false\n" +
-				"		   & !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 2, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 8, lineNumberTable[1][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (false\n" +
+			"		   & !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_0\n" + 
+			"      1  istore_1\n" + 
+			"      2  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 3] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 3] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test038() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   | !b) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 6, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 5, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 29, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 7, lineNumberTable[4][1]);
-			assertEquals("wrong pc[5]", 36, lineNumberTable[5][0]);
-			assertEquals("wrong line[5]", 9, lineNumberTable[5][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   | !b) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 3 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  bipush 6\n" + 
+			"       4  istore_2\n" + 
+			"       5  iload_2\n" + 
+			"       6  bipush 6\n" + 
+			"       8  if_icmpne 15\n" + 
+			"      11  iconst_1\n" + 
+			"      12  goto 16\n" + 
+			"      15  iconst_0\n" + 
+			"      16  iload_1\n" + 
+			"      17  ifeq 24\n" + 
+			"      20  iconst_0\n" + 
+			"      21  goto 25\n" + 
+			"      24  iconst_1\n" + 
+			"      25  ior\n" + 
+			"      26  ifeq 36\n" + 
+			"      29  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      32  iload_2\n" + 
+			"      33  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      36  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 4]\n" + 
+			"      [pc: 5, line: 5]\n" + 
+			"      [pc: 16, line: 6]\n" + 
+			"      [pc: 29, line: 7]\n" + 
+			"      [pc: 36, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
+			"      [pc: 5, pc: 37] local: i index: 2 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test039() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   | true) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 3, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 6, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 10, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 8, lineNumberTable[2][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   | true) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       6  iload_1\n" + 
+			"       7  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      10  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 6]\n" + 
+			"      [pc: 10, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 11] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 11] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test040() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   | false) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   | false) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpne 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test041() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (true\n" +
-				"		   | !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 3, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 6, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 8, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 8, lineNumberTable[2][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (true\n" +
+			"		   | !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_0\n" + 
+			"      1  istore_1\n" + 
+			"      2  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      5  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      8  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 6]\n" + 
+			"      [pc: 8, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 9] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 9] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test042() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (false\n" +
-				"		   | !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (false\n" +
+			"		   | !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifne 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test043() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   ^ !b) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 6, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 5, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 5, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 6, lineNumberTable[3][1]);
-			assertEquals("wrong pc[4]", 29, lineNumberTable[4][0]);
-			assertEquals("wrong line[4]", 7, lineNumberTable[4][1]);
-			assertEquals("wrong pc[5]", 36, lineNumberTable[5][0]);
-			assertEquals("wrong line[5]", 9, lineNumberTable[5][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   ^ !b) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 3 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  bipush 6\n" + 
+			"       4  istore_2\n" + 
+			"       5  iload_2\n" + 
+			"       6  bipush 6\n" + 
+			"       8  if_icmpne 15\n" + 
+			"      11  iconst_1\n" + 
+			"      12  goto 16\n" + 
+			"      15  iconst_0\n" + 
+			"      16  iload_1\n" + 
+			"      17  ifeq 24\n" + 
+			"      20  iconst_0\n" + 
+			"      21  goto 25\n" + 
+			"      24  iconst_1\n" + 
+			"      25  ixor\n" + 
+			"      26  ifeq 36\n" + 
+			"      29  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      32  iload_2\n" + 
+			"      33  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      36  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 4]\n" + 
+			"      [pc: 5, line: 5]\n" + 
+			"      [pc: 16, line: 6]\n" + 
+			"      [pc: 29, line: 7]\n" + 
+			"      [pc: 36, line: 9]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 37] local: b index: 1 type: boolean\n" + 
+			"      [pc: 5, pc: 37] local: i index: 2 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test044() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   ^ true) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   ^ true) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpeq 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test045() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		int i = 6;\n" +
-				"		if ((i == 6) \n" +
-				"		   ^ false) {   	\n" +
-				"		   	System.out.println(i);\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = 6;\n" +
+			"		if ((i == 6) \n" +
+			"		   ^ false) {   	\n" +
+			"		   	System.out.println(i);\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 2, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  bipush 6\n" + 
+			"       2  istore_1\n" + 
+			"       3  iload_1\n" + 
+			"       4  bipush 6\n" + 
+			"       6  if_icmpne 16\n" + 
+			"       9  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"      12  iload_1\n" + 
+			"      13  invokevirtual #27 <Method java.io.PrintStream#println(int arg) void>\n" + 
+			"      16  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 3, line: 4]\n" + 
+			"      [pc: 9, line: 6]\n" + 
+			"      [pc: 16, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 17] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 3, pc: 17] local: i index: 1 type: int\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}	
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test046() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (true\n" +
-				"		   ^ !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (true\n" +
+			"		   ^ !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifeq 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
 	public void test047() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		boolean b = false;\n" +
-				"		if (false\n" +
-				"		   ^ !b) {   	\n" +
-				"		   	System.out.println();\n" +
-				"		   }\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 2, methodInfos.length);
-			IMethodInfo methodInfo = methodInfos[1];
-			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertNotNull("No code attribute", codeAttribute);
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			assertNotNull("No code line number attribute", lineNumberAttribute);
-			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 4, lineNumberTable.length);
-			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
-			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
-			assertEquals("wrong pc[1]", 2, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 5, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 6, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
-			assertEquals("wrong pc[3]", 12, lineNumberTable[3][0]);
-			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		boolean b = false;\n" +
+			"		if (false\n" +
+			"		   ^ !b) {   	\n" +
+			"		   	System.out.println();\n" +
+			"		   }\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 2 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iconst_0\n" + 
+			"       1  istore_1\n" + 
+			"       2  iload_1\n" + 
+			"       3  ifne 12\n" + 
+			"       6  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
+			"       9  invokevirtual #26 <Method java.io.PrintStream#println() void>\n" + 
+			"      12  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 3]\n" + 
+			"      [pc: 2, line: 5]\n" + 
+			"      [pc: 6, line: 6]\n" + 
+			"      [pc: 12, line: 8]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 13] local: args index: 0 type: java/lang/String[]\n" + 
+			"      [pc: 2, pc: 13] local: b index: 1 type: boolean\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}
 
 	public void test048() {
-		try {
-			String sourceA =
-				"public class A {\n" +
-				"\n" +
-				"	static int foo(boolean bool) {\n" +
-				"	  int j;\n" +
-				"	  try {\n" +
-				"	    if (bool) return 1;\n" +
-				"	    j = 2;\n" +
-				"	  } finally {\n" +
-				"	    j = 3;\n" +
-				"	  }\n" +
-				"	  return j;\n" +
-				"	}\n" +
-				"\n" +
-				"	public static void main(String[] args) {\n" +
-				"		foo(false);\n" +
-				"	}\n" +
-				"}";
-			compileAndDeploy(sourceA, "A");
-			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
-			IMethodInfo[] methods = classFileReader.getMethodInfos();
-			assertEquals("wrong size", 3, methods.length);
-			IMethodInfo methodInfo = methods[1];
-			assertEquals("wrong name", "foo", new String(methodInfo.getName()));
-			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			assertEquals("Wrong size", 3, codeAttribute.getExceptionTableLength());
-			IExceptionTableEntry[] entries = codeAttribute.getExceptionTable();
-			// any exception handler
-			assertEquals("Wrong index", 0, entries[0].getCatchTypeIndex());
-			assertEquals("Wrong index", 0, entries[1].getCatchTypeIndex());
-			assertEquals("Wrong index", 0, entries[2].getCatchTypeIndex());
-			
-			assertEquals("Wrong startpc", 0, entries[0].getStartPC());
-			assertEquals("Wrong endpc", 7, entries[0].getEndPC());
-
-			assertEquals("Wrong startpc", 9, entries[1].getStartPC());
-			assertEquals("Wrong endpc", 14, entries[1].getEndPC());
-
-			assertEquals("Wrong startpc", 25, entries[2].getStartPC());
-			assertEquals("Wrong endpc", 28, entries[2].getEndPC());
-			
-			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-			if (lineNumberAttribute != null) {
-				int[][] lineEntries = lineNumberAttribute.getLineNumberTable();
-				assertNotNull("No entries", lineEntries);
-				assertEquals("wrong size", 7, lineEntries.length);
-				lineEntries[0][0] = 0;
-				lineEntries[0][1] = 6;
-				lineEntries[1][0] = 9;
-				lineEntries[1][1] = 7;
-				lineEntries[2][0] = 14;
-				lineEntries[2][1] = 8;
-				lineEntries[3][0] = 21;
-				lineEntries[3][1] = 9;
-				lineEntries[4][0] = 23;
-				lineEntries[4][1] = 10;
-				lineEntries[5][0] = 25;
-				lineEntries[5][1] = 8;
-				lineEntries[6][0] = 28;
-				lineEntries[6][1] = 11;
-			}
-		} finally {
-			removeTempClass("A");
-		}
+		String source =
+			"public class A {\n" +
+			"\n" +
+			"	static int foo(boolean bool) {\n" +
+			"	  int j;\n" +
+			"	  try {\n" +
+			"	    if (bool) return 1;\n" +
+			"	    j = 2;\n" +
+			"	  } finally {\n" +
+			"	    j = 3;\n" +
+			"	  }\n" +
+			"	  return j;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		foo(false);\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"/* \n" + 
+			" * Version (target 1.2) \n" + 
+			" * - magic: CAFEBABE\n" + 
+			" * - minor: 0\n" + 
+			" * - major: 46\n" + 
+			" */\n" + 
+			"// Compiled from A.java\n" + 
+			"public class A extends java.lang.Object {\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #6 ()V */\n" + 
+			"  public A();\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  aload_0\n" + 
+			"      1  invokespecial #9 <Constructor java.lang.Object()>\n" + 
+			"      4  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 1]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 5] local: this index: 0 type: A\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #15 (Z)I */\n" + 
+			"  static int foo(boolean bool);\n" + 
+			"    /* Stack: 1, Locals: 4 */\n" + 
+			"    Code attribute:\n" + 
+			"       0  iload_0\n" + 
+			"       1  ifeq 9\n" + 
+			"       4  jsr 20\n" + 
+			"       7  iconst_1\n" + 
+			"       8  ireturn\n" + 
+			"       9  iconst_2\n" + 
+			"      10  istore_1\n" + 
+			"      11  goto 25\n" + 
+			"      14  astore_3\n" + 
+			"      15  jsr 20\n" + 
+			"      18  aload_3\n" + 
+			"      19  athrow\n" + 
+			"      20  astore_2\n" + 
+			"      21  iconst_3\n" + 
+			"      22  istore_1\n" + 
+			"      23  ret 2\n" + 
+			"      25  jsr 20\n" + 
+			"      28  iload_1\n" + 
+			"      29  ireturn\n" + 
+			"\n" + 
+			"    Exception Table:\n" + 
+			"      [pc: 0, pc: 7] -> 14 when : any\n" + 
+			"      [pc: 9, pc: 14] -> 14 when : any\n" + 
+			"      [pc: 25, pc: 28] -> 14 when : any\n" + 
+			"      \n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 6]\n" + 
+			"      [pc: 9, line: 7]\n" + 
+			"      [pc: 14, line: 8]\n" + 
+			"      [pc: 21, line: 9]\n" + 
+			"      [pc: 23, line: 10]\n" + 
+			"      [pc: 25, line: 8]\n" + 
+			"      [pc: 28, line: 11]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 30] local: bool index: 0 type: boolean\n" + 
+			"      [pc: 11, pc: 14] local: j index: 1 type: int\n" + 
+			"      [pc: 23, pc: 30] local: j index: 1 type: int\n" + 
+			"  \n" + 
+			"  /*  Method descriptor  #21 ([Ljava/lang/String;)V */\n" + 
+			"  public static void main(String[] args);\n" + 
+			"    /* Stack: 1, Locals: 1 */\n" + 
+			"    Code attribute:\n" + 
+			"      0  iconst_0\n" + 
+			"      1  invokestatic #23 <Method A#foo(boolean arg) int>\n" + 
+			"      4  pop\n" + 
+			"      5  return\n" + 
+			"\n" + 
+			"    Line number attribute:\n" + 
+			"      [pc: 0, line: 15]\n" + 
+			"      [pc: 5, line: 16]\n" + 
+			"    Local variable table attribute:\n" + 
+			"      [pc: 0, pc: 6] local: args index: 0 type: java/lang/String[]\n" + 
+			"  \n" + 
+			"}";
+		checkClassFile("A", source, expectedOutput);
 	}			
 }
