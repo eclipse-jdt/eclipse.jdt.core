@@ -33,7 +33,7 @@ public TypeDeclarationLocator(TypeDeclarationPattern pattern) {
 //public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (this.pattern.simpleName == null || matchesName(this.pattern.simpleName, node.name))
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public void match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 

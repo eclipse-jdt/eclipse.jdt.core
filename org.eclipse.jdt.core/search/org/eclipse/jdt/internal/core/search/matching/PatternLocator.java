@@ -26,7 +26,7 @@ protected boolean isCaseSensitive;
 /* match levels */
 public static final int IMPOSSIBLE_MATCH = 0;
 public static final int INACCURATE_MATCH = 1;
-public static final int POTENTIAL_MATCH = 2;
+public static final int POSSIBLE_MATCH = 2;
 public static final int ACCURATE_MATCH = 3;
 
 /* match container */
@@ -187,13 +187,13 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 /**
  * Finds out whether the given ast node matches this search pattern.
  * Returns IMPOSSIBLE_MATCH if it doesn't.
- * Returns INACCURATE_MATCH if it potentially exactly this search pattern (ie. 
+ * Returns INACCURATE_MATCH if it potentially matches this search pattern (ie. 
  * it has already been resolved but resolving failed.)
  * Returns ACCURATE_MATCH if it matches exactly this search pattern (ie. 
  * it doesn't need to be resolved or it has already been resolved.)
  */
-public int resolveLevel(AstNode potentialMatchingNode) {
-	// only called with nodes which were potential matches to the call to matchLevel
+public int resolveLevel(AstNode possibleMatchingNode) {
+	// only called with nodes which were possible matches to the call to matchLevel
 	// need to do instance of checks to find out exact type of AstNode
 	return IMPOSSIBLE_MATCH;
 }

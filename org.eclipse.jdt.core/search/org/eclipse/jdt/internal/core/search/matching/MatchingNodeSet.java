@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 /**
- * A set of matches and potential matches.
+ * A set of matches and possible matches, which need to be resolved.
  */
 public class MatchingNodeSet {
 
@@ -43,11 +43,11 @@ static Integer EXACT_MATCH = new Integer(IJavaSearchResultCollector.EXACT_MATCH)
 static Integer POTENTIAL_MATCH = new Integer(IJavaSearchResultCollector.POTENTIAL_MATCH);
 
 /**
- * Set of potential matching ast nodes. They need to be resolved
+ * Set of possible matching ast nodes. They need to be resolved
  * to determine if they really match the search pattern.
  */
-SimpleSet potentialMatchingNodesSet = new SimpleSet(7);
-HashtableOfLong potentialMatchingNodesKeys = new HashtableOfLong(7);
+SimpleSet possibleMatchingNodesSet = new SimpleSet(7);
+HashtableOfLong possibleMatchingNodesKeys = new HashtableOfLong(7);
 
 /**
  * An ast visitor that visits local type declarations.
@@ -102,7 +102,7 @@ public MatchingNodeSet(MatchLocator locator) {
 }
 public void addMatch(AstNode node, int matchLevel) {
 	switch (matchLevel) {
-		case PatternLocator.POTENTIAL_MATCH:
+		case PatternLocator.POSSIBLE_MATCH:
 			addPossibleMatch(node);
 			break;
 		case PatternLocator.ACCURATE_MATCH:
@@ -114,13 +114,13 @@ public void addPossibleMatch(AstNode node) {
 	// (case of recovery that created the same node several time
 	// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=29366)
 	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
-	AstNode existing = (AstNode) this.potentialMatchingNodesKeys.get(key);
+	AstNode existing = (AstNode) this.possibleMatchingNodesKeys.get(key);
 	if (existing != null && existing.getClass().equals(node.getClass()))
-		this.potentialMatchingNodesSet.remove(existing);
+		this.possibleMatchingNodesSet.remove(existing);
 
 	// add node to set
-	this.potentialMatchingNodesSet.add(node);
-	this.potentialMatchingNodesKeys.put(key, node);
+	this.possibleMatchingNodesSet.add(node);
+	this.possibleMatchingNodesKeys.put(key, node);
 }
 public void addTrustedMatch(AstNode node) {
 	// remove existing node at same position from set
@@ -135,8 +135,8 @@ public void addTrustedMatch(AstNode node) {
 	this.matchingNodes.put(node, EXACT_MATCH);
 	this.matchingNodesKeys.put(key, node);
 }
-private boolean hasPotentialNodes(int start, int end) {
-	Object[] nodes = this.potentialMatchingNodesSet.values;
+private boolean hasPossibleNodes(int start, int end) {
+	Object[] nodes = this.possibleMatchingNodesSet.values;
 	for (int i = 0, l = nodes.length; i < l; i++) {
 		AstNode node = (AstNode) nodes[i];
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end)
@@ -177,7 +177,7 @@ private void purgeMethodStatements(TypeDeclaration type, boolean checkEachMethod
 		if (checkEachMethod) {
 			for (int j = 0, k = methods.length; j < k; j++) {
 				AbstractMethodDeclaration method = methods[j];
-				if (!hasPotentialNodes(method.declarationSourceStart, method.declarationSourceEnd))
+				if (!hasPossibleNodes(method.declarationSourceStart, method.declarationSourceEnd))
 					method.statements = null;
 			}
 		} else {
@@ -191,7 +191,7 @@ private void purgeMethodStatements(TypeDeclaration type, boolean checkEachMethod
 		for (int i = 0, l = memberTypes.length; i < l; i++) {
 			TypeDeclaration memberType = memberTypes[i];
 			boolean alsoHasMatchingMethods = checkEachMethod &&
-				hasPotentialNodes(memberType.declarationSourceStart, memberType.declarationSourceEnd);
+				hasPossibleNodes(memberType.declarationSourceStart, memberType.declarationSourceEnd);
 			purgeMethodStatements(memberType, alsoHasMatchingMethods);
 		}
 	}
@@ -200,17 +200,17 @@ private void purgeMethodStatements(TypeDeclaration type, boolean checkEachMethod
  * Called prior to the unit being resolved. Reduce the parse tree where possible.
  */
 public void reduceParseTree(CompilationUnitDeclaration unit) {
-	// remove statements from methods that have no potential matching nodes
+	// remove statements from methods that have no possible matching nodes
 	TypeDeclaration[] types = unit.types;
 	for (int i = 0, l = types.length; i < l; i++) {
 		TypeDeclaration type = types[i];
-		purgeMethodStatements(type, hasPotentialNodes(type.declarationSourceStart, type.declarationSourceEnd));
+		purgeMethodStatements(type, hasPossibleNodes(type.declarationSourceStart, type.declarationSourceEnd));
 	}
 }
 public Object removePossibleMatch(AstNode node) {
 	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
-	this.potentialMatchingNodesKeys.put(key, null);
-	return this.potentialMatchingNodesSet.remove(node);
+	this.possibleMatchingNodesKeys.put(key, null);
+	return this.possibleMatchingNodesSet.remove(node);
 }
 public Object removeTrustedMatch(AstNode node) {
 	long key = (((long) node.sourceStart) << 32) + node.sourceEnd;
@@ -255,8 +255,8 @@ private void reportMatching(AbstractMethodDeclaration method, IJavaElement paren
  */
 public void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve) throws CoreException {
 	if (mustResolve) {
-		// move the potential matching nodes that exactly match the search pattern to the matching nodes set
-		Object[] nodes = this.potentialMatchingNodesSet.values;
+		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
+		Object[] nodes = this.possibleMatchingNodesSet.values;
 		for (int i = 0, l = nodes.length; i < l; i++) {
 			AstNode node = (AstNode) nodes[i];
 			if (node == null) continue;
@@ -278,7 +278,7 @@ public void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve)
 					this.matchingNodes.put(node, POTENTIAL_MATCH);
 			}
 		}
-		this.potentialMatchingNodesSet = new SimpleSet();
+		this.possibleMatchingNodesSet = new SimpleSet();
 	}
 
 	if (this.matchingNodes.elementSize == 0) return; // no matching nodes were found
@@ -442,12 +442,12 @@ public String toString() {
 		node.print(0, result);
 	}
 
-	result.append("\nPotential matches:"); //$NON-NLS-1$
-	Object[] nodes = this.potentialMatchingNodesSet.values;
+	result.append("\nPossible matches:"); //$NON-NLS-1$
+	Object[] nodes = this.possibleMatchingNodesSet.values;
 	for (int i = 0, l = nodes.length; i < l; i++) {
 		AstNode node = (AstNode) nodes[i];
 		if (node == null) continue;
-		result.append("\nPOTENTIAL_MATCH: "); //$NON-NLS-1$
+		result.append("\nPOSSIBLE_MATCH: "); //$NON-NLS-1$
 		node.print(0, result);
 	}
 	return result.toString();

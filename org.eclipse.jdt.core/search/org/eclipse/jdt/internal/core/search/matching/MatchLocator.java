@@ -66,10 +66,10 @@ public HierarchyResolver hierarchyResolver;
 
 public CompilerOptions options;
 
-// management of PotentialMatch to be processed
+// management of PossibleMatch to be processed
 public int numberOfMatches; // (numberOfMatches - 1) is the last unit in matchesToProcess
-public PotentialMatch[] matchesToProcess;
-public PotentialMatch currentPotentialMatch;
+public PossibleMatch[] matchesToProcess;
+public PossibleMatch currentPossibleMatch;
 
 /*
  * Time spent in the IJavaSearchResultCollector
@@ -184,30 +184,30 @@ protected Parser basicParser() {
 	return this.basicParser;
 }
 /**
- * Add the potentialMatch to the loop
+ * Add the possibleMatch to the loop
  *  ->  build compilation unit declarations, their bindings and record their results.
  */
-protected void buildBindings(PotentialMatch potentialMatch) {
+protected void buildBindings(PossibleMatch possibleMatch) {
 	if (this.progressMonitor != null && this.progressMonitor.isCanceled())
 		throw new OperationCanceledException();
 
 	try {
 		if (SearchEngine.VERBOSE)
-			System.out.println("Parsing " + potentialMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
+			System.out.println("Parsing " + possibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
-		this.parser.setMatchSet(potentialMatch.matchingNodeSet);
-		CompilationResult unitResult = new CompilationResult(potentialMatch, 1, 1, this.options.maxProblemsPerUnit);
-		CompilationUnitDeclaration parsedUnit = this.parser.dietParse(potentialMatch, unitResult);
+		this.parser.setMatchSet(possibleMatch.matchingNodeSet);
+		CompilationResult unitResult = new CompilationResult(possibleMatch, 1, 1, this.options.maxProblemsPerUnit);
+		CompilationUnitDeclaration parsedUnit = this.parser.dietParse(possibleMatch, unitResult);
 		if (parsedUnit != null) {
 			if (!parsedUnit.isEmpty())
 				this.lookupEnvironment.buildTypeBindings(parsedUnit);
 
-			// add the potentialMatch with its parsedUnit to matchesToProcess
-			potentialMatch.parsedUnit = parsedUnit;
+			// add the possibleMatch with its parsedUnit to matchesToProcess
+			possibleMatch.parsedUnit = parsedUnit;
 			int size = this.matchesToProcess.length;
 			if (this.numberOfMatches == size)
-				System.arraycopy(this.matchesToProcess, 0, this.matchesToProcess = new PotentialMatch[size == 0 ? 1 : size * 2], 0, this.numberOfMatches);
-			this.matchesToProcess[this.numberOfMatches++] = potentialMatch;
+				System.arraycopy(this.matchesToProcess, 0, this.matchesToProcess = new PossibleMatch[size == 0 ? 1 : size * 2], 0, this.numberOfMatches);
+			this.matchesToProcess[this.numberOfMatches++] = possibleMatch;
 
 			if (this.progressMonitor != null)
 				this.progressMonitor.worked(4);
@@ -306,17 +306,17 @@ public IField createFieldHandle(FieldDeclaration field, IType type) {
  * Creates hierarchy resolver if needed. 
  * Returns whether focus is visible.
  */
-protected boolean createHierarchyResolver(IType focusType, PotentialMatch[] potentialMatches) {
-	// cache focus type if not a potential match
+protected boolean createHierarchyResolver(IType focusType, PossibleMatch[] possibleMatches) {
+	// cache focus type if not a possible match
 	char[][] compoundName = CharOperation.splitOn('.', focusType.getFullyQualifiedName().toCharArray());
-	boolean isPotentialMatch = false;
-	for (int i = 0, length = potentialMatches.length; i < length; i++) {
-		if (CharOperation.equals(potentialMatches[i].compoundName, compoundName)) {
-			isPotentialMatch = true;
+	boolean isPossibleMatch = false;
+	for (int i = 0, length = possibleMatches.length; i < length; i++) {
+		if (CharOperation.equals(possibleMatches[i].compoundName, compoundName)) {
+			isPossibleMatch = true;
 			break;
 		}
 	}
-	if (!isPotentialMatch) {
+	if (!isPossibleMatch) {
 		if (focusType.isBinary()) {
 			try {
 				cacheBinaryType(focusType);
@@ -341,7 +341,7 @@ public IJavaElement createImportHandle(ImportReference importRef) {
 	char[] importName = CharOperation.concatWith(importRef.getImportName(), '.');
 	if (importRef.onDemand)
 		importName = CharOperation.concat(importName, ".*" .toCharArray()); //$NON-NLS-1$
-	Openable currentOpenable = this.currentPotentialMatch.openable;
+	Openable currentOpenable = this.currentPossibleMatch.openable;
 	if (currentOpenable instanceof CompilationUnit)
 		return ((CompilationUnit) currentOpenable).getImport(new String(importName));
 
@@ -420,7 +420,7 @@ public IMethod createMethodHandle(AbstractMethodDeclaration method, IType type) 
  * Creates an IType from the given simple top level type name. 
  */
 public IType createTypeHandle(char[] simpleTypeName) {
-	Openable currentOpenable = this.currentPotentialMatch.openable;
+	Openable currentOpenable = this.currentPossibleMatch.openable;
 	if (currentOpenable instanceof CompilationUnit)
 		return ((CompilationUnit) currentOpenable).getType(new String(simpleTypeName));
 
@@ -501,14 +501,14 @@ protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {
 /**
  * Create a new parser for the given project, as well as a lookup environment.
  */
-public void initialize(JavaProject project, int potentialMatchSize) throws JavaModelException {
+public void initialize(JavaProject project, int possibleMatchSize) throws JavaModelException {
 	if (this.nameEnvironment != null)
 		this.nameEnvironment.cleanup();
 
-	// if only one potential match, a file name environment costs too much,
+	// if only one possible match, a file name environment costs too much,
 	// so use the existing searchable  environment which will populate the java model
-	// only for this potential match and its required types.
-	this.nameEnvironment = potentialMatchSize == 1
+	// only for this possible match and its required types.
+	this.nameEnvironment = possibleMatchSize == 1
 		? (INameEnvironment) project.getSearchableNameEnvironment()
 		: (INameEnvironment) new JavaSearchNameEnvironment(project);
 
@@ -528,9 +528,9 @@ public void initialize(JavaProject project, int potentialMatchSize) throws JavaM
 
 	// initialize queue of units
 	this.numberOfMatches = 0;
-	this.matchesToProcess = new PotentialMatch[potentialMatchSize];
+	this.matchesToProcess = new PossibleMatch[possibleMatchSize];
 }
-protected void locateMatches(JavaProject javaProject, PotentialMatch[] potentialMatches, int start, int length) throws JavaModelException {
+protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMatches, int start, int length) throws JavaModelException {
 	initialize(javaProject, length);
 
 	try {
@@ -540,14 +540,14 @@ protected void locateMatches(JavaProject javaProject, PotentialMatch[] potential
 		boolean bindingsWereCreated = true;
 		try {
 			for (int i = start, maxUnits = start + length; i < maxUnits; i++)
-				buildBindings(potentialMatches[i]);
+				buildBindings(possibleMatches[i]);
 			lookupEnvironment.completeTypeBindings();
 	
 			// create hierarchy resolver if needed
 			IType focusType = getFocusType();
 			if (focusType == null) {
 				this.hierarchyResolver = null;
-			} else if (!createHierarchyResolver(focusType, potentialMatches)) {
+			} else if (!createHierarchyResolver(focusType, possibleMatches)) {
 				// focus type is not visible, use the super type names instead of the bindings
 				if (computeSuperTypeNames(focusType) == null) return;
 			}
@@ -555,14 +555,14 @@ protected void locateMatches(JavaProject javaProject, PotentialMatch[] potential
 			bindingsWereCreated = false;
 		}
 	
-		// potential match resolution
+		// possible match resolution
 		for (int i = 0; i < this.numberOfMatches; i++) {
 			if (this.progressMonitor != null && this.progressMonitor.isCanceled())
 				throw new OperationCanceledException();
-			PotentialMatch potentialMatch = this.matchesToProcess[i];
-			this.matchesToProcess[i] = null; // release reference to processed potential match
+			PossibleMatch possibleMatch = this.matchesToProcess[i];
+			this.matchesToProcess[i] = null; // release reference to processed possible match
 			try {
-				process(potentialMatch, bindingsWereCreated);
+				process(possibleMatch, bindingsWereCreated);
 			} catch (AbortCompilation e) {
 				// problem with class path: it could not find base classes
 				// continue and try next matching openable reporting innacurate matches (since bindings will be null)
@@ -580,10 +580,10 @@ protected void locateMatches(JavaProject javaProject, PotentialMatch[] potential
 						new String[] {
 							String.valueOf(i + 1),
 							String.valueOf(numberOfMatches),
-							new String(potentialMatch.parsedUnit.getFileName())}));
+							new String(possibleMatch.parsedUnit.getFileName())}));
 				// cleanup compilation unit result
-				potentialMatch.parsedUnit.cleanUp();
-				potentialMatch.parsedUnit = null;
+				possibleMatch.parsedUnit.cleanUp();
+				possibleMatch.parsedUnit = null;
 			}
 			if (this.progressMonitor != null)
 				this.progressMonitor.worked(5);
@@ -593,13 +593,13 @@ protected void locateMatches(JavaProject javaProject, PotentialMatch[] potential
 	}
 }
 /**
- * Locate the matches amongst the potential matches.
+ * Locate the matches amongst the possible matches.
  */
-protected void locateMatches(JavaProject javaProject, PotentialMatchSet matchSet) throws JavaModelException {
-	PotentialMatch[] potentialMatches = matchSet.getPotentialMatches(javaProject.getPackageFragmentRoots());
-	for (int index = 0, length = potentialMatches.length; index < length;) {
+protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet) throws JavaModelException {
+	PossibleMatch[] possibleMatches = matchSet.getPossiblelMatches(javaProject.getPackageFragmentRoots());
+	for (int index = 0, length = possibleMatches.length; index < length;) {
 		int max = Math.min(MAX_AT_ONCE, length - index);
-		locateMatches(javaProject, potentialMatches, index, max);
+		locateMatches(javaProject, possibleMatches, index, max);
 		index += max;
 	}
 }
@@ -656,7 +656,7 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 		this.pattern.initializePolymorphicSearch(this, this.progressMonitor);
 
 		JavaProject previousJavaProject = null;
-		PotentialMatchSet matchSet = new PotentialMatchSet();
+		PossibleMatchSet matchSet = new PossibleMatchSet();
 		Util.sort(filePaths); 
 		for (int i = 0, l = filePaths.length; i < l; i++) {
 			if (this.progressMonitor != null && this.progressMonitor.isCanceled())
@@ -699,7 +699,7 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 				// file doesn't exist -> skip it
 				continue;
 			}
-			matchSet.add(new PotentialMatch(this, resource, openable));
+			matchSet.add(new PossibleMatch(this, resource, openable));
 
 			if (this.progressMonitor != null)
 				this.progressMonitor.worked(1);
@@ -752,7 +752,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, IWorkspace
 						IResource resource = pkg.getResource();
 						if (resource == null) // case of a file in an external jar
 							resource = javaProject.getProject();
-						this.currentPotentialMatch = new PotentialMatch(this, resource, null);
+						this.currentPossibleMatch = new PossibleMatch(this, resource, null);
 						try {
 							report(-1, -2, pkg, IJavaSearchResultCollector.EXACT_MATCH);
 						} catch (JavaModelException e) {
@@ -802,15 +802,15 @@ public IType lookupType(TypeBinding typeBinding) {
 /*
  * Process a compilation unit already parsed and build.
  */
-protected void process(PotentialMatch potentialMatch, boolean bindingsWereCreated) throws CoreException {
-	this.currentPotentialMatch = potentialMatch;
-	CompilationUnitDeclaration unit = potentialMatch.parsedUnit;
+protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated) throws CoreException {
+	this.currentPossibleMatch = possibleMatch;
+	CompilationUnitDeclaration unit = possibleMatch.parsedUnit;
 	MatchingNodeSet matchingNodeSet = null;
 	try {
 		if (unit.isEmpty()) {
-			if (this.currentPotentialMatch.openable instanceof ClassFile) {
-				ClassFile classFile = (ClassFile) this.currentPotentialMatch.openable;
-				IBinaryType info = this.getBinaryInfo(classFile, this.currentPotentialMatch.resource);
+			if (this.currentPossibleMatch.openable instanceof ClassFile) {
+				ClassFile classFile = (ClassFile) this.currentPossibleMatch.openable;
+				IBinaryType info = this.getBinaryInfo(classFile, this.currentPossibleMatch.resource);
 				if (info != null)
 					new ClassFileMatchLocator().locateMatches(this, classFile, info);
 			}
@@ -818,12 +818,12 @@ protected void process(PotentialMatch potentialMatch, boolean bindingsWereCreate
 		}
 		if (hasAlreadyDefinedType(unit)) return; // skip type has it is hidden so not visible
 
-		matchingNodeSet = this.currentPotentialMatch.matchingNodeSet;
+		matchingNodeSet = this.currentPossibleMatch.matchingNodeSet;
 		getMethodBodies(unit, matchingNodeSet);
 
 		if (bindingsWereCreated && this.pattern.mustResolve && unit.types != null) {
 			if (SearchEngine.VERBOSE)
-				System.out.println("Resolving " + this.currentPotentialMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
+				System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
 			matchingNodeSet.reduceParseTree(unit);
 
@@ -844,13 +844,13 @@ protected void process(PotentialMatch potentialMatch, boolean bindingsWereCreate
 			throw e;
 		}
 	} finally {
-		this.currentPotentialMatch = null;
+		this.currentPossibleMatch = null;
 	}
 }
 public void report(int sourceStart, int sourceEnd, IJavaElement element, int accuracy) throws CoreException {
 	if (this.scope.encloses(element)) {
 		if (SearchEngine.VERBOSE) {
-			IResource res = this.currentPotentialMatch.resource;
+			IResource res = this.currentPossibleMatch.resource;
 			System.out.println("Reporting match"); //$NON-NLS-1$
 			System.out.println("\tResource: " + (res == null ? " <unknown> " : res.getFullPath().toString())); //$NON-NLS-2$//$NON-NLS-1$
 			System.out.println("\tPositions: [" + sourceStart + ", " + sourceEnd + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -859,7 +859,7 @@ public void report(int sourceStart, int sourceEnd, IJavaElement element, int acc
 				? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 				: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
 		}
-		report(this.currentPotentialMatch.resource, sourceStart, sourceEnd, element, accuracy);
+		report(this.currentPossibleMatch.resource, sourceStart, sourceEnd, element, accuracy);
 	}
 }
 public void report(IResource resource, int sourceStart, int sourceEnd, IJavaElement element, int accuracy) throws CoreException {
@@ -880,7 +880,7 @@ public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qua
 
 	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
-	scanner.setSource(this.currentPotentialMatch.getContents());
+	scanner.setSource(this.currentPossibleMatch.getContents());
 	scanner.resetTo(sourceStart, sourceEnd);
 
 	int refSourceStart = -1, refSourceEnd = -1;
@@ -941,7 +941,7 @@ public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qua
 public void reportAccurateReference(int sourceStart, int sourceEnd, char[][] tokens, IJavaElement element, int[] accuracies) throws CoreException {
 	// compute source positions of the qualified reference 
 	Scanner scanner = this.parser.scanner;
-	scanner.setSource(this.currentPotentialMatch.getContents());
+	scanner.setSource(this.currentPossibleMatch.getContents());
 	scanner.resetTo(sourceStart, sourceEnd);
 
 	int refSourceStart = -1, refSourceEnd = -1;
@@ -1055,7 +1055,7 @@ public void reportMethodDeclaration(AbstractMethodDeclaration methodDeclaration,
 	// compute source positions of the selector 
 	Scanner scanner = parser.scanner;
 	int nameSourceStart = methodDeclaration.sourceStart;
-	scanner.setSource(this.currentPotentialMatch.getContents());
+	scanner.setSource(this.currentPossibleMatch.getContents());
 	scanner.resetTo(nameSourceStart, methodDeclaration.sourceEnd);
 	try {
 		scanner.getNextToken();

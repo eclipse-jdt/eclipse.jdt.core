@@ -57,7 +57,7 @@ public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	}
 	if (!matchesTypeReference(this.pattern.returnSimpleName, node.returnType)) return;
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 public void match(MessageSend node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return;
@@ -70,7 +70,7 @@ public void match(MessageSend node, MatchingNodeSet nodeSet) {
 		if (length != argsLength) return;
 	}
 
-	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+	nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -117,8 +117,8 @@ protected int matchMethod(MethodBinding method) {
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedMethodsPattern) {
-		// need accurate match to be able to open on type ref
-		if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
+		// need exact match to be able to open on type ref
+		if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return;
 
 		// element that references the method must be included in the enclosing element
 		DeclarationOfReferencedMethodsPattern declPattern = (DeclarationOfReferencedMethodsPattern) this.pattern; 
@@ -177,11 +177,11 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		}
 	}
 }
-public int resolveLevel(AstNode potentialMatchingNode) {
-	if (this.pattern.findReferences && potentialMatchingNode instanceof MessageSend)
-		return resolveLevel((MessageSend) potentialMatchingNode);
-	if (this.pattern.findDeclarations && potentialMatchingNode instanceof MethodDeclaration)
-		return resolveLevel(((MethodDeclaration) potentialMatchingNode).binding);
+public int resolveLevel(AstNode possibleMatchingNode) {
+	if (this.pattern.findReferences && possibleMatchingNode instanceof MessageSend)
+		return resolveLevel((MessageSend) possibleMatchingNode);
+	if (this.pattern.findDeclarations && possibleMatchingNode instanceof MethodDeclaration)
+		return resolveLevel(((MethodDeclaration) possibleMatchingNode).binding);
 	return IMPOSSIBLE_MATCH;
 }
 public int resolveLevel(Binding binding) {

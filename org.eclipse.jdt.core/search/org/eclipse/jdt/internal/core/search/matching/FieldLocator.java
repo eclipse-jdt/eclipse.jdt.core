@@ -143,8 +143,8 @@ protected void matchReference(Reference node, MatchingNodeSet nodeSet, boolean w
 }
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfAccessedFieldsPattern) {
-		// need accurate match to be able to open on type ref
-		if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return;
+		// need exact match to be able to open on type ref
+		if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return;
 
 		// element that references the field must be included in the enclosing element
 		DeclarationOfAccessedFieldsPattern declPattern = (DeclarationOfAccessedFieldsPattern) this.pattern; 

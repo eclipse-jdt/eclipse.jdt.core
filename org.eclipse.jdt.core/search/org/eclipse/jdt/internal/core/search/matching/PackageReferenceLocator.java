@@ -30,7 +30,7 @@ public void match(AstNode node, MatchingNodeSet nodeSet) { // interested in Impo
 	if (!(node instanceof ImportReference)) return;
 
 	int level = matchLevel((ImportReference) node);
-	if (level >= POTENTIAL_MATCH)
+	if (level >= POSSIBLE_MATCH)
 		nodeSet.addMatch(node, level);
 }
 //public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -42,7 +42,7 @@ public void match(Reference node, MatchingNodeSet nodeSet) { // interested in Qu
 	if (!(node instanceof QualifiedNameReference)) return;
 
 	int level = matchLevelForTokens(((QualifiedNameReference) node).tokens);
-	if (level >= POTENTIAL_MATCH)
+	if (level >= POSSIBLE_MATCH)
 		nodeSet.addMatch(node, level);
 }
 //public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -50,7 +50,7 @@ public void match(TypeReference node, MatchingNodeSet nodeSet) { // interested i
 	if (!(node instanceof QualifiedTypeReference)) return;
 
 	int level = matchLevelForTokens(((QualifiedTypeReference) node).tokens);
-	if (level >= POTENTIAL_MATCH)
+	if (level >= POSSIBLE_MATCH)
 		nodeSet.addMatch(node, level);
 }
 
@@ -69,14 +69,14 @@ protected int matchLevelForTokens(char[][] tokens) {
 		case IJavaSearchConstants.EXACT_MATCH:
 		case IJavaSearchConstants.PREFIX_MATCH:
 			if (CharOperation.prefixEquals(this.pattern.pkgName, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive))
-				return POTENTIAL_MATCH;
+				return POSSIBLE_MATCH;
 			break;
 		case IJavaSearchConstants.PATTERN_MATCH:
 			char[] patternName = this.pattern.pkgName[this.pattern.pkgName.length-1] == '*'
 				? this.pattern.pkgName
 				: CharOperation.concat(this.pattern.pkgName, ".*".toCharArray()); //$NON-NLS-1$
 			if (CharOperation.match(patternName, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive))
-				return POTENTIAL_MATCH;
+				return POSSIBLE_MATCH;
 			break;
 	}
 	return IMPOSSIBLE_MATCH;

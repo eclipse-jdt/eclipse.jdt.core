@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.*;
 
-public class PotentialMatch implements ICompilationUnit {
+public class PossibleMatch implements ICompilationUnit {
 
 public static final String NO_SOURCE_FILE_NAME = "NO SOURCE FILE NAME"; //$NON-NLS-1$
 
@@ -30,7 +30,7 @@ public char[][] compoundName;
 CompilationUnitDeclaration parsedUnit;
 private String sourceFileName;
 
-public PotentialMatch(MatchLocator locator, IResource resource, Openable openable) {
+public PossibleMatch(MatchLocator locator, IResource resource, Openable openable) {
 	this.resource = resource;
 	this.openable = openable;
 	this.matchingNodeSet = new MatchingNodeSet(locator);
@@ -40,8 +40,8 @@ public PotentialMatch(MatchLocator locator, IResource resource, Openable openabl
 }
 public boolean equals(Object obj) {
 	if (this.compoundName == null) return super.equals(obj);
-	if (!(obj instanceof PotentialMatch)) return false;
-	return CharOperation.equals(this.compoundName, ((PotentialMatch) obj).compoundName);
+	if (!(obj instanceof PossibleMatch)) return false;
+	return CharOperation.equals(this.compoundName, ((PossibleMatch) obj).compoundName);
 }
 public char[] getContents() {
 	char[] source = null;
@@ -138,6 +138,6 @@ public int hashCode() {
 	return hashCode;
 }
 public String toString() {
-	return this.openable == null ? "Fake PotentialMatch" : this.openable.toString(); //$NON-NLS-1$
+	return this.openable == null ? "Fake PossibleMatch" : this.openable.toString(); //$NON-NLS-1$
 }
 }

@@ -32,8 +32,8 @@ public TypeReferenceLocator(TypeReferencePattern pattern) {
 	this.isDeclarationOfReferencedTypesPattern = this.pattern instanceof DeclarationOfReferencedTypesPattern;
 }
 protected IJavaElement findElement(IJavaElement element, int accuracy) {
-	// need accurate match to be able to open on type ref
-	if (accuracy == IJavaSearchResultCollector.POTENTIAL_MATCH) return null;
+	// need exact match to be able to open on type ref
+	if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return null;
 
 	// element that references the type must be included in the enclosing element
 	DeclarationOfReferencedTypesPattern declPattern = (DeclarationOfReferencedTypesPattern) this.pattern; 
@@ -45,7 +45,7 @@ public void match(AstNode node, MatchingNodeSet nodeSet) { // interested in Impo
 	if (!(node instanceof ImportReference)) return;
 
 	int level = matchLevel((ImportReference) node);
-	if (level >= POTENTIAL_MATCH)
+	if (level >= POSSIBLE_MATCH)
 		nodeSet.addMatch(node, level);
 }
 //public void match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -57,15 +57,15 @@ public void match(Reference node, MatchingNodeSet nodeSet) { // interested in Na
 	if (!(node instanceof NameReference)) return;
 
 	if (this.pattern.simpleName == null) {
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else if (node instanceof SingleNameReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleNameReference) node).token))
-			nodeSet.addMatch(node, POTENTIAL_MATCH); // resolution is needed to find out if it is a type ref 
+			nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref 
 	} else {
 		char[][] tokens = ((QualifiedNameReference) node).tokens;
 		for (int i = 0, max = tokens.length; i < max; i++) {
 			if (matchesName(this.pattern.simpleName, tokens[i])) {
-				nodeSet.addMatch(node, POTENTIAL_MATCH); // resolution is needed to find out if it is a type ref
+				nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
 				return;
 			}
 		}
@@ -74,16 +74,16 @@ public void match(Reference node, MatchingNodeSet nodeSet) { // interested in Na
 //public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(TypeReference node, MatchingNodeSet nodeSet) {
 	if (this.pattern.simpleName == null)
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 
 	if (node instanceof SingleTypeReference) {
 		if (matchesName(this.pattern.simpleName, ((SingleTypeReference) node).token))
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else {
 		char[][] tokens = ((QualifiedTypeReference) node).tokens;
 		for (int i = 0, max = tokens.length; i < max; i++) {
 			if (matchesName(this.pattern.simpleName, tokens[i])) {
-				nodeSet.addMatch(node, POTENTIAL_MATCH); // resolution is needed to find out if it is a type ref
+				nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
 				return;
 			}
 		}
@@ -100,10 +100,10 @@ protected int matchLevel(ImportReference importRef) {
 		switch (this.matchMode) {
 			case IJavaSearchConstants.EXACT_MATCH :
 			case IJavaSearchConstants.PREFIX_MATCH :
-				if (CharOperation.prefixEquals(patternName, qualifiedTypeName, this.isCaseSensitive)) return POTENTIAL_MATCH;
+				if (CharOperation.prefixEquals(patternName, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
 				break;
 			case IJavaSearchConstants.PATTERN_MATCH:
-				if (CharOperation.match(patternName, qualifiedTypeName, this.isCaseSensitive)) return POTENTIAL_MATCH;
+				if (CharOperation.match(patternName, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
 				break;
 		}
 	} else {

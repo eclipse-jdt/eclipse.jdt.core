@@ -32,7 +32,7 @@ public SuperTypeReferenceLocator(SuperTypeReferencePattern pattern) {
 //public void match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(TypeReference node, MatchingNodeSet nodeSet) {
 	if (this.pattern.superSimpleName == null) {
-		nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+		nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else {
 		char[] typeRefSimpleName = null;
 		if (node instanceof SingleTypeReference) {
@@ -43,7 +43,7 @@ public void match(TypeReference node, MatchingNodeSet nodeSet) {
 		}				
 	
 		if (matchesName(this.pattern.superSimpleName, typeRefSimpleName))
-			nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
+			nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	}
 }
 
