@@ -1807,39 +1807,6 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 	}
 	
 	/**
-	 * Pops the top statement of the stack if it is a <code>BLOCK</code> or a <code>NONINDENT_BLOCK</code>.
-	 */
-	//TODO: (olivier) unused?
-	private int popBlock() {
-		int delta = 0;
-		if ((constructionsCount > 0)
-			&& ((constructions[constructionsCount - 1] == BLOCK)
-				|| (constructions[constructionsCount - 1] == NONINDENT_BLOCK))) {
-			if (constructions[constructionsCount - 1] == BLOCK)
-				delta--;
-			constructionsCount--;
-		}
-		return delta;
-	}
-	
-	/**
-	 * Pops elements until the stack is empty or the top element is <code>token</code>.<br>
-	 * Does not remove <code>token</code> from the stack.
-	 * @param token the token to be left as the top of the stack
-	 */
-	//TODO: (olivier) unused?
-	private int popExclusiveUntil(int token) {
-		int delta = 0;
-		int startCount = constructionsCount;
-		for (int i = startCount - 1; i >= 0 && constructions[i] != token; i--) {
-			if (constructions[i] != NONINDENT_BLOCK)
-				delta--;
-			constructionsCount--;
-		}
-		return delta;
-	}
-	
-	/**
 	 * Pops elements until the stack is empty or the top element is
 	 * a <code>BLOCK</code> or a <code>NONINDENT_BLOCK</code>.<br>
 	 * Does not remove it from the stack.
