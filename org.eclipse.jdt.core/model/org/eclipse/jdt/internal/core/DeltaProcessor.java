@@ -456,22 +456,33 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		IPath path = resource.getFullPath();
 		IJavaElement element = null;
 		switch (elementType) {
+			
 			case IJavaElement.JAVA_PROJECT:
-				this.popUntilPrefixOf(path);
-				if (this.currentElement != null) return this.currentElement;
-				if  (project != null){
-					element = (Openable)project;
-					break;
-				}
-				
-				IProject proj = (IProject)resource;
-				boolean isOpened = proj.isOpen();
-				if (isOpened && this.hasJavaNature(proj)) {
-					element = JavaCore.create(proj);
-				} else {
-					// java project may have been been closed or removed (look for
-					// element amongst old java project s list).
-					element =  (Openable) manager.getJavaModel().findJavaProject(proj);
+			
+				// note that non-java resources rooted at the project level will also enter this code with
+				// an elementType JAVA_PROJECT (see #elementType(...)).
+				if (resource instanceof IProject){
+
+					this.popUntilPrefixOf(path);
+					
+					if (this.currentElement != null 
+						&& this.currentElement.getElementType() == IJavaElement.JAVA_PROJECT
+						&& ((IJavaProject)this.currentElement).getProject().equals(resource)) {
+						return this.currentElement;
+					}
+					if  (project != null && project.getProject().equals(resource)){
+						element = (Openable)project;
+						break;
+					}
+					IProject proj = (IProject)resource;
+					boolean isOpened = proj.isOpen();
+					if (isOpened && this.hasJavaNature(proj)) {
+						element = JavaCore.create(proj);
+					} else {
+						// java project may have been been closed or removed (look for
+						// element amongst old java project s list).
+						element =  (Openable) manager.getJavaModel().findJavaProject(proj);
+					}
 				}
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
@@ -1572,11 +1583,20 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 	private int elementType(IResource res, int kind, int flags, int parentType, boolean isPkgFragmentRoot) {
 		switch (parentType) {
 			case IJavaElement.JAVA_MODEL:
-				if (kind != IResourceDelta.CHANGED
-					|| (flags & IResourceDelta.OPEN) != 0
-					|| (flags & IResourceDelta.DESCRIPTION) != 0) {
-					// project is added, removed, opened or closed, or its nature is changed
+				if (kind != IResourceDelta.CHANGED) {
+					// change on the project itself
 					return IJavaElement.JAVA_PROJECT;
+				} else if ((flags & IResourceDelta.OPEN) != 0) {
+					// project is opened or closed
+					return IJavaElement.JAVA_PROJECT;
+				} else if ((flags & IResourceDelta.DESCRIPTION) != 0) {
+						// project's description has changed: need to check if java nature has changed
+						IProject proj = res.getProject();
+						boolean wasJavaProject = JavaModelManager.getJavaModelManager().getJavaModel().findJavaProject(proj) != null;
+						boolean isJavaProject = this.hasJavaNature(proj);
+						if (wasJavaProject != isJavaProject) {
+							return IJavaElement.JAVA_PROJECT;
+						}
 				} // else see below
 			case IJavaElement.JAVA_PROJECT:
 				if (isPkgFragmentRoot) {
