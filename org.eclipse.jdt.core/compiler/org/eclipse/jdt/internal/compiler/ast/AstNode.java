@@ -122,6 +122,11 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 		return true;
 	}
 
+	public boolean isImplicitThis() {
+		
+		return false;
+	}
+	
 	/* Answer true if the method use is considered deprecated.
 	* An access in the same compilation unit is allowed.
 	*/

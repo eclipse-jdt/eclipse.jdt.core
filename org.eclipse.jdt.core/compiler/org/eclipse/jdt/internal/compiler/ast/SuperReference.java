@@ -16,21 +16,16 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SuperReference extends ThisReference {
-	public static final SuperReference Super = new SuperReference();
 	
-/**
- * SuperReference constructor comment.
- */
-public SuperReference() {
-	super();
-}
-public SuperReference(int pos, int sourceEnd) {
-	super();
-	sourceStart = pos;
-	this.sourceEnd = sourceEnd;
+public SuperReference(int sourceStart, int sourceEnd) {
+	super(sourceStart, sourceEnd);
 }
 public static ExplicitConstructorCall implicitSuperConstructorCall() {
 	return new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
+}
+public boolean isImplicitThis() {
+	
+	return false;
 }
 public boolean isSuper() {
 	

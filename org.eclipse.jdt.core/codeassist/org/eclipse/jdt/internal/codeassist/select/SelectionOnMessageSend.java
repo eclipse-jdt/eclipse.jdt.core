@@ -30,7 +30,6 @@ package org.eclipse.jdt.internal.codeassist.select;
  */
 
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -113,7 +112,7 @@ public class SelectionOnMessageSend extends MessageSend {
 	public String toStringExpression() {
 
 		String s = "<SelectOnMessageSend:"; //$NON-NLS-1$
-		if (receiver != ThisReference.ThisImplicit)
+		if (!receiver.isImplicitThis())
 			s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
 		s = s + new String(selector) + "("; //$NON-NLS-1$
 		if (arguments != null) {

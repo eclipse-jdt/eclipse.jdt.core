@@ -44,7 +44,7 @@ public class CompletionOnMessageSend extends MessageSend {
 				arguments[a].resolveType(scope);
 		}
 		
-		if (receiver == ThisReference.ThisImplicit)
+		if (receiver.isImplicitThis())
 			throw new CompletionNodeFound(this, null, scope);
 
 		TypeBinding receiverType = receiver.resolveType(scope);
@@ -59,7 +59,7 @@ public class CompletionOnMessageSend extends MessageSend {
 	public String toStringExpression() {
 
 		String s = "<CompleteOnMessageSend:"; //$NON-NLS-1$
-		if (receiver != ThisReference.ThisImplicit)
+		if (!receiver.isImplicitThis())
 			s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
 		s = s + new String(selector) + "("; //$NON-NLS-1$
 		if (arguments != null) {

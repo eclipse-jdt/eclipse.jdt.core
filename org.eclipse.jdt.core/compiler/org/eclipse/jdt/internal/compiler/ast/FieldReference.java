@@ -523,19 +523,20 @@ public class FieldReference extends Reference implements InvocationSite {
 			scope.problemReporter().deprecatedField(binding, this);
 
 		// check for this.x in static is done in the resolution of the receiver
+		boolean isImplicitThisRcv = receiver.isImplicitThis();
 		constant =
 			FieldReference.getConstantFor(
 				binding,
-				receiver == ThisReference.ThisImplicit,
+				isImplicitThisRcv,
 				this,
 				scope,
 				0);
-		if (receiver != ThisReference.ThisImplicit)
+		if (!isImplicitThisRcv)
 			constant = NotAConstant;
 
 		if (binding.isStatic()) {
 			// static field accessed through receiver? legal but unoptimal (optional warning)
-			if (!(receiver == ThisReference.ThisImplicit
+			if (!(isImplicitThisRcv
 					|| receiver.isSuper()
 					|| (receiver instanceof NameReference 
 						&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {

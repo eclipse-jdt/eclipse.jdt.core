@@ -20,10 +20,9 @@ public class QualifiedThisReference extends ThisReference {
 	public TypeReference qualification;
 	ReferenceBinding currentCompatibleType;
 
-	public QualifiedThisReference(TypeReference name, int pos, int sourceEnd) {
-
+	public QualifiedThisReference(TypeReference name, int sourceStart, int sourceEnd) {
+		super(sourceStart, sourceEnd);
 		qualification = name;
-		this.sourceEnd = sourceEnd;
 		this.sourceStart = name.sourceStart;
 	}
 

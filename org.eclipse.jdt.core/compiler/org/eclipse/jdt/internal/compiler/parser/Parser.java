@@ -2572,7 +2572,7 @@ protected void consumeMethodInvocationName() {
 		(int) ((m.nameSourcePosition = identifierPositionStack[identifierPtr]) >>> 32); 
 	m.selector = identifierStack[identifierPtr--];
 	if (identifierLengthStack[identifierLengthPtr] == 1) {
-		m.receiver = ThisReference.ThisImplicit;
+		m.receiver = ThisReference.implicitThis();
 		identifierLengthPtr--;
 	} else {
 		identifierLengthStack[identifierLengthPtr]--;

@@ -230,7 +230,7 @@ private void buildMoreCompletionContext(Expression expression) {
 						// find receiver
 						switch (invocationType) {
 							case NO_RECEIVER:
-								messageSend.receiver = ThisReference.ThisImplicit;
+								messageSend.receiver = ThisReference.implicitThis();
 								break;
 							case NAME_RECEIVER:
 								// remove special flags for primitive types
@@ -245,13 +245,13 @@ private void buildMoreCompletionContext(Expression expression) {
 								messageSend.receiver = this.getUnspecifiedReference();
 								break;
 							case SUPER_RECEIVER:
-								messageSend.receiver = SuperReference.Super;
+								messageSend.receiver = new SuperReference(0, 0);
 								break;
 							case EXPLICIT_RECEIVER:
 								messageSend.receiver = this.expressionStack[qualifierExprPtr];
 								break;
 							default :
-								messageSend.receiver = ThisReference.ThisImplicit;
+								messageSend.receiver = ThisReference.implicitThis();
 								break;
 						}
 						assistNodeParent = messageSend;
@@ -585,7 +585,7 @@ private boolean checkInvocation() {
 			switch (invocationType) {
 				case NO_RECEIVER:
 					// implicit this
-					messageSend.receiver = ThisReference.ThisImplicit;
+					messageSend.receiver = ThisReference.implicitThis();
 					break;
 				case NAME_RECEIVER:
 					// remove special flags for primitive types
@@ -600,7 +600,7 @@ private boolean checkInvocation() {
 					messageSend.receiver = this.getUnspecifiedReference();
 					break;
 				case SUPER_RECEIVER:
-					messageSend.receiver = SuperReference.Super;
+					messageSend.receiver = new SuperReference(0, 0);
 					break;
 				case EXPLICIT_RECEIVER:
 					messageSend.receiver = this.expressionStack[qualifierExprPtr];

@@ -15,7 +15,6 @@ import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
-import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -353,7 +352,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().deprecatedField(binding, this);
 
 	// check for this.x in static is done in the resolution of the receiver
-	constant = FieldReference.getConstantFor(binding, receiver == ThisReference.ThisImplicit, this, scope, 0);
+	constant = FieldReference.getConstantFor(binding, receiver.isImplicitThis(), this, scope, 0);
 	if (!receiver.isThis())
 		constant = NotAConstant;
 

@@ -64,7 +64,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// generate receiver/enclosing instance access
 	boolean isStatic = codegenBinding.isStatic();
 	// outer access ?
-	if (!isStatic && ((bits & DepthMASK) != 0) && (receiver == ThisReference.ThisImplicit)){
+	if (!isStatic && ((bits & DepthMASK) != 0) && receiver.isImplicitThis()){
 		// outer method can be reached through emulation if implicit access
 		Object[] path = currentScope.getExactEmulationPath(currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT));
 		if (path == null) {
@@ -126,7 +126,7 @@ public boolean isTypeAccess() {
 	return receiver != null && receiver.isTypeReference();
 }
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
-	if (((bits & DepthMASK) != 0) && !binding.isStatic() && (receiver == ThisReference.ThisImplicit)) {
+	if (((bits & DepthMASK) != 0) && !binding.isStatic() && receiver.isImplicitThis()) {
 		ReferenceBinding compatibleType = currentScope.enclosingSourceType();
 		// the declaringClass of the target binding must be compatible with the enclosing
 		// type at <depth> levels outside
@@ -176,7 +176,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 	if (binding.declaringClass != this.qualifyingType
 		&& !this.qualifyingType.isArrayType()
 		&& ((currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-				&& (receiver != ThisReference.ThisImplicit || !binding.isStatic())
+				&& (!receiver.isImplicitThis() || !binding.isStatic())
 				&& binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !binding.declaringClass.canBeSeenBy(currentScope))) {
 
@@ -220,7 +220,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 
 	this.codegenBinding = this.binding = 
-		receiver == ThisReference.ThisImplicit
+		receiver.isImplicitThis()
 			? scope.getImplicitMethod(selector, argumentTypes, this)
 			: scope.getMethod(this.receiverType, selector, argumentTypes, this); 
 	if (!binding.isValidBinding()) {
@@ -248,7 +248,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
-		if (!(receiver == ThisReference.ThisImplicit
+		if (!(receiver.isImplicitThis()
 				|| receiver.isSuper()
 				|| (receiver instanceof NameReference 
 					&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
@@ -288,7 +288,7 @@ public void setFieldIndex(int depth) {
 public String toStringExpression(){
 	
 	String s = ""; //$NON-NLS-1$
-	if (receiver != ThisReference.ThisImplicit)
+	if (!receiver.isImplicitThis())
 		s = s + receiver.toStringExpression()+"."; //$NON-NLS-1$
 	s = s + new String(selector) + "(" ; //$NON-NLS-1$
 	if (arguments != null)

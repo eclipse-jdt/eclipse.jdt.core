@@ -373,7 +373,7 @@ class ASTConverter {
 	}
 	
 	public Expression convert(ThisReference reference) {
-		if (reference == ThisReference.ThisImplicit) {
+		if (reference.isImplicitThis()) {
 			// There is no source associated with an implicit this
 			return null;
 		} else if (reference instanceof QualifiedSuperReference) {

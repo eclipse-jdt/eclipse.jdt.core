@@ -16,17 +16,14 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ThisReference extends Reference {
 	
-	public static final ThisReference ThisImplicit = new ThisReference();
+private final static int ImplicitThisStart = -1;
 	
-/**
- * ThisReference constructor comment.
- */
-public ThisReference() {
-	super();
+public static ThisReference implicitThis(){
+	return new ThisReference(ImplicitThisStart, 0);
 }
-public ThisReference(int s, int sourceEnd) {
-	this();
-	this.sourceStart = s ;
+	
+public ThisReference(int sourceStart, int sourceEnd) {
+	this.sourceStart = sourceStart;
 	this.sourceEnd = sourceEnd;
 }
 protected boolean checkAccess(MethodScope methodScope) {
@@ -49,20 +46,24 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.aload_0();
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
+public boolean isImplicitThis() {
+	
+	return this.sourceStart == ImplicitThisStart;
+}
 public boolean isThis() {
 	
 	return true ;
 }
 public TypeBinding resolveType(BlockScope scope) {
-	// implicit this
+
 	constant = NotAConstant;
-	if (this != ThisImplicit && !checkAccess(scope.methodScope()))
+	if (!this.isImplicitThis() && !checkAccess(scope.methodScope()))
 		return null;
 	return this.resolvedType = scope.enclosingSourceType();
 }
 public String toStringExpression(){
 
-	if (this == ThisImplicit) return "" ; //$NON-NLS-1$
+	if (this.isImplicitThis()) return "" ; //$NON-NLS-1$
 	return "this"; //$NON-NLS-1$
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
