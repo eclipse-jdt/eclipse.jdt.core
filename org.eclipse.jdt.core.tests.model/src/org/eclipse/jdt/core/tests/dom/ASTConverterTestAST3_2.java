@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0576"));
+		suite.addTest(new ASTConverterTestAST3_2("test0578"));
 		return suite;
 	}
 	/**
@@ -5346,8 +5346,85 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78305
 	 */
 	public void test0577() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0574", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0577", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77645
+	 */
+	public void test0578() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0578", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertProblemsSize(unit, 0);
+		unit.accept(new ASTVisitor() {
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.SingleVariableDeclaration)
+			 */
+			public boolean visit(SingleVariableDeclaration node) {
+				IVariableBinding binding = node.resolveBinding();
+				assertNotNull("No method", binding.getDeclaringMethod());
+				return false;
+			}
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.VariableDeclarationFragment)
+			 */
+			public boolean visit(VariableDeclarationFragment node) {
+				IVariableBinding binding = node.resolveBinding();
+				ASTNode parent = node.getParent();
+				if (parent != null && binding != null) {
+					final IMethodBinding declaringMethod = binding.getDeclaringMethod();
+					final String variableBindingName = binding.getName();
+					switch(parent.getNodeType()) {
+						case ASTNode.FIELD_DECLARATION :
+							assertNull("Got a method", declaringMethod);
+							break;
+						default :
+							if (variableBindingName.equals("var1")
+									|| variableBindingName.equals("var2")) {
+								assertNull("Got a method", declaringMethod);
+							} else {
+								assertNotNull("No method", declaringMethod);
+								String methodName = declaringMethod.getName();
+								if (variableBindingName.equals("var4")) {
+									assertEquals("Wrong method", "foo", methodName);
+								} else if (variableBindingName.equals("var5")) {
+									assertEquals("Wrong method", "foo2", methodName);
+								} else if (variableBindingName.equals("var7")) {
+									assertEquals("Wrong method", "foo3", methodName);
+								} else if (variableBindingName.equals("var8")) {
+									assertEquals("Wrong method", "X", methodName);
+								} else if (variableBindingName.equals("var9")) {
+									assertEquals("Wrong method", "bar3", methodName);
+								} else if (variableBindingName.equals("var10")) {
+									assertEquals("Wrong method", "bar3", methodName);
+								} else if (variableBindingName.equals("var11")) {
+									assertEquals("Wrong method", "X", methodName);
+								} 
+							}
+					}
+				}
+				return false;
+			}
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.FieldAccess)
+			 */
+			public boolean visit(FieldAccess node) {
+				IVariableBinding binding = node.resolveFieldBinding();
+				assertNull("No method", binding.getDeclaringMethod());
+				return false;
+			}
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SuperFieldAccess)
+			 */
+			public boolean visit(SuperFieldAccess node) {
+				IVariableBinding binding = node.resolveFieldBinding();
+				assertNull("No method", binding.getDeclaringMethod());
+				return false;
+			}
+		});
+	}	
 }

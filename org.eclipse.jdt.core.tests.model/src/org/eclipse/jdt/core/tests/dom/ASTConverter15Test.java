@@ -17,9 +17,11 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
@@ -34,11 +36,13 @@ import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
@@ -57,6 +61,7 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
@@ -80,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0067"));
+		suite.addTest(new ASTConverter15Test("test0071"));
 		return suite;
 	}
 		
@@ -1920,5 +1925,163 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = wildcardType.resolveBinding();
 		assertFalse("An upperbound type binding", typeBinding.isUpperbound());
 	}
-}
 
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
+	 */
+	public void _test0069() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0069", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		assertNotNull("No binding", parameterizedType.resolveBinding());
+		Type type2 = parameterizedType.getType();
+		assertTrue("Not a qualified type", type2.isQualifiedType());
+		QualifiedType qualifiedType = (QualifiedType) type2;
+		assertNotNull("No binding", qualifiedType.resolveBinding());
+		SimpleName simpleName = qualifiedType.getName();
+		assertNotNull("No binding", simpleName.resolveBinding());
+		Type type3 = qualifiedType.getQualifier();
+		assertTrue("Not a parameterized type", type3.isParameterizedType());
+		ParameterizedType parameterizedType2 = (ParameterizedType) type3;
+		assertNotNull("No binding", parameterizedType2.resolveBinding());
+		Type type4 = parameterizedType2.getType();
+		assertTrue("Not a simple type", type4.isSimpleType());
+		SimpleType simpleType = (SimpleType) type4;
+		assertNotNull("No binding", simpleType.resolveBinding());
+		Name name = simpleType.getName();
+		assertTrue("Not a qualified name", name.isQualifiedName());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		assertNotNull("No binding", qualifiedName.resolveBinding());
+		Name name2 = qualifiedName.getQualifier();
+		assertTrue("Not a simpleName", name2.isSimpleName());
+		SimpleName simpleName2 = (SimpleName) name2;
+		IBinding binding = simpleName2.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("wrong type", IBinding.PACKAGE, binding.getKind());
+		SimpleName simpleName3 = qualifiedName.getName();
+		assertNotNull("No binding", simpleName3.resolveBinding());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
+	 */
+	public void _test0070() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0070", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78930
+	 */
+	public void _test0071() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0071", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List typeParameters = methodDeclaration.typeParameters();
+		assertEquals("wrong size", 1, typeParameters.size());
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		ITypeBinding[] typeBindings = methodBinding.getTypeParameters();
+		assertEquals("wrong size", 1, typeBindings.length);
+		ITypeBinding typeBinding = typeBindings[0];
+		IJavaElement javaElement = typeBinding.getJavaElement();
+		assertNull("No java element", javaElement);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77645
+	 */
+	public void test0072() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0072", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertProblemsSize(unit, 0);
+		unit.accept(new ASTVisitor() {
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.SingleVariableDeclaration)
+			 */
+			public boolean visit(SingleVariableDeclaration node) {
+				IVariableBinding binding = node.resolveBinding();
+				assertNotNull("No method", binding.getDeclaringMethod());
+				return false;
+			}
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.VariableDeclarationFragment)
+			 */
+			public boolean visit(VariableDeclarationFragment node) {
+				IVariableBinding binding = node.resolveBinding();
+				ASTNode parent = node.getParent();
+				if (parent != null && binding != null) {
+					final IMethodBinding declaringMethod = binding.getDeclaringMethod();
+					final String variableBindingName = binding.getName();
+					switch(parent.getNodeType()) {
+						case ASTNode.FIELD_DECLARATION :
+							assertNull("Got a method", declaringMethod);
+							break;
+						default :
+							if (variableBindingName.equals("var1")
+									|| variableBindingName.equals("var2")) {
+								assertNull("Got a method", declaringMethod);
+							} else {
+								assertNotNull("No method", declaringMethod);
+								String methodName = declaringMethod.getName();
+								if (variableBindingName.equals("var4")) {
+									assertEquals("Wrong method", "foo", methodName);
+								} else if (variableBindingName.equals("var5")) {
+									assertEquals("Wrong method", "foo2", methodName);
+								} else if (variableBindingName.equals("var7")) {
+									assertEquals("Wrong method", "foo3", methodName);
+								} else if (variableBindingName.equals("var8")) {
+									assertEquals("Wrong method", "X", methodName);
+								} else if (variableBindingName.equals("var9")) {
+									assertEquals("Wrong method", "bar3", methodName);
+								} else if (variableBindingName.equals("var10")) {
+									assertEquals("Wrong method", "bar3", methodName);
+								} else if (variableBindingName.equals("var11")) {
+									assertEquals("Wrong method", "bar3", methodName);
+								} else if (variableBindingName.equals("var12")) {
+									assertEquals("Wrong method", "X", methodName);
+								} 
+							}
+					}
+				}
+				return false;
+			}
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.FieldAccess)
+			 */
+			public boolean visit(FieldAccess node) {
+				IVariableBinding binding = node.resolveFieldBinding();
+				assertNull("No method", binding.getDeclaringMethod());
+				return false;
+			}
+			/* (non-Javadoc)
+			 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SuperFieldAccess)
+			 */
+			public boolean visit(SuperFieldAccess node) {
+				IVariableBinding binding = node.resolveFieldBinding();
+				assertNull("No method", binding.getDeclaringMethod());
+				return false;
+			}
+		});
+	}
+}

@@ -104,4 +104,23 @@ public interface IVariableBinding extends IBinding {
 	 * @since 3.0
 	 */
 	public Object getConstantValue();
+	
+	/**
+	 * Returns the method binding representing the method containing the scope
+	 * in which this local variable is declared.
+	 * <p>
+	 * The declaring method of a method formal parameter is the method itself.
+	 * For a local variable declared somewhere within the body of a method,
+	 * the declaring method is the enclosing method. When local or anonymous
+	 * classes are involved, the declaring method is the innermost such method.
+	 * There is no declaring method for a field, or for a local variable
+	 * declared in a static or instance initializer; this method returns
+	 * <code>null</code> in those cases.
+	 * </p>
+	 * 
+	 * @return the binding of the method or constructor that declares this
+	 * local variable, or <code>null</code> if none
+	 * @since 3.1
+	 */
+	public IMethodBinding getDeclaringMethod();
 }

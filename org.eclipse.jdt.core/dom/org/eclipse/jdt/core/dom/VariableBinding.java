@@ -27,154 +27,15 @@ class VariableBinding implements IVariableBinding {
 		Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT | Modifier.VOLATILE;
 	
 	private org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding;
-	private BindingResolver resolver;
-	private String name;
 	private ITypeBinding declaringClass;
-	private ITypeBinding type;
 	private String key;
+	private String name;
+	private BindingResolver resolver;
+	private ITypeBinding type;
 
 	VariableBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
 		this.resolver = resolver;
 		this.binding = binding;
-	}
-
-	/*
-	 * @see IVariableBinding#isField()
-	 */
-	public boolean isField() {
-		return this.binding instanceof FieldBinding;
-	}
-
-	/*
-	 * @see IBinding#getName()
-	 */
-	public String getName() {
-		if (this.name == null) {
-			this.name = new String(this.binding.name);
-		}
-		return this.name;
-	}
-
-	/*
-	 * @see IVariableBinding#getDeclaringClass()
-	 */
-	public ITypeBinding getDeclaringClass() {
-		if (isField()) {
-			if (this.declaringClass == null) {
-				FieldBinding fieldBinding = (FieldBinding) this.binding;
-				this.declaringClass = this.resolver.getTypeBinding(fieldBinding.declaringClass);
-			}
-			return this.declaringClass;
-		} else {
-			return null;
-		}
-	}
-	
-	/*
-	 * @see IVariableBinding#getType()
-	 */
-	public ITypeBinding getType() {
-		if (type == null) {
-			type = this.resolver.getTypeBinding(this.binding.type);
-		}
-		return type;
-	}
-
-	/*
-	 * @see IBinding#getKind()
-	 */
-	public int getKind() {
-		return IBinding.VARIABLE;
-	}
-
-	/*
-	 * @see IBinding#getModifiers()
-	 */
-	public int getModifiers() {
-		if (isField()) {
-			return ((FieldBinding) this.binding).getAccessFlags() & VALID_MODIFIERS;
-		}
-		if (binding.isFinal()) {
-			return IModifierConstants.ACC_FINAL;
-		}
-		return 0;
-	}
-
-	/*
-	 * @see IBinding#isDeprecated()
-	 */
-	public boolean isDeprecated() {
-		if (isField()) {
-			return ((FieldBinding) this.binding).isDeprecated();
-		}
-		return false;
-	}
-
-	/**
-	 * @see IBinding#isSynthetic()
-	 */
-	public boolean isSynthetic() {
-		if (isField()) {
-			return ((FieldBinding) this.binding).isSynthetic();
-		}
-		return false;
-	}
-
-	/*
-	 * @see IBinding#getJavaElement()
-	 */
-	public IJavaElement getJavaElement() {
-		if (isField()) {
-			IType declaringType = (IType) getDeclaringClass().getJavaElement();
-			if (declaringType == null) return null;
-			return declaringType.getField(getName());
-		}
-		return null;
-	}
-	
-	/*
-	 * @see IBinding#getKey()
-	 */
-	public String getKey() {
-		if (this.key == null) {
-			this.key = new String(this.binding.computeUniqueKey());
-		}
-		return this.key;
-	}
-	
-	/*
-	 * @see IBinding#isEqualTo(Binding)
-	 * @since 3.1
-	 */
-	public boolean isEqualTo(IBinding other) {
-		if (other == this) {
-			// identical binding - equal (key or no key)
-			return true;
-		}
-		if (other == null) {
-			// other binding missing
-			return false;
-		}
-		if (!(other instanceof VariableBinding)) {
-			return false;
-		}
-		org.eclipse.jdt.internal.compiler.lookup.VariableBinding otherBinding = ((VariableBinding) other).binding;
-		if (this.binding instanceof FieldBinding) {
-			if (otherBinding instanceof FieldBinding) {
-				return BindingComparator.isEqual((FieldBinding) this.binding, (FieldBinding) otherBinding);
-			} else {
-				return false;
-			}
-		} else {
-			return BindingComparator.isEqual(this.binding, otherBinding);
-		}
-	}
-	
-	/*
-	 * @see IVariableBinding#getVariableId()
-	 */
-	public int getVariableId() {
-		return this.binding.id;
 	}
 
 	/* (non-Javadoc)
@@ -206,6 +67,163 @@ class VariableBinding implements IVariableBinding {
 				return c.stringValue();
 		}
 		return null;
+	}
+
+	/*
+	 * @see IVariableBinding#getDeclaringClass()
+	 */
+	public ITypeBinding getDeclaringClass() {
+		if (isField()) {
+			if (this.declaringClass == null) {
+				FieldBinding fieldBinding = (FieldBinding) this.binding;
+				this.declaringClass = this.resolver.getTypeBinding(fieldBinding.declaringClass);
+			}
+			return this.declaringClass;
+		} else {
+			return null;
+		}
+	}
+	public IMethodBinding getDeclaringMethod() {
+		if (!isField()) {
+			ASTNode node = this.resolver.findDeclaringNode(this);
+			while (true) {
+				if (node == null) break;
+				switch(node.getNodeType()) {
+					case ASTNode.INITIALIZER :
+						return null;
+					case ASTNode.METHOD_DECLARATION :
+						MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+						return methodDeclaration.resolveBinding();
+					default:
+						node = node.getParent();
+				}
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * @see IBinding#getJavaElement()
+	 */
+	public IJavaElement getJavaElement() {
+		if (isField()) {
+			IType declaringType = (IType) getDeclaringClass().getJavaElement();
+			if (declaringType == null) return null;
+			return declaringType.getField(getName());
+		}
+		return null;
+	}
+	
+	/*
+	 * @see IBinding#getKey()
+	 */
+	public String getKey() {
+		if (this.key == null) {
+			this.key = new String(this.binding.computeUniqueKey());
+		}
+		return this.key;
+	}
+
+	/*
+	 * @see IBinding#getKind()
+	 */
+	public int getKind() {
+		return IBinding.VARIABLE;
+	}
+
+	/*
+	 * @see IBinding#getModifiers()
+	 */
+	public int getModifiers() {
+		if (isField()) {
+			return ((FieldBinding) this.binding).getAccessFlags() & VALID_MODIFIERS;
+		}
+		if (binding.isFinal()) {
+			return IModifierConstants.ACC_FINAL;
+		}
+		return 0;
+	}
+
+	/*
+	 * @see IBinding#getName()
+	 */
+	public String getName() {
+		if (this.name == null) {
+			this.name = new String(this.binding.name);
+		}
+		return this.name;
+	}
+	
+	/*
+	 * @see IVariableBinding#getType()
+	 */
+	public ITypeBinding getType() {
+		if (type == null) {
+			type = this.resolver.getTypeBinding(this.binding.type);
+		}
+		return type;
+	}
+	
+	/*
+	 * @see IVariableBinding#getVariableId()
+	 */
+	public int getVariableId() {
+		return this.binding.id;
+	}
+
+	/*
+	 * @see IBinding#isDeprecated()
+	 */
+	public boolean isDeprecated() {
+		if (isField()) {
+			return ((FieldBinding) this.binding).isDeprecated();
+		}
+		return false;
+	}
+	
+	/*
+	 * @see IBinding#isEqualTo(Binding)
+	 * @since 3.1
+	 */
+	public boolean isEqualTo(IBinding other) {
+		if (other == this) {
+			// identical binding - equal (key or no key)
+			return true;
+		}
+		if (other == null) {
+			// other binding missing
+			return false;
+		}
+		if (!(other instanceof VariableBinding)) {
+			return false;
+		}
+		org.eclipse.jdt.internal.compiler.lookup.VariableBinding otherBinding = ((VariableBinding) other).binding;
+		if (this.binding instanceof FieldBinding) {
+			if (otherBinding instanceof FieldBinding) {
+				return BindingComparator.isEqual((FieldBinding) this.binding, (FieldBinding) otherBinding);
+			} else {
+				return false;
+			}
+		} else {
+			return BindingComparator.isEqual(this.binding, otherBinding);
+		}
+	}
+
+	/*
+	 * @see IVariableBinding#isField()
+	 */
+	public boolean isField() {
+		return this.binding instanceof FieldBinding;
+	}
+
+	/**
+	 * @see IBinding#isSynthetic()
+	 */
+	public boolean isSynthetic() {
+		if (isField()) {
+			return ((FieldBinding) this.binding).isSynthetic();
+		}
+		return false;
 	}
 
 	/* 
