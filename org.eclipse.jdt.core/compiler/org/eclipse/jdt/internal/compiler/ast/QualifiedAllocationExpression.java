@@ -303,11 +303,12 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			return this.resolvedType = anonymousType.binding;
 		}
 		if (enclosingInstance != null) {
-			if (!enclosingInstanceType.isCompatibleWith(inheritedBinding.declaringClass.enclosingType())) {
-				scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
-					enclosingInstance,
-					enclosingInstanceType,
-					inheritedBinding.declaringClass.enclosingType());
+			ReferenceBinding targetEnclosing = inheritedBinding.declaringClass.enclosingType();
+			if (targetEnclosing == null) {
+				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, (ReferenceBinding)receiverType);
+				return this.resolvedType = anonymousType.binding;
+			} else 	if (!enclosingInstanceType.isCompatibleWith(targetEnclosing)) {
+				scope.problemReporter().typeMismatchErrorActualTypeExpectedType(enclosingInstance, enclosingInstanceType, targetEnclosing);
 				return this.resolvedType = anonymousType.binding;
 			}
 		}
