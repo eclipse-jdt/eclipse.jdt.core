@@ -429,14 +429,14 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	protected WeakHashMap scopes = new WeakHashMap();
 
-	static class PerProjectInfo {
-		IProject project;
-		Object savedState;
-		boolean triedRead;
-		IClasspathEntry[] classpath;
-		IClasspathEntry[] lastResolvedClasspath;
-		Preferences preferences;
-		PerProjectInfo(IProject project) {
+	public static class PerProjectInfo {
+		public IProject project;
+		public Object savedState;
+		public boolean triedRead;
+		public IClasspathEntry[] classpath;
+		public IClasspathEntry[] lastResolvedClasspath;
+		public Preferences preferences;
+		public PerProjectInfo(IProject project) {
 			this.triedRead = false;
 			this.savedState = null;
 			this.project = project;
@@ -897,14 +897,14 @@ public class JavaModelManager implements ISaveParticipant {
 
 	/*
 	 * Returns the per-project info for the given project. Create the info if the info doesn't exist.	 */
-	private PerProjectInfo getPerProjectInfo(IProject project) {
+	public PerProjectInfo getPerProjectInfo(IProject project) {
 		return getPerProjectInfo(project, true /* create info */);
 	}
 	
 	/*
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
-	synchronized PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
+	public synchronized PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
 		PerProjectInfo info= (PerProjectInfo) perProjectInfo.get(project);
 		if (info == null && create) {
 			info= new PerProjectInfo(project);
@@ -917,7 +917,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns  the per-project info for the given project.
 	 * If the info if the info doesn't exist, check for the project existence and create the info.
 	 * @throws JavaModelException if the project doesn't exist.	 */
-	PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
+	public PerProjectInfo getPerProjectInfoCheckExistence(IProject project) throws JavaModelException {
 		JavaModelManager.PerProjectInfo info = getPerProjectInfo(project, false /* don't create info */);
 		if (info == null) {
 			if (!project.exists()) {
