@@ -546,13 +546,6 @@ public boolean isSuperclassOf(ReferenceBinding type) {
 	return false;
 }
 
-/**
- * Returns true if the type was declared as a type variable
- */
-public boolean isTypeVariable() {
-    return false;
-}
-
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
 

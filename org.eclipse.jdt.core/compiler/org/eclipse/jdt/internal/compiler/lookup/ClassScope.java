@@ -749,9 +749,8 @@ public class ClassScope extends Scope {
 	void connectTypeHierarchy() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		if ((sourceType.tagBits & BeginHierarchyCheck) == 0) {
-			boolean noProblems = true;
 			sourceType.tagBits |= BeginHierarchyCheck;
-			noProblems &= connectTypeVariables();
+			boolean noProblems = connectTypeVariables();
 			if (sourceType.isClass())
 				noProblems &= connectSuperclass();
 			noProblems &= connectSuperInterfaces();
@@ -778,8 +777,8 @@ public class ClassScope extends Scope {
 		if ((sourceType.tagBits & BeginHierarchyCheck) != 0)
 			return;
 
-		boolean noProblems = true;
 		sourceType.tagBits |= BeginHierarchyCheck;
+		boolean noProblems = connectTypeVariables();
 		if (sourceType.isClass())
 			noProblems &= connectSuperclass();
 		noProblems &= connectSuperInterfaces();
@@ -797,7 +796,7 @@ public class ClassScope extends Scope {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding typeVariable = typeParameter.binding;
 			if (typeVariable == null) return false;
-			
+
 			typeVariable.superclass = getJavaLangObject();
 			typeVariable.superInterfaces = NoSuperInterfaces;
 			//TODO ignore parameter bounds for now

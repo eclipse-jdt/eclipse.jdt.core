@@ -96,6 +96,12 @@ public final boolean isNumericType() {
 			return false;
 	}
 }
+/**
+ * Returns true if the type was declared as a type variable
+ */
+public boolean isTypeVariable() {
+    return false;
+}
 public TypeBinding leafComponentType(){
 	return this;
 }
@@ -120,16 +126,17 @@ public char[] qualifiedPackageName() {
 */
 
 public abstract char[] qualifiedSourceName();
+
+public TypeBinding rawType() {
+    return this;
+}
+
 /* Answer the receiver's signature.
 *
 * Arrays & base types do not distinguish between signature() & constantPoolName().
 *
 * NOTE: This method should only be used during/after code gen.
 */
-
-public TypeBinding rawType() {
-    return this;
-}
 
 public char[] signature() {
 	return constantPoolName();
