@@ -130,9 +130,9 @@ public class InMemoryIndex {
 	 */
 	protected WordEntry[] getSortedWordEntries() {
 		if (this.sortedWordEntries == null) {
-			WordEntry[] words= this.words.asArray();
-			Util.sort(words);
-			this.sortedWordEntries= words;
+			WordEntry[] wordEntries= this.words.asArray();
+			Util.sort(wordEntries);
+			this.sortedWordEntries= wordEntries;
 		}
 		return this.sortedWordEntries;
 	}

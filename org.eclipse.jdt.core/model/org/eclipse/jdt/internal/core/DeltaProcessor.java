@@ -261,10 +261,10 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * Check all external archive (referenced by given roots, projects or model) status and issue a corresponding root delta.
 	 * Also triggers index updates
 	 */
-	public void checkExternalArchiveChanges(IJavaElement[] refreshedElements, IProgressMonitor monitor) throws JavaModelException {
+	public void checkExternalArchiveChanges(IJavaElement[] elementsToRefresh, IProgressMonitor monitor) throws JavaModelException {
 		try {
-			for (int i = 0, length = refreshedElements.length; i < length; i++) {
-				this.addForRefresh(refreshedElements[i]);
+			for (int i = 0, length = elementsToRefresh.length; i < length; i++) {
+				this.addForRefresh(elementsToRefresh[i]);
 			}
 			boolean hasDelta = this.createExternalArchiveDelta(monitor);
 			if (monitor != null && monitor.isCanceled()) return; 
@@ -2230,28 +2230,28 @@ private void updateRootIndex(IPackageFragmentRoot root, IPackageFragment pkg, IR
  * Update the roots that are affected by the addition or the removal of the given container resource.
  */
 private void updateRoots(IPath containerPath, IResourceDelta containerDelta) {
-	Map roots;
-	Map otherRoots;
+	Map updatedRoots;
+	Map otherUpdatedRoots;
 	if (containerDelta.getKind() == IResourceDelta.REMOVED) {
-		roots = this.oldRoots;
-		otherRoots = this.oldOtherRoots;
+		updatedRoots = this.oldRoots;
+		otherUpdatedRoots = this.oldOtherRoots;
 	} else {
-		roots = this.roots;
-		otherRoots = this.otherRoots;
+		updatedRoots = this.roots;
+		otherUpdatedRoots = this.otherRoots;
 	}
-	Iterator iterator = roots.keySet().iterator();
+	Iterator iterator = updatedRoots.keySet().iterator();
 	while (iterator.hasNext()) {
 		IPath path = (IPath)iterator.next();
 		if (containerPath.isPrefixOf(path) && !containerPath.equals(path)) {
 			IResourceDelta rootDelta = containerDelta.findMember(path.removeFirstSegments(1));
 			if (rootDelta == null) continue;
-			RootInfo rootInfo = (RootInfo)roots.get(path);
+			RootInfo rootInfo = (RootInfo)updatedRoots.get(path);
 
 			if (!rootInfo.project.getPath().isPrefixOf(path)) { // only consider roots that are not included in the container
 				this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);
 			}
 			
-			ArrayList rootList = (ArrayList)otherRoots.get(path);
+			ArrayList rootList = (ArrayList)otherUpdatedRoots.get(path);
 			if (rootList != null) {
 				Iterator otherProjects = rootList.iterator();
 				while (otherProjects.hasNext()) {

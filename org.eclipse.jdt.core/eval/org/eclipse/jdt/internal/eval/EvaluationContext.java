@@ -225,11 +225,11 @@ public void evaluate(
 			// Send code snippet on target
 			if (classes != null && classes.length > 0) {
 				char[] simpleClassName = evaluator.getClassName();
-				char[] packageName = this.getPackageName();
+				char[] pkgName = this.getPackageName();
 				char[] qualifiedClassName =
-					packageName.length == 0 ?
+					pkgName.length == 0 ?
 						simpleClassName :
-						CharOperation.concat(packageName, simpleClassName, '.');
+						CharOperation.concat(pkgName, simpleClassName, '.');
 				CODE_SNIPPET_COUNTER++;
 				requestor.acceptClassFiles(classes, qualifiedClassName);
 			}
@@ -272,8 +272,8 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
 		char[][] splitDeclaration = CharOperation.splitOn('.', importDeclaration);
 		int splitLength = splitDeclaration.length;
 		if (splitLength > 0) {
-			char[] packageName = splitDeclaration[splitLength - 1];
-			if (packageName.length == 1 && packageName[0] == '*') {
+			char[] pkgName = splitDeclaration[splitLength - 1];
+			if (pkgName.length == 1 && pkgName[0] == '*') {
 				char[][] parentName;
 				switch (splitLength) {
 					case 1:
@@ -281,13 +281,13 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
 						break;
 					case 2:
 						parentName = null;
-						packageName = splitDeclaration[splitLength - 2];
+						pkgName = splitDeclaration[splitLength - 2];
 						break;
 					default:
 						parentName = CharOperation.subarray(splitDeclaration, 0, splitLength - 2);
-						packageName = splitDeclaration[splitLength - 2];
+						pkgName = splitDeclaration[splitLength - 2];
 				}
-				if (!environment.isPackage(parentName, packageName)) {
+				if (!environment.isPackage(parentName, pkgName)) {
 					String[] arguments = new String[] {new String(importDeclaration)};
 					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
 				}
@@ -330,10 +330,10 @@ public void evaluateVariables(INameEnvironment environment, Map options, IReques
 			}
 
 			// Remember that the variables have been installed
-			int variableCount = this.variableCount;
-			GlobalVariable[] variablesCopy = new GlobalVariable[variableCount];
-			System.arraycopy(this.variables, 0, variablesCopy, 0, variableCount); 
-			this.installedVars = new VariablesInfo(evaluator.getPackageName(), evaluator.getClassName(), classes, variablesCopy, variableCount);
+			int count = this.variableCount;
+			GlobalVariable[] variablesCopy = new GlobalVariable[count];
+			System.arraycopy(this.variables, 0, variablesCopy, 0, count); 
+			this.installedVars = new VariablesInfo(evaluator.getPackageName(), evaluator.getClassName(), classes, variablesCopy, count);
 			VAR_CLASS_COUNTER++;
 		}
 		this.varsChanged = false;
