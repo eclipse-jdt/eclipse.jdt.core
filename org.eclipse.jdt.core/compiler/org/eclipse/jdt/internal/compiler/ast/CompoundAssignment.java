@@ -95,7 +95,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 	if (lhsId > 15 || expressionId > 15) {
-		if (lhsId != T_String) { // String += Object is valid wheraas Object -= String is not
+		if (lhsId != T_String) { // String += Thread is valid wheraas Thread += String  is not
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
 		}
@@ -114,12 +114,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 	if (operator == PLUS){
-		if(scope.isJavaLangObject(lhsType)) {
+		// removed check for rejecting Object += String which is accepted now
+/*		if(scope.isJavaLangObject(lhsType)) {
 			// <Object> += <String> is illegal
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
-		} else if ((lhsType.isNumericType() || lhsId == T_boolean) && !expressionType.isNumericType()){
-			// <int | boolean> += <String> is illegal
+		} else */
+		// <int | boolean> += <String> is illegal
+		if ((lhsType.isNumericType() || lhsId == T_boolean) && !expressionType.isNumericType()){
 			scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 			return null;
 		}
