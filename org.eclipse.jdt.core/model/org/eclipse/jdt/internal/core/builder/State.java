@@ -310,8 +310,8 @@ void write(DataOutputStream out) throws IOException {
 /*
  * byte			VERSION
  * String		project name
- * int				build number
- * int				last structural build number
+ * int			build number
+ * int			last structural build number
 */
 	out.writeByte(VERSION);
 	out.writeUTF(javaProjectName);
@@ -320,7 +320,7 @@ void write(DataOutputStream out) throws IOException {
 
 /*
  * ClasspathMultiDirectory[]
- * int				id
+ * int			id
  * String		path(s)
 */
 	out.writeInt(length = sourceLocations.length);
@@ -334,7 +334,7 @@ void write(DataOutputStream out) throws IOException {
 
 /*
  * ClasspathLocation[]
- * int				id
+ * int			id
  * String		path(s)
 */
 	out.writeInt(length = binaryLocations.length);
@@ -368,7 +368,7 @@ void write(DataOutputStream out) throws IOException {
 /*
  * Structural build numbers table
  * String		prereq project name
- * int				last structural build number
+ * int			last structural build number
 */
 	out.writeInt(length = structuralBuildTimes.elementSize);
 	if (length > 0) {
@@ -407,7 +407,7 @@ void write(DataOutputStream out) throws IOException {
 /*
  * Type locators table
  * String		type name
- * int				interned locator id
+ * int			interned locator id
  */
 	out.writeInt(length = typeLocators.elementSize);
 	if (length > 0) {

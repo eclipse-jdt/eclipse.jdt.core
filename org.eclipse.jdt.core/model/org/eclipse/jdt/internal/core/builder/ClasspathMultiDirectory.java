@@ -41,6 +41,6 @@ public boolean equals(Object o) {
 
 public String toString() {
 	return "Source classpath directory " + sourceFolder.getFullPath().toString() + //$NON-NLS-1$
-		" with binary directory " + binaryFolder.getFullPath().toString(); //$NON-NLS-1$
+		" with binary output directory " + binaryFolder.getFullPath().toString(); //$NON-NLS-1$
 }
 }
