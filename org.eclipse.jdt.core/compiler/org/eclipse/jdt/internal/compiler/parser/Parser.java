@@ -996,6 +996,8 @@ protected void consumeAdditionalBound() {
 	pushOnGenericsStack(getTypeReference(this.intStack[this.intPtr--]));
 }
 protected void consumeAdditionalBound1() {
+	// nothing to be done.
+	// The reference type1 is consumed by consumeReferenceType1 method.
 }
 protected void consumeAdditionalBoundList() {
 	concatGenericsLists();
@@ -2792,6 +2794,8 @@ protected void consumeEnterVariable() {
 	}
 }
 protected void consumeEnumBodyNoConstants() {
+	// nothing to do
+	// The 0 on the astLengthStack has been pushed by EnumBodyDeclarationsopt
 }
 protected void consumeEnumBodyWithConstants() {
 	// merge the constants values with the class body
@@ -2847,8 +2851,6 @@ protected void consumeEnumConstantWithClassBody() {
 }
 protected void consumeEnumDeclaration() {
 	// EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
-	// TODO needs to be reviewed
-
 	int length;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		//there are length declarations
@@ -3236,6 +3238,8 @@ protected void consumeFormalParameterListopt() {
 	pushOnAstLengthStack(0);
 }
 protected void consumeGenericTypeArrayType() {
+	// nothing to do
+	// Will be consume by a getTypeRefence call
 }
 protected void consumeGenericTypeNameArrayType() {
 	pushOnGenericsLengthStack(0); // handle type arguments
@@ -4302,6 +4306,8 @@ protected void consumePrimaryNoNewArrayWithName() {
 	parenthesizedExpression.bits |= (numberOfParenthesis + 1) << ASTNode.ParenthesizedSHIFT;
 }
 protected void consumePrimitiveArrayType() {
+	// nothing to do
+	// Will be consume by a getTypeRefence call
 }
 protected void consumePrimitiveType() {
 	// Type ::= PrimitiveType
@@ -6988,16 +6994,22 @@ protected void consumeWildcard1() {
 	pushOnGenericsStack(new Wildcard(false));
 }
 protected void consumeWildcard1WithBounds() {
+	// Nothing to do
+	// The wildcard is created by the consumeWildcardBounds1Extends or by consumeWildcardBounds1Super
 }
 protected void consumeWildcard2() {
 	pushOnGenericsStack(new Wildcard(false));
 }
 protected void consumeWildcard2WithBounds() {
+	// Nothing to do
+	// The wildcard is created by the consumeWildcardBounds2Extends or by consumeWildcardBounds2Super
 }
 protected void consumeWildcard3() {
 	pushOnGenericsStack(new Wildcard(false));
 }
 protected void consumeWildcard3WithBounds() {
+	// Nothing to do
+	// The wildcard is created by the consumeWildcardBounds3Extends or by consumeWildcardBounds3Super
 }
 protected void consumeWildcardBounds1Extends() {
 	Wildcard wildcard = new Wildcard(false);
@@ -7043,6 +7055,8 @@ protected void consumeWildcardBoundsSuper() {
 	pushOnGenericsStack(wildcard);
 }
 protected void consumeWildcardWithBounds() {
+	// Nothing to do
+	// The wildcard is created by the consumeWildcardBoundsExtends or by consumeWildcardBoundsSuper
 }
 /**
  * Given the current comment stack, answer whether some comment is available in a certain exclusive range
