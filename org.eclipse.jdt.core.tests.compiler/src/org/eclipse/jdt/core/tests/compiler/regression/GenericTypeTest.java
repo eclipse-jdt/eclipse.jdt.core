@@ -6552,7 +6552,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Unnecessary cast from Class to Class<? extends Object>\n" + 
 			"----------\n");
 	}		
-	public void _test243() {
+	public void test243() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16227,5 +16227,40 @@ public void test500(){
 				"}\n",
 			},
 			"SUCCESS");	
+	}
+	// [1.5][compiler] Casted Enum-class is not of correct type in Eclipse
+	public void _test572() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T extends Enum<T>> void doWithEnumClass(Class<T> enumClass) {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void f() {\n" + 
+				"		Class<?> cl = null; // Returned by Class.forName(\"xyz\");\n" + 
+				"		doWithEnumClass((Class<Enum>) cl);\n" + 
+				"	}\n" + 
+			"}\n",
+			},
+			"");	
+	}		
+	// [1.5][compiler] Casted Enum-class is not of correct type in Eclipse - check unchecked warnings
+	public void _test573() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T extends Enum<T>> void doWithEnumClass(Class<T> enumClass) {\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"\n" + 
+				"	public void f() {\n" + 
+				"		Class<?> cl = null; // Returned by Class.forName(\"xyz\");\n" + 
+				"		doWithEnumClass((Class<Enum>) cl);\n" + 
+				"	}\n" + 
+			"}\n",
+			},
+			"");	
 	}			
 }
