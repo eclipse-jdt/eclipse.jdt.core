@@ -143,8 +143,7 @@ public void subTask(String message) {
 	String msg = pm.length() == 0 ? message : pm + " " + message; //$NON-NLS-1$
 
 	if (msg.equals(this.previousSubtask)) return; // avoid refreshing with same one
-	if (JavaBuilder.DEBUG)
-		System.out.println(msg);
+	//if (JavaBuilder.DEBUG) System.out.println(msg);
 	if (monitor != null)
 		monitor.subTask(msg);
 
