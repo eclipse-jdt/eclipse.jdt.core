@@ -84,12 +84,12 @@ public class CompilationResult {
 
 	private int computePriority(IProblem problem){
 	
-		final int P_STATIC = 1000;
-		final int P_OUTSIDE_METHOD = 4000;
-		final int P_FIRST_ERROR = 2000;
-		final int P_ERROR = 10000;
+		final int P_STATIC = 10000;
+		final int P_OUTSIDE_METHOD = 40000;
+		final int P_FIRST_ERROR = 20000;
+		final int P_ERROR = 100000;
 		
-		int priority = 1000 - problem.getSourceLineNumber(); // early problems first
+		int priority = 10000 - problem.getSourceLineNumber(); // early problems first
 		if (priority < 0) priority = 0;
 		if (problem.isError()){
 			priority += P_ERROR;
