@@ -458,7 +458,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	boolean isOnClasspath(IJavaElement element) throws JavaModelException;
 	/**
 	 * Returns whether the given resource is on the classpath of this project.
-	 * Returns false if the resource is explicitely excluded from the classpath.
+	 * Returns false if the resource is explicitely excluded from the classpath or 
+	 * is not on the classpath.
 	 * 
 	 * @param element the given element
 	 * @exception JavaModelException if this project does not exist or if an
