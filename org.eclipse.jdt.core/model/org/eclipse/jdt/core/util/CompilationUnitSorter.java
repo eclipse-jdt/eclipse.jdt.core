@@ -35,8 +35,64 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.internal.core.SortElementsOperation;
-//TODO: (olivier) should explain somewhere why DOM-ASTs are used, with IJavaElement positions
 /**
+ * The comparator used to sort the elements inside a compilation unit needs to follow the 
+ * following constraints:
+ * <ol>
+ * <li>The comparator compare(Object, Object) methods parameters are instances of 
+ * org.eclipse.jdt.core.dom.BodyDeclaration.</li>
+ * </ol>
+ * 
+ * These nodes will have the following initalizations:
+ * <table border="1">
+ * <tr>
+ * <th>Node type</th>
+ * <th>Initializations</th>
+ * </tr>
+ * <tr>
+ * <td>org.eclipse.jdt.core.dom.TypeDeclaration</td>
+ * <td><ul>
+ * <li>its name</li>
+ * <li>its superclass if it is specified in the source code</li>
+ * <li>its superinterfaces</li>
+ * <li>its modifier</li>
+ * <li>its SOURCE START property</li>
+ * </ul>
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>org.eclipse.jdt.core.dom.Initializer</td>
+ * <td><ul>
+ * <li>its modifier</li>
+ * <li>its SOURCE START property</li>
+ * </ul>
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>org.eclipse.jdt.core.dom.FieldDeclaration</td>
+ * <td><ul>
+ * <li>its modifier</li>
+ * <li>its type</li>
+ * <li>its variable declaration fragments (name only, they don't have a SOURCE_START property set)</li>
+ * <li>its SOURCE START property</li>
+ * </ul>
+ * </td>
+ * </tr>
+ * <tr>
+ * <td>org.eclipse.jdt.core.dom.MethodDeclaration</td>
+ * <td><ul>
+ * <li>its modifier</li>
+ * <li>its constructor's bit (answer true to isConstructor() for a constructor declaration)</li>
+ * <li>its return type if not a constructor</li>
+ * <li>its name (the name is the class name for a constructor)</li>
+ * <li>its arguments (name and type)</li>
+ * <li>its thrown exceptions</li>
+ * <li>its SOURCE START property</li>
+ * </ul>
+ * </td>
+ * </tr>
+ * </table>
+ * 
  * @since 2.1
  */
 public class CompilationUnitSorter {
