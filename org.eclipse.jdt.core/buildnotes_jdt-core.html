@@ -15,11 +15,18 @@ Eclipse SDK Build 20020305 - 5th March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added API <code>IClassFile.getWorkingCopy(IProgressMonitor, IBufferFactory)</code>
+	 for consistence with <code>IWorkingCopy</code>.
+     The returned working copy is just a wrapper on the class file's buffer.
+     Thus only the <code>getBuffer()</code> operation is valid on this working
+     copy.
+</li>
 <li> Added the notion of shared working copies. This allows clients to always
      get the same <code>IWorkingCopy</code> instance when asking for a working copy.
      See <code>IWorkingCopy.getSharedWorkingCopy(IProgressMonitor, IBufferFactory)</code>,
      <code>IWorkingCopy.findSharedWorkingCopy()</code>
      and <code>IWorkingCopy.destroy()</code> for more detail.
+</li>
 <li> Added option to trace use of shared working copies.
     To enable it, see the following line in the org.eclipse.jdt.core/.options file:
     <code>org.eclipse.jdt.core/debug/sharedworkingcopy=true</code>
