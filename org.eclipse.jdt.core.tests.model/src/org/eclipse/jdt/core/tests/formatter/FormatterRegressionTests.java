@@ -68,7 +68,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	protected String getPluginDirectoryPath() {
 		try {
-			URL platformURL = Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL();
+			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.model").getEntry("/");
 			return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
