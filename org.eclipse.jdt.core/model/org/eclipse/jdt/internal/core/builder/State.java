@@ -36,7 +36,12 @@ SimpleLookupTable structuralBuildTimes;
 
 private String[] knownPackageNames; // of the form "p1/p2"
 
-static final byte VERSION = 0x0006;
+static final byte VERSION = 0x0007;
+
+static final byte SOURCE_FOLDER = 1;
+static final byte BINARY_FOLDER = 2;
+static final byte EXTERNAL_JAR = 3;
+static final byte INTERNAL_JAR = 4;
 
 State() {
 }
@@ -196,23 +201,23 @@ static State read(IProject project, DataInputStream in) throws IOException {
 
 	length = in.readInt();
 	newState.binaryLocations = new ClasspathLocation[length];
+	IWorkspaceRoot root = project.getWorkspace().getRoot();
 	for (int i = 0; i < length; i++) {
 		switch (in.readByte()) {
-			case 1 :
+			case SOURCE_FOLDER :
 				newState.binaryLocations[i] = newState.sourceLocations[in.readInt()];
 				break;
-			case 2 :
+			case BINARY_FOLDER :
 				IContainer outputFolder = project;
 				String folderName = in.readUTF();
-				if (folderName.length() > 0) outputFolder = project.getFolder(folderName);
+				if (folderName.length() > 1) outputFolder = root.getFolder(new Path(folderName));
 				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean());
 				break;
-			case 3 : // external jar
+			case EXTERNAL_JAR :
 				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF());
 				break;
-			case 4 : // workspace relative jar
-				WorkspaceRoot root = (WorkspaceRoot) project.getWorkspace().getRoot();
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(in.readUTF()));
+			case INTERNAL_JAR :
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())));
 		}
 	}
 
@@ -343,7 +348,7 @@ void write(DataOutputStream out) throws IOException {
 	next : for (int i = 0; i < length; i++) {
 		ClasspathLocation c = binaryLocations[i];
 		if (c instanceof ClasspathMultiDirectory) {
-			out.writeByte(1);
+			out.writeByte(SOURCE_FOLDER);
 			for (int j = 0, m = sourceLocations.length; j < m; j++) {
 				if (sourceLocations[j] == c) {
 					out.writeInt(j);
@@ -351,17 +356,17 @@ void write(DataOutputStream out) throws IOException {
 				}
 			}
 		} else if (c instanceof ClasspathDirectory) {
-			out.writeByte(2);
+			out.writeByte(BINARY_FOLDER);
 			ClasspathDirectory cd = (ClasspathDirectory) c;
-			out.writeUTF(cd.binaryFolder.getProjectRelativePath().toString());
+			out.writeUTF(cd.binaryFolder.getFullPath().toString());
 			out.writeBoolean(cd.isOutputFolder);
 		} else {
 			ClasspathJar jar = (ClasspathJar) c;
 			if (jar.resource == null) {
-				out.writeByte(3); // external jar
+				out.writeByte(EXTERNAL_JAR);
 				out.writeUTF(jar.zipFilename);
 			} else {
-				out.writeByte(4); // workspace relative jar
+				out.writeByte(INTERNAL_JAR);
 				out.writeUTF(jar.resource.getFullPath().toString());
 			}
 		}
