@@ -466,11 +466,7 @@ ClassMemberDeclaration ::= ';'
 --    | 'transient'
 --    | 'volatile'
 
-FieldDeclaration ::= Modifiers Type PushModifiers VariableDeclarators ';'
-/.$putCase consumeFieldDeclaration(); $break ./
-/:$readableName FieldDeclaration:/
-
-FieldDeclaration ::= Type PushModifiers VariableDeclarators ';'
+FieldDeclaration ::= Modifiersopt Type VariableDeclarators ';'
 /.$putCase consumeFieldDeclaration(); $break ./
 /:$readableName FieldDeclaration:/
 
@@ -550,13 +546,9 @@ MethodPushModifiersHeaderName ::= Type PushModifiers 'Identifier' '('
 /.$putCase consumeMethodPushModifiersHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
-MethodHeaderName ::= Modifiers TypeParameters Type PushModifiers 'Identifier' '('
+MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
-MethodHeaderName ::= Modifiers Type PushModifiers 'Identifier' '('
-/.$putCase consumeMethodHeaderName(); $break ./
-MethodHeaderName ::= TypeParameters Type PushModifiers 'Identifier' '('
-/.$putCase consumeMethodHeaderName(); $break ./
-MethodHeaderName ::= Type PushModifiers 'Identifier' '('
+MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 
@@ -576,13 +568,9 @@ ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderT
 /.$putCase consumeConstructorHeader(); $break ./
 /:$readableName ConstructorHeader:/
 
-ConstructorHeaderName ::=  Modifiers TypeParameters 'Identifier' PushModifiers '('
+ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
 /.$putCase consumeConstructorHeaderName(); $break ./
-ConstructorHeaderName ::=  Modifiers 'Identifier' PushModifiers '('
-/.$putCase consumeConstructorHeaderName(); $break ./
-ConstructorHeaderName ::=  TypeParameters 'Identifier' PushModifiers '('
-/.$putCase consumeConstructorHeaderName(); $break ./
-ConstructorHeaderName ::=  'Identifier' PushModifiers '('
+ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 /.$putCase consumeConstructorHeaderName(); $break ./
 /:$readableName ConstructorHeaderName:/
 
