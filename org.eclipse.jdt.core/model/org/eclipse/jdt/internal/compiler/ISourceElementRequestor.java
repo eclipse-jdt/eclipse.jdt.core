@@ -129,30 +129,22 @@ public interface ISourceElementRequestor {
 
 	void acceptUnknownReference(char[] name, int sourcePosition);
 
-	void enterClass(TypeInfo typeInfo);
-
 	void enterCompilationUnit();
 
 	void enterConstructor(MethodInfo methodInfo);
-
-	void enterEnum(TypeInfo typeInfo);
 
 	void enterField(FieldInfo fieldInfo);
 	
 	void enterInitializer(int declarationStart, int modifiers);
 	
-	void enterInterface(TypeInfo typeInfo);
-	
 	void enterMethod(MethodInfo methodInfo);
 	
-	void exitClass(int declarationEnd);
+	void enterType(TypeInfo typeInfo);
 	
 	void exitCompilationUnit(int declarationEnd);
 	
 	void exitConstructor(int declarationEnd);
 
-	void exitEnum(int declarationEnd);
-	
 	/*
 	 * initializationStart denotes the source start of the expression used for
 	 * initializing the field if any (-1 if no initialization).
@@ -161,7 +153,7 @@ public interface ISourceElementRequestor {
 	
 	void exitInitializer(int declarationEnd);
 	
-	void exitInterface(int declarationEnd);
-	
 	void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd);
+	
+	void exitType(int declarationEnd);
 }

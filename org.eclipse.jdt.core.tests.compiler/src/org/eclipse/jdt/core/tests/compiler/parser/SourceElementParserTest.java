@@ -166,10 +166,7 @@ public static String displayModifiers(int modifiers) {
 		buffer.append("synchronized ");
 	return buffer.toString();
 }
-public void enterClass(TypeInfo typeInfo) {
-	enterType(typeInfo);
-}
-protected void enterType(TypeInfo typeInfo) {
+public void enterType(TypeInfo typeInfo) {
 	if (currentType == null) {
 		// top level type
 		currentType = 
@@ -228,9 +225,6 @@ public void enterField(FieldInfo fieldInfo) {
 				source)); 
 
 }
-public void enterEnum(TypeInfo typeInfo) {
-	enterType(typeInfo);
-}
 public void enterInitializer(int declarationSourceStart, int modifiers) {
 	currentType.addField(
 		currentInitializer = new SourceInitializer(
@@ -239,9 +233,6 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 }
 public void exitInitializer(int declarationSourceEnd) {
 	currentInitializer.setDeclarationSourceEnd(declarationSourceEnd);
-}
-public void enterInterface(TypeInfo typeInfo) {
-	enterType(typeInfo);
 }
 public void enterMethod(MethodInfo methodInfo) {
 	enterAbtractMethod(methodInfo);
@@ -280,10 +271,7 @@ public void addTypeParameter(TypeParameterInfo typeParameterInfo) {
 		currentMethod.typeParameterBounds[length] = typeParameterInfo.bounds;
 	}
 }
-public void exitClass(int declarationEnd) {
-	exitType(declarationEnd);
-}
-protected void exitType(int declarationEnd) {
+public void exitType(int declarationEnd) {
 	currentType.setDeclarationSourceEnd(declarationEnd);
 	if (currentType.parent != null) {
 		currentType = currentType.parent;
@@ -293,14 +281,8 @@ public void exitCompilationUnit(int declarationEnd) {}
 public void exitConstructor(int declarationEnd) {
 	exitAbstractMethod(declarationEnd);
 }
-public void exitEnum(int declarationEnd) {
-	exitType(declarationEnd);
-}
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	currentField.setDeclarationSourceEnd(declarationEnd);
-}
-public void exitInterface(int declarationEnd) {
-	exitType(declarationEnd);
 }
 public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 	exitAbstractMethod(declarationEnd);

@@ -213,14 +213,6 @@ public void acceptProblem(IProblem problem) {
 /**
  * @see ISourceElementRequestor
  */
-public void enterClass(TypeInfo typeInfo) {
-
-	enterType(typeInfo);
-
-}
-/**
- * @see ISourceElementRequestor
- */
 public void enterCompilationUnit() {
 	this.infoStack = new Stack();
 	this.handleStack= new Stack();
@@ -232,12 +224,6 @@ public void enterCompilationUnit() {
  */
 public void enterConstructor(MethodInfo methodInfo) {
 	enterMethod(methodInfo);
-}
-/**
- * @see ISourceElementRequestor
- */
-public void enterEnum(TypeInfo typeInfo) {
-	enterType(typeInfo);
 }
 /**
  * @see ISourceElementRequestor
@@ -303,12 +289,6 @@ public void enterInitializer(
 /**
  * @see ISourceElementRequestor
  */
-public void enterInterface(TypeInfo typeInfo) {
-	enterType(typeInfo);
-}
-/**
- * @see ISourceElementRequestor
- */
 public void enterMethod(MethodInfo methodInfo) {
 
 	SourceTypeElementInfo parentInfo = (SourceTypeElementInfo) this.infoStack.peek();
@@ -367,9 +347,9 @@ public void enterMethod(MethodInfo methodInfo) {
 	}
 }
 /**
- * Common processing for classes and interfaces.
+ * @see ISourceElementRequestor
  */
-protected void enterType(TypeInfo typeInfo) {
+public void enterType(TypeInfo typeInfo) {
 
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
@@ -436,13 +416,6 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 /**
  * @see ISourceElementRequestor
  */
-public void exitClass(int declarationEnd) {
-
-	exitMember(declarationEnd);
-}
-/**
- * @see ISourceElementRequestor
- */
 public void exitCompilationUnit(int declarationEnd) {
 	this.unitInfo.setSourceLength(declarationEnd + 1);
 
@@ -453,12 +426,6 @@ public void exitCompilationUnit(int declarationEnd) {
  * @see ISourceElementRequestor
  */
 public void exitConstructor(int declarationEnd) {
-	exitMember(declarationEnd);
-}
-/**
- * @see ISourceElementRequestor
- */
-public void exitEnum(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**
@@ -492,12 +459,6 @@ public void exitInitializer(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**
- * @see ISourceElementRequestor
- */
-public void exitInterface(int declarationEnd) {
-	exitMember(declarationEnd);
-}
-/**
  * common processing for classes and interfaces
  */
 protected void exitMember(int declarationEnd) {
@@ -519,6 +480,13 @@ public void exitMethod(int declarationEnd, int defaultValueStart, int defaultVal
 		annotationMethodInfo.defaultValueEnd = defaultValueEnd;
 	}
 	this.handleStack.pop();
+}
+/**
+ * @see ISourceElementRequestor
+ */
+public void exitType(int declarationEnd) {
+
+	exitMember(declarationEnd);
 }
 /**
  * Resolves duplicate handles by incrementing the occurrence count

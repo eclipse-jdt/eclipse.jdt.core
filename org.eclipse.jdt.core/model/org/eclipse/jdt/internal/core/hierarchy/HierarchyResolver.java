@@ -260,7 +260,10 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 				superInterfaceNames = sourceType.getInterfaceNames();
 			}
 		} else {
-			superInterfaceNames = sourceType.getInterfaceNames();
+			if (sourceType.getKind() == IGenericType.ANNOTATION_TYPE_DECL)
+				superInterfaceNames = new char[][] {TypeConstants.CharArray_JAVA_LANG_ANNOTATION_ANNOTATION};
+			else
+				superInterfaceNames = sourceType.getInterfaceNames();
 		}
 		separator = '.';
 	} else if (type instanceof HierarchyType) {

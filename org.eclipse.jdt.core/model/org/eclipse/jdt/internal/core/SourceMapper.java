@@ -497,10 +497,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void enterClass(TypeInfo typeInfo) {
-		enterType(typeInfo);
-	}
-	private void enterType(TypeInfo typeInfo) {
+	public void enterType(TypeInfo typeInfo) {
 
 		this.typeDepth++;
 		if (this.typeDepth == this.types.length) { // need to grow
@@ -583,13 +580,6 @@ public class SourceMapper
 	}
 	
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(TypeInfo)
-	 */
-	public void enterEnum(TypeInfo typeInfo) {
-		enterType(typeInfo);
-	}
-	
-	/**
 	 * @see ISourceElementRequestor
 	 */
 	public void enterField(FieldInfo fieldInfo) {
@@ -613,13 +603,6 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void enterInterface(TypeInfo typeInfo) {
-		enterType(typeInfo);
-	}
-	
-	/**
-	 * @see ISourceElementRequestor
-	 */
 	public void enterMethod(MethodInfo methodInfo) {
 		enterAbstractMethod(methodInfo);
 	}
@@ -637,10 +620,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void exitClass(int declarationEnd) {
-		exitType(declarationEnd);
-	}
-	private void exitType(int declarationEnd) {
+	public void exitType(int declarationEnd) {
 		if (typeDepth >= 0) {
 			IType currentType = this.types[typeDepth];
 			setSourceRange(
@@ -670,13 +650,6 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void exitEnum(int declarationEnd) {
-		exitType(declarationEnd);
-	}
-	
-	/**
-	 * @see ISourceElementRequestor
-	 */
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 		if (typeDepth >= 0) {
 			IType currentType = this.types[typeDepth];
@@ -694,13 +667,6 @@ public class SourceMapper
 	 */
 	public void exitInitializer(int declarationEnd) {
 		// implements abstract method
-	}
-	
-	/**
-	 * @see ISourceElementRequestor
-	 */
-	public void exitInterface(int declarationEnd) {
-		exitType(declarationEnd);
 	}
 	
 	/**

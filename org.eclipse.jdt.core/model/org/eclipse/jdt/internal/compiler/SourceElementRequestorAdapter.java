@@ -111,10 +111,6 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		// default implementation: do nothing
 	}
 
-	public void enterClass(TypeInfo typeInfo) {
-		// default implementation: do nothing
-	}
-	
 	/**
 	 * @see ISourceElementRequestor#enterCompilationUnit()
 	 */
@@ -123,13 +119,6 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	public void enterConstructor(MethodInfo methodInfo) {
-		// default implementation: do nothing
-	}
-	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterEnum(TypeInfo)
-	 */
-	public void enterEnum(TypeInfo typeInfo) {
 		// default implementation: do nothing
 	}
 	
@@ -147,21 +136,14 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		// default implementation: do nothing
 	}
 
-	public void enterInterface(TypeInfo typeInfo) {
-		// default implementation: do nothing
-	}
-	
 	public void enterMethod(MethodInfo methodInfo) {
 		// default implementation: do nothing
 	}
 	
-	/**
-	 * @see ISourceElementRequestor#exitClass(int)
-	 */
-	public void exitClass(int declarationEnd) {
+	public void enterType(TypeInfo typeInfo) {
 		// default implementation: do nothing
 	}
-
+	
 	/**
 	 * @see ISourceElementRequestor#exitCompilationUnit(int)
 	 */
@@ -177,13 +159,6 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#exitEnum(int)
-	 */
-	public void exitEnum(int declarationEnd) {
-		// default implementation: do nothing
-	}
-	
-	/**
 	 * @see ISourceElementRequestor#exitField(int, int, int)
 	 */
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
@@ -198,18 +173,18 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	/**
-	 * @see ISourceElementRequestor#exitInterface(int)
-	 */
-	public void exitInterface(int declarationEnd) {
-		// default implementation: do nothing
-	}
-
-	/**
 	 * @see ISourceElementRequestor#exitMethod(int, int, int)
 	 */
 	public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 		// default implementation: do nothing
 	}
 	
+	/**
+	 * @see ISourceElementRequestor#exitType(int)
+	 */
+	public void exitType(int declarationEnd) {
+		// default implementation: do nothing
+	}
+
 }
 

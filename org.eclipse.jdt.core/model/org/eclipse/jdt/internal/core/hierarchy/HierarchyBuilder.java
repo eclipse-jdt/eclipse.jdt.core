@@ -202,9 +202,8 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				}
 				break;
 			case IGenericType.INTERFACE_DECL :
-				this.hierarchy.addInterface(typeHandle);
-				break;
 			case IGenericType.ANNOTATION_TYPE_DECL :
+				this.hierarchy.addInterface(typeHandle);
 				break;
 		}		
 		if (interfaceHandles == null) {

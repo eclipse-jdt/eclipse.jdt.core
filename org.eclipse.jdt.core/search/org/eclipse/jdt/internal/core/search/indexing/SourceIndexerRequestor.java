@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
@@ -127,10 +128,18 @@ public char[][] enclosingTypeNames(){
 	System.arraycopy(this.enclosingTypeNames, 0, qualification, 0, this.depth);
 	return qualification;
 }
-/**
- * @see ISourceElementRequestor#enterClass(TypeInfo)
- */
-public void enterClass(TypeInfo typeInfo) {
+private void enterAnnotationType(TypeInfo typeInfo) {
+	char[][] typeNames;
+	if (this.methodDepth > 0) {
+		typeNames = ONE_ZERO_CHAR;
+	} else {
+		typeNames = this.enclosingTypeNames();
+	}
+	this.indexer.addAnnotationTypeDeclaration(typeInfo.modifiers, packageName, typeInfo.name, typeNames);
+	this.pushTypeName(typeInfo.name);	
+}
+
+private void enterClass(TypeInfo typeInfo) {
 
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (typeInfo.superclass != null){
@@ -175,10 +184,7 @@ public void enterConstructor(MethodInfo methodInfo) {
 	this.indexer.addConstructorDeclaration(methodInfo.name, methodInfo.parameterTypes, methodInfo.exceptionTypes);
 	this.methodDepth++;
 }
-/**
- * @see ISourceElementRequestor#enterEnum(TypeInfo)
- */
-public void enterEnum(TypeInfo typeInfo) {
+private void enterEnum(TypeInfo typeInfo) {
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (typeInfo.superinterfaces != null){
 		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++){
@@ -207,10 +213,7 @@ public void enterField(FieldInfo fieldInfo) {
 public void enterInitializer(int declarationSourceStart, int modifiers) {
 	this.methodDepth++;
 }
-/**
- * @see ISourceElementRequestor#enterInterface(TypeInfo)
- */
-public void enterInterface(TypeInfo typeInfo) {
+private void enterInterface(TypeInfo typeInfo) {
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (typeInfo.superinterfaces != null){
 		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++){
@@ -243,11 +246,26 @@ public void enterMethod(MethodInfo methodInfo) {
 	this.methodDepth++;
 }
 /**
- * @see ISourceElementRequestor#exitClass(int)
+ * @see ISourceElementRequestor#enterType(TypeInfo)
  */
-public void exitClass(int declarationEnd) {
-	popTypeName();
+public void enterType(TypeInfo typeInfo) {
+	// TODO (jerome) might want to merge the 4 methods
+	switch (typeInfo.kind) {
+		case IGenericType.CLASS_DECL:
+			enterClass(typeInfo);
+			break;
+		case IGenericType.ANNOTATION_TYPE_DECL: 
+			enterAnnotationType(typeInfo);
+			break;
+		case IGenericType.INTERFACE_DECL:
+			enterInterface(typeInfo);
+			break;
+		case IGenericType.ENUM_DECL: 
+			enterEnum(typeInfo);
+			break;
+	}
 }
+
 /**
  * @see ISourceElementRequestor#exitCompilationUnit(int)
  */
@@ -259,12 +277,6 @@ public void exitCompilationUnit(int declarationEnd) {
  */
 public void exitConstructor(int declarationEnd) {
 	this.methodDepth--;
-}
-/**
- * @see ISourceElementRequestor#exitEnum(int)
- */
-public void exitEnum(int declarationEnd) {
-	popTypeName();	
 }
 /**
  * @see ISourceElementRequestor#exitField(int, int, int)
@@ -279,16 +291,16 @@ public void exitInitializer(int declarationEnd) {
 	this.methodDepth--;
 }
 /**
- * @see ISourceElementRequestor#exitInterface(int)
- */
-public void exitInterface(int declarationEnd) {
-	popTypeName();	
-}
-/**
  * @see ISourceElementRequestor#exitMethod(int, int, int)
  */
 public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
 	this.methodDepth--;
+}
+/**
+ * @see ISourceElementRequestor#exitType(int)
+ */
+public void exitType(int declarationEnd) {
+	popTypeName();
 }
 public void popTypeName() {
 	if (depth > 0) {

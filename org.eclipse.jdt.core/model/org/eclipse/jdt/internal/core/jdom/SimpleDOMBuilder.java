@@ -85,11 +85,6 @@ protected void enterAbstractMethod(MethodInfo methodInfo) {
 }
 /**
  */
-public void enterClass(TypeInfo typeInfo) {
-	enterType(typeInfo);
-}
-/**
- */
 public void enterConstructor(MethodInfo methodInfo) {
 	/* see 1FVIIQZ */
 	String nameString = new String(fDocument, methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart);
@@ -98,11 +93,6 @@ public void enterConstructor(MethodInfo methodInfo) {
 		methodInfo.nameSourceEnd = methodInfo.nameSourceStart + openParenPosition - 1;
 
 	enterAbstractMethod(methodInfo);
-}
-/**
- */
-public void enterEnum(TypeInfo typeInfo) {
-	enterType(typeInfo);
 }
 /**
  */
@@ -130,17 +120,12 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 }
 /**
  */
-public void enterInterface(TypeInfo typeInfo) {
-	enterType(typeInfo);
-}
-/**
- */
 public void enterMethod(MethodInfo methodInfo) {
 	enterAbstractMethod(methodInfo);
 }
 /**
  */
-protected void enterType(TypeInfo typeInfo) {
+public void enterType(TypeInfo typeInfo) {
 	if (fBuildingType) {
 		int[] sourceRange = {typeInfo.declarationStart, -1}; // will be fixed in the exit
 		int[] nameRange = new int[] {typeInfo.nameSourceStart, typeInfo.nameSourceEnd};
@@ -153,15 +138,6 @@ protected void enterType(TypeInfo typeInfo) {
 	}
 }
 /**
- * Finishes the configuration of the class DOM object which
- * was created by a previous enterClass call.
- *
- * @see ISourceElementRequestor#exitClass(int)
- */
-public void exitClass(int declarationEnd) {
-	exitType(declarationEnd);
-}
-/**
  * Finishes the configuration of the method DOM object which
  * was created by a previous enterConstructor call.
  *
@@ -171,14 +147,6 @@ public void exitConstructor(int declarationEnd) {
 	exitMember(declarationEnd);
 }
 /**
- * Finishes the configuration of the class DOM object which
- * was created by a previous enterEnum call.
- *
- * @see ISourceElementRequestor#exitEnum(int)
- */
-public void exitEnum(int declarationEnd) {
-	exitType(declarationEnd);
-}/**
  */
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	exitMember(declarationEnd);
@@ -187,11 +155,6 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
  */
 public void exitInitializer(int declarationEnd) {
 	exitMember(declarationEnd);
-}
-/**
- */
-public void exitInterface(int declarationEnd) {
-	exitType(declarationEnd);
 }
 /**
  * Finishes the configuration of the member.
@@ -215,7 +178,7 @@ public void exitMethod(int declarationEnd, int defaultValueStart, int defaultVal
  * @param declarationEnd - a source position corresponding to the end of the class
  *		declaration.  This can include whitespace and comments following the closing bracket.
  */
-protected void exitType(int declarationEnd) {
+public void exitType(int declarationEnd) {
 	exitType(declarationEnd, declarationEnd);
 }
 /**

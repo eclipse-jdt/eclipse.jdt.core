@@ -500,7 +500,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					addEnumDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
 					break;
 				case IGenericType.ANNOTATION_TYPE_DECL :
-					// TODO need support
+					addAnnotationTypeDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames);
 					break;
 			}			
 	

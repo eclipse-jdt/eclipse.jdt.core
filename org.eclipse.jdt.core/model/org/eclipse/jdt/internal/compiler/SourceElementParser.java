@@ -1064,216 +1064,146 @@ public void notifySourceElementRequestor(
 	}
 }
 public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType) {
-   
-   // range check
-   boolean isInRange = 
-            scanner.initialPosition <= typeDeclaration.declarationSourceStart
-            && scanner.eofPosition >= typeDeclaration.declarationSourceEnd;
-   
-   FieldDeclaration[] fields = typeDeclaration.fields;
-   AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-   TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
-   int fieldCounter = fields == null ? 0 : fields.length;
-   int methodCounter = methods == null ? 0 : methods.length;
-   int memberTypeCounter = memberTypes == null ? 0 : memberTypes.length;
-   int fieldIndex = 0;
-   int methodIndex = 0;
-   int memberTypeIndex = 0;
- 
-   if (notifyTypePresence){
-      char[][] interfaceNames = null;
-      int superInterfacesLength = 0;
-      TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
-      if (superInterfaces != null) {
-         superInterfacesLength = superInterfaces.length;
-         interfaceNames = new char[superInterfacesLength][];
-      } else {
-         if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
-            // see PR 3442
-            QualifiedAllocationExpression alloc = typeDeclaration.allocation;
-            if (alloc != null && alloc.type != null) {
-               superInterfaces = new TypeReference[] { alloc.type};
-               superInterfacesLength = 1;
-               interfaceNames = new char[1][];
-            }
-         }
-      }
-      if (superInterfaces != null) {
-         for (int i = 0; i < superInterfacesLength; i++) {
-            interfaceNames[i] = 
-               CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
-         }
-      }
-      int kind = typeDeclaration.kind();
-      switch (kind) {
-         case IGenericType.CLASS_DECL :
-         case IGenericType.ANNOTATION_TYPE_DECL :
-            TypeReference superclass = typeDeclaration.superclass;
-            if (superclass == null) {
- 				if (isInRange) {
- 					int flags =  typeDeclaration.modifiers;
- 					boolean isEnumInit = typeDeclaration.allocation != null && typeDeclaration.allocation.enumConstant != null;
- 					if (isEnumInit)
- 						flags |= AccEnum;
- 					ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
- 					typeInfo.kind = kind;
- 					typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
- 					typeInfo.modifiers = flags;
- 					typeInfo.name = typeDeclaration.name;
- 					typeInfo.nameSourceStart = typeDeclaration.sourceStart;
- 					typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
- 					typeInfo.superclass = isEnumInit ? declaringType.name : null;
- 					typeInfo.superinterfaces = interfaceNames;
- 					typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
-					typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
-					requestor.enterClass(typeInfo);
-               }
-            } else {
-               if (isInRange) {
-					ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
- 					typeInfo.kind = kind;
- 					typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
- 					typeInfo.modifiers = typeDeclaration.modifiers;
- 					typeInfo.name = typeDeclaration.name;
- 					typeInfo.nameSourceStart = typeDeclaration.sourceStart;
- 					typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
- 					typeInfo.superclass = CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
- 					typeInfo.superinterfaces = interfaceNames;
- 					typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
-					typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
-					requestor.enterClass(typeInfo);
-               }
-            }
-            if (nestedTypeIndex == typeNames.length) {
-               // need a resize
-               System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-               System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-            }
-            typeNames[nestedTypeIndex] = typeDeclaration.name;
-            superTypeNames[nestedTypeIndex++] = superclass == null ? TypeConstants.CharArray_JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
-            break;
- 
-         case IGenericType.INTERFACE_DECL :
-            if (isInRange){
-               int currentModifiers = typeDeclaration.modifiers;
-               boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-				ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
-				typeInfo.kind = kind;
-				typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
-				typeInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
-				typeInfo.name = typeDeclaration.name;
-				typeInfo.nameSourceStart = typeDeclaration.sourceStart;
-				typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
-				typeInfo.superinterfaces = interfaceNames;
-				typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
-				typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
-				requestor.enterInterface(typeInfo);
-            }
-            if (nestedTypeIndex == typeNames.length) {
-               // need a resize
-               System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-               System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-            }
-            typeNames[nestedTypeIndex] = typeDeclaration.name;
-            superTypeNames[nestedTypeIndex++] = TypeConstants.CharArray_JAVA_LANG_OBJECT;
-            break;
- 
-         case IGenericType.ENUM_DECL :
- 
-            if (isInRange){
-               int currentModifiers = typeDeclaration.modifiers;
-               boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-				ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
-				typeInfo.kind = kind;
-				typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
-				typeInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
-				typeInfo.name = typeDeclaration.name;
-				typeInfo.nameSourceStart = typeDeclaration.sourceStart;
-				typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
-				typeInfo.superinterfaces = interfaceNames;
-				typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
-				typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
-				requestor.enterEnum(typeInfo);
-            }
-            if (nestedTypeIndex == typeNames.length) {
-               // need a resize
-               System.arraycopy(typeNames, 0, (typeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-               System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
-            }
-            typeNames[nestedTypeIndex] = typeDeclaration.name;
-            superTypeNames[nestedTypeIndex++] = TypeConstants.CharArray_JAVA_LANG_ENUM;
-            break;
- 
-//         case IGenericType.ANNOTATION_TYPE :
-            // TODO need support
-//            break;
-      }      
-   }
-   while ((fieldIndex < fieldCounter)
-      || (memberTypeIndex < memberTypeCounter)
-      || (methodIndex < methodCounter)) {
-      FieldDeclaration nextFieldDeclaration = null;
-      AbstractMethodDeclaration nextMethodDeclaration = null;
-      TypeDeclaration nextMemberDeclaration = null;
- 
-      int position = Integer.MAX_VALUE;
-      int nextDeclarationType = -1;
-      if (fieldIndex < fieldCounter) {
-         nextFieldDeclaration = fields[fieldIndex];
-         if (nextFieldDeclaration.declarationSourceStart < position) {
-            position = nextFieldDeclaration.declarationSourceStart;
-            nextDeclarationType = 0; // FIELD
-         }
-      }
-      if (methodIndex < methodCounter) {
-         nextMethodDeclaration = methods[methodIndex];
-         if (nextMethodDeclaration.declarationSourceStart < position) {
-            position = nextMethodDeclaration.declarationSourceStart;
-            nextDeclarationType = 1; // METHOD
-         }
-      }
-      if (memberTypeIndex < memberTypeCounter) {
-         nextMemberDeclaration = memberTypes[memberTypeIndex];
-         if (nextMemberDeclaration.declarationSourceStart < position) {
-            position = nextMemberDeclaration.declarationSourceStart;
-            nextDeclarationType = 2; // MEMBER
-         }
-      }
-      switch (nextDeclarationType) {
-         case 0 :
-            fieldIndex++;
-            notifySourceElementRequestor(nextFieldDeclaration, typeDeclaration);
-            break;
-         case 1 :
-            methodIndex++;
-            notifySourceElementRequestor(nextMethodDeclaration);
-            break;
-         case 2 :
-            memberTypeIndex++;
-            notifySourceElementRequestor(nextMemberDeclaration, true, null);
-      }
-   }
-   if (notifyTypePresence){
-      if (isInRange){
-         switch (typeDeclaration.kind()) {
-            case IGenericType.CLASS_DECL :
-            case IGenericType.ANNOTATION_TYPE_DECL :
-               requestor.exitClass(typeDeclaration.declarationSourceEnd);
-               break;
-            case IGenericType.INTERFACE_DECL :
-               requestor.exitInterface(typeDeclaration.declarationSourceEnd);
-               break;
-            case IGenericType.ENUM_DECL :
-               requestor.exitEnum(typeDeclaration.declarationSourceEnd);
-               break;
-/*            case IGenericType.ANNOTATION_TYPE :
-               // TODO need support
-               //requestor.exitAnnotationType(typeDeclaration.declarationSourceEnd);
-               break;*/
-         }         
-      }
-      nestedTypeIndex--;
-   }
+	
+	// range check
+	boolean isInRange = 
+		scanner.initialPosition <= typeDeclaration.declarationSourceStart
+		&& scanner.eofPosition >= typeDeclaration.declarationSourceEnd;
+	
+	FieldDeclaration[] fields = typeDeclaration.fields;
+	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+	TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
+	int fieldCounter = fields == null ? 0 : fields.length;
+	int methodCounter = methods == null ? 0 : methods.length;
+	int memberTypeCounter = memberTypes == null ? 0 : memberTypes.length;
+	int fieldIndex = 0;
+	int methodIndex = 0;
+	int memberTypeIndex = 0;
+	
+	if (notifyTypePresence){
+		char[][] interfaceNames = null;
+		int superInterfacesLength = 0;
+		TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+		if (superInterfaces != null) {
+			superInterfacesLength = superInterfaces.length;
+			interfaceNames = new char[superInterfacesLength][];
+		} else {
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+				// see PR 3442
+				QualifiedAllocationExpression alloc = typeDeclaration.allocation;
+				if (alloc != null && alloc.type != null) {
+					superInterfaces = new TypeReference[] { alloc.type};
+					superInterfacesLength = 1;
+					interfaceNames = new char[1][];
+				}
+			}
+		}
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfacesLength; i++) {
+				interfaceNames[i] = 
+					CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
+			}
+		}
+		int kind = typeDeclaration.kind();
+		char[] implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_OBJECT;
+		if (isInRange) {
+			int currentModifiers = typeDeclaration.modifiers;
+			boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+			boolean isEnumInit = typeDeclaration.allocation != null && typeDeclaration.allocation.enumConstant != null;
+			char[] superclassName;
+			if (isEnumInit) {
+				currentModifiers |= AccEnum;
+				superclassName = declaringType.name;
+			} else {
+				TypeReference superclass = typeDeclaration.superclass;
+				superclassName = superclass != null ? CharOperation.concatWith(superclass.getParameterizedTypeName(), '.') : null;
+			}
+			ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
+			typeInfo.kind = kind;
+			typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
+			typeInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+			typeInfo.name = typeDeclaration.name;
+			typeInfo.nameSourceStart = typeDeclaration.sourceStart;
+			typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
+			typeInfo.superclass = superclassName;
+			typeInfo.superinterfaces = interfaceNames;
+			typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
+			typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
+			requestor.enterType(typeInfo);
+			switch (kind) {
+				case IGenericType.CLASS_DECL :
+					if (superclassName != null)
+						implicitSuperclassName = superclassName;
+					break;
+				case IGenericType.INTERFACE_DECL :
+					implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_OBJECT;
+					break;
+				case IGenericType.ENUM_DECL :
+					implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_ENUM;
+					break;
+				case IGenericType.ANNOTATION_TYPE_DECL :
+					implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_ANNOTATION_ANNOTATION;
+					break;
+			}
+		}
+		if (this.nestedTypeIndex == this.typeNames.length) {
+			// need a resize
+			System.arraycopy(this.typeNames, 0, (this.typeNames = new char[this.nestedTypeIndex * 2][]), 0, this.nestedTypeIndex);
+			System.arraycopy(this.superTypeNames, 0, (this.superTypeNames = new char[this.nestedTypeIndex * 2][]), 0, this.nestedTypeIndex);
+		}
+		this.typeNames[this.nestedTypeIndex] = typeDeclaration.name;
+		this.superTypeNames[this.nestedTypeIndex++] = implicitSuperclassName;
+	}
+	while ((fieldIndex < fieldCounter)
+			|| (memberTypeIndex < memberTypeCounter)
+			|| (methodIndex < methodCounter)) {
+		FieldDeclaration nextFieldDeclaration = null;
+		AbstractMethodDeclaration nextMethodDeclaration = null;
+		TypeDeclaration nextMemberDeclaration = null;
+		
+		int position = Integer.MAX_VALUE;
+		int nextDeclarationType = -1;
+		if (fieldIndex < fieldCounter) {
+			nextFieldDeclaration = fields[fieldIndex];
+			if (nextFieldDeclaration.declarationSourceStart < position) {
+				position = nextFieldDeclaration.declarationSourceStart;
+				nextDeclarationType = 0; // FIELD
+			}
+		}
+		if (methodIndex < methodCounter) {
+			nextMethodDeclaration = methods[methodIndex];
+			if (nextMethodDeclaration.declarationSourceStart < position) {
+				position = nextMethodDeclaration.declarationSourceStart;
+				nextDeclarationType = 1; // METHOD
+			}
+		}
+		if (memberTypeIndex < memberTypeCounter) {
+			nextMemberDeclaration = memberTypes[memberTypeIndex];
+			if (nextMemberDeclaration.declarationSourceStart < position) {
+				position = nextMemberDeclaration.declarationSourceStart;
+				nextDeclarationType = 2; // MEMBER
+			}
+		}
+		switch (nextDeclarationType) {
+			case 0 :
+				fieldIndex++;
+				notifySourceElementRequestor(nextFieldDeclaration, typeDeclaration);
+				break;
+			case 1 :
+				methodIndex++;
+				notifySourceElementRequestor(nextMethodDeclaration);
+				break;
+			case 2 :
+				memberTypeIndex++;
+				notifySourceElementRequestor(nextMemberDeclaration, true, null);
+		}
+	}
+	if (notifyTypePresence){
+		if (isInRange){
+			requestor.exitType(typeDeclaration.declarationSourceEnd);
+		}
+		nestedTypeIndex--;
+	}
 }
 private int sourceEnd(TypeDeclaration typeDeclaration) {
 	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {

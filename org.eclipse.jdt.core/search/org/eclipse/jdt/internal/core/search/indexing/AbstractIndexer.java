@@ -23,6 +23,14 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public AbstractIndexer(SearchDocument document) {
 		this.document = document;
 	}
+	public void addAnnotationTypeDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames) {
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, ENUM_SUFFIX));
+		
+		addIndexEntry(
+			SUPER_REF, 
+			SuperTypeReferencePattern.createIndexKey(
+				modifiers, packageName, name, enclosingTypeNames, null, ENUM_SUFFIX, CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION, '.'), ANNOTATION_TYPE_SUFFIX));
+	}	
 	public void addClassDeclaration(
 			int modifiers, 
 			char[] packageName,
