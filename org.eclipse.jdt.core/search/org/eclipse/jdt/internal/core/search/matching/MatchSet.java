@@ -140,11 +140,11 @@ private AstNode[] nodesInRange(int start, int end, Hashtable set) {
 private AstNode[] potentialMatchingNodes(int start, int end) {
 	return this.nodesInRange(start, end, this.potentialMatchingNodes);
 }
-public Integer removePossibleMatch(AstNode node) {
-	return (Integer)this.potentialMatchingNodes.remove(node);
+public void removePossibleMatch(AstNode node) {
+	this.potentialMatchingNodes.remove(node);
 }
-public Integer removeTrustedMatch(AstNode node) {
-	return (Integer)this.matchingNodes.remove(node);
+public void removeTrustedMatch(AstNode node) {
+	this.matchingNodes.remove(node);
 }
 /**
  * Visit the given method declaration and report the nodes that match exactly the

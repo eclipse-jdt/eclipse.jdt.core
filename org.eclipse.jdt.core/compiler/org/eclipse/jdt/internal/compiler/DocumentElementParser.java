@@ -486,7 +486,7 @@ protected void consumeEnterVariable() {
 			declaration.type.sourceStart = type.sourceStart;
 			declaration.type.sourceEnd = type.sourceEnd;
 		} else {
-			declaration.type = this.copyDims(type, dimension);
+			declaration.type = type.copyDims(dimension);
 		}
 	}
 	variablesCounter[nestedType]++;
@@ -807,7 +807,7 @@ protected void consumeMethodHeaderExtendedDims() {
 			returnType.sourceEnd = sourceEnd;
 			md.returnType = returnType;
 		} else {
-			md.returnType = this.copyDims(md.returnType, dims);
+			md.returnType = md.returnType.copyDims(dims);
 		}
 		if (currentToken == TokenNameLBRACE) {
 			md.bodyStart = endPosition + 1;

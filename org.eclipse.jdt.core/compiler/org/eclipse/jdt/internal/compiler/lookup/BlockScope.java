@@ -14,16 +14,13 @@ public class BlockScope extends Scope {
 	// Local variable management
 	public LocalVariableBinding[] locals;
 	public int localIndex; 		// position for next variable
-	public int analysisIndex; 		// for setting flow-analysis id
+	public int analysisIndex; 	// for setting flow-analysis id
 	public int startIndex; 		// start position in this scope - for ordering scopes vs. variables
-	public int offset, maxOffset;	// for variable allocation throughout scopes
-	public BlockScope shiftScope;	// finally scopes must be shifted behind respective try scope
-	
+
 	public final static VariableBinding[] EmulationPathToImplicitThis = {};
 
 	public Scope[] subscopes = new Scope[1];	// need access from code assist
 	public int scopeIndex = 0;	// need access from code assist
-	
 protected BlockScope(int kind, Scope parent) {
 	super(kind, parent);
 }
@@ -145,32 +142,15 @@ private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
 }
 /* Compute variable positions in scopes given an initial position offset
 * ignoring unused local variables.
-* 
-* Special treatment to have Try secret return address variables located at non
-* colliding positions. Return addresses are not allocated initially, but gathered
-* and allocated behind all other variables.
 */
 
-public final void computeLocalVariablePositions(int initOffset, CodeStream codeStream) {
-	ObjectVector returnAddresses = new ObjectVector();
-	computeLocalVariablePositions(initOffset, codeStream, returnAddresses);
-	for (int i = 0, length = returnAddresses.size(); i < length; i++){
-		LocalVariableBinding returnAddress = (LocalVariableBinding)returnAddresses.elementAt(i);	
-		returnAddress.resolvedPosition = this.maxOffset ++;
-	}
-}
-
-public final void computeLocalVariablePositions(int initOffset, CodeStream codeStream, ObjectVector returnAddresses) {
-
-	this.offset = initOffset;
-	this.maxOffset = initOffset;
-	
+public final void computeLocalVariablePositions(int offset, CodeStream codeStream) {
 	// local variable init
 	int ilocal = 0, maxLocals = 0, localsLength = locals.length;
 	while ((maxLocals < localsLength) && (locals[maxLocals] != null))
 		maxLocals++;
 	boolean hasMoreVariables = maxLocals > 0;
-	
+
 	// scope init
 	int iscope = 0, maxScopes = 0, subscopesLength = subscopes.length;
 	while ((maxScopes < subscopesLength) && (subscopes[maxScopes] != null))
@@ -181,12 +161,8 @@ public final void computeLocalVariablePositions(int initOffset, CodeStream codeS
 	while (hasMoreVariables || hasMoreScopes) {
 		if (hasMoreScopes && (!hasMoreVariables || (subscopes[iscope].startIndex() <= ilocal))) {
 			// consider subscope first
-			if (subscopes[iscope] instanceof BlockScope) {
-				BlockScope subscope = (BlockScope) subscopes[iscope];
-				int subOffset = subscope.shiftScope == null ? this.offset : subscope.shiftScope.offset;
-				subscope.computeLocalVariablePositions(subOffset, codeStream, returnAddresses);
-				if (subscope.maxOffset > this.maxOffset) this.maxOffset = subscope.maxOffset;
-			}
+			if (subscopes[iscope] instanceof BlockScope)
+				((BlockScope) subscopes[iscope]).computeLocalVariablePositions(offset, codeStream);
 			hasMoreScopes = ++iscope < maxScopes;
 		} else {	
 			// consider variable first
@@ -207,46 +183,30 @@ public final void computeLocalVariablePositions(int initOffset, CodeStream codeS
 				}
 			}
 			if (generatesLocal) {
-				
-				// Return addresses are managed separately afterwards.
-				if (local.name == TryStatement.SecretReturnName){
-					returnAddresses.add(local);
+				if (local.declaration != null)
+					codeStream.record(local); // record user local variables for attribute generation
+				local.resolvedPosition = offset;
+				// check for too many arguments/local variables
+				if(local.isArgument){
+					if (offset > 0xFF){ // no more than 255 words of arguments
+						this.problemReporter().noMoreAvailableSpaceForArgument(local.declaration);
+					}
 				} else {
-
-					if (local.declaration != null){
-						codeStream.record(local); // record user local variables for attribute generation
-					}
-
-					// allocate variable position
-					local.resolvedPosition = this.offset;
-							
-					// check for too many arguments/local variables
-					if(local.isArgument){
-						if (offset > 0xFF){ // no more than 255 words of arguments
-							this.problemReporter().noMoreAvailableSpaceForArgument(local.declaration);
-						}
-					} else {
-						if(offset > 0xFFFF){ // no more than 65535 words of locals
-							this.problemReporter().noMoreAvailableSpaceForLocal(local.declaration);
-						}
-					}
-					
-					// increment offset
-					if ((local.type == LongBinding) || (local.type == DoubleBinding)){
-						this.offset += 2;
-					} else {
-						this.offset++;
+					if(offset > 0xFFFF){ // no more than 65535 words of locals
+						this.problemReporter().noMoreAvailableSpaceForLocal(local.declaration);
 					}
 				}
+				if ((local.type == LongBinding) || (local.type == DoubleBinding))
+					offset += 2;
+				else
+					offset++;
 			} else {
 				local.resolvedPosition = -1; // not generated
 			}
 			hasMoreVariables = ++ilocal < maxLocals;
 		}
 	}
-	if (this.offset > this.maxOffset) this.maxOffset = this.offset;
 }
-
 /* Answer true if the variable name already exists within the receiver's scope.
 */
 
