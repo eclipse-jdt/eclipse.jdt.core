@@ -110,9 +110,13 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 					else if (DEBUG)
 						System.out.println("Nothing to build since deltas were empty"); //$NON-NLS-1$
 				} else {
-					if (DEBUG)
-						System.out.println("Nothing to build since there are no source folders"); //$NON-NLS-1$
-					this.lastState.tagAsNoopBuild();
+					if (hasBinaryDelta()) { // double check that a jar file didn't get replaced
+						buildAll();
+					} else {
+						if (DEBUG)
+							System.out.println("Nothing to build since there are no source folders and no deltas"); //$NON-NLS-1$
+						this.lastState.tagAsNoopBuild();
+					}
 				}
 			}
 			ok = true;
@@ -369,6 +373,21 @@ private boolean hasOutputLocationChanged() {
 		System.out.println(outputFolder.getLocation().toString() + " != " + lastState.outputLocationString); //$NON-NLS-1$
 	return true;
 } 
+
+private boolean hasBinaryDelta() {
+	IResourceDelta delta = getDelta(currentProject);
+	if (delta != null && delta.getKind() != IResourceDelta.NO_CHANGE) {
+		IResource[] classFoldersAndJars = (IResource[]) binaryResources.get(currentProject);
+		for (int i = 0, l = classFoldersAndJars.length; i < l; i++) {
+			IResource binaryResource = classFoldersAndJars[i]; // either a .class file folder or a zip/jar file
+			if (binaryResource != null) {
+				IResourceDelta binaryDelta = delta.findMember(binaryResource.getProjectRelativePath());
+				if (binaryDelta != null) return true;
+			}
+		}
+	}
+	return false;
+}
 
 private void initializeBuilder() throws CoreException {
 	this.javaProject = JavaCore.create(currentProject);
