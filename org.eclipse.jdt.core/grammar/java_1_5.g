@@ -252,6 +252,8 @@ ClassOrInterface -> ClassOrInterface TypeArguments '.' Name
 
 ArrayType ::= PrimitiveType Dims
 ArrayType ::= Name Dims
+ArrayType ::= ClassOrInterface TypeArguments '.' Name Dims
+ArrayType ::= ClassOrInterface TypeArguments Dims
 /:$readableName ArrayType:/
 
 ClassType -> ClassOrInterfaceType
@@ -1011,10 +1013,14 @@ PrimaryNoNewArray ::= Name '.' 'super'
 --PrimaryNoNewArray ::= Type '.' 'class'   
 --inline Type in the previous rule in order to make the grammar LL1 instead 
 -- of LL2. The result is the 3 next rules.
+
 PrimaryNoNewArray ::= Name '.' 'class'
 /.$putCase consumePrimaryNoNewArrayName(); $break ./
 
-PrimaryNoNewArray ::= ArrayType '.' 'class'
+PrimaryNoNewArray ::= Name Dims '.' 'class'
+/.$putCase consumePrimaryNoNewArrayArrayType(); $break ./
+
+PrimaryNoNewArray ::= PrimitiveType Dims '.' 'class'
 /.$putCase consumePrimaryNoNewArrayArrayType(); $break ./
 
 PrimaryNoNewArray ::= PrimitiveType '.' 'class'
@@ -1236,7 +1242,7 @@ ShiftExpression ::= ShiftExpression '>>>' AdditiveExpression
 /:$readableName Expression:/
 
 RelationalExpression -> ShiftExpression
-RelationalExpression ::= RelationalExpression '<'  ShiftExpression
+RelationalExpression ::= ShiftExpression '<'  ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.LESS); $break ./
 RelationalExpression ::= RelationalExpression '>'  ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorIds.GREATER); $break ./
