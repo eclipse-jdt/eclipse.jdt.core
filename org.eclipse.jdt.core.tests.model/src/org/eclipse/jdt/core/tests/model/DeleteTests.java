@@ -20,8 +20,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.jdt.core.*;
 
-import java.io.IOException;
-
 import junit.framework.Test;
 
 /*
@@ -48,16 +46,17 @@ public void tearDownSuite() throws Exception {
  * is reported as removed.
  */
 public void testDeleteAllImports() throws CoreException {
-	createFile(
-		"P/X.java",
-		"import java.util.*;\n" +
-		"import q.Y;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IImportDeclaration[] children= cu.getImports();
 	try {
+		createFile(
+			"P/X.java",
+			"import java.util.*;\n" +
+			"import q.Y;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IImportDeclaration[] children= cu.getImports();
+
 		startDeltas();
 		assertDeletion(children);
 		assertDeltas(
@@ -147,13 +146,14 @@ public void testDeleteBinaryType() throws CoreException {
  * Should be able to delete a CU.
  */
 public void testDeleteCompilationUnit1() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+
 		startDeltas();
 		cu.delete(false, null);
 		assertTrue("Should be able to delete a CU", !cu.exists());
@@ -175,13 +175,14 @@ public void testDeleteCompilationUnit1() throws CoreException {
  * package of a nested root, it disappears from existence.
  */
 public void testDeleteCompilationUnit2() throws CoreException {
-	IFile file = createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
 	try {
+		IFile file = createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+
 		startDeltas();
 		file.delete(false, null);
 		assertTrue("Should be able to delete a CU", !cu.exists());
@@ -201,18 +202,18 @@ public void testDeleteCompilationUnit2() throws CoreException {
  * After deleting a CU in an IWorkspaceRunnable, it should not exist.
  * (regression test for bug 9232 ICompilationUnit.delete() fails)
  */
-public void testDeleteCompilationUnit3() throws JavaModelException, CoreException, IOException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"}"
-	);
-	final ICompilationUnit cu = getCompilationUnit("P/X.java");
-	
-	// force the cu to be opened
-	cu.open(null);
-	
+public void testDeleteCompilationUnit3() throws CoreException {
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		final ICompilationUnit cu = getCompilationUnit("P/X.java");
+		
+		// force the cu to be opened
+		cu.open(null);
+	
 		startDeltas();
 		ResourcesPlugin.getWorkspace().run(
 			new IWorkspaceRunnable() {
@@ -239,16 +240,17 @@ public void testDeleteCompilationUnit3() throws JavaModelException, CoreExceptio
 /**
  * Should be able to delete a CU in a non-default package.
  */
-public void testDeleteCompilationUnit4() throws JavaModelException, CoreException, java.io.IOException {
-	createFolder("P/p");
-	IFile file = createFile(
-		"P/p/X.java",
-		"package p;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/p/X.java");
+public void testDeleteCompilationUnit4() throws CoreException {
 	try {
+		createFolder("P/p");
+		IFile file = createFile(
+			"P/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/p/X.java");
+
 		startDeltas();
 		cu.delete(false, null);
 		assertTrue("CU should not exist", !cu.exists());
@@ -270,16 +272,17 @@ public void testDeleteCompilationUnit4() throws JavaModelException, CoreExceptio
  * Verify that the correct change deltas are generated.
  */
 public void testDeleteConstructor() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  public X(String s) {\n" +
-		"  }\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IMethod constructor = cu.getType("X").getMethod("X", new String[] {"QString;"});
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  public X(String s) {\n" +
+			"  }\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IMethod constructor = cu.getType("X").getMethod("X", new String[] {"QString;"});
+
 		startDeltas();
 		assertDeletion(constructor);
 		assertTrue("Should be able to delete a constructor", !constructor.exists());
@@ -301,10 +304,11 @@ public void testDeleteConstructor() throws CoreException {
  * Ensure that deleting an empty package fragment that has a sub-package is not possible.
  */
 public void testDeleteEmptyPackageFragment() throws CoreException {
-	createFolder("P/p1/p2");
-	IPackageFragment pkg = getPackage("P/p1");
-	IFolder folder = getFolder("P/p1");
 	try {
+		createFolder("P/p1/p2");
+		IPackageFragment pkg = getPackage("P/p1");
+		IFolder folder = getFolder("P/p1");
+
 		startDeltas();
 		pkg.delete(false, null);
 		assertTrue("Folder should exist", folder.exists());
@@ -322,15 +326,16 @@ public void testDeleteEmptyPackageFragment() throws CoreException {
  * Ensures that a field can be deleted.
  */
 public void testDeleteField() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  int field;\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IField field = cu.getType("X").getField("field");
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  int field;\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IField field = cu.getType("X").getField("field");
+
 		startDeltas();
 		assertDeletion(field);
 		assertDeltas(
@@ -350,16 +355,17 @@ public void testDeleteField() throws CoreException {
 /**
  * Ensures that deletion can be canceled.
  */
-public void testDeleteFieldWithCancel() throws JavaModelException, IOException, CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  int field;\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IField field = cu.getType("X").getField("field");
+public void testDeleteFieldWithCancel() throws CoreException {
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  int field;\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IField field = cu.getType("X").getField("field");
+
 		boolean isCanceled = false;
 		try {
 			TestProgressMonitor monitor = TestProgressMonitor.getInstance();
@@ -377,16 +383,17 @@ public void testDeleteFieldWithCancel() throws JavaModelException, IOException, 
  * Ensures that an import declaration can be deleted.
  */
 public void testDeleteImportDeclaration() throws CoreException {
-	createFile(
-		"P/X.java",
-		"import java.util.*;\n" +
-		"import q.Y;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IImportDeclaration imp= cu.getImport("q.Y");
 	try {
+		createFile(
+			"P/X.java",
+			"import java.util.*;\n" +
+			"import q.Y;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IImportDeclaration imp= cu.getImport("q.Y");
+
 		startDeltas();
 		assertDeletion(imp);
 		assertDeltas(
@@ -407,16 +414,17 @@ public void testDeleteImportDeclaration() throws CoreException {
  * Ensures that a method can be deleted.
  */
 public void testDeleteMethod() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"  }\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IMethod method = cu.getType("X").getMethod("foo", new String[] {});
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
+
 		startDeltas();
 		assertDeletion(method);
 		assertDeltas(
@@ -439,69 +447,69 @@ public void testDeleteMethod() throws CoreException {
  * Verifies that the correct changed deltas are generated.
  */
 public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
-	createFolder("P/a/b/c");
-	createFile(
-		"P/a/b/c/X.java",
-		"package a.b.c;\n" +
-		"import java.util.Vector;\n" +
-		"import java.util.Enumeration;\n" +
-		"public class X {\n" +
-		"  public static void main(String[] args) {\n" +
-		"    System.out.println(\"Hello World\");\n" +
-		"  }\n" +
-		"  static class Bar {\n" +
-		"    private final java.lang.String test = \"testminor\";\n" +
-		"    public Bar() {\n" +
-		"      super();\n" +
-		"    }\n" +
-		"    private void test() {\n" +
-		"    }\n" +
-		"  }\n" +
-		"}"
-	);
-	createFile(
-		"P/a/b/Y.java",
-		"package a.b;\n" +
-		"public class Y {\n" +
-		"  int foo;\n" +
-		"  public static void main(String[] args) {\n" +
-		"    System.out.println(\"Hello World\");\n" +
-		"  }\n" +
-		"}"
-	);
-	
-	// elements to be deleted:
-	// from a/b/c/X.java:
-	//   java.util.Vector
-	//	  main
-	//   Bar (inner type)
-	//	    Bar (constructor)
-	//	    test
-	//   Bar (inner type, same as above)
-
-	// from a/b/Y.java
-	//   foo
-	//   main
-	
-	ICompilationUnit cuX = getCompilationUnit("P/a/b/c/X.java");
-	IType typeX = cuX.getType("X");
-	IType typeBar = typeX.getType("Bar");
-
-	IJavaElement[] toBeDeleted = new IJavaElement[8];
-	toBeDeleted[0] = cuX.getImport("java.util.Vector");
-	toBeDeleted[1] = typeX.getMethod("main", new String[] {"[QString;"});
-	toBeDeleted[2] = typeBar;
-	toBeDeleted[3] = typeBar.getMethod("Bar", new String[] {});
-	toBeDeleted[4] = typeBar.getMethod("test", new String[] {});
-	toBeDeleted[5] = typeBar;
-	
-	ICompilationUnit cuY = getCompilationUnit("P/a/b/Y.java");
-	IType typeY = cuY.getType("Y");
-	
-	toBeDeleted[6] = typeY.getField("foo");
-	toBeDeleted[7] = typeY.getMethod("main", new String[] {"[QString;"});
-	
 	try {
+		createFolder("P/a/b/c");
+		createFile(
+			"P/a/b/c/X.java",
+			"package a.b.c;\n" +
+			"import java.util.Vector;\n" +
+			"import java.util.Enumeration;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    System.out.println(\"Hello World\");\n" +
+			"  }\n" +
+			"  static class Bar {\n" +
+			"    private final java.lang.String test = \"testminor\";\n" +
+			"    public Bar() {\n" +
+			"      super();\n" +
+			"    }\n" +
+			"    private void test() {\n" +
+			"    }\n" +
+			"  }\n" +
+			"}"
+		);
+		createFile(
+			"P/a/b/Y.java",
+			"package a.b;\n" +
+			"public class Y {\n" +
+			"  int foo;\n" +
+			"  public static void main(String[] args) {\n" +
+			"    System.out.println(\"Hello World\");\n" +
+			"  }\n" +
+			"}"
+		);
+		
+		// elements to be deleted:
+		// from a/b/c/X.java:
+		//   java.util.Vector
+		//	  main
+		//   Bar (inner type)
+		//	    Bar (constructor)
+		//	    test
+		//   Bar (inner type, same as above)
+	
+		// from a/b/Y.java
+		//   foo
+		//   main
+		
+		ICompilationUnit cuX = getCompilationUnit("P/a/b/c/X.java");
+		IType typeX = cuX.getType("X");
+		IType typeBar = typeX.getType("Bar");
+	
+		IJavaElement[] toBeDeleted = new IJavaElement[8];
+		toBeDeleted[0] = cuX.getImport("java.util.Vector");
+		toBeDeleted[1] = typeX.getMethod("main", new String[] {"[QString;"});
+		toBeDeleted[2] = typeBar;
+		toBeDeleted[3] = typeBar.getMethod("Bar", new String[] {});
+		toBeDeleted[4] = typeBar.getMethod("test", new String[] {});
+		toBeDeleted[5] = typeBar;
+		
+		ICompilationUnit cuY = getCompilationUnit("P/a/b/Y.java");
+		IType typeY = cuY.getType("Y");
+		
+		toBeDeleted[6] = typeY.getField("foo");
+		toBeDeleted[7] = typeY.getMethod("main", new String[] {"[QString;"});
+	
 		startDeltas();
 		assertDeletion(toBeDeleted);
 		assertDeltas(
@@ -530,16 +538,17 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
  * Ensures that a package declaration can be deleted from a compilation unit.
  */
 public void testDeletePackageDeclaration() throws CoreException {
-	createFolder("P/a/b/c");
-	createFile(
-		"P/a/b/c/X.java",
-		"package a.b.c;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/a/b/c/X.java");
-	IPackageDeclaration packageDeclaration = cu.getPackageDeclaration("a.b.c");
 	try {
+		createFolder("P/a/b/c");
+		createFile(
+			"P/a/b/c/X.java",
+			"package a.b.c;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/a/b/c/X.java");
+		IPackageDeclaration packageDeclaration = cu.getPackageDeclaration("a.b.c");
+
 		startDeltas();
 		assertDeletion(packageDeclaration);
 		assertDeltas(
@@ -555,17 +564,18 @@ public void testDeletePackageDeclaration() throws CoreException {
 		deleteFolder("P/a");
 	}
 }
-public void testDeletePackageFragment() throws JavaModelException, CoreException, java.io.IOException {
-	createFolder("P/a/b/c");
-	createFile(
-		"P/a/b/c/X.java",
-		"package a.b.c;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	IPackageFragment pkg = getPackage("P/a/b/c");
-	IFolder folder = getFolder("P/a/b/c");
+public void testDeletePackageFragment1() throws CoreException {
 	try {
+		createFolder("P/a/b/c");
+		createFile(
+			"P/a/b/c/X.java",
+			"package a.b.c;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		IPackageFragment pkg = getPackage("P/a/b/c");
+		IFolder folder = getFolder("P/a/b/c");
+
 		startDeltas();
 		pkg.delete(false, null);
 		assertTrue("Folder should not exist", !folder.exists());
@@ -581,19 +591,54 @@ public void testDeletePackageFragment() throws JavaModelException, CoreException
 		deleteFolder("P/p1");
 	}
 }
+/*
+ * Ensures that deleting a default package doesn't remove the source folder.
+ * (regression test for bug 38450 Delete: Removing default package removes source folder)
+ */
+public void testDeletePackageFragment2() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {"src"}, "bin");
+		IFile file = createFile(
+			"P1/src/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		IPackageFragment pkg = getPackage("P1/src");
+		IFolder folder = getFolder("P1/src");
+		ICompilationUnit cu = getCompilationUnit("P1/src/X.java");
+
+		startDeltas();
+		pkg.delete(false, null);
+		assertTrue("Folder should still exist", folder.exists());
+		assertTrue("Fragment should still exist", pkg.exists());
+		assertTrue("File should no longer exist", !file.exists());
+		assertTrue("Compilation unit should no longer exist", !cu.exists());
+		assertDeltas(
+			"Unexpected delta",
+			"P1[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		[default][*]: {CHILDREN}\n" + 
+			"			X.java[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+	}
+}
 /**
  * Ensures that a field can be deleted if it contains syntax errors
  */
 public void testDeleteSyntaxErrorField() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  int field\n" + // missing semi-colon
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IField field = cu.getType("X").getField("field");
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  int field\n" + // missing semi-colon
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IField field = cu.getType("X").getField("field");
+
 		startDeltas();
 		assertDeletion(field);
 		assertDeltas(
@@ -614,18 +659,19 @@ public void testDeleteSyntaxErrorField() throws CoreException {
  * Ensures that a method can be deleted if it contains syntax errors
  */
 public void testDeleteSyntaxErrorInMethod1() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  public void foo() {\n" +
-		"    String s = ;\n" +
-		"    System.out.println(s);\n" +
-		"  }\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IMethod method = cu.getType("X").getMethod("foo", new String[] {});
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  public void foo() {\n" +
+			"    String s = ;\n" +
+			"    System.out.println(s);\n" +
+			"  }\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
+
 		startDeltas();
 		assertDeletion(method);
 		assertDeltas(
@@ -646,15 +692,16 @@ public void testDeleteSyntaxErrorInMethod1() throws CoreException {
  * Ensures that a method can be deleted if it contains syntax errors
  */
 public void testDeleteSyntaxErrorInMethod2() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  public void foo() \n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IMethod method = cu.getType("X").getMethod("foo", new String[] {});
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  public void foo() \n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
+
 		startDeltas();
 		assertDeletion(method);
 		assertDeltas(
@@ -675,16 +722,17 @@ public void testDeleteSyntaxErrorInMethod2() throws CoreException {
  * Ensures that a method can be deleted if it contains syntax errors
  */
 public void testDeleteSyntaxErrorInMethod3() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  public void foo( \n" +
-		"  }\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IMethod method = cu.getType("X").getMethod("foo", new String[] {});
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  public void foo( \n" +
+			"  }\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IMethod method = cu.getType("X").getMethod("foo", new String[] {});
+
 		startDeltas();
 		assertDeletion(method);
 		assertDeltas(
@@ -705,15 +753,16 @@ public void testDeleteSyntaxErrorInMethod3() throws CoreException {
  * Ensures that a type can be deleted if it contains syntax errors
  */
 public void testDeleteSyntaxErrorType() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"  method() {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IType type = cu.getType("X");
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  method() {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IType type = cu.getType("X");
+
 		startDeltas();
 		assertDeletion(type);
 		assertDeltas(
@@ -733,14 +782,15 @@ public void testDeleteSyntaxErrorType() throws CoreException {
  * Ensures that a type can be deleted from a compilation unit.
  */
 public void testDeleteType1() throws CoreException{
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IType type = cu.getType("X");
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IType type = cu.getType("X");
+
 		startDeltas();
 		assertDeletion(type);
 		assertDeltas(
@@ -761,15 +811,16 @@ public void testDeleteType1() throws CoreException{
  * in a root folder that is not the project folder.
  */
 public void testDeleteType2() throws CoreException {
-	createJavaProject("P1", new String[] {"src"}, "bin");
-	createFile(
-		"P1/src/X.java",
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P1/src/X.java");
-	IType type = cu.getType("X");
 	try {
+		createJavaProject("P1", new String[] {"src"}, "bin");
+		createFile(
+			"P1/src/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P1/src/X.java");
+		IType type = cu.getType("X");
+
 		startDeltas();
 		assertDeletion(type);
 		assertDeltas(
@@ -789,14 +840,16 @@ public void testDeleteType2() throws CoreException {
  * Ensure that the correct exception is thrown for invalid input to the <code>DeleteOperation</code>
  */
 public void testDeleteWithInvalidInput() throws CoreException {
-	createFile(
-		"P/X.java",
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cu = getCompilationUnit("P/X.java");
-	IType type = cu.getType("X");
+	IType type = null;
 	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		type = cu.getType("X");
+
 		getJavaModel().delete(null, false, null);
 	} catch (JavaModelException e) {
 		assertTrue("Should be an no elements to process: null supplied", e.getStatus().getCode() == IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);

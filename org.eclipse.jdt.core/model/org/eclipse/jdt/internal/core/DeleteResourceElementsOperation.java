@@ -82,7 +82,7 @@ private void deletePackageFragment(IPackageFragment frag)
 				isEmpty = false;
 			}
 		}
-		if (isEmpty) {
+		if (isEmpty && !frag.isDefaultPackage()/*don't delete default package's folder: see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38450*/) {
 			// delete recursively empty folders
 			IResource fragResource =  frag.getResource();
 			if (fragResource != null) {
