@@ -278,7 +278,9 @@ private void configure(String[] argv) throws InvalidInputException {
 	repetitions = 0;
 	boolean versionIDRequired = false;
 	boolean printUsageRequired = false;
-	
+
+	boolean didSpecifyCompliance = false;
+		
 	while (++index < argCount) {
 		String currentArg = argv[index].trim();
 		if (currentArg.endsWith(".java")) { //$NON-NLS-1$
@@ -308,8 +310,22 @@ private void configure(String[] argv) throws InvalidInputException {
 			mode = InsideSource;
 			continue;
 		}
-		if (currentArg.equals("-jck")) { //$NON-NLS-1$
-			mode = InsideJCK;
+		if (currentArg.equals("-1.3")) { //$NON-NLS-1$
+			if (didSpecifyCompliance) {
+				throw new InvalidInputException(Main.bind("configure.duplicateCompliance",currentArg)); //$NON-NLS-1$
+			}
+			didSpecifyCompliance = true;
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+			mode = Default;
+			continue;
+		}
+		if (currentArg.equals("-1.4")) { //$NON-NLS-1$
+			if (didSpecifyCompliance) {
+				throw new InvalidInputException(Main.bind("configure.duplicateCompliance",currentArg)); //$NON-NLS-1$
+			}
+			didSpecifyCompliance = true;
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+			mode = Default;
 			continue;
 		}
 		if (currentArg.equals("-d")) { //$NON-NLS-1$
@@ -507,17 +523,6 @@ private void configure(String[] argv) throws InvalidInputException {
 				options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.source",currentArg)); //$NON-NLS-1$
-			}
-			mode = Default;
-			continue;
-		}
-		if (mode == InsideJCK){
-			if (currentArg.equals("1.3")) { //$NON-NLS-1$
-				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-			} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-				options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-			} else {
-				throw new InvalidInputException(Main.bind("configure.jck",currentArg)); //$NON-NLS-1$
 			}
 			mode = Default;
 			continue;
