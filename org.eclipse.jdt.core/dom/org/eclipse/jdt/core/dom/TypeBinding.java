@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -63,33 +64,6 @@ class TypeBinding implements ITypeBinding {
 	public TypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding) {
 		this.binding = binding;
 		this.resolver = resolver;
-	}
-	public void appendQualifiedTypeArguments(StringBuffer buffer, ITypeBinding[] typeArguments) {
-		final int typeArgumentsLength = typeArguments.length;
-		if (typeArgumentsLength != 0) {
-			buffer.append('<');
-			for (int i = 0; i < typeArgumentsLength; i++) {
-				buffer.append(typeArguments[i].getQualifiedName());
-				if (i < typeArgumentsLength - 1) {
-					buffer.append(',');
-				}
-			}
-			buffer.append('>');
-		}
-	}
-	
-	public void appendQualifiedTypeParameters(StringBuffer buffer, ITypeBinding[] typeParameters) {
-		final int typeParametersLength = typeParameters.length;
-		if (typeParametersLength != 0) {
-			buffer.append('<');
-			for (int i = 0; i < typeParametersLength; i++) {
-				buffer.append(typeParameters[i].getQualifiedName());
-				if (i < typeParametersLength - 1) {
-					buffer.append(',');
-				}
-			}
-			buffer.append('>');
-		}
 	}
 
 	/*
@@ -423,45 +397,66 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	public String getName() {
-		if (isClass() || isInterface() || isEnum()) {
-			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			if (referenceBinding.isAnonymousType()) {
-				return NO_NAME;
-			} else {
-				char[] shortName = referenceBinding.shortReadableName();
-				if (referenceBinding.isMemberType() || referenceBinding.isLocalType()) {
-					return new String(CharOperation.subarray(shortName, CharOperation.lastIndexOf('.', shortName) + 1, shortName.length));
-				} else {
-					return new String(shortName);
+		if (isWildcardType()) {
+			WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(TypeConstants.WILDCARD_NAME);
+			if (wildcardBinding.bound != null) {
+				switch(wildcardBinding.kind) {
+			        case Wildcard.SUPER :
+			        	buffer.append(TypeConstants.WILDCARD_SUPER);
+			            break;
+			        case Wildcard.EXTENDS :
+			        	buffer.append(TypeConstants.WILDCARD_EXTENDS);
 				}
+				buffer.append(getBound().getName());
 			}
-		} else if (this.binding.isArrayType()) {
-			ArrayBinding arrayBinding = (ArrayBinding) this.binding;
-			int dimensions = arrayBinding.dimensions;
+			return String.valueOf(buffer);
+		}
+		if (isParameterizedType()) {
+			ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) this.binding;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(parameterizedTypeBinding.sourceName());
+			ITypeBinding[] typeArguments = getTypeArguments();
+			final int typeArgumentsLength = typeArguments.length;
+			if (typeArgumentsLength != 0) {
+				buffer.append('<');
+				for (int i = 0, max = typeArguments.length; i < max; i++) {
+					if (i > 0) {
+						buffer.append(',');
+					}
+					buffer.append(typeArguments[i].getName());
+				}
+				buffer.append('>');	
+			}
+			return String.valueOf(buffer);
+		}
+		if (isRawType()) {
+			return getErasure().getName();
+		}
+		if (isPrimitive() || isNullType()) {
+			BaseTypeBinding baseTypeBinding = (BaseTypeBinding) this.binding;
+			return new String(baseTypeBinding.simpleName);
+		}
+		if (isArray()) {
+			int dimensions = getDimensions();
 			char[] brackets = new char[dimensions * 2];
 			for (int i = dimensions * 2 - 1; i >= 0; i -= 2) {
 				brackets[i] = ']';
 				brackets[i - 1] = '[';
 			}
-			StringBuffer buffer = new StringBuffer();
-			org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafComponentTypeBinding = arrayBinding.leafComponentType;
-			if ((leafComponentTypeBinding.isClass() || leafComponentTypeBinding.isInterface() || leafComponentTypeBinding.isEnum())
-					&& !leafComponentTypeBinding.isTypeVariable()) {
-				ReferenceBinding referenceBinding2 = (ReferenceBinding) leafComponentTypeBinding;
-				char[] shortName = referenceBinding2.shortReadableName();
-				if (referenceBinding2.isMemberType() || referenceBinding2.isLocalType()) {
-					buffer.append(CharOperation.subarray(shortName, CharOperation.lastIndexOf('.', shortName) + 1, shortName.length));
-				} else {
-					buffer.append(shortName);
-				}
-			} else {
-				buffer.append(leafComponentTypeBinding.readableName());
-			}
+			StringBuffer buffer = new StringBuffer(getElementType().getName());
 			buffer.append(brackets);
-			return buffer.toString();
-		} else {
-			return new String(this.binding.readableName());
+			return String.valueOf(buffer);
 		}
+		if (isAnonymous()) {
+			return NO_NAME;
+		}
+		if (isTypeVariable()) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			return new String(typeVariableBinding.sourceName);
+		}
+		return new String(this.binding.sourceName());
 	}
 	
 	/*
@@ -515,60 +510,86 @@ class TypeBinding implements ITypeBinding {
 		if (isAnonymous() || isLocal()) {
 			return NO_NAME;
 		}
-		
-		if (isPrimitive() || isNullType() || this.isTypeVariable()) {
-			return new String(this.binding.sourceName());
+		if (isPrimitive() || isNullType()) {
+			BaseTypeBinding baseTypeBinding = (BaseTypeBinding) this.binding;
+			return new String(baseTypeBinding.simpleName);
 		}
-		
-		if (isArray()) {
-			ITypeBinding elementType = getElementType();
-			String elementTypeQualifiedName = elementType.getQualifiedName();
-			if (elementTypeQualifiedName.length() != 0) {
-				int dimensions = this.getDimensions();
-				char[] brackets = new char[dimensions * 2];
-				for (int i = dimensions * 2 - 1; i >= 0; i -= 2) {
-					brackets[i] = ']';
-					brackets[i - 1] = '[';
-				}
-				StringBuffer stringBuffer = new StringBuffer(elementTypeQualifiedName);
-				stringBuffer.append(brackets);
-				return stringBuffer.toString();
-			} else {
-				return NO_NAME;
-			}
-		}
-		if (isTopLevel() || isMember()) {
-			PackageBinding packageBinding = this.binding.getPackage();
-			
+		if (isWildcardType()) {
+			WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
 			StringBuffer buffer = new StringBuffer();
-			if (isWildcardType()) {
-				buffer.append(TypeConstants.WILDCARD_NAME);
-				WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
-				if (wildcardBinding.bound != null) {
-					switch(wildcardBinding.kind) {
-						case Wildcard.SUPER :
-							buffer.append(TypeConstants.WILDCARD_SUPER);
-							break;
-						case Wildcard.EXTENDS :
-							buffer.append(TypeConstants.WILDCARD_EXTENDS);
-							break;
-					}
-					buffer.append(getBound().getQualifiedName());				
+			buffer.append(TypeConstants.WILDCARD_NAME);
+			final ITypeBinding bound = getBound();
+			if (bound != null) {
+				switch(wildcardBinding.kind) {
+			        case Wildcard.SUPER :
+			        	buffer.append(TypeConstants.WILDCARD_SUPER);
+			            break;
+			        case Wildcard.EXTENDS :
+			        	buffer.append(TypeConstants.WILDCARD_EXTENDS);
 				}
-			} else {
-				if (packageBinding != null && packageBinding.compoundName != CharOperation.NO_CHAR_CHAR) {
-					buffer.append(packageBinding.readableName()).append('.');
-				}
-				buffer.append(this.binding.qualifiedSourceName());
-				if (!isRawType()) {
-					// only one of the type parameters or type arguments is non-empty at the same time
-					appendQualifiedTypeParameters(buffer, getTypeParameters());
-					appendQualifiedTypeArguments(buffer, getTypeArguments());
-				}
+				buffer.append(bound.getQualifiedName());
 			}
 			return String.valueOf(buffer);
 		}
-		return NO_NAME;
+		if (isRawType()) {
+			return getErasure().getQualifiedName();
+		}
+		if (isArray()) {
+			ITypeBinding elementType = getElementType();
+			if (elementType.isLocal() || elementType.isAnonymous()) {
+				return NO_NAME;
+			}
+			final int dimensions = getDimensions();
+			char[] brackets = new char[dimensions * 2];
+			for (int i = dimensions * 2 - 1; i >= 0; i -= 2) {
+				brackets[i] = ']';
+				brackets[i - 1] = '[';
+			}
+			StringBuffer buffer = new StringBuffer(elementType.getQualifiedName());
+			buffer.append(brackets);
+			return String.valueOf(buffer);
+		}
+		if (isTypeVariable()) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			return new String(typeVariableBinding.sourceName);
+		}
+		if (isMember()) {
+			StringBuffer buffer = new StringBuffer();
+			buffer
+				.append(this.resolver.getTypeBinding(this.binding.enclosingType()).getQualifiedName())
+				.append('.')
+				.append(getName());
+			return String.valueOf(buffer);
+		}
+		if (isParameterizedType()) {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(getErasure().getQualifiedName());
+			ITypeBinding[] typeArguments = getTypeArguments();
+			final int typeArgumentsLength = typeArguments.length;
+			if (typeArgumentsLength != 0) {
+				buffer.append('<');
+				for (int i = 0, max = typeArguments.length; i < max; i++) {
+					if (i > 0) {
+						buffer.append(',');
+					}
+					buffer.append(typeArguments[i].getQualifiedName());
+				}
+				buffer.append('>');
+			}
+			return String.valueOf(buffer);
+		}
+		if (isRawType()) {
+			return getErasure().getQualifiedName();
+		}
+		PackageBinding packageBinding = this.binding.getPackage();
+		
+		StringBuffer buffer = new StringBuffer();
+		if (packageBinding != null && packageBinding.compoundName != CharOperation.NO_CHAR_CHAR) {
+			buffer.append(CharOperation.concatWith(packageBinding.compoundName, '.')).append('.');
+		}
+		buffer.append(getName());
+
+		return String.valueOf(buffer);
 	}
 
 	/*

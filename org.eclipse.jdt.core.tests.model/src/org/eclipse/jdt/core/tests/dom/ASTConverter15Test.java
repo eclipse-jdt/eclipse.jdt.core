@@ -85,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0081"));
+		suite.addTest(new ASTConverter15Test("test0082"));
 		return suite;
 	}
 		
@@ -1220,7 +1220,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isTypeVariable", true, typeBinding.isTypeVariable());
 		assertEquals("Wrong isWildcardType", false, typeBinding.isWildcardType());
 		ITypeBinding typeBinding2 = type.resolveBinding();
-		assertEquals("Wrong name", "X<T>", typeBinding2.getName());
+		assertEquals("Wrong name", "X", typeBinding2.getName());
 		assertEquals("Wrong isArray", false, typeBinding2.isArray());
 		assertEquals("Wrong isAnnotation", false, typeBinding2.isAnnotation());
 		assertEquals("Wrong isAnonymous", false, typeBinding2.isAnonymous());
@@ -1754,13 +1754,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-	
-	private static final boolean DISABLE_78183 = true;
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
 	public void test0063() throws JavaModelException {
-		if (DISABLE_78183) return;
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0063", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -1772,7 +1769,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name", "test0063.X<T>", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name", "test0063.X", typeBinding.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Wrong node", ASTNode.RETURN_STATEMENT, node.getNodeType());
 		ReturnStatement returnStatement = (ReturnStatement) node;
@@ -1795,7 +1792,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
 	public void test0064() throws JavaModelException {
-		if (DISABLE_78183) return;
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0064", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -1807,7 +1803,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name", "test0064.X<T,U>", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name", "test0064.X", typeBinding.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Wrong node", ASTNode.RETURN_STATEMENT, node.getNodeType());
 		ReturnStatement returnStatement = (ReturnStatement) node;
@@ -1830,7 +1826,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
 	public void test0065() throws JavaModelException {
-		if (DISABLE_78183) return;
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0065", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -1842,7 +1837,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name", "test0065.X<T,U>", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name", "test0065.X", typeBinding.getQualifiedName());
 		ITypeBinding erasure = typeBinding.getErasure();
 		assertEquals("Wrong qualified name", "test0065.X", erasure.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 0, 0);
@@ -2369,5 +2364,78 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a raw method", methodBinding.isRawMethod());
 		assertFalse("Is a parameterized method", methodBinding.isParameterizedMethod());
 		assertFalse("Is a generic method", methodBinding.isGenericMethod());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
+	 */
+	public void test0082() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0082", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong name", "Gen", typeBinding.getName());
+		assertEquals("Wrong name", "test0082.Gen", typeBinding.getQualifiedName());
+		assertTrue("Not a class", typeBinding.isClass());
+		assertTrue("Not a generic type", typeBinding.isGenericType());
+		assertTrue("Not a top level", typeBinding.isTopLevel());
+		
+		node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Not a member type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		typeDeclaration = (TypeDeclaration) node;
+		typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong name", "Inn", typeBinding.getName());
+		assertEquals("Wrong name", "test0082.Gen.Inn", typeBinding.getQualifiedName());
+		assertTrue("Not a class", typeBinding.isClass());
+		assertTrue("Not a member", typeBinding.isMember());
+		assertTrue("Not a nested class", typeBinding.isNested());
+		
+		node = getASTNode(compilationUnit, 0, 1);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		typeBinding = fieldDeclaration.getType().resolveBinding();
+		assertEquals("Wrong name", "Gen<String>", typeBinding.getName());
+		assertEquals("Wrong name", "test0082.Gen<java.lang.String>", typeBinding.getQualifiedName());
+		assertTrue("Not a class", typeBinding.isClass());
+		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
+		assertTrue("Not a toplevel", typeBinding.isTopLevel());
+		
+		node = getASTNode(compilationUnit, 0, 2);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		typeBinding = fieldDeclaration.getType().resolveBinding();
+		assertEquals("Wrong name", "Inn", typeBinding.getName());
+		assertEquals("Wrong name", "test0082.Gen<java.lang.String>.Inn", typeBinding.getQualifiedName());
+		assertTrue("Not a class", typeBinding.isClass());
+		assertTrue("Not a member", typeBinding.isMember());
+		assertTrue("Not a nested class", typeBinding.isNested());
+		assertTrue("Not a parameterized", typeBinding.isParameterizedType());
+
+		node = getASTNode(compilationUnit, 0, 3);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		typeBinding = fieldDeclaration.getType().resolveBinding();
+		assertEquals("Wrong name", "Gen", typeBinding.getName());
+		assertEquals("Wrong name", "test0082.Gen", typeBinding.getQualifiedName());
+		assertTrue("Not a class", typeBinding.isClass());
+		assertTrue("Not a raw type", typeBinding.isRawType());
+		assertTrue("Not a toplevel", typeBinding.isTopLevel());
+		
+		node = getASTNode(compilationUnit, 0, 4);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		fieldDeclaration = (FieldDeclaration) node;
+		typeBinding = fieldDeclaration.getType().resolveBinding();
+		assertEquals("Wrong name", "Inn", typeBinding.getName());
+		assertEquals("Wrong name", "test0082.Gen.Inn", typeBinding.getQualifiedName());
+		assertTrue("Not a class", typeBinding.isClass());
+		assertTrue("Not a member", typeBinding.isMember());
+		assertTrue("Not a nested type", typeBinding.isNested());
+		// TODO (olivier) check if this type binding is parameterized
 	}
 }
