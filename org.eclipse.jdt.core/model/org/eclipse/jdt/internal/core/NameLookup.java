@@ -119,7 +119,11 @@ public class NameLookup implements SuffixConstants {
 			System.out.println(Thread.currentThread() + " -> working copy size: " + (workingCopies == null ? 0 : workingCopies.length));  //$NON-NLS-1$
 		}
 		this.packageFragmentRoots = packageFragmentRoots;
-		this.packageFragments = packageFragments;
+		try {
+			this.packageFragments = (HashtableOfArrayToObject) packageFragments.clone();
+		} catch (CloneNotSupportedException e1) {
+			// ignore (implementation of HashtableOfArrayToObject supports cloning)
+		}
 		if (workingCopies != null) {
 			this.unitsToLookInside = new HashMap();
 			HashSet visited = new HashSet();
@@ -159,12 +163,12 @@ public class NameLookup implements SuffixConstants {
 				String[] pkgName = pkg.names;
 				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) packageFragments.get(pkgName);
 				if (roots == null) {
-					packageFragments.put(pkgName, new IPackageFragmentRoot[] {root});
+					this.packageFragments.put(pkgName, new IPackageFragmentRoot[] {root});
 				} else {
 					int rootLength = roots.length;
 					System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
 					roots[rootLength] = root;
-					packageFragments.put(pkgName, roots);
+					this.packageFragments.put(pkgName, roots);
 				}
 				visited.add(root);
 			}
