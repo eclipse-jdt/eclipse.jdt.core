@@ -187,7 +187,7 @@ public class SimpleName extends Name {
 	int memSize() {
 		int size = BASE_NODE_SIZE + 1 * 4;
 		if (identifier != null) {
-			size += HEADERS + 2 * 4 + HEADERS + 2 * identifier.length();
+			size += HEADERS + 3 * 4 + HEADERS + 2 * identifier.length();
 		}
 		return size;
 	}
