@@ -8160,8 +8160,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}	
-	// TODO (philippe) reenable once fixed
-	public void _test317() {
+	public void test317() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",	
@@ -8187,8 +8186,24 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"  Zork z;\n" +
 				"}\n"
 			},
-			"E is raw indirectly, since #add method belong to raw inherited type");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	xe.element().add(this);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 12)\n" + 
+			"	xe.element().add(this);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 20)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"	);
 	}	
+	
 	// 75548
 	public void test318() {
 		this.runConformTest(
@@ -8237,8 +8252,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"");	
 	}				
 	// 74032
-	// TODO (philippe) reenable once fixed
-	public void _test320() {
+	public void test320() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8261,8 +8275,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"SUCCESS");	
 	}			
 	// 74032 - variation with wildcard
-	// TODO (philippe) reenable once fixed
-	public void _test321() {
+	public void test321() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8285,6 +8298,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"  }\n" + 
 				"  public static void main(String[] args) {\n" + 
 				"    new X<TestElement>(new TestElement());\n" + 
+				"    System.out.println(\"SUCCESS\");\n" + 
 				"  }\n" + 
 				"}\n"
 			},
@@ -8570,7 +8584,7 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"FOOBAR");
 	}		
 	// wildcard captures bound superclass and variable superclass
-	public void _test331() {
+	public void test331() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -8652,4 +8666,98 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 		"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <T extends Foo> of the type X<T>\n" + 
 		"----------\n");
 	}
+	// receveir generic cast matches receiver type (not declaring class)
+	public void test333() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	T element;\n" + 
+				"	X(T element) { this.element = element; }\n" + 
+				"	T element() { return this.element; }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X<XB>(new XB()).element().afoo();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XA {\n" + 
+				"	void afoo() {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"   }\n" + 
+				"}\n" + 
+				"class XB extends XA {\n" + 
+				"	void bfoo() {}\n" + 
+				"}\n"	,
+			},
+		"SUCCESS");
+	}
+	// check cannot allocate type parameters
+	public void test334() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E> {\n" + 
+				"  public X() {\n" + 
+				"  	new E();\n" + 
+				"  	new E() {\n" + 
+				"  		void perform() {\n" + 
+				"  			run();\n" + 
+				"  		}\n" + 
+				"  	}.perform();\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	new E();\n" + 
+			"	    ^\n" + 
+			"Cannot instantiate the type E, since it is not a concrete class\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	new E() {\n" + 
+			"  		void perform() {\n" + 
+			"  			run();\n" + 
+			"  		}\n" + 
+			"  	}.perform();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot refer to the type parameter E as a supertype\n" + 
+			"----------\n");
+	}	
+	// variation - check cannot allocate type parameters
+	public void test335() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <E extends String> {\n" + // firstBound is class, still cannot be instantiated
+				"  public X() {\n" + 
+				"  	new E();\n" + 
+				"  	new E() {\n" + 
+				"  		void perform() {\n" + 
+				"  			run();\n" + 
+				"  		}\n" + 
+				"  	}.perform();\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X <E extends String> {\n" + 
+			"	                          ^^^^^^\n" + 
+			"The type parameter E should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	new E();\n" + 
+			"	    ^\n" + 
+			"Cannot instantiate the type E, since it is not a concrete class\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	new E() {\n" + 
+			"  		void perform() {\n" + 
+			"  			run();\n" + 
+			"  		}\n" + 
+			"  	}.perform();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot refer to the type parameter E as a supertype\n" + 
+			"----------\n");
+	}		
 }
