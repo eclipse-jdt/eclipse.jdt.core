@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 
 /**
@@ -84,6 +85,9 @@ class VariableBinding implements IVariableBinding {
 	public int getModifiers() {
 		if (isField()) {
 			return ((FieldBinding) this.binding).getAccessFlags();
+		}
+		if (binding.isFinal()) {
+			return IModifierConstants.ACC_FINAL;
 		}
 		return 0;
 	}
