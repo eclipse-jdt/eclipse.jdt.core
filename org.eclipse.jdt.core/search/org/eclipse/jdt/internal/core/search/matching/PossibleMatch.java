@@ -73,8 +73,13 @@ public char[] getContents() {
 	}
 	return null;
 }
+/**
+ * The exact openable file name. In particular, will be originating .class file for binary openable with attached
+ * source.
+ * @see PackageReferenceLocator#isDeclaringPackageFragment(IPackageFragment, ReferenceBinding)
+ */
 public char[] getFileName() {
-	return this.openable.getPath().toString().toCharArray();
+	return this.openable.getElementName().toCharArray();
 }
 public char[] getMainTypeName() {
 	// The file is no longer opened to get its name => remove fix for bug 32182

@@ -57,7 +57,7 @@ class AddFolderToIndex extends IndexRequest {
 					public boolean visit(IResourceProxy proxy) /* throws CoreException */{
 						switch(proxy.getType()) {
 							case IResource.FILE :
-								if (Util.isJavaFileName(proxy.getName())) {
+								if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 									IResource resource = proxy.requestResource();
 									if (pattern == null || !Util.isExcluded(resource, pattern))
 										indexManager.addSource((IFile)resource, container);

@@ -348,7 +348,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 				Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
 				if (target instanceof IFile){
 					IFile file = (IFile) target;
-					if (Util.isArchiveFileName(file.getName())){
+					if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
 						return entry;
 					}
 				} else if (target instanceof IFolder) {
@@ -357,7 +357,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 				if (target instanceof java.io.File){
 					java.io.File file = (java.io.File) target;
 					if (file.isFile()) {
-						if (Util.isArchiveFileName(file.getName())){
+						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
 							return entry;
 						}
 					} else {
@@ -382,7 +382,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 					Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
 					if (target instanceof IFile){
 						IFile file = (IFile) target;
-						if (Util.isArchiveFileName(file.getName())){
+						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
 							return entry;
 						}
 					} else if (target instanceof IFolder) {
@@ -391,7 +391,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 					if (target instanceof java.io.File){
 						java.io.File file = (java.io.File) target;
 						if (file.isFile()) {
-							if (Util.isArchiveFileName(file.getName())){
+							if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
 								return entry;
 							}
 						} else {

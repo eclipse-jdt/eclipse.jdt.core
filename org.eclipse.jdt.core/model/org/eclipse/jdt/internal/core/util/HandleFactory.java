@@ -138,7 +138,7 @@ public class HandleFactory {
 				this.packageHandles.put(packageName, pkgFragment);
 			}
 			String simpleName= resourcePath.substring(lastSlash + 1);
-			if (org.eclipse.jdt.internal.core.Util.isJavaFileName(simpleName)) {
+			if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;
 			} else {
@@ -413,7 +413,7 @@ public class HandleFactory {
 			int index = 0;
 			for (int i = 0; i < length; i++) {
 				IPath path = enclosingProjectsAndJars[i];
-				if (!org.eclipse.jdt.internal.core.Util.isArchiveFileName(path.lastSegment())) {
+				if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())) {
 					projects[index++] = this.javaModel.getJavaProject(path.segment(0));
 				}
 			}

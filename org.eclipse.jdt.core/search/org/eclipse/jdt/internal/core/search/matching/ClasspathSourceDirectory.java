@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
@@ -54,7 +53,7 @@ String[] directoryList(String qualifiedPackageName) {
 			for (int i = 0, l = members.length; i < l; i++) {
 				IResource m = members[i];
 				String name;
-				if (m.getType() == IResource.FILE && Util.isJavaFileName(name = m.getName()))
+				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name = m.getName()))
 					dirList[index++] = name;
 			}
 			if (index < dirList.length)

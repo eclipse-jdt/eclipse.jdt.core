@@ -2320,11 +2320,11 @@ public class DeltaProcessor {
 							if (resource instanceof IFile) {
 								String name = resource.getName();
 								if (isSource) {
-									if (Util.isJavaFileName(name)) {
+									if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name)) {
 										Openable cu = (Openable)pkg.getCompilationUnit(name);
 										this.updateIndex(cu, child);
 									}
-								} else if (Util.isClassFileName(name)) {
+								} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
 									Openable classFile = (Openable)pkg.getClassFile(name);
 									this.updateIndex(classFile, child);
 								}

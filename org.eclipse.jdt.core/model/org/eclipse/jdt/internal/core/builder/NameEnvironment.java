@@ -160,7 +160,7 @@ private void computeClasspathLocations(
 					IResource resource = (IResource) target;
 					ClasspathLocation bLocation = null;
 					if (resource instanceof IFile) {
-						if (!(Util.isArchiveFileName(path.lastSegment())))
+						if (!(org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())))
 							continue nextEntry;
 						bLocation = ClasspathLocation.forLibrary((IFile) resource);
 					} else if (resource instanceof IContainer) {
@@ -180,7 +180,7 @@ private void computeClasspathLocations(
 						binaryLocationsPerProject.put(p, existingLocations);
 					}
 				} else if (target instanceof File) {
-					if (!(Util.isArchiveFileName(path.lastSegment())))
+					if (!(org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())))
 						continue nextEntry;
 					bLocations.add(ClasspathLocation.forLibrary(path.toString()));
 				}

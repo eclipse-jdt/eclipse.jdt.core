@@ -74,7 +74,7 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 					if (Util.isValidClassFileName(fileName)) 
 						continue nextResource;
 					// ignore .zip or .jar file on classpath
-					if (Util.isArchiveFileName(fileName) && isClasspathEntry(member.getFullPath(), classpath)) 
+					if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(fileName) && isClasspathEntry(member.getFullPath(), classpath)) 
 						continue nextResource;
 					break;
 

@@ -127,7 +127,7 @@ public final class JavaConventions {
 		if (name == null) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"), null); //$NON-NLS-1$
 		}
-		if (!Util.isJavaFileName(name)) {
+		if (!org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name)) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 		}
 		String identifier;
@@ -169,7 +169,7 @@ public final class JavaConventions {
 		if (name == null) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.nullName"), null); //$NON-NLS-1$
 		}
-		if (!Util.isClassFileName(name)) {
+		if (!org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
 		}
 		String identifier;

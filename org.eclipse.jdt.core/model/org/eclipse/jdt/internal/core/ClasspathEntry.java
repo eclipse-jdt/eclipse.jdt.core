@@ -960,7 +960,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						IResource resolvedResource = (IResource) target;
 						switch(resolvedResource.getType()){
 							case IResource.FILE :
-								if (Util.isArchiveFileName(resolvedResource.getFileExtension())) {
+								if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getFileExtension())) {
 									if (checkSourceAttachment 
 										&& sourceAttachment != null
 										&& !sourceAttachment.isEmpty()

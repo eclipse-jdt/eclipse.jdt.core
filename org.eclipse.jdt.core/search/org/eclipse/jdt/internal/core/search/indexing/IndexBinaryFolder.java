@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
@@ -68,7 +67,7 @@ public class IndexBinaryFolder extends IndexRequest {
 					public boolean visit(IResourceProxy proxy) {
 						if (isCancelled) return false;
 						if (proxy.getType() == IResource.FILE) {
-							if (Util.isClassFileName(proxy.getName())) {
+							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 								IResource resource = proxy.requestResource();
 								if (resource.getLocation() != null) {
 									String name = new IFileDocument((IFile) resource).getName();
@@ -90,7 +89,7 @@ public class IndexBinaryFolder extends IndexRequest {
 						public boolean visit(IResourceProxy proxy) {
 							if (isCancelled) return false;
 							if (proxy.getType() == IResource.FILE) {
-								if (Util.isClassFileName(proxy.getName())) {
+								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 									IResource resource = proxy.requestResource();
 									IPath path = resource.getLocation();
 									if (path != null) {

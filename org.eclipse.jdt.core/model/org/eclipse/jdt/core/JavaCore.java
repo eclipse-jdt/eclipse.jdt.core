@@ -2007,7 +2007,7 @@ public final class JavaCore extends Plugin {
 						return JavaCore.newProjectEntry(resolvedPath, entry.isExported());
 						
 					case IResource.FILE : 
-						if (Util.isArchiveFileName(resolvedResource.getName())) {
+						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
 							// internal binary archive
 							return JavaCore.newLibraryEntry(
 									resolvedPath,

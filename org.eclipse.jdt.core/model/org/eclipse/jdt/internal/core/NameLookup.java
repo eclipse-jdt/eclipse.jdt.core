@@ -484,7 +484,7 @@ public class NameLookup implements SuffixConstants {
 			if (!paths.isEmpty()) {
 				for (int i = 0, l = paths.size(); i < l; i++) {
 					String pathname = (String) paths.get(i);
-					if (Util.isJavaFileName(pathname)) {
+					if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(pathname)) {
 						IFile file = workspace.getRoot().getFile(new Path(pathname));
 						ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
 						return unit.getType(typeName);

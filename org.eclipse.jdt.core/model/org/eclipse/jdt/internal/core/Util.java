@@ -610,7 +610,7 @@ public class Util implements SuffixConstants {
 							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
 								ZipEntry member= (ZipEntry) e.nextElement();
 								String entryName= member.getName();
-								if (Util.isClassFileName(entryName)) {
+								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
 									reader = ClassFileReader.read(jar, entryName);
 									break;
 								}
@@ -641,7 +641,7 @@ public class Util implements SuffixConstants {
 				IResource member = members[i];
 				if (member.getType() == IResource.FOLDER) {
 					return findFirstClassFile((IFolder)member);
-				} else if (Util.isClassFileName(member.getName())) {
+				} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(member.getName())) {
 					return (IFile) member;
 				}
 			}
@@ -763,22 +763,6 @@ public class Util implements SuffixConstants {
 		return result;
 	}
 	
-	/**
-	 * Returns true iff str.toLowerCase().endsWith(".class")
-	 * implementation is not creating extra strings.
-	 */
-	public final static boolean isClassFileName(String name) {
-		int nameLength = name == null ? 0 : name.length();
-		int suffixLength = SUFFIX_CLASS.length;
-		if (nameLength < suffixLength) return false;
-
-		for (int i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
-			char c = name.charAt(offset + i);
-			if (c != SUFFIX_class[i] && c != SUFFIX_CLASS[i]) return false;
-		}
-		return true;		
-	}
-
 		/*
 	 * Returns the index of the first argument paths which is strictly enclosing the path to check
 	 */
@@ -864,28 +848,6 @@ public class Util implements SuffixConstants {
 	}
 
 	/**
-	 * Returns true iff str.toLowerCase().endsWith(".jar" or ".zip")
-	 * implementation is not creating extra strings.
-	 */
-	public final static boolean isArchiveFileName(String name) {
-		int nameLength = name == null ? 0 : name.length();
-		int suffixLength = SUFFIX_JAR.length;
-		if (nameLength < suffixLength) return false;
-
-		int i, offset;
-		for ( i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
-			char c = name.charAt(offset + i);
-			if (c != SUFFIX_jar[i] && c != SUFFIX_JAR[i]) break;
-		}
-		if (i == suffixLength) return true;		
-		for ( i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
-			char c = name.charAt(offset + i);
-			if (c != SUFFIX_zip[i] && c != SUFFIX_ZIP[i]) return false;
-		}
-		return true;
-	}
-	
-	/**
 	 * Validate the given compilation unit name.
 	 * A compilation unit name must obey the following rules:
 	 * <ul>
@@ -919,22 +881,6 @@ public class Util implements SuffixConstants {
 	 */
 	public static boolean isValidClassFileName(String name) {
 		return JavaConventions.validateClassFileName(name).getSeverity() != IStatus.ERROR;
-	}
-
-	/**
-	 * Returns true iff str.toLowerCase().endsWith(".java")
-	 * implementation is not creating extra strings.
-	 */
-	public final static boolean isJavaFileName(String name) {
-		int nameLength = name == null ? 0 : name.length();
-		int suffixLength = SUFFIX_JAVA.length;
-		if (nameLength < suffixLength) return false;
-
-		for (int i = 0, offset = nameLength - suffixLength; i < suffixLength; i++) {
-			char c = name.charAt(offset + i);
-			if (c != SUFFIX_java[i] && c != SUFFIX_JAVA[i]) return false;
-		}
-		return true;		
 	}
 
 	/**

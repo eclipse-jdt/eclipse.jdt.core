@@ -476,7 +476,7 @@ public class JavaProject
 						}
 					} else {
 						// external target - only JARs allowed
-						if (((java.io.File)target).isFile() && (Util.isArchiveFileName(entryPath.lastSegment()))) {
+						if (((java.io.File)target).isFile() && (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.lastSegment()))) {
 							accumulatedRoots.add(
 								new JarPackageFragmentRoot(entryPath, this));
 							rootIDs.add(rootID);
@@ -605,10 +605,10 @@ public class JavaProject
 			switch (innerMostEntry.getEntryKind()) {
 				case IClasspathEntry.CPE_SOURCE:
 					// .class files are not visible in source folders 
-					return !Util.isClassFileName(fullPath.lastSegment());
+					return !org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fullPath.lastSegment());
 				case IClasspathEntry.CPE_LIBRARY:
 					// .java files are not visible in library folders
-					return !Util.isJavaFileName(fullPath.lastSegment());
+					return !org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(fullPath.lastSegment());
 			}
 		}
 		if (innerMostOutput != null) {
@@ -1524,7 +1524,7 @@ public class JavaProject
 			default:
 				// a path ending with .jar/.zip is still ambiguous and could still resolve to a source/lib folder 
 				// thus will try to guess based on existing resource
-				if (Util.isArchiveFileName(path.lastSegment())) {
+				if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())) {
 					IResource resource = getProject().getWorkspace().getRoot().findMember(path); 
 					if (resource != null && resource.getType() == IResource.FOLDER){
 						return getPackageFragmentRoot(resource);
@@ -1553,7 +1553,7 @@ public class JavaProject
 
 		switch (resource.getType()) {
 			case IResource.FILE:
-				if (Util.isArchiveFileName(resource.getName())) {
+				if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resource.getName())) {
 					return new JarPackageFragmentRoot(resource, this);
 				} else {
 					return null;
