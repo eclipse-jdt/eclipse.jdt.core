@@ -54,7 +54,6 @@
 &start;TypeDeclaration&end;
 &start;TypeDeclarationStatement&end;
 &start;TypeLiteral&end;
-&start;VariableDeclaration&end;
 &start;VariableDeclarationExpression&end;
 &start;VariableDeclarationFragment&end;
 &start;VariableDeclarationStatement&end;
