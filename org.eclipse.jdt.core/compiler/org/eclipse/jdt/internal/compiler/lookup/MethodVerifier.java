@@ -477,11 +477,10 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 
 	if (!(method.declaringClass instanceof BinaryTypeBinding))
 		return TypeConstants.NoExceptions; // safety check
-	BinaryTypeBinding binaryType = (BinaryTypeBinding) method.declaringClass;
 
 	for (int i = exceptions.length; --i >= 0;)
 		if (exceptions[i] instanceof UnresolvedReferenceBinding)
-			exceptions[i] = (ReferenceBinding) binaryType.resolveType(exceptions[i]);
+			exceptions[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(exceptions[i], this.environment, null, 0);
 	return exceptions;
 }
 private ReferenceBinding runtimeException() {

@@ -399,7 +399,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType) {
 	return cachedInfo;
 }
 
-public WildcardBinding createWildcard(TypeBinding bound, int kind) {
+public WildcardBinding createWildcard(TypeBinding bound, int kind, WildcardBinding existingWildcard) {
 	// cached info is array of already created wildcard types for this type bound
     Object key = bound == null ? (Object)TypeConstants.WILDCARD_NAME : bound; // null bound denote unresolved unbound (in binaries)
     
@@ -409,8 +409,8 @@ public WildcardBinding createWildcard(TypeBinding bound, int kind) {
 	    this.uniqueWildcardBindings.put(key, cachedInfo);
 	}
 	WildcardBinding wildcard = cachedInfo[kind];
-	if (wildcard == null) {
-	    cachedInfo[kind] = wildcard = new WildcardBinding(bound, kind, this);
+	if (wildcard == null || wildcard.bound != bound) {
+	    cachedInfo[kind] = wildcard = (existingWildcard == null ? new WildcardBinding(bound, kind, this) : existingWildcard);
 	}
 	return wildcard;
 }
@@ -513,7 +513,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 	if (referenceBinding == null || referenceBinding == TheNotFoundType)
 		return null;
 	if (referenceBinding instanceof UnresolvedReferenceBinding)
-		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this);
+		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this, null, 0);
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
@@ -667,16 +667,16 @@ TypeBinding getTypeFromVariantTypeSignature(
 			// ? super aType
 			wrapper.start++;
 			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.SUPER);
+			return createWildcard(bound, Wildcard.SUPER, null);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
 			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.EXTENDS);
+			return createWildcard(bound, Wildcard.EXTENDS, null);
 		case '*' :
 			// ?
 			wrapper.start++;
-			return createWildcard(null, Wildcard.UNBOUND);
+			return createWildcard(null, Wildcard.UNBOUND, null);
 		default :
 			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 	}

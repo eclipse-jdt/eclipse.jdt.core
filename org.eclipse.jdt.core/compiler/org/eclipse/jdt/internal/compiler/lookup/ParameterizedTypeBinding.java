@@ -388,26 +388,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	ReferenceBinding resolve() {
-		// TODO (philippe) what about the superclass & superinterfaces fields? do they not also have to be resolved?
-	    // TODO (kent) these are lazily resolved in accessor methods
-		ReferenceBinding resolvedType = BinaryTypeBinding.resolveReferenceType(this.type, this.environment);
+		ReferenceBinding resolvedType = (ReferenceBinding)BinaryTypeBinding.resolveType(this.type, this.environment, null, 0);
 		boolean isDifferent = resolvedType != this.type;
 		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
 		int argLength = originalArguments.length;
 		for (int i = 0; i < argLength; i++) {
 		    TypeBinding originalArgument = originalArguments[i];
-		    // TODO (kent) add support for array argument type (legal) - should add support in BinaryTypeBinding.resolveReferenceType ? (and rename)
-		    if (originalArgument instanceof ReferenceBinding) {
-			    TypeBinding resolvedArgument = BinaryTypeBinding.resolveReferenceType((ReferenceBinding)originalArgument, this.environment);
-			    if (resolvedArgument != originalArgument) {
-			        if (resolvedArguments == originalArguments) {
-			            System.arraycopy(originalArguments, 0, resolvedArguments = new TypeBinding[argLength], 0, i);
-			        }
-			        isDifferent = true;
-			        resolvedArguments[i] = resolvedArgument;
-			    } else if (resolvedArguments != originalArguments) {
-			        resolvedArguments[i] = originalArgument;
-			    }
+		    TypeBinding resolvedArgument = BinaryTypeBinding.resolveType(originalArgument, this.environment, this, i);
+		    if (resolvedArgument != originalArgument) {
+		        if (resolvedArguments == originalArguments) {
+		            System.arraycopy(originalArguments, 0, resolvedArguments = new TypeBinding[argLength], 0, i);
+		        }
+		        isDifferent = true;
+		        resolvedArguments[i] = resolvedArgument;
 		    } else if (resolvedArguments != originalArguments) {
 		        resolvedArguments[i] = originalArgument;
 		    }

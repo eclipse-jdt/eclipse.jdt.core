@@ -44,15 +44,6 @@ private TypeVariableBinding[] typeVariables;
 // For the link with the principle structure
 private LookupEnvironment environment;
 
-public static ReferenceBinding resolveReferenceType(ReferenceBinding type, LookupEnvironment lookupEnvironment) {
-	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(lookupEnvironment);
-
-	if (type instanceof ParameterizedTypeBinding)
-	    return ((ParameterizedTypeBinding) type).resolve();
-	return type;
-}
-
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment) {
 	this.compoundName = CharOperation.splitOn('/', binaryType.getName());
 	computeId();
@@ -419,7 +410,7 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 
 public ReferenceBinding enclosingType() {
 	if (this.enclosingType != null)
-		this.enclosingType = resolveReferenceType(this.enclosingType, this.environment);
+		this.enclosingType = (ReferenceBinding)resolveType(this.enclosingType, this.environment, null, 0);
 	return this.enclosingType;
 }
 // NOTE: the type of each field of a binary type is resolved when needed
@@ -538,7 +529,7 @@ public boolean isGenericType() {
 
 public ReferenceBinding[] memberTypes() {
 	for (int i = this.memberTypes.length; --i >= 0;)
-		this.memberTypes[i] = resolveReferenceType(this.memberTypes[i], this.environment);
+		this.memberTypes[i] = (ReferenceBinding)resolveType(this.memberTypes[i], this.environment, null, 0);
 	return this.memberTypes;
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
@@ -552,22 +543,27 @@ public MethodBinding[] methods() {
 	modifiers ^= AccUnresolved;
 	return methods;
 }
-TypeBinding resolveType(TypeBinding type) {
-	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(environment);
+public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
 
-	if (type instanceof ArrayBinding) {
+    if (type instanceof UnresolvedReferenceBinding)
+		return ((UnresolvedReferenceBinding) type).resolve(environment, parameterizedType, rank);
+
+	if (type.isArrayType()) {
 		ArrayBinding array = (ArrayBinding) type;
-		array.leafComponentType = resolveType(array.leafComponentType);
-	} else if (type instanceof ParameterizedTypeBinding) {
-		ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) type;
-		paramType.type = resolveReferenceType(paramType.type, this.environment);
+		array.leafComponentType = resolveType(array.leafComponentType, environment, parameterizedType, rank);
+		
+	} else if (type.isParameterizedType()) {
+		return ((ParameterizedTypeBinding) type).resolve();
+		
+	} else if (type.isWildcard()) {
+	    return ((WildcardBinding) type).resolve(parameterizedType, rank);
 	}
 	return type;
 }
+
 private FieldBinding resolveTypeFor(FieldBinding field) {
 	if ((field.modifiers & AccUnresolved) != 0) {
-		field.type = resolveType(field.type);
+		field.type = resolveType(field.type, this.environment, null, 0);
 		field.modifiers ^= AccUnresolved;
 	}
 	return field;
@@ -577,11 +573,11 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		return method;
 
 	if (!method.isConstructor())
-		method.returnType = resolveType(method.returnType);
+		method.returnType = resolveType(method.returnType, this.environment, null, 0);
 	for (int i = method.parameters.length; --i >= 0;)
-		method.parameters[i] = resolveType(method.parameters[i]);
+		method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
 	for (int i = method.thrownExceptions.length; --i >= 0;)
-		method.thrownExceptions[i] = resolveReferenceType(method.thrownExceptions[i], this.environment);
+		method.thrownExceptions[i] = (ReferenceBinding)resolveType(method.thrownExceptions[i], this.environment, null, 0);
 	method.modifiers ^= AccUnresolved;
 	return method;
 }
@@ -590,12 +586,12 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 		return variable;
 
 	if (variable.superclass != null)
-		variable.superclass = resolveReferenceType(variable.superclass, this.environment);
+		variable.superclass = (ReferenceBinding)resolveType(variable.superclass, this.environment, null, 0);
 	if (variable.firstBound != null)
-		variable.firstBound = resolveReferenceType(variable.firstBound, this.environment);
+		variable.firstBound = (ReferenceBinding) resolveType(variable.firstBound, this.environment, null, 0);
 	ReferenceBinding[] interfaces = variable.superInterfaces;
 	for (int i = interfaces.length; --i >= 0;)
-		interfaces[i] = resolveReferenceType(interfaces[i], this.environment);
+		interfaces[i] = (ReferenceBinding) resolveType(interfaces[i], this.environment, null, 0);
 	variable.modifiers ^= AccUnresolved;
 	return variable;
 }
@@ -606,7 +602,7 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 
 public ReferenceBinding superclass() {
 	if (this.superclass != null)
-		this.superclass = resolveReferenceType(this.superclass, this.environment);
+		this.superclass = (ReferenceBinding)resolveType(this.superclass, this.environment, null, 0);
 	return this.superclass;
 }
 // NOTE: superInterfaces of binary types are resolved when needed
@@ -614,7 +610,7 @@ public ReferenceBinding superclass() {
 public ReferenceBinding[] superInterfaces() {
     // TODO (kent) should only resolve once on first access, maybe using an AccUnresolvedInterface tagbit or so (we have ~15 tagbits available)
 	for (int i = this.superInterfaces.length; --i >= 0;)
-		this.superInterfaces[i] = resolveReferenceType(this.superInterfaces[i], this.environment);
+		this.superInterfaces[i] = (ReferenceBinding)resolveType(this.superInterfaces[i], this.environment, null, 0);
 	return this.superInterfaces;
 }
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types

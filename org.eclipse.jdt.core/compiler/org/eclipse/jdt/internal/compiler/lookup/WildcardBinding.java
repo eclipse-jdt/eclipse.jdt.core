@@ -128,69 +128,32 @@ public class WildcardBinding extends ReferenceBinding {
         }
     }
     
-//	ReferenceBinding resolve() {
-//	    switch(this.kind) {
-//	        case Wildcard.EXTENDS :
-//	        case Wildcard.SUPER :
-//				ReferenceBinding resolvedType = BinaryTypeBinding.resolveReferenceType(this.bound, this.environment);
-//				if (resolvedType != this.bound) {
-//				    
-//				}
-//				
-//	            
-//	    }
-//		ReferenceBinding resolvedType = BinaryTypeBinding.resolveReferenceType(this.bound, this.environment);
-//		boolean isDifferent = resolvedType != this.type;
-//		TypeBinding[] originalArguments = this.arguments, resolvedArguments = originalArguments;
-//		int argLength = originalArguments.length;
-//		for (int i = 0; i < argLength; i++) {
-//		    TypeBinding originalArgument = originalArguments[i];
-//		    if (originalArgument instanceof ReferenceBinding) {
-//			    TypeBinding resolvedArgument = BinaryTypeBinding.resolveReferenceType((ReferenceBinding)originalArgument, this.environment);
-//			    if (resolvedArgument != originalArgument) {
-//			        if (resolvedArguments == originalArguments) {
-//			            System.arraycopy(originalArguments, 0, resolvedArguments = new TypeBinding[argLength], 0, i);
-//			        }
-//			        isDifferent = true;
-//			        resolvedArguments[i] = resolvedArgument;
-//			    } else if (resolvedArguments != originalArguments) {
-//			        resolvedArguments[i] = originalArgument;
-//			    }
-//		    } else if (resolvedArguments != originalArguments) {
-//		        resolvedArguments[i] = originalArgument;
-//		    }
-//		}
-//		// arity check
-//		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
-//		if (refTypeVariables == NoTypeVariables) { // check generic
-//			this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, resolvedArguments);
-//			return type;
-//		} else if (argLength != refTypeVariables.length) { // check arity
-//			this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, resolvedArguments);
-//			return type;
-//		}			
-//		// check argument type compatibility
-//		boolean argHasError = false;
-//		for (int i = 0; i < argLength; i++) {
-//		    TypeBinding resolvedArgument = resolvedArguments[i];
-//			if (!refTypeVariables[i].boundCheck(resolvedArgument)) {
-//		        argHasError = true;
-//				this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
-//		    }
-//		}
-//		if (argHasError) {
-//		    return type;
-//		}
-//		// if portion of the type got resolved, then update the type in cache
-//		if (isDifferent) {
-//		    if (this.type != resolvedType) {
-//		        // perform side-effect on the cache to recache the updated parameterized type
-//		        environment.createParameterizedType(resolvedType, resolvedArguments, this);
-//		    }
-//		    initialize(resolvedType, resolvedArguments);
-//		}
-//		return this;
-//	}
+	ReferenceBinding resolve(ParameterizedTypeBinding parameterizedType, int rank) {
+	    TypeBinding resolvedBound = null;
+	    switch(this.kind) {
+	        case Wildcard.EXTENDS :
+	        case Wildcard.SUPER :
+				resolvedBound = BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
+				if (resolvedBound != this.bound) {
+					// if portion of the type got resolved, then update the type in cache
+			        // perform side-effect on the cache to recache the updated parameterized type
+			        environment.createWildcard(resolvedBound, rank, this);
+				    initialize(resolvedBound);
+				}
+				break;
+			case Wildcard.UNBOUND :
+				if (this.bound == null) {
+				    TypeVariableBinding[] typeVariables = parameterizedType.type.typeVariables();
+				    if (rank < typeVariables.length) {
+				        resolvedBound = typeVariables[rank];
+						WildcardBinding newWildcard = environment.createWildcard(resolvedBound, rank, null); // create a new wildcard since shared null one
+					    newWildcard.initialize(resolvedBound);				        
+					    return newWildcard;
+				    }
+				}
+	    }
+		return this;
+	}
 	
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()

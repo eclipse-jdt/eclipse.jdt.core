@@ -24,7 +24,7 @@ UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding)
 public String debugName() {
 	return toString();
 }
-ReferenceBinding resolve(LookupEnvironment environment) {
+ReferenceBinding resolve(LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
 	if (resolvedType != null) return resolvedType;
 
 	ReferenceBinding environmentType = fPackage.getType0(compoundName[compoundName.length - 1]);
