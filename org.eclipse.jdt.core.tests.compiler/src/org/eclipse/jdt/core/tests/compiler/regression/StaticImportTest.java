@@ -591,4 +591,51 @@ public class StaticImportTest extends AbstractComparisonTest {
 			""
 		);
 	}	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81724 - variation
+	public void test018() {
+		this.runNegativeTest(
+			new String[] {
+				"bug/A.java",
+				"package bug;\n" +
+				"import static bug.C.*;\n" +
+				"public class A {\n" +
+				"   private B b2 = b;\n" +
+				"}\n",
+				"bug/B.java",
+				"package bug;\n" +
+				"import static bug.C.*;\n" +
+				"public class B {\n" +
+				"}\n",
+				"bug/C.java",
+				"package bug;\n" +
+				"public class C {\n" +
+				"   private static B b;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in bug\\A.java (at line 2)\r\n" + 
+			"	import static bug.C.*;\r\n" + 
+			"	              ^^^^^\n" + 
+			"The import bug.C is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in bug\\A.java (at line 4)\r\n" + 
+			"	private B b2 = b;\r\n" + 
+			"	               ^\n" + 
+			"The field b is not visible\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in bug\\B.java (at line 2)\r\n" + 
+			"	import static bug.C.*;\r\n" + 
+			"	              ^^^^^\n" + 
+			"The import bug.C is never used\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in bug\\C.java (at line 3)\r\n" + 
+			"	private static B b;\r\n" + 
+			"	                 ^\n" + 
+			"The private field C.b is never read locally\n" + 
+			"----------\n"
+		);
+	}		
 }
