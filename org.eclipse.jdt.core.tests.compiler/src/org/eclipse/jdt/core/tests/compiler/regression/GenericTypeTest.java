@@ -358,6 +358,34 @@ public void test014() {
 		"----------\n");
 }
 
+public void test015() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends Exception> {\n" + 
+			"    String foo() throws T {\n" + 
+			"        return \"SUCCESS\";\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<EX>().baz(new EX());\n" + 
+			"    }\n" + 
+			"    void baz(final T t) {\n" + 
+			"        new Object() {\n" + 
+			"            void print() {\n" + 
+			"                try {\n" + 
+			"	                System.out.println(foo());\n" + 
+			"                } catch (T t) {\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        }.print();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class EX extends Exception {\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
