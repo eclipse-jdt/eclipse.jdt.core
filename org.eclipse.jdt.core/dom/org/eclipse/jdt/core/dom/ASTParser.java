@@ -107,6 +107,7 @@ public class ASTParser {
      *  
  	 * @param level the API level; one of the LEVEL constants
      * declared on <code>AST</code>
+	 * @return new ASTParser instance
 	 */
 	public static ASTParser newParser(int level) {
 		return new ASTParser(level);

@@ -301,6 +301,7 @@ public final class AST {
      * </p>
      * 
  	 * @param level the API level; one of the LEVEL constants
+	 * @return new AST instance following the specified set of API rules. 
      * @since 3.0
 	 */
 	public static AST newAST(int level) {
@@ -993,7 +994,7 @@ public final class AST {
 	/**
 	 * Sets the event handler for this AST.
 	 * 
-	 * @param resolver the event handler for this AST
+	 * @param eventHandler the event handler for this AST
 	 * @since 3.0
 	 */
 	void setEventHandler(NodeEventHandler eventHandler) {
@@ -1142,7 +1143,7 @@ public final class AST {
 		try {
 			// invoke constructor with signature Foo(AST)
 			Constructor c = nodeClass.getDeclaredConstructor(AST_CLASS);
-			Object result = c.newInstance(THIS_AST);
+			Object result = c.newInstance(this.THIS_AST);
 			return (ASTNode) result;
 		} catch (NoSuchMethodException e) {
 			// all AST node classes have a Foo(AST) constructor
