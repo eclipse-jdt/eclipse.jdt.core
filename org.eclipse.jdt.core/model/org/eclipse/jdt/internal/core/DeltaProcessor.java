@@ -1294,7 +1294,6 @@ private JavaModelException newInvalidElementType() {
 						outputLocation, 
 						null, // monitor
 						true, // canChangeResource
-						false, // forceSave
 						project.getResolvedClasspath(true), // ignoreUnresolvedVariable
 						true); // needValidation
 				} catch (RuntimeException e) {
@@ -1398,9 +1397,7 @@ private JavaModelException newInvalidElementType() {
 	 * @see IResource 
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
-
-		JavaModelManager.IsResourceTreeLocked = false;
-		
+	
 		if (event.getSource() instanceof IWorkspace) {
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
@@ -1423,7 +1420,7 @@ private JavaModelException newInvalidElementType() {
 						
 						// update the classpath related markers
 						this.updateClasspathMarkers();
-
+	
 						// the following will close project if affected by the property file change
 						try {
 							// don't fire classpath change deltas right away, but batch them
@@ -1439,7 +1436,7 @@ private JavaModelException newInvalidElementType() {
 					
 				case IResourceChangeEvent.POST_CHANGE :
 					try {
-						JavaModelManager.IsResourceTreeLocked = true;
+						JavaModelManager.resourceTreeIsLocked();
 						if (delta != null) {
 							IJavaElementDelta[] translatedDeltas = this.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
 							if (translatedDeltas.length > 0) { 
@@ -1452,7 +1449,7 @@ private JavaModelException newInvalidElementType() {
 					} finally {
 						// workaround for bug 15168 circular errors not reported 
 						this.manager.javaProjectsCache = null;
-						JavaModelManager.IsResourceTreeLocked = false;
+						JavaModelManager.resourceTreeIsUnlocked();
 					}
 			}
 		}

@@ -2204,8 +2204,7 @@ public class JavaProject
 			entries, 
 			outputLocation, 
 			monitor, 
-			true, // canChangeResource
-			true, // forceSave
+			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
 			true); // needValidation
 	}
@@ -2215,7 +2214,6 @@ public class JavaProject
 		IPath newOutputLocation,
 		IProgressMonitor monitor,
 		boolean canChangeResource,
-		boolean forceSave,
 		IClasspathEntry[] oldResolvedPath,
 		boolean needValidation)
 		throws JavaModelException {
@@ -2234,7 +2232,6 @@ public class JavaProject
 					newRawPath, 
 					newOutputLocation,
 					canChangeResource, 
-					forceSave,
 					needValidation);
 			runOperation(op, monitor);
 			
@@ -2256,8 +2253,7 @@ public class JavaProject
 			entries, 
 			SetClasspathOperation.ReuseOutputLocation, 
 			monitor, 
-			true, // canChangeResource
-			true, // forceSave
+			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
 			true); // needValidation
 	}

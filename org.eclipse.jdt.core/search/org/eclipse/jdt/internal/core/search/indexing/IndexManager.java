@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.CRC32;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -28,6 +29,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
@@ -367,18 +369,27 @@ public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFol
  */
 public void reset(){
 
-	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 	if (workspace != null){
 		// force to resolve classpaths for projects to check, so as to avoid running CP variable initializers in the background thread
-		this.projectsToCheck = workspace.getRoot().getProjects();
-		for (int i = 0, max = this.projectsToCheck == null ? 0 : this.projectsToCheck.length; i < max; i++){
-			IJavaProject project = JavaCore.create(this.projectsToCheck[i]);
-			try {
-				// force to resolve CP variables before calling indexer - 19303 (indirectly through consistency check)
-				project.getResolvedClasspath(true);
-			} catch (JavaModelException e) {
-			}
-		} 
+		try {
+			JavaCore.run(
+				new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor) throws CoreException {
+						IndexManager.this.projectsToCheck = workspace.getRoot().getProjects();
+						for (int i = 0, max = IndexManager.this.projectsToCheck == null ? 0 : IndexManager.this.projectsToCheck.length; i < max; i++){
+							IJavaProject project = JavaCore.create(IndexManager.this.projectsToCheck[i]);
+							try {
+								// force to resolve CP variables before calling indexer - 19303 (indirectly through consistency check)
+								project.getResolvedClasspath(true);
+							} catch (JavaModelException e) {
+							}
+						} 
+					}
+				},
+				null);
+		} catch (CoreException e) {
+		}
 	}
 	super.reset();
 	if (indexes != null){

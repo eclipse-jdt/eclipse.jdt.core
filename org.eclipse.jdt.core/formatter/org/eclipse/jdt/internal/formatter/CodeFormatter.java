@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.formatter.impl.FormatterOptions;
 import org.eclipse.jdt.internal.formatter.impl.SplitLine;
 
@@ -2477,7 +2478,7 @@ public class CodeFormatter implements ITerminalSymbols, ICodeFormatter {
 				indexToMap = positionsToMap.length; // no more mapping
 				return;
 			}
-			if (Scanner.isWhitespace(source[posToMap])) {
+			if (CharOperation.isWhitespace(source[posToMap])) {
 				mappedPositions[indexToMap] = startPosition + globalDelta + lineDelta;
 			} else {
 				if (posToMap == sourceLength - 1) {

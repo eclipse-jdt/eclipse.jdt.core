@@ -22,6 +22,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
  */
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class CompletionScanner extends Scanner {
 
@@ -173,7 +174,7 @@ public int getNextToken() throws InvalidInputException {
 						&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
 						pushLineSeparator();
 					isWhiteSpace = 
-						(currentCharacter == ' ') || isWhitespace(currentCharacter); 
+						(currentCharacter == ' ') || CharOperation.isWhitespace(currentCharacter); 
 				}
 				/* completion requesting strictly inside blanks */
 				if ((whiteStart != currentPosition)

@@ -64,7 +64,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] newRawPath,
 		IPath newOutputLocation,
 		boolean canChangeResource,
-		boolean forceSave,
 		boolean needValidation) {
 
 		super(new IJavaElement[] { project });
@@ -527,8 +526,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 								UpdateClasspath, 
 								SetClasspathOperation.ReuseOutputLocation, 
 								this.fMonitor, 
-								this.canChangeResource, 
-								false, 
+								this.canChangeResource,  
 								project.getResolvedClasspath(true), 
 								false); // updating only - no validation
 							break;

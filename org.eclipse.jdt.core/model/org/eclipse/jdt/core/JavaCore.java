@@ -2194,20 +2194,20 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static void setClasspathContainer(IPath containerPath, final IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
-
+	
 		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
-
+	
 		if (monitor != null && monitor.isCanceled()) return;
-
+	
 		final int projectLength = affectedProjects.length;
 		final IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
-
+	
 		// filter out unmodified project containers
 		int remaining = 0;
 		for (int i = 0; i < projectLength; i++){
-
+	
 			if (monitor != null && monitor.isCanceled()) return;
-
+	
 			IJavaProject affectedProject = affectedProjects[i];
 			IClasspathContainer newContainer = respectiveContainers[i];
 			
@@ -2262,8 +2262,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								affectedProject.getRawClasspath(),
 								SetClasspathOperation.ReuseOutputLocation,
 								monitor,
-								!JavaModelManager.IsResourceTreeLocked, // can save resources
-								!JavaModelManager.IsResourceTreeLocked && affectedProject.getWorkspace().isAutoBuilding(), // force save?
+								!JavaModelManager.isResourceTreeLocked(), // can save resources
 								oldResolvedPaths[i],
 								false); // updating - no validation
 					}
@@ -2477,7 +2476,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		String[] variableNames,
 		IPath[] variablePaths,
 		IProgressMonitor monitor) throws JavaModelException {
-
+	
 		if (monitor != null && monitor.isCanceled()) return;
 		
 		int varLength = variableNames.length;
@@ -2486,7 +2485,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		final HashMap affectedProjects = new HashMap(5);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IJavaModel model = manager.getJavaModel();
-
+	
 		// filter out unmodified variables
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
@@ -2515,7 +2514,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 		
 		if (monitor != null && monitor.isCanceled()) return;
-
+	
 		if (model != null) {
 			IJavaProject[] projects = model.getJavaProjects();
 			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
@@ -2527,10 +2526,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					
 					IClasspathEntry entry = classpath[j];
 					for (int k = 0; k < varLength; k++){
-
+	
 						String variableName = variableNames[k];						
 						if (entry.getEntryKind() ==  IClasspathEntry.CPE_VARIABLE){
-
+	
 							if (variableName.equals(entry.getPath().segment(0))){
 								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
 								continue nextProject;
@@ -2538,7 +2537,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							IPath sourcePath, sourceRootPath;
 							if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& variableName.equals(sourcePath.segment(0)))
 								|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& variableName.equals(sourceRootPath.segment(0)))) {
-
+	
 								affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
 								continue nextProject;
 							}
@@ -2572,8 +2571,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 										project.getRawClasspath(),
 										SetClasspathOperation.ReuseOutputLocation,
 										monitor,
-										!JavaModelManager.IsResourceTreeLocked, // can change resources
-										!JavaModelManager.IsResourceTreeLocked && project.getWorkspace().isAutoBuilding(),// force build if in auto build mode
+										!JavaModelManager.isResourceTreeLocked(), // can change resources
 										(IClasspathEntry[]) affectedProjects.get(project),
 										false); // updating - no validation
 							}

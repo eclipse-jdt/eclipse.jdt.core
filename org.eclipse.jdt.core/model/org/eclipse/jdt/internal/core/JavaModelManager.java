@@ -45,6 +45,11 @@ import org.xml.sax.SAXException;
 public class JavaModelManager implements ISaveParticipant { 	
  
 	/**
+	 * Counter indicating whether resource may be written (if lock>0 then resource tree is currently locked)
+	 */
+	public static int ResourceTreeLockStatus = 0;
+
+	/**
 	 * Unique handle onto the JavaModel
 	 */
 	private final JavaModel javaModel = new JavaModel();
@@ -62,11 +67,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public static Map Containers = new HashMap(5);
 
-	/**
-	 * Flag indicating whether resource may be written (false during post-change)
-	 */
-	public static boolean IsResourceTreeLocked;
-	
+
 	/**
 	 * Name of the extension point for contributing classpath variable initializers
 	 */
@@ -1008,6 +1009,13 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 
+	/*
+	 * Returns whether the resource tree is locked or not (considered as locked during post-change notification)
+	 */
+	public static synchronized boolean isResourceTreeLocked(){
+		return ResourceTreeLockStatus > 0;
+	}
+
 	public void loadVariables() throws CoreException {
 
 		// backward compatibility, consider persistent property	
@@ -1078,7 +1086,7 @@ public class JavaModelManager implements ISaveParticipant {
 			Variables.put(varName, null); // reset variable, but leave its entry in the Map, so it will be part of variable names.
 		}
 	}
-	
+
 	/**
 	 * Merged all awaiting deltas.
 	 */
@@ -1229,8 +1237,20 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 
+	/**
+	 * Record the fact the resource tree is locked (during post-change notification)
+	 */
+	public static synchronized void resourceTreeIsLocked(){
+		ResourceTreeLockStatus++;
+	}
 
-	
+	/**
+	 * Record the fact the resource tree is unlocked (after post-change notification)
+	 */
+	public static synchronized void resourceTreeIsUnlocked(){
+		ResourceTreeLockStatus--;
+	}
+
 	/**
 	 * @see ISaveParticipant
 	 */
