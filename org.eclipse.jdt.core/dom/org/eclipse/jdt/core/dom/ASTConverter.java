@@ -2762,7 +2762,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					fieldDeclaration.setType(elementType);
 				} else {
@@ -2776,7 +2777,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					fieldDeclaration.setType(subarrayType);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -2819,7 +2821,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					singleVariableDeclaration.setType(elementType);
 				} else {
@@ -2833,7 +2836,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					singleVariableDeclaration.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -2854,7 +2858,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					methodDeclaration.setReturnType(elementType);
 				} else {
@@ -2868,7 +2873,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					methodDeclaration.setReturnType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -2889,7 +2895,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationStatement.setType(elementType);
 				} else {
@@ -2903,7 +2910,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					variableDeclarationStatement.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -2924,7 +2932,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationExpression.setType(elementType);
 				} else {
@@ -2938,7 +2947,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					variableDeclarationExpression.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);

@@ -69,6 +69,152 @@ import java.util.List;
 public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
+	 * The "javadoc" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		internalJavadocPropertyFactory(MethodDeclaration.class);
+
+	/**
+	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 */
+	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
+		internalModifiersPropertyFactory(MethodDeclaration.class);
+	
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		internalModifiers2PropertyFactory(MethodDeclaration.class);
+	
+	/**
+	 * The "constructor" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor CONSTRUCTOR_PROPERTY = 
+		new SimplePropertyDescriptor(MethodDeclaration.class, "constructor", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(MethodDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "returnType" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the 3.0 API.
+	 */
+	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "returnType2" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor RETURN_TYPE2_PROPERTY = 
+		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType2", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "extraDimensions" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY = 
+		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "typeParameters" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY = 
+		new ChildListPropertyDescriptor(MethodDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "parameters" structural property of this node type).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor PARAMETERS_PROPERTY = 
+		new ChildListPropertyDescriptor(MethodDeclaration.class, "parameters", SingleVariableDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "thrownExceptions" structural property of this node type).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor THROWN_EXCEPTIONS_PROPERTY = 
+		new ChildListPropertyDescriptor(MethodDeclaration.class, "thrownExceptions", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "body" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor BODY_PROPERTY = 
+		new ChildPropertyDescriptor(MethodDeclaration.class, "body", Block.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(MethodDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS_PROPERTY);
+		addProperty(CONSTRUCTOR_PROPERTY);
+		addProperty(RETURN_TYPE_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(PARAMETERS_PROPERTY);
+		addProperty(EXTRA_DIMENSIONS_PROPERTY);
+		addProperty(THROWN_EXCEPTIONS_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(MethodDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(CONSTRUCTOR_PROPERTY);
+		addProperty(TYPE_PARAMETERS_PROPERTY);
+		addProperty(RETURN_TYPE2_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(PARAMETERS_PROPERTY);
+		addProperty(EXTRA_DIMENSIONS_PROPERTY);
+		addProperty(THROWN_EXCEPTIONS_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
+	/**
 	 * <code>true</code> for a constructor, <code>false</code> for a method.
 	 * Defaults to method.
 	 */
@@ -86,7 +232,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList parameters =
-		new ASTNode.NodeList(true, SingleVariableDeclaration.class);
+		new ASTNode.NodeList(PARAMETERS_PROPERTY);
 	
 	/**
 	 * The return type.
@@ -123,7 +269,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList thrownExceptions =
-		new ASTNode.NodeList(false, Name.class);
+		new ASTNode.NodeList(THROWN_EXCEPTIONS_PROPERTY);
 
 	/**
 	 * The method body, or <code>null</code> if none.
@@ -149,9 +295,145 @@ public class MethodDeclaration extends BodyDeclaration {
 	MethodDeclaration(AST ast) {
 		super(ast);
 		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
-			this.modifiers = new ASTNode.NodeList(false, Modifier.class);
-			this.typeParameters = new ASTNode.NodeList(false, TypeParameter.class);
+			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
 		}
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
+		if (property == MODIFIERS_PROPERTY) {
+			if (get) {
+				return getModifiers();
+			} else {
+				setModifiers(value);
+				return 0;
+			}
+		}
+		if (property == EXTRA_DIMENSIONS_PROPERTY) {
+			if (get) {
+				return getExtraDimensions();
+			} else {
+				setExtraDimensions(value);
+				return 0;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetIntProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == CONSTRUCTOR_PROPERTY) {
+			if (get) {
+				return isConstructor();
+			} else {
+				setConstructor(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == RETURN_TYPE_PROPERTY) {
+			if (get) {
+				return getReturnType();
+			} else {
+				setReturnType((Type) child);
+				return null;
+			}
+		}
+		if (property == RETURN_TYPE2_PROPERTY) {
+			if (get) {
+				return getReturnType2();
+			} else {
+				setReturnType2((Type) child);
+				return null;
+			}
+		}
+		if (property == BODY_PROPERTY) {
+			if (get) {
+				return getBody();
+			} else {
+				setBody((Block) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		if (property == TYPE_PARAMETERS_PROPERTY) {
+			return typeParameters();
+		}
+		if (property == PARAMETERS_PROPERTY) {
+			return parameters();
+		}
+		if (property == THROWN_EXCEPTIONS_PROPERTY) {
+			return thrownExceptions();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalJavadocProperty() {
+		return JAVADOC_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalModifiers2Property() {
+		return MODIFIERS2_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final SimplePropertyDescriptor internalModifiersProperty() {
+		return MODIFIERS_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -169,12 +451,12 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 			result.setReturnType(
 					(Type) ASTNode.copySubtree(target, getReturnType()));
 		}
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 			result.typeParameters().addAll(
 					ASTNode.copySubtrees(target, typeParameters()));
@@ -209,7 +491,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 				acceptChild(visitor, getReturnType());
 			} else {
 				acceptChildren(visitor, this.modifiers);
@@ -242,8 +524,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    and <code>false</code> for a method declaration
 	 */ 
 	public void setConstructor(boolean isConstructor) {
-		modifying();
+		preValueChange(CONSTRUCTOR_PROPERTY);
 		this.isConstructor = isConstructor;
+		postValueChange(CONSTRUCTOR_PROPERTY);
 	}
 
 	/**
@@ -285,10 +568,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.methodName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.methodName = new SimpleName(this.ast);
+			postLazyInit(this.methodName, NAME_PROPERTY);
 		}
 		return this.methodName;
 	}
@@ -309,8 +591,9 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (methodName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.methodName, methodName, false);
+		preReplaceChild(this.methodName, methodName, NAME_PROPERTY);
 		this.methodName = methodName;
+		postReplaceChild(this.methodName, methodName, NAME_PROPERTY);
 	}
 
 	/**
@@ -386,10 +669,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	public Type getReturnType() {
 	    supportedOnlyIn2();
 		if (this.returnType == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setReturnType(getAST().newPrimitiveType(PrimitiveType.VOID));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+			postLazyInit(this.returnType, RETURN_TYPE_PROPERTY);
 		}
 		return this.returnType;
 	}
@@ -419,8 +701,9 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.returnType, type, false);
+		preReplaceChild(this.returnType, type, RETURN_TYPE_PROPERTY);
 		this.returnType = type;
+		postReplaceChild(this.returnType, type, RETURN_TYPE_PROPERTY);
 	}
 
 	/**
@@ -443,11 +726,11 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */ 
 	public Type getReturnType2() {
 	    unsupportedIn2();
-		if (this.returnType == null && !returnType2Initialized) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setReturnType2(getAST().newPrimitiveType(PrimitiveType.VOID));
-			getAST().setModificationCount(count);
+		if (this.returnType == null && !this.returnType2Initialized) {
+			preLazyInit();
+			this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+			this.returnType2Initialized = true;
+			postLazyInit(this.returnType, RETURN_TYPE2_PROPERTY);
 		}
 		return this.returnType;
 	}
@@ -476,9 +759,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */ 
 	public void setReturnType2(Type type) {
 	    unsupportedIn2();
-		returnType2Initialized = true;
-		replaceChild(this.returnType, type, false);
+		this.returnType2Initialized = true;
+		preReplaceChild(this.returnType, type, RETURN_TYPE2_PROPERTY);
 		this.returnType = type;
+		postReplaceChild(this.returnType, type, RETURN_TYPE2_PROPERTY);
 	}
 
 	/**
@@ -521,8 +805,9 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (dimensions < 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(EXTRA_DIMENSIONS_PROPERTY);
 		this.extraArrayDimensions = dimensions;
+		postValueChange(EXTRA_DIMENSIONS_PROPERTY);
 	}
 
 	/**
@@ -560,8 +845,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */ 
 	public void setBody(Block body) {
 		// a MethodDeclaration may occur in a Block - must check cycles
-		replaceChild(this.optionalBody, body, true);
+		preReplaceChild(this.optionalBody, body, BODY_PROPERTY);
 		this.optionalBody = body;
+		postReplaceChild(this.optionalBody, body, BODY_PROPERTY);
 	}
 
 	/**
@@ -576,7 +862,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    resolved
 	 */	
 	public IMethodBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveMethod(this);
+		return this.ast.getBindingResolver().resolveMethod(this);
 	}
 
 	/* (omit javadoc for this method)
@@ -595,10 +881,6 @@ public class MethodDeclaration extends BodyDeclaration {
 			}
 		}
 		buffer.append(")");//$NON-NLS-1$
-		if (!isConstructor()) {
-			buffer.append(" returns ");//$NON-NLS-1$
-			getReturnType().appendPrintString(buffer);
-		}
 		buffer.append("]");//$NON-NLS-1$
 	}
 

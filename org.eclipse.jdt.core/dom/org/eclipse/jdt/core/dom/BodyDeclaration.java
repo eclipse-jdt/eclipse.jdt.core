@@ -79,6 +79,60 @@ public abstract class BodyDeclaration extends ASTNode {
 	ASTNode.NodeList modifiers = null;
 	
 	/**
+	 * Returns structural property descriptor for the "modifiers" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 */
+	abstract SimplePropertyDescriptor internalModifiersProperty();
+
+	/**
+	 * Returns structural property descriptor for the "modifiers" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 */
+	abstract ChildListPropertyDescriptor internalModifiers2Property();
+
+	/**
+	 * Returns structural property descriptor for the "javadoc" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 */
+	abstract ChildPropertyDescriptor internalJavadocProperty();
+
+	/**
+	 * Creates and returns a structural property descriptor for the
+	 * "javadoc" property declared on the given concrete node type.
+	 * 
+	 * @return the property descriptor
+	 */
+	static final ChildPropertyDescriptor internalJavadocPropertyFactory(Class nodeClass) {
+		return new ChildPropertyDescriptor(nodeClass, "javadoc", Javadoc.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Creates and returns a structural property descriptor for the
+	 * "modifiers" property declared on the given concrete node type.
+	 * 
+	 * @return the property descriptor
+	 */
+	static final SimplePropertyDescriptor internalModifiersPropertyFactory(Class nodeClass) {
+		return new SimplePropertyDescriptor(nodeClass, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Creates and returns a structural property descriptor for the
+	 * "modifiers" property declared on the given concrete node type.
+	 * 
+	 * @return the property descriptor
+	 */
+	static final ChildListPropertyDescriptor internalModifiers2PropertyFactory(Class nodeClass) {
+		return new ChildListPropertyDescriptor(nodeClass, "modifiers", ExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
+	}
+	
+	/**
 	 * Creates a new AST node for a body declaration node owned by the 
 	 * given AST.
 	 * <p>
@@ -90,7 +144,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	BodyDeclaration(AST ast) {
 		super(ast);
 		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
-			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+			this.modifiers = new ASTNode.NodeList(internalModifiers2Property());
 		}
 	}
 	
@@ -110,8 +164,10 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @exception IllegalArgumentException if the doc comment string is invalid
 	 */
 	public void setJavadoc(Javadoc docComment) {
-		replaceChild(this.optionalDocComment, docComment, false);
+		ChildPropertyDescriptor p = internalJavadocProperty();
+		preReplaceChild(this.optionalDocComment, docComment, p);
 		this.optionalDocComment = docComment;
+		postReplaceChild(this.optionalDocComment, docComment, p);
 	}
 
 	/**
@@ -130,17 +186,17 @@ public abstract class BodyDeclaration extends ASTNode {
 			// 2.0 behavior - bona fide property
 			return this.modifierFlags;
 		} else {
-			// 3.0 behavior - convenient method
+			// 3.0 behavior - convenience method
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
-			int flags = Modifier.NONE;
+			int computedmodifierFlags = Modifier.NONE;
 			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
 				Object x = it.next();
 				if (x instanceof Modifier) {
-					flags |= ((Modifier) x).getKeyword().toFlagValue();
+					computedmodifierFlags |= ((Modifier) x).getKeyword().toFlagValue();
 				}
 			}
-			return flags;
+			return computedmodifierFlags;
 		}
 	}
 
@@ -160,8 +216,10 @@ public abstract class BodyDeclaration extends ASTNode {
 		if (this.modifiers != null) {
 			supportedOnlyIn2();
 		}
-		modifying();
+		SimplePropertyDescriptor p = internalModifiersProperty();
+		preValueChange(p);
 		this.modifierFlags = modifiers;
+		postValueChange(p);
 	}
 
 	/**

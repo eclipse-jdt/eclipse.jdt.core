@@ -29,6 +29,50 @@ import java.util.List;
  * @since 3.0
  */
 public class TypeParameter extends ASTNode {
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(TypeParameter.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "typeBounds" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor TYPE_BOUNDS_PROPERTY = 
+		new ChildListPropertyDescriptor(TypeParameter.class, "typeBounds", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(TypeParameter.class);
+		addProperty(NAME_PROPERTY);
+		addProperty(TYPE_BOUNDS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/** 
 	 * The type variable node; lazily initialized; defaults to an unspecfied, 
 	 * but legal, name.
@@ -40,7 +84,7 @@ public class TypeParameter extends ASTNode {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList typeBounds =
-		new ASTNode.NodeList(false, Type.class);
+		new ASTNode.NodeList(TYPE_BOUNDS_PROPERTY);
 	
 	/**
 	 * Creates a new unparented node for a parameterized type owned by the
@@ -56,6 +100,40 @@ public class TypeParameter extends ASTNode {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == TYPE_BOUNDS_PROPERTY) {
+			return typeBounds();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -91,7 +169,7 @@ public class TypeParameter extends ASTNode {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, typeBounds);
+			acceptChildren(visitor, this.typeBounds);
 		}
 		visitor.endVisit(this);
 	}
@@ -102,13 +180,12 @@ public class TypeParameter extends ASTNode {
 	 * @return the name of the type variable
 	 */ 
 	public SimpleName getName() {
-		if (typeVariableName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.typeVariableName == null) {
+			preLazyInit();
+			this.typeVariableName = new SimpleName(this.ast);
+			postLazyInit(this.typeVariableName, NAME_PROPERTY);
 		}
-		return typeVariableName;
+		return this.typeVariableName;
 	}
 	
 	/**
@@ -126,8 +203,9 @@ public class TypeParameter extends ASTNode {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.typeVariableName, typeName, false);
+		preReplaceChild(this.typeVariableName, typeName, NAME_PROPERTY);
 		this.typeVariableName = typeName;
+		postReplaceChild(this.typeVariableName, typeName, NAME_PROPERTY);
 	}
 
 	/**
@@ -141,7 +219,7 @@ public class TypeParameter extends ASTNode {
 	 *    (element type: <code>Type</code>)
 	 */ 
 	public List typeBounds() {
-		return typeBounds;
+		return this.typeBounds;
 	}
 	
 	/* (omit javadoc for this method)
@@ -158,8 +236,8 @@ public class TypeParameter extends ASTNode {
 	int treeSize() {
 		return 
 			memSize()
-			+ (typeVariableName == null ? 0 : getName().treeSize())
-			+ typeBounds.listSize();
+			+ (this.typeVariableName == null ? 0 : getName().treeSize())
+			+ this.typeBounds.listSize();
 	}
 }
 

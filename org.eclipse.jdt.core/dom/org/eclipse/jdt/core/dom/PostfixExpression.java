@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -102,6 +103,49 @@ public class PostfixExpression extends Expression {
 	}
 	
 	/**
+	 * The "operator" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor OPERATOR_PROPERTY = 
+		new SimplePropertyDescriptor(PostfixExpression.class, "operator", PostfixExpression.Operator.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "operand" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor OPERAND_PROPERTY = 
+		new ChildPropertyDescriptor(PostfixExpression.class, "operand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(PostfixExpression.class);
+		addProperty(OPERAND_PROPERTY);
+		addProperty(OPERATOR_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The operator; defaults to an unspecified postfix operator.
 	 */
 	private PostfixExpression.Operator operator = 
@@ -124,6 +168,45 @@ public class PostfixExpression extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == OPERATOR_PROPERTY) {
+			if (get) {
+				return getOperator();
+			} else {
+				setOperator((Operator) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == OPERAND_PROPERTY) {
+			if (get) {
+				return getOperand();
+			} else {
+				setOperand((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -167,7 +250,7 @@ public class PostfixExpression extends Expression {
 	 * @return the operator
 	 */ 
 	public PostfixExpression.Operator getOperator() {
-		return operator;
+		return this.operator;
 	}
 
 	/**
@@ -180,8 +263,9 @@ public class PostfixExpression extends Expression {
 		if (operator == null) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(OPERATOR_PROPERTY);
 		this.operator = operator;
+		postValueChange(OPERATOR_PROPERTY);
 	}
 
 	/**
@@ -190,13 +274,12 @@ public class PostfixExpression extends Expression {
 	 * @return the operand expression node
 	 */ 
 	public Expression getOperand() {
-		if (operand  == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setOperand(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.operand  == null) {
+			preLazyInit();
+			this.operand= new SimpleName(this.ast);
+			postLazyInit(this.operand, OPERAND_PROPERTY);
 		}
-		return operand;
+		return this.operand;
 	}
 		
 	/**
@@ -214,9 +297,9 @@ public class PostfixExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// a PostfixExpression may occur inside a Expression - must check cycles
-		replaceChild(this.operand, expression, true);
+		preReplaceChild(this.operand, expression, OPERAND_PROPERTY);
 		this.operand = expression;
+		postReplaceChild(this.operand, expression, OPERAND_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -233,6 +316,6 @@ public class PostfixExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (operand == null ? 0 : getOperand().treeSize());
+			+ (this.operand == null ? 0 : getOperand().treeSize());
 	}
 }

@@ -29,12 +29,54 @@ import java.util.List;
  * @since 3.0
  */
 public final class NormalAnnotation extends Annotation {
+	
+	/**
+	 * The "typeName" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_NAME_PROPERTY = 
+		internalTypeNamePropertyFactory(NormalAnnotation.class);
+
+	/**
+	 * The "values" structural property of this node type.
+	 */
+	public static final ChildListPropertyDescriptor VALUES_PROPERTY = 
+		new ChildListPropertyDescriptor(NormalAnnotation.class, "values", MemberValuePair.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(NormalAnnotation.class);
+		addProperty(TYPE_NAME_PROPERTY);
+		addProperty(VALUES_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+	
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+	
 	/**
 	 * The list of member value pairs (element type: 
 	 * <code MemberValuePair</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList values = 
-		new ASTNode.NodeList(true, MemberValuePair.class);
+		new ASTNode.NodeList(VALUES_PROPERTY);
 
 	/**
 	 * Creates a new unparented normal annotation node owned 
@@ -49,6 +91,48 @@ public final class NormalAnnotation extends Annotation {
 	 */
 	NormalAnnotation(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == TYPE_NAME_PROPERTY) {
+			if (get) {
+				return getTypeName();
+			} else {
+				setTypeName((Name) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == VALUES_PROPERTY) {
+			return values();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalTypeNameProperty() {
+		return TYPE_NAME_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -117,7 +201,7 @@ public final class NormalAnnotation extends Annotation {
 	int treeSize() {
 		return
 			memSize()
-			+ getTypeName().treeSize()
-			+ values.listSize();
+			+ (this.typeName == null ? 0 : getTypeName().treeSize())
+			+ this.values.listSize();
 	}
 }

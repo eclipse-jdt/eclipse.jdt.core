@@ -73,6 +73,144 @@ import java.util.List;
 public class TypeDeclaration extends AbstractTypeDeclaration {
 	
 	/**
+	 * The "javadoc" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		internalJavadocPropertyFactory(TypeDeclaration.class);
+
+	/**
+	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 */
+	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
+		internalModifiersPropertyFactory(TypeDeclaration.class);
+	
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		internalModifiers2PropertyFactory(TypeDeclaration.class);
+	
+	/**
+	 * The "interface" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor INTERFACE_PROPERTY = 
+		new SimplePropertyDescriptor(TypeDeclaration.class, "interface", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(TypeDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "superclass" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #SUPERCLASS_TYPE_PROPERTY} in the 3.0 API.
+	 */
+	public static final ChildPropertyDescriptor SUPERCLASS_PROPERTY = 
+		new ChildPropertyDescriptor(TypeDeclaration.class, "superclass", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "superInterfaces" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY} in the 3.0 API.
+	 */
+	public static final ChildListPropertyDescriptor SUPER_INTERFACES_PROPERTY = 
+		new ChildListPropertyDescriptor(TypeDeclaration.class, "superInterfaces", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "superclassType" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor SUPERCLASS_TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(TypeDeclaration.class, "superclassType", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "superInterfaceTypes" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor SUPER_INTERFACE_TYPES_PROPERTY = 
+		new ChildListPropertyDescriptor(TypeDeclaration.class, "superInterfaceTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "typeParameters" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY = 
+		new ChildListPropertyDescriptor(TypeDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "bodyDeclarations" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY = 
+		internalBodyDeclarationPropertyFactory(TypeDeclaration.class);
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(TypeDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS_PROPERTY);
+		addProperty(INTERFACE_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(SUPERCLASS_PROPERTY);
+		addProperty(SUPER_INTERFACES_PROPERTY);
+		addProperty(BODY_DECLARATIONS_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(TypeDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(INTERFACE_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(TYPE_PARAMETERS_PROPERTY);
+		addProperty(SUPERCLASS_TYPE_PROPERTY);
+		addProperty(SUPER_INTERFACE_TYPES_PROPERTY);
+		addProperty(BODY_DECLARATIONS_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
+	/**
 	 * <code>true</code> for an interface, <code>false</code> for a class.
 	 * Defaults to class.
 	 */
@@ -134,13 +272,152 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	TypeDeclaration(AST ast) {
 		super(ast);
 		if (ast.API_LEVEL == AST.LEVEL_2_0) {
-			this.superInterfaceNames = new ASTNode.NodeList(false, Name.class);
+			this.superInterfaceNames = new ASTNode.NodeList(SUPER_INTERFACES_PROPERTY);
 		}
 		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
-			this.typeParameters = new ASTNode.NodeList(false, TypeParameter.class);
-			this.superInterfaceTypes = new ASTNode.NodeList(false, Type.class);
+			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
+			this.superInterfaceTypes = new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
 		}
 	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
+		if (property == MODIFIERS_PROPERTY) {
+			if (get) {
+				return getModifiers();
+			} else {
+				setModifiers(value);
+				return 0;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetIntProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == INTERFACE_PROPERTY) {
+			if (get) {
+				return isInterface();
+			} else {
+				setInterface(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == SUPERCLASS_PROPERTY) {
+			if (get) {
+				return getSuperclass();
+			} else {
+				setSuperclass((Name) child);
+				return null;
+			}
+		}
+		if (property == SUPERCLASS_TYPE_PROPERTY) {
+			if (get) {
+				return getSuperclassType();
+			} else {
+				setSuperclassType((Type) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		if (property == TYPE_PARAMETERS_PROPERTY) {
+			return typeParameters();
+		}
+		if (property == SUPER_INTERFACES_PROPERTY) {
+			return superInterfaces();
+		}
+		if (property == SUPER_INTERFACE_TYPES_PROPERTY) {
+			return superInterfaceTypes();
+		}
+		if (property == BODY_DECLARATIONS_PROPERTY) {
+			return bodyDeclarations();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalJavadocProperty() {
+		return JAVADOC_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalModifiers2Property() {
+		return MODIFIERS2_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final SimplePropertyDescriptor internalModifiersProperty() {
+		return MODIFIERS_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AbstractTypeDeclaration.
+	 */
+	final ChildPropertyDescriptor internalNameProperty() {
+		return NAME_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AbstractTypeDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalBodyDeclarationsProperty() {
+		return BODY_DECLARATIONS_PROPERTY;
+	}
+
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
@@ -157,7 +434,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 			result.setSuperclass(
 					(Name) ASTNode.copySubtree(target, getSuperclass()));
@@ -166,7 +443,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		}
 		result.setInterface(isInterface());
 		result.setName((SimpleName) getName().clone(target));
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 			result.typeParameters().addAll(
 					ASTNode.copySubtrees(target, typeParameters()));
@@ -195,14 +472,14 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 				acceptChild(visitor, getJavadoc());
 				acceptChild(visitor, getName());
 				acceptChild(visitor, getSuperclass());
 				acceptChildren(visitor, this.superInterfaceNames);
 				acceptChildren(visitor, this.bodyDeclarations);
 			}
-			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 				acceptChild(visitor, getJavadoc());
 				acceptChildren(visitor, this.modifiers);
 				acceptChild(visitor, getName());
@@ -235,8 +512,9 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * 	  declaration
 	 */ 
 	public void setInterface(boolean isInterface) {
-		modifying();
+		preValueChange(INTERFACE_PROPERTY);
 		this.isInterface = isInterface;
+		postValueChange(INTERFACE_PROPERTY);
 	}
 
 	/**
@@ -328,8 +606,9 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 */ 
 	public void setSuperclass(Name superclassName) {
 	    supportedOnlyIn2();
-		replaceChild(this.optionalSuperclassName, superclassName, false);
+		preReplaceChild(this.optionalSuperclassName, superclassName, SUPERCLASS_PROPERTY);
 		this.optionalSuperclassName = superclassName;
+		postReplaceChild(this.optionalSuperclassName, superclassName, SUPERCLASS_PROPERTY);
 	}
 
 	/**
@@ -353,8 +632,9 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 */ 
 	public void setSuperclassType(Type superclassType) {
 	    unsupportedIn2();
-		replaceChild(this.optionalSuperclassType, superclassType, true);
+		preReplaceChild(this.optionalSuperclassType, superclassType, SUPERCLASS_TYPE_PROPERTY);
 		this.optionalSuperclassType = superclassType;
+		postReplaceChild(this.optionalSuperclassType, superclassType, SUPERCLASS_TYPE_PROPERTY);
  	}
 
 	/**
@@ -504,7 +784,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 *    resolved
 	 */	
 	public ITypeBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveType(this);
+		return this.ast.getBindingResolver().resolveType(this);
 	}
 	
 	/* (omit javadoc for this method)

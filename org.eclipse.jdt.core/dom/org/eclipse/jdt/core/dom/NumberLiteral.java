@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -22,6 +24,41 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  */
 public class NumberLiteral extends Expression {
 
+	/**
+	 * The "token" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor TOKEN_PROPERTY = 
+		new SimplePropertyDescriptor(NumberLiteral.class, "token", String.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(NumberLiteral.class);
+		addProperty(TOKEN_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The token string; defaults to the integer literal "0".
 	 */
@@ -40,6 +77,29 @@ public class NumberLiteral extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == TOKEN_PROPERTY) {
+			if (get) {
+				return getToken();
+			} else {
+				setToken((String) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -80,7 +140,7 @@ public class NumberLiteral extends Expression {
 	 * @return the numeric literal token
 	 */ 
 	public String getToken() {
-		return tokenValue;
+		return this.tokenValue;
 	}
 		
 	/**
@@ -94,7 +154,7 @@ public class NumberLiteral extends Expression {
 		if (token == null || token.length() == 0) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = getAST().scanner;
+		Scanner scanner = this.ast.scanner;
 		char[] source = token.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
@@ -129,8 +189,9 @@ public class NumberLiteral extends Expression {
 			scanner.tokenizeComments = true;
 			scanner.tokenizeWhiteSpace = true;
 		}
-		modifying();
+		preValueChange(TOKEN_PROPERTY);
 		this.tokenValue = token;
+		postValueChange(TOKEN_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

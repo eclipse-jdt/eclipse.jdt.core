@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * AST node for a text element within a doc comment.
  * <pre>
@@ -23,6 +25,42 @@ package org.eclipse.jdt.core.dom;
  */
 public final class TextElement extends ASTNode implements IDocElement {
 
+	/**
+	 * The "test" structural property of this node type.
+	 * 
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor TEXT_PROPERTY = 
+		new SimplePropertyDescriptor(TextElement.class, "text", String.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(TextElement.class);
+		addProperty(TEXT_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+	
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+	
 	/**
 	 * Canonical empty string.
 	 */
@@ -48,6 +86,29 @@ public final class TextElement extends ASTNode implements IDocElement {
 		super(ast);
 	}
 	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == TEXT_PROPERTY) {
+			if (get) {
+				return getText();
+			} else {
+				setText((String) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -110,8 +171,9 @@ public final class TextElement extends ASTNode implements IDocElement {
 		if (text.indexOf("*/") > 0) { //$NON-NLS-1$
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(TEXT_PROPERTY);
 		this.text = text;
+		postValueChange(TEXT_PROPERTY);
 	}
 		
 	/* (omit javadoc for this method)

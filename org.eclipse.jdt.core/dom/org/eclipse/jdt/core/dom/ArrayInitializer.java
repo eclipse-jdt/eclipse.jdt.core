@@ -26,11 +26,46 @@ import java.util.List;
 public class ArrayInitializer extends Expression {
 	
 	/**
+	 * The "expressions" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor EXPRESSIONS_PROPERTY = 
+		new ChildListPropertyDescriptor(ArrayInitializer.class, "expressions", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ArrayInitializer.class);
+		addProperty(EXPRESSIONS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The list of expressions (element type:
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList expressions =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(EXPRESSIONS_PROPERTY);
 
 	/**
 	 * Creates a new AST node for an array initializer owned by the 
@@ -40,6 +75,24 @@ public class ArrayInitializer extends Expression {
 	 */
 	ArrayInitializer(AST ast) {
 		super(ast);	
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == EXPRESSIONS_PROPERTY) {
+			return expressions();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -73,7 +126,7 @@ public class ArrayInitializer extends Expression {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChildren(visitor, expressions);
+			acceptChildren(visitor, this.expressions);
 		}
 		visitor.endVisit(this);
 	}
@@ -85,7 +138,7 @@ public class ArrayInitializer extends Expression {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List expressions() {
-		return expressions;
+		return this.expressions;
 	}
 	
 	/* (omit javadoc for this method)
@@ -99,7 +152,7 @@ public class ArrayInitializer extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize() + expressions.listSize();
+		return memSize() + this.expressions.listSize();
 	}
 }
 

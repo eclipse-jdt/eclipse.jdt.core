@@ -31,6 +31,66 @@ import java.util.List;
 public class PackageDeclaration extends ASTNode {
 	
 	/**
+	 * The "annotations" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY = 
+		new ChildListPropertyDescriptor(PackageDeclaration.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(PackageDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(PackageDeclaration.class);
+		addProperty(NAME_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(PackageDeclaration.class);
+		addProperty(ANNOTATIONS_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
+	/**
 	 * The annotations (element type: <code>Annotation</code>). 
 	 * Null in 2.0. Added in 3.0; defaults to an empty list
 	 * (see constructor).
@@ -59,8 +119,42 @@ public class PackageDeclaration extends ASTNode {
 	PackageDeclaration(AST ast) {
 		super(ast);
 		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
-			this.annotations = new ASTNode.NodeList(true, Annotation.class);
+			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 		}
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((Name) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ANNOTATIONS_PROPERTY) {
+			return annotations();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -76,7 +170,7 @@ public class PackageDeclaration extends ASTNode {
 	ASTNode clone(AST target) {
 		PackageDeclaration result = new PackageDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 			result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
 		}
 		result.setName((Name) getName().clone(target));
@@ -97,7 +191,7 @@ public class PackageDeclaration extends ASTNode {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 				acceptChildren(visitor, this.annotations);
 			}
 			acceptChild(visitor, getName());
@@ -136,10 +230,9 @@ public class PackageDeclaration extends ASTNode {
 	 */ 
 	public Name getName() {
 		if (this.packageName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.packageName = new SimpleName(this.ast);
+			postLazyInit(this.packageName, NAME_PROPERTY);
 		}
 		return this.packageName;
 	}
@@ -158,8 +251,9 @@ public class PackageDeclaration extends ASTNode {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.packageName, name, false);
+		preReplaceChild(this.packageName, name, NAME_PROPERTY);
 		this.packageName = name;
+		postReplaceChild(this.packageName, name, NAME_PROPERTY);
 	}
 	
 	/**
@@ -174,7 +268,7 @@ public class PackageDeclaration extends ASTNode {
 	 *    resolved
 	 */	
 	public IPackageBinding resolveBinding() {
-		return getAST().getBindingResolver().resolvePackage(this);
+		return this.ast.getBindingResolver().resolvePackage(this);
 	}
 	
 	/* (omit javadoc for this method)

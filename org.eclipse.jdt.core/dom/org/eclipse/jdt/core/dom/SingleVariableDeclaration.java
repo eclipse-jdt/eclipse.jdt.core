@@ -37,6 +37,109 @@ import java.util.List;
 public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
+	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 */
+	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
+		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		new ChildListPropertyDescriptor(SingleVariableDeclaration.class, "modifiers", ExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(SingleVariableDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "type" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(SingleVariableDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "variableArity" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor VARIABLE_ARITY_PROPERTY = 
+		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "variableArity", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "extraDimensions" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY = 
+		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "initializer" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor INITIALIZER_PROPERTY = 
+		new ChildPropertyDescriptor(SingleVariableDeclaration.class, "initializer", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(SingleVariableDeclaration.class);
+		addProperty(MODIFIERS_PROPERTY);
+		addProperty(TYPE_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(EXTRA_DIMENSIONS_PROPERTY);
+		addProperty(INITIALIZER_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(SingleVariableDeclaration.class);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(TYPE_PROPERTY);
+		addProperty(VARIABLE_ARITY_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(EXTRA_DIMENSIONS_PROPERTY);
+		addProperty(INITIALIZER_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
+	/**
 	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
 	 * Null in 2.0. Added in 3.0; defaults to an empty list
 	 * (see constructor).
@@ -99,10 +202,100 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	SingleVariableDeclaration(AST ast) {
 		super(ast);
 		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
-			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+			this.modifiers = new ASTNode.NodeList(MODIFIERS2_PROPERTY);
 		}
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
+		if (property == MODIFIERS_PROPERTY) {
+			if (get) {
+				return getModifiers();
+			} else {
+				setModifiers(value);
+				return 0;
+			}
+		}
+		if (property == EXTRA_DIMENSIONS_PROPERTY) {
+			if (get) {
+				return getExtraDimensions();
+			} else {
+				setExtraDimensions(value);
+				return 0;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetIntProperty(property, get, value);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == VARIABLE_ARITY_PROPERTY) {
+			if (get) {
+				return isVariableArity();
+			} else {
+				setVariableArity(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
+				return null;
+			}
+		}
+		if (property == INITIALIZER_PROPERTY) {
+			if (get) {
+				return getInitializer();
+			} else {
+				setInitializer((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -116,10 +309,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	ASTNode clone(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
-		}
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		} else {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 			result.setVariableArity(isVariableArity());
 		}
@@ -146,7 +338,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getType());
@@ -203,14 +395,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			// 3.0 behavior - convenient method
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
-			int flags = Modifier.NONE;
+			int computedModifierFlags = Modifier.NONE;
 			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
 				Object x = it.next();
 				if (x instanceof Modifier) {
-					flags |= ((Modifier) x).getKeyword().toFlagValue();
+					computedModifierFlags |= ((Modifier) x).getKeyword().toFlagValue();
 				}
 			}
-			return flags;
+			return computedModifierFlags;
 		}
 	}
 
@@ -232,8 +424,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */ 
 	public void setModifiers(int modifiers) {
 	    supportedOnlyIn2();
-		modifying();
+		preValueChange(MODIFIERS_PROPERTY);
 		this.modifierFlags = modifiers;
+		postValueChange(MODIFIERS_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -241,10 +434,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.variableName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.variableName = new SimpleName(this.ast);
+			postLazyInit(this.variableName, NAME_PROPERTY);
 		}
 		return this.variableName;
 	}
@@ -256,8 +448,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		if (variableName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.variableName, variableName, false);
+		preReplaceChild(this.variableName, variableName, NAME_PROPERTY);
 		this.variableName = variableName;
+		postReplaceChild(this.variableName, variableName, NAME_PROPERTY);
 	}
 
 	/**
@@ -268,12 +461,31 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */ 
 	public Type getType() {
 		if (this.type == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setType(getAST().newPrimitiveType(PrimitiveType.INT));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+			postLazyInit(this.type, TYPE_PROPERTY);
 		}
 		return this.type;
+	}
+
+	/**
+	 * Sets the type of the variable declared in this variable declaration to 
+	 * the given type, exclusive of any extra array dimensions.
+	 * 
+	 * @param type the new type
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 */ 
+	public void setType(Type type) {
+		if (type == null) {
+			throw new IllegalArgumentException();
+		}
+		preReplaceChild(this.type, type, TYPE_PROPERTY);
+		this.type = type;
+		postReplaceChild(this.type, type, TYPE_PROPERTY);
 	}
 
 	/**
@@ -319,27 +531,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		if (this.modifiers == null) {
 			unsupportedIn2();
 		}
-		modifying();
+		preValueChange(VARIABLE_ARITY_PROPERTY);
 		this.variableArity = variableArity;
-	}
-
-	/**
-	 * Sets the type of the variable declared in this variable declaration to 
-	 * the given type, exclusive of any extra array dimensions.
-	 * 
-	 * @param type the new type
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
-	 */ 
-	public void setType(Type type) {
-		if (type == null) {
-			throw new IllegalArgumentException();
-		}
-		replaceChild(this.type, type, false);
-		this.type = type;
+		postValueChange(VARIABLE_ARITY_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -358,8 +552,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		if (dimensions < 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(EXTRA_DIMENSIONS_PROPERTY);
 		this.extraArrayDimensions = dimensions;
+		postValueChange(EXTRA_DIMENSIONS_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -375,8 +570,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	public void setInitializer(Expression initializer) {
 		// a SingleVariableDeclaration may occur inside an Expression 
 		// must check cycles
-		replaceChild(this.optionalInitializer, initializer, true);
+		preReplaceChild(this.optionalInitializer, initializer,INITIALIZER_PROPERTY);
 		this.optionalInitializer = initializer;
+		postReplaceChild(this.optionalInitializer, initializer,INITIALIZER_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

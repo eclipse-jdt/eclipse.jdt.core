@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -425,6 +426,41 @@ public final class Modifier extends ExtendedModifier {
 	}
 	
 	/**
+	 * The "keyword" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor KEYWORD_PROPERTY = 
+		new SimplePropertyDescriptor(Modifier.class, "keyword", Modifier.ModifierKeyword.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(Modifier.class);
+		addProperty(KEYWORD_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The modifier keyword; defaults to an unspecified modifier.
 	 * @since 3.0
 	 */
@@ -442,6 +478,29 @@ public final class Modifier extends ExtendedModifier {
 	 */
 	Modifier(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == KEYWORD_PROPERTY) {
+			if (get) {
+				return getKeyword();
+			} else {
+				setKeyword((ModifierKeyword) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
 	}
 
 	/* (omit javadoc for this method)
@@ -502,8 +561,9 @@ public final class Modifier extends ExtendedModifier {
 		if (modifierKeyord == null) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(KEYWORD_PROPERTY);
 		this.modifierKeyword = modifierKeyord;
+		postValueChange(KEYWORD_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

@@ -86,7 +86,7 @@ public abstract class Name extends Expression implements IDocElement {
 	 *    resolved
 	 */	
 	public final IBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveName(this);
+		return this.ast.getBindingResolver().resolveName(this);
 	}
 
 	BlockScope lookupScope() {
@@ -105,7 +105,7 @@ public abstract class Name extends Expression implements IDocElement {
 			while(!(currentNode instanceof TypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
 				return typeDecl.staticInitializerScope;
 			} else {
@@ -116,14 +116,14 @@ public abstract class Name extends Expression implements IDocElement {
 			while(!(currentNode instanceof TypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
 				return typeDecl.staticInitializerScope;
 			} else {
 				return typeDecl.initializerScope;
 			}
 		}
-		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 		return abstractMethodDeclaration.scope;
 	}	
 	

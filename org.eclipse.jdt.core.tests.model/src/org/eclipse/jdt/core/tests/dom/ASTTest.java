@@ -2115,14 +2115,30 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		// make sure that isUpperBound works
 		Type b = ast.newPrimitiveType(PrimitiveType.BYTE);
+		x.setBound(b);
+		x.setUpperBound(false);
+		assertTrue(x.isUpperBound() == false);
+		x.setUpperBound(true);
+		assertTrue(x.isUpperBound() == true);
+		x.setBound(null);
+		x.setUpperBound(false);
+		assertTrue(x.isUpperBound() == false);
+		x.setUpperBound(true);
+		assertTrue(x.isUpperBound() == true);
+		
+		// make sure that setBound(Type,boolean) works
 		x.setBound(b, false);
+		assertTrue(x.getBound() == b);
 		assertTrue(x.isUpperBound() == false);
 		x.setBound(null, true);
+		assertTrue(x.getBound() == null);
 		assertTrue(x.isUpperBound() == true);
 		x.setBound(b, true);
+		assertTrue(x.getBound() == b);
 		assertTrue(x.isUpperBound() == true);
-		x.setBound(null, false);  // isUpper ignored when bound is null
-		assertTrue(x.isUpperBound() == true);
+		x.setBound(null, false);
+		assertTrue(x.getBound() == null);
+		assertTrue(x.isUpperBound() == false);
 		
 		genericPropertyTest(x, new Property("Bound", false, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
@@ -2136,18 +2152,18 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 			public ASTNode wrap() {
 				WildcardType s1 = ast.newWildcardType();
-				s1.setBound(x, true);
+				s1.setBound(x);
 				return s1;
 			}
 			public void unwrap() {
 				WildcardType s1 = (WildcardType) x.getParent();
-				s1.setBound(null, true);
+				s1.setBound(null);
 			}
 			public ASTNode get() {
 				return x.getBound();
 			}
 			public void set(ASTNode value) {
-				x.setBound((Type) value, true);
+				x.setBound((Type) value);
 			}
 		});
 		
@@ -3391,8 +3407,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
-		assertTrue(x.getComment().startsWith("/**")); //$NON-NLS-1$
-		assertTrue(x.getComment().endsWith("*/")); //$NON-NLS-1$
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			assertTrue(x.getComment().startsWith("/**")); //$NON-NLS-1$
+			assertTrue(x.getComment().endsWith("*/")); //$NON-NLS-1$
+		}
 		assertTrue(x.getNodeType() == ASTNode.JAVADOC);
 		assertTrue(!x.isBlockComment());
 		assertTrue(!x.isLineComment());
@@ -3421,35 +3439,37 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(TagElement.TAG_VALUE.equals("@value")); //$NON-NLS-1$
 		assertTrue(TagElement.TAG_VERSION.equals("@version")); //$NON-NLS-1$
 
-		final String[] samples =
-			{ 
-			  "/** Hello there */", //$NON-NLS-1$
-			  "/**\n * Line 1\n * Line 2\n */", //$NON-NLS-1$
-			  "/***/", //$NON-NLS-1$
-			};
-		for (int i = 0; i < samples.length; i++) {			
-			previousCount = ast.modificationCount();
-			x.setComment(samples[i]);
-			assertTrue(ast.modificationCount() > previousCount);
-			assertTrue(samples[i].equals(x.getComment()));
-		}
-
-		final String[] badSamples =
-			{ 
-			  null,
-			  "", //$NON-NLS-1$
-			  "/* */", //$NON-NLS-1$
-			  "/**", //$NON-NLS-1$
-			  "*/", //$NON-NLS-1$
-			};
-
-		// check that property cannot be set to clearly illegal things
-		for (int i = 0; i < badSamples.length; i++) {			
-			try {
-				x.setComment(badSamples[i]);
-				assertTrue(false);
-			} catch (RuntimeException e) {
-				// pass
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			final String[] samples =
+				{ 
+				  "/** Hello there */", //$NON-NLS-1$
+				  "/**\n * Line 1\n * Line 2\n */", //$NON-NLS-1$
+				  "/***/", //$NON-NLS-1$
+				};
+			for (int i = 0; i < samples.length; i++) {			
+				previousCount = ast.modificationCount();
+				x.setComment(samples[i]);
+				assertTrue(ast.modificationCount() > previousCount);
+				assertTrue(samples[i].equals(x.getComment()));
+			}
+	
+			final String[] badSamples =
+				{ 
+				  null,
+				  "", //$NON-NLS-1$
+				  "/* */", //$NON-NLS-1$
+				  "/**", //$NON-NLS-1$
+				  "*/", //$NON-NLS-1$
+				};
+	
+			// check that property cannot be set to clearly illegal things
+			for (int i = 0; i < badSamples.length; i++) {			
+				try {
+					x.setComment(badSamples[i]);
+					assertTrue(false);
+				} catch (RuntimeException e) {
+					// pass
+				}
 			}
 		}
 		
@@ -5777,205 +5797,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 	
 	/**
-	 * Returns a subtree of sample of AST nodes. The sample includes
-	 * one of each kind (except for BlockComment and LineComment,
-     * which cannot be connected directly to a CompilationUnit),
-     * but otherwise does not make sense.
-	 */
-	ASTNode oneOfEach(AST target) {
-		CompilationUnit cu = target.newCompilationUnit();
-		PackageDeclaration pd = target.newPackageDeclaration();
-		cu.setPackage(pd);
-		
-		ImportDeclaration im = target.newImportDeclaration();
-		cu.imports().add(im);
-		
-		TypeDeclaration td = target.newTypeDeclaration();
-		cu.types().add(td);
-		Javadoc javadoc = target.newJavadoc();
-		td.setJavadoc(javadoc);
-		TagElement tg = target.newTagElement();
-		javadoc.tags().add(tg);
-		tg.fragments().add(target.newTextElement());
-		tg.fragments().add(target.newMemberRef());
-		MethodRef mr = target.newMethodRef();
-		tg.fragments().add(mr);
-		mr.parameters().add(target.newMethodRefParameter());
-				
-		VariableDeclarationFragment variableDeclarationFragment = target.newVariableDeclarationFragment();
-		FieldDeclaration fd = 
-			target.newFieldDeclaration(variableDeclarationFragment);
-		td.bodyDeclarations().add(fd);	
-		
-		Initializer in = target.newInitializer();
-		td.bodyDeclarations().add(in);	
-
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			EnumDeclaration ed = target.newEnumDeclaration();
-			td.bodyDeclarations().add(ed);	
-			EnumConstantDeclaration ec = target.newEnumConstantDeclaration();
-			ed.bodyDeclarations().add(ec);	
-		}
-		
-		MethodDeclaration md = target.newMethodDeclaration();
-		SingleVariableDeclaration singleVariableDeclaration = target.newSingleVariableDeclaration();
-		md.parameters().add(singleVariableDeclaration);
-		td.bodyDeclarations().add(md);
-		
-		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
-		SimpleName sn2 =target.newSimpleName("two"); //$NON-NLS-1$
-		QualifiedName qn = target.newQualifiedName(sn1, sn2);
-		
-		PrimitiveType pt = target.newPrimitiveType(PrimitiveType.INT);
-		ArrayType at = target.newArrayType(pt);
-		fd.setType(at);
-
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			SimpleType st = target.newSimpleType(qn);
-			QualifiedType qt = target.newQualifiedType(st, target.newSimpleName("x")); //$NON-NLS-1$
-			WildcardType wt = target.newWildcardType();
-			ParameterizedType pmt = target.newParameterizedType(target.newSimpleName("y")); //$NON-NLS-1$
-			pmt.typeArguments().add(wt);
-			pmt.typeArguments().add(qt);
-			md.setReturnType2(pmt);
-		}
-		
-		Block b = target.newBlock();
-		md.setBody(b);
-		
-		// all statements (in alphabetic order of statement type)
-		AssertStatement assertStatement = target.newAssertStatement();
-		b.statements().add(assertStatement);
-		Block block = target.newBlock();
-		b.statements().add(block);
-		BreakStatement breakStatement = target.newBreakStatement();
-		b.statements().add(breakStatement);
-		ContinueStatement continueStatement = target.newContinueStatement();
-		b.statements().add(continueStatement);
-		ConstructorInvocation constructorInvocation = target.newConstructorInvocation();
-		b.statements().add(constructorInvocation);
-		DoStatement doStatement = target.newDoStatement();
-		b.statements().add(doStatement);
-		EmptyStatement emptyStatement = target.newEmptyStatement();
-		b.statements().add(emptyStatement);
-		NullLiteral nullLiteral = target.newNullLiteral();
-		ExpressionStatement expressionStatement = target.newExpressionStatement(nullLiteral);
-		b.statements().add(expressionStatement);
-		ForStatement forStatement = target.newForStatement();
-		b.statements().add(forStatement);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			EnhancedForStatement foreachStatement = target.newEnhancedForStatement();
-			b.statements().add(foreachStatement);
-		}
-		IfStatement ifStatement = target.newIfStatement();
-		b.statements().add(ifStatement);
-		LabeledStatement labeledStatement = target.newLabeledStatement();
-		b.statements().add(labeledStatement);
-		ReturnStatement returnStatement = target.newReturnStatement();
-		b.statements().add(returnStatement);
-		SuperConstructorInvocation superConstructorInvocation = target.newSuperConstructorInvocation();
-		b.statements().add(superConstructorInvocation);
-		SwitchStatement ss = target.newSwitchStatement();
-		SwitchCase switchCase = target.newSwitchCase();
-		ss.statements().add(switchCase);
-		b.statements().add(ss);
-		SwitchStatement switchStatement = target.newSwitchStatement();
-		b.statements().add(switchStatement);
-		SwitchCase switchCase2 = target.newSwitchCase();
-		b.statements().add(switchCase2);
-		SynchronizedStatement synchronizedStatement = target.newSynchronizedStatement();
-		b.statements().add(synchronizedStatement);
-		ThrowStatement throwStatement = target.newThrowStatement();
-		b.statements().add(throwStatement);
-		TryStatement tr = target.newTryStatement();
-		CatchClause catchClause = target.newCatchClause();
-		tr.catchClauses().add(catchClause);
-		b.statements().add(tr);
-		
-		TypeDeclaration typeDeclaration = target.newTypeDeclaration();
-		TypeDeclarationStatement typeDeclarationStatement = target.newTypeDeclarationStatement(typeDeclaration);
-		b.statements().add(typeDeclarationStatement);
-		VariableDeclarationFragment variableDeclarationFragment2 = target.newVariableDeclarationFragment();
-		VariableDeclarationStatement variableDeclarationStatement = target.newVariableDeclarationStatement(variableDeclarationFragment2);
-		b.statements().add(variableDeclarationStatement);
-		WhileStatement whileStatement = target.newWhileStatement();
-		b.statements().add(whileStatement);
-
-		// all expressions (in alphabetic order of expressions type)
-		MethodInvocation inv = target.newMethodInvocation();
-		ExpressionStatement expressionStatement2 = target.newExpressionStatement(inv);
-		b.statements().add(expressionStatement2);
-		List z = inv.arguments();
-		ArrayAccess arrayAccess = target.newArrayAccess();
-		z.add(arrayAccess);
-		ArrayCreation arrayCreation = target.newArrayCreation();
-		z.add(arrayCreation);
-		ArrayInitializer arrayInitializer = target.newArrayInitializer();
-		z.add(arrayInitializer);
-		Assignment assignment = target.newAssignment();
-		z.add(assignment);
-		BooleanLiteral booleanLiteral = target.newBooleanLiteral(true);
-		z.add(booleanLiteral);
-		CastExpression castExpression = target.newCastExpression();
-		z.add(castExpression);
-		CharacterLiteral characterLiteral = target.newCharacterLiteral();
-		z.add(characterLiteral);
-		ClassInstanceCreation cic = target.newClassInstanceCreation();
-		AnonymousClassDeclaration anonymousClassDeclaration = target.newAnonymousClassDeclaration();
-		cic.setAnonymousClassDeclaration(anonymousClassDeclaration);
-		z.add(cic);
-		ConditionalExpression conditionalExpression = target.newConditionalExpression();
-		z.add(conditionalExpression);
-		FieldAccess fieldAccess = target.newFieldAccess();
-		z.add(fieldAccess);
-		InfixExpression infixExpression = target.newInfixExpression();
-		z.add(infixExpression);
-		InstanceofExpression instanceofExpression = target.newInstanceofExpression();
-		z.add(instanceofExpression);
-		MethodInvocation methodInvocation = target.newMethodInvocation();
-		z.add(methodInvocation);
-		Name name = target.newName(new String[]{"a", "b"}); //$NON-NLS-1$ //$NON-NLS-2$
-		z.add(name);
-		NullLiteral nullLiteral2 = target.newNullLiteral();
-		z.add(nullLiteral2);
-		NumberLiteral numberLiteral = target.newNumberLiteral("1024"); //$NON-NLS-1$
-		z.add(numberLiteral);
-		ParenthesizedExpression parenthesizedExpression = target.newParenthesizedExpression();
-		z.add(parenthesizedExpression);
-		PostfixExpression postfixExpression = target.newPostfixExpression();
-		z.add(postfixExpression);
-		PrefixExpression prefixExpression = target.newPrefixExpression();
-		z.add(prefixExpression);
-		StringLiteral stringLiteral = target.newStringLiteral();
-		z.add(stringLiteral);
-		SuperFieldAccess superFieldAccess = target.newSuperFieldAccess();
-		z.add(superFieldAccess);
-		SuperMethodInvocation superMethodInvocation = target.newSuperMethodInvocation();
-		z.add(superMethodInvocation);
-		ThisExpression thisExpression = target.newThisExpression();
-		z.add(thisExpression);
-		TypeLiteral typeLiteral = target.newTypeLiteral();
-		z.add(typeLiteral);
-		VariableDeclarationFragment variableDeclarationFragment3 = target.newVariableDeclarationFragment();
-		VariableDeclarationExpression variableDeclarationExpression = target.newVariableDeclarationExpression(variableDeclarationFragment3);
-		z.add(variableDeclarationExpression);
-		
-		// annotations
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			AnnotationTypeDeclaration atd = target.newAnnotationTypeDeclaration();
-			cu.types().add(atd);
-			atd.bodyDeclarations().add(target.newAnnotationTypeMemberDeclaration());
-			td.modifiers().add(target.newMarkerAnnotation());
-			td.modifiers().add(target.newSingleMemberAnnotation());
-			NormalAnnotation an0 = target.newNormalAnnotation();
-			td.modifiers().add(an0);
-			an0.values().add(target.newMemberValuePair());
-			td.modifiers().add(target.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
-		}
-		return cu;
-	}
-	
-	/**
 	 * Walks the given AST and assigns properly-nested (but otherwise totally bogus)
 	 * source ranges to all nodes.
 	 */
@@ -6006,7 +5827,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 	
 	public void testClone() {
-		ASTNode x = oneOfEach(ast);
+		ASTNode x = SampleASTs.oneOfEach(ast);
 		assignSourceRanges(x);
 		assertTrue(x.subtreeMatch(new CheckPositionsMatcher(), x));
 		
@@ -6023,7 +5844,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 
 	public void testNullResolve() {
-		ASTNode x = oneOfEach(ast);
+		ASTNode x = SampleASTs.oneOfEach(ast);
 		
 		ASTVisitor v = new ASTVisitor(true) {
 			// NAMES
@@ -6282,11 +6103,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
-		assertTrue(x.getType() != null);
-		assertTrue(x.getType().getParent() == x);
-		assertTrue(x.getName() != null);
-		assertTrue(x.getName().getParent() == x);
-		assertTrue(x.getName().isDeclaration() == true);
+		assertTrue(x.getParameter() != null);
+		assertTrue(x.getParameter().getParent() == x);
 		assertTrue(x.getExpression() != null);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getBody().getParent() == x);
@@ -6299,36 +6117,20 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		tLeadingComment(x);
 		
-		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
+		genericPropertyTest(x, new Property("Parameter", true, SingleVariableDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("a")); //$NON-NLS-1$
+				SingleVariableDeclaration result = targetAst.newSingleVariableDeclaration();
 				if (parented) {
-					targetAst.newArrayType(result);
+					CatchClause parent = targetAst.newCatchClause();
+					parent.setException(result);
 				}
 				return result;
 			}
 			public ASTNode get() {
-				return x.getType();
+				return x.getParameter();
 			}
 			public void set(ASTNode value) {
-				x.setType((Type) value);
-			}
-		});
-		
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
-				if (parented) {
-					targetAst.newExpressionStatement(result);
-				}
-				return result;
-			}
-			public ASTNode get() {
-				return x.getName();
-			}
-			public void set(ASTNode value) {
-				x.setName((SimpleName) value);
+				x.setParameter((SingleVariableDeclaration) value);
 			}
 		});
 		
@@ -8199,7 +8001,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		
 	public void testSubtreeBytes() {
 		
-		ASTNode x = oneOfEach(ast);
+		ASTNode x = SampleASTs.oneOfEach(ast);
 		System.out.println("oneOfEach().subtreeBytes(): " + x.subtreeBytes());
 		assertTrue(x.subtreeBytes() > 0);
 	}

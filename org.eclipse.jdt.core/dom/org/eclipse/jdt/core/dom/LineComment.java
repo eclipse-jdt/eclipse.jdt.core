@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * End-of-line comment AST node type.
  * <p>
@@ -27,6 +29,34 @@ package org.eclipse.jdt.core.dom;
  * @since 3.0
  */
 public final class LineComment extends Comment {
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(LineComment.class);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * Creates a new line comment node owned by the given AST.
 	 * <p>
@@ -39,6 +69,13 @@ public final class LineComment extends Comment {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

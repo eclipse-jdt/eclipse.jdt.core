@@ -38,6 +38,93 @@ import java.util.List;
 public class FieldDeclaration extends BodyDeclaration {
 	
 	/**
+	 * The "javadoc" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		internalJavadocPropertyFactory(FieldDeclaration.class);
+
+	/**
+	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 */
+	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
+		internalModifiersPropertyFactory(FieldDeclaration.class);
+	
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		internalModifiers2PropertyFactory(FieldDeclaration.class);
+	
+	/**
+	 * The "type" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(FieldDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "fragments" structural property of this node type).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor FRAGMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(FieldDeclaration.class, "fragments", VariableDeclarationFragment.class, CYCLE_RISK); //$NON-NLS-1$
+		
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(FieldDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS_PROPERTY);
+		addProperty(TYPE_PROPERTY);
+		addProperty(FRAGMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(FieldDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(TYPE_PROPERTY);
+		addProperty(FRAGMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
+	/**
 	 * The base type; lazily initialized; defaults to an unspecified,
 	 * legal type.
 	 */
@@ -48,7 +135,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * <code VariableDeclarationFragment</code>).  Defaults to an empty list.
 	 */
 	private ASTNode.NodeList variableDeclarationFragments = 
-		new ASTNode.NodeList(true,  VariableDeclarationFragment.class);
+		new ASTNode.NodeList(FRAGMENTS_PROPERTY);
 
 	/**
 	 * Creates a new unparented field declaration statement node owned 
@@ -67,6 +154,89 @@ public class FieldDeclaration extends BodyDeclaration {
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
+		if (property == MODIFIERS_PROPERTY) {
+			if (get) {
+				return getModifiers();
+			} else {
+				setModifiers(value);
+				return 0;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetIntProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		if (property == FRAGMENTS_PROPERTY) {
+			return fragments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalJavadocProperty() {
+		return JAVADOC_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final SimplePropertyDescriptor internalModifiersProperty() {
+		return MODIFIERS_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalModifiers2Property() {
+		return MODIFIERS2_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
 	 */
 	public int getNodeType() {
 		return FIELD_DECLARATION;
@@ -80,10 +250,10 @@ public class FieldDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 		}
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		}
 		result.setType((Type) getType().clone(target));
@@ -108,7 +278,7 @@ public class FieldDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getType());
@@ -129,10 +299,9 @@ public class FieldDeclaration extends BodyDeclaration {
 	 */ 
 	public Type getType() {
 		if (this.baseType == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setType(getAST().newPrimitiveType(PrimitiveType.INT));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);
+			postLazyInit(this.baseType, TYPE_PROPERTY);
 		}
 		return this.baseType;
 	}
@@ -151,8 +320,9 @@ public class FieldDeclaration extends BodyDeclaration {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.baseType, type, false);
+		preReplaceChild(this.baseType, type, TYPE_PROPERTY);
 		this.baseType = type;
+		postReplaceChild(this.baseType, type, TYPE_PROPERTY);
 	}
 
 	/**

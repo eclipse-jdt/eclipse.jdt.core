@@ -752,8 +752,7 @@ public class ASTMatcher {
 		}
 		EnhancedForStatement o = (EnhancedForStatement) other;
 		return (
-			safeSubtreeMatch(node.getType(), o.getType())
-				&& safeSubtreeMatch(node.getName(), o.getName())
+			safeSubtreeMatch(node.getParameter(), o.getParameter())
 				&& safeSubtreeMatch(node.getExpression(), o.getExpression())
 				&& safeSubtreeMatch(node.getBody(), o.getBody()));
 	}
@@ -1130,7 +1129,11 @@ public class ASTMatcher {
 	 * @deprecated mark deprecated to hide deprecated usage
 	 */
 	private boolean compareDeprecatedComment(Javadoc first, Javadoc second) {
-		return safeEquals(first.getComment(), second.getComment());
+		if (first.getAST().API_LEVEL == AST.LEVEL_2_0) {
+			return safeEquals(first.getComment(), second.getComment());
+		} else {
+			return true;
+		}
 	}
 
 	/**

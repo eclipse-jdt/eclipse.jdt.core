@@ -31,10 +31,28 @@ package org.eclipse.jdt.core.dom;
 public abstract class Annotation extends ExtendedModifier {
 	
 	/**
+	 * Returns structural property descriptor for the "typeName" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 */
+	abstract ChildPropertyDescriptor internalTypeNameProperty();
+
+	/**
+	 * Creates and returns a structural property descriptor for the
+	 * "typeName" property declared on the given concrete node type.
+	 * 
+	 * @return the property descriptor
+	 */
+	static final ChildPropertyDescriptor internalTypeNamePropertyFactory(Class nodeClass) {
+		return new ChildPropertyDescriptor(nodeClass, "typeName", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	}
+	
+	/**
 	 * The annotation type name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
-	private Name typeName = null;
+	Name typeName = null;
 
 	/**
 	 * Creates a new AST node for an annotation node owned by the 
@@ -56,10 +74,9 @@ public abstract class Annotation extends ExtendedModifier {
 	 */ 
 	public Name getTypeName() {
 		if (this.typeName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setTypeName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.typeName = new SimpleName(this.ast);
+			postLazyInit(this.typeName, internalTypeNameProperty());
 		}
 		return this.typeName;
 	}
@@ -78,8 +95,10 @@ public abstract class Annotation extends ExtendedModifier {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.typeName, typeName, false);
+		ChildPropertyDescriptor p = internalTypeNameProperty();
+		preReplaceChild(this.typeName, typeName, p);
 		this.typeName = typeName;
+		postReplaceChild(this.typeName, typeName, p);
 	}
 
 	/**

@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Instanceof expression AST node type.
  * <pre>
@@ -22,6 +24,49 @@ package org.eclipse.jdt.core.dom;
  */
 public class InstanceofExpression extends Expression {
 
+	/**
+	 * The "leftOperand" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor LEFT_OPERAND_PROPERTY = 
+		new ChildPropertyDescriptor(InstanceofExpression.class, "leftOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "rightOperand" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor RIGHT_OPERAND_PROPERTY = 
+		new ChildPropertyDescriptor(InstanceofExpression.class, "rightOperand", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(InstanceofExpression.class);
+		addProperty(LEFT_OPERAND_PROPERTY);
+		addProperty(RIGHT_OPERAND_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The left operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
@@ -45,6 +90,37 @@ public class InstanceofExpression extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == LEFT_OPERAND_PROPERTY) {
+			if (get) {
+				return getLeftOperand();
+			} else {
+				setLeftOperand((Expression) child);
+				return null;
+			}
+		}
+		if (property == RIGHT_OPERAND_PROPERTY) {
+			if (get) {
+				return getRightOperand();
+			} else {
+				setRightOperand((Type) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -90,13 +166,12 @@ public class InstanceofExpression extends Expression {
 	 * @return the left operand node
 	 */ 
 	public Expression getLeftOperand() {
-		if (leftOperand  == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setLeftOperand(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.leftOperand  == null) {
+			preLazyInit();
+			this.leftOperand= new SimpleName(this.ast);
+			postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
 		}
-		return leftOperand;
+		return this.leftOperand;
 	}
 		
 	/**
@@ -114,9 +189,9 @@ public class InstanceofExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// an InfixExpression may occur inside a Expression - must check cycles
-		replaceChild(this.leftOperand, expression, true);
+		preReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
 		this.leftOperand = expression;
+		postReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
 	}
 
 	/**
@@ -125,13 +200,12 @@ public class InstanceofExpression extends Expression {
 	 * @return the right operand node
 	 */ 
 	public Type getRightOperand() {
-		if (rightOperand  == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setRightOperand(new SimpleType(getAST()));
-			getAST().setModificationCount(count);
+		if (this.rightOperand  == null) {
+			preLazyInit();
+			this.rightOperand= new SimpleType(this.ast);
+			postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
 		}
-		return rightOperand;
+		return this.rightOperand;
 	}
 		
 	/**
@@ -149,9 +223,9 @@ public class InstanceofExpression extends Expression {
 		if (referenceType == null) {
 			throw new IllegalArgumentException();
 		}
-		// an InstanceofExpression may occur inside a Expression - must check cycles
-		replaceChild(this.rightOperand, referenceType, true);
+		preReplaceChild(this.rightOperand, referenceType, RIGHT_OPERAND_PROPERTY);
 		this.rightOperand = referenceType;
+		postReplaceChild(this.rightOperand, referenceType, RIGHT_OPERAND_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)
@@ -168,7 +242,7 @@ public class InstanceofExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (leftOperand == null ? 0 : getLeftOperand().treeSize())
-			+ (rightOperand == null ? 0 : getRightOperand().treeSize());
+			+ (this.leftOperand == null ? 0 : getLeftOperand().treeSize())
+			+ (this.rightOperand == null ? 0 : getRightOperand().treeSize());
 	}
 }

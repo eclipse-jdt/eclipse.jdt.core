@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Assert statement AST node type.
  *
@@ -22,6 +24,49 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public class AssertStatement extends Statement {
+			
+	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(AssertStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "message" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor MESSAGE_PROPERTY = 
+		new ChildPropertyDescriptor(AssertStatement.class, "message", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(AssertStatement.class);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(MESSAGE_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
 			
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
@@ -46,6 +91,37 @@ public class AssertStatement extends Statement {
 	 */
 	AssertStatement(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == MESSAGE_PROPERTY) {
+			if (get) {
+				return getMessage();
+			} else {
+				setMessage((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
 	}
 
 	/* (omit javadoc for this method)
@@ -97,10 +173,9 @@ public class AssertStatement extends Statement {
 	 */ 
 	public Expression getExpression() {
 		if (expression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.expression = new SimpleName(this.ast);
+			postLazyInit(this.expression, EXPRESSION_PROPERTY);
 		}
 		return expression;
 	}
@@ -121,8 +196,9 @@ public class AssertStatement extends Statement {
 			throw new IllegalArgumentException();
 		}
 		// an AssertStatement may occur inside an Expression - must check cycles
-		replaceChild(this.expression, expression, true);
+		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
+		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -133,7 +209,7 @@ public class AssertStatement extends Statement {
 	 *    is none
 	 */ 
 	public Expression getMessage() {
-		return optionalMessageExpression;
+		return this.optionalMessageExpression;
 	}
 	
 	/**
@@ -150,8 +226,9 @@ public class AssertStatement extends Statement {
 	 */ 
 	public void setMessage(Expression expression) {
 		// an AsertStatement may occur inside an Expression - must check cycles
-		replaceChild(this.optionalMessageExpression, expression, true);
+		preReplaceChild(this.optionalMessageExpression, expression, MESSAGE_PROPERTY);
 		this.optionalMessageExpression = expression;
+		postReplaceChild(this.optionalMessageExpression, expression, MESSAGE_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)
@@ -167,8 +244,8 @@ public class AssertStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (expression == null ? 0 : getExpression().treeSize())
-			+ (optionalMessageExpression == null ? 0 : getMessage().treeSize());
+			+ (this.expression == null ? 0 : getExpression().treeSize())
+			+ (this.optionalMessageExpression == null ? 0 : getMessage().treeSize());
 			
 	}
 }

@@ -26,11 +26,46 @@ import java.util.List;
 public class ConstructorInvocation extends Statement {
 	
 	/**
+	 * The "arguments" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(ConstructorInvocation.class, "arguments", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ConstructorInvocation.class);
+		addProperty(ARGUMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The list of argument expressions (element type: 
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList arguments =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(ARGUMENTS_PROPERTY);
 
 	/**
 	 * Creates a new AST node for an alternate constructor invocation statement
@@ -40,6 +75,24 @@ public class ConstructorInvocation extends Statement {
 	 */
 	ConstructorInvocation(AST ast) {
 		super(ast);	
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ARGUMENTS_PROPERTY) {
+			return arguments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -74,7 +127,7 @@ public class ConstructorInvocation extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChildren(visitor, arguments);
+			acceptChildren(visitor, this.arguments);
 		}
 		visitor.endVisit(this);
 	}
@@ -87,7 +140,7 @@ public class ConstructorInvocation extends Statement {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List arguments() {
-		return arguments;
+		return this.arguments;
 	}
 
 	/**
@@ -102,7 +155,7 @@ public class ConstructorInvocation extends Statement {
 	 *    cannot be resolved
 	 */	
 	public IMethodBinding resolveConstructorBinding() {
-		return getAST().getBindingResolver().resolveConstructor(this);
+		return this.ast.getBindingResolver().resolveConstructor(this);
 	}
 
 	/* (omit javadoc for this method)
@@ -119,7 +172,7 @@ public class ConstructorInvocation extends Statement {
 	int treeSize() {
 		return 
 			memSize()
-			+ arguments.listSize();
+			+ this.arguments.listSize();
 	}
 }
 

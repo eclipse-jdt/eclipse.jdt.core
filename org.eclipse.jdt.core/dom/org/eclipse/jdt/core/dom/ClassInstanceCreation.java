@@ -65,6 +65,93 @@ import java.util.List;
 public class ClassInstanceCreation extends Expression {
 
 	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(ClassInstanceCreation.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "name" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #TYPE_PROPERTY} in the 3.0 API.
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(ClassInstanceCreation.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "type" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(ClassInstanceCreation.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "arguments" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(ClassInstanceCreation.class, "arguments", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "anonymousClassDeclaration" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor ANONYMOUS_CLASS_DECLARATION_PROPERTY = 
+		new ChildPropertyDescriptor(ClassInstanceCreation.class, "anonymousClassDeclaration", AnonymousClassDeclaration.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(ClassInstanceCreation.class);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(ARGUMENTS_PROPERTY);
+		addProperty(ANONYMOUS_CLASS_DECLARATION_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(ClassInstanceCreation.class);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(TYPE_PROPERTY);
+		addProperty(ARGUMENTS_PROPERTY);
+		addProperty(ANONYMOUS_CLASS_DECLARATION_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
+	/**
 	 * The optional expression; <code>null</code> for none; defaults to none.
 	 */
 	private Expression optionalExpression = null;
@@ -86,7 +173,7 @@ public class ClassInstanceCreation extends Expression {
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList arguments =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(ARGUMENTS_PROPERTY);
 		
 	/**
 	 * The optional anonymous class declaration; <code>null</code> for none; 
@@ -113,6 +200,66 @@ public class ClassInstanceCreation extends Expression {
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((Name) child);
+				return null;
+			}
+		}
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
+				return null;
+			}
+		}
+		if (property == ANONYMOUS_CLASS_DECLARATION_PROPERTY) {
+			if (get) {
+				return getAnonymousClassDeclaration();
+			} else {
+				setAnonymousClassDeclaration((AnonymousClassDeclaration) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ARGUMENTS_PROPERTY) {
+			return arguments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
 	 */
 	public int getNodeType() {
 		return CLASS_INSTANCE_CREATION;
@@ -126,10 +273,10 @@ public class ClassInstanceCreation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
-		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 			result.setName((Name) getName().clone(target));
 		}
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 			result.setType((Type) getType().clone(target));
 		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
@@ -155,10 +302,10 @@ public class ClassInstanceCreation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
-			if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 				acceptChild(visitor, getName());
 			}
-			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 				acceptChild(visitor, getType());
 			}
 			acceptChildren(visitor, arguments);
@@ -174,7 +321,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @return the expression node, or <code>null</code> if there is none
 	 */ 
 	public Expression getExpression() {
-		return optionalExpression;
+		return this.optionalExpression;
 	}
 	
 	/**
@@ -192,8 +339,9 @@ public class ClassInstanceCreation extends Expression {
 	public void setExpression(Expression expression) {
 		// a ClassInstanceCreation may occur inside an Expression
 		// must check cycles
-		replaceChild(this.optionalExpression, expression, true);
+		preReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
+		postReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -209,10 +357,9 @@ public class ClassInstanceCreation extends Expression {
 	public Name getName() {
 	    supportedOnlyIn2();
 		if (typeName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.typeName = new SimpleName(this.ast);
+			postLazyInit(this.typeName, NAME_PROPERTY);
 		}
 		return typeName;
 	}
@@ -237,8 +384,9 @@ public class ClassInstanceCreation extends Expression {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.typeName, name, false);
+		preReplaceChild(this.typeName, name, NAME_PROPERTY);
 		this.typeName = name;
+		postReplaceChild(this.typeName, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -253,10 +401,9 @@ public class ClassInstanceCreation extends Expression {
 	public Type getType() {
 	    unsupportedIn2();
 		if (this.type == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setType(new SimpleType(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.type = new SimpleType(this.ast);
+			postLazyInit(this.type, TYPE_PROPERTY);
 		}
 		return this.type;
 	}
@@ -280,8 +427,9 @@ public class ClassInstanceCreation extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.type, type, false);
+		preReplaceChild(this.type, type, TYPE_PROPERTY);
 		this.type = type;
+		postReplaceChild(this.type, type, TYPE_PROPERTY);
 	}
 
 	/**
@@ -292,7 +440,7 @@ public class ClassInstanceCreation extends Expression {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List arguments() {
-		return arguments;
+		return this.arguments;
 	}
 	
 	/**
@@ -302,7 +450,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @return the anonymous class declaration, or <code>null</code> if none
 	 */ 
 	public AnonymousClassDeclaration getAnonymousClassDeclaration() {
-		return optionalAnonymousClassDeclaration;
+		return this.optionalAnonymousClassDeclaration;
 	}
 	
 	/**
@@ -313,10 +461,9 @@ public class ClassInstanceCreation extends Expression {
 	 *    if none
 	 */ 
 	public void setAnonymousClassDeclaration(AnonymousClassDeclaration decl) {
-		// a ClassInstanceCreation may occur inside an AnonymousClassDeclaration
-		// must check cycles
-		replaceChild(this.optionalAnonymousClassDeclaration, decl, true);
+		preReplaceChild(this.optionalAnonymousClassDeclaration, decl, ANONYMOUS_CLASS_DECLARATION_PROPERTY);
 		this.optionalAnonymousClassDeclaration = decl;
+		postReplaceChild(this.optionalAnonymousClassDeclaration, decl, ANONYMOUS_CLASS_DECLARATION_PROPERTY);
 	}
 
 	/**
@@ -332,7 +479,7 @@ public class ClassInstanceCreation extends Expression {
 	 *    cannot be resolved
 	 */	
 	public IMethodBinding resolveConstructorBinding() {
-		return getAST().getBindingResolver().resolveConstructor(this);
+		return this.ast.getBindingResolver().resolveConstructor(this);
 	}
 
 	/* (omit javadoc for this method)

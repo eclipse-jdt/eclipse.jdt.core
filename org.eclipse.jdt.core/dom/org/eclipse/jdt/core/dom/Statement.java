@@ -154,7 +154,7 @@ public abstract class Statement extends ASTNode {
 	public void setLeadingComment(String comment) {
 		if (comment != null) {
 			char[] source = comment.toCharArray();
-			Scanner scanner = this.getAST().scanner;
+			Scanner scanner = this.ast.scanner;
 			scanner.resetTo(0, source.length);
 			scanner.setSource(source);
 			try {
@@ -181,7 +181,9 @@ public abstract class Statement extends ASTNode {
 				throw new IllegalArgumentException();
 			}
 		}
-		modifying();
+		// we do not consider the obsolete comment as a structureal property
+		// but we protect them nevertheless
+		checkModifiable();
 		this.optionalLeadingComment = comment;
 	}
 

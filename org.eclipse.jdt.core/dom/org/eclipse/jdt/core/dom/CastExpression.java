@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Cast expression AST node type.
  *
@@ -23,6 +25,48 @@ package org.eclipse.jdt.core.dom;
  */
 public class CastExpression extends Expression {
 
+	/**
+	 * The "type" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(CastExpression.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(CastExpression.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(CastExpression.class);
+		addProperty(TYPE_PROPERTY);
+		addProperty(EXPRESSION_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The type; lazily initialized; defaults to a unspecified,
 	 * legal type.
@@ -46,6 +90,37 @@ public class CastExpression extends Expression {
 	 */
 	CastExpression(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
 	}
 
 	/* (omit javadoc for this method)
@@ -93,13 +168,12 @@ public class CastExpression extends Expression {
 	 * @return the type
 	 */ 
 	public Type getType() {
-		if (type == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setType(getAST().newPrimitiveType(PrimitiveType.INT));
-			getAST().setModificationCount(count);
+		if (this.type == null) {
+			preLazyInit();
+			this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+			postLazyInit(this.type, TYPE_PROPERTY);
 		}
-		return type;
+		return this.type;
 	}
 
 	/**
@@ -116,9 +190,9 @@ public class CastExpression extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		// a CastExpression cannot occur inside a Type - cycles not possible
-		replaceChild(this.type, type, false);
+		preReplaceChild(this.type, type, TYPE_PROPERTY);
 		this.type = type;
+		postReplaceChild(this.type, type, TYPE_PROPERTY);
 	}
 	
 	/**
@@ -127,13 +201,12 @@ public class CastExpression extends Expression {
 	 * @return the expression node
 	 */ 
 	public Expression getExpression() {
-		if (expression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.expression == null) {
+			preLazyInit();
+			this.expression = new SimpleName(this.ast);
+			postLazyInit(this.expression, EXPRESSION_PROPERTY);
 		}
-		return expression;
+		return this.expression;
 	}
 		
 	/**
@@ -151,10 +224,9 @@ public class CastExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// a CastExpression may occur inside an Expression 
-		// must check cycles
-		replaceChild(this.expression, expression, true);
+		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
+		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -171,7 +243,7 @@ public class CastExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (expression == null ? 0 : getExpression().treeSize())
-			+ (type == null ? 0 : getType().treeSize());
+			+ (this.expression == null ? 0 : getExpression().treeSize())
+			+ (this.type == null ? 0 : getType().treeSize());
 	}
 }

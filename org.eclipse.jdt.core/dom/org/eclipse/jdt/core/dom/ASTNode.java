@@ -128,19 +128,21 @@ public abstract class ASTNode {
 	 * Node constants are numbered consecutively. Add the
 	 * constant after the existing ones.
 	 * 
-	 * 3. Add AST.newFooBar() factory method.
+	 * 3. Add entry to ASTNode.nodeClassForType(int).
 	 * 
-	 * 4. Add ASTVisitor.visit(FooBar) and endVisit(FooBar) methods.
+	 * 4. Add AST.newFooBar() factory method.
 	 * 
-	 * 5. Add ASTMatcher.match(FooBar,Object) method.
+	 * 5. Add ASTVisitor.visit(FooBar) and endVisit(FooBar) methods.
 	 * 
-	 * 6. Ensure that SimpleName.isDeclaration() covers FooBar
+	 * 6. Add ASTMatcher.match(FooBar,Object) method.
+	 * 
+	 * 7. Ensure that SimpleName.isDeclaration() covers FooBar
 	 * nodes if required.
 	 * 
-	 * 7. Add NaiveASTFlattener.visit(FooBar) method to illustrate
+	 * 8. Add NaiveASTFlattener.visit(FooBar) method to illustrate
 	 * how these nodes should be serialized.
 	 * 
-	 * 8. Update the AST test suites.
+	 * 9. Update the AST test suites.
 	 * 
 	 * The next steps are to update AST.parse* to start generating
 	 * the new type of nodes.
@@ -833,9 +835,193 @@ public abstract class ASTNode {
 	public static final int MODIFIER = 83;
 	
 	/**
-	 * Owning AST.
+	 * Returns the node class for the corresponding node type.
+	 * 
+	 * @param nodeType AST node type
+	 * @return the corresponding <code>ASTNode</code> subclass
+	 * @see #getNodeType()
+	 * @since 3.0
 	 */
-	private final AST owner;
+	public static Class nodeClassForType(int nodeType) {
+		switch (nodeType) {
+			case ANNOTATION_TYPE_DECLARATION :
+				return AnnotationTypeDeclaration.class;
+			case ANNOTATION_TYPE_MEMBER_DECLARATION :
+				return AnnotationTypeMemberDeclaration.class;
+			case ANONYMOUS_CLASS_DECLARATION :
+				return AnonymousClassDeclaration.class;
+			case ARRAY_ACCESS :
+				return ArrayAccess.class;
+			case ARRAY_CREATION :
+				return ArrayCreation.class;
+			case ARRAY_INITIALIZER :
+				return ArrayInitializer.class;
+			case ARRAY_TYPE :
+				return ArrayType.class;
+			case ASSERT_STATEMENT :
+				return AssertStatement.class;
+			case ASSIGNMENT :
+				return Assignment.class;
+			case BLOCK :
+				return Block.class;
+			case BLOCK_COMMENT :
+				return BlockComment.class;
+			case BOOLEAN_LITERAL :
+				return BooleanLiteral.class;
+			case BREAK_STATEMENT :
+				return BreakStatement.class;
+			case CAST_EXPRESSION :
+				return CastExpression.class;
+			case CATCH_CLAUSE :
+				return CatchClause.class;
+			case CHARACTER_LITERAL :
+				return CharacterLiteral.class;
+			case CLASS_INSTANCE_CREATION :
+				return ClassInstanceCreation.class;
+			case COMPILATION_UNIT :
+				return CompilationUnit.class;
+			case CONDITIONAL_EXPRESSION :
+				return ConditionalExpression.class;
+			case CONSTRUCTOR_INVOCATION :
+				return ConstructorInvocation.class;
+			case CONTINUE_STATEMENT :
+				return ContinueStatement.class;
+			case DO_STATEMENT :
+				return DoStatement.class;
+			case EMPTY_STATEMENT :
+				return EmptyStatement.class;
+			case ENHANCED_FOR_STATEMENT :
+				return EnhancedForStatement.class;
+			case ENUM_CONSTANT_DECLARATION :
+				return EnumConstantDeclaration.class;
+			case ENUM_DECLARATION :
+				return EnumDeclaration.class;
+			case EXPRESSION_STATEMENT :
+				return ExpressionStatement.class;
+			case FIELD_ACCESS :
+				return FieldAccess.class;
+			case FIELD_DECLARATION :
+				return FieldDeclaration.class;
+			case FOR_STATEMENT :
+				return ForStatement.class;
+			case IF_STATEMENT :
+				return IfStatement.class;
+			case IMPORT_DECLARATION :
+				return ImportDeclaration.class;
+			case INFIX_EXPRESSION :
+				return InfixExpression.class;
+			case INITIALIZER :
+				return Initializer.class;
+			case INSTANCEOF_EXPRESSION :
+				return InstanceofExpression.class;
+			case JAVADOC :
+				return Javadoc.class;
+			case LABELED_STATEMENT :
+				return LabeledStatement.class;
+			case LINE_COMMENT :
+				return LineComment.class;
+			case MARKER_ANNOTATION :
+				return MarkerAnnotation.class;
+			case MEMBER_REF :
+				return MemberRef.class;
+			case MEMBER_VALUE_PAIR :
+				return MemberValuePair.class;
+			case METHOD_DECLARATION :
+				return MethodDeclaration.class;
+			case METHOD_INVOCATION :
+				return MethodInvocation.class;
+			case METHOD_REF :
+				return MethodRef.class;
+			case METHOD_REF_PARAMETER :
+				return MethodRefParameter.class;
+			case MODIFIER :
+				return Modifier.class;
+			case NORMAL_ANNOTATION :
+				return NormalAnnotation.class;
+			case NULL_LITERAL :
+				return NullLiteral.class;
+			case NUMBER_LITERAL :
+				return NumberLiteral.class;
+			case PACKAGE_DECLARATION :
+				return PackageDeclaration.class;
+			case PARAMETERIZED_TYPE :
+				return ParameterizedType.class;
+			case PARENTHESIZED_EXPRESSION :
+				return ParenthesizedExpression.class;
+			case POSTFIX_EXPRESSION :
+				return PostfixExpression.class;
+			case PREFIX_EXPRESSION :
+				return PrefixExpression.class;
+			case PRIMITIVE_TYPE :
+				return PrimitiveType.class;
+			case QUALIFIED_NAME :
+				return QualifiedName.class;
+			case QUALIFIED_TYPE :
+				return QualifiedType.class;
+			case RETURN_STATEMENT :
+				return ReturnStatement.class;
+			case SIMPLE_NAME :
+				return SimpleName.class;
+			case SIMPLE_TYPE :
+				return SimpleType.class;
+			case SINGLE_MEMBER_ANNOTATION :
+				return SingleMemberAnnotation.class;
+			case SINGLE_VARIABLE_DECLARATION :
+				return SingleVariableDeclaration.class;
+			case STRING_LITERAL :
+				return StringLiteral.class;
+			case SUPER_CONSTRUCTOR_INVOCATION :
+				return SuperConstructorInvocation.class;
+			case SUPER_FIELD_ACCESS :
+				return SuperFieldAccess.class;
+			case SUPER_METHOD_INVOCATION :
+				return SuperMethodInvocation.class;
+			case SWITCH_CASE:
+				return SwitchCase.class;
+			case SWITCH_STATEMENT :
+				return SwitchStatement.class;
+			case SYNCHRONIZED_STATEMENT :
+				return SynchronizedStatement.class;
+			case TAG_ELEMENT :
+				return TagElement.class;
+			case TEXT_ELEMENT :
+				return TextElement.class;
+			case THIS_EXPRESSION :
+				return ThisExpression.class;
+			case THROW_STATEMENT :
+				return ThrowStatement.class;
+			case TRY_STATEMENT :
+				return TryStatement.class;
+			case TYPE_DECLARATION :
+				return TypeDeclaration.class;
+			case TYPE_DECLARATION_STATEMENT :
+				return TypeDeclarationStatement.class;
+			case TYPE_LITERAL :
+				return TypeLiteral.class;
+			case TYPE_PARAMETER :
+				return TypeParameter.class;
+			case VARIABLE_DECLARATION_EXPRESSION :
+				return VariableDeclarationExpression.class;
+			case VARIABLE_DECLARATION_FRAGMENT :
+				return VariableDeclarationFragment.class;
+			case VARIABLE_DECLARATION_STATEMENT :
+				return VariableDeclarationStatement.class;
+			case WHILE_STATEMENT :
+				return WhileStatement.class;
+			case WILDCARD_TYPE :
+				return WildcardType.class;
+		}
+		throw new IllegalArgumentException();
+	}
+	
+	/**
+	 * Owning AST.
+     * <p>
+     * N.B. This ia a private field, but declared as package-visible
+     * for more efficient access from inner classes.
+     * </p>
+	 */
+	final AST ast;
 	
 	/**
 	 * Parent AST node, or <code>null</code> if this node is a root.
@@ -887,19 +1073,83 @@ public abstract class ASTNode {
 	 * Flag constant (bit mask, value 1) indicating that there is something
 	 * not quite right with this AST node.
 	 * <p>
-	 * The standard parsers (<code>AST.parse&ast;(...)</code>) sets this
+	 * The standard parser (<code>ASTParser</code>) sets this
 	 * flag on a node to indicate a syntax error detected in the vicinity.
 	 * </p>
 	 */
 	public static final int MALFORMED = 1;
 
 	/**
+	 * Flag constant (bit mask, value 2) indicating that this is a node
+	 * that was created by the parser (as opposed to one created by another
+	 * party).
+	 * <p>
+	 * The standard parser (<code>ASTParser</code>) sets this
+	 * flag on the nodes it creates.
+	 * </p>
+	 * @since 3.0
+	 */
+	public static final int ORIGINAL = 2;
+
+	/**
+	 * Flag constant (bit mask, value 4) indicating that this node
+	 * is unmodifiable. When a node is marked unmodifiable, the
+	 * following operations result in a runtime exception:
+	 * <ul>
+	 * <li>Change a simple property of this node.</li>
+	 * <li>Add or remove a child node from this node.</li>
+	 * <li>Parent (or reparent) this node.</li>
+	 * </ul>
+	 * <p>
+	 * The standard parser (<code>ASTParser</code>) does not set
+	 * this flag on the nodes it creates. However, clients may set
+	 * this flag on a node to prevent further modification of the
+	 * its structural properties.
+	 * </p>
+	 * @since 3.0
+	 */
+	public static final int PROTECT = 4;
+
+	/**
 	 * Flags; none set by default.
+     * <p>
+     * N.B. This ia a private field, but declared as package-visible
+     * for more efficient access from inner classes.
+     * </p>
 	 * 
 	 * @see #MALFORMED
 	 */
-	private int flags = 0;
+	int flags = 0;
 		
+	/**
+	 * Property of parent in which this node is a child, or <code>null</code>
+	 * if this node is a root. Initially <code>null</code>.
+	 * 
+	 * @see #getLocationInParent
+	 * @since 3.0
+	 */
+	private StructuralPropertyDescriptor location = null;
+	
+	/** Internal convenience constant indicating that there is definite risk of cycles.
+	 * @since 3.0
+	 */ 
+	static boolean CYCLE_RISK = true;
+	
+	/** Internal convenience constant indicating that there is no risk of cycles.
+	 * @since 3.0
+	 */ 
+	static boolean NO_CYCLE_RISK = false;
+	
+	/** Internal convenience constant indicating that a structural property is mandatory.
+	 * @since 3.0
+	 */ 
+	static boolean MANDATORY = true;
+	
+	/** Internal convenience constant indicating that a structural property is optional.
+	 * @since 3.0
+	 */ 
+	static boolean OPTIONAL = false;
+	
 	/**
 	 * A specialized implementation of a list of ASTNodes. The
 	 * implementation is based on an ArrayList.
@@ -921,16 +1171,9 @@ public abstract class ASTNode {
 		ArrayList store = new ArrayList(0);
 		
 		/**
-		 * Indicated whether cycles are a risk. A cycle is possible
-		 * if the type of nodes that get added to this list could
-		 * have a node of the owner's type as a descendent.
+		 * The property descriptor for this list.
 		 */
-		private boolean cycleCheck;
-		
-		/**
-		 * The declared type of all elements of this list.
-		 */
-		private Class nodeType;
+		ChildListPropertyDescriptor propertyDescriptor;
 		
 		/**
 		 * A cursor for iterating over the elements of the list.
@@ -1007,12 +1250,12 @@ public abstract class ASTNode {
 		 * 
 		 * @param cycleCheck <code>true</code> if cycles should be
 		 *    checked, and <code>false</code> if cycles are not a risk
-		 * @param nodeType the type of all elements of this list
+		 * @param property the property descriptor
+		 * @since 3.0
 		 */
-		NodeList(boolean cycleCheck, Class nodeType) {
+		NodeList(ChildListPropertyDescriptor property) {
 			super();
-			this.cycleCheck = cycleCheck; 
-			this.nodeType = nodeType;
+			this.propertyDescriptor = property;
 		}
 	
 		/* (non-javadoc)
@@ -1033,17 +1276,30 @@ public abstract class ASTNode {
 		 * @see List#set(int, java.lang.Object)
 		 */
 		public Object set(int index, Object element) {
+		    if (element == null) {
+		        throw new IllegalArgumentException();
+		    }
+			if ((ASTNode.this.flags & PROTECT) != 0) {
+				// this node is protected => cannot gain or lose children
+				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+			}
 			// delink old child from parent, and link new child to parent
 			ASTNode newChild = (ASTNode) element;
 			ASTNode oldChild = (ASTNode) this.store.get(index);
 			if (oldChild == newChild) {
 				return oldChild;
 			}
-			ASTNode.checkNewChild(ASTNode.this, newChild, this.cycleCheck, this.nodeType);
+			if ((oldChild.flags & PROTECT) != 0) {
+				// old child is protected => cannot be unparented
+				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+			}
+			ASTNode.checkNewChild(ASTNode.this, newChild, this.propertyDescriptor.cycleRisk, this.propertyDescriptor.elementType);
 			Object result = this.store.set(index, newChild);
-			// n.b. setParent will call modifying()
-			oldChild.setParent(null);
-			newChild.setParent(ASTNode.this);
+			// n.b. setParent will call ast.modifying()
+			ASTNode.this.ast.preRemoveChildEvent(ASTNode.this, oldChild, this.propertyDescriptor);
+			oldChild.setParent(null, null);
+			newChild.setParent(ASTNode.this, this.propertyDescriptor);
+			ASTNode.this.ast.postAddChildEvent(ASTNode.this, newChild, this.propertyDescriptor);
 			return result;
 		}
 		
@@ -1051,23 +1307,40 @@ public abstract class ASTNode {
 		 * @see List#add(int, java.lang.Object)
 		 */
 		public void add(int index, Object element) {
+		    if (element == null) {
+		        throw new IllegalArgumentException();
+		    }
+			if ((ASTNode.this.flags & PROTECT) != 0) {
+				// this node is protected => cannot gain or lose children
+				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+			}
 			// link new child to parent
 			ASTNode newChild = (ASTNode) element;
-			ASTNode.checkNewChild(ASTNode.this, newChild, this.cycleCheck, this.nodeType);
+			ASTNode.checkNewChild(ASTNode.this, newChild, this.propertyDescriptor.cycleRisk, this.propertyDescriptor.elementType);
 			this.store.add(index, element);
 			updateCursors(index, +1);
-			// n.b. setParent will call modifying()
-			newChild.setParent(ASTNode.this);
+			// n.b. setParent will call ast.modifying()
+			newChild.setParent(ASTNode.this, this.propertyDescriptor);
+			ASTNode.this.ast.postAddChildEvent(ASTNode.this, newChild, this.propertyDescriptor);
 		}
 		
 		/* (non-javadoc)
 		 * @see List#remove(int)
 		 */
 		public Object remove(int index) {
+			if ((ASTNode.this.flags & PROTECT) != 0) {
+				// this node is protected => cannot gain or lose children
+				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+			}
 			// delink old child from parent
 			ASTNode oldChild = (ASTNode) this.store.get(index);
-			// n.b. setParent will call modifying()
-			oldChild.setParent(null);
+			if ((oldChild.flags & PROTECT) != 0) {
+				// old child is protected => cannot be unparented
+				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+			}
+			ASTNode.this.ast.preRemoveChildEvent(ASTNode.this, oldChild, this.propertyDescriptor);
+			// n.b. setParent will call ast.modifying()
+			oldChild.setParent(null, null);
 			Object result = this.store.remove(index);
 			updateCursors(index, -1);
 			return result;
@@ -1179,8 +1452,8 @@ public abstract class ASTNode {
 		if (ast == null) {
 			throw new IllegalArgumentException();
 		}
-		this.owner = ast;
-		modifying();
+		this.ast = ast;
+		this.ast.modifying();
 	}
 	
 	/**
@@ -1192,8 +1465,8 @@ public abstract class ASTNode {
 	 * 
 	 * @return the AST that owns this node
 	 */ 
-	public AST getAST() {
-		return this.owner;
+	public final AST getAST() {
+		return this.ast;
 	}
 	
 	/**
@@ -1206,8 +1479,36 @@ public abstract class ASTNode {
 	 * 
 	 * @return the parent of this node, or <code>null</code> if none
 	 */ 
-	public ASTNode getParent() {
+	public final ASTNode getParent() {
 		return this.parent;
+	}
+		
+	/**
+	 * Returns the location of this node within its parent,
+	 * or <code>null</code> if this is a root node.
+	 * <p>
+	 * <pre>
+	 * ASTNode node = ...;
+	 * ASTNode parent = node.getParent();
+	 * StructuralPropertyDescriptor location = node.getLocationInParent();
+	 * assert (parent != null) == (location != null);
+	 * if ((location != null) && location.isChildProperty())
+	 *    assert parent.getStructuralProperty(location) == node;
+	 * if ((location != null) && location.isChildListProperty())
+	 *    assert ((List) parent.getStructuralProperty(location)).contains(node);
+	 * </pre>
+	 * </p>
+	 * <p>
+	 * Note that the relationship between an AST node and its parent node
+	 * may change over the lifetime of a node.
+	 * </p>
+	 * 
+	 * @return the location of this node in its parent, 
+	 * or <code>null</code> if this node has no parent
+	 * @since 3.0
+	 */ 
+	public final StructuralPropertyDescriptor getLocationInParent() {
+		return this.location;
 	}
 		
 	/**
@@ -1216,7 +1517,7 @@ public abstract class ASTNode {
 	 * 
 	 * @return the root node at or above this node
 	 */ 
-	public ASTNode getRoot() {
+	public final ASTNode getRoot() {
 		ASTNode candidate = this;
 		while (true) {
 			ASTNode p = candidate.getParent();
@@ -1229,13 +1530,277 @@ public abstract class ASTNode {
 	}
 	
 	/**
-	 * Internal callback indicating that a field of this node is about to
-	 * be modified.
+	 * Returns the value of the given structural property for this node. The value
+	 * returned depends on the kind of property:
+	 * <ul>
+	 * <li>{@link SimplePropertyDescriptor} - the value of the given simple property,
+	 * or <code>null</code> if none; primitive values are "boxed"</li>
+	 * <li>{@link ChildPropertyDescriptor} - the child node (type <code>ASTNode</code>),
+	 * or <code>null</code> if none</li>
+	 * <li>{@link ChildListPropertyDescriptor} - the list (element type: {@link ASTNode})</li>
+	 * </ul>
+	 * 
+	 * @param property the property
+	 * @return the value, or <code>null</code> if none
+	 * @exception RuntimeException if this node does not have the given property
+	 * @since 3.0
 	 */
-	void modifying() {
-		getAST().modifying();
+	public final Object getStructuralProperty(StructuralPropertyDescriptor property) {
+		if (property instanceof SimplePropertyDescriptor) {
+			SimplePropertyDescriptor p = (SimplePropertyDescriptor) property;
+			if (p.getValueType() == int.class) {
+				int result = internalGetSetIntProperty(p, true, 0);
+				return new Integer(result);
+			} else if (p.getValueType() == boolean.class) {
+				boolean result = internalGetSetBooleanProperty(p, true, false);
+				return Boolean.valueOf(result);
+			} else {
+				return internalGetSetObjectProperty(p, true, null);
+			}
+		}
+		if (property instanceof ChildPropertyDescriptor) {
+			return internalGetSetChildProperty((ChildPropertyDescriptor) property, true, null);
+		}
+		if (property instanceof ChildListPropertyDescriptor) {
+			return internalGetChildListProperty((ChildListPropertyDescriptor) property);
+		}
+		throw new IllegalArgumentException();
+	}
+	
+	/**
+	 * Sets the value of the given structural property for this node. The value
+	 * passed depends on the kind of property:
+	 * <ul>
+	 * <li>{@link SimplePropertyDescriptor} - the new value of the given simple property,
+	 * or <code>null</code> if none; primitive values are "boxed"</li>
+	 * <li>{@link ChildPropertyDescriptor} - the new child node (type <code>ASTNode</code>),
+	 * or <code>null</code> if none</li>
+	 * <li>{@link ChildListPropertyDescriptor} - not allowed</li>
+	 * </ul>
+	 * 
+	 * @param property the property
+	 * @return the value, or <code>null</code> if none
+	 * @exception RuntimeException if this node does not have the
+	 * given property, or if the given property cannot be set
+	 * @since 3.0
+	 */
+	public final void setStructuralProperty(StructuralPropertyDescriptor property, Object value) {
+		if (property instanceof SimplePropertyDescriptor) {
+			SimplePropertyDescriptor p = (SimplePropertyDescriptor) property;
+			if (p.getValueType() == int.class) {
+				int arg = ((Integer) value).intValue();
+				internalGetSetIntProperty(p, false, arg);
+				return;
+			} else if (p.getValueType() == boolean.class) {
+				boolean arg = ((Boolean) value).booleanValue();
+				internalGetSetBooleanProperty(p, false, arg);
+				return;
+			} else {
+				if (value == null && p.isMandatory()) {
+					throw new IllegalArgumentException();
+				}
+				internalGetSetObjectProperty(p, false, value);
+				return;
+			}
+		}
+		if (property instanceof ChildPropertyDescriptor) {
+			ChildPropertyDescriptor p = (ChildPropertyDescriptor) property;
+			ASTNode child = (ASTNode) value;
+			if (child == null && p.isMandatory()) {
+				throw new IllegalArgumentException();
+			}
+			internalGetSetChildProperty(p, false, child);
+			return;
+		}
+		if (property instanceof ChildListPropertyDescriptor) {
+			throw new IllegalArgumentException("Cannot set the list of child list property");  //$NON-NLS-1$
+		}
 	}
 
+	/**
+	 * Sets the value of the given int-valued property for this node.
+	 * The default implementation of this method throws an exception explaining
+	 * that this node does not have such a property. This method should be
+	 * extended in subclasses that have at leasy one simple property whose value
+	 * type is int.
+	 * 
+	 * @param property the property
+	 * @param get <code>true</code> for a get operation, and 
+	 * <code>false</code> for a set operation
+	 * @param value the new property value; ignored for get operations
+	 * @return the value; always returns
+	 * <code>0</code> for set operations
+	 * @exception RuntimeException if this node does not have the 
+	 * given property, or if the given value cannot be set as specified
+	 * @since 3.0
+	 */
+	int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
+		throw new RuntimeException("Node does not have this property");  //$NON-NLS-1$
+	}
+	
+	/**
+	 * Sets the value of the given boolean-valued property for this node.
+	 * The default implementation of this method throws an exception explaining
+	 * that this node does not have such a property. This method should be
+	 * extended in subclasses that have at leasy one simple property whose value
+	 * type is boolean.
+	 * 
+	 * @param property the property
+	 * @param get <code>true</code> for a get operation, and 
+	 * <code>false</code> for a set operation
+	 * @param value the new property value; ignored for get operations
+	 * @return the value; always returns
+	 * <code>false</code> for set operations
+	 * @exception RuntimeException if this node does not have the 
+	 * given property, or if the given value cannot be set as specified
+	 * @since 3.0
+	 */
+	boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		throw new RuntimeException("Node does not have this property");  //$NON-NLS-1$
+	}
+	
+	/**
+	 * Sets the value of the given property for this node.
+	 * The default implementation of this method throws an exception explaining
+	 * that this node does not have such a property. This method should be
+	 * extended in subclasses that have at leasy one simple property whose value
+	 * type is a reference type.
+	 * 
+	 * @param property the property
+	 * @param get <code>true</code> for a get operation, and 
+	 * <code>false</code> for a set operation
+	 * @param value the new property value, or <code>null</code> if none;
+	 * ignored for get operations
+	 * @return the value, or <code>null</code> if none; always returns
+	 * <code>null</code> for set operations
+	 * @exception RuntimeException if this node does not have the 
+	 * given property, or if the given value cannot be set as specified
+	 * @since 3.0
+	 */
+	Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		throw new RuntimeException("Node does not have this property");  //$NON-NLS-1$
+	}
+
+	/**
+	 * Sets the child value of the given property for this node.
+	 * The default implementation of this method throws an exception explaining
+	 * that this node does not have such a property. This method should be
+	 * extended in subclasses that have at leasy one child property.
+	 * 
+	 * @param property the property
+	 * @param get <code>true</code> for a get operation, and 
+	 * <code>false</code> for a set operation
+	 * @param child the new child value, or <code>null</code> if none;
+	 * always <code>null</code> for get operations
+	 * @return the child, or <code>null</code> if none; always returns
+	 * <code>null</code> for set operations
+	 * @exception RuntimeException if this node does not have the
+	 * given property, or if the given child cannot be set as specified
+	 * @since 3.0
+	 */
+	ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		throw new RuntimeException("Node does not have this property");  //$NON-NLS-1$
+	}
+	
+	/**
+	 * Returns the list value of the given property for this node.
+	 * The default implementation of this method throws an exception explaining
+	 * that this noed does not have such a property. This method should be
+	 * extended in subclasses that have at leasy one child list property.
+	 * 
+	 * @param property the property
+	 * @return the list (element type: {@link ASTNode})
+	 * @exception RuntimeException if the given node does not have the
+	 * given property
+	 * @since 3.0
+	 */
+	List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		throw new RuntimeException("Node does not have this property");  //$NON-NLS-1$
+	}
+	
+	/**
+	 * Returns a list of structural property descriptors for nodes of the
+	 * same type as this node. Clients must not modify the result.
+	 * <p>
+	 * Note that property descriptors are a meta-level mechanism
+	 * for manipulating ASTNodes in a generic way. They are
+	 * unrelated to <code>get/setProperty</code>.
+	 * </p>
+	 * 
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public final List structuralPropertiesForType() {
+		return internalStructuralPropertiesForType(this.ast.API_LEVEL);
+	}
+	
+	/**
+	 * Returns a list of property descriptors for this node type.
+	 * Clients must not modify the result. This abstract method
+	 * must be implemented in each concrete AST node type.
+	 * <p>
+	 * N.B. This method is package-private, so that the implementations
+	 * of this method in each of the concrete AST node types do not
+	 * clutter up the API doc.
+	 * </p>
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	abstract List internalStructuralPropertiesForType(int apiLevel);
+	
+	/**
+	 * Global temp storage. Used in building structural property
+	 * list for AST node types.
+	 */
+	static List tempPDL = null;
+	
+	/**
+	 * Internal helper method that starts the building a list of
+	 * property descriptors for the given node type.
+	 * 
+	 * @param nodeClass the class for a concrete node type
+	 */
+	static void createPropertyList(Class nodeClass) {
+		tempPDL = new ArrayList(5);
+		// stuff nodeClass at head of list for future ref
+		tempPDL.add(nodeClass);
+	}
+	
+	/**
+	 * Internal helper method that adding a property descriptor.
+	 * 
+	 * @param property the structural property descriptor
+	 */
+	static void addProperty(StructuralPropertyDescriptor property) {
+		Class nodeClass = (Class) tempPDL.get(0);
+		if (property.getNodeClass() != nodeClass) {
+			// easily made cut-and-paste mistake
+			throw new RuntimeException("Structural property descriptor has wrong node class!");  //$NON-NLS-1$
+		}
+		tempPDL.add(property);
+	}
+	
+	/**
+	 * Internal helper method that completes the building of
+	 * a node type's structural property descriptor list.
+	 * 
+	 * @return unmodifiable list of structural property descriptors
+	 * (element type: <code>StructuralPropertyDescriptor</code>)
+	 */
+	static List reapPropertyList() {
+		tempPDL.remove(0); // remove nodeClass
+		// compact
+		ArrayList a = new ArrayList(tempPDL.size());
+		a.addAll(tempPDL); 
+		// clear global
+		tempPDL = null;
+		return Collections.unmodifiableList(a);
+	}
+	
 	/**
      * Checks that this AST operation is not used when
      * building level 2.0 ASTs.
@@ -1244,7 +1809,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void unsupportedIn2() {
-	  if (this.owner.API_LEVEL == AST.LEVEL_2_0) {
+	  if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1257,67 +1822,61 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void supportedOnlyIn2() {
-	  if (this.owner.API_LEVEL != AST.LEVEL_2_0) {
+	  if (this.ast.API_LEVEL != AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
 
 	/**
-	 * Sets or clears this node's parent node.
+	 * Sets or clears this node's parent node and location.
 	 * <p>
 	 * Note that this method is package-private. The pointer from a node
 	 * to its parent is set implicitly as a side effect of inserting or
 	 * removing the node as a child of another node. This method calls
-	 * <code>modifying</code>.
+	 * <code>ast.modifying()</code>.
 	 * </p>
 	 * 
 	 * @param parent the new parent of this node, or <code>null</code> if none
+	 * @param property the location of this node in its parent, 
+	 * or <code>null</code> if <code>parent</code> is <code>null</code>
+	 * @see #getLocationInParent
+	 * @see #getParent
+	 * @since 3.0
 	 */ 
-	void setParent(ASTNode parent) {
-		modifying();
+	final void setParent(ASTNode parent, StructuralPropertyDescriptor property) {
+		this.ast.modifying();
 		this.parent = parent;
+		this.location = property;
 	}
 	
 	/**
-	 * Replaces an old child of this node with another node.
-	 * The old child is delinked from its parent (making it a root node),
-	 * and the new child node is linked to its parent. The new child node
-	 * must be a root node in the same AST as its new parent, and must not
-	 * be an ancestor of this node. This operation fails atomically;
-	 * all precondition checks are done before any linking and delinking
-	 * is done.
-	 * <p>
-	 * This method calls <code>modifying</code> for the nodes affected.
-	 * </p>
+	 * Removes this node from its parent. Has no effect if this node
+	 * is unparented. If this node appears as an element of a child list
+	 * property of its parent, then this node is removed from the
+	 * list using <code>List.remove</code>.
+	 * If this node appears as the value of a child property of its
+	 * parent, then this node is detached from its parent 
+	 * by passing <code>null</code> to the appropriate setter method;
+	 * this operation fails if this node is in a mandatory property.
 	 * 
-	 * @param oldChild the old child of this node, or <code>null</code> if
-	 *   there was no old child to replace
-	 * @param newChild the new child of this node, or <code>null</code> if
-	 *   there is no replacement child
-	 * @param cycleCheck <code>true</code> if cycles are possible and need to
-	 *   be checked, <code>false</code> if cycles are impossible and do not
-	 *   need to be checked
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 * @since 3.0
 	 */ 
-	void replaceChild(ASTNode oldChild, ASTNode newChild, boolean cycleCheck) {
-		if (newChild != null) {
-			checkNewChild(this, newChild, cycleCheck, null);
+	public final void delete() {
+		StructuralPropertyDescriptor p = getLocationInParent();
+		if (p == null) {
+			// node is unparented
+			return;
 		}
-		// delink old child from parent
-		if (oldChild != null) {
-			oldChild.setParent(null);
+		if (p.isChildProperty()) {
+			getParent().setStructuralProperty(this.location, null);
+			return;
 		}
-		// link new child to parent
-		if (newChild != null) {
-			newChild.setParent(this);
+		if (p.isChildListProperty()) {
+			List l = (List) getParent().getStructuralProperty(this.location);
+			l.remove(this);
 		}
 	}
-
+	
 	/**
 	 * Checks whether the given new child node is a node 
 	 * in a different AST from its parent-to-be, whether it is
@@ -1326,8 +1885,7 @@ public abstract class ASTNode {
 	 * the right type. The parent-to-be is the enclosing instance.
 	 * 
 	 * @param node the parent-to-be node
-	 * @param newChild the new child of the parent, or <code>null</code> 
-	 *   if there is no replacement child
+	 * @param newChild the new child of the parent
 	 * @param cycleCheck <code>true</code> if cycles are possible and need 
 	 *   to be checked, <code>false</code> if cycles are impossible and do 
 	 *   not need to be checked
@@ -1344,12 +1902,10 @@ public abstract class ASTNode {
 	 */ 
 	static void checkNewChild(ASTNode node, ASTNode newChild,
 			boolean cycleCheck, Class nodeType) {
-		AST ast = node.getAST();
-		if (newChild.getAST() != ast) {
+		if (newChild.ast != node.ast) {
 			// new child is from a different AST
 			throw new IllegalArgumentException();
-		}
-		
+		}		
 		if (newChild.getParent() != null) {
 			// new child currently has a different parent
 			throw new IllegalArgumentException();
@@ -1361,8 +1917,175 @@ public abstract class ASTNode {
 		Class childClass = newChild.getClass();
 		if (nodeType != null && !nodeType.isAssignableFrom(childClass)) {
 			// new child is not of the right type
-			throw new IllegalArgumentException();
+			throw new ClassCastException();
 		}
+		if ((newChild.flags & PROTECT) != 0) {
+			// new child node is protected => cannot be parented
+			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+		}
+	}
+
+	/**
+     * Prelude portion of the "3 step program" for replacing the
+	 * old child of this node with another node.
+     * Here is the code pattern found in all AST node subclasses:
+     * <pre>
+     * preReplaceChild(this.foo, newFoo, FOO_PROPERTY);
+     * this.foo = newFoo;
+     * postReplaceChild(this.foo, newFoo, FOO_PROPERTY);
+     * </pre>
+     * The first part (preReplaceChild) does all the precondition checks,
+     * reports pre-delete events, and changes parent links.
+	 * The old child is delinked from its parent (making it a root node),
+	 * and the new child node is linked to its parent. The new child node
+	 * must be a root node in the same AST as its new parent, and must not
+	 * be an ancestor of this node. All three nodes must be
+     * modifiable (not PROTECTED). The replace operation must fail
+     * atomically; so it is crucial that all precondition checks
+     * be done before any linking and delinking happens.
+     * The final part (postReplaceChild )reports post-add events.
+	 * <p>
+	 * This method calls <code>ast.modifying()</code> for the nodes affected.
+	 * </p>
+	 * 
+	 * @param oldChild the old child of this node, or <code>null</code> if
+	 *   there was no old child to replace
+	 * @param newChild the new child of this node, or <code>null</code> if
+	 *   there is no replacement child
+	 * @param property the property descriptor of this node describing
+     * the relationship between node and child
+	 * @exception RuntimeException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * <li>any of the nodes involved are unmodifiable</li>
+	 * </ul>
+	 * @since 3.0
+	 */ 
+	final void preReplaceChild(ASTNode oldChild, ASTNode newChild, ChildPropertyDescriptor property) {
+		if ((this.flags & PROTECT) != 0) {
+			// this node is protected => cannot gain or lose children
+			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+		}
+		if (newChild != null) {
+			checkNewChild(this, newChild, property.cycleRisk, null);
+		}
+		// delink old child from parent
+		if (oldChild != null) {
+			if ((oldChild.flags & PROTECT) != 0) {
+				// old child node is protected => cannot be unparented
+				throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+			}
+			this.ast.preRemoveChildEvent(this, oldChild, property);
+			oldChild.setParent(null, null);
+		}
+		// link new child to parent
+		if (newChild != null) {
+			newChild.setParent(this, property);
+			// cannot notify postAddChildEvent until parent is linked to child too
+		}
+	}
+
+	/**
+     * Postlude portion of the "3 step program" for replacing the
+	 * old child of this node with another node.
+     * See {@link #preReplaceChild(ASTNode, ASTNode, ChildPropertyDescriptor)}
+     * for details.
+	 * @since 3.0
+	 */ 
+	final void postReplaceChild(ASTNode oldChild, ASTNode newChild, ChildPropertyDescriptor property) {
+		// link new child to parent
+		if (newChild != null) {
+			this.ast.postAddChildEvent(this, newChild, property);
+		}
+	}
+	
+	/**
+     * Prelude portion of the "3 step program" for changing the
+	 * value of a simple property of this node.
+     * Here is the code pattern found in all AST node subclasses:
+     * <pre>
+     * preValueChange(FOO_PROPERTY);
+     * this.foo = newFoo;
+     * postValueChange(FOO_PROPERTY);
+     * </pre>
+     * The first part (preValueChange) does the precondition check
+     * to make sure the node is modifiable (not PROTECTED).
+     * The change operation must fail atomically; so it is crucial
+     * that the precondition checks are done before the field is
+     * hammered. The final part (postValueChange)reports post-change
+     * events.
+	 * <p>
+	 * This method calls <code>ast.modifying()</code> for the node affected.
+	 * </p>
+	 * 
+	 * @param property the property descriptor of this node 
+	 * @exception RuntimeException if:
+	 * <ul>
+	 * <li>this node is unmodifiable</li>
+	 * </ul>
+	 * @since 3.0
+	 */ 
+	final void preValueChange(SimplePropertyDescriptor property) {
+		if ((this.flags & PROTECT) != 0) {
+			// this node is protected => cannot change valure of properties
+			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+		}
+		this.ast.modifying();
+	}
+
+	/**
+     * Postlude portion of the "3 step program" for replacing the
+	 * old child of this node with another node.
+     * See {@link #preChange(SimplePropertyDescriptor)} for details.
+	 * @since 3.0
+	 */ 
+	final void postValueChange(SimplePropertyDescriptor property) {
+		this.ast.postValueChangeEvent(this, property);
+	}
+	
+	/**
+     * Ensures that this node is modifiable (that is, not marked PROTECTED).
+     * If successful, calls ast.modifying().
+     * @exception RuntimeException is not modifiable
+     */
+	final void checkModifiable() {
+		if ((this.flags & PROTECT) != 0) {
+			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
+		}
+		this.ast.modifying();
+	}
+	
+	/**
+     * Begin lazy initialization of this node.
+     * Here is the code pattern found in all AST
+     * node subclasses:
+     * <pre>
+     * preLazyInit();
+     * this.foo = ...; // code to create new node
+     * postLazyInit(this.foo, FOO_PROPERTY);
+     * </pre>
+     * @since 3.0
+     */
+	final void preLazyInit() {
+		// TBD (jeem)
+		this.ast.disableEvents++;
+		// while disableEvents > 0 no events will be reported, and mod count will stay fixed
+	}
+	
+	/**
+     * End lazy initialization of this node.
+     * 
+	 * @param newChild the new child of this node, or <code>null</code> if
+	 *   there is no replacement child
+	 * @param property the property descriptor of this node describing
+     * the relationship between node and child
+     * @since 3.0
+     */
+	final void postLazyInit(ASTNode newChild, ChildPropertyDescriptor property) {
+		newChild.setParent(this, property);
+		this.ast.disableEvents--;
 	}
 
 	/**
@@ -1372,7 +2095,7 @@ public abstract class ASTNode {
 	 * @return the property value, or <code>null</code> if none
 	 * @see #setProperty(String,Object)
 	 */
-	public Object getProperty(String propertyName) {
+	public final Object getProperty(String propertyName) {
 		if (propertyName == null) {
 			throw new IllegalArgumentException();
 		}
@@ -1412,11 +2135,11 @@ public abstract class ASTNode {
 	 * @param data the new property value, or <code>null</code> if none
 	 * @see #getProperty(String)
 	 */
-	public void setProperty(String propertyName, Object data) {
+	public final void setProperty(String propertyName, Object data) {
 		if (propertyName == null) {
 			throw new IllegalArgumentException();
 		}
-		// N.B. DO NOT CALL modifying();
+		// N.B. DO NOT CALL ast.modifying();
 
 		if (this.property1 == null) {
 			// node has no properties at all
@@ -1482,7 +2205,7 @@ public abstract class ASTNode {
 	 * @return the table of property values keyed by property name
 	 *   (key type: <code>String</code>; value type: <code>Object</code>)
 	 */
-	public Map properties() {
+	public final Map properties() {
 		if (this.property1 == null) {
 			// node has no properties at all
 			return UNMODIFIABLE_EMPTY_MAP;
@@ -1509,17 +2232,20 @@ public abstract class ASTNode {
 	 * The flags are the bitwise-or of individual flags.
 	 * The following flags are currently defined:
 	 * <ul>
-	 * <li><code>MALFORMED</code> - indicates node is syntactically 
+	 * <li>{@link #MALFORMED} - indicates node is syntactically 
 	 *   malformed</li>
+	 * <li>{@link #ORIGINAL} - indicates original node
+	 * created by ASTParser</li>
+	 * <li>{@link #PROTECT} - indicates node is protected
+	 * from further modification</li>
 	 * </ul>
 	 * Other bit positions are reserved for future use.
 	 * </p>
 	 * 
 	 * @return the bitwise-or of individual flags
 	 * @see #setFlags(int)
-	 * @see #MALFORMED
 	 */
-	public int getFlags() {
+	public final int getFlags() {
 		return this.flags;
 	}
 	
@@ -1529,18 +2255,26 @@ public abstract class ASTNode {
 	 * The flags are the bitwise-or of individual flags.
 	 * The following flags are currently defined:
 	 * <ul>
-	 * <li><code>MALFORMED</code> - indicates node is syntactically 
+	 * <li>{@link #MALFORMED} - indicates node is syntactically 
 	 *   malformed</li>
+	 * <li>{@link #ORIGINAL} - indicates original node
+	 * created by ASTParser</li>
+	 * <li>{@link #PROTECT} - indicates node is protected
+	 * from further modification</li>
 	 * </ul>
 	 * Other bit positions are reserved for future use.
+	 * </p>
+	 * <p>
+	 * Note that the flags are <em>not</em> considered a structural
+	 * property of the node, and can be changed even if the
+	 * node is marked as protected.
 	 * </p>
 	 * 
 	 * @param flags the bitwise-or of individual flags
 	 * @see #getFlags()
-	 * @see #MALFORMED
 	 */
-	public void setFlags(int flags) {
-		modifying();
+	public final void setFlags(int flags) {
+		this.ast.modifying();
 		this.flags = flags;
 	}
 
@@ -1590,6 +2324,10 @@ public abstract class ASTNode {
 	 * Source range information on the original nodes is automatically copied to the new
 	 * nodes. Client properties (<code>properties</code>) are not carried over.
 	 * </p>
+	 * <p>
+	 * The node's <code>AST</code> and the target <code>AST</code> must support
+     * the same API level.
+	 * </p>
 	 * 
 	 * @param target the AST that is to own the nodes in the result
 	 * @param node the node to copy, or <code>null</code> if none
@@ -1599,6 +2337,12 @@ public abstract class ASTNode {
 	public static ASTNode copySubtree(AST target, ASTNode node) {
 		if (node == null) {
 			return null;
+		}
+		if (target == null) {
+			throw new IllegalArgumentException();
+		}
+		if (target.apiLevel() != node.getAST().apiLevel()) {
+			throw new UnsupportedOperationException();
 		}
 		ASTNode newNode = node.clone(target);
 		return newNode;
@@ -1751,7 +2495,7 @@ public abstract class ASTNode {
 	 * @see #getLength()
 	 * @see ASTParser
 	 */
-	public int getStartPosition() {
+	public final int getStartPosition() {
 		return this.startPosition;
 	}
 
@@ -1769,7 +2513,7 @@ public abstract class ASTNode {
 	 * @see #getStartPosition()
 	 * @see ASTParser
 	 */
-	public int getLength() {
+	public final int getLength() {
 		return this.length;
 	}
 
@@ -1791,14 +2535,16 @@ public abstract class ASTNode {
 	 * @see #getLength()
 	 * @see ASTParser
 	 */
-	public void setSourceRange(int startPosition, int length) {
+	public final void setSourceRange(int startPosition, int length) {
 		if (startPosition >= 0 && length < 0) {
 			throw new IllegalArgumentException();
 		}
 		if (startPosition < 0 && length != 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		// source positions are not considered a structural property
+		// but we protect them nevertheless
+		checkModifiable();
 		this.startPosition = startPosition;
 		this.length = length;
 	}

@@ -172,6 +172,65 @@ public class InfixExpression extends Expression {
 	}
 	
 	/**
+	 * The "leftOperand" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor LEFT_OPERAND_PROPERTY = 
+		new ChildPropertyDescriptor(InfixExpression.class, "leftOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "operator" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor OPERATOR_PROPERTY = 
+		new SimplePropertyDescriptor(InfixExpression.class, "operator", InfixExpression.Operator.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "rightOperand" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor RIGHT_OPERAND_PROPERTY = 
+		new ChildPropertyDescriptor(InfixExpression.class, "rightOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "extendedOperands" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor EXTENDED_OPERANDS_PROPERTY = 
+		new ChildListPropertyDescriptor(InfixExpression.class, "extendedOperands", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(InfixExpression.class);
+		addProperty(LEFT_OPERAND_PROPERTY);
+		addProperty(OPERATOR_PROPERTY);
+		addProperty(RIGHT_OPERAND_PROPERTY);
+		addProperty(EXTENDED_OPERANDS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The infix operator; defaults to InfixExpression.Operator.PLUS.
 	 */
 	private InfixExpression.Operator operator = InfixExpression.Operator.PLUS;
@@ -208,6 +267,64 @@ public class InfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == OPERATOR_PROPERTY) {
+			if (get) {
+				return getOperator();
+			} else {
+				setOperator((Operator) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == LEFT_OPERAND_PROPERTY) {
+			if (get) {
+				return getLeftOperand();
+			} else {
+				setLeftOperand((Expression) child);
+				return null;
+			}
+		}
+		if (property == RIGHT_OPERAND_PROPERTY) {
+			if (get) {
+				return getRightOperand();
+			} else {
+				setRightOperand((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == EXTENDED_OPERANDS_PROPERTY) {
+			return extendedOperands();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	public int getNodeType() {
 		return INFIX_EXPRESSION;
 	}
@@ -221,10 +338,10 @@ public class InfixExpression extends Expression {
 		result.setOperator(getOperator());
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
 		result.setRightOperand((Expression) getRightOperand().clone(target));
-		if (extendedOperands != null) {
+		if (this.extendedOperands != null) {
 			// be careful not to trigger lazy creation of list
 			result.extendedOperands().addAll(
-				ASTNode.copySubtrees(target, extendedOperands()));
+				ASTNode.copySubtrees(target, this.extendedOperands()));
 		}
 		return result;
 	}
@@ -246,9 +363,9 @@ public class InfixExpression extends Expression {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getLeftOperand());
 			acceptChild(visitor, getRightOperand());
-			if (extendedOperands != null) {
+			if (this.extendedOperands != null) {
 				// be careful not to trigger lazy creation of list
-				acceptChildren(visitor, extendedOperands);
+				acceptChildren(visitor, this.extendedOperands);
 			}
 		}
 		visitor.endVisit(this);
@@ -260,7 +377,7 @@ public class InfixExpression extends Expression {
 	 * @return the infix operator
 	 */ 
 	public InfixExpression.Operator getOperator() {
-		return operator;
+		return this.operator;
 	}
 
 	/**
@@ -273,8 +390,9 @@ public class InfixExpression extends Expression {
 		if (operator == null) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(OPERATOR_PROPERTY);
 		this.operator = operator;
+		postValueChange(OPERATOR_PROPERTY);
 	}
 
 	/**
@@ -283,13 +401,12 @@ public class InfixExpression extends Expression {
 	 * @return the left operand node
 	 */ 
 	public Expression getLeftOperand() {
-		if (leftOperand  == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setLeftOperand(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.leftOperand  == null) {
+			preLazyInit();
+			this.leftOperand= new SimpleName(this.ast);
+			postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
 		}
-		return leftOperand;
+		return this.leftOperand;
 	}
 		
 	/**
@@ -307,9 +424,9 @@ public class InfixExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// an InfixExpression may occur inside a Expression - must check cycles
-		replaceChild(this.leftOperand, expression, true);
+		preReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
 		this.leftOperand = expression;
+		postReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
 	}
 
 	/**
@@ -318,13 +435,12 @@ public class InfixExpression extends Expression {
 	 * @return the right operand node
 	 */ 
 	public Expression getRightOperand() {
-		if (rightOperand  == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setRightOperand(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.rightOperand  == null) {
+			preLazyInit();
+			this.rightOperand= new SimpleName(this.ast);
+			postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
 		}
-		return rightOperand;
+		return this.rightOperand;
 	}
 		
 	/**
@@ -342,9 +458,9 @@ public class InfixExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// an InfixExpression may occur inside a Expression - must check cycles
-		replaceChild(this.rightOperand, expression, true);
+		preReplaceChild(this.rightOperand, expression, RIGHT_OPERAND_PROPERTY);
 		this.rightOperand = expression;
+		postReplaceChild(this.rightOperand, expression, RIGHT_OPERAND_PROPERTY);
 	}
 	
 	/**
@@ -355,7 +471,7 @@ public class InfixExpression extends Expression {
 	 */
 	public boolean hasExtendedOperands() {
 		return 
-			(extendedOperands != null) && extendedOperands.size() > 0;
+			(this.extendedOperands != null) && this.extendedOperands.size() > 0;
 	}
 	
 	/**
@@ -379,11 +495,11 @@ public class InfixExpression extends Expression {
 	 *   (element type: <code>Expression</code>)
 	 */
 	public List extendedOperands() {
-		if (extendedOperands == null) {
+		if (this.extendedOperands == null) {
 			// lazily initialize
-			extendedOperands = new ASTNode.NodeList(true, Expression.class);
+			this.extendedOperands = new ASTNode.NodeList(EXTENDED_OPERANDS_PROPERTY);
 		}
-		return extendedOperands;
+		return this.extendedOperands;
 	}
 
 	/* (omit javadoc for this method)
@@ -400,8 +516,8 @@ public class InfixExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (leftOperand == null ? 0 : getLeftOperand().treeSize())
-			+ (rightOperand == null ? 0 : getRightOperand().treeSize())
-			+ (extendedOperands == null ? 0 : extendedOperands.listSize());
+			+ (this.leftOperand == null ? 0 : getLeftOperand().treeSize())
+			+ (this.rightOperand == null ? 0 : getRightOperand().treeSize())
+			+ (this.extendedOperands == null ? 0 : extendedOperands.listSize());
 	}
 }

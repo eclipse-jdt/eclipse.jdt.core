@@ -95,8 +95,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String LC1S;
 	BlockComment BC1;
 	String BC1S;
-	Javadoc JD2;
-	String JD2S;
 	AnonymousClassDeclaration ACD1;
 	String ACD1S;
 	TypeParameter TP1;
@@ -206,11 +204,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		ACD1S = "[(ACDACD)]"; //$NON-NLS-1$
 		
 		JD1 = ast.newJavadoc();
-		JD1.setComment("/**X*/"); //$NON-NLS-1$
-		JD1S = "[(JD/**X*//**X*/JD)]"; //$NON-NLS-1$
-		JD2 = ast.newJavadoc();
-		JD2.setComment("/**Y*/"); //$NON-NLS-1$
-		JD2S = "[(JD/**Y*//**Y*/JD)]"; //$NON-NLS-1$
+		JD1S = "[(JDJD)]"; //$NON-NLS-1$
 		
 		LC1 = ast.newLineComment();
 		LC1S = "[(//*//)]"; //$NON-NLS-1$
@@ -643,7 +637,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		 */
 		public boolean visit(Javadoc node) {
 			b.append("(JD"); //$NON-NLS-1$
-			b.append(node.getComment());
 			
 			// verify that children of Javadoc nodes are visited only if requested
 			if (visitDocTags) {
@@ -660,7 +653,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		 *
 		 */
 		public void endVisit(Javadoc node) {
-			b.append(node.getComment());
 			b.append("JD)"); //$NON-NLS-1$
 		}
 
@@ -1438,15 +1430,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return;
 		}
 		EnhancedForStatement x1 = ast.newEnhancedForStatement();
-		x1.setType(T1);
-		x1.setName(N1);
+		x1.setParameter(V1);
 		x1.setExpression(E1);
 		x1.setBody(S1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(sEFR"+T1S+N1S+E1S+S1S+"sEFR)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(result.equals("[(sEFR"+V1S+E1S+S1S+"sEFR)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testIfStatement() {
 		IfStatement x1 = ast.newIfStatement();
@@ -1517,7 +1508,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 */
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
-		x1.setComment("/**?*/"); //$NON-NLS-1$
 		x1.tags().add(TAG1);
 		
 		// ASTVisitor() does not visit doc tags
@@ -1526,7 +1516,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.setLength(0);
 			x1.accept(v1);
 			String result = b.toString();
-			assertTrue(("[(JD/**?*//**?*/JD)]").equals(result)); //$NON-NLS-1$
+			assertTrue(("[(JDJD)]").equals(result)); //$NON-NLS-1$
 		}
 		
 		// ASTVisitor(false) does not visit doc tags
@@ -1535,7 +1525,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.setLength(0);
 			x1.accept(v1);
 			String result = b.toString();
-			assertTrue(("[(JD/**?*//**?*/JD)]").equals(result)); //$NON-NLS-1$
+			assertTrue(("[(JDJD)]").equals(result)); //$NON-NLS-1$
 		}
 		
 		// ASTVisitor(true) does visit doc tags
@@ -1544,7 +1534,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			b.setLength(0);
 			x1.accept(v1);
 			String result = b.toString();
-			assertTrue(("[(JD/**?*/"+TAG1S+"/**?*/JD)]").equals(result)); //$NON-NLS-1$
+			assertTrue(("[(JD"+TAG1S+"JD)]").equals(result)); //$NON-NLS-1$
 		}
 	}
 

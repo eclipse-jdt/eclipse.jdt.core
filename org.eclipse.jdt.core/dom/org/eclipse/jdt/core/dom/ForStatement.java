@@ -35,11 +35,70 @@ import java.util.List;
 public class ForStatement extends Statement {
 	
 	/**
+	 * The "initializers" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor INITIALIZERS_PROPERTY = 
+		new ChildListPropertyDescriptor(ForStatement.class, "initializers", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(ForStatement.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "updaters" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor UPDATERS_PROPERTY = 
+		new ChildListPropertyDescriptor(ForStatement.class, "updaters", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "body" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor BODY_PROPERTY = 
+		new ChildPropertyDescriptor(ForStatement.class, "body", Statement.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ForStatement.class);
+		addProperty(INITIALIZERS_PROPERTY);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(UPDATERS_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The list of initializer expressions (element type: 
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList initializers =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(INITIALIZERS_PROPERTY);
 
 	/**
 	 * The condition expression; <code>null</code> for none; defaults to none.
@@ -51,7 +110,7 @@ public class ForStatement extends Statement {
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList updaters =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(UPDATERS_PROPERTY);
 
 	/**
 	 * The body statement; lazily initialized; defaults to an empty block
@@ -68,6 +127,52 @@ public class ForStatement extends Statement {
 	 */
 	ForStatement(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == BODY_PROPERTY) {
+			if (get) {
+				return getBody();
+			} else {
+				setBody((Statement) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == INITIALIZERS_PROPERTY) {
+			return initializers();
+		}
+		if (property == UPDATERS_PROPERTY) {
+			return updaters();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -108,9 +213,9 @@ public class ForStatement extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChildren(visitor, initializers);
+			acceptChildren(visitor, this.initializers);
 			acceptChild(visitor, getExpression());
-			acceptChildren(visitor, updaters);
+			acceptChildren(visitor, this.updaters);
 			acceptChild(visitor, getBody());
 		}
 		visitor.endVisit(this);
@@ -129,7 +234,7 @@ public class ForStatement extends Statement {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List initializers() {
-		return initializers;
+		return this.initializers;
 	}
 	
 	/**
@@ -140,7 +245,7 @@ public class ForStatement extends Statement {
 	 *     there is none
 	 */ 
 	public Expression getExpression() {
-		return optionalConditionExpression;
+		return this.optionalConditionExpression;
 	}
 	
 	/**
@@ -156,9 +261,9 @@ public class ForStatement extends Statement {
 	 * </ul>
 	 */ 
 	public void setExpression(Expression expression) {
-		// a ForStatement may occur inside an Expression - must check cycles
-		replaceChild(this.optionalConditionExpression, expression, true);
+		preReplaceChild(this.optionalConditionExpression, expression, EXPRESSION_PROPERTY);
 		this.optionalConditionExpression = expression;
+		postReplaceChild(this.optionalConditionExpression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -173,7 +278,7 @@ public class ForStatement extends Statement {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List updaters() {
-		return updaters;
+		return this.updaters;
 	}
 	
 	/**
@@ -182,13 +287,12 @@ public class ForStatement extends Statement {
 	 * @return the body statement node
 	 */ 
 	public Statement getBody() {
-		if (body == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setBody(new Block(getAST()));
-			getAST().setModificationCount(count);
+		if (this.body == null) {
+			preLazyInit();
+			this.body = new Block(this.ast);
+			postLazyInit(this.body, BODY_PROPERTY);
 		}
-		return body;
+		return this.body;
 	}
 	
 	/**
@@ -214,9 +318,9 @@ public class ForStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		// a ForStatement may occur inside a Statement - must check cycles
-		replaceChild(this.body, statement, true);
+		preReplaceChild(this.body, statement, BODY_PROPERTY);
 		this.body = statement;
+		postReplaceChild(this.body, statement, BODY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)
@@ -232,9 +336,9 @@ public class ForStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ initializers.listSize()
-			+ updaters.listSize()
-			+ (optionalConditionExpression == null ? 0 : getExpression().treeSize())
-			+ (body == null ? 0 : getBody().treeSize());
+			+ this.initializers.listSize()
+			+ this.updaters.listSize()
+			+ (this.optionalConditionExpression == null ? 0 : getExpression().treeSize())
+			+ (this.body == null ? 0 : getBody().treeSize());
 	}
 }

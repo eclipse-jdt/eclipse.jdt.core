@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Parenthesized expression AST node type.
  *
@@ -22,6 +24,41 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public class ParenthesizedExpression extends Expression {
+	
+	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(ParenthesizedExpression.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ParenthesizedExpression.class);
+		addProperty(EXPRESSION_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
@@ -42,6 +79,29 @@ public class ParenthesizedExpression extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -84,13 +144,12 @@ public class ParenthesizedExpression extends Expression {
 	 * @return the expression node
 	 */ 
 	public Expression getExpression() {
-		if (expression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.expression == null) {
+			preLazyInit();
+			this.expression = new SimpleName(this.ast);
+			postLazyInit(this.expression, EXPRESSION_PROPERTY);
 		}
-		return expression;
+		return this.expression;
 	}
 		
 	/**
@@ -108,10 +167,9 @@ public class ParenthesizedExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// a ParenthesizedExpression may occur inside an Expression 
-		// must check cycles
-		replaceChild(this.expression, expression, true);
+		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
+		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -127,7 +185,7 @@ public class ParenthesizedExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (expression == null ? 0 : getExpression().treeSize());
+			+ (this.expression == null ? 0 : getExpression().treeSize());
 	}
 }
 

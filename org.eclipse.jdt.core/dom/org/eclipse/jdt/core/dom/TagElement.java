@@ -34,6 +34,50 @@ import java.util.List;
 public final class TagElement extends ASTNode implements IDocElement {
 
 	/**
+	 * The "tagName" structural property of this node type.
+	 * 
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor TAG_NAME_PROPERTY = 
+		new SimplePropertyDescriptor(TagElement.class, "tagName", String.class, OPTIONAL); //$NON-NLS-1$
+	
+	/**
+	 * The "fragments" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor FRAGMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(TagElement.class, "fragments", IDocElement.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(TagElement.class);
+		addProperty(TAG_NAME_PROPERTY);
+		addProperty(FRAGMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+	
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+	
+	/**
 	 * Standard doc tag name (value {@value}).
 	 */
 	public static final String TAG_AUTHOR = "@author"; //$NON-NLS-1$
@@ -128,7 +172,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList fragments = 
-		new ASTNode.NodeList(true, IDocElement.class);
+		new ASTNode.NodeList(FRAGMENTS_PROPERTY);
 
 	/**
 	 * Creates a new AST node for a tag element owned by the given AST.
@@ -143,6 +187,40 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 */
 	TagElement(AST ast) {
 		super(ast);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == TAG_NAME_PROPERTY) {
+			if (get) {
+				return getTagName();
+			} else {
+				setTagName((String) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == FRAGMENTS_PROPERTY) {
+			return fragments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 	
 	/* (omit javadoc for this method)
@@ -211,8 +289,9 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * @param tagName the tag name, or <code>null</code> if none
 	 */ 
 	public void setTagName(String tagName) {
-		modifying();
+		preValueChange(TAG_NAME_PROPERTY);
 		this.optionalTagName = tagName;
+		postValueChange(TAG_NAME_PROPERTY);
 	}
 		
 	/**

@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Local type declaration statement AST node type.
  * <p>
@@ -36,6 +38,66 @@ package org.eclipse.jdt.core.dom;
 public class TypeDeclarationStatement extends Statement {
 	
 	/**
+	 * The "typeDeclaration" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #DECLARATION_PROPERTY} in the 3.0 API.
+	 */
+	public static final ChildPropertyDescriptor TYPE_DECLARATION_PROPERTY = 
+		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "typeDeclaration", TypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "declaration" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor DECLARATION_PROPERTY = 
+		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "declaration", AbstractTypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(TypeDeclarationStatement.class);
+		addProperty(TYPE_DECLARATION_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(TypeDeclarationStatement.class);
+		addProperty(DECLARATION_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
+	/**
 	 * The type declaration; lazily initialized; defaults to a unspecified, 
 	 * but legal, type declaration.
 	 */
@@ -55,6 +117,38 @@ public class TypeDeclarationStatement extends Statement {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == TYPE_DECLARATION_PROPERTY) {
+			if (get) {
+				return getTypeDeclaration();
+			} else {
+				setTypeDeclaration((TypeDeclaration) child);
+				return null;
+			}
+		}
+		if (property == DECLARATION_PROPERTY) {
+			if (get) {
+				return getDeclaration();
+			} else {
+				setDeclaration((AbstractTypeDeclaration) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -103,10 +197,9 @@ public class TypeDeclarationStatement extends Statement {
 	 */ 
 	public AbstractTypeDeclaration getDeclaration() {
 		if (this.typeDecl == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setDeclaration(new TypeDeclaration(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.typeDecl = new TypeDeclaration(this.ast);
+			postLazyInit(this.typeDecl, TYPE_DECLARATION_PROPERTY);
 		}
 		return this.typeDecl;
 	}
@@ -130,8 +223,9 @@ public class TypeDeclarationStatement extends Statement {
 		}
 		// a TypeDeclarationStatement may occur inside an 
 		// TypeDeclaration - must check cycles
-		replaceChild(this.typeDecl, decl, true);
+		preReplaceChild(this.typeDecl, decl, TYPE_DECLARATION_PROPERTY);
 		this.typeDecl= decl;
+		postReplaceChild(this.typeDecl, decl, TYPE_DECLARATION_PROPERTY);
 	}
 	
 	/**
