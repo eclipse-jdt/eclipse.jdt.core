@@ -3019,7 +3019,6 @@ public void invokeClassForName() {
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassForName());
 }
-
 public void invokeJavaLangClassDesiredAssertionStatus() {
 	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.desiredAssertionStatus()Z;"); //$NON-NLS-1$
@@ -4939,15 +4938,14 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 					if (existingEntryIndex != -1) {
 						// widen existing entry
 						pcToSourceMap[existingEntryIndex] = startPC;
-					} else {
+					} else if (insertionIndex < 1 || pcToSourceMap[insertionIndex - 1] != newLine) {
 						// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
 						System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - insertionIndex);
 						pcToSourceMap[insertionIndex++] = startPC;
 						pcToSourceMap[insertionIndex] = newLine;
 						pcToSourceMapSize += 2;
 					}
-				}
-				if (position != lastEntryPC) { // no bytecode since last entry pc
+				} else if (position != lastEntryPC) { // no bytecode since last entry pc
 					pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
 					pcToSourceMap[pcToSourceMapSize++] = newLine;
 				}

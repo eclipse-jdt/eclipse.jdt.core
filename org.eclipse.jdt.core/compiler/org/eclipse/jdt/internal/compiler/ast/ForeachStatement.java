@@ -19,10 +19,10 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
@@ -166,7 +166,6 @@ public class ForeachStatement extends Statement {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		// TODO (olivier) reverse the loop again
 		// generate the initializations
 		switch(this.kind) {
 			case ARRAY :
@@ -182,39 +181,32 @@ public class ForeachStatement extends Statement {
 			case GENERIC_ITERABLE :
 				collection.generateCode(scope, codeStream, true);
 				codeStream.store(this.collectionVariable, false);
-				// TODO (olivier) use well known method
-				MethodBinding methodBinding = scope.getMethod(collection.resolvedType, "iterator".toCharArray(), TypeConstants.NoParameters, (InvocationSite) collection);
-				codeStream.invokevirtual(methodBinding);
+				// declaringClass.iterator();
+				MethodBinding iteratorMethodBinding =
+					new MethodBinding(
+							AccPublic,
+							"iterator".toCharArray(),//$NON-NLS-1$
+							scope.getJavaUtilIterator(),
+							TypeConstants.NoParameters,
+							TypeConstants.NoExceptions,
+							(ReferenceBinding) collection.resolvedType);
+				codeStream.invokevirtual(iteratorMethodBinding);
 				codeStream.store(this.indexVariable, false);
 				break;
 		}
 		
 		// label management
+		Label actionLabel = new Label(codeStream);
 		Label conditionLabel = new Label(codeStream);
-		this.breakLabel.codeStream = codeStream;
+		breakLabel.codeStream = codeStream;
 		if (this.continueLabel != null) {
 			this.continueLabel.codeStream = codeStream;
 		}
-		
-		// generate the condition
-		conditionLabel.place();
-		if (this.postCollectionInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(
-				currentScope,
-				this.postCollectionInitStateIndex);
-		}
-		switch(this.kind) {
-			case ARRAY :
-				codeStream.load(this.indexVariable);
-				codeStream.load(this.maxVariable);
-				codeStream.if_icmpge(this.breakLabel);
-				break;
-			case RAW_ITERABLE :
-			case GENERIC_ITERABLE :
-				codeStream.load(this.indexVariable);
-				codeStream.invokeJavaUtilIteratorHasNext();
-				break;
-		}
+		// jump over the actionBlock
+		codeStream.goto_(conditionLabel);
+
+		// generate the loop action
+		actionLabel.place();
 
 		// generate the loop action
 		if (this.elementVariable.binding.resolvedPosition != -1) {
@@ -246,8 +238,9 @@ public class ForeachStatement extends Statement {
 			}
 		}
 		this.action.generateCode(scope, codeStream);
-			
+
 		// continuation point
+		int continuationPC = codeStream.position;
 		if (this.continueLabel != null) {
 			this.continueLabel.place();
 			// generate the increments for next iteration
@@ -259,14 +252,35 @@ public class ForeachStatement extends Statement {
 				case GENERIC_ITERABLE :
 					break;
 			}
-			codeStream.goto_(conditionLabel);
 		}
-		this.breakLabel.place();
-		codeStream.exitUserScope(scope);
-		if (this.mergedInitStateIndex != -1) {
+		// generate the condition
+		conditionLabel.place();
+		if (this.postCollectionInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,
-				this.mergedInitStateIndex);
+				postCollectionInitStateIndex);
+		}
+		switch(this.kind) {
+			case ARRAY :
+				codeStream.load(this.indexVariable);
+				codeStream.load(this.maxVariable);
+				codeStream.if_icmplt(actionLabel);
+				break;
+			case RAW_ITERABLE :
+			case GENERIC_ITERABLE :
+				codeStream.load(this.indexVariable);
+				codeStream.invokeJavaUtilIteratorHasNext();
+				codeStream.ifeq(actionLabel);
+				break;
+		}
+		codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);
+
+		breakLabel.place();
+		codeStream.exitUserScope(scope);
+		if (mergedInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(
+				currentScope,
+				mergedInitStateIndex);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
