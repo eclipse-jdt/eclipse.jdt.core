@@ -159,7 +159,7 @@ public interface IBinding {
 	 *   type relative to its declaring type, the key of its declaring type</li>
 	 * <li>enum types - treated like classes</li>
 	 * <li>annotation types - treated like interfaces</li>
-	 * <li>type variables - the name of the type variable and the
+	 * <li>type variables - the name of the type variable and 
 	 * the key of the generic type or generic method that declares that
 	 * type variable</li>
 	 * <li>wildcard types - the key of the optional wildcard type bound</li>
