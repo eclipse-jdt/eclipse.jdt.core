@@ -291,7 +291,7 @@ protected boolean isOnClasspath() {
 		IClasspathEntry[] classpath = project.getResolvedClasspath(true);	
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
-			if (entry.getPath().isPrefixOf(path)) {
+			if (entry.getPath().equals(path)) {
 				return true;
 			}
 		}
