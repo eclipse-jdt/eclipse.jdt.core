@@ -29,13 +29,8 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatter {
-	
-	private int[] positionsMapping;
 
 	public static final boolean DEBUG = false;
-	
-	private CodeFormatterVisitor newCodeFormatter;
-	private FormattingPreferences preferences;
 
 	private static AstNode[] parseClassBodyDeclarations(char[] source, Map settings) {
 		
@@ -153,6 +148,11 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		return constructorDeclaration;
 	}
 	
+	private CodeFormatterVisitor newCodeFormatter;
+	
+	private int[] positionsMapping;
+	private FormattingPreferences preferences;
+	
 	public DefaultCodeFormatter() {
 		this.preferences = FormattingPreferences.getDefault();
 	}
@@ -176,20 +176,17 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		switch(kind) {
 			case K_CLASS_BODY_DECLARATIONS :
 				result = formatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options);
-				this.positionsMapping = positions;
 				break;
 			case K_COMPILATION_UNIT :
 				result = formatCompilationUnit(source, indentationLevel, positions, lineSeparator, options);
-				this.positionsMapping = positions;
 				break;
 			case K_EXPRESSION :
 				result = formatExpression(source, indentationLevel, positions, lineSeparator, options);
-				this.positionsMapping = positions;
 				break;
 			case K_STATEMENTS :
 				result = formatStatements(source, indentationLevel, positions, lineSeparator, options);
-				this.positionsMapping = positions;
 		}
+		this.positionsMapping = positions;
 		return result;
 	}
 	
@@ -229,7 +226,34 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		int indentationLevel,
 		int[] positions,
 		String lineSeparator) {
-			return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator, JavaCore.getOptions());
+		
+		Map options = JavaCore.getOptions();
+		// probing algorithm
+		/*
+		 * 1) expression
+		 * 2) statements
+		 * 3) classbody declarations
+		 * 4) compilation unit
+		 */
+		Expression expression = parseExpression(source.toCharArray(), options);
+		
+		if (expression != null) {
+			return internalFormatExpression(source, indentationLevel, positions, lineSeparator, options, expression);
+		}
+
+		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
+		
+		if (constructorDeclaration.statements != null) {
+			return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
+		}
+		
+		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), options);
+		
+		if (bodyDeclarations != null) {
+			return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
+		}
+
+		return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator, JavaCore.getOptions());
 	}
 
 	private String formatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
@@ -237,20 +261,10 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
+			this.positionsMapping = positions;
 			return source;
 		}
-		if (lineSeparator != null) {
-			this.preferences.line_delimiter = lineSeparator;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
-		
-		String result = this.newCodeFormatter.format(source, positions, bodyDeclarations);
-		if (positions != null) {
-			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
-		}
-		return result;
+		return internalFormatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options, bodyDeclarations);
 	}
 
 	private String formatCompilationUnit(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
@@ -267,6 +281,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		if (positions != null) {
 			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
 		}
+		this.positionsMapping = positions;
 		return result;
 	}
 
@@ -275,8 +290,48 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		
 		if (expression == null) {
 			// a problem occured while parsing the source
+			this.positionsMapping = positions;
 			return source;
 		}
+		return internalFormatExpression(source, indentationLevel, positions, lineSeparator, options, expression);
+	}
+
+	private String formatStatements(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
+		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
+		
+		if (constructorDeclaration.statements == null) {
+			// a problem occured while parsing the source
+			this.positionsMapping = positions;
+			return source;
+		}
+		return internalFormatStatements(source, indentationLevel, positions, lineSeparator, options, constructorDeclaration);
+	}
+
+	public String getDebugOutput() {
+		return this.newCodeFormatter.scribe.toString();
+	}
+	
+	public int[] getMappedPositions() {
+		return this.positionsMapping;
+	}
+
+	private String internalFormatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator, Map options, AstNode[] bodyDeclarations) {
+		if (lineSeparator != null) {
+			this.preferences.line_delimiter = lineSeparator;
+		}
+		this.preferences.initial_indentation_level = indentationLevel;
+
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
+		
+		String result = this.newCodeFormatter.format(source, positions, bodyDeclarations);
+		if (positions != null) {
+			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
+		}
+		this.positionsMapping = positions;
+		return result;
+	}
+
+	private String internalFormatExpression(String source, int indentationLevel, int[] positions, String lineSeparator, Map options, Expression expression) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
@@ -288,16 +343,11 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		if (positions != null) {
 			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
 		}
+		this.positionsMapping = positions;
 		return result;
 	}
-
-	private String formatStatements(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
-		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
-		
-		if (constructorDeclaration.statements == null) {
-			// a problem occured while parsing the source
-			return source;
-		}
+	
+	private String internalFormatStatements(String source, int indentationLevel, int[] positions, String lineSeparator, Map options, ConstructorDeclaration constructorDeclaration) {
 		if (lineSeparator != null) {
 			this.preferences.line_delimiter = lineSeparator;
 		}
@@ -309,14 +359,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		if (positions != null) {
 			System.arraycopy(this.newCodeFormatter.scribe.mappedPositions, 0, positions, 0, positions.length);
 		}
+		this.positionsMapping = positions;
 		return result;
-	}
-	
-	public String getDebugOutput() {
-		return this.newCodeFormatter.scribe.toString();
-	}
-	
-	public int[] getMappedPositions() {
-		return this.positionsMapping;
 	}
 }
