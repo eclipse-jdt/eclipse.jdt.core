@@ -82,7 +82,7 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 						return IClasspathContainer.K_APPLICATION;
 					}
 					public IPath getPath() {
-						return new Path("org.eclipse.jdt.core.tests.model/TEST_CONTAINER");
+						return new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
 					}
 				}
 			);
@@ -259,6 +259,50 @@ public void testVariableInitializer6() throws CoreException {
 			varValue,
 			path);
 	} finally {
+		VariablesInitializer.reset();
+	}
+}
+public void testVariableInitializer7() throws CoreException {
+	try {
+		this.createProject("P1");
+		this.createFile("/P1/lib.jar", "");
+		this.createFile("/P1/src.zip", "");
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
+			"TEST_LIB", "/P1/lib.jar",
+			"TEST_SRC", "/P1/src.zip",
+			"TEST_ROOT", "src",
+		}));
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+
+		// change value of TEST_LIB
+		this.createFile("/P1/lib2.jar", "");
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {
+			"TEST_LIB", "/P1/lib2.jar",
+			"TEST_SRC", "/P1/src.zip",
+			"TEST_ROOT", "src",
+		}));
+
+		// simulate state on startup (flush variables, and preserve their previous values)
+		JavaModelManager.PreviousSessionVariables = JavaModelManager.Variables;
+		JavaModelManager.Variables = new HashMap(5);
+		JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject)p2);
+		p2.close();
+		
+		startDeltas();
+		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
+		p2.getResolvedClasspath(true);
+		
+		assertDeltas(
+			"Unexpected delta on startup", 
+			"P2[*]: {CHILDREN}\n" + 
+			"	lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	lib2.jar[*]: {ADDED TO CLASSPATH}"
+		);
+	} finally {
+		//JavaModelManager.CP_RESOLVE_VERBOSE=false;		
+		this.startDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 		VariablesInitializer.reset();
 	}
 }
