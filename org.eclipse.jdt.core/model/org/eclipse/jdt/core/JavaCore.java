@@ -2179,6 +2179,7 @@ public final class JavaCore extends Plugin {
 	 * @return the list of shared working copies for a given buffer factory
 	 * @see IWorkingCopy
 	 * @since 2.0
+	 * @deprecated - should use #getWorkingCopies(WorkingCopyOwner) instead
 	 */
 	public static IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
 		
