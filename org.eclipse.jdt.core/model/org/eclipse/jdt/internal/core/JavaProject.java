@@ -55,7 +55,7 @@ public class JavaProject
 	extends Openable
 	implements IJavaProject, IProjectNature {
 
-	/**
+/**
 	 * An empty array of strings indicating that a project doesn't have any prerequesite projects.
 	 */
 	protected static final String[] NO_PREREQUISITES = new String[0];
@@ -1886,6 +1886,36 @@ public class JavaProject
 		}
 	}
 
+		/**
+	 * Possible failures: <ul>
+	 *  <li>NAME_COLLISION - two entries specify the same path.
+	 *  <li>INVALID_PATH - a CPE_PROJECT entry has been specified referring to this project
+	 * </ul>
+	 */
+	protected IJavaModelStatus verifyClasspath(IClasspathEntry[] classpath) {
+
+		if (classpath != null) {
+			int entryCount = classpath.length;
+			for (int i = 0; i < entryCount; i++) {
+				IClasspathEntry entry = classpath[i];
+				inner : for (int j = 0; j < entryCount; j++) {
+					if (i == j) {
+						continue inner;
+					}
+					if (JavaConventions
+						.isOverlappingRoots(entry.getPath(), classpath[j].getPath())) {
+						return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
+					}
+				}
+				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
+					&& entry.getPath().equals(getProject().getFullPath())) {
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH);
+				}
+			}
+		}
+		return JavaModelStatus.VERIFIED_OK;
+	}
+	
 	/**
 	 * NOTE: <code>null</code> specifies default classpath, and an empty
 	 * array specifies an empty classpath.
