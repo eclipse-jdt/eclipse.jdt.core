@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -103,7 +104,13 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		setupConverterJCL();
 		ast = new AST();
 		setUpJavaProject("Converter"); //$NON-NLS-1$
-		setUpJavaProject("Converter15"); //$NON-NLS-1$
+		
+		Map options = JavaCore.getDefaultOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		
+		setUpJavaProject("Converter15", options); //$NON-NLS-1$
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
 			JavaCore.setClasspathVariables(
@@ -113,6 +120,12 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		}		
 	}
 
+	protected IJavaProject setUpJavaProject(final String projectName, Map options) throws CoreException, IOException {
+		IJavaProject javaProject = setUpJavaProject(projectName);
+		javaProject.setOptions(options);
+		return javaProject;
+	}
+	
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
 		return runConversion(AST.LEVEL_2_0, unit, resolveBindings);
 	}
