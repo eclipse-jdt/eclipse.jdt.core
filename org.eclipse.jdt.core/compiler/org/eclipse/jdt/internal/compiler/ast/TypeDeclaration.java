@@ -48,8 +48,8 @@ public class TypeDeclaration
 	protected boolean hasBeenGenerated = false;
 	public CompilationResult compilationResult;
 	private MethodDeclaration[] missingAbstractMethods;
-	public Javadoc javadoc;
-	
+	public Javadoc javadoc;	
+
 	public QualifiedAllocationExpression allocation; // for anonymous only
 	public TypeDeclaration enclosingType; // for member types only
 	

@@ -3031,7 +3031,6 @@ protected void consumeInterfaceHeaderName() {
 		blockReal();
 	}
 
-
 	//highlight the name of the type
 	long pos = identifierPositionStack[identifierPtr];
 	typeDecl.sourceEnd = (int) pos;
@@ -5376,7 +5375,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault));
-	
+
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
 	} else {
@@ -8176,7 +8175,7 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	if(isDietParse) {
 		TypeDeclaration[] types = this.compilationUnit.types;
 		
-		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.Util.computeDietRange(types);
+		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.RangeUtil.computeDietRange(types);
 		DiagnoseParser diagnoseParser = new DiagnoseParser(this, oldFirstToken, start, end, intervalToSkip[0], intervalToSkip[1], intervalToSkip[2]);
 		diagnoseParser.diagnoseParse();
 		
