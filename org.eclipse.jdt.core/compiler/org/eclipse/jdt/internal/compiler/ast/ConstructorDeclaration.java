@@ -39,7 +39,11 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		if (ignoreFurtherInvestigation)
 			return;
 
-		if (!isDefaultConstructor && this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
+		if (!isDefaultConstructor 
+				&& this.arguments != null // no complaint for no-arg constructors
+				&& this.arguments.length > 0 // known patterns to block instantiation
+				&& this.binding.isPrivate() 
+				&& !this.binding.isPrivateUsed()) {
 			if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
 				scope.problemReporter().unusedPrivateConstructor(this);
 			}

@@ -385,6 +385,17 @@ public void test59() {
 	assertTrue("Path pattern matching failure",
 		!CharOperation.pathMatch("**".toCharArray(), "/hello/hello".toCharArray(), true, '/'));
 }
+public void test60() {
+
+	assertTrue("Path pattern matching failure-1",
+		!CharOperation.pathMatch("/P/src".toCharArray(), "/P/src/X".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-2",
+		!CharOperation.pathMatch("/P/**/src".toCharArray(), "/P/src/X".toCharArray(), true, '/'));
+	assertTrue("Path pattern matching failure-3",
+		CharOperation.pathMatch("/P/src".toCharArray(), "/P/src".toCharArray(), true, '/'));
+		
+}
+
 public static Class testClass() {
 	return UtilTest.class;
 }

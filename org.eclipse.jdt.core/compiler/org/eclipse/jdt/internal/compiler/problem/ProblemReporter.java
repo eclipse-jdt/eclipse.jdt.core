@@ -494,6 +494,7 @@ public int computeSeverity(int problemId){
 			return Ignore;
 
 		case IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod :
+		case IProblem.IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod :
 			if ((errorThreshold & CompilerOptions.IncompatibleNonInheritedInterfaceMethod) != 0){
 				return Error;
 			}
@@ -1301,11 +1302,18 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 	this.handle(id, arguments, arguments, importRef.sourceStart, importRef.sourceEnd);
 }
 public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBinding currentMethod, MethodBinding inheritedMethod, ReferenceBinding exceptionType) {
-	if (type == currentMethod.declaringClass)
+	if (type == currentMethod.declaringClass) {
+		int id;
+		if (currentMethod.declaringClass.isInterface() 
+				&& !inheritedMethod.isPublic()){ // interface inheriting Object protected method
+			id = IProblem.IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod;
+		} else {
+			id = IProblem.IncompatibleExceptionInThrowsClause;
+		}
 		this.handle(
 			// Exception %1 is not compatible with throws clause in %2
 			// 9.4.4 - The type of exception in the throws clause is incompatible.
-			IProblem.IncompatibleExceptionInThrowsClause,
+			id,
 			new String[] {
 				new String(exceptionType.sourceName()),
 				new String(
@@ -1322,7 +1330,7 @@ public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBi
 						'.'))},
 			currentMethod.sourceStart(),
 			currentMethod.sourceEnd());
-	else	
+	} else	
 		this.handle(
 			// Exception %1 in throws clause of %2 is not compatible with %3
 			// 9.4.4 - The type of exception in the throws clause is incompatible.
@@ -1369,7 +1377,7 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 
 	int id;
 	if (currentMethod.declaringClass.isInterface() 
-			&& inheritedMethod.isProtected()){ // interface inheriting Object protected method
+			&& !inheritedMethod.isPublic()){ // interface inheriting Object protected method
 		id = IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod;
 	} else {
 		id = IProblem.IncompatibleReturnType;
