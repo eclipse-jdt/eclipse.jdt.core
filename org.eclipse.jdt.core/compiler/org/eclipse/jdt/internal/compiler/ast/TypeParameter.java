@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-/**
- * 
- */
 public class TypeParameter extends AbstractVariableDeclaration {
 
 	public TypeReference[] bounds;
@@ -51,6 +49,37 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 		return output;
 	}
+	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
+	
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (type != null) {
+				type.traverse(visitor, scope);
+			}
+			if (bounds != null) {
+				int boundsLength = this.bounds.length;
+				for (int i = 0; i < boundsLength; i++) {
+					this.bounds[i].traverse(visitor, scope);
+				}
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (type != null) {
+				type.traverse(visitor, scope);
+			}
+			if (bounds != null) {
+				int boundsLength = this.bounds.length;
+				for (int i = 0; i < boundsLength; i++) {
+					this.bounds[i].traverse(visitor, scope);
+				}
+			}
+		}
+		visitor.endVisit(this, scope);
+	}	
 }

@@ -207,6 +207,11 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(LocalDeclaration localDeclaration, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(
+		LocalTypeDeclaration localTypeDeclaration,
+		BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(LongLiteral longLiteral, BlockScope scope) {
 		// do nothing by default
 	}
@@ -312,10 +317,26 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		CompilationUnitScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(
+		TypeParameter typeParameter,
+		BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+		TypeParameter typeParameter,
+		ClassScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(UnaryExpression unaryExpression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(Wildcard wildcard, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(Wildcard wildcard, ClassScope scope) {
 		// do nothing by default
 	}
 	public boolean visit(
@@ -503,6 +524,11 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
+	public boolean visit(
+		LocalTypeDeclaration localTypeDeclaration,
+		BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
 	public boolean visit(LongLiteral longLiteral, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -608,20 +634,26 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		CompilationUnitScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
+	public boolean visit(
+		TypeParameter typeParameter,
+		BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}	
+	public boolean visit(
+		TypeParameter typeParameter,
+		ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}	
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(
-		LocalTypeDeclaration localTypeDeclaration,
-		BlockScope scope) {
+	public boolean visit(Wildcard wildcard, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public void endVisit(
-		LocalTypeDeclaration localTypeDeclaration,
-		BlockScope scope) {
-		// do nothing by default
+	public boolean visit(Wildcard wildcard, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
 	}
 }

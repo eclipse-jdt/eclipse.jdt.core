@@ -1556,8 +1556,12 @@ protected void consumeClassHeaderNameWithTypeParameters() {
 		blockReal();
 	}
 
-	// TODO consume type parameters
-	astPtr-= astLengthStack[astLengthPtr--];
+	// consume type parameters
+	int length = astLengthStack[astLengthPtr--];
+	astPtr-= length;
+	System.arraycopy(astStack, astPtr + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
+	
+	
 	//highlight the name of the type
 	long pos = identifierPositionStack[identifierPtr];
 	typeDecl.sourceEnd = (int) pos;
@@ -1845,15 +1849,17 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 	}
 	
 	// ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
-	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
+	ParameterizedConstructorDeclaration cd = new ParameterizedConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = identifierStack[identifierPtr];
 	long selectorSource = identifierPositionStack[identifierPtr--];
 	identifierLengthPtr--;
 
-	// TODO consume type parameters
-	astPtr-= astLengthStack[astLengthPtr--];
+	// consume type parameters
+	int length = astLengthStack[astLengthPtr--];
+	astPtr-= length;
+	System.arraycopy(astStack, astPtr + 1, cd.typeParameters = new TypeParameter[length], 0, length);
 	
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
@@ -2960,7 +2966,7 @@ protected void consumeMethodHeaderName() {
 }
 protected void consumeMethodHeaderNameWithTypeParameters() {
 	// MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
-	MethodDeclaration md = new MethodDeclaration(this.compilationUnit.compilationResult);
+	ParameterizedMethodDeclaration md = new ParameterizedMethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
 	md.selector = identifierStack[identifierPtr];
@@ -2969,8 +2975,10 @@ protected void consumeMethodHeaderNameWithTypeParameters() {
 	//type
 	md.returnType = getTypeReference(intStack[intPtr--]);
 	
-	// TODO consume type parameters
-	astPtr-= astLengthStack[astLengthPtr--];
+	// consume type parameters
+	int length = astLengthStack[astLengthPtr--];
+	astPtr-= length;
+	System.arraycopy(astStack, astPtr + 1, md.typeParameters = new TypeParameter[length], 0, length);
 	
 	//modifiers
 	md.declarationSourceStart = intStack[intPtr--];
@@ -5830,42 +5838,42 @@ protected void consumeWildcard3WithBounds() {
 }
 protected void consumeWildcardBounds1Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) astStack[astPtr];
 	astStack[astPtr] = wildcard;
 }
 protected void consumeWildcardBounds1Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) astStack[astPtr];
 	astStack[astPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) astStack[astPtr];
 	astStack[astPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) astStack[astPtr];
 	astStack[astPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Extends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) astStack[astPtr];
 	astStack[astPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Super() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.typeReference = (TypeReference) astStack[astPtr];
+	wildcard.type = (TypeReference) astStack[astPtr];
 	astStack[astPtr] = wildcard;
 }
 protected void consumeWildcardBoundsExtends() {
 	Wildcard wildcard = new Wildcard(false);
-	wildcard.typeReference = getTypeReference(0);
+	wildcard.type = getTypeReference(0);
 	pushOnAstStack(wildcard);
 }
 protected void consumeWildcardBoundsSuper() {
 	Wildcard wildcard = new Wildcard(true);
-	wildcard.typeReference = getTypeReference(0);
+	wildcard.type = getTypeReference(0);
 	pushOnAstStack(wildcard);
 }
 protected void consumeWildcardWithBounds() {

@@ -101,8 +101,12 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(TrueLiteral trueLiteral, BlockScope scope);
 	void endVisit(TryStatement tryStatement, BlockScope scope);
 	void endVisit(TypeDeclaration typeDeclaration, CompilationUnitScope scope);
+	void endVisit(TypeParameter typeParameter, BlockScope scope);
+	void endVisit(TypeParameter typeParameter, ClassScope scope);
 	void endVisit(UnaryExpression unaryExpression, BlockScope scope);
 	void endVisit(WhileStatement whileStatement, BlockScope scope);
+	void endVisit(Wildcard wildcard, BlockScope scope);
+	void endVisit(Wildcard wildcard, ClassScope scope);
 	boolean visit(AllocationExpression allocationExpression, BlockScope scope);
 	boolean visit(AND_AND_Expression and_and_Expression, BlockScope scope);
 	boolean visit(AnnotationArgumentExpression expression, BlockScope scope);
@@ -185,6 +189,10 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(TrueLiteral trueLiteral, BlockScope scope);
 	boolean visit(TryStatement tryStatement, BlockScope scope);
 	boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope);
+	boolean visit(TypeParameter typeParameter, BlockScope scope);
+	boolean visit(TypeParameter typeParameter, ClassScope scope);
 	boolean visit(UnaryExpression unaryExpression, BlockScope scope);
 	boolean visit(WhileStatement whileStatement, BlockScope scope);
+	boolean visit(Wildcard wildcard, BlockScope scope);
+	boolean visit(Wildcard wildcard, ClassScope scope);
 }

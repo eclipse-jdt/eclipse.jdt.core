@@ -46,6 +46,8 @@ public class TypeDeclaration
 	public CompilationResult compilationResult;
 	private MethodDeclaration[] missingAbstractMethods;
 	public Annotation annotation;
+	
+	public TypeParameter[] typeParameters;
 
 	public TypeDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -907,6 +909,12 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, unitScope)) {
+				if (this.typeParameters != null) {
+					int typeParametersLength = this.typeParameters.length;
+					for (int i = 0; i < typeParametersLength; i++) {
+						this.typeParameters[i].traverse(visitor, scope);
+					}
+				}
 				if (superclass != null)
 					superclass.traverse(visitor, scope);
 				if (superInterfaces != null) {

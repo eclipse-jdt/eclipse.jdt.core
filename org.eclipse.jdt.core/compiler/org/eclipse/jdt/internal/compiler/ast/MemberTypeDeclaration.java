@@ -30,6 +30,12 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope) 
 		return;
 	try {
 		if (visitor.visit(this, classScope)) {
+			if (this.typeParameters != null) {
+				int typeParametersLength = this.typeParameters.length;
+				for (int i = 0; i < typeParametersLength; i++) {
+					this.typeParameters[i].traverse(visitor, scope);
+				}
+			}
 			if (superclass != null)
 				superclass.traverse(visitor, scope);
 			if (superInterfaces != null) {

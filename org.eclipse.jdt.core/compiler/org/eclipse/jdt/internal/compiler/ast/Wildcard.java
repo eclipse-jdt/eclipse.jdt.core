@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+
 /**
  * @author oliviert
  *
@@ -18,7 +22,7 @@ package org.eclipse.jdt.internal.compiler.ast;
  */
 public class Wildcard extends SingleTypeReference {
 
-	public TypeReference typeReference;
+	public TypeReference type;
 	boolean isSuper;
 	/**
 	 * @param source
@@ -31,14 +35,30 @@ public class Wildcard extends SingleTypeReference {
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		output.append('?');
-		if (this.typeReference != null) {
+		if (this.type != null) {
 			if (this.isSuper) {
 				output.append(" super "); //$NON-NLS-1$
 			} else {
 				output.append(" extends "); //$NON-NLS-1$
 			}
-			this.typeReference.printExpression(0, output);
+			this.type.printExpression(0, output);
 		}
 		return output;
 	}	
+
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+		visitor.visit(this, scope);
+		if (this.type != null) {
+			this.type.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
+	}
+
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope scope) {
+		visitor.visit(this, scope);
+		if (this.type != null) {
+			this.type.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
+	}
 }

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+
 public class ParameterizedExplicitConstructorCall extends ExplicitConstructorCall {
 
 	public TypeReference[] typeArguments;
@@ -19,7 +22,22 @@ public class ParameterizedExplicitConstructorCall extends ExplicitConstructorCal
 	 */
 	public ParameterizedExplicitConstructorCall(int accessMode) {
 		super(accessMode);
-		// TODO Auto-generated constructor stub
 	}
 
+	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.qualification != null) {
+				this.qualification.traverse(visitor, scope);
+			}
+			for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+				this.typeArguments[i].traverse(visitor, scope);
+			}
+			if (this.arguments != null) {
+				for (int i = 0, argumentLength = this.arguments.length; i < argumentLength; i++) {
+					this.arguments[i].traverse(visitor, scope);
+				}
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
 }
