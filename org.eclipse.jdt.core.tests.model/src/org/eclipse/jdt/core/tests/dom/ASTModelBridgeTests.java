@@ -165,6 +165,43 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
+	 * (regression test for bug 78757 MethodBinding.getJavaElement() returns null)
+	 */
+	public void testMethod3() throws JavaModelException {
+		ICompilationUnit otherWorkingCopy = null;
+		try {
+			otherWorkingCopy = getWorkingCopy(
+				"/P/Y.java",
+				"public class Y {\n" +
+				"  void foo(int i, String[] args, java.lang.Class clazz) {}\n" +
+				"}",
+				this.workingCopy.getOwner(), 
+				null
+			);
+			ASTNode node = buildAST(
+				"public class X {\n" +
+				"  void bar() {\n" +
+				"    Y y = new Y();\n" +
+				"    /*start*/y.foo(1, new String[0], getClass())/*end*/;\n" +
+				"  }\n" +
+				"}"
+			);
+			IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
+			assertNotNull("No binding", binding);
+			IJavaElement element = binding.getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"foo(int, String[], java.lang.Class) [in Y [in [Working copy] Y.java [in <default> [in <project root> [in P]]]]]",
+				element
+			);
+			assertTrue("Element should exist", element.exists());
+		} finally {
+			if (otherWorkingCopy != null)
+				otherWorkingCopy.discardWorkingCopy();
+		}
+	}
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */
 	public void testAnonymousType() throws JavaModelException {

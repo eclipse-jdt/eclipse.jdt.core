@@ -226,7 +226,7 @@ public boolean isMainMethod() throws JavaModelException {
  */
 public boolean isSimilar(IMethod method) {
 	return 
-		this.areSimilarMethods(
+		areSimilarMethods(
 			this.getElementName(), this.getParameterTypes(),
 			method.getElementName(), method.getParameterTypes(),
 			null);

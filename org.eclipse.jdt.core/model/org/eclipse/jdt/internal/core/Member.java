@@ -36,7 +36,7 @@ public abstract class Member extends SourceRefElement implements IMember {
 protected Member(JavaElement parent) {
 	super(parent);
 }
-protected boolean areSimilarMethods(
+protected static boolean areSimilarMethods(
 	String name1, String[] params1, 
 	String name2, String[] params2,
 	String[] simpleNames1) {
@@ -103,7 +103,7 @@ protected boolean equalsDOMNode(IDOMNode node) {
 /*
  * Helper method for SourceType.findMethods and BinaryType.findMethods
  */
-protected IMethod[] findMethods(IMethod method, IMethod[] methods) {
+public static IMethod[] findMethods(IMethod method, IMethod[] methods) {
 	String elementName = method.getElementName();
 	String[] parameters = method.getParameterTypes();
 	int paramLength = parameters.length;
@@ -114,7 +114,7 @@ protected IMethod[] findMethods(IMethod method, IMethod[] methods) {
 	ArrayList list = new ArrayList();
 	next: for (int i = 0, length = methods.length; i < length; i++) {
 		IMethod existingMethod = methods[i];
-		if (this.areSimilarMethods(
+		if (areSimilarMethods(
 				elementName,
 				parameters,
 				existingMethod.getElementName(),

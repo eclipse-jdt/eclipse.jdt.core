@@ -168,7 +168,7 @@ protected boolean equalsDOMNode(IDOMNode node) {
  */
 public IMethod[] findMethods(IMethod method) {
 	try {
-		return this.findMethods(method, this.getMethods());
+		return findMethods(method, getMethods());
 	} catch (JavaModelException e) {
 		// if type doesn't exist, no matching method can exist
 		return null;

@@ -15,11 +15,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.core.Member;
 
 /**
  * Internal implementation of method bindings.
@@ -193,26 +197,47 @@ class MethodBinding implements IMethodBinding {
 		return this.exceptionTypes;
 	}
 
-	/*
-	 * @see IBinding#getJavaElement()
-	 */
 	public IJavaElement getJavaElement() {
 		IType declaringType = (IType) getDeclaringClass().getJavaElement();
 		if (declaringType == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-		MethodDeclaration method = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
-		if (method == null) return null;
-		ArrayList parameterSignatures = new ArrayList();
-		Iterator iterator = method.parameters().iterator();
-		while (iterator.hasNext()) {
-			SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
-			Type type = parameter.getType();
-			parameterSignatures.add(getSignature(type));
+		MethodDeclaration methodDeclaration = (MethodDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
+		if (methodDeclaration != null) {
+			ArrayList parameterSignatures = new ArrayList();
+			Iterator iterator = methodDeclaration.parameters().iterator();
+			while (iterator.hasNext()) {
+				SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
+				Type type = parameter.getType();
+				parameterSignatures.add(getSignature(type));
+			}
+			int parameterCount = parameterSignatures.size();
+			String[] parameters = new String[parameterCount];
+			parameterSignatures.toArray(parameters);
+			return declaringType.getMethod(getName(), parameters);
+		} else {
+			// case of method not in the created AST
+			String selector = getName();
+			char[] methodSignature = this.binding.genericSignature();
+			if (methodSignature == null)
+				methodSignature = this.binding.signature();
+			methodSignature = CharOperation.replaceOnCopy(methodSignature, '/', '.');
+			char[][] parameterSignatures = Signature.getParameterTypes(methodSignature);
+			String[] parameters = CharOperation.toStrings(parameterSignatures);
+			IMethod result = declaringType.getMethod(selector, parameters);
+			if (declaringType.isBinary())
+				return result;
+			IMethod[] methods = null;
+			try {
+				methods = declaringType.getMethods();
+			} catch (JavaModelException e) {
+				// declaring type doesn't exist
+				return null;
+			}
+			IMethod[] candidates = Member.findMethods(result, methods);
+			if (candidates == null || candidates.length == 0)
+				return null;
+			return candidates[0];
 		}
-		int parameterCount = parameterSignatures.size();
-		String[] parameters = new String[parameterCount];
-		parameterSignatures.toArray(parameters);
-		return declaringType.getMethod(getName(), parameters);
 	}
 	
 	/*
