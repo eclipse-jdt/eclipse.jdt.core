@@ -676,7 +676,10 @@ protected boolean isOnClasspath() {
 }
 
 protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
-	if (!this.resourceExists() || !this.isOnClasspath()) throw newNotPresentException();
+	if (!this.resourceExists() 
+			|| !this.isOnClasspath()) {
+		throw newNotPresentException();
+	}
 	super.openWhenClosed(pm);
 	try {
 		//restore any stored attached source
