@@ -2899,6 +2899,7 @@ class ASTConverter {
 						}
 						if (this.resolveBindings) {
 							this.recordNodes(simpleName, typeReference);
+							this.recordNodes(simpleType, typeReference);
 						}
 				}
 			} else {

@@ -85,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0077"));
+		suite.addTest(new ASTConverter15Test("test0071"));
 		return suite;
 	}
 		
@@ -2003,7 +2003,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78930
 	 */
-	public void _test0071() throws JavaModelException {
+	public void test0071() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0071", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -2020,7 +2020,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 1, typeBindings.length);
 		ITypeBinding typeBinding = typeBindings[0];
 		IJavaElement javaElement = typeBinding.getJavaElement();
-		assertNull("No java element", javaElement);
+		assertNotNull("No java element", javaElement);
 	}
 	
 	/**
@@ -2105,7 +2105,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77806
 	 */
-	public void _test0073() throws JavaModelException {
+	public void test0073() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0073", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -2119,21 +2119,24 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized type", type.isParameterizedType());
 		assertNotNull("No binding", type.resolveBinding());
 		ParameterizedType parameterizedType = (ParameterizedType) type;
+		ITypeBinding binding = parameterizedType.resolveBinding();
+		assertNotNull("No binding", binding);
 		Type type2 = parameterizedType.getType();
 		assertTrue("Not a simple type", type2.isSimpleType());
-		final ITypeBinding binding = type2.resolveBinding();
-		assertNotNull("No binding", binding);
+		ITypeBinding binding2 = type2.resolveBinding();
+		assertNotNull("No binding", binding2);
 		SimpleType simpleType = (SimpleType) type2;
 		Name name = simpleType.getName();
 		assertTrue("Not a simpleName", name.isSimpleName());
 		SimpleName simpleName = (SimpleName) name;
-		ITypeBinding binding2 = simpleName.resolveTypeBinding();
-		assertNotNull("No binding", binding2);
+		ITypeBinding binding3 = simpleName.resolveTypeBinding();
+		assertNotNull("No binding", binding3);
+		assertTrue("Different binding", binding3.isEqualTo(binding));
 		assertTrue("Different binding", binding2.isEqualTo(binding));
 	}
 	
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77806
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
 	 */
 	public void _test0074() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0074", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
