@@ -5156,4 +5156,56 @@ public void test75() {
 		expectedUnitToString, 
 		currentType.toString()); 
 }
+public void test76() {
+
+	String s = 
+		"class X {\n" + 
+		"  public static int j = 0;\n" + 
+		"  /* static */ {\n" +  
+		"  }" +  
+		"  public static int i = 9;\n" +  
+		"}\n"; 
+
+	String expectedUnitToString = 
+		"class X {\n" +
+		"	public static int j;\n" +
+		"	{}\n" +
+		"	public static int i;\n" +
+		"	java.lang.Object(0)\n" +
+		"}"; 
+
+	String testName = "test01: full parse";
+	fullParse(s,testName);
+
+	assertEquals(
+		"Invalid class declarationSourceStart ", 
+		0, 
+		currentType.getDeclarationSourceStart()); 
+
+	assertEquals(
+		"Invalid class declarationSourceEnd ", 
+		84, 
+		currentType.getDeclarationSourceEnd()); 
+
+	SourceField[] fields = currentType.getFields();
+	assertTrue("invalid fields ", fields != null);
+	assertEquals("Invalid fields length ", 3, fields.length);
+
+	assertEquals("Invalid declaration source start for field j", 12, fields[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for field j", 35, fields[0].getDeclarationSourceEnd());
+
+	assertEquals("Invalid declaration source start for initializer", 39, fields[1].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for initializer", 56, fields[1].getDeclarationSourceEnd());
+
+	assertEquals("Invalid declaration source start for field i", 59, fields[2].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end field i", 82, fields[2].getDeclarationSourceEnd());
+	
+	SourceMethod[] methods = currentType.getMethods();
+	assertTrue(" invalid methods ", methods == null);
+	
+	assertEquals(
+		"Invalid source " + testName, 
+		expectedUnitToString, 
+		currentType.toString()); 
+}
 }
