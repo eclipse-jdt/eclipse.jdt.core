@@ -1677,21 +1677,12 @@ public class BinaryExpression extends OperatorExpression {
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
 		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
-		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
 			if (!leftType.isBaseType() && rightTypeID != T_JavaLangString && rightTypeID != T_null) {
-				int unboxedID = env.computeBoxingType(leftType).id;
-				if (unboxedID != leftTypeID) {
-					leftTypeID = unboxedID;
-					unboxedLeft = true;
-				}
+				leftTypeID = env.computeBoxingType(leftType).id;
 			}
 			if (!rightType.isBaseType() && leftTypeID != T_JavaLangString && leftTypeID != T_null) {
-				int unboxedID = env.computeBoxingType(rightType).id;
-				if (unboxedID != rightTypeID) {
-					rightTypeID = unboxedID;
-					unboxedRight = true;
-				}
+				rightTypeID = env.computeBoxingType(rightType).id;
 			}
 		}
 		if (leftTypeID > 15
@@ -1730,9 +1721,9 @@ public class BinaryExpression extends OperatorExpression {
 		// On the one hand when it is not zero (correct code) we avoid doing the test	
 		int operator = (bits & OperatorMASK) >> OperatorSHIFT;
 		int operatorSignature = OperatorSignatures[operator][(leftTypeID << 4) + rightTypeID];
-		left.implicitConversion = (unboxedLeft ? UNBOXING : 0) | (operatorSignature >>> 12);
-		right.implicitConversion = (unboxedRight ? UNBOXING : 0) | ((operatorSignature >>> 4) & 0xFF);
 
+		left.computeConversion(	scope, 	TypeBinding.wellKnownType(scope, (operatorSignature >>> 16) & 0x0000F), leftType);
+		right.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 8) & 0x0000F), rightType);
 		bits |= operatorSignature & 0xF;
 		switch (operatorSignature & 0xF) { // record the current ReturnTypeID
 			// only switch on possible result type.....
