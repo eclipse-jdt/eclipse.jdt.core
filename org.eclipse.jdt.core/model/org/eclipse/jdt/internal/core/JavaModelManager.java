@@ -1148,7 +1148,8 @@ public void saving(ISaveContext context) throws CoreException {
 	 */
 	public static String[] getOptionIDs(){
 		if(fOptionIDs == null)
-			return new String[0];
+			JavaCore.resetOptions();
+			
 		return (String [])fOptionIDs.toArray(new String[0]);
 	}
 	
