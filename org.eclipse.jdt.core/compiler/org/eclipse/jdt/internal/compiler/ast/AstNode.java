@@ -40,8 +40,8 @@ public abstract class AstNode  implements BaseTypes, CompilerModifiers, TypeCons
 	// for type declaration only
 	public static final int AddAssertionMASK = 1; // lowest bit
 
-	// for method and field declarations only
-	public static final int HasLocalTypeMASK = 1; // lowest bit
+	// for type, method and field declarations only
+	public static final int HasLocalTypeMASK = 2; // cannot conflict with AddAssertionMASK
 
 	/*
 	public final static int BitMask1= 0x1; // decimal 1

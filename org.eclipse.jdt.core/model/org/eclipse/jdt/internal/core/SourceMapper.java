@@ -161,16 +161,6 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void acceptInitializer(
-		int modifiers,
-		int declarationSourceStart,
-		int declarationSourceEnd) {
-		//do nothing
-	}
-	
-	/**
-	 * @see ISourceElementRequestor
-	 */
 	public void acceptLineSeparatorPositions(int[] positions) {
 		//do nothing
 	}
@@ -310,6 +300,15 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	public void enterInitializer(
+		int declarationSourceStart,
+		int modifiers) {
+		//do nothing
+	}
+	
+	/**
+	 * @see ISourceElementRequestor
+	 */
 	public void enterInterface(
 		int declarationStart,
 		int modifiers,
@@ -395,6 +394,12 @@ public class SourceMapper
 				fMemberNameRange);
 			fMemberDeclarationStart = -1;
 		}
+	}
+	
+	/**
+	 * @see ISourceElementRequestor
+	 */
+	public void exitInitializer(int declarationEnd) {
 	}
 	
 	/**

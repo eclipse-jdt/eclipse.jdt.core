@@ -68,6 +68,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		astPtr--;
 		astLengthPtr--;
+
+		// mark fields and initializer with local type mark if needed
+		markFieldsWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected void consumeClassDeclaration() {

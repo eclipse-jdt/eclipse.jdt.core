@@ -270,7 +270,9 @@ private void reportMatching(FieldDeclaration field, IJavaElement parent, TypeDec
 		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor();
 		localDeclarationVisitor.enclosingElement = 
 			(parent instanceof IType) ?
-				this.locator.createFieldHandle(field, (IType)parent) :
+				(field.isField() ?
+					(IJavaElement)this.locator.createFieldHandle(field, (IType)parent) :
+					(IJavaElement)this.locator.createInitializerHandle(type, field, (IType)parent)) :
 				parent;
 		try {
 			field.traverse(localDeclarationVisitor, (BlockScope)null);

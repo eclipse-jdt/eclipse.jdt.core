@@ -367,10 +367,14 @@ public void searchAllTypeNames(
 	
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
 		public void acceptClassDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] packageName) {
-			nameRequestor.acceptClass(packageName, simpleTypeName, enclosingTypeNames, resourcePath);
+			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) { // filter out local and anonymous classes
+				nameRequestor.acceptClass(packageName, simpleTypeName, enclosingTypeNames, resourcePath);
+			}
 		}		
 		public void acceptInterfaceDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] packageName) {
-			nameRequestor.acceptInterface(packageName, simpleTypeName, enclosingTypeNames, resourcePath);
+			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) { // filter out local and anonymous classes
+				nameRequestor.acceptInterface(packageName, simpleTypeName, enclosingTypeNames, resourcePath);
+			}
 		}		
 	};
 

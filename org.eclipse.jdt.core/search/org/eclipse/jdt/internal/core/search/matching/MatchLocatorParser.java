@@ -184,7 +184,7 @@ private void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit) 
 		for (int i = 0; i < fields.length; i++) {
 			FieldDeclaration field = fields[i];
 			if (field instanceof Initializer) { // initializer block
-				this.parse((Initializer)field, type, unit);					
+				this.parse((Initializer)field, type, unit);		
 			}
 			field.traverse(localDeclarationVisitor, null);
 		}

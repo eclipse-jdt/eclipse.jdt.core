@@ -419,8 +419,6 @@ public String[] getFileTypes() {
 private void indexClassFile(byte[] contents, char[] documentName) throws IOException {
 	try {
 		ClassFileReader reader = new ClassFileReader(contents, documentName);
-		// we don't want to index local and anonymous classes
-		if (reader.isLocal() || reader.isAnonymous()) return;
 
 		int[] constantPoolOffsets = reader.getConstantPoolOffsets();
 
@@ -438,15 +436,23 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 		}
 		char[] enclosingTypeName = null;
 		if (reader.isNestedType()) {
-			name = reader.getInnerSourceName();
-			char[] fullEnclosingName = reader.getEnclosingTypeName();
-			int nameLength = fullEnclosingName.length - packageNameIndex - 1;
-			if (nameLength <= 0) {
-				// See PR 1GIR345: ITPJCORE:ALL - Indexer: NegativeArraySizeException
-				return;
+			if (reader.isAnonymous()) {
+				name = NO_CHAR;
+			} else {
+				name = reader.getInnerSourceName();
 			}
-			enclosingTypeName = new char[nameLength]; 
-			System.arraycopy(fullEnclosingName, packageNameIndex + 1, enclosingTypeName, 0, nameLength); 
+			if (reader.isLocal() || reader.isAnonymous()) {
+				enclosingTypeName = ONE_ZERO;
+			} else {
+				char[] fullEnclosingName = reader.getEnclosingTypeName();
+				int nameLength = fullEnclosingName.length - packageNameIndex - 1;
+				if (nameLength <= 0) {
+					// See PR 1GIR345: ITPJCORE:ALL - Indexer: NegativeArraySizeException
+					return;
+				}
+				enclosingTypeName = new char[nameLength]; 
+				System.arraycopy(fullEnclosingName, packageNameIndex + 1, enclosingTypeName, 0, nameLength);
+			}
 		}
 		// eliminate invalid innerclasses (1G4KCF7)
 		if (name == null) return;

@@ -75,7 +75,11 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	decodedSimpleName = CharOperation.subarray(word, slash+1, slash = CharOperation.indexOf(SEPARATOR, word, slash+1));
 
 	if (slash+1 < size){
-		decodedEnclosingTypeNames = CharOperation.splitOn('/', CharOperation.subarray(word, slash+1, size-1));
+		if (slash+3 == size && word[slash+1] == ONE_ZERO[0]) {
+			decodedEnclosingTypeNames = ONE_ZERO_CHAR;
+		} else {
+			decodedEnclosingTypeNames = CharOperation.splitOn('/', CharOperation.subarray(word, slash+1, size-1));
+		}
 	} else {
 		decodedEnclosingTypeNames = NO_CHAR_CHAR;
 	}
@@ -113,7 +117,7 @@ public char[] indexEntryPrefix(){
  * @see SearchPattern#matchContainer()
  */
 protected int matchContainer() {
-	return COMPILATION_UNIT | CLASS;
+	return COMPILATION_UNIT | CLASS | METHOD | FIELD;
 }
 /**
  * @see SearchPattern#matchesBinary(Object, Object)

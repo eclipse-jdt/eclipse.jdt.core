@@ -1035,6 +1035,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		anonymousTypeDeclaration.declarationSourceEnd = endStatementPosition;
 		astPtr--;
 		astLengthPtr--;
+		
+		// mark fields and initializer with local type mark if needed
+		markFieldsWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected final void concatExpressionLists() {
@@ -1395,6 +1398,9 @@ protected void consumeClassDeclaration() {
 	}
 
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+
+	// mark fields and initializer with local type mark if needed
+	markFieldsWithLocalType(typeDecl);
 
 	//convert constructor that do not have the type's name into methods
 	boolean hasConstructor = typeDecl.checkConstructors(this);
@@ -2149,6 +2155,9 @@ protected void consumeInterfaceDeclaration() {
 	}
 
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
+	
+	// mark fields and initializer with local type mark if needed
+	markFieldsWithLocalType(typeDecl);
 
 	//convert constructor that do not have the type's name into methods
 	typeDecl.checkConstructors(this);
@@ -6020,6 +6029,9 @@ protected void ignoreInterfaceDeclaration() {
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
 	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
 
+	// mark fields and initializer with local type mark if needed
+	markFieldsWithLocalType(typeDecl);
+
 	// remove the ast node created in interface header
 	astPtr--;	
 	// Don't create an astnode for this inner interface, but have to push
@@ -6180,14 +6192,21 @@ protected void markCurrentMethodWithLocalType() {
 	for (int i = this.astPtr; i >= 0; i--) {
 		AstNode node = this.astStack[i];
 		if (node instanceof AbstractMethodDeclaration 
-				|| node instanceof FieldDeclaration) {
+				|| node instanceof TypeDeclaration) { // mark type for now: all fields will be marked when added to this type
 			node.bits |= AstNode.HasLocalTypeMASK;
 			return;
 		}
 	}
 	// default to reference context (case of parse method body)
-	if (this.referenceContext instanceof AbstractMethodDeclaration) {
+	if (this.referenceContext instanceof AbstractMethodDeclaration
+			|| this.referenceContext instanceof TypeDeclaration) {
 		((AstNode)this.referenceContext).bits |= AstNode.HasLocalTypeMASK;
+	}
+}
+protected void markFieldsWithLocalType(TypeDeclaration type) {
+	if (type.fields == null || (type.bits & AstNode.HasLocalTypeMASK) == 0) return;
+	for (int i = 0, length = type.fields.length; i < length; i++) {
+		type.fields[i].bits |= AstNode.HasLocalTypeMASK;
 	}
 }
 /*
@@ -6528,6 +6547,11 @@ public void parse(
 	}
 
 	ini.block = ((Initializer) astStack[astPtr]).block;
+	
+	// mark initializer with local type if one was found during parsing
+	if ((type.bits & AstNode.HasLocalTypeMASK) != 0) {
+		ini.bits |= AstNode.HasLocalTypeMASK;
+	}	
 }
 // A P I
 

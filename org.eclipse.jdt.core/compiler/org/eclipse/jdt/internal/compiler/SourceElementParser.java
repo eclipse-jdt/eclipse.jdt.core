@@ -764,11 +764,11 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 		requestor.exitField(fieldEndPosition);
 
 	} else {
-		requestor.acceptInitializer(
-			fieldDeclaration.modifiers, 
-			fieldDeclaration.declarationSourceStart, 
-			fieldDeclaration.declarationSourceEnd); 
-		this.visitIfNeeded(fieldDeclaration);
+		requestor.enterInitializer(
+			fieldDeclaration.declarationSourceStart,
+			fieldDeclaration.modifiers); 
+		this.visitIfNeeded((Initializer)fieldDeclaration);
+		requestor.exitInitializer(fieldDeclaration.declarationSourceEnd);
 	}
 }
 public void notifySourceElementRequestor(
@@ -1168,4 +1168,12 @@ private void visitIfNeeded(FieldDeclaration field) {
 	}
 }
 
+private void visitIfNeeded(Initializer initializer) {
+	if (this.localDeclarationVisitor != null 
+		&& (initializer.bits & AstNode.HasLocalTypeMASK) != 0) {
+			if (initializer.block != null) {
+				initializer.block.traverse(this.localDeclarationVisitor, null);
+			}
+	}
+}
 }
