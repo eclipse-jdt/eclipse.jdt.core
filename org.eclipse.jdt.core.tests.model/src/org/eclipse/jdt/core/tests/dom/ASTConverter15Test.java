@@ -95,8 +95,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0141"));
-		suite.addTest(new ASTConverter15Test("test0142"));
+		suite.addTest(new ASTConverter15Test("test0143"));
 		return suite;
 	}
 	
@@ -3951,6 +3950,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Wrong size", 1, parameters.size());
     	SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
     	assertTrue("Not a var args", singleVariableDeclaration.isVarargs());
+		assertTrue("Not a malformed node", isMalformed(singleVariableDeclaration));
     	Type type = singleVariableDeclaration.getType();
     	checkSourceRange(type, "String[]", contents);
     	assertTrue("Not an array type", type.isArrayType());

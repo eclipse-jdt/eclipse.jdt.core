@@ -683,6 +683,9 @@ class ASTConverter {
 		 */
 		if (isVarArgs) {
 			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions + 1);
+			if (extraDimensions != 0) {
+				variableDecl.setFlags(variableDecl.getFlags() | ASTNode.MALFORMED);
+			}
 		} else {
 			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions);
 		}
