@@ -72,7 +72,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					flowInfo.markAsDefinitelyAssigned(fieldBinding);
 					flowContext.recordSettingFinal(fieldBinding, this);						
 				} else {
-					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
+					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this, false);
 				}
 			}
 			break;

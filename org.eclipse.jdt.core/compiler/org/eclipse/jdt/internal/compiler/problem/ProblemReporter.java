@@ -225,9 +225,9 @@ public void cannotAllocateVoidArray(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void cannotAssignToFinalField(FieldBinding field, AstNode location) {
+public void cannotAssignToFinalField(FieldBinding field, AstNode location, boolean allowBlankFinalFieldAssignment) {
 	this.handle(
-		IProblem.FinalFieldAssignment,
+		!allowBlankFinalFieldAssignment ? IProblem.FinalFieldAssignment : IProblem.InvalidReferenceForFinalFieldAssignment,
 		new String[] {
 			(field.declaringClass == null ? "array" : new String(field.declaringClass.readableName())), //$NON-NLS-1$
 			new String(field.readableName())},

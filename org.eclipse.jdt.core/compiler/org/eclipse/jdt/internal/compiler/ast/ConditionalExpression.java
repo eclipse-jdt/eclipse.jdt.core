@@ -75,6 +75,15 @@ public class ConditionalExpression extends OperatorExpression {
 		} else {
 			// merge using a conditional info -  1GK2BLM
 			// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
+/*			
+			cst = this.valueIfTrue.optimizedBooleanConstant();
+			boolean isValueIfTrueOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+			boolean isValueIfTrueOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+			
+			cst = this.valueIfFalse.optimizedBooleanConstant();
+			boolean isValueIfFalseOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
+			boolean isValueIfFalseOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+*/
 			mergedInfo =
 				FlowInfo.conditional(
 					trueFlowInfo.initsWhenTrue().copy().unconditionalInits().mergedWith( // must copy, since could be shared with trueInfo.initsWhenFalse()...

@@ -18,6 +18,7 @@
  * 								   TooManyBytesForStringConstant
  * 								   TooManyMethods
  * 								   TooManyFields
+ * 								   InvalidReferenceForFinalFieldAssignment
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -227,6 +228,8 @@ public interface IProblem {
 	int FinalFieldAssignment = FieldRelated + 80;
 	int UninitializedBlankFinalField = FieldRelated + 81;
 	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
+	/** @since 2.1 */
+	int InvalidReferenceForFinalFieldAssignment = FieldRelated + 83;
 
 	// methods
 	int UndefinedMethod = MethodRelated + 100;

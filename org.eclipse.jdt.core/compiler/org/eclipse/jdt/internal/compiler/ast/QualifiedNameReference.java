@@ -146,14 +146,14 @@ public class QualifiedNameReference extends NameReference {
 							lastFieldBinding,
 							this);
 					} else {
-						currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
+						currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this, true);
 						// attempting to assign a non implicit reference
 					}
 				}
 				flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
 				flowContext.recordSettingFinal(lastFieldBinding, this);
 			} else {
-				currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
+				currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this, false);
 			}
 		}
 		// equivalent to valuesRequired[maxOtherBindings]
