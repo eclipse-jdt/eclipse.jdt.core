@@ -85,7 +85,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] { "Bug51529a", "Bug51529b" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
-//		testsNumbers = new int[] { 3, 7, 10, 21 };
+//		testsNumbers = new int[] { 308, 309 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		testsRange = new int[] { 21, 50 };
 //		testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
@@ -8197,5 +8197,40 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 				"interface IX {}\n"
 			},
 			"");	
+	}	
+	// 73696
+	public void test308() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+					"public class X<T> {\n" + 
+					"	class Member {}\n" + 
+					"}\n",
+				"p/Y.java",
+				"package p;\n" + 
+					"public class Y {\n" + 
+					"	p.X.Member m;\n" + 
+					"	p.X<String>.Member ms = m;\n" + 
+					"}\n"
+			});	
+	}	
+	public void test309() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+					"public class X<T> {\n" + 
+					"	class Member {\n" + 
+					"		class Sub {}\n" + 
+					"	}\n" + 
+					"}\n",
+				"p/Y.java",
+				"package p;\n" + 
+					"public class Y {\n" + 
+					"	p.X.Member.Sub s;\n" + 
+					"	p.X<Exception>.Member.Sub es = s;\n" + 
+					"}\n"
+			});	
 	}	
 }

@@ -74,9 +74,14 @@ public class QualifiedTypeReference extends TypeReference {
 			if (isClassScope)
 				if (((ClassScope) scope).detectCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
 					return null;
-			qualifiedType = this.resolvedType.isGenericType()
-				? scope.environment().createRawType((ReferenceBinding)this.resolvedType, qualifiedType)
-				: (ReferenceBinding) this.resolvedType;
+			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
+			if (currentType.isGenericType()) {
+				qualifiedType = scope.environment().createRawType(currentType, qualifiedType);
+			} else {
+				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
+										? scope.createParameterizedType(currentType, null, qualifiedType)
+										: currentType;
+			}
 		}
 		this.resolvedType = qualifiedType;
 		return this.resolvedType;
