@@ -281,7 +281,7 @@ public final class Signature {
 
 	/**
 	 * Character constant indicating the end of a generic type list in a 
-	 * signature. Value is <code>'%gt;'</code>.
+	 * signature. Value is <code>'&gt;'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_GENERIC_END	= '>';
