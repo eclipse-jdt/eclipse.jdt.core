@@ -39,6 +39,7 @@
 		    <zipfileset dir="Eclipse Java Evaluation" />
 		    <zipfileset dir="Eclipse Java Model" />
 		    <zipfileset dir="Eclipse Java Formatter" />
+		    <zipfileset dir="Eclipse Java DOM" />
   		</zip>		
 	</target>
 </project>
