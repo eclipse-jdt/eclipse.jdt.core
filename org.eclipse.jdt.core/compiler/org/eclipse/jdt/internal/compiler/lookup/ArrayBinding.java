@@ -66,9 +66,11 @@ public TypeBinding elementsType(Scope scope) {
 public PackageBinding getPackage() {
 	return leafComponentType.getPackage();
 }
+public int hashCode() {
+	return this.leafComponentType == null ? super.hashCode() : this.leafComponentType.hashCode();
+}
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
-
 public boolean isCompatibleWith(TypeBinding right) {
 	if (this == right)
 		return true;

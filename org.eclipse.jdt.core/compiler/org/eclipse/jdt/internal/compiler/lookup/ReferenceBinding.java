@@ -362,6 +362,11 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 			return typeVariables[i];
 	return null;
 }
+public int hashCode() {
+	return (this.compoundName == null || this.compoundName.length == 0)
+		? super.hashCode()
+		: CharOperation.hashCode(this.compoundName[this.compoundName.length - 1]);
+}
 
 /* Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.

@@ -31,19 +31,28 @@ null is NOT a valid value for a non-public field... it just means the field is n
 */
 
 public final class BinaryTypeBinding extends ReferenceBinding {
-    
-	// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
-	private ReferenceBinding superclass;
-	private ReferenceBinding enclosingType;
-	private ReferenceBinding[] superInterfaces;
-	private FieldBinding[] fields;
-	private MethodBinding[] methods;
-	private ReferenceBinding[] memberTypes;
-    private TypeVariableBinding[] typeVariables;
-    
-	// For the link with the principle structure
-	private LookupEnvironment environment;
-	
+
+// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
+private ReferenceBinding superclass;
+private ReferenceBinding enclosingType;
+private ReferenceBinding[] superInterfaces;
+private FieldBinding[] fields;
+private MethodBinding[] methods;
+private ReferenceBinding[] memberTypes;
+private TypeVariableBinding[] typeVariables;
+
+// For the link with the principle structure
+private LookupEnvironment environment;
+
+public static ReferenceBinding resolveReferenceType(ReferenceBinding type, LookupEnvironment lookupEnvironment) {
+	if (type instanceof UnresolvedReferenceBinding)
+		return ((UnresolvedReferenceBinding) type).resolve(lookupEnvironment);
+
+	if (type instanceof ParameterizedTypeBinding)
+	    return ((ParameterizedTypeBinding) type).resolve();
+	return type;
+}
+
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment) {
 	this.compoundName = CharOperation.splitOn('/', binaryType.getName());
 	computeId();
@@ -543,15 +552,6 @@ public MethodBinding[] methods() {
 	modifiers ^= AccUnresolved;
 	return methods;
 }
-public static ReferenceBinding resolveReferenceType(ReferenceBinding type, LookupEnvironment lookupEnvironment) {
-	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(lookupEnvironment);
-
-	if (type instanceof ParameterizedTypeBinding) {
-	    return ((ParameterizedTypeBinding) type).resolve();
-	}
-	return type;
-}
 TypeBinding resolveType(TypeBinding type) {
 	if (type instanceof UnresolvedReferenceBinding)
 		return ((UnresolvedReferenceBinding) type).resolve(environment);
@@ -613,6 +613,9 @@ public ReferenceBinding superclass() {
 
 public ReferenceBinding[] superInterfaces() {
     // TODO (kent) should only resolve once on first access
+	// TODO (philippe) how?
+	// We don't have enough bits to record that we have resolved the superclass vs. superinterfaces vs. enclosingType vs. memberTypes
+	// we could resolve all 4 (or just superclass & superinterfaces) right away in cacheParts since we will connect the hierarchy very soon
 	for (int i = this.superInterfaces.length; --i >= 0;)
 		this.superInterfaces[i] = resolveReferenceType(this.superInterfaces[i], this.environment);
 	return this.superInterfaces;
