@@ -561,316 +561,316 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	private static final String UNEXPECTED_EOF = "Unexpected End Of File" ; //$NON-NLS-1$
 
     public final static String name[] = { null,
-            "++",
-            "--",
-            "==",
-            "<=",
-            ">=",
-            "!=",
-            "<<",
-            ">>",
-            ">>>",
-            "+=",
-            "-=",
-            "*=",
-            "/=",
-            "&=",
-            "|=",
-            "^=",
-            "%=",
-            "<<=",
-            ">>=",
-            ">>>=",
-            "||",
-            "&&",
-            "+",
-            "-",
-            "!",
-            "%",
-            "^",
-            "&",
-            "*",
-            "|",
-            "~",
-            "/",
-            ">",
-            "<",
-            "(",
-            ")",
-            "{",
-            "}",
-            "[",
-            "]",
-            ";",
-            "?",
-            ":",
-            ",",
-            ".",
-            "=",
-            "",
-            "$empty",
-            "Identifier",
-            "abstract",
-            "assert",
-            "boolean",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "class",
-            "continue",
-            "default",
-            "do",
-            "double",
-            "else",
-            "extends",
-            "false",
-            "final",
-            "finally",
-            "float",
-            "for",
-            "if",
-            "implements",
-            "import",
-            "instanceof",
-            "int",
-            "interface",
-            "long",
-            "native",
-            "new",
-            "null",
-            "package",
-            "private",
-            "protected",
-            "public",
-            "return",
-            "short",
-            "static",
-            "strictfp",
-            "super",
-            "switch",
-            "synchronized",
-            "this",
-            "throw",
-            "throws",
-            "transient",
-            "true",
-            "try",
-            "void",
-            "volatile",
-            "while",
-            "IntegerLiteral",
-            "LongLiteral",
-            "FloatingPointLiteral",
-            "DoubleLiteral",
-            "CharacterLiteral",
-            "StringLiteral",
-   			UNEXPECTED_EOF, //$NON-NLS-1$
+            "++", //$NON-NLS-1$
+            "--", //$NON-NLS-1$
+            "==", //$NON-NLS-1$
+            "<=", //$NON-NLS-1$
+            ">=", //$NON-NLS-1$
+            "!=", //$NON-NLS-1$
+            "<<", //$NON-NLS-1$
+            ">>", //$NON-NLS-1$
+            ">>>", //$NON-NLS-1$
+            "+=", //$NON-NLS-1$
+            "-=", //$NON-NLS-1$
+            "*=", //$NON-NLS-1$
+            "/=", //$NON-NLS-1$
+            "&=", //$NON-NLS-1$
+            "|=", //$NON-NLS-1$
+            "^=", //$NON-NLS-1$
+            "%=", //$NON-NLS-1$
+            "<<=", //$NON-NLS-1$
+            ">>=", //$NON-NLS-1$
+            ">>>=", //$NON-NLS-1$
+            "||", //$NON-NLS-1$
+            "&&", //$NON-NLS-1$
+            "+", //$NON-NLS-1$
+            "-", //$NON-NLS-1$
+            "!", //$NON-NLS-1$
+            "%", //$NON-NLS-1$
+            "^", //$NON-NLS-1$
+            "&", //$NON-NLS-1$
+            "*", //$NON-NLS-1$
+            "|", //$NON-NLS-1$
+            "~", //$NON-NLS-1$
+            "/", //$NON-NLS-1$
+            ">", //$NON-NLS-1$
+            "<", //$NON-NLS-1$
+            "(", //$NON-NLS-1$
+            ")", //$NON-NLS-1$
+            "{", //$NON-NLS-1$
+            "}", //$NON-NLS-1$
+            "[", //$NON-NLS-1$
+            "]", //$NON-NLS-1$
+            ";", //$NON-NLS-1$
+            "?", //$NON-NLS-1$
+            ":", //$NON-NLS-1$
+            ",", //$NON-NLS-1$
+            ".", //$NON-NLS-1$
+            "=", //$NON-NLS-1$
+            "", //$NON-NLS-1$
+            "$empty", //$NON-NLS-1$
+            "Identifier", //$NON-NLS-1$
+            "abstract", //$NON-NLS-1$
+            "assert", //$NON-NLS-1$
+            "boolean", //$NON-NLS-1$
+            "break", //$NON-NLS-1$
+            "byte", //$NON-NLS-1$
+            "case", //$NON-NLS-1$
+            "catch", //$NON-NLS-1$
+            "char", //$NON-NLS-1$
+            "class", //$NON-NLS-1$
+            "continue", //$NON-NLS-1$
+            "default", //$NON-NLS-1$
+            "do", //$NON-NLS-1$
+            "double", //$NON-NLS-1$
+            "else", //$NON-NLS-1$
+            "extends", //$NON-NLS-1$
+            "false", //$NON-NLS-1$
+            "final", //$NON-NLS-1$
+            "finally", //$NON-NLS-1$
+            "float", //$NON-NLS-1$
+            "for", //$NON-NLS-1$
+            "if", //$NON-NLS-1$
+            "implements", //$NON-NLS-1$
+            "import", //$NON-NLS-1$
+            "instanceof", //$NON-NLS-1$
+            "int", //$NON-NLS-1$
+            "interface", //$NON-NLS-1$
+            "long", //$NON-NLS-1$
+            "native", //$NON-NLS-1$
+            "new", //$NON-NLS-1$
+            "null", //$NON-NLS-1$
+            "package", //$NON-NLS-1$
+            "private", //$NON-NLS-1$
+            "protected", //$NON-NLS-1$
+            "public", //$NON-NLS-1$
+            "return", //$NON-NLS-1$
+            "short", //$NON-NLS-1$
+            "static", //$NON-NLS-1$
+            "strictfp", //$NON-NLS-1$
+            "super", //$NON-NLS-1$
+            "switch", //$NON-NLS-1$
+            "synchronized", //$NON-NLS-1$
+            "this", //$NON-NLS-1$
+            "throw", //$NON-NLS-1$
+            "throws", //$NON-NLS-1$
+            "transient", //$NON-NLS-1$
+            "true", //$NON-NLS-1$
+            "try", //$NON-NLS-1$
+            "void", //$NON-NLS-1$
+            "volatile", //$NON-NLS-1$
+            "while", //$NON-NLS-1$
+            "IntegerLiteral", //$NON-NLS-1$
+            "LongLiteral", //$NON-NLS-1$
+            "FloatingPointLiteral", //$NON-NLS-1$
+            "DoubleLiteral", //$NON-NLS-1$
+            "CharacterLiteral", //$NON-NLS-1$
+            "StringLiteral", //$NON-NLS-1$
+   			UNEXPECTED_EOF, 
 			"Invalid Character", //$NON-NLS-1$
-            "Goal",
-            "CompilationUnit",
-            "MethodBody",
-            "ConstructorBody",
-            "StaticInitializer",
-            "Initializer",
-            "Headers",
-            "BlockStatements",
-            "MethodPushModifiersHeader",
-            "CatchHeader",
-            "FieldDeclaration",
-            "ImportDeclaration",
-            "PackageDeclaration",
-            "TypeDeclaration",
-            "GenericMethodDeclaration",
-            "ClassBodyDeclarations",
-            "Expression",
-            "ConstructorBlockStatementsopt",
-            "BlockStatementsopt",
-            "Literal",
-            "BooleanLiteral",
-            "Type",
-            "PrimitiveType",
-            "ReferenceType",
-            "NumericType",
-            "IntegralType",
-            "FloatingPointType",
-            "ClassOrInterfaceType",
-            "ArrayType",
-            "Name",
-            "Dims",
-            "ClassType",
-            "SimpleName",
-            "QualifiedName",
-            "EnterCompilationUnit",
-            "PackageDeclarationopt",
-            "ImportDeclarationsopt",
-            "TypeDeclarationsopt",
-            "Header",
-            "ClassHeader",
-            "InterfaceHeader",
-            "MethodHeader",
-            "ConstructorHeader",
-            "AllocationHeader",
-            "FormalParameter",
-            "ImportDeclarations",
-            "TypeDeclarations",
-            "PackageDeclarationName",
-            "SingleTypeImportDeclaration",
-            "TypeImportOnDemandDeclaration",
-            "SingleTypeImportDeclarationName",
-            "TypeImportOnDemandDeclarationName",
-            "ClassDeclaration",
-            "InterfaceDeclaration",
-            "Modifiers",
-            "Modifier",
-            "ClassBody",
-            "ClassHeaderName",
-            "ClassHeaderExtendsopt",
-            "ClassHeaderImplementsopt",
-            "Modifiersopt",
-            "ClassHeaderExtends",
-            "ClassHeaderImplements",
-            "InterfaceTypeList",
-            "InterfaceType",
-            "ClassBodyDeclarationsopt",
-            "ClassBodyDeclaration",
-            "ClassMemberDeclaration",
-            "ConstructorDeclaration",
-            "Diet",
-            "NestedMethod",
-            "Block",
-            "MethodDeclaration",
-            "VariableDeclarators",
-            "VariableDeclarator",
-            "VariableDeclaratorId",
-            "EnterVariable",
-            "ExitVariableWithoutInitialization",
-            "ForceNoDiet",
-            "VariableInitializer",
-            "RestoreDiet",
-            "ExitVariableWithInitialization",
-            "Dimsopt",
-            "ArrayInitializer",
-            "AbstractMethodDeclaration",
-            "MethodHeaderName",
-            "MethodHeaderParameters",
-            "MethodHeaderExtendedDims",
-            "MethodHeaderThrowsClauseopt",
-            "MethodPushModifiersHeaderName",
-            "PushModifiers",
-            "FormalParameterListopt",
-            "MethodHeaderThrowsClause",
-            "ClassTypeList",
-            "ConstructorHeaderName",
-            "FormalParameterList",
-            "ClassTypeElt",
-            "StaticOnly",
-            "ExplicitConstructorInvocation",
-            "ArgumentListopt",
-            "Primary",
-            "InterfaceBody",
-            "InterfaceHeaderName",
-            "InterfaceHeaderExtendsopt",
-            "InvalidInterfaceDeclaration",
-            "InterfaceHeaderExtends",
-            "InterfaceMemberDeclarationsopt",
-            "InterfaceMemberDeclarations",
-            "InterfaceMemberDeclaration",
-            "InvalidMethodDeclaration",
-            "ConstantDeclaration",
-            "InvalidConstructorDeclaration",
-            ",opt",
-            "VariableInitializers",
-            "OpenBlock",
-            "BlockStatement",
-            "LocalVariableDeclarationStatement",
-            "Statement",
-            "LocalVariableDeclaration",
-            "StatementWithoutTrailingSubstatement",
-            "LabeledStatement",
-            "IfThenStatement",
-            "IfThenElseStatement",
-            "WhileStatement",
-            "ForStatement",
-            "StatementNoShortIf",
-            "LabeledStatementNoShortIf",
-            "IfThenElseStatementNoShortIf",
-            "WhileStatementNoShortIf",
-            "ForStatementNoShortIf",
-            "AssertStatement",
-            "EmptyStatement",
-            "ExpressionStatement",
-            "SwitchStatement",
-            "DoStatement",
-            "BreakStatement",
-            "ContinueStatement",
-            "ReturnStatement",
-            "SynchronizedStatement",
-            "ThrowStatement",
-            "TryStatement",
-            "StatementExpression",
-            "Assignment",
-            "PreIncrementExpression",
-            "PreDecrementExpression",
-            "PostIncrementExpression",
-            "PostDecrementExpression",
-            "MethodInvocation",
-            "ClassInstanceCreationExpression",
-            "SwitchBlock",
-            "SwitchBlockStatements",
-            "SwitchLabels",
-            "SwitchBlockStatement",
-            "SwitchLabel",
-            "ConstantExpression",
-            "ForInitopt",
-            "Expressionopt",
-            "ForUpdateopt",
-            "ForInit",
-            "StatementExpressionList",
-            "ForUpdate",
-            "OnlySynchronized",
-            "Catches",
-            "Catchesopt",
-            "Finally",
-            "CatchClause",
-            "PushLPAREN",
-            "PushRPAREN",
-            "PrimaryNoNewArray",
-            "ArrayCreationWithArrayInitializer",
-            "ArrayCreationWithoutArrayInitializer",
-            "FieldAccess",
-            "ArrayAccess",
-            "ClassBodyopt",
-            "ClassInstanceCreationExpressionName",
-            "EnterAnonymousClassBody",
-            "ArgumentList",
-            "DimWithOrWithOutExprs",
-            "DimWithOrWithOutExpr",
-            "DimsLoop",
-            "OneDimLoop",
-            "PostfixExpression",
-            "PushPosition",
-            "UnaryExpression",
-            "UnaryExpressionNotPlusMinus",
-            "CastExpression",
-            "InsideCastExpression",
-            "InsideCastExpressionLL1",
-            "MultiplicativeExpression",
-            "AdditiveExpression",
-            "ShiftExpression",
-            "RelationalExpression",
-            "EqualityExpression",
-            "AndExpression",
-            "ExclusiveOrExpression",
-            "InclusiveOrExpression",
-            "ConditionalAndExpression",
-            "ConditionalOrExpression",
-            "ConditionalExpression",
-            "AssignmentExpression",
-            "AssignmentOperator",
-            "InvalidArrayInitializerAssignement",
-            "NestedType"
+            "Goal", //$NON-NLS-1$
+            "CompilationUnit", //$NON-NLS-1$
+            "MethodBody", //$NON-NLS-1$
+            "ConstructorBody", //$NON-NLS-1$
+            "StaticInitializer", //$NON-NLS-1$
+            "Initializer", //$NON-NLS-1$
+            "Headers", //$NON-NLS-1$
+            "BlockStatements", //$NON-NLS-1$
+            "MethodPushModifiersHeader", //$NON-NLS-1$
+            "CatchHeader", //$NON-NLS-1$
+            "FieldDeclaration", //$NON-NLS-1$
+            "ImportDeclaration", //$NON-NLS-1$
+            "PackageDeclaration", //$NON-NLS-1$
+            "TypeDeclaration", //$NON-NLS-1$
+            "GenericMethodDeclaration", //$NON-NLS-1$
+            "ClassBodyDeclarations", //$NON-NLS-1$
+            "Expression", //$NON-NLS-1$
+            "ConstructorBlockStatementsopt", //$NON-NLS-1$
+            "BlockStatementsopt", //$NON-NLS-1$
+            "Literal", //$NON-NLS-1$
+            "BooleanLiteral", //$NON-NLS-1$
+            "Type", //$NON-NLS-1$
+            "PrimitiveType", //$NON-NLS-1$
+            "ReferenceType", //$NON-NLS-1$
+            "NumericType", //$NON-NLS-1$
+            "IntegralType", //$NON-NLS-1$
+            "FloatingPointType", //$NON-NLS-1$
+            "ClassOrInterfaceType", //$NON-NLS-1$
+            "ArrayType", //$NON-NLS-1$
+            "Name", //$NON-NLS-1$
+            "Dims", //$NON-NLS-1$
+            "ClassType", //$NON-NLS-1$
+            "SimpleName", //$NON-NLS-1$
+            "QualifiedName", //$NON-NLS-1$
+            "EnterCompilationUnit", //$NON-NLS-1$
+            "PackageDeclarationopt", //$NON-NLS-1$
+            "ImportDeclarationsopt", //$NON-NLS-1$
+            "TypeDeclarationsopt", //$NON-NLS-1$
+            "Header", //$NON-NLS-1$
+            "ClassHeader", //$NON-NLS-1$
+            "InterfaceHeader", //$NON-NLS-1$
+            "MethodHeader", //$NON-NLS-1$
+            "ConstructorHeader", //$NON-NLS-1$
+            "AllocationHeader", //$NON-NLS-1$
+            "FormalParameter", //$NON-NLS-1$
+            "ImportDeclarations", //$NON-NLS-1$
+            "TypeDeclarations", //$NON-NLS-1$
+            "PackageDeclarationName", //$NON-NLS-1$
+            "SingleTypeImportDeclaration", //$NON-NLS-1$
+            "TypeImportOnDemandDeclaration", //$NON-NLS-1$
+            "SingleTypeImportDeclarationName", //$NON-NLS-1$
+            "TypeImportOnDemandDeclarationName", //$NON-NLS-1$
+            "ClassDeclaration", //$NON-NLS-1$
+            "InterfaceDeclaration", //$NON-NLS-1$
+            "Modifiers", //$NON-NLS-1$
+            "Modifier", //$NON-NLS-1$
+            "ClassBody", //$NON-NLS-1$
+            "ClassHeaderName", //$NON-NLS-1$
+            "ClassHeaderExtendsopt", //$NON-NLS-1$
+            "ClassHeaderImplementsopt", //$NON-NLS-1$
+            "Modifiersopt", //$NON-NLS-1$
+            "ClassHeaderExtends", //$NON-NLS-1$
+            "ClassHeaderImplements", //$NON-NLS-1$
+            "InterfaceTypeList", //$NON-NLS-1$
+            "InterfaceType", //$NON-NLS-1$
+            "ClassBodyDeclarationsopt", //$NON-NLS-1$
+            "ClassBodyDeclaration", //$NON-NLS-1$
+            "ClassMemberDeclaration", //$NON-NLS-1$
+            "ConstructorDeclaration", //$NON-NLS-1$
+            "Diet", //$NON-NLS-1$
+            "NestedMethod", //$NON-NLS-1$
+            "Block", //$NON-NLS-1$
+            "MethodDeclaration", //$NON-NLS-1$
+            "VariableDeclarators", //$NON-NLS-1$
+            "VariableDeclarator", //$NON-NLS-1$
+            "VariableDeclaratorId", //$NON-NLS-1$
+            "EnterVariable", //$NON-NLS-1$
+            "ExitVariableWithoutInitialization", //$NON-NLS-1$
+            "ForceNoDiet", //$NON-NLS-1$
+            "VariableInitializer", //$NON-NLS-1$
+            "RestoreDiet", //$NON-NLS-1$
+            "ExitVariableWithInitialization", //$NON-NLS-1$
+            "Dimsopt", //$NON-NLS-1$
+            "ArrayInitializer", //$NON-NLS-1$
+            "AbstractMethodDeclaration", //$NON-NLS-1$
+            "MethodHeaderName", //$NON-NLS-1$
+            "MethodHeaderParameters", //$NON-NLS-1$
+            "MethodHeaderExtendedDims", //$NON-NLS-1$
+            "MethodHeaderThrowsClauseopt", //$NON-NLS-1$
+            "MethodPushModifiersHeaderName", //$NON-NLS-1$
+            "PushModifiers", //$NON-NLS-1$
+            "FormalParameterListopt", //$NON-NLS-1$
+            "MethodHeaderThrowsClause", //$NON-NLS-1$
+            "ClassTypeList", //$NON-NLS-1$
+            "ConstructorHeaderName", //$NON-NLS-1$
+            "FormalParameterList", //$NON-NLS-1$
+            "ClassTypeElt", //$NON-NLS-1$
+            "StaticOnly", //$NON-NLS-1$
+            "ExplicitConstructorInvocation", //$NON-NLS-1$
+            "ArgumentListopt", //$NON-NLS-1$
+            "Primary", //$NON-NLS-1$
+            "InterfaceBody", //$NON-NLS-1$
+            "InterfaceHeaderName", //$NON-NLS-1$
+            "InterfaceHeaderExtendsopt", //$NON-NLS-1$
+            "InvalidInterfaceDeclaration", //$NON-NLS-1$
+            "InterfaceHeaderExtends", //$NON-NLS-1$
+            "InterfaceMemberDeclarationsopt", //$NON-NLS-1$
+            "InterfaceMemberDeclarations", //$NON-NLS-1$
+            "InterfaceMemberDeclaration", //$NON-NLS-1$
+            "InvalidMethodDeclaration", //$NON-NLS-1$
+            "ConstantDeclaration", //$NON-NLS-1$
+            "InvalidConstructorDeclaration", //$NON-NLS-1$
+            ",opt", //$NON-NLS-1$
+            "VariableInitializers", //$NON-NLS-1$
+            "OpenBlock", //$NON-NLS-1$
+            "BlockStatement", //$NON-NLS-1$
+            "LocalVariableDeclarationStatement", //$NON-NLS-1$
+            "Statement", //$NON-NLS-1$
+            "LocalVariableDeclaration", //$NON-NLS-1$
+            "StatementWithoutTrailingSubstatement", //$NON-NLS-1$
+            "LabeledStatement", //$NON-NLS-1$
+            "IfThenStatement", //$NON-NLS-1$
+            "IfThenElseStatement", //$NON-NLS-1$
+            "WhileStatement", //$NON-NLS-1$
+            "ForStatement", //$NON-NLS-1$
+            "StatementNoShortIf", //$NON-NLS-1$
+            "LabeledStatementNoShortIf", //$NON-NLS-1$
+            "IfThenElseStatementNoShortIf", //$NON-NLS-1$
+            "WhileStatementNoShortIf", //$NON-NLS-1$
+            "ForStatementNoShortIf", //$NON-NLS-1$
+            "AssertStatement", //$NON-NLS-1$
+            "EmptyStatement", //$NON-NLS-1$
+            "ExpressionStatement", //$NON-NLS-1$
+            "SwitchStatement", //$NON-NLS-1$
+            "DoStatement", //$NON-NLS-1$
+            "BreakStatement", //$NON-NLS-1$
+            "ContinueStatement", //$NON-NLS-1$
+            "ReturnStatement", //$NON-NLS-1$
+            "SynchronizedStatement", //$NON-NLS-1$
+            "ThrowStatement", //$NON-NLS-1$
+            "TryStatement", //$NON-NLS-1$
+            "StatementExpression", //$NON-NLS-1$
+            "Assignment", //$NON-NLS-1$
+            "PreIncrementExpression", //$NON-NLS-1$
+            "PreDecrementExpression", //$NON-NLS-1$
+            "PostIncrementExpression", //$NON-NLS-1$
+            "PostDecrementExpression", //$NON-NLS-1$
+            "MethodInvocation", //$NON-NLS-1$
+            "ClassInstanceCreationExpression", //$NON-NLS-1$
+            "SwitchBlock", //$NON-NLS-1$
+            "SwitchBlockStatements", //$NON-NLS-1$
+            "SwitchLabels", //$NON-NLS-1$
+            "SwitchBlockStatement", //$NON-NLS-1$
+            "SwitchLabel", //$NON-NLS-1$
+            "ConstantExpression", //$NON-NLS-1$
+            "ForInitopt", //$NON-NLS-1$
+            "Expressionopt", //$NON-NLS-1$
+            "ForUpdateopt", //$NON-NLS-1$
+            "ForInit", //$NON-NLS-1$
+            "StatementExpressionList", //$NON-NLS-1$
+            "ForUpdate", //$NON-NLS-1$
+            "OnlySynchronized", //$NON-NLS-1$
+            "Catches", //$NON-NLS-1$
+            "Catchesopt", //$NON-NLS-1$
+            "Finally", //$NON-NLS-1$
+            "CatchClause", //$NON-NLS-1$
+            "PushLPAREN", //$NON-NLS-1$
+            "PushRPAREN", //$NON-NLS-1$
+            "PrimaryNoNewArray", //$NON-NLS-1$
+            "ArrayCreationWithArrayInitializer", //$NON-NLS-1$
+            "ArrayCreationWithoutArrayInitializer", //$NON-NLS-1$
+            "FieldAccess", //$NON-NLS-1$
+            "ArrayAccess", //$NON-NLS-1$
+            "ClassBodyopt", //$NON-NLS-1$
+            "ClassInstanceCreationExpressionName", //$NON-NLS-1$
+            "EnterAnonymousClassBody", //$NON-NLS-1$
+            "ArgumentList", //$NON-NLS-1$
+            "DimWithOrWithOutExprs", //$NON-NLS-1$
+            "DimWithOrWithOutExpr", //$NON-NLS-1$
+            "DimsLoop", //$NON-NLS-1$
+            "OneDimLoop", //$NON-NLS-1$
+            "PostfixExpression", //$NON-NLS-1$
+            "PushPosition", //$NON-NLS-1$
+            "UnaryExpression", //$NON-NLS-1$
+            "UnaryExpressionNotPlusMinus", //$NON-NLS-1$
+            "CastExpression", //$NON-NLS-1$
+            "InsideCastExpression", //$NON-NLS-1$
+            "InsideCastExpressionLL1", //$NON-NLS-1$
+            "MultiplicativeExpression", //$NON-NLS-1$
+            "AdditiveExpression", //$NON-NLS-1$
+            "ShiftExpression", //$NON-NLS-1$
+            "RelationalExpression", //$NON-NLS-1$
+            "EqualityExpression", //$NON-NLS-1$
+            "AndExpression", //$NON-NLS-1$
+            "ExclusiveOrExpression", //$NON-NLS-1$
+            "InclusiveOrExpression", //$NON-NLS-1$
+            "ConditionalAndExpression", //$NON-NLS-1$
+            "ConditionalOrExpression", //$NON-NLS-1$
+            "ConditionalExpression", //$NON-NLS-1$
+            "AssignmentExpression", //$NON-NLS-1$
+            "AssignmentOperator", //$NON-NLS-1$
+            "InvalidArrayInitializerAssignement", //$NON-NLS-1$
+            "NestedType" //$NON-NLS-1$
     };
     
 	public  static short check_table[] = null;
