@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -161,6 +162,14 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				break;
 			case BindingIds.TYPE : //=============only type ==============
 				typeBinding = (TypeBinding)binding;
+				break;
+			case BindingIds.VARIABLE : //============unbound cases===========
+			case BindingIds.TYPE | BindingIds.VARIABLE :						
+				if (binding instanceof ProblemBinding) {
+					ProblemBinding pbBinding = (ProblemBinding) binding;
+					typeBinding = pbBinding.searchType; // second chance with recorded type so far
+				}
+				break;
 		}
 		if (typeBinding instanceof ReferenceBinding) {
 			PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
@@ -305,6 +314,21 @@ private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
 					return IMPOSSIBLE_MATCH; // no package match in it
 				case BindingIds.TYPE : //=============only type ==============
 					typeBinding = (TypeBinding)binding;
+					break;
+				/*
+				 * Handling of unbound qualified name references. The match may reside in the resolved fragment,
+				 * which is recorded inside the problem binding, along with the portion of the name until it became a problem.
+				 */
+				case BindingIds.VARIABLE : //============unbound cases===========
+				case BindingIds.TYPE | BindingIds.VARIABLE :						
+					if (binding instanceof ProblemBinding) {
+						ProblemBinding pbBinding = (ProblemBinding) binding;
+						typeBinding = pbBinding.searchType; // second chance with recorded type so far
+						char[] partialQualifiedName = pbBinding.name;
+						lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
+						if (typeBinding == null || lastIndex < 0) return INACCURATE_MATCH;
+					}
+					break;					
 			}
 			if (typeBinding instanceof ArrayBinding) {
 				typeBinding = ((ArrayBinding)typeBinding).leafComponentType;

@@ -29,8 +29,10 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.ClassFile;
 
 public class DeclarationOfReferencedTypesPattern extends TypeReferencePattern {
@@ -73,6 +75,17 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				break;
 			case BindingIds.TYPE : //=============only type ==============
 				typeBinding = (TypeBinding)binding;
+				break;
+			case BindingIds.VARIABLE : //============unbound cases===========
+			case BindingIds.TYPE | BindingIds.VARIABLE :						
+				if (binding instanceof ProblemBinding) {
+					ProblemBinding pbBinding = (ProblemBinding) binding;
+					typeBinding = pbBinding.searchType; // second chance with recorded type so far
+					char[] partialQualifiedName = pbBinding.name;
+					maxType = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
+					if (typeBinding == null || maxType < 0) return;
+				}
+				break;
 		}
 	} else if (reference instanceof SingleNameReference) {
 		typeBinding = (TypeBinding)((SingleNameReference)reference).binding;
@@ -97,7 +110,7 @@ private void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocato
 		}
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
 	}
-	while (maxType > 0 && type != null) {
+	while (maxType >= 0 && type != null) {
 		if (!this.knownTypes.contains(type)) {
 			if (isBinary) {
 				locator.reportBinaryMatch(resource, type, info, IJavaSearchResultCollector.EXACT_MATCH);
