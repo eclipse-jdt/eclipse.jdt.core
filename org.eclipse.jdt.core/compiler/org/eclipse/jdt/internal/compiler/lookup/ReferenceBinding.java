@@ -28,6 +28,14 @@ abstract public class ReferenceBinding extends TypeBinding implements IDependent
 	char[] fileName;
 	char[] constantPoolName;
 	char[] signature;
+	
+public FieldBinding[] availableFields() {
+	return NoFields;
+}
+
+public MethodBinding[] availableMethods() {
+	return NoMethods;	
+}
 /* Answer true if the receiver can be instantiated
 */
 

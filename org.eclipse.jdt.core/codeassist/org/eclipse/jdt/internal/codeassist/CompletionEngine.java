@@ -747,7 +747,7 @@ public final class CompletionEngine
 		boolean forAnonymousType) {
 
 		// No visibility checks can be performed without the scope & invocationSite
-		MethodBinding[] methods = currentType.methods();
+		MethodBinding[] methods = currentType.availableMethods();
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding constructor = methods[f];
@@ -932,7 +932,7 @@ public final class CompletionEngine
 
 			findFields(
 				fieldName,
-				currentType.fields(),
+				currentType.availableFields(),
 				scope,
 				fieldsFound,
 				localsFound,
@@ -956,7 +956,7 @@ public final class CompletionEngine
 
 						findFields(
 							fieldName,
-							anInterface.fields(),
+							anInterface.availableFields(),
 							scope,
 							fieldsFound,
 							localsFound,
@@ -1287,7 +1287,7 @@ public final class CompletionEngine
 
 							findLocalMethodDeclarations(
 								selector,
-								currentType.methods(),
+								currentType.availableMethods(),
 								scope,
 								methodsFound,
 								onlyStaticMethods,
@@ -1299,7 +1299,7 @@ public final class CompletionEngine
 							findLocalMethods(
 								selector,
 								argTypes,
-								currentType.methods(),
+								currentType.availableMethods(),
 								scope,
 								methodsFound,
 								onlyStaticMethods,
@@ -1577,7 +1577,7 @@ public final class CompletionEngine
 					continue next;
 			}
 
-			MethodBinding[] existingMethods = receiverType.methods();
+			MethodBinding[] existingMethods = receiverType.availableMethods();
 			for(int i =0, length = existingMethods == null ? 0 : existingMethods.length; i < length ; i++){
 				MethodBinding existingMethod = existingMethods[i];
 				if (CharOperation.equals(method.selector, existingMethod.selector, true)
@@ -1778,7 +1778,7 @@ public final class CompletionEngine
 
 				findLocalMethodDeclarations(
 					selector,
-					currentType.methods(),
+					currentType.availableMethods(),
 					scope,
 					methodsFound,
 					onlyStaticMethods,
@@ -1789,7 +1789,7 @@ public final class CompletionEngine
 				findLocalMethods(
 					selector,
 					argTypes,
-					currentType.methods(),
+					currentType.availableMethods(),
 					scope,
 					methodsFound,
 					onlyStaticMethods,

@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  */
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 /*
@@ -53,6 +54,41 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	if (binaryType.isInterface())
 		this.modifiers |= AccInterface;
 }
+
+public FieldBinding[] availableFields() {
+	FieldBinding[] availableFields = new FieldBinding[fields.length];
+	int count = 0;
+	
+	for (int i = 0; i < fields.length;i++) {
+		try {
+			availableFields[count] = resolveTypeFor(fields[i]);
+			count++;
+		} catch (AbortCompilation a){
+		}
+	}
+	
+	System.arraycopy(availableFields, 0, availableFields = new FieldBinding[count], 0, count);
+	return availableFields;
+}
+
+public MethodBinding[] availableMethods() {
+	if ((modifiers & AccUnresolved) == 0)
+		return methods;
+		
+	MethodBinding[] availableMethods = new MethodBinding[methods.length];
+	int count = 0;
+	
+	for (int i = 0; i < methods.length;i++) {
+		try {
+			availableMethods[count] = resolveTypesFor(methods[i]);
+			count++;
+		} catch (AbortCompilation a){
+		}
+	}
+	System.arraycopy(availableMethods, 0, availableMethods = new MethodBinding[count], 0, count);
+	return methods;
+}
+
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	char[] superclassName = binaryType.getSuperclassName();
 	if (superclassName != null)

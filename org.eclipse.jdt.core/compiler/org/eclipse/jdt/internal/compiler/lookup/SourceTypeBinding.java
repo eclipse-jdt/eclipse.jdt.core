@@ -282,6 +282,13 @@ public SyntheticAccessMethodBinding addSyntheticMethod(MethodBinding targetMetho
 	}
 	return accessMethod;
 }
+
+public FieldBinding[] availableFields() {
+	return fields();
+}
+public MethodBinding[] availableMethods() {
+	return methods();
+}
 void faultInTypesForFieldsAndMethods() {
 	fields();
 	methods();
