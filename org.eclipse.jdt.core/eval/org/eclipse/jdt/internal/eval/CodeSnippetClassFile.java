@@ -60,7 +60,7 @@ public CodeSnippetClassFile(
 	this.constantPool = new ConstantPool(this);
 	int accessFlags = aType.getAccessFlags();
 	
-	if (aType.isClass()) {
+	if (!aType.isInterface()) { // class or enum
 		accessFlags |= AccSuper;
 	}
 	if (aType.isNestedType()) {

@@ -475,7 +475,7 @@ public MethodBinding findMethod(
 				candidates[0].declaringClass,
 				NotVisible);
 		}	
-		if (candidates[0].declaringClass.isClass()) {
+		if (!candidates[0].declaringClass.isInterface()) {
 			return mostSpecificClassMethodBinding(candidates, visiblesCount, invocationSite);
 		} else {
 			return mostSpecificInterfaceMethodBinding(candidates, visiblesCount, invocationSite);
