@@ -839,6 +839,7 @@ public class SourceMapper
 			try {
 				if (type.isMember()) {
 					IType enclosingType = type.getDeclaringType();
+					if (enclosingType == null) return null; // play it safe
 					while (enclosingType.getDeclaringType() != null) {
 						enclosingType = enclosingType.getDeclaringType();
 					}
