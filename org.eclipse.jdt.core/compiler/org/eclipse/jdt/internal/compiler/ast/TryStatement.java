@@ -340,22 +340,19 @@ public void resolve(BlockScope upperScope) {
 
 	// special scope for secret locals optimization.	
 	scope = new BlockScope(upperScope);
-	tryBlock.resolve(scope);
-
 	if (finallyBlock != null && finallyBlock.statements != null) { // provision for returning and forcing the finally block to run
 		returnAddressVariable = new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), 0); // the type does not matter as long as its not a normal base type
 		scope.addLocalVariable(returnAddressVariable);
 		returnAddressVariable.constant = NotAConstant; // not inlinable
 		subRoutineStartLabel = new Label();
 
-		// 1GDS7IP - finally scope must be nested under the try scope, 
-		// so as to avoid variable collisions fatal to the verifier
-		BlockScope finallyScope = new BlockScope(tryBlock.scope);
+		BlockScope finallyScope = new BlockScope(scope);
 		anyExceptionVariable = new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), 0);
 		finallyScope.addLocalVariable(anyExceptionVariable);
 		anyExceptionVariable.constant = NotAConstant; // not inlinable
 		finallyBlock.resolveUsing(finallyScope);
 	}
+	tryBlock.resolve(scope);
 
 	// arguments type are checked against JavaLangThrowable in resolveForCatch(..)
 	if (catchBlocks != null) {
