@@ -1112,12 +1112,13 @@ public abstract class Scope
 							}
 				}
 			}
-			// check if the name is in the current package (answer the problem binding unless its not found in which case continue to look)
-			ReferenceBinding type = findType(name, unitScope.fPackage, unitScope.fPackage); // is always visible
-			if (type != null) return type;
+			// check if the name is in the current package, skip it if its a sub-package
+			Binding binding = unitScope.fPackage.getTypeOrPackage(name);
+			if (binding instanceof ReferenceBinding) return binding;
 
 			// check on demand imports
 			boolean foundInImport = false;
+			ReferenceBinding type = null;
 			if (imports != null){
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding someImport = imports[i];

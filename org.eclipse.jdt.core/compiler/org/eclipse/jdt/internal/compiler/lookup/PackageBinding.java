@@ -165,12 +165,9 @@ public Binding getTypeOrPackage(char[] name) {
 		return typeBinding;
 	}
 
-	if (packageBinding == null) {
-		// find the package
-		packageBinding = findPackage(name);
-		if (packageBinding != null) return packageBinding; 
-	}
-
+	// always look for the name as a sub-package if its not a known type
+	if (packageBinding == null && (packageBinding = findPackage(name)) != null)
+		return packageBinding;
 	if (typeBinding == null) {
 		// if no package was found, find the type named name relative to the receiver
 		if ((typeBinding = environment.askForType(this, name)) != null) {
