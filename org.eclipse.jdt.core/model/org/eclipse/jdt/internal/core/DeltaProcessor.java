@@ -96,6 +96,14 @@ public class DeltaProcessor {
 		} catch (JavaModelException e) {
 		}
 	}
+	/*
+	 * Adds the given project and its dependents to the list of the projects
+	 * to update.
+	 */
+	void addToProjectsToUpdateWithDependents(IProject project) {
+		this.projectsToUpdate.add(JavaCore.create(project));
+		this.addDependentsToProjectsToUpdate(project.getFullPath());
+	}
 	
 	/**
 	 * Adds the given child handle to its parent's cache of children. 
@@ -125,7 +133,7 @@ public class DeltaProcessor {
 	public void performPreBuildCheck(
 		IResourceDelta delta,
 		IJavaElement parent) {
-
+	
 		try {
 			if (!ResourcesPlugin.getWorkspace().isAutoBuilding()) {
 				Iterator iterator = this.projectsToUpdate.iterator();
@@ -134,7 +142,9 @@ public class DeltaProcessor {
 						JavaProject project = (JavaProject)iterator.next();
 						
 						 // force classpath marker refresh
-						project.getResolvedClasspath(true, true);
+						project.getResolvedClasspath(
+							true, // ignoreUnresolvedEntry
+							true); // generateMarkerOnError
 						
 					} catch (JavaModelException e) {
 					}
@@ -150,28 +160,30 @@ public class DeltaProcessor {
 		} finally {
 			this.projectsToUpdate = new HashSet();
 		}
-
+	
 		IResource resource = delta.getResource();
 		IJavaElement element = JavaCore.create(resource);
 		boolean processChildren = false;
-
+	
 		switch (resource.getType()) {
-
+	
 			case IResource.ROOT :
 			case IResource.PROJECT :
-				processChildren = true;
+				if (delta.getKind() == IResourceDelta.CHANGED) {
+					processChildren = true;
+				}
 				break;
 			case IResource.FILE :
 				if (parent.getElementType() == IJavaElement.JAVA_PROJECT) {
 					IFile file = (IFile) resource;
 					JavaProject project = (JavaProject) parent;
-
+	
 					/* check classpath property file change */
 					QualifiedName classpathProp;
 					if (file.getName().equals(
 							project.computeSharedPropertyFileName(
 								classpathProp = project.getClasspathPropertyName()))) {
-
+	
 						switch (delta.getKind()) {
 							case IResourceDelta.REMOVED : // recreate one based on in-memory path
 								try {
@@ -194,7 +206,7 @@ public class DeltaProcessor {
 										break; // could not read, ignore 
 									if (project.isClasspathEqualsTo(project.getRawClasspath(), project.getOutputLocation(), fileEntries))
 										break;
-
+	
 									// will force an update of the classpath/output location based on the file information
 									// extract out the output location
 									IPath outputLocation = null;
@@ -212,7 +224,14 @@ public class DeltaProcessor {
 										outputLocation = SetClasspathOperation.ReuseOutputLocation;
 									}
 									try {
-										project.setRawClasspath(fileEntries, outputLocation, null, true, false, project.getResolvedClasspath(true), true);
+										project.setRawClasspath(
+											fileEntries, 
+											outputLocation, 
+											null, // monitor
+											true, // canChangeResource
+											false, // forceSave
+											project.getResolvedClasspath(true), // ignoreUnresolvedVariable
+											true); // needCycleCheck
 									} catch (JavaModelException e) {
 									}
 								} catch (IOException e) {
@@ -222,7 +241,7 @@ public class DeltaProcessor {
 								} catch (CoreException e) {
 									break;
 								}
-
+	
 						}
 					}
 				}

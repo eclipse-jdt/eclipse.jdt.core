@@ -1228,7 +1228,10 @@ public class JavaProject
 	public IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable)
 		throws JavaModelException {
 
-		return this.getResolvedClasspath(ignoreUnresolvedVariable, false);
+		return 
+			this.getResolvedClasspath(
+				ignoreUnresolvedVariable, 
+				false); // generateMarkerOnError
 	}
 
 	/**
@@ -1940,7 +1943,14 @@ public class JavaProject
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, outputLocation, monitor, true, true, getResolvedClasspath(true), true);
+		setRawClasspath(
+			entries, 
+			outputLocation, 
+			monitor, 
+			true, // canChangeResource
+			true, // forceSave
+			getResolvedClasspath(true), // ignoreUnresolvedVariable
+			true); // needCycleCheck
 	}
 
 	public void setRawClasspath(
@@ -1985,7 +1995,14 @@ public class JavaProject
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
-		setRawClasspath(entries, SetClasspathOperation.ReuseOutputLocation, monitor, true, true, getResolvedClasspath(true), true);
+		setRawClasspath(
+			entries, 
+			SetClasspathOperation.ReuseOutputLocation, 
+			monitor, 
+			true, // canChangeResource
+			true, // forceSave
+			getResolvedClasspath(true), // ignoreUnresolvedVariable
+			true); // needCycleCheck
 	}
 
 	/**

@@ -520,24 +520,24 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 					// in case the project was removed then added
 					this.projectsBeingDeleted.remove(resource);
 					
-					// remember dependents
-					this.deltaProcessor.addDependentsToProjectsToUpdate(resource.getFullPath());
-					
+					// remember project and its dependents
+					this.deltaProcessor.addToProjectsToUpdateWithDependents((IProject)resource);
+
 				} else if (deltaKind == IResourceDelta.CHANGED) {
 					// in case the project was removed then added then changed
 					this.projectsBeingDeleted.remove(resource);
 					
 					if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-						// project opened or closed: remember dependents
-						this.deltaProcessor.addDependentsToProjectsToUpdate(resource.getFullPath());
+						// project opened or closed: remember  project and its dependents
+						this.deltaProcessor.addToProjectsToUpdateWithDependents((IProject)resource);
 					}
 					if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 						IProject project = (IProject)resource;
 						boolean wasJavaProject = this.getJavaModel().findJavaProject(project) != null;
 						boolean isJavaProject = this.deltaProcessor.hasJavaNature(project);
 						if (wasJavaProject != isJavaProject) {
-							// java nature added or removed: remember dependents
-							this.deltaProcessor.addDependentsToProjectsToUpdate(resource.getFullPath());
+							// java nature added or removed: remember  project and its dependents
+							this.deltaProcessor.addToProjectsToUpdateWithDependents((IProject)resource);
 						}
 					}
 				}

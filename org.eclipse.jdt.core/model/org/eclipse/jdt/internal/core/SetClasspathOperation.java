@@ -424,7 +424,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 		// resolve new path (asking for marker creation if problems)
 		IClasspathEntry[] newResolvedPath = 
-			project.getResolvedClasspath(true,  this.canChangeResource);// also update cp markers
+			project.getResolvedClasspath(
+				true, // ignoreUnresolvedEntry
+				this.canChangeResource);// also update cp markers
 
 		if (this.oldResolvedPath != null) {
 			generateClasspathChangeDeltas(
