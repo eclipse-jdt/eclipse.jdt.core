@@ -2611,7 +2611,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static void setClasspathContainer(IPath containerPath, final IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers, IProgressMonitor monitor) throws JavaModelException {
-		//TODO: need support for avoiding reentering calls (through getResolvedClasspath
 
 		Assert.isTrue(affectedProjects.length == respectiveContainers.length, Util.bind("classpath.mismatchProjectsContainers" )); //$NON-NLS-1$
 	
