@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite;
+
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -819,15 +820,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		
 		RewriteEvent[] events= event.getChildren();
-		boolean hasExisting= false;
-		for (int i= 0; i < events.length; i++) {
-			int changeKind= events[i].getChangeKind();
-			hasExisting |= (changeKind != RewriteEvent.INSERTED);
-		}
-		
 		ParagraphListRewriter listRewriter= new ParagraphListRewriter(insertIndent, separator);
 		StringBuffer leadString= new StringBuffer();
-		if (!hasExisting) {
+		if (isAllOfKind(events, RewriteEvent.INSERTED)) {
 			for (int i= 0; i < lead; i++) {
 				leadString.append(getLineDelimiter());
 			}
@@ -2999,8 +2994,30 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		pos= rewriteRequiredNode(node, EnumDeclaration.NAME_PROPERTY);
 		rewriteNodeList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, pos, " implements ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		// TODO; wait for resolve of bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=76190
-		rewriteNodeList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, pos, "", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+		pos= rewriteNodeList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, pos, "", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+
+		RewriteEvent bodyEvent= getEvent(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
+		int indent= 0;
+		if (bodyEvent != null && bodyEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
+			RewriteEvent[] children= bodyEvent.getChildren();
+			try {
+				int token= getScanner().readNext(pos, true);
+				boolean hasSemicolon= token == ITerminalSymbols.TokenNameSEMICOLON;
+				if (!hasSemicolon && isAllOfKind(children, RewriteEvent.INSERTED)) {
+					doTextInsert(pos, ";", getEditGroup(children[0])); //$NON-NLS-1$
+				} else if (hasSemicolon) {
+					int endPos= getScanner().getCurrentEndOffset();
+					if (isAllOfKind(children, RewriteEvent.REMOVED)) {
+						doTextRemove(pos, endPos - pos, getEditGroup(children[0])); //$NON-NLS-1$
+					}
+					pos= endPos;
+				}
+				indent= getIndent(pos);
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		}
+		rewriteParagraphList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, pos, indent, -1, 2);
 		return false;
 	}
 	/* (non-Javadoc)

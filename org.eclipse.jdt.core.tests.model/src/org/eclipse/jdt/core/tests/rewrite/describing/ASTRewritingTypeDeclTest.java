@@ -1111,6 +1111,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 	public void testEnumDeclaration() throws Exception {
+		// test the creation of an enum declaration
 		
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1123,11 +1124,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		List members= type.bodyDeclarations();
+		assertTrue("Has declarations", members.isEmpty());
+		
+        ListRewrite declarations= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 		{  // insert an enum inner class
-			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
-			List members= type.bodyDeclarations();
-			assertTrue("Has declarations", members.isEmpty());
-			
 	        EnumDeclaration enumD= ast.newEnumDeclaration();
 		      
 	        // where fEnumName is a String
@@ -1145,7 +1147,6 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	            enumStatements.add(constDecl);
 	        }
 
-	        ListRewrite declarations= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 	        declarations.insertFirst(enumD, null);
 		}
 
@@ -1159,6 +1160,169 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());		
 	}
+	
+	public void testEnumDeclaration2() throws Exception {
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    A, B, C\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		
+		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
+		
+		{ 	
+			// remove first, insert after 2nd
+			rewrite.remove((ASTNode) declaration.enumConstants().get(0), null);
+			
+			ASTNode newNode= ast.newSimpleName("X");
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
+			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(1), null);
+			
+			// add body declaration
+			
+			ListRewrite bodyListRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyListRewrite.insertFirst(createNewMethod(ast, "foo", false), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    B, X, C;\n");
+		buf.append("\n");
+		buf.append("    private void foo(String str) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());		
+	}
+	
+	public void testEnumDeclaration3() throws Exception {
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    A, B, C;\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		
+		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
+		
+		{ 	
+			// remove first, insert after 2nd
+			rewrite.remove((ASTNode) declaration.enumConstants().get(0), null);
+			
+			ASTNode newNode= ast.newSimpleName("X");
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
+			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(1), null);
+			
+			// add body declaration
+			
+			ListRewrite bodyListRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
+			bodyListRewrite.insertFirst(createNewMethod(ast, "foo", false), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    B, X, C;\n");
+		buf.append("\n");
+		buf.append("    private void foo(String str) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());		
+	}
+	
+	public void testEnumDeclaration4() throws Exception {
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    A, B, C;\n");
+		buf.append("    private void foo(String str) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
+		{ 	
+			rewrite.remove((ASTNode) declaration.enumConstants().get(2), null);
+			rewrite.remove((ASTNode) declaration.bodyDeclarations().get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    A, B\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());		
+	}
+	
+	public void testEnumDeclaration5() throws Exception {
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    A, B, C;\n");
+		buf.append("\n");
+		buf.append("    private void foo(String str) {\n");
+		buf.append("    }\n");
+		buf.append("    private void foo2(String str) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
+		{ 	
+			
+			ASTNode newNode= astRoot.getAST().newSimpleName("X");
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
+			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(2), null);
+
+			rewrite.remove((ASTNode) declaration.bodyDeclarations().get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public enum E {\n");
+		buf.append("    A, B, C, X;\n");
+		buf.append("\n");
+		buf.append("    private void foo2(String str) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());		
+	}
+
+
 	
 	
 	public void testAnnotationTypeDeclaration1() throws Exception {
