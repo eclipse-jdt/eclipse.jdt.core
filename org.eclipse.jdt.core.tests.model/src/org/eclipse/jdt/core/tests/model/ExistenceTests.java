@@ -133,7 +133,8 @@ public void testNonExistingPackageFragment() throws CoreException {
 	}
 }
 /*
- * Ensures that a package fragment root that is not on the classpath cannot be opened. */
+ * Ensures that a package fragment root that is not on the classpath cannot be opened.
+ */
 public void testPkgFragmentRootNotInClasspath() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
@@ -171,10 +172,8 @@ public void testCorrespondingResourceNonExistingClassFile() throws CoreException
 public void testCorrespondingResourceNonExistingCompilationUnit() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
-		/* TODO: Re-enable when we don't allow to open non existing cus
 		ICompilationUnit compilationUnit = this.getCompilationUnit("/P/src/X.java");
 		assertCorrespondingResourceFails(compilationUnit);
-		*/
 	} finally {
 		this.deleteProject("P");
 	}
@@ -232,7 +231,8 @@ public void testCorrespondingResourceNonExistingType() throws CoreException {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		this.createFile(
 			"/P/src/X.java",
-			"public class X{\n" +			"}"
+			"public class X{\n" +
+			"}"
 		);
 		IType type = getCompilationUnit("/P/src/X.java").getType("NonExisting");
 		assertCorrespondingResourceFails(type);
@@ -258,10 +258,8 @@ public void testUnderlyingResourceNonExistingClassFile() throws CoreException {
 public void testUnderlyingResourceNonExistingCompilationUnit() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
-		/* TODO: Re-enable when we don't allow to open non existing cus
 		ICompilationUnit compilationUnit = this.getCompilationUnit("/P/src/X.java");
 		assertUnderlyingResourceFails(compilationUnit);
-		*/
 	} finally {
 		this.deleteProject("P");
 	}

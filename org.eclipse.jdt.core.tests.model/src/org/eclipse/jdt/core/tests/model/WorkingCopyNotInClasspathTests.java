@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.model.*;
+import org.eclipse.jdt.internal.core.Util;
 
 public class WorkingCopyNotInClasspathTests extends ModifyingResourceTests {
 
@@ -76,13 +76,11 @@ public void testCommit() throws CoreException {
 	workingCopyBuffer.setContents(newContents);
 	this.workingCopy.commit(false, null);
 	
-	IBuffer originalBuffer = original.getBuffer();
-	assertTrue("Original buffer should not be null", originalBuffer != null);
-	
+	IFile originalFile = (IFile)original.getResource();
 	assertEquals(
 		"Unexpected contents", 
 		newContents, 
-		new String(originalBuffer.getCharacters()));
+		new String(Util.getResourceContentsAsCharArray(originalFile)));
 }
 
 /*
@@ -97,14 +95,13 @@ public void testParentExistence() throws CoreException {
 }
 
 /*
- * Ensure that a original cu (which is outside the classpath) does not exist 
- * (but can still be opened).
+ * Ensure that a original cu (which is outside the classpath) does not exist.
  */
 public void testOriginalExistence() throws CoreException {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
 	assertTrue(
-		"Original compilation unit should exist", 
-		original.exists());
+		"Original compilation unit should not exist", 
+		!original.exists());
 }
 public void testOriginalParentExistence() throws CoreException {
 	assertTrue(
@@ -115,11 +112,14 @@ public void testOriginalParentExistence() throws CoreException {
 public void testIsOpen() throws CoreException {
 	assertTrue("Working copy should be open", this.workingCopy.isOpen());
 }
+/*
+ * Ensure that a original cu (which is outside the classpath) is not opened.
+ */
 public void testOriginalIsOpen() throws CoreException {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
 	assertTrue(
-		"Original compilation should be open", 
-		original.isOpen());
+		"Original compilation should not be opened", 
+		!original.isOpen());
 }
 
 

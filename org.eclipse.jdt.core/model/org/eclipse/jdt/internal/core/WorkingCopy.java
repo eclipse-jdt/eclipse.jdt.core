@@ -10,8 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -77,21 +77,31 @@ public void commit(boolean force, IProgressMonitor monitor) throws JavaModelExce
 		CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
 		runOperation(op, monitor);
 	} else {
-		IFile originalRes = (IFile)original.getResource();
+		String encoding = this.getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+		String contents = this.getSource();
+		if (contents == null) return;
 		try {
-			originalRes.create(
-				new InputStream() {
-					public int read() throws IOException {
-						return -1;
-					}
-				},
-				force,
-				monitor);
+			byte[] bytes = encoding == null 
+				? contents.getBytes() 
+				: contents.getBytes(encoding);
+			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+			IFile originalRes = (IFile)original.getResource();
+			if (originalRes.exists()) {
+				originalRes.setContents(
+					stream, 
+					force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+					null);
+			} else {
+				originalRes.create(
+					stream,
+					force,
+					monitor);
+			}
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
+		} catch (UnsupportedEncodingException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
-		original.getBuffer().setContents(this.getContents());
-		original.save(monitor, force);
 	}
 }
 /**
@@ -385,6 +395,19 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	buffer.addBufferChangedListener(this);
 
 	return buffer;	
+}
+/*
+ * @see Openable#openParent(IProgressMonitor)
+ */
+protected void openParent(IProgressMonitor pm) throws JavaModelException {
+	try {
+		super.openParent(pm);
+	} catch(JavaModelException e){
+		// allow parent to not exist for working copies defined outside classpath
+		if (!e.isDoesNotExist()){ 
+			throw e;
+		}
+	}
 }
 
 /**

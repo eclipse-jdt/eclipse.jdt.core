@@ -538,11 +538,6 @@ public IType[] getTypes() throws JavaModelException {
 	list.toArray(array);
 	return array;
 }
-/*
- * TODO: Remove when UI has updated to use getResource() for cu outside classpath */
-public IResource getUnderlyingResource() throws JavaModelException {
-	return getResource();
-}
 /**
  * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  */
@@ -738,28 +733,6 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	buffer.addBufferChangedListener(this);
 	
 	return buffer;
-}
-/*
- * @see Openable#openParent(IProgressMonitor)
- */
-protected void openParent(IProgressMonitor pm) throws JavaModelException {
-	try {
-		super.openParent(pm);
-	} catch(JavaModelException e){
-		// allow parent to not exist for fake units defined outside classpath
-		// will be ok for both working copies and compilation units
-		if (!e.isDoesNotExist()){ 
-			throw e;
-		}
-	}
-}
-/**
- *  Answers true if the parent exists (null parent is answering true)
- * 
- */
-protected boolean parentExists(){
-	
-	return true; // tolerate units outside classpath
 }
 
 /**
