@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.io.*;
-import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
@@ -5077,7 +5076,6 @@ public void goForCompilationUnit(){
 	scanner.foundTaskCount = 0;
 	scanner.recordLineSeparator = true;
 	scanner.currentLine= null;
-	scanner.lines= new ArrayList();
 }
 public void goForConstructorBody(){
 	//tells the scanner to go for compilation unit parsing

@@ -10,9 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IScanner;
@@ -59,7 +57,6 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	public boolean scanningFloatLiteral = false;
 
 	//support for /** comments
-	//public char[][] comments = new char[10][];
 	public int[] commentStops = new int[10];
 	public int[] commentStarts = new int[10];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
@@ -136,7 +133,6 @@ public class Scanner implements IScanner, ITerminalSymbols {
 	int currentLineNr= -1;
 	int previousLineNr= -1;
 	NLSLine currentLine= null;
-	List lines= new ArrayList();
 	public static final String TAG_PREFIX= "//$NON-NLS-"; //$NON-NLS-1$
 	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length();
 	public static final String TAG_POSTFIX= "$"; //$NON-NLS-1$
@@ -1124,8 +1120,7 @@ public int getNextToken() throws InvalidInputException {
 					}
 					if (checkNonExternalizedStringLiterals){ // check for presence of	NLS tags //$NON-NLS-?$ where ? is an int.
 						if (currentLine == null) {
-							currentLine= new NLSLine();
-							lines.add(currentLine);
+							currentLine = new NLSLine();
 						}
 						currentLine.add(
 							new StringLiteral(
