@@ -153,6 +153,12 @@ public class SourceMapper
 				0,
 				importsCounter);
 		}
+		if (onDemand) {
+			int nameLength = name.length;
+			System.arraycopy(name, 0, (name = new char[nameLength + 2]), 0, nameLength);
+			name[nameLength] = '.';
+			name[nameLength + 1] = '*';
+		}
 		imports[importsCounter++] = name;
 		this.importsTable.put(fType, imports);
 		this.importsCounterTable.put(fType, new Integer(importsCounter));
