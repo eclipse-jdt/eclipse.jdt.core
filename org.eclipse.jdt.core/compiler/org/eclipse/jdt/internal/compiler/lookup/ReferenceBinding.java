@@ -182,126 +182,66 @@ public final boolean canBeSeenBy(Scope scope) {
 }
 public void computeId() {
 	if (compoundName.length != 3) {
-		if (compoundName.length == 4 && CharOperation.equals(JAVA_LANG_REFLECT_CONSTRUCTOR, compoundName)) {
+		if (compoundName.length == 4 && CharOperation.equals(JAVA_LANG_REFLECT_CONSTRUCTOR, compoundName))
 			id = T_JavaLangReflectConstructor;
-			return;
-		}
 		return;		// all other types are in java.*.*
 	}
-	//TODO (kent) should optimize by checking on fragment sizes + avoid comparing compound names after having checked java+lang at top
-	if (!CharOperation.equals(JAVA, compoundName[0]))
+
+	if (!CharOperation.equals(compoundName[0], JAVA))
 		return;		// assumes we only look up types in java
 
-	if (!CharOperation.equals(LANG, compoundName[1])) {
-		if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName)) {
+	if (!CharOperation.equals(compoundName[1], LANG)) {
+		if (CharOperation.equals(compoundName, JAVA_IO_PRINTSTREAM))
 			id = T_JavaIoPrintStream;
-			return;
-		}
-		return;		// all other types are in java.lang
+		else if (CharOperation.equals(compoundName, JAVA_UTIL_ITERATOR))
+			id = T_JavaUtilIterator;
+		return;
 	}
 
-	if (CharOperation.equals(JAVA_LANG_OBJECT, compoundName)) {
+	// all other types are in java.lang
+	char[] typeName = compoundName[2];
+	if (CharOperation.equals(typeName, JAVA_LANG_OBJECT[2]))
 		id = T_JavaLangObject;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_STRING, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
 		id = T_JavaLangString;
-		return;
-	}
-
-	// well-known exception types
-	if (CharOperation.equals(JAVA_LANG_THROWABLE, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_THROWABLE[2]))
 		id = T_JavaLangThrowable;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_ERROR, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_ERROR[2]))
 		id = T_JavaLangError;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_EXCEPTION, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_EXCEPTION[2]))
 		id = T_JavaLangException;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_CLASSNOTFOUNDEXCEPTION, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
 		id = T_JavaLangClassNotFoundException;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_NOCLASSDEFERROR, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_NOCLASSDEFERROR[2]))
 		id = T_JavaLangNoClassDefError;
-		return;
-	}
-
-	// other well-known types
-	if (CharOperation.equals(JAVA_LANG_CLASS, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_CLASS[2]))
 		id = T_JavaLangClass;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_STRINGBUFFER, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
 		id = T_JavaLangStringBuffer;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_SYSTEM, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
 		id = T_JavaLangSystem;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_INTEGER, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_INTEGER[2]))
 		id = T_JavaLangInteger;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_BYTE, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
 		id = T_JavaLangByte;
-		return;
-	}	
-
-	if (CharOperation.equals(JAVA_LANG_CHARACTER, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
 		id = T_JavaLangCharacter;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_FLOAT, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_FLOAT[2]))
 		id = T_JavaLangFloat;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_DOUBLE, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
 		id = T_JavaLangDouble;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_BOOLEAN, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
 		id = T_JavaLangBoolean;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_SHORT, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
 		id = T_JavaLangShort;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_LONG, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
 		id = T_JavaLangLong;
-		return;
-	}
-
-	if (CharOperation.equals(JAVA_LANG_VOID, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_VOID[2]))
 		id = T_JavaLangVoid;
-		return;
-	}
-	
-	if (CharOperation.equals(JAVA_LANG_ASSERTIONERROR, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_ASSERTIONERROR[2]))
 		id = T_JavaLangAssertionError;
-		return;
-	}
-	if (CharOperation.equals(JAVA_LANG_ITERABLE, compoundName)) {
+	else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
 		id = T_JavaLangIterable;
-		return;
-	}
-	if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName)) {
-		id = T_JavaUtilIterator;
-		return;
-	}
 }
 /* Answer the receiver's constant pool name.
 *

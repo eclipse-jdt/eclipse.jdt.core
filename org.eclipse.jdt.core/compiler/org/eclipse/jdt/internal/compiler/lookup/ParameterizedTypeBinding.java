@@ -48,22 +48,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		}
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
 	}
-	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#availableFields()
-	 */
-	public FieldBinding[] availableFields() {
-
-		return this.fields();
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#availableMethods()
-	 */
-	public MethodBinding[] availableMethods() {
-
-		return this.methods();
-	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#canBeInstantiated()
