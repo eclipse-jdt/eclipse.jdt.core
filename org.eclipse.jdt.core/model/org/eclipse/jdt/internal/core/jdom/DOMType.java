@@ -553,7 +553,7 @@ void normalize(ILineStartFinder finder) {
 	if (lastNode != null && fInsertionPosition < lastNode.getEndPosition()) {
 		fInsertionPosition = getCloseBodyPosition();
 	}
-	if (fInsertionPosition < openBodyEnd) {
+	if (fInsertionPosition <= openBodyEnd) {
 		fInsertionPosition = getCloseBodyPosition();
 	}
 	super.normalize(finder);
