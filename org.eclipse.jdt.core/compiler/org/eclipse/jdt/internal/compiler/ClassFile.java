@@ -2800,14 +2800,19 @@ public class ClassFile
 		String relativeFileName,
 		byte[] contents)
 		throws IOException {
+			
 		String fileName;
 		File file;
+		
 		BufferedOutputStream output = new BufferedOutputStream(
 			new FileOutputStream(
 				file =
 					new File((fileName = buildAllDirectoriesInto(outputPath, relativeFileName)))));
-		output.write(contents);
-		output.flush();
-		output.close();
+		try {
+			output.write(contents);
+		} finally {
+			output.flush();
+			output.close();
+		}
 	}
 }
