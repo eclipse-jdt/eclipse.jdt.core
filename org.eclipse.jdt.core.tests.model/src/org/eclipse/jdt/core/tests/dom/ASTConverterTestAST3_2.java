@@ -5513,6 +5513,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80338
 	 */
+	// TODO (jerome) remove this test as it has nothing to do on ASTConverterTest and it is a dup of ExistenceTests#testMethodWithInvalidParameter()
 	public void test0582() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0582", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		IType[] types = sourceUnit.getTypes();
