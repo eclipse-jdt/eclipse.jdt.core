@@ -49,12 +49,17 @@ What's new in this drop</h2>
 <li>Searching for references in Javadoc comments is now supported (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45518">45518</a>).
 	Found references are method parameters declared in @param tags,	types of exceptions declared in @throws/@exception tags
 	and all instance variables, methods, types or packages declared in @see tags.
-	<br>Note that this search fails when COMPILER option "Reporting Invalid Javadoc Annotation" is not activated.
+	<br>Note that this search does not depend on compiler option "Problem in Javadoc tags".
+	This means that valid references put in Javadoc comments (eg. /** ??? */ comments) will be reported in search view.
+	If some references are not found, verify that these references are correctly written in the Javadoc comments
+	using the compiler option "Problem in Javadoc tags".
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45596">45596</a>
+Wrongly complains about missing parameter javadoc entry in anonymous class
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
 NPE while searching a method references in jdt-core
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45520">45520</a>
 Potential NPE

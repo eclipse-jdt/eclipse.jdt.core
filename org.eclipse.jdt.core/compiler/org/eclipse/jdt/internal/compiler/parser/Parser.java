@@ -1976,6 +1976,11 @@ protected void consumeEnterVariable() {
 			pushOnAstStack(type);
 			declaration.declarationSourceStart = intStack[intPtr--];
 			declaration.modifiers = intStack[intPtr--];
+			
+			// Store annotation only on first declaration as it is the same for all ones
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) declaration;
+			fieldDeclaration.annotation = this.annotation;
+			this.annotation = null;
 		}
 	} else {
 		type = (TypeReference) astStack[astPtr - variableIndex];
@@ -2152,11 +2157,6 @@ protected void consumeFieldDeclaration() {
 		fieldDeclaration.declarationEnd = endStatementPosition;	// semi-colon included
 	}
 	
-	// Store annotation only on first declaration as it is the same for all ones
-	FieldDeclaration firstDeclaration = (FieldDeclaration) astStack[astPtr];
-	firstDeclaration.annotation = this.annotation;
-	this.annotation = null;
-
 	updateSourceDeclarationParts(variableDeclaratorsCounter);
 	int endPos = flushAnnotationsDefinedPriorTo(endStatementPosition);
 	if (endPos != endStatementPosition) {
