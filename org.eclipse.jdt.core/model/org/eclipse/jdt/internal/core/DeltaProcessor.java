@@ -311,7 +311,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 	 * Check all external JARs status and issue a corresponding root delta.
 	 * Also triggers index updates
 	 */
-	public void checkExternalJarChanges(IProgressMonitor monitor) {
+	public void checkExternalJarChanges(IProgressMonitor monitor) throws JavaModelException {
 
 		try {
 			HashMap externalJARsStatus = new HashMap();
@@ -322,6 +322,9 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			
 			IJavaProject[] projects =model.getOldJavaProjectsList();
 			for (int i = 0, length = projects.length; i < length; i++) {
+				
+				if (monitor != null && monitor.isCanceled()) return; 
+				
 				IJavaProject project = projects[i];
 				IClasspathEntry[] entries = project.getResolvedClasspath(true);
 				for (int j = 0; j < entries.length; j++){
@@ -411,9 +414,9 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			if (hasDelta){
 				this.manager.fire(fCurrentDelta, JavaModelManager.DEFAULT_CHANGE_EVENT);			
 			}
-		} catch (JavaModelException e) { // nothing can be done
 		} finally {
 			fCurrentDelta = null;
+			if (monitor != null) monitor.done();
 		}
 	}
 	
