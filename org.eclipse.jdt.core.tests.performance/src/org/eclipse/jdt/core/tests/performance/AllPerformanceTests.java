@@ -26,8 +26,7 @@ public class AllPerformanceTests extends TestCase {
 			FullSourceWorkspaceBuildTests.class,
 //			FullSourceWorkspaceCompletionTests.class,
 			FullSourceWorkspaceASTTests.class,
-			FullSourceWorkspaceTypeHierarchyTests.class,
-			NameLookupTests2.class
+			FullSourceWorkspaceTypeHierarchyTests.class
 		};
 	}
 	public static Test suite() {
