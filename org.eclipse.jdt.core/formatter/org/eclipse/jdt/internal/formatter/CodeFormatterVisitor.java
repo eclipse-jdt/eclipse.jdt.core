@@ -191,9 +191,29 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
 
 		switch((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+			case OperatorIds.MULTIPLY :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameMULTIPLY));
+				binaryExpression.right.traverse(builder, scope);
+				break;
 			case OperatorIds.PLUS :
 				binaryExpression.left.traverse(builder, scope);
 				builder.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+			case OperatorIds.DIVIDE :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameDIVIDE));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+			case OperatorIds.REMAINDER :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameREMAINDER));
+				binaryExpression.right.traverse(builder, scope);
+				break;
+			case OperatorIds.XOR :
+				binaryExpression.left.traverse(builder, scope);
+				builder.operatorsList.add(new Integer(TerminalTokens.TokenNameXOR));
 				binaryExpression.right.traverse(builder, scope);
 				break;
 			case OperatorIds.MINUS :
@@ -363,7 +383,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		BinaryExpressionFragmentBuilder builder = buildFragments(binaryExpression, scope);
 		final int fragmentsSize = builder.size();
 		
-		if (builder.realFragmentsSize() > 1 && numberOfParens == 0) {
+		if ((builder.realFragmentsSize() > 1 || builder.size() > 4) && numberOfParens == 0) {
 			this.scribe.printComment();
 			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.binary_expression_alignment, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(binaryExpressionAlignment);

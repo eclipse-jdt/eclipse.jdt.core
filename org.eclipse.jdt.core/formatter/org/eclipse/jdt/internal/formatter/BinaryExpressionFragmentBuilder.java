@@ -195,6 +195,34 @@ class BinaryExpressionFragmentBuilder
 					} else {
 						return false;
 					}
+				case OperatorIds.MULTIPLY :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameMULTIPLY));
+						return true;
+					} else {
+						return false;
+					}
+				case OperatorIds.REMAINDER :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameREMAINDER));
+						return true;
+					} else {
+						return false;
+					}
+				case OperatorIds.XOR :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameXOR));
+						return true;
+					} else {
+						return false;
+					}
+				case OperatorIds.DIVIDE :
+					if (buildFragments(binaryExpression)) {
+						this.operatorsList.add(new Integer(TerminalTokens.TokenNameDIVIDE));
+						return true;
+					} else {
+						return false;
+					}
 				case OperatorIds.OR :
 					if (buildFragments(binaryExpression)) {
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameOR));

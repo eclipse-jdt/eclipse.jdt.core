@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -49,21 +48,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	public static Test suite() {
-		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-
 		if (true) {
-			Class c = FormatterRegressionTests.class;
-			Method[] methods = c.getMethods();
-			for (int i = 0, max = methods.length; i < max; i++) {
-				if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-					suite.addTest(
-						new FormatterRegressionTests(methods[i].getName()));
-				}
-			}
+			return new Suite(FormatterRegressionTests.class);
 		} else {
-			suite.addTest(new FormatterRegressionTests("test354"));  //$NON-NLS-1$
+			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
+			suite.addTest(new FormatterRegressionTests("test356"));  //$NON-NLS-1$
+			return suite;
 		}
-		return suite;
 	}
 
 	public FormatterRegressionTests(String name) {
@@ -3858,8 +3849,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47800
 	 */
-	public void _test356() {
+	public void test356() {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BINARY_EXPRESSION_ALIGNMENT, DefaultCodeFormatterConstants.FORMATTER_COMPACT_SPLIT);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
