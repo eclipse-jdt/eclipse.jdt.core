@@ -389,6 +389,12 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	private JavaModelManager() {
 	}
 	/**
+	 * @deprecated - discard once debug has converted to not using it
+	 */
+	public void addElementChangedListener(IElementChangedListener listener) {
+		this.addElementChangedListener(listener, ElementChangedEvent.POST_CHANGE | ElementChangedEvent.POST_RECONCILE);
+	}
+	/**
 	 * addElementChangedListener method comment.
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
 	 * any of the other (i.e. it deregisters itself).
