@@ -241,7 +241,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.METHOD:
-			match = locator.newMethodReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
+			boolean isConstructor = reference instanceof ExplicitConstructorCall;
+			boolean isSynthetic = isConstructor ? ((ExplicitConstructorCall) reference).isImplicitSuper() : false;
+			match = locator.newMethodReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, isConstructor, isSynthetic, reference);
 			break;
 		case IJavaElement.LOCAL_VARIABLE:
 			match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
@@ -250,6 +252,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	if (match != null) {
 		locator.report(match);
 	}
+}
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
+    return locator.newDeclarationMatch(element, accuracy, reference.sourceStart, length);
 }
 protected int referenceType() {
 	return 0; // defaults to unknown (a generic JavaSearchMatch will be created)

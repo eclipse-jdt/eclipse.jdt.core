@@ -38,6 +38,7 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 	public boolean showContext;
 	public boolean showInsideDoc;
 	public boolean showProject;
+	public boolean showSynthetic;
 	public void acceptSearchMatch(SearchMatch match) throws CoreException {
 		try {
 			if (results.length() > 0) results.append("\n");
@@ -135,6 +136,14 @@ public static class JavaSearchResultCollector extends SearchRequestor {
 					results.append("INSIDE_JAVADOC");
 				} else {
 					results.append("OUTSIDE_JAVADOC");
+				}
+			}
+			if (this.showSynthetic) {
+				if (match instanceof MethodReferenceMatch) {
+					MethodReferenceMatch methRef = (MethodReferenceMatch) match;
+					if (methRef.isSynthetic()) {
+						results.append(" SYNTHETIC");
+					}
 				}
 			}
 		} catch (JavaModelException e) {
@@ -290,7 +299,7 @@ public static Test suite() {
 	if (false) {
 		Suite suite = new Suite(JavaSearchTests.class.getName());
 		System.err.println("WARNING: Only subset of test cases are running for "+JavaSearchTests.class.getName());
-		suite.addTest(new JavaSearchTests("testPackageReference1"));
+		suite.addTest(new JavaSearchTests("testConstructorReference10"));
 		return suite;
 	}
 	return new Suite(JavaSearchTests.class);
@@ -505,6 +514,25 @@ public void testConstructorReference09() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/p2/Y.java Object p2.Y.foo() [new X<Object>(this)]",
+		resultCollector);
+}
+/**
+ * Constructor reference using an implicit constructor call.
+ * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
+ */
+public void testConstructorReference10() throws CoreException { // was testConstructorReferenceImplicitConstructorCall2
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showSynthetic = true;
+	search(
+		"c11.A()", 
+		CONSTRUCTOR, 
+		REFERENCES,
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/c11/A.java c11.A1 [A1] SYNTHETIC\n" + 
+		"src/c11/A.java c11.A2() [A2] SYNTHETIC\n" + 
+		"src/c11/A.java c11.A3() [super()]",
 		resultCollector);
 }
 /**

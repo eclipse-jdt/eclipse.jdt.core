@@ -193,6 +193,24 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	if (closestPattern != null)
 		closestPattern.matchReportReference(reference, element, accuracy, locator);
 }
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
+	PatternLocator closestPattern = null;
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, pl = this.patternLocators.length; i < pl; i++) {
+		PatternLocator patternLocator = this.patternLocators[i];
+		int newLevel = patternLocator.referenceType() == 0 ? IMPOSSIBLE_MATCH : patternLocator.resolveLevel(reference);
+		if (newLevel > level) {
+			closestPattern = patternLocator;
+			if (newLevel == ACCURATE_MATCH) break;
+			level = newLevel;
+		}
+	}
+	if (closestPattern != null) {
+	    return closestPattern.newDeclarationMatch(reference, element, accuracy, length, locator);
+	}
+	// super implementation...
+    return locator.newDeclarationMatch(element, accuracy, reference.sourceStart, length);
+}
 public int resolveLevel(ASTNode node) {
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {

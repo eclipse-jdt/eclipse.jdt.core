@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -114,6 +115,33 @@ protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 	}
 
 	return ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+}
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
+	SearchMatch match = null;
+	int offset = reference.sourceStart;
+	if (this.pattern.findReferences) {
+		if (reference instanceof TypeDeclaration) {
+			TypeDeclaration type = (TypeDeclaration) reference;
+			AbstractMethodDeclaration[] methods = type.methods;
+			if (methods != null) {
+				for (int i = 0, max = methods.length; i < max; i++) {
+					AbstractMethodDeclaration method = methods[i];
+					boolean synthetic = method.isDefaultConstructor() && method.sourceStart < type.bodyStart;
+					match = locator.newMethodReferenceMatch(element, accuracy, offset, length, method.isConstructor(), synthetic, method);
+				}
+			}
+		} else if (reference instanceof ConstructorDeclaration) {
+			ConstructorDeclaration constructor = (ConstructorDeclaration) reference;
+			ExplicitConstructorCall call = constructor.constructorCall;
+			boolean synthetic = call != null && call.isImplicitSuper();
+			match = locator.newMethodReferenceMatch(element, accuracy, offset, length, constructor.isConstructor(), synthetic, constructor);
+		}
+	}
+	if (match != null) {
+		return match;
+	}
+	// super implementation...
+    return locator.newDeclarationMatch(element, accuracy, reference.sourceStart, length);
 }
 public int resolveLevel(ASTNode node) {
 	if (this.pattern.findReferences) {

@@ -1064,11 +1064,13 @@ public SearchMatch newMethodReferenceMatch(
 		int accuracy,
 		int offset,  
 		int length,
+		boolean isConstructor,
+		boolean isSynthetic,
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
-	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
+	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, insideDocComment, participant, resource);
 }
 
 public SearchMatch newPackageReferenceMatch(
@@ -1342,7 +1344,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 			}
 			if (encloses(enclosingElement)) {
 				int length = scanner.currentPosition - nameSourceStart;
-				SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, nameSourceStart, length);
+				SearchMatch match = this.patternLocator.newDeclarationMatch(method, enclosingElement, accuracy, length, this);
 				report(match);
 			}
 		}
@@ -1534,7 +1536,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	// report the type declaration
 	if (accuracy > -1 && encloses(enclosingElement)) {
 		int offset = type.sourceStart;
-		SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, offset, type.sourceEnd-offset+1);
+		SearchMatch match = this.patternLocator.newDeclarationMatch(type, enclosingElement, accuracy, type.sourceEnd-offset+1, this);
 		report(match);
 	}
 
