@@ -199,10 +199,6 @@ BooleanLiteral -> true
 BooleanLiteral -> false
 /:$readableName BooleanLiteral:/
 
--------------------------------------------------------------
--------------------------------------------------------------
---a Type results in both a push of its dimension(s) and its name(s).
-
 Type ::= PrimitiveType
 /.$putCase consumePrimitiveType(); $break ./
 Type -> ReferenceType
@@ -228,7 +224,8 @@ FloatingPointType -> 'double'
 
 ReferenceType ::= ClassOrInterfaceType
 /.$putCase consumeReferenceType();  $break ./
-ReferenceType -> ArrayType -- here a push of dimensions is done, that explains the two previous push 0
+-- here a push of dimensions is done, that explains the two previous push 0
+ReferenceType -> ArrayType
 /:$readableName ReferenceType:/
 
 ---------------------------------------------------------------
