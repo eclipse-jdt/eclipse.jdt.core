@@ -426,6 +426,7 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 		Util.sort(filePaths); 
 		
 		// initialize pattern for polymorphic search (ie. method reference pattern)
+		this.matchingOpenables = new MatchingOpenableSet();
 		this.pattern.initializePolymorphicSearch(this, this.collector.getProgressMonitor());
 		
 		JavaProject previousJavaProject = null;
@@ -433,7 +434,6 @@ private void initializeMatchingOpenables(IWorkingCopy[] workingCopies) {
 		double increment = 100.0 / length;
 		double totalWork = 0;
 		int lastProgress = 0;
-		this.matchingOpenables = new MatchingOpenableSet();
 		for (int i = 0; i < length; i++) {
 			IProgressMonitor monitor = this.collector.getProgressMonitor();
 			if (monitor != null && monitor.isCanceled()) {
