@@ -640,6 +640,9 @@ public class TypeDeclaration
 			for (int i = 0, count = fields.length; i < count; i++) {
 				FieldDeclaration field = fields[i];
 				if (field.isStatic()) {
+					if (!staticFieldInfo.isReachable())
+						field.bits &= ~ASTNode.IsReachableMASK;
+					
 					/*if (field.isField()){
 						staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
 					} else {*/
@@ -657,6 +660,9 @@ public class TypeDeclaration
 						staticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
 					}
 				} else {
+					if (!nonStaticFieldInfo.isReachable())
+						field.bits &= ~ASTNode.IsReachableMASK;
+					
 					/*if (field.isField()){
 						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
 					} else {*/
