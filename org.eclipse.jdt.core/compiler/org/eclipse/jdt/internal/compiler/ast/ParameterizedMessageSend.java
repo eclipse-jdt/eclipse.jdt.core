@@ -10,6 +10,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+
 public class ParameterizedMessageSend extends MessageSend {
 	public TypeReference[] typeArguments;
+	
+public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
+	if (visitor.visit(this, blockScope)) {
+		receiver.traverse(visitor, blockScope);
+		for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+			this.typeArguments[i].traverse(visitor, blockScope);
+		}
+		if (arguments != null) {
+			int argumentsLength = arguments.length;
+			for (int i = 0; i < argumentsLength; i++)
+				arguments[i].traverse(visitor, blockScope);
+		}
+	}
+	visitor.endVisit(this, blockScope);
+}	
 }

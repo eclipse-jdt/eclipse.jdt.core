@@ -67,9 +67,9 @@ public class IteratorForStatement extends Statement {
 		output.append(" : ");//$NON-NLS-1$
 		this.collection.print(0, output).append(") "); //$NON-NLS-1$
 		//block
-		if (action == null)
+		if (action == null) {
 			output.append(';');
-		else {
+		} else {
 			output.append('\n');
 			action.printStatement(tab + 1, output); //$NON-NLS-1$
 		}

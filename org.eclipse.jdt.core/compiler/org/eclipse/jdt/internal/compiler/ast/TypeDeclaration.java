@@ -32,6 +32,7 @@ public class TypeDeclaration
 	public FieldDeclaration[] fields;
 	public AbstractMethodDeclaration[] methods;
 	public MemberTypeDeclaration[] memberTypes;
+	public EnumDeclaration[] enumDeclarations;
 	public SourceTypeBinding binding;
 	public ClassScope scope;
 	public MethodScope initializerScope;
@@ -733,6 +734,14 @@ public class TypeDeclaration
 	public StringBuffer printBody(int indent, StringBuffer output) {
 
 		output.append(" {"); //$NON-NLS-1$
+		if (enumDeclarations != null) {
+			for (int i = 0; i < enumDeclarations.length; i++) {
+				if (enumDeclarations[i] != null) {
+					output.append('\n');
+					enumDeclarations[i].print(indent + 1, output);
+				}
+			}
+		}
 		if (memberTypes != null) {
 			for (int i = 0; i < memberTypes.length; i++) {
 				if (memberTypes[i] != null) {
@@ -942,6 +951,12 @@ public class TypeDeclaration
 					int methodsLength = methods.length;
 					for (int i = 0; i < methodsLength; i++)
 						methods[i].traverse(visitor, scope);
+				}
+				if (enumDeclarations != null) {
+					int enumDeclarationsLength = enumDeclarations.length;
+					for (int i = 0; i < enumDeclarationsLength; i++) {
+						enumDeclarations[i].traverse(visitor, scope);
+					}
 				}
 			}
 			visitor.endVisit(this, unitScope);

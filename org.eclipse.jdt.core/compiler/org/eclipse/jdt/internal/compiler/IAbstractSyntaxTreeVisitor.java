@@ -58,6 +58,10 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(DoubleLiteral doubleLiteral, BlockScope scope);
 	void endVisit(EqualExpression equalExpression, BlockScope scope);
 	void endVisit(EmptyStatement statement, BlockScope scope);
+	void endVisit(EnumConstant enumConstant, ClassScope scope);
+	void endVisit(EnumDeclaration enumDeclaration, BlockScope scope);
+	void endVisit(EnumDeclaration enumDeclaration, CompilationUnitScope scope);
+	void endVisit(EnumDeclaration enumDeclaration, ClassScope scope);
 	void endVisit(ExplicitConstructorCall explicitConstructor, BlockScope scope);
 	void endVisit(ExtendedStringLiteral extendedStringLiteral, BlockScope scope);
 	void endVisit(FalseLiteral falseLiteral, BlockScope scope);
@@ -80,6 +84,12 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(MethodDeclaration methodDeclaration, ClassScope scope);
 	void endVisit(NullLiteral nullLiteral, BlockScope scope);
 	void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope);
+	void endVisit(ParameterizedAllocationExpression allocationExpression, BlockScope scope);
+	void endVisit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope);
+	void endVisit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope);
+	void endVisit(ParameterizedMessageSend messageSend, BlockScope scope);
+	void endVisit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope);
+	void endVisit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope);
 	void endVisit(PostfixExpression postfixExpression, BlockScope scope);
 	void endVisit(PrefixExpression prefixExpression, BlockScope scope);
 	void endVisit(QualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope);
@@ -146,6 +156,10 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(DoubleLiteral doubleLiteral, BlockScope scope);
 	boolean visit(EqualExpression equalExpression, BlockScope scope);
 	boolean visit(EmptyStatement statement, BlockScope scope);
+	boolean visit(EnumConstant enumConstant, ClassScope scope);
+	boolean visit(EnumDeclaration enumDeclaration, BlockScope scope);
+	boolean visit(EnumDeclaration enumDeclaration, ClassScope scope);
+	boolean visit(EnumDeclaration enumDeclaration, CompilationUnitScope scope);
 	boolean visit(ExplicitConstructorCall explicitConstructor, BlockScope scope);
 	boolean visit(ExtendedStringLiteral extendedStringLiteral, BlockScope scope);
 	boolean visit(FalseLiteral falseLiteral, BlockScope scope);
@@ -168,6 +182,12 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(MethodDeclaration methodDeclaration, ClassScope scope);
 	boolean visit(NullLiteral nullLiteral, BlockScope scope);
 	boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope);
+	boolean visit(ParameterizedAllocationExpression allocationExpression, BlockScope scope);
+	boolean visit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope);
+	boolean visit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope);
+	boolean visit(ParameterizedMessageSend messageSend, BlockScope scope);
+	boolean visit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope);
+	boolean visit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope);
 	boolean visit(PostfixExpression postfixExpression, BlockScope scope);
 	boolean visit(PrefixExpression prefixExpression, BlockScope scope);
 	boolean visit(QualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope);

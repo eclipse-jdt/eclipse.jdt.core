@@ -31,18 +31,13 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(AND_AND_Expression and_and_Expression, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-		BlockScope scope) {
+	public void endVisit(AnnotationArgumentExpression expression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(AnnotationArgumentExpression expression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(AnnotationFieldReference fieldRef, BlockScope scope) {
@@ -61,6 +56,11 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		// do nothing by default
 	}
 	public void endVisit(AnnotationSingleTypeReference typeRef, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
+		BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(Argument argument, BlockScope scope) {
@@ -93,10 +93,10 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(ArrayTypeReference arrayTypeReference, ClassScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(Assignment assignment, BlockScope scope) {
+	public void endVisit(AssertStatement assertStatement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AssertStatement assertStatement, BlockScope scope) {
+	public void endVisit(Assignment assignment, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(BinaryExpression binaryExpression, BlockScope scope) {
@@ -150,6 +150,29 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(DoubleLiteral doubleLiteral, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(EmptyStatement emptyStatement, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+		EnumConstant enumConstant,
+		ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+		EnumDeclaration enumDeclaration,
+		BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+		EnumDeclaration enumDeclaration,
+		ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+		EnumDeclaration enumDeclaration,
+		CompilationUnitScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(EqualExpression equalExpression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -173,9 +196,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		// do nothing by default
 	}
 	public void endVisit(FloatLiteral floatLiteral, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(EmptyStatement emptyStatement, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(ForStatement forStatement, BlockScope scope) {
@@ -230,6 +250,24 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		// do nothing by default
 	}
 	public void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedAllocationExpression allocationExpression, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedMessageSend messageSend, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(PostfixExpression postfixExpression, BlockScope scope) {
@@ -348,18 +386,13 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(AND_AND_Expression and_and_Expression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(
-		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
-		BlockScope scope) {
+	public boolean visit(AnnotationArgumentExpression expression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(AnnotationArrayQualifiedTypeReference typeRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(AnnotationArgumentExpression expression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(AnnotationFieldReference fieldRef, BlockScope scope) {
@@ -378,6 +411,11 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(AnnotationSingleTypeReference typeRef, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(
+		AnonymousLocalTypeDeclaration anonymousTypeDeclaration,
+		BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Argument argument, BlockScope scope) {
@@ -410,10 +448,10 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(ArrayTypeReference arrayTypeReference, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(Assignment assignment, BlockScope scope) {
+	public boolean visit(AssertStatement assertStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AssertStatement assertStatement, BlockScope scope) {
+	public boolean visit(Assignment assignment, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
@@ -467,10 +505,22 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(DoubleLiteral doubleLiteral, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
+	public boolean visit(EmptyStatement emptyStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(EmptyStatement emptyStatement, BlockScope scope) {
+	public boolean visit(EnumConstant enumConstant, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(EnumDeclaration enumDeclaration, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(EnumDeclaration enumDeclaration, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(EnumDeclaration enumDeclaration, CompilationUnitScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
@@ -547,6 +597,24 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedAllocationExpression allocationExpression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedConstructorDeclaration constructorDeclaration, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedExplicitConstructorCall explicitConstructorCall, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedMessageSend messageSend, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedMethodDeclaration methodDeclaration, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ParameterizedQualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(PostfixExpression postfixExpression, BlockScope scope) {

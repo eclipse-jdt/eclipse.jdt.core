@@ -458,7 +458,7 @@ public class CompilationUnit extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 4 * 4;
+		int size = BASE_NODE_SIZE + 6 * 4;
 		if (lineEndTable != null) {
 			size += HEADERS + 4 * lineEndTable.length;
 		}
