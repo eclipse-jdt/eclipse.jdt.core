@@ -26,4 +26,6 @@ public interface AttributeNamesConstants {
 	final char[] AnnotationDefaultName = "AnnotationDefault".toCharArray(); //$NON-NLS-1$
 	final char[] RuntimeInvisibleAnnotationsName = "RuntimeInvisibleAnnotations".toCharArray(); //$NON-NLS-1$
 	final char[] RuntimeVisibleAnnotationsName = "RuntimeVisibleAnnotations".toCharArray(); //$NON-NLS-1$
+	final char[] RuntimeInvisibleParameterAnnotationsName = "RuntimeInvisibleParameterAnnotations".toCharArray(); //$NON-NLS-1$
+	final char[] RuntimeVisibleParameterAnnotationsName = "RuntimeVisibleParameterAnnotations".toCharArray(); //$NON-NLS-1$
 }

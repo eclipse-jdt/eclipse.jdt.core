@@ -3138,6 +3138,13 @@ public class ClassFile
 			if (annotations != null) {
 				attributeNumber += generateRuntimeAnnotations(annotations);
 			}
+			/*
+			 * TODO (olivier) enable when ready to generate attribute for parameters
+			 */
+/*			Argument[] arguments = methodDeclaration.arguments;
+			if (arguments != null) {
+				attributeNumber += generateRuntimeAnnotationsForParameters(arguments);
+			}*/
 		}
 		return attributeNumber;
 	}
@@ -3378,7 +3385,7 @@ public class ClassFile
 		}
 		return attributesNumber;
 	}
-
+	
 	/**
 	 * EXTERNAL API
 	 * Answer the actual bytes of the class file
