@@ -766,4 +766,20 @@ public void test0049() throws JavaModelException {
 		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC),
 		requestor.getResults());
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74753
+ */
+public void test0050() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0050", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Test<T_0050";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"element:T_0050    completion:T_0050    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED),
+		requestor.getResults());
+}
 }
