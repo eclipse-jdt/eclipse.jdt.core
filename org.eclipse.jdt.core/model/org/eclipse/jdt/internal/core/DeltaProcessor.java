@@ -1182,6 +1182,13 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						break;
 				}
 				break;
+			} else {
+				int kind = delta.getKind();
+				if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED) {
+					IPackageFragmentRoot root = (IPackageFragmentRoot)element;
+					this.updateRootIndex(root, root.getPackageFragment(""), delta); //$NON-NLS-1$
+					break;
+				}
 			}
 			// don't break as packages of the package fragment root can be indexed below
 		case IJavaElement.PACKAGE_FRAGMENT :
@@ -1254,6 +1261,27 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 					indexManager.remove(file.getFullPath().toString(), file.getProject().getProject().getFullPath());
 					break;
 			}
+	}
+}
+/**
+ * Upadtes the index of the given root (assuming it's an addition or a removal).
+ * This is done recusively, pkg being the current package.
+ */
+private void updateRootIndex(IPackageFragmentRoot root, IPackageFragment pkg, IResourceDelta delta) {
+	this.updateIndex((Openable)pkg, delta);
+	IResourceDelta[] children = delta.getAffectedChildren();
+	String name = pkg.getElementName();
+	for (int i = 0, length = children.length; i < length; i++) {
+		IResourceDelta child = children[i];
+		IResource resource = child.getResource();
+		if (resource instanceof IFolder) {
+			String subpkgName = 
+				name.length() == 0 ? 
+					resource.getName() : 
+					name + "." + resource.getName(); //$NON-NLS-1$
+			IPackageFragment subpkg = root.getPackageFragment(subpkgName);
+			this.updateRootIndex(root, subpkg, child);
+		}
 	}
 }
 

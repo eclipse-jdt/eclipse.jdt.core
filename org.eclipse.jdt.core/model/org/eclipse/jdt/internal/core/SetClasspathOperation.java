@@ -270,7 +270,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 		boolean hasDelta = false;
 		boolean oldResolvedPathLongest =
 			oldResolvedPath.length >= newResolvedPath.length;
-
+			
+		IndexManager indexManager = manager.getIndexManager();
 		for (int i = 0; i < oldResolvedPath.length; i++) {
 
 			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
@@ -284,10 +285,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 					(changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
 
 				// force detach source on jar package fragment roots (source will be lazily computed when needed)
+				// and remove the .java files from the index (.class files belong to binary folders which can be shared, 
+				// so leave the index) 
 				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
 					IPackageFragmentRoot root = pkgFragmentRoots[j];
 					if (root instanceof JarPackageFragmentRoot) {
 						((JarPackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
+					} else if (indexManager != null && changeKind == IClasspathEntry.CPE_SOURCE) {
+						indexManager.removeSourceFolderFromIndex(project, oldResolvedPath[i].getPath());
 					}
 				}
 				hasDelta = true;
@@ -317,22 +322,26 @@ public class SetClasspathOperation extends JavaModelOperation {
 					delta);
 				int changeKind = newResolvedPath[i].getEntryKind();
 				
-				// Request indexing of the library
-				if (changeKind == IClasspathEntry.CPE_LIBRARY) {
-					IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-					if (indexManager != null) {
-						boolean pathHasChanged = true;
-						IPath newPath = newResolvedPath[i].getPath();
-						for (int j = 0; j < oldResolvedPath.length; j++) {
-							IClasspathEntry oldEntry = oldResolvedPath[j];
-							if (oldEntry.getPath().equals(newPath)) {
-								pathHasChanged = false;
-								break;
+				// Request indexing
+				if (indexManager != null) {
+					switch (changeKind) {
+						case IClasspathEntry.CPE_LIBRARY:
+							boolean pathHasChanged = true;
+							IPath newPath = newResolvedPath[i].getPath();
+							for (int j = 0; j < oldResolvedPath.length; j++) {
+								IClasspathEntry oldEntry = oldResolvedPath[j];
+								if (oldEntry.getPath().equals(newPath)) {
+									pathHasChanged = false;
+									break;
+								}
 							}
-						}
-						if (pathHasChanged) {
-							indexManager.indexLibrary(newPath, project.getProject());
-						}
+							if (pathHasChanged) {
+								indexManager.indexLibrary(newPath, project.getProject());
+							}
+							break;
+						case IClasspathEntry.CPE_SOURCE:
+							indexManager.indexSourceFolder(project, newResolvedPath[i].getPath());
+							break;
 					}
 				}
 				

@@ -6,12 +6,13 @@ package org.eclipse.jdt.internal.core.search.indexing;
  */
 
 import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.search.IndexSelector;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.Util;
@@ -75,6 +76,39 @@ public void add(IFile resource, IPath indexedContainer){
 			job.initializeContents();
 		}
 		request(job);
+	}
+}
+/**
+ * Index the content of the given source folder.
+ */
+public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder) {
+	IProject project = javaProject.getProject();
+	final IPath container = project.getFullPath();
+	IContainer folder;
+	if (container.equals(sourceFolder)) {
+		folder = project;
+	} else {
+		folder = ResourcesPlugin.getWorkspace().getRoot().getFolder(sourceFolder);
+	}
+	try {
+		folder.accept(new IResourceVisitor() {
+			/*
+			 * @see IResourceVisitor#visit(IResource)
+			 */
+			public boolean visit(IResource resource) throws CoreException {
+				if (resource instanceof IFile) {
+					if ("java".equalsIgnoreCase(resource.getFileExtension())) {  //$NON-NLS-1$
+						add((IFile)resource, container);
+					}
+					return false;
+				} else {
+					return true;
+				}
+			}
+		});
+	} catch (CoreException e) {
+		// Folder does not exist.
+		// It will be indexed only when DeltaProcessor detects its addition
 	}
 }
 /**
@@ -316,6 +350,12 @@ public synchronized void removeIndex(IPath path) {
 	index.getIndexFile().delete();
 	this.indexes.remove(canonicalPath);
 	this.monitors.remove(index);
+}
+/**
+ * Remove the content of the given source folder from the index.
+ */
+public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder) {
+	this.request(new RemoveFolderFromIndex(sourceFolder.toString(), javaProject.getProject().getFullPath(), this));
 }
 
 /**
