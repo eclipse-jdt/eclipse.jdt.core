@@ -362,15 +362,13 @@ public ReferenceBinding getMemberType(char[] typeName) {
 	    if (memberType instanceof UnresolvedReferenceBinding) {
 			char[] name = memberType.sourceName; // source name is qualified with enclosing type name
 			int prefixLength = this.sourceName.length + 1; // enclosing$
-			if (name.length != (prefixLength + typeName.length)) { // enclosing $ typeName
-			    continue;
+			if (name.length == (prefixLength + typeName.length)) { // enclosing $ typeName
+				if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) { // only check trailing portion
+					memberType = ((UnresolvedReferenceBinding) memberType).resolve(environment);
+					return this.memberTypes[i] = memberType;
+				}
 			}
-			if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) { // only check trailing portion
-		        memberType = ((UnresolvedReferenceBinding) memberType).resolve(environment);
-		        this.memberTypes[i] = memberType;
-			}
-	    }
-	    if (CharOperation.equals(typeName, memberType.sourceName)) {
+	    } else if (CharOperation.equals(typeName, memberType.sourceName)) {
 	        return memberType;
 	    }
 	}
