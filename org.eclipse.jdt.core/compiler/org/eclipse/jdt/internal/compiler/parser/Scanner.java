@@ -994,7 +994,7 @@ public int getNextToken() throws InvalidInputException {
 							checkIfUnicode = ((currentCharacter = source[currentPosition++]) == '\\')
 							&& (source[currentPosition] == 'u');
 						} catch(IndexOutOfBoundsException e) {
-							if (currentPosition >= eofPosition)
+							if (currentPosition > eofPosition)
 								return TokenNameEOF;
 							throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 						}
