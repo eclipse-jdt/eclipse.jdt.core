@@ -191,6 +191,14 @@ protected IPackageFragment getPackage(String path) {
 		return JavaCore.create(project).getPackageFragmentRoot(project).getPackageFragment("");
 	}
 }
+protected IPackageFragmentRoot getPackageFragmentRoot(String path) {
+	if (path.indexOf('/', 1) != -1) { // if path as more than one segment
+		return (IPackageFragmentRoot)JavaCore.create(this.getFolder(path));
+	} else {
+		IProject project = this.getProject(path);
+		return JavaCore.create(project).getPackageFragmentRoot(project);
+	}
+}
 protected String getSortedByProjectDeltas() {
 	StringBuffer buffer = new StringBuffer();
 	for (int i=0, length = this.deltaListener.deltas.length; i<length; i++) {
