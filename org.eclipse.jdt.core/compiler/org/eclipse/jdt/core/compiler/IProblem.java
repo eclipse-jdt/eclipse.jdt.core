@@ -14,6 +14,7 @@
  *                                 NoOpAssignment
  *     IBM Corporation - added the following constants
  * 								   TooManySyntheticArgumentSlots
+ * 								   TooManyArrayDimensions
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -206,7 +207,7 @@ public interface IProblem {
 	int TooManyLocalVariableSlots = Internal + 66;
 	/** @since 2.1 */
 	int TooManySyntheticArgumentSlots = Internal + 67;
-
+	/** @since 2.1 */
 	int TooManyArrayDimensions = Internal + 68;
 
 	// fields
