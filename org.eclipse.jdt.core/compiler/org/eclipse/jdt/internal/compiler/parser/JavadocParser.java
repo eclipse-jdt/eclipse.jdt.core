@@ -36,16 +36,14 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class JavadocParser extends AbstractCommentParser {
 
 	// Public fields
-	public Javadoc javadoc;
-	public boolean checkJavadoc = false;
-	
-	// Private fields
-	private int linePtr, lastLinePtr;
+	public Javadoc docComment;
+	public boolean checkDocComment = false;
 
 	JavadocParser(Parser sourceParser) {
 		super(sourceParser);
-		this.checkJavadoc = (this.sourceParser.options.getSeverity(CompilerOptions.InvalidJavadoc) != ProblemSeverities.Ignore) ||
+		this.checkDocComment = (this.sourceParser.options.getSeverity(CompilerOptions.InvalidJavadoc) != ProblemSeverities.Ignore) ||
 			(this.sourceParser.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore);
+		this.kind = COMPIL_PARSER;
 	}
 
 	/* (non-Javadoc)
@@ -58,18 +56,19 @@ public class JavadocParser extends AbstractCommentParser {
 
 		try {
 			this.source = this.sourceParser.scanner.source;
+			this.lineEnds = this.sourceParser.scanner.getLineEnds();
 			this.index = javadocStart +3;
 			this.endComment = javadocEnd - 2;
-			if (this.checkJavadoc) {
+			if (this.checkDocComment) {
 				// Initialization
-				this.javadoc = new Javadoc(javadocStart, javadocEnd);
-				super.checkDeprecation(javadocStart, javadocEnd);
+				this.docComment = new Javadoc(javadocStart, javadocEnd);
+				parseComment(javadocStart, javadocEnd);
 			} else {
 				// Init javadoc if necessary
 				if (this.sourceParser.options.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore) {
-					this.javadoc = new Javadoc(javadocStart, javadocEnd);
+					this.docComment = new Javadoc(javadocStart, javadocEnd);
 				} else {
-					this.javadoc = null;
+					this.docComment = null;
 				}
 				
 				// Parse comment
@@ -78,32 +77,37 @@ public class JavadocParser extends AbstractCommentParser {
 	
 				// scan line per line, since tags must be at beginning of lines only
 				nextLine : for (int line = firstLineNumber; line <= lastLineNumber; line++) {
-					int lineStart = line == firstLineNumber
+					int start = line == firstLineNumber
 							? javadocStart + 3 // skip leading /**
 							: this.sourceParser.scanner.getLineStart(line);
-					this.index = lineStart;
+					this.index = start;
 					this.lineEnd = line == lastLineNumber
 							? javadocEnd - 2 // remove trailing * /
 							: this.sourceParser.scanner.getLineEnd(line);
 					while (this.index < this.lineEnd) {
 						char nextCharacter = readChar(); // consider unicodes
-						if  (nextCharacter == '@' &&
-							(readChar() == 'd') &&
-							(readChar() == 'e') &&
-							(readChar() == 'p') &&
-							(readChar() == 'r') &&
-							(readChar() == 'e') &&
-							(readChar() == 'c') &&
-							(readChar() == 'a') &&
-							(readChar() == 't') &&
-							(readChar() == 'e') &&
-							(readChar() == 'd'))
-						{
-							// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-							nextCharacter = readChar();
-							if (Character.isWhitespace(nextCharacter) || nextCharacter == '*') {
-								return true;
+						if  (nextCharacter == '@') {
+							if ((readChar() == 'd') &&
+								(readChar() == 'e') &&
+								(readChar() == 'p') &&
+								(readChar() == 'r') &&
+								(readChar() == 'e') &&
+								(readChar() == 'c') &&
+								(readChar() == 'a') &&
+								(readChar() == 't') &&
+								(readChar() == 'e') &&
+								(readChar() == 'd'))
+							{
+								// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+								nextCharacter = readChar();
+								if (Character.isWhitespace(nextCharacter) || nextCharacter == '*') {
+									return true;
+								}
+							} else {
+								break; // skip to next line
 							}
+						} else if (nextCharacter != '*' && !Character.isWhitespace(nextCharacter)) {
+							break; // skip to next line
 						}
 					}
 				}
@@ -117,21 +121,16 @@ public class JavadocParser extends AbstractCommentParser {
 
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("check javadoc: ").append(this.checkJavadoc).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
-		buffer.append("javadoc: ").append(this.javadoc).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("check javadoc: ").append(this.checkDocComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("javadoc: ").append(this.docComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append(super.toString());
 		return buffer.toString();
 	}
 
-	protected void initLineEnd() {
-		this.linePtr = this.sourceParser.scanner.getLineNumber(this.javadoc.sourceStart);
-		this.lastLinePtr = this.sourceParser.scanner.getLineNumber(this.javadoc.sourceEnd);
-		this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.endComment : this.javadoc.sourceStart + 3;
-	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
-	protected Object createArgumentReference(char[] name, int dim, Object typeRef, int argEnd) throws InvalidInputException {
+	protected Object createArgumentReference(char[] name, int dim, Object typeRef, long dimPos, long argNamePos) throws InvalidInputException {
 		try {
 			TypeReference argTypeRef = (TypeReference) typeRef;
 			if (dim > 0) {
@@ -144,6 +143,9 @@ public class JavadocParser extends AbstractCommentParser {
 					argTypeRef = new JavadocArrayQualifiedTypeReference(qualifRef, dim);
 				}
 			}
+			int argEnd = argTypeRef.sourceEnd;
+			if (dimPos >= 0) argEnd = (int) dimPos;
+			if (argNamePos >= 0) argEnd = (int) argNamePos;
 			return new JavadocArgumentExpression(name, argTypeRef.sourceStart, argEnd, argTypeRef);
 		}
 		catch (ClassCastException ex) {
@@ -232,17 +234,6 @@ public class JavadocParser extends AbstractCommentParser {
 					this.scanner.getRawTokenSourceEnd());
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createSingleNameReference()
-	 */
-	protected Object createSingleNameReference() {
-		JavadocSingleNameReference nameRef = new JavadocSingleNameReference(this.scanner.getCurrentIdentifierSource(),
-				this.scanner.getCurrentTokenStartPosition(),
-				this.scanner.getCurrentTokenEndPosition());
-		nameRef.tagSourceStart = this.tagSourceStart;
-		nameRef.tagSourceEnd = this.tagSourceEnd;
-		return nameRef;
-	}
-	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTypeReference()
 	 */
 	protected Object createTypeReference(int primitiveToken) {
@@ -264,28 +255,143 @@ public class JavadocParser extends AbstractCommentParser {
 		this.identifierPtr -= size;
 		return typeRef;
 	}
-	protected void updateLineEnd() {
-		while (this.index > (this.lineEnd+1)) {
-			if (this.linePtr < this.lastLinePtr) {
-				this.lineEnd = this.sourceParser.scanner.getLineEnd(++this.linePtr) - 1;
-			} else {
-				this.lineEnd = this.endComment;
-				return;
-			}
-			this.lineStarted = false;
+
+	/*
+	 * Parse @return tag declaration
+	 */
+	protected boolean parseReturn() {
+		if (this.returnStatement == null) {
+			this.returnStatement = createReturnStatement();
+			return true;
+		} else {
+			if (this.sourceParser != null) this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
+					this.scanner.getCurrentTokenStartPosition(),
+					this.scanner.getCurrentTokenEndPosition());
+			return false;
 		}
 	}
+
+	/*
+	 * Parse @return tag declaration
+	 */
+	protected boolean parseTag() {
+		return true;
+	}
+
+	/*
+	 * Push a param name in ast node stack.
+	 */
+	protected boolean pushParamName() {
+		// Create name reference
+		JavadocSingleNameReference nameRef = new JavadocSingleNameReference(this.scanner.getCurrentIdentifierSource(),
+				this.scanner.getCurrentTokenStartPosition(),
+				this.scanner.getCurrentTokenEndPosition());
+		nameRef.tagSourceStart = this.tagSourceStart;
+		nameRef.tagSourceEnd = this.tagSourceEnd;
+		// Push ref on stack
+		if (this.astLengthPtr == -1) { // First push
+			pushOnAstStack(nameRef, true);
+		} else {
+			// Verify that no @throws has been declared before
+			for (int i=THROWS_TAG_EXPECTED_ORDER; i<=this.astLengthPtr; i+=ORDERED_TAGS_NUMBER) {
+				if (this.astLengthStack[i] != 0) {
+					if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+					return false;
+				}
+			}
+			switch (this.astLengthPtr % ORDERED_TAGS_NUMBER) {
+				case PARAM_TAG_EXPECTED_ORDER :
+					// previous push was a @param tag => push another param name
+					pushOnAstStack(nameRef, false);
+					break;
+				case SEE_TAG_EXPECTED_ORDER :
+					// previous push was a @see tag => push new param name
+					pushOnAstStack(nameRef, true);
+					break;
+				default:
+					return false;
+			}
+		}
+		return true;
+	}
+
+	/*
+	 * Push a reference statement in ast node stack.
+	 */
+	protected boolean pushSeeRef(Object statement, boolean plain) {
+		if (this.astLengthPtr == -1) { // First push
+			pushOnAstStack(null, true);
+			pushOnAstStack(null, true);
+			pushOnAstStack(statement, true);
+		} else {
+			switch (this.astLengthPtr % ORDERED_TAGS_NUMBER) {
+				case PARAM_TAG_EXPECTED_ORDER :
+					// previous push was a @param tag => push empty @throws tag and new @see tag
+					pushOnAstStack(null, true);
+					pushOnAstStack(statement, true);
+					break;
+				case THROWS_TAG_EXPECTED_ORDER :
+					// previous push was a @throws tag => push new @see tag
+					pushOnAstStack(statement, true);
+					break;
+				case SEE_TAG_EXPECTED_ORDER :
+					// previous push was a @see tag => push another @see tag
+					pushOnAstStack(statement, false);
+					break;
+				default:
+					return false;
+			}
+		}
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
+	 */
+	protected void pushText(int start, int end) {
+		// compiler does not matter of text
+	}
+
+	/*
+	 * Push a throws type ref in ast node stack.
+	 */
+	protected boolean pushThrowName(Object typeRef, boolean real) {
+		if (this.astLengthPtr == -1) { // First push
+			pushOnAstStack(null, true);
+			pushOnAstStack(typeRef, true);
+		} else {
+			switch (this.astLengthPtr % ORDERED_TAGS_NUMBER) {
+				case PARAM_TAG_EXPECTED_ORDER :
+					// previous push was a @param tag => push new @throws tag
+					pushOnAstStack(typeRef, true);
+					break;
+				case THROWS_TAG_EXPECTED_ORDER :
+					// previous push was a @throws tag => push another @throws tag
+					pushOnAstStack(typeRef, false);
+					break;
+				case SEE_TAG_EXPECTED_ORDER :
+					// previous push was a @see tag => push empty @param and new @throws tags
+					pushOnAstStack(null, true);
+					pushOnAstStack(typeRef, true);
+					break;
+				default:
+					return false;
+			}
+		}
+		return true;
+	}
+
 	/*
 	 * Fill javadoc fields with information in ast nodes stack.
 	 */
-	protected void updateJavadoc() {
+	protected void updateDocComment() {
 		
 		// Set inherited flag
-		this.javadoc.inherited = this.inherited;
+		this.docComment.inherited = this.inherited;
 
 		// Set return node if present
 		if (this.returnStatement != null) {
-			this.javadoc.returnStatement = (JavadocReturnStatement) this.returnStatement;
+			this.docComment.returnStatement = (JavadocReturnStatement) this.returnStatement;
 		}
 
 		// If no nodes stored return
@@ -298,9 +404,9 @@ public class JavadocParser extends AbstractCommentParser {
 		for (int i=0; i<=this.astLengthPtr; i++) {
 			sizes[i%ORDERED_TAGS_NUMBER] += this.astLengthStack[i];
 		}
-		this.javadoc.references = new Expression[sizes[SEE_TAG_EXPECTED_ORDER]];
-		this.javadoc.thrownExceptions = new TypeReference[sizes[THROWS_TAG_EXPECTED_ORDER]];
-		this.javadoc.parameters = new JavadocSingleNameReference[sizes[PARAM_TAG_EXPECTED_ORDER]];
+		this.docComment.references = new Expression[sizes[SEE_TAG_EXPECTED_ORDER]];
+		this.docComment.thrownExceptions = new TypeReference[sizes[THROWS_TAG_EXPECTED_ORDER]];
+		this.docComment.parameters = new JavadocSingleNameReference[sizes[PARAM_TAG_EXPECTED_ORDER]];
 
 		// Store nodes in arrays
 		while (this.astLengthPtr >= 0) {
@@ -309,7 +415,7 @@ public class JavadocParser extends AbstractCommentParser {
 			if (ptr == SEE_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				for (int i=0; i<size; i++) {
-					this.javadoc.references[--sizes[ptr]] = (Expression) this.astStack[this.astPtr--];
+					this.docComment.references[--sizes[ptr]] = (Expression) this.astStack[this.astPtr--];
 				}
 			}
 
@@ -317,7 +423,7 @@ public class JavadocParser extends AbstractCommentParser {
 			else if (ptr == THROWS_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				for (int i=0; i<size; i++) {
-					this.javadoc.thrownExceptions[--sizes[ptr]] = (TypeReference) this.astStack[this.astPtr--];
+					this.docComment.thrownExceptions[--sizes[ptr]] = (TypeReference) this.astStack[this.astPtr--];
 				}
 			}
 
@@ -325,7 +431,7 @@ public class JavadocParser extends AbstractCommentParser {
 			else if (ptr == PARAM_TAG_EXPECTED_ORDER) {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				for (int i=0; i<size; i++) {
-					this.javadoc.parameters[--sizes[ptr]] = (JavadocSingleNameReference) this.astStack[this.astPtr--];
+					this.docComment.parameters[--sizes[ptr]] = (JavadocSingleNameReference) this.astStack[this.astPtr--];
 				}
 			}
 		}
