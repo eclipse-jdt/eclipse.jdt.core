@@ -2604,6 +2604,27 @@ public void test074() {
 		"The local variable displayString may not have been initialized\n" + 
 		"----------\n");
 }
+public void test075() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"    public void foo(int p1) {} \n" +
+			"    public void foo(short p1) {} \n" +
+			"}	\n",
+			"Y.java",
+			"public class Y extends X {	\n" +
+			"    public void foo(long p1) {} \n" +
+			"    public void test() { foo((short) 1); } \n" +
+			"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 3)\r\n" + 
+		"	public void test() { foo((short) 1); } \r\n" + 
+		"	                     ^^^\n" + 
+		"The method foo(long) is ambiguous for the type Y\n" + 
+		"----------\n");
+}
 
 public static Class testClass() {
 	return Compliance_1_3.class;

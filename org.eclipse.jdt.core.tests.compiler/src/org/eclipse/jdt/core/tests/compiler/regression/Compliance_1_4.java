@@ -2430,6 +2430,25 @@ public void test074() {
 		"Local cannot be resolved or is not a type\n" + 
 		"----------\n");
 }
+public void test075() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"    public void foo(int p1) {} \n" +
+			"    public void foo(short p1) {} \n" +
+			"}	\n",
+			"Y.java",
+			"public class Y extends X {	\n" +
+			"    public void foo(long p1) {} \n" +
+			"    public void testEc() { foo((short)1); } \n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
 
 public static Class testClass() {
 	return Compliance_1_4.class;
