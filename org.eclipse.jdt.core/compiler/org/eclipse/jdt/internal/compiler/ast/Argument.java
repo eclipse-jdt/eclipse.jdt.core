@@ -30,9 +30,6 @@ public class Argument extends LocalDeclaration {
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
-		/*if (this.type != null)
-			this.type.resolvedType = typeBinding; // TODO (philippe) no longer necessary as when binding got resolved, it was recorded already (SourceTypeBinding#resolveTypesFor(MethodBinding))
-		*/
 		// record the resolved type into the type reference
 		int modifierFlag = this.modifiers;
 
@@ -73,7 +70,7 @@ public class Argument extends LocalDeclaration {
 	}
 
 	public boolean isVarArgs() {
-		return (this.type.bits & IsVarArgs) != 0;
+		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}
 		
 	public StringBuffer print(int indent, StringBuffer output) {
