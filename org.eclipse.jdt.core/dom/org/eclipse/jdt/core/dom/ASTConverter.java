@@ -1470,7 +1470,7 @@ class ASTConverter {
 
 	public Statement convert(org.eclipse.jdt.internal.compiler.ast.Statement statement) {
 		if (statement instanceof LocalDeclaration) {
-			throw new IllegalArgumentException("Should not be reached: convert(" + statement.getClass() + ")");//$NON-NLS-1$//$NON-NLS-2$
+			return convertToVariableDeclarationStatement((LocalDeclaration)statement);
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.AssertStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.AssertStatement) statement);
