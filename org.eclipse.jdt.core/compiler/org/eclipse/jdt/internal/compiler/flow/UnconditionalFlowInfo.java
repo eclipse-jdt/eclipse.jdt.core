@@ -73,6 +73,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 					// current storage is shorter -> grow current (could maybe reuse otherInits extra storage?)
 					System.arraycopy(extraDefiniteInits, 0, (extraDefiniteInits = new long[otherLength]), 0, length);
 					System.arraycopy(extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, length);
+					System.arraycopy(extraDefiniteNulls, 0, (extraDefiniteNulls = new long[otherLength]), 0, length);
+					System.arraycopy(extraDefiniteNonNulls, 0, (extraDefiniteNonNulls = new long[otherLength]), 0, length);					
 					for (; i < length; i++) {
 						extraDefiniteInits[i] |= otherInits.extraDefiniteInits[i];
 						extraPotentialInits[i] |= otherInits.extraPotentialInits[i];

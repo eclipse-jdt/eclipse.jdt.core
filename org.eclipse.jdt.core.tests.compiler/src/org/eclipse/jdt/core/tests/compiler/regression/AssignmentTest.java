@@ -1102,7 +1102,7 @@ public void test033() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84215
 //TODO (philippe) should move to InitializationTest suite
-public void _test034() {
+public void test034() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
