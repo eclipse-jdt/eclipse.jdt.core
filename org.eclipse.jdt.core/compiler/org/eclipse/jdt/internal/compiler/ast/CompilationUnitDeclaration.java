@@ -280,13 +280,15 @@ public class CompilationUnitDeclaration
 		if (this.currentPackage != null) {
 			if (this.currentPackage.annotations != null) {
 				if (CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)) {
-					// resolve annotations
-					final TypeDeclaration syntheticTypeDeclaration = types[0];
-					syntheticTypeDeclaration.resolve(this.scope);
-					resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
-					// set the synthetic bit
-					syntheticTypeDeclaration.binding.modifiers |= AccSynthetic;
-					startingTypeIndex = 1;
+                    if (this.types != null) {
+                        // resolve annotations
+    					final TypeDeclaration syntheticTypeDeclaration = types[0];
+    					syntheticTypeDeclaration.resolve(this.scope);
+    					resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
+    					// set the synthetic bit
+    					syntheticTypeDeclaration.binding.modifiers |= AccSynthetic;
+    					startingTypeIndex = 1;
+                    }
 				} else {
 					scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
 				}
