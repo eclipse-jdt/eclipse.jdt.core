@@ -13398,4 +13398,54 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84593
+	public void _test496() {
+		this.runConformTest(
+			new String[] {
+				"X.java",//====================================
+				"class Super<S> {\n" + 
+				"	class A<E> { }\n" + 
+				"	<T> void take(A<S> o) {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"	}\n" + 
+				"}\n" + 
+				"class Sub extends Super<Double> {\n" + 
+				"	void test() {\n" + 
+				"		take(new A());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Sub().test();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84593 - variation
+	public void _test497() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",//====================================
+				"class Super<S> {\n" + 
+				"	class A<E> { }\n" + 
+				"	<T> void take(A<S> o) {\n" +
+				"	}\n" + 
+				"}\n" + 
+				"class Sub extends Super<Double> {\n" + 
+				"	void test() {\n" + 
+				"		take(new A());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Sub().test();\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
 }
