@@ -58,7 +58,9 @@
 <!--                                                                                     -->
 <!-- =================================================================================== -->
 
-<extension-point name="%classpathVariableInitializersName" id="classpathVariableInitializer"/>
+<extension-point name="%classpathVariableInitializersName" 
+	id="classpathVariableInitializer"
+	schema="schema/classpathVariableInitializer.exsd"/>
   
 <!-- =================================================================================== -->
 <!-- Extension Point: Initializers of Classpath Containers                               -->
@@ -69,9 +71,9 @@
 <!--    class  CDATA #REQUIRED                                                           -->
 <!--   >                                                                                 -->
 <!-- where:                                                                              -->
-<!--    - id - an unique name identifying all containers for which this resolver will    -->
+<!--    - id - a unique name identifying all containers for which this initializer will  -->
 <!--              be activated.                                                          -->
-<!--    - class - the class that implements this container resolver.                     --> 
+<!--    - class - the class that implements this container initializer.                  --> 
 <!--              The class must implement a public subclass of                          -->
 <!--              org.eclipse.jdt.core.ClasspathContainerResolver with a public          -->
 <!--              0-argument constructor.                                                -->
@@ -79,7 +81,7 @@
 <!-- Example of an ClasspathContainerInitializer for a classpath container named         -->
 <!-- "JDK/1.2":                                                                          -->
 <!-- <extension                                                                          -->
-<!--      point="org.eclipse.jdt.core.containerResolver">                                -->
+<!--      point="org.eclipse.jdt.core.classpathContainerInitializer">                    -->
 <!--    <classpathContainerInitializer                                                   -->
 <!--         id="JDK"                                                                    -->
 <!--         class="com.example.MyInitializer"/>                                         -->
@@ -87,7 +89,9 @@
 <!--                                                                                     -->
 <!-- =================================================================================== -->
 
-<extension-point name="%classpathContainerInitializersName" id="classpathContainerInitializer"/>
+<extension-point name="%classpathContainerInitializersName" 
+	id="classpathContainerInitializer" 
+	schema="schema/classpathContainerInitializer.exsd"/>
 
 <!-- =================================================================================== -->
 <!-- Extension Point: Formatter of Source Code                                           -->
@@ -111,7 +115,9 @@
 <!--                                                                                     -->
 <!-- =================================================================================== -->
 
-<extension-point name="%codeFormatterName" id="codeFormatter"/>
+<extension-point name="%codeFormattersName" 
+	id="codeFormatter"
+	schema="schema/codeFormatter.exsd"/>
 
 
 <!-- =================================================================================== -->
