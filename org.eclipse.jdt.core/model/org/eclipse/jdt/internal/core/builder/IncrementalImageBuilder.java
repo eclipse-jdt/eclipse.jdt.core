@@ -266,7 +266,6 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 	switch(resource.getType()) {
 		case IResource.PROJECT :
 		case IResource.FOLDER :
-			if (resource.getName().equalsIgnoreCase("CVS")) return; // TEMPORARY //$NON-NLS-1$
 			switch (sourceDelta.getKind()) {
 				case IResourceDelta.ADDED :
 					IPath addedPackagePath = location.removeFirstSegments(segmentCount).makeRelative();
