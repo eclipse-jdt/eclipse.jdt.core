@@ -20,8 +20,8 @@ ClasspathMultiDirectory(String sourcePath, String binaryPath) {
 		this.sourcePath += "/"; //$NON-NLS-1$
 }
 
-void clear() {
-	super.clear();
+void cleanup() {
+	super.cleanup();
 
 	this.nameEnvironment = null;
 }

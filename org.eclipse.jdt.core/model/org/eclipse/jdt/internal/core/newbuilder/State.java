@@ -44,7 +44,7 @@ protected State(JavaBuilder javaBuilder) {
 
 void cleanup() {
 	for (int i = 0, length = classpathLocations.length; i < length; i++)
-		classpathLocations[i].clear();
+		classpathLocations[i].cleanup();
 }
 
 void copyFrom(State lastState) {

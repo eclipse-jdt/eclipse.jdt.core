@@ -47,7 +47,10 @@ void buildDirectoryStructure() {
 	}
 }
 
-void clear() {
+void cleanup() {
+	if (zipFile != null) {
+		try { zipFile.close(); } catch(IOException e) {}
+	}
 	this.zipFile = null;
 	this.directoryCache = null;
 }
@@ -57,13 +60,6 @@ public boolean equals(Object o) {
 	if (!(o instanceof ClasspathJar)) return false;
 
 	return zipFilename.equals(((ClasspathJar) o).zipFilename);
-}
-
-boolean isPackage(char[][] compoundName, char[] packageName) {
-	return 
-		directoryCache.get(
-			NameEnvironment.assembleName(packageName, compoundName, '/'))
-				!= null;
 }
 
 NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
@@ -77,6 +73,13 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 	} catch (Exception e) {
 		return null; // treat as if class file is missing
 	}
+}
+
+boolean isPackage(char[][] compoundName, char[] packageName) {
+	return 
+		directoryCache.get(
+			NameEnvironment.assembleName(packageName, compoundName, '/'))
+				!= null;
 }
 
 public String toString() {
