@@ -1,16 +1,34 @@
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -29,6 +47,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public static final String IN = "_in";
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	
 	public static Test suite() {
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
@@ -43,8 +62,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				}
 			}
 		} else {
-			suite.addTest(new FormatterRegressionTests("test227"));  //$NON-NLS-1$
-			suite.addTest(new FormatterRegressionTests("test228"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test238"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test239"));  //$NON-NLS-1$
 		}
 		return suite;
 	}
@@ -83,13 +102,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	private String runFormatter(DefaultCodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length) {
-		//long time = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, null);//$NON-NLS-1$
 		if (edit == null) return null;
 		String result = org.eclipse.jdt.internal.core.Util.editedString(source, edit);
 
 		if (length == source.length()) {
-			//time = System.currentTimeMillis();
+			time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, null);//$NON-NLS-1$
 			if (edit == null) return null;
 			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
@@ -159,7 +178,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			}
 			if (!expectedContentsArray[i].equals(actualContentsArray[i])) {
 				System.out.println("line " + i + " is different");
-				System.out.println(Util.displayString(expectedContents, 2));
+				System.out.println(Util.displayString(actualContents, 2));
 				assertTrue(false);
 			}
 		}
@@ -242,6 +261,80 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		} catch (JavaModelException e) {
 			e.printStackTrace();
 			assertTrue(false);
+		}
+	}
+
+	public void _test() {
+		try {
+			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(new File("D:/workspaces/eclipse/plugins/TestingOlivier/src/FormatterRegressionTests.java"), null);
+			CompilationUnit compilationUnit = AST.parseCompilationUnit(contents);
+			List types = compilationUnit.types();
+			TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
+			MethodDeclaration[] methodDeclarations = typeDeclaration.getMethods();
+			int testCaseCounter = 229;
+			for (int i = 0, max = methodDeclarations.length; i < max; i++) {
+				MethodDeclaration methodDeclaration = methodDeclarations[i];
+				final SimpleName methodName = methodDeclaration.getName();
+				if (methodName.getIdentifier().startsWith("test")) {
+					Block block = methodDeclaration.getBody();
+					List statements = block.statements();
+					Statement statement = (Statement) statements.get(0);
+					if (statement.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT) {
+						VariableDeclarationStatement localDeclaration = (VariableDeclarationStatement) statement;
+						List fragments = localDeclaration.fragments();
+						VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+						if (fragment.getName().getIdentifier().equals("source")) {
+							Expression expression = fragment.getInitializer();
+							StringBuffer buffer = new StringBuffer();
+							switch(expression.getNodeType()) {
+								case ASTNode.INFIX_EXPRESSION :
+									InfixExpression expression2 = (InfixExpression) expression;
+									List extendedOperands = expression2.extendedOperands();
+									buffer.append(getSource(expression2.getLeftOperand(), contents));
+									buffer.append(getSource(expression2.getRightOperand(), contents));
+									for (int j = 0, max2 = extendedOperands.size(); j < max2; j++) {
+										buffer.append(getSource((Expression) extendedOperands.get(j), contents));
+									}
+									break;
+								case ASTNode.STRING_LITERAL :
+									StringLiteral literal = (StringLiteral) expression;
+									buffer.append(getSource(literal, contents));
+									break;
+							}
+							createTestCase(buffer.toString(), testCaseCounter++);
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	void createTestCase(String contents, int counter) {
+		System.out.println("Create test " + counter);
+		try {
+			File testDir = new File("D:/workspaces/eclipse/plugins/org.eclipse.jdt.core.tests.model/workspace/Formatter", "test" + counter);
+			testDir.mkdirs();
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(testDir, "A_in.java")));
+			writer.write(contents);
+			writer.flush();
+			writer.close();
+			writer = new BufferedWriter(new FileWriter(new File(testDir, "A_out.java")));
+			writer.write(contents);
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Done test " + counter);
+	}
+	String getSource(ASTNode astNode, char[] source) {
+		String result = new String(CharOperation.subarray(source, astNode.getStartPosition() + 1, astNode.getStartPosition() + astNode.getLength() - 1));
+		if (result.endsWith("\\n")) {
+			return result.substring(0, result.length() - 2) + LINE_SEPARATOR;
+		} else {
+			return result;
 		}
 	}
 
@@ -575,7 +668,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.type_member_alignment = Alignment.M_NO_ALIGNMENT;
 		preferences.use_tab = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		//long time = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		runTest(codeFormatter, "test060", "Parser.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}		
 
@@ -2134,5 +2227,175 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test228", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test229() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test229", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+	
+	public void test230() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test230", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test231() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test231", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test232() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test232", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+
+	public void test233() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test233", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 1);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+
+	public void test234() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test234", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+
+	public void test235() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test235", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test236() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test236", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+
+	public void test237() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test237", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test238() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test238", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+
+	public void test239() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test239", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test240() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test240", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test241() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test241", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public void test242() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test242", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test243() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test243", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test244() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test244", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test245() {
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.INSERT);
+		options.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test245", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
