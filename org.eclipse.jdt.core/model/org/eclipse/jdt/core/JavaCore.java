@@ -405,6 +405,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_INCONSISTENT_NULL_CHECK = PLUGIN_ID + ".compiler.problem.inconsistentNullCheck"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
@@ -1813,6 +1819,17 @@ public final class JavaCore extends Plugin {
 	 *    when passed to a method/constructor invocation. (e.g. Class.getMethod(String name, Class ... args )  
 	 *    invoked with arguments ("foo", null)).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 * 
+	 * COMPILER / Reporting Inconsistent null Checks
+	 *    When enabled, the compiler will issue an error or a warning whenever assumption were made on a variable
+	 *    with respect to holding null/non-null values, but the assumption is not followed in a consistent manner.
+	 *    Situations include:
+	 *         - if variable was assumed to be null and further used to access field or methods
+	 *         - if variable was assumed to be null or non-null and further tested for null cases.
+	 *         
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.inconsistentNullCheck"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 

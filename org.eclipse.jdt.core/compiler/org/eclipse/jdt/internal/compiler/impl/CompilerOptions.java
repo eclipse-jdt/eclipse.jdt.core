@@ -188,7 +188,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| MissingSerialVersion
 		| VarargsArgumentNeedCast
 		| ForbiddenReference
-		| InconsistentNullCheck;
+		/*| InconsistentNullCheck*/;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
