@@ -223,17 +223,16 @@ FloatingPointType -> 'float'
 FloatingPointType -> 'double'
 /:$readableName FloatingPointType:/
 
-ReferenceType -> ClassOrInterfaceType
+ReferenceType ::= ClassOrInterfaceType
+/.$putCase consumeReferenceType();  $break ./
 ReferenceType -> ArrayType
 /:$readableName ReferenceType:/
 
 ---------------------------------------------------------------
 -- 1.5 feature
 ---------------------------------------------------------------
-ClassOrInterfaceType ::= ClassOrInterface
-/.$putCase consumeClassOrInterfaceType();  $break ./
-ClassOrInterfaceType ::= ClassOrInterface TypeArguments
-/.$putCase consumeClassOrInterfaceTypeWithTypeArguments();  $break ./
+ClassOrInterfaceType -> ClassOrInterface
+ClassOrInterfaceType -> ClassOrInterface TypeArguments
 /:$readableName Type:/
 
 ClassOrInterface ::= Name
@@ -1114,18 +1113,18 @@ ArrayCreationHeader ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 /:$readableName ArrayCreationHeader:/
 
 ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
-/.$putCase consumePrimitiveTypeArrayCreationExpressionWithoutInitializer(); $break ./
+/.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
 /:$readableName ArrayCreationWithoutArrayInitializer:/
 
 ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
-/.$putCase consumePrimitiveTypeArrayCreationExpressionWithInitializer(); $break ./
+/.$putCase consumeArrayCreationExpressionWithInitializer(); $break ./
 /:$readableName ArrayCreationWithArrayInitializer:/
 
 ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
-/.$putCase consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer(); $break ./
+/.$putCase consumeArrayCreationExpressionWithoutInitializer(); $break ./
 
 ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
-/.$putCase consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer(); $break ./
+/.$putCase consumeArrayCreationExpressionWithInitializer(); $break ./
 
 DimWithOrWithOutExprs ::= DimWithOrWithOutExpr
 DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
@@ -1585,7 +1584,7 @@ TypeArgumentList ::= TypeArgumentList ',' TypeArgument
 /:$readableName TypeArgumentList:/
 
 TypeArgument ::= ReferenceType
-/.$putCase consumeReferenceType(); $break ./
+/.$putCase consumeTypeArgument(); $break ./
 TypeArgument -> Wildcard
 /:$readableName TypeArgument:/
 
