@@ -23,8 +23,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ProblemReporter extends ProblemHandler implements ProblemReasons {
 	
-    public static final String SUPER_TYPE_PROBLEM = "superType"; //$NON-NLS-1$
-    
 	public ReferenceContext referenceContext;
 	
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
@@ -1928,11 +1926,10 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
 	}
-	boolean isSuperType = (location.bits & ASTNode.SuperTypeReference) != 0;
 	this.handle(
 		id,
-		new String[] {new String(type.readableName()), isSuperType ? SUPER_TYPE_PROBLEM : "" },	 //$NON-NLS-1$  
-		new String[] {new String(type.shortReadableName()), isSuperType ? SUPER_TYPE_PROBLEM : ""}, //$NON-NLS-1$
+		new String[] {new String(type.readableName()) },	
+		new String[] {new String(type.shortReadableName())},
 		location.sourceStart,
 		end);
 }

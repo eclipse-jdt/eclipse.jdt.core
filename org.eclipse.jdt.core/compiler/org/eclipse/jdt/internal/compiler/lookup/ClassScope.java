@@ -662,7 +662,6 @@ public class ClassScope extends Scope {
 			return !detectCycle(sourceType, sourceType.superclass, null);
 		}
 		TypeReference superclassRef = referenceContext.superclass;
-		superclassRef.bits |= ASTNode.SuperTypeReference;
 		ReferenceBinding superclass = findSupertype(superclassRef);
 		if (superclass != null) { // is null if a cycle was detected cycle
 			superclassRef.resolvedType = superclass; // hold onto the problem type
@@ -709,7 +708,6 @@ public class ClassScope extends Scope {
 		int count = 0;
 		nextInterface : for (int i = 0; i < length; i++) {
 		    TypeReference superInterfaceRef = referenceContext.superInterfaces[i];
-    		superInterfaceRef.bits |= ASTNode.SuperTypeReference;
 			ReferenceBinding superInterface = findSupertype(superInterfaceRef);
 			if (superInterface == null) { // detected cycle
 				noProblems = false;
@@ -807,7 +805,6 @@ public class ClassScope extends Scope {
 			TypeReference typeRef = typeVariable.typeParameter.type;
 			if (typeRef == null)
 				continue nextVariable;
-			typeRef.bits |= ASTNode.SuperTypeReference;
 			ReferenceBinding superType = findSupertype(typeRef);
 			if (superType != null) { // is null if a cycle was detected cycle
 				typeRef.resolvedType = superType; // hold onto the problem type

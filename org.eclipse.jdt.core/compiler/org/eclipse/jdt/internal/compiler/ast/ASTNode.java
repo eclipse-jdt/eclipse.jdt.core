@@ -118,9 +118,6 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	// for references in Javadoc comments
 	public static final int InsideJavadoc = Bit16;
 	
-	// for type references (only set during name resolution)
-	public static final int SuperTypeReference = Bit5;
-	
 	public ASTNode() {
 
 		super();
