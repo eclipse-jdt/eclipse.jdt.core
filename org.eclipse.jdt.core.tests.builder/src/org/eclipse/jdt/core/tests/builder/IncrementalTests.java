@@ -27,6 +27,38 @@ public class IncrementalTests extends Tests {
 		return new TestSuite(IncrementalTests.class);
 	}
 
+	/*
+	 * Ensures that the source range for a duplicate secondary type error is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=77283)
+	 */
+	public void testAddDuplicateSecondaryType() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); 
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); 
+		env.setOutputFolder(projectPath, "bin"); 
+
+		env.addClass(root, "p", "C",  
+			"package p;	\n"+ 
+			"public class C {}	\n"+ 
+			"class CC {}"); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		IPath pathToD = env.addClass(root, "p", "D",  
+			"package p;	\n"+ 
+			"public class D {}	\n"+ 
+			"class CC {}"); 
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(new IPath[]{ pathToD });
+		expectingSpecificProblemsFor(pathToD, new Problem[] {new Problem("", "The type CC is already defined", pathToD, 37, 39)}, true);
+	}
+
 	public void testDefaultPackage() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

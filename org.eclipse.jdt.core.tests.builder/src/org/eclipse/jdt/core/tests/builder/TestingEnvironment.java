@@ -439,6 +439,12 @@ public class TestingEnvironment {
 	 * Return all problems with the specified element.
 	 */
 	public Problem[] getProblemsFor(IPath path){
+		return getProblemsFor(path, false);
+	}
+	/**
+	 * Return all problems with the specified element.
+	 */
+	public Problem[] getProblemsFor(IPath path, boolean storeRange){
 		IResource resource;
 		if(path.equals(getWorkspaceRootPath())){
 			resource = getWorkspace().getRoot();
@@ -456,15 +462,15 @@ public class TestingEnvironment {
 			ArrayList problems = new ArrayList();
 			IMarker[] markers = resource.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			for (int i = 0; i < markers.length; i++)
-				problems.add(new Problem(markers[i]));
+				problems.add(new Problem(markers[i], storeRange));
 
 			markers = resource.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			for (int i = 0; i < markers.length; i++)
-				problems.add(new Problem(markers[i]));
+				problems.add(new Problem(markers[i], storeRange));
 			
 			markers = resource.findMarkers(IJavaModelMarker.TASK_MARKER, true, IResource.DEPTH_INFINITE);
 			for (int i = 0; i < markers.length; i++)
-				problems.add(new Problem(markers[i]));
+				problems.add(new Problem(markers[i], storeRange));
 
 			Problem[] result = new Problem[problems.size()];
 			problems.toArray(result);

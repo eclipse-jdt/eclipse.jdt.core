@@ -89,6 +89,8 @@ public void acceptResult(CompilationResult result) {
 			if (!problemSourceFiles.contains(compilationUnit))
 				problemSourceFiles.add(compilationUnit);
 
+		IType mainType = null;
+		String mainTypeName = null;
 		String typeLocator = compilationUnit.typeLocator();
 		ClassFile[] classFiles = result.getClassFiles();
 		int length = classFiles.length;
@@ -112,11 +114,19 @@ public void acceptResult(CompilationResult result) {
 					if (duplicateTypeNames == null)
 						duplicateTypeNames = new ArrayList();
 					duplicateTypeNames.add(compoundName);
-					IType type = null;
-					try {
-						type = javaBuilder.javaProject.findType(qualifiedTypeName.replace('/', '.'));
-					} catch (JavaModelException e) {
-						// ignore
+					if (mainType == null)
+						try {
+							mainTypeName = compilationUnit.initialTypeName; // slash separated qualified name "p1/p1/A"
+							mainType = javaBuilder.javaProject.findType(mainTypeName.replace('/', '.'));
+						} catch (JavaModelException e) {
+							// ignore
+						}
+					IType type;
+					if (qualifiedTypeName.equals(mainTypeName))
+						type = mainType;
+					else {
+						String simpleName = qualifiedTypeName.substring(qualifiedTypeName.lastIndexOf('/')+1);
+						type = mainType == null ? null : mainType.getCompilationUnit().getType(simpleName);
 					}
 					createProblemFor(compilationUnit.resource, type, Util.bind("build.duplicateClassFile", new String(typeName)), JavaCore.ERROR); //$NON-NLS-1$
 					continue;

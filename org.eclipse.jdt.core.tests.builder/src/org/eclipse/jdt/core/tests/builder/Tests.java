@@ -285,16 +285,21 @@ public class Tests extends TestCase {
 	/** Verifies that the given element has a specific problem.
 	 */
 	protected void expectingSpecificProblemFor(IPath root, Problem problem) {
-		expectingSpecificProblemsFor(root, new Problem[] { problem });
+		expectingSpecificProblemsFor(root, new Problem[] { problem }, false);
 	}
 
 	/** Verifies that the given element has specific problems.
 	 */
 	protected void expectingSpecificProblemsFor(IPath root, Problem[] problems) {
+		expectingSpecificProblemsFor(root, problems, false);
+	}
+	/** Verifies that the given element has specific problems.
+	 */
+	protected void expectingSpecificProblemsFor(IPath root, Problem[] problems, boolean storeRange) {
 		if (DEBUG)
 			printProblemsFor(root);
 
-		Problem[] rootProblems = env.getProblemsFor(root);
+		Problem[] rootProblems = env.getProblemsFor(root, storeRange);
 		next : for (int i = 0; i < problems.length; i++) {
 			Problem problem = problems[i];
 			for (int j = 0; j < rootProblems.length; j++) {
@@ -308,9 +313,12 @@ public class Tests extends TestCase {
 			}
 			for (int j = 0; j < rootProblems.length; j++) {
 				Problem pb = rootProblems[j];
-				System.out.println("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				System.out.print("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\"");
+				if (pb.getStart() != -1 && pb.getEnd() != -1)
+					System.out.print(", " + pb.getStart() + ", " + pb.getEnd());
+				System.out.println(")");
 			}
-			assertTrue("missing expected problem : " + problem, false); //$NON-NLS-1$
+			assertTrue("missing expected problem : " + problem, false);
 		}
 	}
 
