@@ -34,7 +34,7 @@ protected Map getCompilerOptions() {
 public static Test suite() {
 	return setupSuite(testClass());
 }
-public void _test001() { // TODO reenable once parameterized supertypes are supported
+public void test001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -45,7 +45,6 @@ public void _test001() { // TODO reenable once parameterized supertypes are supp
 			"        System.out.println(\"SUCCESS\");\n" + 
 			"    }\n" + 
 			"}\n" + 
-			"\n" + 
 			"class XS <Txs> {\n" + 
 			"    Txs get(Txs t) {\n" + 
 			"        return t;\n" + 
@@ -55,7 +54,7 @@ public void _test001() { // TODO reenable once parameterized supertypes are supp
 		"SUCCESS");
 }
 
-public void _test002() { // TODO reenable once parameterized supertypes are supported
+public void test002() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -78,7 +77,7 @@ public void _test002() { // TODO reenable once parameterized supertypes are supp
 			"    }\n" + 
 			"}\n"
 		},
-		"{XS::get}{X::get}SUCCESS");
+		"{X::get}{XS::get}SUCCESS");
 }
 
 // check cannot bind superclass to type variable
