@@ -35,7 +35,7 @@ class AddFolderToIndex extends IndexRequest {
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!project.isAccessible()) return true; // nothing to do
 		IResource folder = this.project.getParent().findMember(this.folderPath);
 		if (folder == null || folder.getType() == IResource.FILE) return true; // nothing to do, source folder was removed

@@ -46,7 +46,7 @@ public class IndexBinaryFolder extends IndexRequest {
 	 */
 	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 		if (!this.folder.isAccessible()) return true; // nothing to do
 
 		IIndex index = this.manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);

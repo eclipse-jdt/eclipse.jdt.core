@@ -26,7 +26,7 @@ public class SaveIndex extends IndexRequest {
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 
 		/* ensure no concurrent write access to index */
 		IIndex index = this.manager.getIndex(this.indexPath, true /*reuse index file*/, false /*don't create if none*/);

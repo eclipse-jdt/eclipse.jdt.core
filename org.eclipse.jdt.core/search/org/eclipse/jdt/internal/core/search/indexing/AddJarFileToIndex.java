@@ -62,7 +62,7 @@ class AddJarFileToIndex extends IndexRequest {
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (progressMonitor != null && progressMonitor.isCanceled()) return true;
+		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 
 		try {
 			// if index is already cached, then do not perform any check
@@ -109,6 +109,12 @@ class AddJarFileToIndex extends IndexRequest {
 					// path is already canonical since coming from a library classpath entry
 				}
 
+				if (this.isCancelled) {
+					if (JobManager.VERBOSE)
+						JobManager.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
+					return false;
+				}
+
 				if (JobManager.VERBOSE)
 					JobManager.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
@@ -153,9 +159,7 @@ class AddJarFileToIndex extends IndexRequest {
 					}
 				}
 
-				/*
-				 * Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
-				 */
+				// Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
 				// index already existed: recreate it so that we forget about previous entries
 				index = manager.recreateIndex(this.indexPath);
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
