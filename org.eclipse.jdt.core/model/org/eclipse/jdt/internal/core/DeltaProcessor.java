@@ -281,6 +281,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		
 		IPath path = resource.getFullPath();
 		IJavaElement element = null;
+		/* TEMPORARY DISABLED
 		if (this.currentElement != null) {
 			switch (elementType) {
 				case IJavaElement.JAVA_PROJECT:
@@ -352,6 +353,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					break;
 			}
 		}
+		*/
 		if (element == null) {
 			element = JavaModelManager.create(resource, project);
 		}
