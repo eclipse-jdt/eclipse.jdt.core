@@ -111,6 +111,89 @@ public void test004() {
 		},
 		"6");
 }
+public void test005() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	    final int i;\n" + 
+			"		int[] tab = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" + 
+			"		int sum = 0;\n" + 
+			"		loop: for (final int e : tab) {\n" + 
+			"			sum += e;\n" + 
+			"			if (e == 3) {\n" + 
+			"			    i = 1;\n" + 
+			"				break loop;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		System.out.println(sum + i);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println(sum + i);\n" + 
+		"	                         ^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n");
+}
+public void test006() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    \n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	    final int i;\n" + 
+			"		int[] tab = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" + 
+			"		loop: for (final int e : tab) {\n" + 
+			"		    i = e;\n" + 
+			"			if (e == 3) {\n" + 
+			"			    i = 1;\n" + 
+			"				break loop;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		System.out.println(i);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	i = e;\n" + 
+		"	^\n" + 
+		"The final local variable i may already have been assigned\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	i = 1;\n" + 
+		"	^\n" + 
+		"The final local variable i may already have been assigned\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println(i);\n" + 
+		"	                   ^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n");
+}
+// TODO (olivier) also assert that the variable 'i' debug attribute shows it is only visible within body of foreach
+public void test007() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    \n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	    int i;\n" + 
+			"		int[] tab = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" + 
+			"		loop: for (final int e : tab) {\n" + 
+			"		    i = e;\n" + 
+			"		}\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 // TODO (olivier) add tests to challenge break/continue support in foreach			
 // TODO (olivier) add tests to challenge empty statement action or empty block action - bytecode optimizations ?
 

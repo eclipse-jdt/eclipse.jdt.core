@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class ForeachStatement extends Statement {
     
 	public LocalDeclaration itemVariable;
-	public int itemVariableImplicitWidening = -1; // TODO (olivier) why do we need this ?
+	public int itemVariableImplicitWidening = -1; 
 	public Expression collection;
 	public Statement action;
 	
@@ -53,7 +53,7 @@ public class ForeachStatement extends Statement {
 	private static final char[] SecretCollectionVariableName = " collection".toCharArray(); //$NON-NLS-1$
 	private static final char[] SecretMaxVariableName = " max".toCharArray(); //$NON-NLS-1$
 	
-	int preInitStateIndex = -1;
+	int postCollectionInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 	
 	public ForeachStatement(
@@ -93,7 +93,8 @@ public class ForeachStatement extends Statement {
 		flowInfo = this.itemVariable.analyseCode(scope, flowContext, flowInfo);
 		flowInfo = this.collection.analyseCode(scope, flowContext, flowInfo);
 
-		preInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
+		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
+		
 		// item variable will be assigned when iterating
 		flowInfo.markAsDefinitelyAssigned(this.itemVariable.binding);
 		// TODO (philippe) item variable is always used ? if action is empty, do we still use it ?
@@ -125,7 +126,6 @@ public class ForeachStatement extends Statement {
 				flowInfo.initsWhenFalse(), 
 				false, 
 				true /*for(;;){}while(true); unreachable(); */);
-		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 
@@ -136,6 +136,7 @@ public class ForeachStatement extends Statement {
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+	    
 		if ((bits & IsReachableMASK) == 0) {
 			return;
 		}
@@ -176,7 +177,7 @@ public class ForeachStatement extends Statement {
 		// generate the loop action
 		actionLabel.place();
 		if (action != null) {
-			// initialize the localDeclaration value
+			// initialize the indexVariable value
 			switch(this.kind) {
 				case ARRAY :
 					codeStream.load(this.collectionVariable);
@@ -230,6 +231,11 @@ public class ForeachStatement extends Statement {
 		breakLabel.place();
 	
 		codeStream.exitUserScope(scope);
+		if (this.postCollectionInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(
+				currentScope,
+				postCollectionInitStateIndex);
+		}		
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
