@@ -113,9 +113,6 @@ public class SourceTypeConverter implements CompilerModifiers {
 
 		if (sourceTypes.length == 0) return this.unit;
 		ISourceType sourceType = sourceTypes[0];
-		if (sourceType.getName() == null)
-		    // TODO (jerome) investigate when this can happen : if this can happen, fix clients to protect themselves
-			return null; // do a basic test that the sourceType is valid
 
 		/* only positions available */
 		int start = sourceType.getNameSourceStart();
