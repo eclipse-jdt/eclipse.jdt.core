@@ -14,7 +14,6 @@ import java.io.File;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -289,7 +288,7 @@ public void testExternalJarClassFileMemento() throws JavaModelException {
 	String device = separator == '/' ? "" : "C:";
 	IClassFile classFile = getClassFile("P", device + separator + "lib.jar", "p", "X.class");
 	assertMemento(
-		"=P/" + device + "\\" + separator + "lib.jar<p(X.class",
+		"=P/" + device + "\\/lib.jar<p(X.class",
 		classFile);	
 }
 /**
