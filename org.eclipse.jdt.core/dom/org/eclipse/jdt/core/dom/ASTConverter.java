@@ -2862,14 +2862,7 @@ class ASTConverter {
 		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizeProblems);
 		unit.accept(syntaxErrorPropagator);
 		// store the messages error on the compulation unit
-		Message[] messages = new Message[problemLength];
-		for (int i = 0; i < problemLength; i++) {
-			IProblem problem = problems[i];
-			int start = problem.getSourceStart();
-			int end = problem.getSourceEnd();
-			messages[i] = new Message(problem.getMessage(), start, end - start + 1);
-		}
-		unit.setMessages(messages);
+		unit.setProblems(resizeProblems);
 	}
 	
 	private boolean checkAndTagAsMalformed(ASTNode node, int position) {

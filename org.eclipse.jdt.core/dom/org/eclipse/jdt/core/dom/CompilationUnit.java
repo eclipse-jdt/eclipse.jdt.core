@@ -68,10 +68,19 @@ public class CompilationUnit extends ASTNode {
 	private static final Message[] EMPTY_MESSAGES = new Message[0];
 
 	/**
-	 * Messages reported by the compiler during parsing or name resolution;
-	 * defaults to the empty list.
+	 * Canonical empty list of problems.
 	 */
-	private Message[] messages = EMPTY_MESSAGES;
+	private static final IProblem[] EMPTY_PROBLEMS = new IProblem[0];
+
+	/**
+	 * Messages reported by the compiler during parsing or name resolution.
+	 */
+	private Message[] messages;
+	
+	/**
+	 * Problems reported by the compiler during parsing or name resolution.
+	 */
+	private IProblem[] problems = EMPTY_PROBLEMS;
 	 
 	/**
 	 * Sets the line end table for this compilation unit.
@@ -325,7 +334,21 @@ public class CompilationUnit extends ASTNode {
 	 * @see AST#parseCompilationUnit
 	 */
 	public Message[] getMessages() {
-		return messages;
+		if (this.messages == null) {
+			int problemLength = this.problems.length;
+			if (problemLength == 0) {
+				this.messages = EMPTY_MESSAGES;
+			} else {
+				this.messages = new Message[problemLength];
+				for (int i = 0; i < problemLength; i++) {
+					IProblem problem = this.problems[i];
+					int start = problem.getSourceStart();
+					int end = problem.getSourceEnd();
+					messages[i] = new Message(problem.getMessage(), start, end - start + 1);
+				}
+			}
+		}
+		return this.messages;
 	}
 
 	/**
@@ -344,21 +367,20 @@ public class CompilationUnit extends ASTNode {
 	 * @since 2.1
 	 */
 	public IProblem[] getProblems() {
-		// FIXME: implementation is missing
-		return null;
+		return problems;
 	}
 
 	/**
-	 * Sets the array of messages reported by the compiler during the parsing or
+	 * Sets the array of problems reported by the compiler during the parsing or
 	 * name resolution of this compilation unit.
 	 * 
-	 * @param messages the list of messages
+	 * @param problems the list of problems
 	 */
-	void setMessages(Message[] messages) {
-		if (messages == null) {
+	void setProblems(IProblem[] problems) {
+		if (problems == null) {
 			throw new IllegalArgumentException();
 		}
-		this.messages = messages;
+		this.problems = problems;
 	}
 		
 	/* (omit javadoc for this method)
