@@ -456,6 +456,23 @@ protected void deleteProject(String projectName) throws CoreException {
 		throw lastException;
 	}
 }
+
+/**
+ * Batch deletion of projects
+ */
+protected void deleteProjects(final String[] projectNames) throws CoreException {
+	ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+		public void run(IProgressMonitor monitor) throws CoreException {
+			if (projectNames != null){
+				for (int i = 0, max = projectNames.length; i < max; i++){
+					if (projectNames[i] != null)
+						deleteProject(projectNames[i]);
+				}
+			}
+		}
+	},
+	null);
+}
 /**
  * Delete this resource.
  */

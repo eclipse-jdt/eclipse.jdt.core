@@ -353,8 +353,7 @@ public void testClasspathCrossProject() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		this.deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 /**
@@ -394,10 +393,7 @@ public void testClasspathDiamond() throws CoreException {
 		
 	} finally {
 		// cleanup  
-		this.deleteProject("P1");
-		this.deleteProject("P2");
-		this.deleteProject("P3");
-		this.deleteProject("P4");
+		this.deleteProjects(new String[] {"P1", "P2", "P3", "P4"});
 	}
 }
  
@@ -676,11 +672,7 @@ public void testClasspathValidation04() throws CoreException {
 			status.getMessage());
 
 	} finally {
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(new String[] {"P0", "P1"});
 	}
 }
 
@@ -725,11 +717,7 @@ public void testClasspathValidation05() throws CoreException {
 			status.getMessage());
 
 	} finally {
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(new String[] {"P0", "P1"});
 	}
 }
 
@@ -754,11 +742,7 @@ public void testClasspathValidation06() throws CoreException {
 			"Cannot nest 'P0/src' inside 'P0'. To enable the nesting exclude 'src/' from 'P0'.",
 			status.getMessage());
 	} finally {
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProject("P0");
 	}
 }
 /**
@@ -1392,9 +1376,7 @@ public void testCycleReport() throws CoreException {
 		
 	} finally {
 		// cleanup  
-		this.deleteProject("P1");
-		this.deleteProject("P2");
-		this.deleteProject("P3");
+		this.deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
 }
 /**
@@ -1475,8 +1457,7 @@ public void testExportContainer() throws CoreException {
 		assertEquals("Unexpected first entry", "/P1", classpath[0].getPath().toString());
 		assertEquals("Unexpected second entry", getExternalJCLPathString(), classpath[1].getPath().toOSString());
 	} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		this.deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 /**
@@ -1523,9 +1504,7 @@ public void testHasClasspathCycle() throws CoreException {
 		
 	} finally {
 		// cleanup  
-		this.deleteProject("P1");
-		this.deleteProject("P2");
-		this.deleteProject("P3");
+		this.deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
 }
 /**
@@ -1626,8 +1605,7 @@ public void testMissingPrereq3() throws CoreException {
 		this.createJavaProject("B", new String[] {}, "");
 		this.assertMarkers("Unexpected markers", "", javaProject);
 	} finally {
-		this.deleteProject("A");
-		this.deleteProject("B");
+		this.deleteProjects(new String[] {"A", "B"});
 	}
 }
 /**
@@ -1685,8 +1663,7 @@ public void testMissingPrereq4() throws CoreException {
 			projectB);
 
 	} finally {
-		this.deleteProject("A");
-		this.deleteProject("B");
+		this.deleteProjects(new String[] {"A", "B"});
 	}
 }
 /**
@@ -1729,16 +1706,14 @@ public void testReadEmptyCustomOutput() throws CoreException {
 
 public void testCycleDetection() throws CoreException {
 	
-	IJavaProject[] p = null;
+	int max = 5;
+	IJavaProject[] p = new IJavaProject[max];
+	String[] projectNames = new String[max];
 	try {
-
-		p = new IJavaProject[]{
-			this.createJavaProject("P0", new String[] {""}, ""),
-			this.createJavaProject("P1", new String[] {""}, ""),
-			this.createJavaProject("P2", new String[] {""}, ""),
-			this.createJavaProject("P3", new String[] {""}, ""),
-			this.createJavaProject("P4", new String[] {""}, ""),
-		};
+		for (int i = 0; i < max; i++) {
+			projectNames[i] = "P"+i;
+			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
+		}
 		
 		IClasspathEntry[][] extraEntries = new IClasspathEntry[][]{ 
 			{ JavaCore.newProjectEntry(p[1].getPath()), JavaCore.newProjectEntry(p[3].getPath()) },
@@ -1774,31 +1749,23 @@ public void testCycleDetection() throws CoreException {
 		//this.startDeltas();
 		
 	} finally {
-		//this.stopDeltas();
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(projectNames);
 	}
 }
 
 
 public void testCycleDetectionThroughVariables() throws CoreException {
-	
-	IJavaProject[] p = null;
+
+	int max = 5;
+	IJavaProject[] p = new IJavaProject[max];
+	String[] projectNames = new String[max];
 	try {
+		for (int i = 0; i < max; i++) {
+			projectNames[i] = "P"+i;
+			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
+		}
 
 		String[] var = new String[]{ "v0", "v1", "v2"};
-
-		p = new IJavaProject[]{
-			this.createJavaProject("P0", new String[] {""}, ""),
-			this.createJavaProject("P1", new String[] {""}, ""),
-			this.createJavaProject("P2", new String[] {""}, ""),
-			this.createJavaProject("P3", new String[] {""}, ""),
-			this.createJavaProject("P4", new String[] {""}, ""),
-		};
-		
 		IClasspathEntry[][] extraEntries = new IClasspathEntry[][]{ 
 			{ JavaCore.newProjectEntry(p[1].getPath()), JavaCore.newVariableEntry(new Path(var[0]), null, null) },
 			{ JavaCore.newProjectEntry(p[2].getPath()), JavaCore.newProjectEntry(p[3].getPath()) },
@@ -1845,26 +1812,20 @@ public void testCycleDetectionThroughVariables() throws CoreException {
 		
 	} finally {
 		//this.stopDeltas();
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(projectNames);
 	}
 }
 
 public void testCycleDetectionThroughContainers() throws CoreException {
 	
-	IJavaProject[] p = null;
+	int max = 5;
+	IJavaProject[] p = new IJavaProject[max];
+	String[] projectNames = new String[max];
 	try {
-
-		p = new IJavaProject[]{
-			this.createJavaProject("P0", new String[] {""}, ""),
-			this.createJavaProject("P1", new String[] {""}, ""),
-			this.createJavaProject("P2", new String[] {""}, ""),
-			this.createJavaProject("P3", new String[] {""}, ""),
-			this.createJavaProject("P4", new String[] {""}, ""),
-		};
+		for (int i = 0; i < max; i++) {
+			projectNames[i] = "P"+i;
+			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
+		}
 
 		IClasspathContainer[] containers = new IClasspathContainer[]{ 
 			new TestContainer(
@@ -1934,25 +1895,20 @@ public void testCycleDetectionThroughContainers() throws CoreException {
 		
 	} finally {
 		//this.stopDeltas();
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(projectNames);
+
 	}
 }
 public void testCycleDetectionThroughContainerVariants() throws CoreException {
 	
-	IJavaProject[] p = null;
+	int max = 5;
+	IJavaProject[] p = new IJavaProject[max];
+	String[] projectNames = new String[max];
 	try {
-
-		p = new IJavaProject[]{
-			this.createJavaProject("P0", new String[] {""}, ""),
-			this.createJavaProject("P1", new String[] {""}, ""),
-			this.createJavaProject("P2", new String[] {""}, ""),
-			this.createJavaProject("P3", new String[] {""}, ""),
-			this.createJavaProject("P4", new String[] {""}, ""),
-		};
+		for (int i = 0; i < max; i++) {
+			projectNames[i] = "P"+i;
+			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
+		}
 
 		class TestContainer implements IClasspathContainer {
 			IPath path;
@@ -2023,26 +1979,20 @@ public void testCycleDetectionThroughContainerVariants() throws CoreException {
 		
 	} finally {
 		//this.stopDeltas();
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(projectNames);
 	}
 }
 public void testCycleDetection2() throws CoreException {
 	
-	IJavaProject[] p = null;
+	int max = 5;
+	IJavaProject[] p = new IJavaProject[max];
+	String[] projectNames = new String[max];
 	try {
+		for (int i = 0; i < max; i++) {
+			projectNames[i] = "P"+i;
+			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
+		}
 
-		p = new IJavaProject[]{
-			this.createJavaProject("P0", new String[] {""}, ""),
-			this.createJavaProject("P1", new String[] {""}, ""),
-			this.createJavaProject("P2", new String[] {""}, ""),
-			this.createJavaProject("P3", new String[] {""}, ""),
-			this.createJavaProject("P4", new String[] {""}, ""),
-		};
-		
 		IClasspathEntry[][] extraEntries = new IClasspathEntry[][]{ 
 			{ JavaCore.newProjectEntry(p[1].getPath()), JavaCore.newProjectEntry(p[3].getPath()) },
 			{ JavaCore.newProjectEntry(p[2].getPath()) },
@@ -2078,28 +2028,21 @@ public void testCycleDetection2() throws CoreException {
 		
 	} finally {
 		//this.stopDeltas();
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(projectNames);
 	}
 }
 
 public void testCycleDetection3() throws CoreException {
 	
-	IJavaProject[] p = null;
+	int max = 6;
+	IJavaProject[] p = new IJavaProject[max];
+	String[] projectNames = new String[max];
 	try {
+		for (int i = 0; i < max; i++) {
+			projectNames[i] = "P"+i;
+			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
+		}
 
-		p = new IJavaProject[]{
-			this.createJavaProject("P0", new String[] {""}, ""),
-			this.createJavaProject("P1", new String[] {""}, ""),
-			this.createJavaProject("P2", new String[] {""}, ""),
-			this.createJavaProject("P3", new String[] {""}, ""),
-			this.createJavaProject("P4", new String[] {""}, ""),
-			this.createJavaProject("P5", new String[] {""}, ""),
-		};
-		
 		IClasspathEntry[][] extraEntries = new IClasspathEntry[][]{ 
 			{ JavaCore.newProjectEntry(p[2].getPath()), JavaCore.newProjectEntry(p[4].getPath()) },
 			{ JavaCore.newProjectEntry(p[0].getPath()) },
@@ -2137,23 +2080,25 @@ public void testCycleDetection3() throws CoreException {
 		
 	} finally {
 		//this.stopDeltas();
-		if (p != null){
-			for (int i = 0; i < p.length; i++){
-				this.deleteProject(p[i].getElementName());
-			}
-		}
+		this.deleteProjects(projectNames);
 	}
 }
 public void testDenseCycleDetection() throws CoreException {
+
+	// each project prereqs all other projects
 	denseCycleDetection(5);
 	denseCycleDetection(10);
 	denseCycleDetection(20);
 	//denseCycleDetection(100);
 }
 public void testNoCycleDetection() throws CoreException {
+
+	// each project prereqs all the previous ones
 	noCycleDetection(5, false);
 	noCycleDetection(10, false);
 	noCycleDetection(20, false);
+	
+	// each project prereqs all the next ones
 	noCycleDetection(5, true);
 	noCycleDetection(10, true);
 	noCycleDetection(20, true);
@@ -2186,6 +2131,7 @@ public void testDuplicateEntries() throws CoreException {
 private void denseCycleDetection(final int numberOfParticipants) throws CoreException {
 	
 	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
+	final String[] projectNames  = new String[numberOfParticipants];
 	final int[] allProjectsInCycle = new int[numberOfParticipants];
 
 	final long[] start = new long[1];
@@ -2196,7 +2142,8 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				for (int i = 0; i < numberOfParticipants; i++){
-					projects[i] = createJavaProject("P"+i, new String[]{""}, "");
+					projectNames[i] = "P"+i;
+					projects[i] = createJavaProject(projectNames[i], new String[]{""}, "");
 					allProjectsInCycle[i] = 1;
 				}		
 				for (int i = 0; i < numberOfParticipants; i++){
@@ -2231,17 +2178,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 		}
 		
 	} finally {
-		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				if (projects != null){
-					for (int i = 0; i < numberOfParticipants; i++){
-						if (projects[i] != null)
-							deleteProject(projects[i].getElementName());
-					}
-				}
-			}
-		},
-		null);
+		this.deleteProjects(projectNames);
 	}
 }
 /*
@@ -2253,6 +2190,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 private void noCycleDetection(final int numberOfParticipants, final boolean useForwardReferences) throws CoreException {
 	
 	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
+	final String[] projectNames  = new String[numberOfParticipants];
 	final int[] allProjectsInCycle = new int[numberOfParticipants];
 	
 	final long[] start = new long[1];
@@ -2262,7 +2200,8 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				for (int i = 0; i < numberOfParticipants; i++){
-					projects[i] = createJavaProject("P"+i, new String[]{""}, "");
+					projectNames[i] = "P"+i;
+					projects[i] = createJavaProject(projectNames[i], new String[]{""}, "");
 					allProjectsInCycle[i] = 0;
 				}		
 				for (int i = 0; i < numberOfParticipants; i++){
@@ -2298,17 +2237,7 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 		}
 		
 	} finally {
-		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				if (projects != null){
-					for (int i = 0; i < numberOfParticipants; i++){
-						if (projects[i] != null)
-							deleteProject(projects[i].getElementName());
-					}
-				}
-			}
-		},
-		null);
+		this.deleteProjects(projectNames);
 	}
 }
 
