@@ -917,7 +917,6 @@ public class TypeDeclaration
 
 
 	public void resolve() {
-
 		SourceTypeBinding sourceType = this.binding;
 		if (sourceType == null) {
 			this.ignoreFurtherInvestigation = true;
@@ -942,6 +941,11 @@ public class TypeDeclaration
 			int lastVisibleFieldID = -1;
 			boolean hasEnumConstants = false;
 			boolean hasEnumConstantsWithoutBody = false;
+			if (this.memberTypes != null) {
+				for (int i = 0, count = this.memberTypes.length; i < count; i++) {
+					this.memberTypes[i].resolve(this.scope);
+				}
+			}
 			if (this.fields != null) {
 				for (int i = 0, count = this.fields.length; i < count; i++) {
 					FieldDeclaration field = this.fields[i];
@@ -967,7 +971,7 @@ public class TypeDeclaration
 							this.maxFieldCount++;
 							lastVisibleFieldID = field.binding.id;
 							break;
-
+	
 						case AbstractVariableDeclaration.INITIALIZER:
 							 ((Initializer) field).lastVisibleFieldID = lastVisibleFieldID + 1;
 							break;
@@ -995,11 +999,6 @@ public class TypeDeclaration
 							this.scope.problemReporter().enumAbstractMethodMustBeImplemented(this.methods[i]);
 						}
 					}
-				}
-			}
-			if (this.memberTypes != null) {
-				for (int i = 0, count = this.memberTypes.length; i < count; i++) {
-					this.memberTypes[i].resolve(this.scope);
 				}
 			}
 			int missingAbstractMethodslength = this.missingAbstractMethods == null ? 0 : this.missingAbstractMethods.length;

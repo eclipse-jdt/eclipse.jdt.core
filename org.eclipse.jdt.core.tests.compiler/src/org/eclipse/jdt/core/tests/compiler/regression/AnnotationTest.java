@@ -2690,14 +2690,20 @@ public class AnnotationTest extends AbstractComparisonTest {
 	
 	// check handling of empty array initializer
 	public void test086() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.Target;\n" +
 				"\n" +
-				"@Target({}) @interface X {}"
+				"@Target({}) @interface I {}\n" +
+				"@I public class X {}"
 			},
-			"");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	@I public class X {}\n" + 
+			"	^^\n" + 
+			"The annotation @I is disallowed for this location\n" + 
+			"----------\n");
 	}
 	
 	// check type targeting annotation also allowed for annotation type
@@ -2775,6 +2781,45 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"    @Target(ElementType.TYPE) @interface Annot1 {}\n" +
 				"    \n" +
 				"    @Annot1 @interface Annot2 {}\n" +
+				"}"
+			},
+			"");
+	}
+	// Add check that a field cannot have an annotation targetting TYPE
+	public void test091() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    @Target(ElementType.TYPE) @interface Marker {}\n" +
+				"    \n" +
+				"    @Marker static int i = 123;\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	@Marker static int i = 123;\n" + 
+			"	^^^^^^^\n" + 
+			"The annotation @X.Marker is disallowed for this location\n" + 
+			"----------\n");
+	}
+	// Add check that a field cannot have an annotation targetting FIELD
+	public void test092() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    @Target(ElementType.FIELD) @interface Marker {}\n" +
+				"    \n" +
+				"    @Marker static int i = 123;\n" +
 				"}"
 			},
 			"");

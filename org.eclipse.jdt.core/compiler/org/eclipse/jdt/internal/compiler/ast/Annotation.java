@@ -102,6 +102,7 @@ public abstract class Annotation extends Expression {
 				}
 			// target annotation
 			case TypeIds.T_JavaLangAnnotationTarget :		
+				tagBits |= TagBits.AnnotationTarget; // target specified (could be empty)
 				if (valueAttribute != null) {
 					Expression expr = valueAttribute.value;
 					if (expr instanceof ArrayInitializer) {
