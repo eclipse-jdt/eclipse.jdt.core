@@ -153,16 +153,18 @@ void checkAndSetImports() {
 		char[][] compoundName = importReference.tokens;
 
 		// skip duplicates or imports of the current package
-		for (int j = 0; j < index; j++)
-			if (resolvedImports[j].onDemand == importReference.onDemand)
+		for (int j = 0; j < index; j++) {
+			ImportBinding resolved = resolvedImports[j];
+			if (resolved.onDemand == importReference.onDemand && resolved.isStatic() == importReference.isStatic())
 				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName))
 					continue nextImport;
+		}
 
 		if (importReference.onDemand) {
 			if (CharOperation.equals(compoundName, currentPackageName))
 				continue nextImport;
 
-			Binding importBinding = findOnDemandImport(compoundName, importReference.isStatic());
+			Binding importBinding = findImport(compoundName, compoundName.length);
 			if (!importBinding.isValidBinding())
 				continue nextImport;	// we report all problems in faultInImports()
 			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
@@ -278,8 +280,9 @@ void faultInImports() {
 
 		// skip duplicates or imports of the current package
 		for (int j = 0; j < index; j++) {
-			if (resolvedImports[j].onDemand == importReference.onDemand) {
-				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName)) {
+			ImportBinding resolved = resolvedImports[j];
+			if (resolved.onDemand == importReference.onDemand && resolved.isStatic() == importReference.isStatic()) {
+				if (CharOperation.equals(compoundName, resolved.compoundName)) {
 					problemReporter().unusedImport(importReference); // since skipped, must be reported now
 					continue nextImport;
 				}
@@ -291,7 +294,7 @@ void faultInImports() {
 				continue nextImport;
 			}
 
-			Binding importBinding = findOnDemandImport(compoundName, importReference.isStatic());
+			Binding importBinding = findImport(compoundName, compoundName.length);
 			if (!importBinding.isValidBinding()) {
 				problemReporter().importProblem(importReference, importBinding);
 				continue nextImport;
@@ -353,12 +356,11 @@ public void faultInTypes() {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
 		topLevelTypes[i].faultInTypesForFieldsAndMethods();
 }
-private Binding findOnDemandImport(char[][] compoundName, boolean isStaticImport) {
+private Binding findImport(char[][] compoundName, int length) {
 	recordQualifiedReference(compoundName);
 
 	Binding binding = environment.getTopLevelPackage(compoundName[0]);
 	int i = 1;
-	int length = compoundName.length;
 	foundNothingOrType: if (binding != null) {
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (i < length) {
@@ -392,17 +394,10 @@ private Binding findOnDemandImport(char[][] compoundName, boolean isStaticImport
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), type, NotVisible);
 
 		char[] name = compoundName[i++];
-		if (isStaticImport) {
-			// does look for inherited member types unlike non static imports
-			type = findMemberType(name, type);
-			if (type == null || !type.isStatic())
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
-		} else {
-			// does not look for inherited member types on purpose, only immediate members
-			type = type.getMemberType(name);
-			if (type == null)
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
-		}
+		// does not look for inherited member types on purpose, only immediate members
+		type = type.getMemberType(name);
+		if (type == null)
+			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
 	}
 	if (!type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, NotVisible);
@@ -422,62 +417,29 @@ private Binding findSingleImport(char[][] compoundName, boolean findStaticImport
 
 	if (findStaticImports)
 		return findSingleStaticImport(compoundName);
-	return findOnDemandImport(compoundName, false);
+	return findImport(compoundName, compoundName.length);
 }
 private Binding findSingleStaticImport(char[][] compoundName) {
-	recordQualifiedReference(compoundName);
+	Binding binding = findImport(compoundName, compoundName.length - 1);
+	if (!binding.isValidBinding()) return binding;
 
-	Binding binding = environment.getTopLevelPackage(compoundName[0]);
-	int i = 1;
-	int length = compoundName.length;
-	foundNothingOrType: if (binding != null) {
-		PackageBinding packageBinding = (PackageBinding) binding;
-		while (i < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[i++]);
-			if (binding == null || !binding.isValidBinding()) {
-				binding = null;
-				break foundNothingOrType;
-			}
-			if (!(binding instanceof PackageBinding))
-				break foundNothingOrType;
-
-			packageBinding = (PackageBinding) binding;
-		}
-		return packageBinding; // cannot be a package, error is caught in sender
+	char[] name = compoundName[compoundName.length - 1];
+	if (binding instanceof PackageBinding) {
+		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name);
+		if (temp != null && temp instanceof ReferenceBinding) // must resolve to a member type or field, not a top level type
+			return new ProblemReferenceBinding(compoundName, InvalidTypeForStaticImport);
+		return binding; // cannot be a package, error is caught in sender
 	}
 
-	ReferenceBinding type;
-	if (binding == null) {
-		if (environment.defaultPackage == null || environment.options.complianceLevel >= ClassFileConstants.JDK1_4)
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
-		type = findType(compoundName[0], environment.defaultPackage, environment.defaultPackage);
-		if (type == null || !type.isValidBinding())
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
-		i = 1; // reset to look for member types inside the default package type
-	} else {
-		type = (ReferenceBinding) binding;
-	}
-	if (i == length) // must resolve to a member type or field, not a top level type
-		return new ProblemReferenceBinding(compoundName, InvalidTypeForStaticImport);
+	// look to see if its a static field first
+	ReferenceBinding type = (ReferenceBinding) binding;
+	FieldBinding field = findField(type, name, null, true);
+	if (field != null && field.isStatic() && field.canBeSeenBy(fPackage))
+		return field;
 
-	while (i < length) {
-		if (!type.canBeSeenBy(fPackage))
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), type, NotVisible);		
-		// does look for inherited member types unlike non static imports, member types have precedence over static fields
-		char[] name = compoundName[i++];
-		ReferenceBinding memberType = findMemberType(name, type);
-		if (memberType == null || !memberType.isStatic()) {
-			if (i != length) // fields can only be found in the last spot
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
-
-			// need to look for a static field
-			FieldBinding field = findField(type, name, null, true);
-			if (field == null || !field.isStatic() || !field.canBeSeenBy(fPackage))
-				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
-			return field;
-		}
-		type = memberType;
-	}
+	type = findMemberType(name, type);
+	if (type == null || !type.isStatic())
+		return new ProblemReferenceBinding(compoundName, type, NotFound);
 	if (!type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, NotVisible);
 	return type;
@@ -499,7 +461,7 @@ ImportBinding[] getDefaultImports() {
 // NOT Public API
 public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {
 	if (onDemand)
-		return findOnDemandImport(compoundName, isStaticImport);
+		return findImport(compoundName, compoundName.length);
 	return findSingleImport(compoundName, isStaticImport);
 }
 /* Answer the problem reporter to use for raising new problems.
